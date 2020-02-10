@@ -1,0 +1,87 @@
+name: Bygg og deploy
+
+on:
+  push:
+    branches:
+      - master    # Push events on master branch
+env:
+  ORACLE_IMAGE: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
+  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fpsak
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/cache@v1
+        with:
+          path: ~/.github/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 1.11
+
+      - name: Hent og start Oracle image
+        id: oracle
+        shell: bash
+        run: |
+          echo  $GITHUB_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
+          echo "Henter og starter Oracle image $ORACLE_IMAGE"
+          docker-compose -f oracle/docker-compose.yml pull
+          rm -f nohup.out
+          docker-compose -f oracle/docker-compose.yml up oracle >nohup.out 2>&1 &
+          sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build artifacts & deploy
+        shell: bash
+        run: |
+          echo "Building artifacts $(echo $GITHUB_SHA | cut -c1-7)"
+          mvn jacoco:prepare-agent deploy -e --batch-mode --settings ./.github/.m2/settings.xml -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7) -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true  -Djacoco.destFile=$(pwd)/target/jacoco.exec
+          mvn jacoco:report sonar:sonar -e --batch-mode --settings ./.github/.m2/settings.xml --file pom.xml -Djacoco.dataFile=$(pwd)/target/jacoco.exec -Dsonar.projectKey="navikt_fp-sak" -Dsonar.host.url='https://sonarcloud.io' -Dsonar.organization=navit -Dsonar.login=${SONAR_TOKEN}
+          echo "Deployed artifacts"
+          echo ::set-env name=TAG::$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)
+          echo ::set-env name=IMAGE::$IMAGE_BASE:$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(echo $GITHUB_SHA | cut -c1-7)
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Bygg, tag og push Docker image
+        run: |
+          docker build --pull --tag ${IMAGE} --tag ${IMAGE_BASE}:latest .
+          echo "$GITHUB_PASSWORD" | docker login --username "$GITHUB_USERNAME" --password-stdin https://docker.pkg.github.com
+          docker push ${IMAGE_BASE}:latest
+          docker push $IMAGE
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+
+      - name: Opprett deployment issue
+        if: success()
+        uses: maxkomarychev/oction-create-issue@v0.7.1
+        id: createdeployissue
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Deploy av ${{ env.TAG }}
+          labels: deployment
+          body: |
+            Kommenter med <b>/promote ${{ env.TAG }} env namespace</b>, hvor <b>env</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret.
+            <table>
+            <tr><th>Cluster</th><th>Namespace</th></tr>
+            <tr><td>dev-fss</td><td>t4, q0, q1</td></tr>
+            <tr><td>prod-fss</td><td>default</td></tr>
+            </table>
+
+      - name: Trigg deploy til dev
+        if: success()
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          issue-number: ${{ steps.createdeployissue.outputs.number }}
+          body: /promote ${{ env.TAG }} dev-fss t4
+
