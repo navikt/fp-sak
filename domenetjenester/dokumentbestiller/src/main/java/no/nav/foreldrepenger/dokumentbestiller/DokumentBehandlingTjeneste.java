@@ -58,6 +58,7 @@ public class DokumentBehandlingTjeneste {
         this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.formidlingRestKlient = formidlingRestKlient;
+        this.oppgaveTjeneste = oppgaveTjeneste;
     }
 
     public List<BrevmalDto> hentBrevmalerFor(Long behandlingId) {
