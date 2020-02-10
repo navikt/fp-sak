@@ -507,20 +507,8 @@
 
             <dependency>
                 <groupId>no.nav.tjenester</groupId>
-                <artifactId>aordningen-inntektsinformasjon-v1</artifactId>
-                <version>1.7</version>
-            </dependency>
-
-            <dependency>
-                <groupId>no.nav.tjenester</groupId>
                 <artifactId>nav-foreldrepengesak-v1-tjenestespesifikasjon</artifactId>
                 <version>1.1.0</version>
-                <classifier>jaxws</classifier>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.tjenester</groupId>
-                <artifactId>nav-behandleDokumentforsendelse-v1-tjenestespesifikasjon</artifactId>
-                <version>1.0.0</version>
                 <classifier>jaxws</classifier>
             </dependency>
             <dependency>
@@ -528,12 +516,6 @@
                 <artifactId>nav-behandleForeldrepengesak-v1-tjenestespesifikasjon</artifactId>
                 <version>1.0.1</version>
                 <classifier>jaxws</classifier>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.meldinger.virksomhet</groupId>
-                <artifactId>nav-virksomhet-dokumentnotifikasjon-v1-meldingsdefinisjon</artifactId>
-                <version>1.0.2</version>
-                <classifier>jaxb</classifier>
             </dependency>
 
             <!-- EKSTRA TEST AVHENGIGHETER FOR LOKAL WEBSERVER -->
