@@ -36,3 +36,4 @@ Dette er saksbehandlingsløsning på foreldrepengeområdet (Folketrygdloven kapi
 
 ### Linker
 [Foreldrepengeprosjektet på Confluence](http://confluence.adeo.no/display/MODNAV/Foreldrepengeprosjektet)
+
