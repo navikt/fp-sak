@@ -306,7 +306,7 @@ public class OppdatererDtoMapper {
         return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FastsettBeregningsgrunnlagAndelDto(
             mapTilRedigerbarAndelDto(fastsettBeregningsgrunnlagAndelDto),
             mapTilFastsatteVerdier(fastsettBeregningsgrunnlagAndelDto.getFastsatteVerdier()),
-            Inntektskategori.fraKode(fastsettBeregningsgrunnlagAndelDto.getForrigeInntektskategori().getKode()),
+            fastsettBeregningsgrunnlagAndelDto.getForrigeInntektskategori() == null ? null : Inntektskategori.fraKode(fastsettBeregningsgrunnlagAndelDto.getForrigeInntektskategori().getKode()),
             fastsettBeregningsgrunnlagAndelDto.getForrigeRefusjonPrÅr(),
             fastsettBeregningsgrunnlagAndelDto.getForrigeArbeidsinntektPrÅr());
     }
