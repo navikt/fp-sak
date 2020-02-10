@@ -113,7 +113,7 @@ public class VurderOpphørAvYtelser  {
         aktørIdListSjekkInfotrygd.forEach(aktørId -> {
             Boolean overlappInfotrygd = sjekkOverlappInfortrygd.harForeldrepengerInfotrygdSomOverlapper(aktørId, startDatoIVB) ;
             if(overlappInfotrygd) {
-                log.info("Overlapp i Infotrygd på aktør {} for vedtatt sak {}", aktørId, gjeldendeFagsak.getSaksnummer());
+                log.info("Overlapp INFOTRYGD på aktør {} for vedtatt sak {}", aktørId, gjeldendeFagsak.getSaksnummer());
             }
         });
         //Sjekker om det finnes overlapp i fpsak
@@ -137,9 +137,9 @@ public class VurderOpphørAvYtelser  {
             if (sisteBehandling.get().erAvsluttet()) {
                 Behandling revurderingOpphør = opprettRevurdering(sakOpphør, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
                 if (revurderingOpphør != null) {
-                    log.info("Vurder opphør av ytelse har opprettet revurdering med behandlingId {} på sak med saksnummer {} pga behandlingId {}", revurderingOpphør.getId(), sakOpphør.getSaksnummer(), sisteBehandling.get().getId());
+                    log.info("Overlapp FPSAK: Vurder opphør av ytelse har opprettet revurdering med behandlingId {} på sak med saksnummer {} pga behandlingId {}", revurderingOpphør.getId(), sakOpphør.getSaksnummer(), sisteBehandling.get().getId());
                 } else {
-                    log.info("Vurder opphør av ytelse kunne ikke opprette revurdering på sak med saksnummer {} pga behandlingId {}", sakOpphør.getSaksnummer(), sisteBehandling.get().getId());
+                    log.info("Overlapp FPSAK: Vurder opphør av ytelse kunne ikke opprette revurdering på sak med saksnummer {} pga behandlingId {}", sakOpphør.getSaksnummer(), sisteBehandling.get().getId());
                 }
             } else {
                 oppdatereBehMedÅrsak(sisteBehandling.get());
