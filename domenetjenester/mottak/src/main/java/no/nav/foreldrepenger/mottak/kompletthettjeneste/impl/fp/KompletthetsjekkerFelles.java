@@ -81,7 +81,7 @@ public class KompletthetsjekkerFelles {
     }
 
     public void sendBrev(Long behandlingId, DokumentMalType dokumentMalType, String årsakskode) {
-        if (!dokumentBehandlingTjeneste.erDokumentProdusert(behandlingId, dokumentMalType)) {
+        if (!erSendtBrev(behandlingId, dokumentMalType)) {
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandlingId, dokumentMalType, null, årsakskode);
             dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }

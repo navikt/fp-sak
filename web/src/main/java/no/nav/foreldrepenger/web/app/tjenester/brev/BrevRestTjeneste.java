@@ -107,6 +107,7 @@ public class BrevRestTjeneste {
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK, sporingslogg = false)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public List<BrevmalDto> hentMaler(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        LOGGER.info("Utvikler-feil: Gammel tjeneste for henting av brevmaler via Fpsak ble kalt. Skal ikke skje etter TFP-1404 på fpsak-frontend - gi beskjed til Jan Erik!");
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return dokumentBehandlingTjeneste.hentBrevmalerFor(behandling.getId());
     }
