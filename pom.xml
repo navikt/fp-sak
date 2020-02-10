@@ -54,6 +54,8 @@
 
         <metrics.version>3.2.5</metrics.version>
         <fp-kontrakter.version>5.1_20191210141010_6a7f399</fp-kontrakter.version>
+        <kalkulus.version>1.0-20200210163157-7a38bb9</kalkulus.version>
+
     </properties>
 
     <prerequisites>
@@ -70,12 +72,12 @@
             <dependency>
                 <groupId>no.nav.folketrygdloven.kalkulus</groupId>
                 <artifactId>kalkulator</artifactId>
-                <version>1.0-20200210085150-4ed83e9</version>
+                <version>${kalkulus.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.folketrygdloven.kalkulus</groupId>
                 <artifactId>felles</artifactId>
-                <version>1.0-20200210085150-4ed83e9</version>
+                <version>${kalkulus.version}</version>
             </dependency>
 
             <dependency>
