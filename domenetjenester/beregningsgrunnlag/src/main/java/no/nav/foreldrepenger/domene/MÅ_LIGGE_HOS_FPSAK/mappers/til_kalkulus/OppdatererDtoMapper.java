@@ -328,7 +328,7 @@ public class OppdatererDtoMapper {
             redigerbarAndel.getArbeidsforholdId().getReferanse(),
             redigerbarAndel.getNyAndel(),
             redigerbarAndel.getAktivitetStatus() == null ? null : AktivitetStatus.fraKode(redigerbarAndel.getAktivitetStatus().getKode()),
-            OpptjeningAktivitetType.fraKode(redigerbarAndel.getArbeidsforholdType().getKode()),
+            redigerbarAndel.getArbeidsforholdType() == null ? null : OpptjeningAktivitetType.fraKode(redigerbarAndel.getArbeidsforholdType().getKode()),
             redigerbarAndel.getLagtTilAvSaksbehandler(),
             redigerbarAndel.getBeregningsperiodeFom(),
             redigerbarAndel.getBeregningsperiodeTom());
