@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 echo ABAKUS_IMAGE=docker.pkg.github.com/navikt/fp-abakus/fpabakus > .env
-echo FORMIDLING_IMAGE=docker.pkg.github.com/navikt/fpformidling/fpformidling > .env
 echo VTP_IMAGE=docker.pkg.github.com/navikt/vtp/vtp >> .env
 echo ORACLE_IMAGE=docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle >> .env
 echo POSTGRES_IMAGE=postgres:12 >> .env
