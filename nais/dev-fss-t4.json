@@ -1,0 +1,98 @@
+{
+  "cluster": "preprod",
+  "oracle.config": "oracle/data/dev/config/fpsak_t4",
+  "oracle.fpsak.secret": "oracle/data/dev/creds/fpsak_t4-fpsak",
+  "oracle.dvh.secret": "oracle/data/dev/creds/fpsak_t4-fpsak_hist",
+  "fpsak.serviceuser": "serviceuser/data/test/srvengangsstonad",
+  "ldap.serviceuser": "serviceuser/data/test/srvssolinux",
+  "namespace": "t4",
+  "minReplicas": "4",
+  "maxReplicas": "6",
+  "ingresses": [
+    "https://fpsak-t4.nais.preprod.local/"
+  ],
+  "env": {
+    "APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
+
+    "KAFKA_AKSJONSPUNKTHENDELSE_TOPIC": "privat-foreldrepenger-aksjonspunkthendelse-t4",
+    "KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID": "KP-privat-foreldrepenger-aksjonspunkthendelse-t4",
+    "KAFKA_AKSJONSPUNKTHENDELSE_SCHEMA_REGISTRY_URL": "https://kafka-test-schema-registry.nais.preprod.local",
+    "KAFKA_AKSJONSPUNKTHENDELSE_GROUP_ID": "KC-privat-foreldrepenger-aksjonspunkthendelse-t4",
+    "KAFKA_HISTORIKKINNSLAG_TOPIC": "privat-foreldrepenger-historikkinnslag-t4",
+    "KAFKA_RISIKOKLASSIFISERING_TOPIC": "privat-foreldrepenger-fprisk-utfor-t4",
+    "KAFKA_RISIKOKLASSIFISERING_CLIENT_ID": "KP-privat-foreldrepenger-fprisk-utfor-t4",
+    "KAFKA_RISIKOKLASSIFISERING_SCHEMA_REGISTRY_URL": "https://kafka-test-schema-registry.nais.preprod.local",
+    "KAFKA_RISIKOKLASSIFISERING_GROUP_ID": "KC-privat-foreldrepenger-fprisk-utfor-t4",
+    "KAFKA_KONTROLL_RESULTAT_TOPIC": "privat-foreldrepenger-kontroll-resultat-t4",
+    "KAFKA_KONTROLL_RESULTAT_CLIENT_ID": "KP-privat-foreldrepenger-kontroll-resultat-t4",
+    "KAFKA_KONTROLL_RESULTAT_SCHEMA_REGISTRY_URL": "https://kafka-test-schema-registry.nais.preprod.local",
+    "KAFKA_KONTROLL_RESULTAT_GROUP_ID": "KC-privat-foreldrepenger-kontroll-resultat-t4",
+    "KAFKA_DOKUMENTBESTILLING_TOPIC": "privat-foreldrepenger-dokumenthendelse-t4",
+    "KAFKA_DOKUMENTBESTILLING_CLIENT_ID": "KP-privat-foreldrepenger-dokumenthendelse-t4",
+    "SCHEMA_REGISTRY_URL": "https://kafka-test-schema-registry.nais.preprod.local",
+
+    "SECURITYTOKENSERVICE_URL": "https://sts-t4.test.local/SecurityTokenServiceProvider/",
+    "BOOTSTRAP_SERVERS": "d26apvl00159.test.local:8443,d26apvl00160.test.local:8443,d26apvl00161.test.local:8443",
+    "BUCKET_URL": "http://s3.nais-rook",
+    "FP_TILKJENTYTELSE_V1_TOPIC_URL": "privat-foreldrepenger-tilkjentytelse-v1-t4",
+    "OIDC_STS_ISSUER_URL": "https://security-token-service-t4.nais.preprod.local",
+
+    "FPSAK_CHANNEL_NAME": "T4_FPSAK",
+    "FPSAK_CHANNEL_QUEUEMANAGER": "mq://d26apvl258.test.local:1412/MTXLSC02",
+
+    "LOADBALANCER_FQDN": "fpsak-t4.nais.preprod.local",
+    "LOADBALANCER_FPSAK_POOLNAME": "nais",
+    "LOADBALANCER_FPSAK_CONTEXTROOTS": "fpsak",
+
+    "OIDC_OPENAM_AGENTNAME": "fpsak-t4",
+    "OIDC_OPENAM_HOSTURL": "https://isso-t.adeo.no:443/isso/oauth2",
+    "OIDC_OPENAM_ISSUERURL": "https://isso-t.adeo.no:443/isso/oauth2",
+    "OIDC_OPENAM_JWKSURL": "https://isso-t.adeo.no:443/isso/oauth2/connect/jwk_uri",
+
+    "LDAP_URL": "ldaps://ldapgw.test.local",
+    "LDAP_BASEDN": "dc=test,dc=local",
+    "LDAP_DOMAIN": "TEST.LOCAL",
+    "LDAP_USER_BASEDN": "ou=NAV,ou=BusinessUnits,dc=test,dc=local",
+    "LDAP_SERVICEUSER_BASEDN": "ou=ServiceAccounts,dc=test,dc=local",
+
+    "SBEH_SAKSBEHANDLING_QUEUENAME": "QA.T4_SBEH.SAKSBEHANDLING",
+    "FPSAK_OKONOMI_OPPDRAG_MOTTAK_QUEUENAME": "QA.T4_FPSAK.OB04_OPPDRAG_FP_XML_KVITT",
+    "FPSAK_OKONOMI_OPPDRAG_MOTTAK_QUEUEMANAGER": "mq://d26apvl258.test.local:1412/MTXLSC02",
+    "RAY_AVSTEM_DATA_QUEUENAME": "QA.T4_234.OB29_AVSTEMMING_XML",
+    "FPSAK_OKONOMI_OPPDRAG_SEND_QUEUENAME": "QA.T4_231.OB04_OPPDRAG_FP_XML",
+
+    "MQGATEWAY02_NAME": "MTXLSC02",
+    "MQGATEWAY02_HOSTNAME": "d26apvl258.test.local",
+    "MQGATEWAY02_PORT": "1412",
+
+    "FPRISK_RISIKOKLASSIFISERING_HENT_URL": "https://fprisk-t4.nais.preprod.local/fprisk/api/risikovurdering/hent",
+    "INFOTRYGD_HENDELSER_API_URL": "https://infotrygd-hendelser-api-t4.nais.preprod.local/infotrygd/hendelser",
+    "FPFORMIDLING_ERDOKUMENTPRODUSERT_URL": "http://fpformidling/fpformidling/api/brev/dokument-sendt",
+    "FPFORMIDLING_BESTILLBREV_URL": "http://fpformidling/fpformidling/api/brev/bestill",
+    "OIDC_STS_JWKS_URL": "https://security-token-service-t4.nais.preprod.local/rest/v1/sts/jwks",
+    "FPFORMIDLING_FORHAANDSVISBREV_URL": "https://fpformidlisng-t4.nais.preprod.local/fpformidling/api/brev/forhandsvis",
+    "FPFORMIDLING_HENTBREVMALER_URL": "http://fpformidling/fpformidling/api/brev/maler",
+    "FPABAKUS_URL": "http://fpabakus/fpabakus",
+    "FPFORMIDLING_LAGRESAKSBEHANDLERTEKST_URL": "http://fpformidling/fpformidling/api/saksbehandlertekst/lagre-saksbehandler-tekst",
+    "FPFORMIDLING_HENTSAKSBEHANDLERTEKST_URL": "http://fpformidling/fpformidling/api/saksbehandlertekst/hent-saksbehandler-tekst",
+    "ABAC_PDP_ENDPOINT_URL": "https://wasapp-t4.adeo.no/asm-pdp/authorize",
+    "FPOPPDRAG_SIMULERINGRESULTAT_URL": "https://fpoppdrag-t4.nais.preprod.local/fpoppdrag/api/simulering/resultat",
+
+    "SAK_V1_URL": "https://wasapp-t4.adeo.no/nav-gsak-ws/SakV1",
+    "AKTOER_V2_URL": "https://app-t4.adeo.no/aktoerregister/ws/Aktoer/v2",
+    "DOKUMENTPRODUKSJON_V2_URL": "https://dokprod-t4.nais.preprod.local/dokprod/ws/dokumentproduksjon/v2",
+    "BEHANDLEINNGAAENDEJOURNAL_V1_URL": "https://dokarkiv-t4.nais.preprod.local/services/behandleinngaaendejournal/v1",
+    "INNGAAENDEJOURNAL_V1_URL": "https://dokarkiv-t4.nais.preprod.local/services/inngaaendejournal/v1",
+    "JOURNAL_V3_URL": "https://dokarkiv-t4.nais.preprod.local/services/journal/v3",
+    "BEHANDLESAK_V2_URL": "https://wasapp-t4.adeo.no/nav-gsak-ws/BehandleSakV2",
+    "ORGANISASJON_V4_URL": "https://modapp-t4.adeo.no/ereg/ws/OrganisasjonService/v4",
+    "OPPGAVE_V3_URL": "https://wasapp-t4.adeo.no/nav-gsak-ws/OppgaveV3",
+    "BEHANDLEOPPGAVE_V1_URL": "https://wasapp-t4.adeo.no/nav-gsak-ws/BehandleOppgaveV1",
+    "MEDLEM_V2_URL": "https://app-t4.adeo.no/medl2/ws/Medlemskap/v2",
+    "ARBEIDSFORDELING_V1_URL": "https://app-t1.adeo.no/norg2/ws/Arbeidsfordeling/v1",
+    "PERSON_V3_URL": "https://wasapp-t4.adeo.no/tpsws/ws/Person/v3",
+    "KODEVERK_V2_URL": "https://kodeverk.nais.preprod.local/ws/kodeverk/v2",
+
+    "SERVICEGATEWAY_URL": "https://service-gw-t4.test.local"
+  }
+}
