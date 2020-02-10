@@ -1,0 +1,174 @@
+{
+  "aktivitetPerioder" : [ {
+    "datoIntervall" : [ "2016-04-11", "2018-12-23" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "vurderingsStatus" : "VURDERT_GODKJENT"
+  }, {
+    "datoIntervall" : [ "2019-01-07", "2019-02-28" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "vurderingsStatus" : "VURDERT_GODKJENT"
+  }, {
+    "datoIntervall" : [ "2019-03-01", "2019-05-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "vurderingsStatus" : "VURDERT_GODKJENT"
+  }, {
+    "datoIntervall" : [ "2019-06-01", "2019-06-30" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "vurderingsStatus" : "VURDERT_GODKJENT"
+  } ],
+  "behandlingsDato" : "2019-06-20",
+  "forsteDatoOpptjening" : "2018-08-15",
+  "sisteDatoForOpptjening" : "2019-06-14",
+  "inntektPerioder" : [ {
+    "datoIntervall" : [ "2018-10-01", "2018-10-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 13847,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2018-11-01", "2018-11-30" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 36435,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2018-09-01", "2018-09-30" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 14599,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2018-12-01", "2018-12-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 22110,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2019-04-01", "2019-04-30" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 10740,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2019-03-01", "2019-03-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 15429,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2018-01-01", "2018-01-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 15164,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2018-04-01", "2018-04-30" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 7175,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2019-05-01", "2019-05-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 15405,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2018-03-01", "2018-03-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 18197,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2019-02-01", "2019-02-28" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 28988,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2018-05-01", "2018-05-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 17531,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2018-02-01", "2018-02-28" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 16570,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2018-07-01", "2018-07-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 17528,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2018-06-01", "2018-06-30" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 37191,
+    "inntektValuta" : "NOK"
+  } ]
+}

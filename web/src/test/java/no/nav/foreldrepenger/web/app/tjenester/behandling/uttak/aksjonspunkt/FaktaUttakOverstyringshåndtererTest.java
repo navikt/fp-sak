@@ -1,0 +1,166 @@
+package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.KontrollerFaktaUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.KontrollerFaktaPeriode;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
+import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.ArbeidsgiverHistorikkinnslag;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakHistorikkTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerOppgittFordelingTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaPeriodeLagreDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringFaktaUttakDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SlettetUttakPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.FaktaUttakOverstyringFelles;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.FaktaUttakOverstyringshåndterer;
+import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+
+@RunWith(CdiRunner.class)
+public class FaktaUttakOverstyringshåndtererTest {
+
+    @Rule
+    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
+
+    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
+
+    @Inject
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+
+    @Inject
+    private YtelsesFordelingRepository fordelingRepository;
+
+    @Inject
+    private KontrollerOppgittFordelingTjeneste fordelingTjeneste;
+
+    @Inject
+    private UttakInputTjeneste uttakInputTjeneste;
+
+    private KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste = Mockito.mock(KontrollerFaktaUttakTjeneste.class);
+    private HistorikkTjenesteAdapter historikkApplikasjonTjeneste = Mockito.mock(HistorikkTjenesteAdapter.class);
+    private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = mock(ArbeidsgiverHistorikkinnslag.class);
+    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
+
+    private FaktaUttakHistorikkTjeneste faktaUttakHistorikkTjeneste;
+
+    private FaktaUttakOverstyringshåndterer faktaUttakOverstyringshåndterer;
+
+    @Before
+    public void setup() {
+        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        this.faktaUttakHistorikkTjeneste = new FaktaUttakHistorikkTjeneste(historikkApplikasjonTjeneste,
+            arbeidsgiverHistorikkinnslagTjeneste,
+            ytelseFordelingTjeneste, inntektArbeidYtelseTjeneste);
+
+        this.faktaUttakOverstyringshåndterer = new FaktaUttakOverstyringshåndterer(historikkApplikasjonTjeneste,
+            faktaUttakHistorikkTjeneste,
+            new FaktaUttakOverstyringFelles(fordelingTjeneste, kontrollerFaktaUttakTjeneste, uttakInputTjeneste));
+    }
+
+    @Test
+    public void skal_generere_historikkinnslag_ved_slettet_søknadsperiode() {
+        Behandling behandling = opprettBehandling();
+
+        var dto = opprettOverstyringSøknadsperioderDto();
+        faktaUttakOverstyringshåndterer.håndterAksjonspunktForOverstyringPrecondition(dto, behandling);
+        faktaUttakOverstyringshåndterer.håndterAksjonspunktForOverstyringHistorikk(dto, behandling, Boolean.FALSE);
+
+        // Verifiserer HistorikkinnslagDto
+        ArgumentCaptor<Historikkinnslag> historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
+        verify(historikkApplikasjonTjeneste).lagInnslag(historikkCapture.capture());
+        Historikkinnslag historikkinnslag = historikkCapture.getValue();
+        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.UTTAK);
+        assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
+        HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
+        assertThat(del.getSkjermlenke()).as("skjermlenke")
+            .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
+        assertThat(del.getResultat()).hasValueSatisfying(resultat -> assertThat(resultat).isEqualTo(HistorikkResultatType.OVERSTYRING_FAKTA_UTTAK.getKode()));
+        assertThat(del.getAvklartSoeknadsperiode()).as("soeknadsperiode").hasValueSatisfying(soeknadsperiode -> assertThat(soeknadsperiode.getNavn()).as("navn")
+            .isEqualTo(HistorikkAvklartSoeknadsperiodeType.SLETTET_SOEKNASPERIODE.getKode()));
+    }
+
+    private OverstyringFaktaUttakDto.OverstyrerFaktaUttakDto opprettOverstyringSøknadsperioderDto() {
+        var dto = new OverstyringFaktaUttakDto.OverstyrerFaktaUttakDto();
+        var bekreftetUttakPeriodeDto = getBekreftetUttakPeriodeDto(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11));
+        var slettetPeriodeDto = new SlettetUttakPeriodeDto();
+        slettetPeriodeDto.setBegrunnelse("ugyldig søknadsperiode");
+        slettetPeriodeDto.setUttakPeriodeType(UttakPeriodeType.FORELDREPENGER);
+        slettetPeriodeDto.setFom(LocalDate.now().minusDays(10));
+        slettetPeriodeDto.setTom(LocalDate.now());
+        dto.setSlettedePerioder(Collections.singletonList(slettetPeriodeDto));
+        dto.setBekreftedePerioder(Collections.singletonList(bekreftetUttakPeriodeDto));
+        return dto;
+    }
+
+    private Behandling opprettBehandling() {
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        scenario.medSøknad();
+        var rettighet = new OppgittRettighetEntitet(false, false, true);
+        scenario.medOppgittRettighet(rettighet);
+        scenario.lagre(repositoryProvider);
+        Behandling førstegangsbehandling = scenario.getBehandling();
+
+        final OppgittPeriodeEntitet periode_1 = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+        final OppgittPeriodeEntitet periode_2 = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+        fordelingRepository.lagre(førstegangsbehandling.getId(), new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
+        return førstegangsbehandling;
+    }
+
+    private BekreftetOppgittPeriodeDto getBekreftetUttakPeriodeDto(LocalDate fom, LocalDate tom) {
+        var bekreftetUttakPeriodeDto = new BekreftetOppgittPeriodeDto();
+        var bekreftetperiode = OppgittPeriodeBuilder.ny()
+            .medPeriode(fom, tom)
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+        var bekreftetPeriodeDto = new KontrollerFaktaPeriodeLagreDto.Builder(KontrollerFaktaPeriode.ubekreftet(bekreftetperiode),
+            null).build();
+        bekreftetUttakPeriodeDto.setBekreftetPeriode(bekreftetPeriodeDto);
+        bekreftetUttakPeriodeDto.setOrginalFom(fom);
+        bekreftetUttakPeriodeDto.setOrginalTom(tom);
+        return bekreftetUttakPeriodeDto;
+    }
+}

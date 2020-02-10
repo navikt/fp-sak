@@ -1,0 +1,117 @@
+{
+  "root" : {
+    "id" : "883373e8-7070-4980-845f-2ebc9189b00b",
+    "ruleId" : "FP_VK 10.2",
+    "ruleDescription" : "Starter perioden før omsorgsovertakelse?",
+    "operator" : "COND_OR",
+    "rule" : { }
+  },
+  "nodes" : [ {
+    "id" : "883373e8-7070-4980-845f-2ebc9189b00b",
+    "ruleId" : "FP_VK 10.2",
+    "ruleDescription" : "Starter perioden før omsorgsovertakelse?",
+    "operator" : "COND_OR",
+    "rule" : { }
+  }, {
+    "id" : "cb1d3274-1ee4-474d-861c-82612a5ce584",
+    "ruleId" : "UT1285",
+    "ruleDescription" : "",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "dac6ead0-6b57-4ce3-b433-74e45921fcc9",
+    "ruleId" : "FP_VK 30.7",
+    "ruleDescription" : "Har søker omsorg for barnet?",
+    "operator" : "COND_OR",
+    "rule" : { }
+  }, {
+    "id" : "ea254fc6-0d9c-4698-a662-4870fb592196",
+    "ruleId" : "FP_VK 10.5",
+    "ruleDescription" : "Er det noen disponible stønadsdager på mødrekvote?",
+    "operator" : "COND_OR",
+    "rule" : { }
+  }, {
+    "id" : "80e2232f-250e-49de-98cc-18224b160dac",
+    "ruleId" : "FP_VK 26.1.6",
+    "ruleDescription" : "Er det gradering i perioden?",
+    "operator" : "COND_OR",
+    "rule" : { }
+  }, {
+    "id" : "b5d70649-a0c0-4e42-ab96-bd1a4ef45b68",
+    "ruleId" : "FP_VK 30.5.2",
+    "ruleDescription" : "Er graderingen uavklart?",
+    "operator" : "COND_OR",
+    "rule" : { }
+  }, {
+    "id" : "d3f98ab4-10fa-4e72-9b7a-92f53fa7d274",
+    "ruleId" : "UT1243",
+    "ruleDescription" : "",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "e3e01ec8-bb43-4745-9157-1809bf848256",
+    "ruleId" : "UT1242",
+    "ruleDescription" : "",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "15f59ac0-08c7-4329-ab1c-58100b25edd0",
+    "ruleId" : "UT1241",
+    "ruleDescription" : "",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "8ebe6315-7e3e-4522-b61c-68fd7fb7c5ef",
+    "ruleId" : "UT1244",
+    "ruleDescription" : "",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "458790b6-35c2-41b8-8c27-650ddf27b6c7",
+    "ruleId" : "UT1240",
+    "ruleDescription" : "",
+    "operator" : "SINGLE",
+    "rule" : { }
+  } ],
+  "edges" : [ {
+    "source" : "883373e8-7070-4980-845f-2ebc9189b00b",
+    "target" : "cb1d3274-1ee4-474d-861c-82612a5ce584",
+    "role" : ""
+  }, {
+    "source" : "b5d70649-a0c0-4e42-ab96-bd1a4ef45b68",
+    "target" : "d3f98ab4-10fa-4e72-9b7a-92f53fa7d274",
+    "role" : ""
+  }, {
+    "source" : "b5d70649-a0c0-4e42-ab96-bd1a4ef45b68",
+    "target" : "e3e01ec8-bb43-4745-9157-1809bf848256",
+    "role" : "ellers"
+  }, {
+    "source" : "80e2232f-250e-49de-98cc-18224b160dac",
+    "target" : "b5d70649-a0c0-4e42-ab96-bd1a4ef45b68",
+    "role" : ""
+  }, {
+    "source" : "80e2232f-250e-49de-98cc-18224b160dac",
+    "target" : "15f59ac0-08c7-4329-ab1c-58100b25edd0",
+    "role" : "ellers"
+  }, {
+    "source" : "ea254fc6-0d9c-4698-a662-4870fb592196",
+    "target" : "80e2232f-250e-49de-98cc-18224b160dac",
+    "role" : ""
+  }, {
+    "source" : "ea254fc6-0d9c-4698-a662-4870fb592196",
+    "target" : "8ebe6315-7e3e-4522-b61c-68fd7fb7c5ef",
+    "role" : "ellers"
+  }, {
+    "source" : "dac6ead0-6b57-4ce3-b433-74e45921fcc9",
+    "target" : "ea254fc6-0d9c-4698-a662-4870fb592196",
+    "role" : ""
+  }, {
+    "source" : "dac6ead0-6b57-4ce3-b433-74e45921fcc9",
+    "target" : "458790b6-35c2-41b8-8c27-650ddf27b6c7",
+    "role" : "ellers"
+  }, {
+    "source" : "883373e8-7070-4980-845f-2ebc9189b00b",
+    "target" : "dac6ead0-6b57-4ce3-b433-74e45921fcc9",
+    "role" : "ellers"
+  } ]
+}

@@ -1,0 +1,187 @@
+timestamps {
+    def cleanDS = false
+    def migrate = false
+    def alterSeq = false
+    def ds = ''
+    def pwdFromJenkins = env.PASSWORD
+    def dsShort = env.DATASOURCE
+
+    def ues0 =  [ host:'d26dbfl023.test.local', sid:'fpsak_ues0' ]
+    def ues1 =  [ host:'d26dbfl023.test.local', sid:'fpsak_ues1']
+    def ues2 =  [ host:'d26dbfl023.test.local', sid:'fpsak_u2']
+    def u4 =    [ host:'d26dbfl023.test.local', sid:'fpsak_u4']
+    def u5 =    [ host:'d26dbfl023.test.local', sid:'fpsak_u5']
+    def u80 =   [ host:'d26dbfl023.test.local', sid:'fpsak_u80']
+    def u81 =   [ host:'d26dbfl023.test.local', sid:'fpsak_u81']
+    def u82 =   [ host:'d26dbfl023.test.local', sid:'fpsak_u82']
+    def u83 =   [ host:'d26dbfl023.test.local', sid:'fpsak_u83']
+    def u84 =   [ host:'d26dbfl023.test.local', sid:'fpsak_u84']
+    def u85 =   [ host:'d26dbfl023.test.local', sid:'fpsak_u85']
+    def u86 =   [ host:'d26dbfl023.test.local', sid:'fpsak_u86']
+    def u88 =   [ host:'d26dbfl023.test.local', sid:'fpsak_u88']
+    def u89 =   [ host:'d26dbfl023.test.local', sid:'fpsak_u89']
+    def t11 =   [ host:'d26dbfl021.test.local', sid:'fpsak_t11']
+    def dsList = [ ues0:ues0, ues1:ues1, ues2:ues2, u4:u4, u5:u5, u80:u80, u81:u81, u82:u82, u83:u83, u84:u84, u85:u85, u86:u86, u88:u88, u89:u89, t11:t11]
+    def dbCred = 'db_' + dsShort
+
+    try {
+        cleanDS = Boolean.valueOf(CLEAN)
+
+    } catch (MissingPropertyException e) {
+    }
+
+    try {
+        migrate = Boolean.valueOf(MIGRATE)
+
+    } catch (MissingPropertyException e) {
+    }
+
+    try {
+        alterSeq = Boolean.valueOf(ALTER_SEQ)
+
+    } catch (MissingPropertyException e) {
+    }
+
+    if (dsShort == 'ues0') {
+        ds = dsList.ues0
+
+    } else if (dsShort == 'ues1') {
+        ds = dsList.ues1
+
+    } else if (dsShort == 'ues2') {
+        ds = dsList.ues2
+
+    } else if (dsShort == 'u4') {
+        ds = dsList.u4
+
+    } else if (dsShort == 'u5') {
+        ds = dsList.u5
+
+    } else if (dsShort == 'u80') {
+        ds = dsList.u80
+
+    } else if (dsShort == 'u81') {
+        ds = dsList.u81
+
+    } else if (dsShort == 'u82') {
+        ds = dsList.u82
+
+    } else if (dsShort == 'u83') {
+        ds = dsList.u83
+
+    } else if (dsShort == 'u84') {
+        ds = dsList.u84
+
+    } else if (dsShort == 'u85') {
+        ds = dsList.u85
+
+    } else if (dsShort == 'u86') {
+        ds = dsList.u86
+
+    } else if (dsShort == 'u88') {
+        ds = dsList.u88
+
+    } else if (dsShort == 'u89') {
+        ds = dsList.u89
+
+    } else if (dsShort == 't11') {
+        ds = dsList.t11
+
+    } else if (dsShort == 'q11') {
+        ds = dsList.q11
+    }
+
+    if (ds.pwd == '') {
+        ds.pwd = pwdFromJenkins;
+    }
+
+    node ('A6') {
+        try {
+            withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: dbCred,
+                              usernameVariable: 'SAVEDUSERNAME', passwordVariable: 'SAVEDPASSWORD']]) {
+
+                env.LANG = "nb_NO.UTF-8"
+                def mvnCommand = 'mvn -s $MAVEN_SETTINGS -f build/config -Dflyway.url=jdbc:oracle:thin:@//' + ds.host + ':1521/' + ds.sid + ' -Dflyway.encoding=UTF-8 -Dflyway.user=' + env.SAVEDUSERNAME + ' -Dflyway.password=' + env.SAVEDPASSWORD + ' -Dflyway.locations=filesystem:migreringer/src/main/resources/db/migration/defaultDS '
+
+                stage("Init") {
+                    env.JAVA_HOME = "${tool 'jdk-1.8'}"
+                    env.PATH = "${tool 'default-maven'}/bin:${env.PATH}"
+                    env.ORACLE_HOME = "/u01/app/oracle/product/11.2.0/xe"
+                    step([$class: 'WsCleanup'])
+                    checkout scm
+
+                    if ( migrate && alterSeq) {
+                        createDbScriptFile(dsShort)
+                    }
+                }
+
+                stage("Info") {
+
+                    configFileProvider(
+                            [configFile(fileId: 'navMavenSettings', variable: 'MAVEN_SETTINGS')]) {
+                        sh mvnCommand + 'flyway:info'
+                    }
+                }
+
+                stage('Clean') {
+                    if (cleanDS) {
+                        configFileProvider(
+                                [configFile(fileId: 'navMavenSettings', variable: 'MAVEN_SETTINGS')]) {
+                            sh mvnCommand + 'flyway:clean'
+                        }
+                        info('Clean: ' + dsShort)
+
+                    } else {
+                        info('Info: ' + dsShort)
+                    }
+                }
+
+                stage('Migrate') {
+                    if (migrate) {
+                        info('Migrate: ' + dsShort)
+                        configFileProvider(
+                                [configFile(fileId: 'navMavenSettings', variable: 'MAVEN_SETTINGS')]) {
+                            sh mvnCommand + 'flyway:migrate'
+                        }
+                    }
+                }
+            }
+        } catch(error) {
+            emailext (
+                    subject: "[AUTOMAIL]: Feilet Jobb ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                    body: "<p>Hei,<br>kan du ta en titt på feilmeldingen: <a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a><br><br>Takk på forhånd,<br>Jane</p>",
+                    recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+            )
+            info(dsShort)
+            throw error
+        }
+    }
+}
+
+void createDbScriptFile (env) {
+                    int envVal = 0
+                    envnr = getEnvnr(env)
+                    
+                    envVal = envnr as Integer
+                    if (envVal < 10) {
+                        envnr = '7'+ envnr
+                    }
+                    seqnr = envnr + new Date().format('yyMMddHHmm') + '000'
+                    info('Oppretter : SEQ_FAGSAK med startnummer: ' + seqnr)
+                    writeFile file: 'migreringer/src/main/resources/db/migration/defaultDS/sql/afterMigrate.sql', text: '''DROP SEQUENCE SEQ_FAGSAK;
+CREATE SEQUENCE SEQ_FAGSAK INCREMENT BY 50 START WITH ''' + seqnr + ''';
+'''
+}
+
+@NonCPS
+def getEnvnr(text) {
+  def matcher = text =~ '([0-9]+)'
+  matcher ? matcher[0][1] : null
+}
+
+void info(msg) {
+    ansiColor('xterm') {
+        println "\033[45m\033[37m " + msg + " \033[0m"
+    }
+    currentBuild.description = msg
+}

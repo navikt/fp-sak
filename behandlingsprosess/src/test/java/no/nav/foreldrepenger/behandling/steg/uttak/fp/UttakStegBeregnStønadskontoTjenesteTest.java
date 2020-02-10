@@ -1,0 +1,243 @@
+package no.nav.foreldrepenger.behandling.steg.uttak.fp;
+
+
+import static no.nav.foreldrepenger.behandling.steg.uttak.fp.UttakStegBeregnStønadskontoTjeneste.BeregningingAvStønadskontoResultat;
+import static no.nav.foreldrepenger.behandling.steg.uttak.fp.UttakStegImplTest.avsluttMedVedtak;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.uttak.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.InnvilgetÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
+import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
+import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
+import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+
+@RunWith(CdiRunner.class)
+public class UttakStegBeregnStønadskontoTjenesteTest {
+
+    @Rule
+    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+
+    @Inject
+    private UttakStegBeregnStønadskontoTjeneste tjeneste;
+
+    @Test
+    public void skal_beregne_hvis_vedtak_uten_uttak() {
+        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        Behandling førsteBehandling = førsteScenario.lagre(repositoryProvider);
+        opprettStønadskontoer(førsteBehandling);
+        avsluttMedVedtak(førsteBehandling, repositoryProvider);
+
+        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+        revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
+        Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
+
+        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
+        UttakInput input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
+        var resultat = tjeneste.beregnStønadskontoer(input);
+
+        assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.BEREGNET);
+    }
+
+    @Test
+    public void skal_beregne_hvis_vedtak_har_uttak_der_alle_periodene_er_avslått() {
+        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        Behandling førsteBehandling = førsteScenario.lagre(repositoryProvider);
+        opprettStønadskontoer(førsteBehandling);
+        lagreUttak(førsteBehandling, avslåttUttak());
+        avsluttMedVedtak(førsteBehandling, repositoryProvider);
+
+        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+        revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
+        Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
+
+        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
+        UttakInput input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
+        var resultat = tjeneste.beregnStønadskontoer(input);
+
+        assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.BEREGNET);
+    }
+
+    @Test
+    public void skal_ikke_beregne_hvis_vedtak_har_uttak_der_en_periode_er_innvilget_og_en_avslått() {
+        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        Behandling førsteBehandling = førsteScenario.lagre(repositoryProvider);
+        opprettStønadskontoer(førsteBehandling);
+        var uttak = avslåttUttak();
+        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(uttak.getPerioder().get(0).getFom().minusWeeks(1),
+            uttak.getPerioder().get(0).getFom().minusDays(1))
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .build();
+        new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
+            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkdager(new Trekkdager(5))
+            .medUtbetalingsprosent(BigDecimal.TEN)
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
+        uttak.leggTilPeriode(periode);
+        lagreUttak(førsteBehandling, uttak);
+        avsluttMedVedtak(førsteBehandling, repositoryProvider);
+
+        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+        revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
+        Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
+
+        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
+            .medAnnepart(new Annenpart(false, førsteBehandling.getId()));
+        UttakInput input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
+        var resultat = tjeneste.beregnStønadskontoer(input);
+
+        assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.INGEN_BEREGNING);
+    }
+
+    @Test
+    public void skal_ikke_beregne_hvis_annenpart_vedtak_har_uttak_innvilget() {
+        var morScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        Behandling morBehandling = morScenario.lagre(repositoryProvider);
+        opprettStønadskontoer(morBehandling);
+        var uttak = innvilgetUttak();
+        lagreUttak(morBehandling, uttak);
+        avsluttMedVedtak(morBehandling, repositoryProvider);
+
+        var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+        farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
+        Behandling farBehandling = farScenario.lagre(repositoryProvider);
+        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+
+        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
+            .medAnnepart(new Annenpart(false, morBehandling.getId()));
+        UttakInput input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
+        var resultat = tjeneste.beregnStønadskontoer(input);
+
+        assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.INGEN_BEREGNING);
+    }
+
+    private ForeldrepengerGrunnlag familieHendelser(FamilieHendelse søknadFamilieHendelse) {
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(søknadFamilieHendelse);
+        return new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser);
+    }
+
+    @Test
+    public void skal_beregne_hvis_annenpart_vedtak_har_uten_uttak() {
+        var morScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        Behandling morBehandling = morScenario.lagre(repositoryProvider);
+        opprettStønadskontoer(morBehandling);
+        avsluttMedVedtak(morBehandling, repositoryProvider);
+
+        var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+        farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
+        Behandling farBehandling = farScenario.lagre(repositoryProvider);
+        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+
+        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
+        UttakInput input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
+        var resultat = tjeneste.beregnStønadskontoer(input);
+
+        assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.BEREGNET);
+    }
+
+    @Test
+    public void skal_beregne_hvis_annenpart_vedtak_har_uttak_avslått() {
+        var morScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        Behandling morBehandling = morScenario.lagre(repositoryProvider);
+        opprettStønadskontoer(morBehandling);
+        lagreUttak(morBehandling, avslåttUttak());
+        avsluttMedVedtak(morBehandling, repositoryProvider);
+
+        var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+        farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
+        Behandling farBehandling = farScenario.lagre(repositoryProvider);
+        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+
+        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
+        UttakInput input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
+        var resultat = tjeneste.beregnStønadskontoer(input);
+
+        assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.BEREGNET);
+    }
+
+    private void lagreUttak(Behandling førsteBehandling, UttakResultatPerioderEntitet opprinneligPerioder) {
+        repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(førsteBehandling.getId(), opprinneligPerioder);
+    }
+
+    private UttakResultatPerioderEntitet innvilgetUttak() {
+        var uttak = new UttakResultatPerioderEntitet();
+        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(),
+            LocalDate.now().plusWeeks(1))
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .build();
+        new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
+            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkdager(new Trekkdager(5))
+            .medUtbetalingsprosent(BigDecimal.TEN)
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
+        uttak.leggTilPeriode(periode);
+        return uttak;
+    }
+
+    private UttakResultatPerioderEntitet avslåttUttak() {
+        var uttak = new UttakResultatPerioderEntitet();
+        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(1))
+            .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.BARNET_ER_DØD)
+            .build();
+        new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
+            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkdager(Trekkdager.ZERO)
+            .medUtbetalingsprosent(BigDecimal.ZERO)
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
+        uttak.leggTilPeriode(periode);
+        return uttak;
+    }
+
+    private void opprettStønadskontoer(Behandling førsteBehandling) {
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(førsteBehandling.getFagsak(), Dekningsgrad._100);
+        repositoryProvider.getFagsakRelasjonRepository().lagre(førsteBehandling.getFagsak(), førsteBehandling.getId(), Stønadskontoberegning.builder()
+            .medStønadskonto(new Stønadskonto.Builder().medMaxDager(10).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
+            .medRegelEvaluering(" ")
+            .medRegelInput(" ")
+            .build());
+    }
+}

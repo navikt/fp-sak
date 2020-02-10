@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+      http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd" version="2.1">
+
+	<sequence-generator name="SEQ_TOTRINNRESULTATGRUNNLAG" allocation-size="50" sequence-name="SEQ_TOTRINNRESULTATGRUNNLAG" />
+	<sequence-generator name="SEQ_TOTRINNSVURDERING" allocation-size="50" sequence-name="SEQ_TOTRINNSVURDERING" />
+	<sequence-generator name="SEQ_VURDER_AARSAK_TTVURDERING" allocation-size="50" sequence-name="SEQ_VURDER_AARSAK_TTVURDERING" />
+	<sequence-generator name="SEQ_OPPGAVE_BEHANDLING_KOBLING" allocation-size="50" sequence-name="SEQ_OPPGAVE_BEHANDLING_KOBLING" />
+
+	<entity class="no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling" />
+
+	<entity class="no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnresultatgrunnlag" />
+	<entity class="no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering" />
+	<entity class="no.nav.foreldrepenger.produksjonsstyring.totrinn.VurderÅrsakTotrinnsvurdering" />
+
+</entity-mappings>

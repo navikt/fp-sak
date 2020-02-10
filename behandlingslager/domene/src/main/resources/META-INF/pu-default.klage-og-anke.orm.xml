@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+      http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd" version="2.1">
+
+	<sequence-generator name="SEQ_KLAGE_VURDERING_RESULTAT" allocation-size="50" sequence-name="SEQ_KLAGE_VURDERING_RESULTAT" />
+	<sequence-generator name="SEQ_KLAGE_RESULTAT" allocation-size="50" sequence-name="SEQ_KLAGE_RESULTAT" />
+	<sequence-generator name="SEQ_KLAGE_FORMKRAV" allocation-size="50" sequence-name="SEQ_KLAGE_FORMKRAV" />
+    <sequence-generator name="SEQ_ANKE_VURDERING_RESULTAT" allocation-size="50" sequence-name="SEQ_ANKE_VURDERING_RESULTAT" />
+    <sequence-generator name="SEQ_ANKE_RESULTAT" allocation-size="50" sequence-name="SEQ_ANKE_RESULTAT" />
+
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet" />
+
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet" />
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet" />
+
+</entity-mappings>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+      http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd" version="2.1">
+
+	<sequence-generator name="SEQ_MEDLEMSKAP_PERIODER" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_PERIODER" />
+	<sequence-generator name="SEQ_MEDLEMSKAP_VL" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_VL" />
+	<sequence-generator name="SEQ_MEDLEMSKAP_VP" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_VP" />
+	<sequence-generator name="SEQ_MEDLEMSKAP" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP" />
+	<sequence-generator name="SEQ_MEDLEMSKAP_REGISTRERT" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_REGISTRERT" />
+	<sequence-generator name="SEQ_MEDLEMSKAP_OPPG_TILKNYT" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_OPPG_TILKNYT" />
+	<sequence-generator name="SEQ_MEDLEMSKAP_OPPG_LAND" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_OPPG_LAND" />
+
+	<sequence-generator name="SEQ_GR_MEDLEMSKAP_VILKAR_PER" allocation-size="50" sequence-name="SEQ_GR_MEDLEMSKAP_VILKAR_PER" />
+	<sequence-generator name="SEQ_MEDLEMSKAP_VILKAR_PERIODE" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_VILKAR_PERIODE" />
+	<sequence-generator name="SEQ_MEDLEMSKAP_VILKAR_PERIODER" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_VILKAR_PERIODER" />
+
+	<sequence-generator name="SEQ_GR_MEDLEMSKAP" allocation-size="50" sequence-name="SEQ_GR_MEDLEMSKAP" />
+
+	<!-- Medlemskap aggregat og grunnlag -->
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapPeriodeEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertLøpendeMedlemskapEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRegistrertEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapBehandlingsgrunnlagEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeGrunnlagEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPeriodeEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPerioderEntitet" />
+
+</entity-mappings>

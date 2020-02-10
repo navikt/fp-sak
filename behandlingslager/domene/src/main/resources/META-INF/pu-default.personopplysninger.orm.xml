@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+      http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd" version="2.1">
+
+	<sequence-generator name="SEQ_SOEKNAD_ANNEN_PART" allocation-size="50" sequence-name="SEQ_SOEKNAD_ANNEN_PART" />
+	
+	<sequence-generator name="SEQ_GR_PERSONOPPLYSNING" allocation-size="50" sequence-name="SEQ_GR_PERSONOPPLYSNING" />
+	<sequence-generator name="SEQ_PO_INFORMASJON" allocation-size="50" sequence-name="SEQ_PO_INFORMASJON" />
+	<sequence-generator name="SEQ_PO_PERSONOPPLYSNING" allocation-size="50" sequence-name="SEQ_PO_PERSONOPPLYSNING" />
+	<sequence-generator name="SEQ_PO_PERSONSTATUS" allocation-size="50" sequence-name="SEQ_PO_PERSONSTATUS" />
+	<sequence-generator name="SEQ_PO_STATSBORGERSKAP" allocation-size="50" sequence-name="SEQ_PO_STATSBORGERSKAP" />
+	<sequence-generator name="SEQ_PO_RELASJON" allocation-size="50" sequence-name="SEQ_PO_RELASJON" />
+	<sequence-generator name="SEQ_PO_ADRESSE" allocation-size="50" sequence-name="SEQ_PO_ADRESSE" />
+	<sequence-generator name="SEQ_VERGE" allocation-size="50" sequence-name="SEQ_VERGE" />
+	<sequence-generator name="SEQ_GR_VERGE" allocation-size="50" sequence-name="SEQ_GR_VERGE" />
+	<sequence-generator name="SEQ_VERGE_ORGANISASJON" allocation-size="50" sequence-name="SEQ_VERGE_ORGANISASJON" />
+
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet" />
+
+	<!-- Personopplysning aggregat og grunnlag -->
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet" />
+
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeGrunnlagEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet" />
+
+</entity-mappings>

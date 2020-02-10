@@ -1,0 +1,58 @@
+package no.nav.foreldrepenger.behandling.steg.uttak.fp;
+
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
+import no.nav.foreldrepenger.behandling.steg.uttak.UttakSteg;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.KontrollerFaktaUttakTjeneste;
+
+@BehandlingStegRef(kode = "KOFAKUT")
+@FagsakYtelseTypeRef("FP")
+@BehandlingTypeRef("BT-002")
+@ApplicationScoped
+public class KontrollerFaktaUttakSteg implements UttakSteg {
+
+    private KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste;
+    private UttakInputTjeneste uttakInputTjeneste;
+    private RyddKontrollerFaktaUttakTjeneste ryddKontrollerFaktaUttakTjeneste;
+
+    @Inject
+    public KontrollerFaktaUttakSteg(UttakInputTjeneste uttakInputTjeneste,
+                                    KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste,
+                                    RyddKontrollerFaktaUttakTjeneste ryddKontrollerFaktaUttakTjeneste) {
+        this.uttakInputTjeneste = uttakInputTjeneste;
+        this.kontrollerFaktaUttakTjeneste = kontrollerFaktaUttakTjeneste;
+        this.ryddKontrollerFaktaUttakTjeneste = ryddKontrollerFaktaUttakTjeneste;
+    }
+
+    KontrollerFaktaUttakSteg() {
+        // CDI
+    }
+
+    @Override
+    public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
+        var input = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
+        kontrollerFaktaUttakTjeneste.avklarOmAnnenForelderHarRett(input.getBehandlingReferanse());
+        var aksjonspunktDefinisjonList = kontrollerFaktaUttakTjeneste.utledAksjonspunkter(input);
+        var resultater = aksjonspunktDefinisjonList.stream()
+            .map(def -> AksjonspunktResultat.opprettForAksjonspunkt(def))
+            .collect(Collectors.toList());
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(resultater);
+    }
+
+    @Override
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
+       ryddKontrollerFaktaUttakTjeneste.ryddVedHoppOverBakover(kontekst);
+    }
+}

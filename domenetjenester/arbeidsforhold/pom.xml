@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>domenetjenester-pom</artifactId>
+		<groupId>no.nav.foreldrepenger</groupId>
+		<version>${revision}${sha1}${changelist}</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>arbeidsforhold</artifactId>
+	<packaging>jar</packaging>
+	<name>FPSAK :: Domenetjenester - Arbeidsforhold</name>
+
+	<dependencies>
+		<!-- for Bean validation -->
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.el</artifactId>
+		</dependency>
+		<dependency>
+			<!-- trengs for integrasjon mellom Weld og Javax.El -->
+			<groupId>org.jboss.weld.module</groupId>
+			<artifactId>weld-web</artifactId>
+		</dependency>
+
+
+		<!-- Modul interne avhengigheter -->
+		<dependency>
+			<groupId>no.nav.foreldrepenger</groupId>
+			<artifactId>behandling</artifactId>
+		</dependency>
+
+		<!-- Interne avhengigheter -->
+		<dependency>
+			<groupId>no.nav.foreldrepenger</groupId>
+			<artifactId>behandlingslager-domene</artifactId>
+		</dependency>
+
+		<!-- Kontrakter -->
+		<dependency>
+			<groupId>no.nav.foreldrepenger.abakus</groupId>
+			<artifactId>abakus-kontrakt</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+			<artifactId>felles-integrasjon-rest-klient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+			<artifactId>organisasjon-klient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+			<artifactId>aktoer-klient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+			<artifactId>person-klient</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jaxrs</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Test -->
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.foreldrepenger.felles</groupId>
+			<artifactId>felles-testutilities</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.foreldrepenger</groupId>
+			<artifactId>migreringer</artifactId>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+    </dependencies>
+</project>

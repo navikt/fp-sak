@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns16:vedtak xmlns:ns4="urn:no:nav:vedtak:felles:xml:vedtak:personopplysninger:es:v2"
+             xmlns:ns3="urn:no:nav:vedtak:felles:xml:vedtak:vilkaarsgrunnlag:es:v2"
+             xmlns:ns6="urn:no:nav:vedtak:felles:xml:felles:v2"
+             xmlns:ns5="urn:no:nav:vedtak:felles:xml:vedtak:vilkaarsgrunnlag:v2"
+             xmlns:ns7="urn:no:nav:vedtak:felles:xml:vedtak:personopplysninger:v2"
+             xmlns:ns13="urn:no:nav:vedtak:felles:xml:vedtak:beregningsgrunnlag:es:v2"
+             xmlns:ns12="urn:no:nav:vedtak:felles:xml:vedtak:ytelse:es:v2"
+             xmlns:ns16="urn:no:nav:vedtak:felles:xml:vedtak:v2"
+>
+    <ns16:fagsakId>1011252</ns16:fagsakId>
+    <ns16:fagsakType>ENGANGSSTOENAD</ns16:fagsakType>
+    <ns16:tema kode="FOR_SVA" kodeverk="TEMA">Foreldre- og svangerskapspenger</ns16:tema>
+    <ns16:behandlingsTema kode="ENGST_FODS" kodeverk="BEHANDLING_TEMA">Engangsstønad ved fødsel</ns16:behandlingsTema>
+    <ns16:ansvarligSaksbehandlerIdent>Z990157</ns16:ansvarligSaksbehandlerIdent>
+    <ns16:behandlendeEnhet>4802</ns16:behandlendeEnhet>
+    <ns16:soeknadsdato>2018-10-25</ns16:soeknadsdato>
+    <ns16:vedtaksdato>2018-11-05</ns16:vedtaksdato>
+    <ns16:personOpplysninger>
+        <personopplysningerEngangsstoenad>
+            <ns4:bruker>
+                <ns7:kjoenn>Kvinne</ns7:kjoenn>
+                <ns7:statsborgerskap kode="NOR">NORGE</ns7:statsborgerskap>
+                <ns7:personstatus kode="BOSA">Bosatt</ns7:personstatus>
+                <ns7:region>Nordisk</ns7:region>
+                <ns7:sivilstand kode="UGIF">Ugift</ns7:sivilstand>
+                <ns7:foedselsdato>1980-10-10</ns7:foedselsdato>
+                <ns7:navn>TESTFAMILIEN ANONYM</ns7:navn>
+                <ns7:norskIdent>10108000398</ns7:norskIdent>
+            </ns4:bruker>
+            <ns4:adresse>
+                <ns4:addresseType kode="BOSTEDSADRESSE">Bostedsadresse</ns4:addresseType>
+                <ns4:mottakersNavn>TESTFAMILIEN ANONYM</ns4:mottakersNavn>
+                <ns4:addresselinje1>VEIEN 20</ns4:addresselinje1>
+                <ns4:postnummer>1358</ns4:postnummer>
+                <ns4:land>NOR</ns4:land>
+            </ns4:adresse>
+            <ns4:foedsel>
+                <ns7:foedselsdato>2018-10-02</ns7:foedselsdato>
+                <ns7:antallBarn>1</ns7:antallBarn>
+            </ns4:foedsel>
+            <ns4:medlemskapsperioder/>
+            <ns4:inntekter>
+                <ns4:inntekt>
+                    <ns4:mottakerAktoerId>AktørId&lt;9999999999999&gt;</ns4:mottakerAktoerId>
+                    <ns4:arbeidsgiver>342352362</ns4:arbeidsgiver>
+                    <ns4:ytelse>false</ns4:ytelse>
+                    <ns4:periode>
+                        <ns6:fom>2018-04-01</ns6:fom>
+                        <ns6:tom>2018-04-30</ns6:tom>
+                    </ns4:periode>
+                    <ns4:beloep>28462.0</ns4:beloep>
+                </ns4:inntekt>
+                <ns4:inntekt>
+                    <ns4:mottakerAktoerId>AktørId&lt;9999999999999&gt;</ns4:mottakerAktoerId>
+                    <ns4:arbeidsgiver>342352362</ns4:arbeidsgiver>
+                    <ns4:ytelse>false</ns4:ytelse>
+                    <ns4:periode>
+                        <ns6:fom>2018-06-01</ns6:fom>
+                        <ns6:tom>2018-06-30</ns6:tom>
+                    </ns4:periode>
+                    <ns4:beloep>31877.0</ns4:beloep>
+                </ns4:inntekt>
+                <ns4:inntekt>
+                    <ns4:mottakerAktoerId>AktørId&lt;9999999999999&gt;</ns4:mottakerAktoerId>
+                    <ns4:arbeidsgiver>342352362</ns4:arbeidsgiver>
+                    <ns4:ytelse>false</ns4:ytelse>
+                    <ns4:periode>
+                        <ns6:fom>2017-11-01</ns6:fom>
+                        <ns6:tom>2017-11-30</ns6:tom>
+                    </ns4:periode>
+                    <ns4:beloep>28462.0</ns4:beloep>
+                </ns4:inntekt>
+                <ns4:inntekt>
+                    <ns4:mottakerAktoerId>AktørId&lt;9999999999999&gt;</ns4:mottakerAktoerId>
+                    <ns4:arbeidsgiver>342352362</ns4:arbeidsgiver>
+                    <ns4:ytelse>false</ns4:ytelse>
+                    <ns4:periode>
+                        <ns6:fom>2017-10-01</ns6:fom>
+                        <ns6:tom>2017-10-31</ns6:tom>
+                    </ns4:periode>
+                    <ns4:beloep>28462.0</ns4:beloep>
+                </ns4:inntekt>
+                <ns4:inntekt>
+                    <ns4:mottakerAktoerId>AktørId&lt;9999999999999&gt;</ns4:mottakerAktoerId>
+                    <ns4:arbeidsgiver>342352362</ns4:arbeidsgiver>
+                    <ns4:ytelse>false</ns4:ytelse>
+                    <ns4:periode>
+                        <ns6:fom>2018-01-01</ns6:fom>
+                        <ns6:tom>2018-01-31</ns6:tom>
+                    </ns4:periode>
+                    <ns4:beloep>28462.0</ns4:beloep>
+                </ns4:inntekt>
+                <ns4:inntekt>
+                    <ns4:mottakerAktoerId>AktørId&lt;9999999999999&gt;</ns4:mottakerAktoerId>
+                    <ns4:arbeidsgiver>342352362</ns4:arbeidsgiver>
+                    <ns4:ytelse>false</ns4:ytelse>
+                    <ns4:periode>
+                        <ns6:fom>2018-03-01</ns6:fom>
+                        <ns6:tom>2018-03-31</ns6:tom>
+                    </ns4:periode>
+                    <ns4:beloep>28462.0</ns4:beloep>
+                </ns4:inntekt>
+                <ns4:inntekt>
+                    <ns4:mottakerAktoerId>AktørId&lt;9999999999999&gt;</ns4:mottakerAktoerId>
+                    <ns4:arbeidsgiver>342352362</ns4:arbeidsgiver>
+                    <ns4:ytelse>false</ns4:ytelse>
+                    <ns4:periode>
+                        <ns6:fom>2018-05-01</ns6:fom>
+                        <ns6:tom>2018-05-31</ns6:tom>
+                    </ns4:periode>
+                    <ns4:beloep>28462.0</ns4:beloep>
+                </ns4:inntekt>
+                <ns4:inntekt>
+                    <ns4:mottakerAktoerId>AktørId&lt;9999999999999&gt;</ns4:mottakerAktoerId>
+                    <ns4:arbeidsgiver>342352362</ns4:arbeidsgiver>
+                    <ns4:ytelse>false</ns4:ytelse>
+                    <ns4:periode>
+                        <ns6:fom>2017-12-01</ns6:fom>
+                        <ns6:tom>2017-12-31</ns6:tom>
+                    </ns4:periode>
+                    <ns4:beloep>28462.0</ns4:beloep>
+                </ns4:inntekt>
+                <ns4:inntekt>
+                    <ns4:mottakerAktoerId>AktørId&lt;9999999999999&gt;</ns4:mottakerAktoerId>
+                    <ns4:arbeidsgiver>342352362</ns4:arbeidsgiver>
+                    <ns4:ytelse>false</ns4:ytelse>
+                    <ns4:periode>
+                        <ns6:fom>2018-02-01</ns6:fom>
+                        <ns6:tom>2018-02-28</ns6:tom>
+                    </ns4:periode>
+                    <ns4:beloep>28462.0</ns4:beloep>
+                </ns4:inntekt>
+            </ns4:inntekter>
+        </personopplysningerEngangsstoenad>
+    </ns16:personOpplysninger>
+    <ns16:behandlingsresultat>
+        <ns16:behandlingsresultat kode="INNVILGET">Innvilget</ns16:behandlingsresultat>
+        <ns16:behandlingstype>FOERSTEGANGSSOEKNAD</ns16:behandlingstype>
+        <ns16:behandlingsId>1054602</ns16:behandlingsId>
+        <ns16:vurderteVilkaar>
+            <ns16:vilkaar vurdert="AUTOMATISK">
+                <ns16:type kode="FP_VK_34" kodeverk="VILKAR_TYPE">Søkers opplysningsplikt</ns16:type>
+                <ns16:vilkaarsgrunnlag>
+                    <vilkaarsgrunnlagSoekersopplysningsplikt>
+                        <ns3:elektroniskSoeknad>false</ns3:elektroniskSoeknad>
+                        <ns3:erBarnetFoedt>false</ns3:erBarnetFoedt>
+                        <ns3:erSoeknadenKomplett>true</ns3:erSoeknadenKomplett>
+                    </vilkaarsgrunnlagSoekersopplysningsplikt>
+                </ns16:vilkaarsgrunnlag>
+                <ns16:utfall>OPPFYLT</ns16:utfall>
+            </ns16:vilkaar>
+            <ns16:vilkaar vurdert="AUTOMATISK">
+                <ns16:type kode="FP_VK_1" kodeverk="VILKAR_TYPE">Fødselsvilkår Mor</ns16:type>
+                <ns16:vilkaarsgrunnlag>
+                    <vilkaarsgrunnlagFoedsel>
+                        <ns5:sokersKjoenn>KVINNE</ns5:sokersKjoenn>
+                        <ns5:foedselsdatoBarn>2018-10-02</ns5:foedselsdatoBarn>
+                        <ns5:antallBarn>1</ns5:antallBarn>
+                        <ns5:soekersRolle>Mor til</ns5:soekersRolle>
+                        <ns5:soeknadsdato>2018-10-25</ns5:soeknadsdato>
+                    </vilkaarsgrunnlagFoedsel>
+                </ns16:vilkaarsgrunnlag>
+                <ns16:utfall>OPPFYLT</ns16:utfall>
+            </ns16:vilkaar>
+            <ns16:vilkaar vurdert="AUTOMATISK">
+                <ns16:type kode="FP_VK_2" kodeverk="VILKAR_TYPE">Medlemskapsvilkåret</ns16:type>
+                <ns16:vilkaarsgrunnlag>
+                    <vilkaarsgrunnlagMedlemskap>
+                        <ns5:personstatus>Bosatt</ns5:personstatus>
+                        <ns5:erBrukerMedlem>true</ns5:erBrukerMedlem>
+                        <ns5:erBrukerBosatt>true</ns5:erBrukerBosatt>
+                        <ns5:harBrukerOppholdsrett>true</ns5:harBrukerOppholdsrett>
+                        <ns5:harBrukerLovligOppholdINorge>true</ns5:harBrukerLovligOppholdINorge>
+                        <ns5:erBrukerNordiskstatsborger>true</ns5:erBrukerNordiskstatsborger>
+                        <ns5:erBrukerBorgerAvEUEOS>false</ns5:erBrukerBorgerAvEUEOS>
+                        <ns5:erBrukerPliktigEllerFrivilligMedlem>false</ns5:erBrukerPliktigEllerFrivilligMedlem>
+                    </vilkaarsgrunnlagMedlemskap>
+                </ns16:vilkaarsgrunnlag>
+                <ns16:utfall>OPPFYLT</ns16:utfall>
+            </ns16:vilkaar>
+            <ns16:vilkaar vurdert="AUTOMATISK">
+                <ns16:type kode="FP_VK_3" kodeverk="VILKAR_TYPE">Søknadsfristvilkåret</ns16:type>
+                <ns16:vilkaarsgrunnlag>
+                    <vilkaarsgrunnlagSoeknadsfrist>
+                        <ns5:elektroniskSoeknad>false</ns5:elektroniskSoeknad>
+                        <ns5:skjaeringstidspunkt>2018-10-02</ns5:skjaeringstidspunkt>
+                        <ns5:soeknadMottattDato>2018-10-25</ns5:soeknadMottattDato>
+                    </vilkaarsgrunnlagSoeknadsfrist>
+                </ns16:vilkaarsgrunnlag>
+                <ns16:utfall>OPPFYLT</ns16:utfall>
+            </ns16:vilkaar>
+        </ns16:vurderteVilkaar>
+        <ns16:beregningsresultat>
+            <ns16:beregningsgrunnlag>
+                <beregningsgrunnlagEngangsstoenad>
+                    <ns13:antallBarn>1</ns13:antallBarn>
+                    <ns13:sats>63140</ns13:sats>
+                </beregningsgrunnlagEngangsstoenad>
+            </ns16:beregningsgrunnlag>
+            <ns16:tilkjentYtelse>
+                <ytelseEngangsstoenad>
+                    <ns12:beloep>63140.0</ns12:beloep>
+                </ytelseEngangsstoenad>
+            </ns16:tilkjentYtelse>
+        </ns16:beregningsresultat>
+        <ns16:manuelleVurderinger>
+            <ns16:manuellVurdering>
+                <ns16:aksjonspunkt kode="5012" kodeverk="AKSJONSPUNKT_DEF">Registrer papirsøknad engangsstønad</ns16:aksjonspunkt>
+            </ns16:manuellVurdering>
+            <ns16:manuellVurdering>
+                <ns16:aksjonspunkt kode="5027" kodeverk="AKSJONSPUNKT_DEF">Sjekk manglende fødsel</ns16:aksjonspunkt>
+                <ns16:gjelderVilkaar kode="FP_VK_1" kodeverk="VILKAR_TYPE">Fødselsvilkår Mor</ns16:gjelderVilkaar>
+            </ns16:manuellVurdering>
+            <ns16:manuellVurdering>
+                <ns16:aksjonspunkt kode="5034" kodeverk="AKSJONSPUNKT_DEF">Vurdere dokument før vedtak</ns16:aksjonspunkt>
+            </ns16:manuellVurdering>
+            <ns16:manuellVurdering>
+                <ns16:aksjonspunkt kode="5009" kodeverk="AKSJONSPUNKT_DEF">Avklar tilleggsopplysninger</ns16:aksjonspunkt>
+            </ns16:manuellVurdering>
+            <ns16:manuellVurdering>
+                <ns16:aksjonspunkt kode="7010" kodeverk="AKSJONSPUNKT_DEF">Venter på prosesstask for innhenting av registeropplysninger</ns16:aksjonspunkt>
+            </ns16:manuellVurdering>
+        </ns16:manuelleVurderinger>
+    </ns16:behandlingsresultat>
+</ns16:vedtak>

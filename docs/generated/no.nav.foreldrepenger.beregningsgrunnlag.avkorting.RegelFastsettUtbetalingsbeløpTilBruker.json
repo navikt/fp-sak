@@ -1,0 +1,53 @@
+{
+  "root" : {
+    "id" : "1c13a18a-3e8c-4e07-b482-108a991a6a3d",
+    "ruleId" : "FP_BR_29.8 6-9",
+    "ruleDescription" : "Regelen skal fastsette beløp som skal utbetales direkte til bruker, pr. arbeidsforhold.",
+    "operator" : "SEQUENCE",
+    "rule" : { }
+  },
+  "nodes" : [ {
+    "id" : "1c13a18a-3e8c-4e07-b482-108a991a6a3d",
+    "ruleId" : "FP_BR_29.8 6-9",
+    "ruleDescription" : "Regelen skal fastsette beløp som skal utbetales direkte til bruker, pr. arbeidsforhold.",
+    "operator" : "SEQUENCE",
+    "rule" : { }
+  }, {
+    "id" : "bb678527-a7e6-48cc-9cea-8557d1ec24dc",
+    "ruleId" : "FP_BR 29.8.6",
+    "ruleDescription" : "Fastsett andel til fordeling",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "bfa3361c-a215-4f3e-8d5f-1564cca6ee2a",
+    "ruleId" : "FP_BR 29.8.7",
+    "ruleDescription" : "For hver beregningsgrunnlagsandel som kommer fra arbeidsforhold, som enda ikke er fordelt, må den prosentvise andelen beregnes",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "41a5869c-3a57-40dd-ad67-59a54b3905fb",
+    "ruleId" : "FP_BR 29.8.8",
+    "ruleDescription" : "For hver beregningsgrunnlagsandel som kommer fra arbeidsforhold, som enda ikke er fordelt, må andelen som totalt skal refunderes og utbetales til bruker beregnes",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "e318ea87-a749-4392-8844-320a297065c9",
+    "ruleId" : "FP_BR 29.8.9",
+    "ruleDescription" : "For hvert arbeidsforhold der beregningsgrunnlagsandelen ikke er fordelt, Vurder om andeler er ferdig fordelt og oppdater Fordelt til bruker",
+    "operator" : "SINGLE",
+    "rule" : { }
+  } ],
+  "edges" : [ {
+    "source" : "1c13a18a-3e8c-4e07-b482-108a991a6a3d",
+    "target" : "bb678527-a7e6-48cc-9cea-8557d1ec24dc"
+  }, {
+    "source" : "1c13a18a-3e8c-4e07-b482-108a991a6a3d",
+    "target" : "bfa3361c-a215-4f3e-8d5f-1564cca6ee2a"
+  }, {
+    "source" : "1c13a18a-3e8c-4e07-b482-108a991a6a3d",
+    "target" : "41a5869c-3a57-40dd-ad67-59a54b3905fb"
+  }, {
+    "source" : "1c13a18a-3e8c-4e07-b482-108a991a6a3d",
+    "target" : "e318ea87-a749-4392-8844-320a297065c9"
+  } ]
+}

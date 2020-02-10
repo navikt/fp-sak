@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "historikkUuid": "9fc5c56f-b537-4d80-8fc1-6c65b9b97782",
+  "behandlingUuid": "PLACEHOLDER-UUID",
+  "historikkAktørType": "VEDTAKSLØSNINGEN",
+  "historikkInnslagType": "BREV_SENT",
+  "dokumentLinker": [
+    {
+      "linkTekst": "Innhent dokumentasjon",
+      "journalpostId": "448179511",
+      "dokumentId": "463753696"
+    }
+  ],
+  "historikkInnslagDeler": [],
+  "avsender": "FP-FORMIDLING",
+  "opprettetTidspunkt": "2019-05-29T14:30:44.819"
+}

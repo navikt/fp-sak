@@ -1,0 +1,32 @@
+{
+  "aktivitetPerioder" : [ {
+    "datoIntervall" : [ "2015-04-01", "-" ],
+    "aktivitet" : {
+      "aktivitetType" : "UTENLANDSK_ARBEIDSFORHOLD",
+      "aktivitetReferanse" : null,
+      "referanseType" : null
+    },
+    "vurderingsStatus" : "VURDERT_GODKJENT"
+  }, {
+    "datoIntervall" : [ "2018-05-13", "2019-03-12" ],
+    "aktivitet" : {
+      "aktivitetType" : "FRILANS",
+      "aktivitetReferanse" : null,
+      "referanseType" : null
+    },
+    "vurderingsStatus" : "VURDERT_UNDERKJENT"
+  } ],
+  "behandlingsDato" : "2019-03-20",
+  "forsteDatoOpptjening" : "2018-05-13",
+  "sisteDatoForOpptjening" : "2019-03-12",
+  "inntektPerioder" : [ {
+    "datoIntervall" : [ "2018-11-01", "2018-11-30" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 2148,
+    "inntektValuta" : "NOK"
+  } ]
+}

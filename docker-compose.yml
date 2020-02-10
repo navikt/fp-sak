@@ -1,0 +1,57 @@
+version: '3.7'
+services:
+  oracle:
+    image: $ORACLE_IMAGE
+    shm_size: 2gb
+    ports:
+      - 1521:1521
+    container_name: oracle
+  postgres:
+    image: $POSTGRES_IMAGE
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./lokalutvikling/postgres-init:/docker-entrypoint-initdb.d/
+    container_name: postgres
+  vtp:
+    image: $VTP_IMAGE
+    environment:
+      - "NO_NAV_MODIG_SECURITY_APPCERT_KEYSTORE=/root/.modig/keystore.jks"
+      - "JAVAX_NET_SSL_TRUSTSTORE=/root/.modig/truststore.jks"
+    volumes:
+      - "~/.modig:/root/.modig"
+    ports:
+      - "8060:8060"
+      - "8063:8063"
+      - "8636:8636"
+      - "9093:9093"
+      - "9092:9092"
+      - "8389:8389"
+    container_name: vtp
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8060/rest/isReady"]
+      interval: 30s
+      timeout: 5s
+  abakus:
+    image: $ABAKUS_IMAGE
+    container_name: abakus
+    environment:
+      - "NAIS_CLUSTER_NAME=LOCALHOST-FSS" #omgår avhengighet til vault
+      - "DEFAULTDS_USERNAME=fpabakus"
+      - "DEFAULTDS_PASSWORD=fpabakus"
+      - "DEFAULTDS_URL=jdbc:postgresql://postgres:5432/fpabakus"
+      - "NAV_TRUSTSTORE_KEYSTOREALIAS=na"
+      - "NAV_TRUSTSTORE_PASSWORD=changeit"
+      - "NAV_TRUSTSTORE_PATH=/var/run/secrets/naisd.io/truststore.jks"
+    env_file:
+      - "lokalutvikling/abakus.properties"
+    volumes:
+      - "~/.modig:/var/run/secrets/naisd.io"
+    ports:
+      - "8015:8080"
+    depends_on:
+      - postgres
+      - vtp

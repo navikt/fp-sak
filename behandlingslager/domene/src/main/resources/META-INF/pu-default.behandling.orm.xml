@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+      http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd" version="2.1">
+
+	<sequence-generator name="SEQ_BEHANDLING" allocation-size="50" sequence-name="SEQ_BEHANDLING" />
+	<sequence-generator name="SEQ_BEHANDLING_STEG_TYPE_SEKV" allocation-size="50" sequence-name="SEQ_BEHANDLING_STEG_TYPE_SEKV" />
+	<sequence-generator name="SEQ_BEHANDLING_STEG_TILSTAND" allocation-size="50" sequence-name="SEQ_BEHANDLING_STEG_TILSTAND" />
+	<sequence-generator name="SEQ_BEHANDLING_ARSAK" allocation-size="50" sequence-name="SEQ_BEHANDLING_ARSAK" />
+
+	<sequence-generator name="SEQ_BEHANDLING_RESULTAT" allocation-size="50" sequence-name="SEQ_BEHANDLING_RESULTAT" />
+	<sequence-generator name="SEQ_BEHANDLING_RESULTAT_YT" allocation-size="50" sequence-name="SEQ_BEHANDLING_RESULTAT_YT" />
+	<sequence-generator name="SEQ_VILKAR_RESULTAT" allocation-size="50" sequence-name="SEQ_VILKAR_RESULTAT" />
+	<sequence-generator name="SEQ_AKSJONSPUNKT" allocation-size="50" sequence-name="SEQ_AKSJONSPUNKT" />
+	<sequence-generator name="SEQ_VILKAR" allocation-size="50" sequence-name="SEQ_VILKAR" />
+
+	<sequence-generator name="SEQ_MOTTATT_DOKUMENT" allocation-size="50" sequence-name="SEQ_MOTTATT_DOKUMENT" />
+	
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.Behandling" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatKonsekvensForYtelsen" />
+
+	<!-- Hendelser -->
+	<entity class="no.nav.foreldrepenger.behandlingslager.hendelser.MottattHendelse" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument" />
+
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt" />
+
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår" />
+
+</entity-mappings>

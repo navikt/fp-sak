@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+      http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd" version="2.1">
+
+    <sequence-generator name="SEQ_BR_LEGACY_ES_BEREGNING" allocation-size="50" sequence-name="SEQ_BR_LEGACY_ES_BEREGNING"/>
+    <sequence-generator name="SEQ_BR_SATS" allocation-size="50" sequence-name="SEQ_BR_SATS"/>
+
+    <sequence-generator name="SEQ_BR_BEREGNINGSRESULTAT" allocation-size="50" sequence-name="SEQ_BR_BEREGNINGSRESULTAT" />
+    <sequence-generator name="SEQ_BR_PERIODE" allocation-size="50" sequence-name="SEQ_BR_PERIODE" />
+    <sequence-generator name="SEQ_BR_ANDEL" allocation-size="50" sequence-name="SEQ_BR_ANDEL" />
+    <sequence-generator name="SEQ_BR_RESULTAT_BEHANDLING" allocation-size="50" sequence-name="SEQ_BR_RESULTAT_BEHANDLING" />
+    <sequence-generator name="SEQ_BR_FERIEPENGER" allocation-size="50" sequence-name="SEQ_BR_FERIEPENGER" />
+    <sequence-generator name="SEQ_BR_FERIEPENGER_PR_AAR" allocation-size="50" sequence-name="SEQ_BR_FERIEPENGER_PR_AAR" />
+
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats"/>
+
+</entity-mappings>

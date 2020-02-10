@@ -1,0 +1,68 @@
+package no.nav.foreldrepenger.web.app.tjenester.behandling;
+
+import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
+import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
+
+import java.util.List;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.vedtak.felles.jpa.Transaction;
+import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+
+/**
+ * @see BehandlingRestTjenestePathHack1
+ */
+@ApplicationScoped
+@Transaction
+@Path(BehandlingRestTjenestePathHack2.BASE_PATH)
+@Produces(MediaType.APPLICATION_JSON)
+public class BehandlingRestTjenestePathHack2 {
+
+    static final String BASE_PATH = "/fagsak";
+    private static final String FAGSAK_BEHANDLING_PART_PATH = "/behandling";
+    public static final String FAGSAK_BEHANDLING_PATH = BASE_PATH + FAGSAK_BEHANDLING_PART_PATH; //NOSONAR TFP-2234
+
+    private BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste;
+    private BehandlingDtoTjeneste behandlingDtoTjeneste;
+
+    public BehandlingRestTjenestePathHack2() {
+        // for resteasy
+    }
+
+    @Inject
+    public BehandlingRestTjenestePathHack2(BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste,
+                                           BehandlingDtoTjeneste behandlingDtoTjeneste) {
+        this.behandlingsutredningApplikasjonTjeneste = behandlingsutredningApplikasjonTjeneste;
+        this.behandlingDtoTjeneste = behandlingDtoTjeneste;
+    }
+
+    @GET
+    @Path(FAGSAK_BEHANDLING_PART_PATH)
+    @Operation(description = "Henter alle behandlinger basert på saksnummer", summary = ("Returnerer alle behandlinger som er tilknyttet saksnummer."), tags = "behandlinger")
+    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public List<BehandlingDto> hentAlleBehandlinger(@NotNull
+                                                    @QueryParam("saksnummer")
+                                                    @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
+        Saksnummer saksnummer = new Saksnummer(s.getVerdi());
+        List<Behandling> behandlinger = behandlingsutredningApplikasjonTjeneste.hentBehandlingerForSaksnummer(saksnummer);
+        return behandlingDtoTjeneste.lagBehandlingDtoer(behandlinger);
+    }
+}

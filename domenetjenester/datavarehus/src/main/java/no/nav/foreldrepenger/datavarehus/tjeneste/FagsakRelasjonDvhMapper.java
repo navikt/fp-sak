@@ -1,0 +1,25 @@
+package no.nav.foreldrepenger.datavarehus.tjeneste;
+
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.datavarehus.domene.FagsakRelasjonDvh;
+import no.nav.vedtak.util.FPDateUtil;
+
+public class FagsakRelasjonDvhMapper {
+
+    public FagsakRelasjonDvh map(FagsakRelasjon fagsakRelasjon) {
+        Long fagsakNrTo = null;
+
+        if (fagsakRelasjon.getFagsakNrTo().isPresent()) {
+            fagsakNrTo = fagsakRelasjon.getFagsakNrTo().get().getId();
+        }
+
+        return FagsakRelasjonDvh.builder()
+            .fagsakNrEn(fagsakRelasjon.getFagsakNrEn().getId())
+            .fagsakNrTo(fagsakNrTo)
+            .dekningsgrad(fagsakRelasjon.getDekningsgrad())
+            .avsluttningsdato(fagsakRelasjon.getAvsluttningsdato())
+            .funksjonellTid(FPDateUtil.nå())
+            .endretAv(CommonDvhMapper.finnEndretAvEllerOpprettetAv(fagsakRelasjon))
+            .build();
+    }
+}

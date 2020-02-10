@@ -1,0 +1,102 @@
+package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
+
+import static java.util.stream.Collectors.toList;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+
+@ApplicationScoped
+@GrunnlagRef("YtelseFordelingAggregat")
+class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
+
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private BehandlingRepository behandlingRepository;
+    private YtelsesFordelingRepository ytelsesFordelingRepository;
+    private SøknadRepository søknadRepository;
+
+    StartpunktUtlederYtelseFordeling() {
+        // For CDI
+    }
+
+    @Inject
+    StartpunktUtlederYtelseFordeling(BehandlingRepositoryProvider repositoryProvider,
+                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+        this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.søknadRepository = repositoryProvider.getSøknadRepository();
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+    }
+
+    @Override
+    public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
+        // Ser på forhold fra endringssøknader og kun en gang - ved KOFAK siden mottak merger/henlegger ved ny søknad. (andre utledere ser på fødsel, mm.).
+        Long originalBehandling = ref.getOriginalBehandlingId().orElse(null);
+        Behandling behandling = behandlingRepository.hentBehandling(ref.getBehandlingId());
+        if (originalBehandling == null || behandling.harSattStartpunkt()) {
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "ikke revurdering el passert kofak", grunnlagId1, grunnlagId2);
+            return StartpunktType.UTTAKSVILKÅR;
+        }
+        if (erStartpunktBeregning(ref)) {
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, "Søkt om gradert periode", grunnlagId1, grunnlagId2);
+            return StartpunktType.BEREGNING;
+        }
+        if (erSkjæringsdatoUendret(ref, originalBehandling)) {
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "ingen endring i skjæringsdato", grunnlagId1, grunnlagId2);
+            return StartpunktType.UTTAKSVILKÅR;
+        }
+        FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, "endring i skjæringsdato", grunnlagId1, grunnlagId2);
+        return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
+    }
+
+    private boolean erSkjæringsdatoUendret(BehandlingReferanse ref, Long originalBehandlingId) {
+        LocalDate nySkjæringsdato = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet().orElse(null);
+        LocalDate originalSkjæringsdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandlingId).getSkjæringstidspunktHvisUtledet().orElse(null);
+        return Objects.equals(originalSkjæringsdato, nySkjæringsdato);
+    }
+
+
+    private boolean erStartpunktBeregning(BehandlingReferanse nyBehandlingRef){
+        List<OppgittPeriodeEntitet> perioderFraSøknad = ytelsesFordelingRepository.hentAggregat(nyBehandlingRef.getBehandlingId()).getOppgittFordeling().getOppgittePerioder();
+        List<OppgittPeriodeEntitet> gradertePerioderFraSøknad = finnGradertePerioder(perioderFraSøknad);
+
+        if (gradertePerioderFraSøknad.isEmpty()){
+            return false;
+        }
+
+        // Det ligger en endringssøknad på denne behandlingen. Pluss har gradering. Pluss ikke på gjenbesøk.
+        return harBehandlingEndringssøknad(nyBehandlingRef);
+    }
+
+
+    private List<OppgittPeriodeEntitet> finnGradertePerioder(List<OppgittPeriodeEntitet> perioder) {
+        if(perioder == null) {
+            throw new IllegalStateException("Utviklerfeil: forventer at behandling har oppgitte perioder");
+        }
+        return perioder.stream()
+            .filter(OppgittPeriodeEntitet::erGradert)
+            .collect(toList());
+    }
+
+    private Boolean harBehandlingEndringssøknad(BehandlingReferanse referanse) {
+        return søknadRepository.hentSøknadFraGrunnlag(referanse.getBehandlingId())
+            .map(SøknadEntitet::erEndringssøknad)
+            .orElse(false);
+    }
+}

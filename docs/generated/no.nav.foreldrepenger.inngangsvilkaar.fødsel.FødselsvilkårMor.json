@@ -1,0 +1,137 @@
+{
+  "root" : {
+    "id" : "1ebb3d5a-981c-4c1d-9e40-6660e119f168",
+    "ruleId" : "FP_VK_1.1",
+    "ruleDescription" : "Hvis søker er kvinne ...",
+    "operator" : "COND_OR",
+    "rule" : { }
+  },
+  "nodes" : [ {
+    "id" : "1ebb3d5a-981c-4c1d-9e40-6660e119f168",
+    "ruleId" : "FP_VK_1.1",
+    "ruleDescription" : "Hvis søker er kvinne ...",
+    "operator" : "COND_OR",
+    "rule" : { }
+  }, {
+    "id" : "2089d59e-760c-4411-b867-2e95cb880e57",
+    "ruleId" : "FP_VK_1.2",
+    "ruleDescription" : "Hvis ikke fødsel er registert ...",
+    "operator" : "COND_OR",
+    "rule" : { }
+  }, {
+    "id" : "d74eb302-8a0f-44f0-8976-88e6bcdf547b",
+    "ruleId" : "FP_VK_1.2.1",
+    "ruleDescription" : "Hvis ikke fødsel burde ha inntruffet ...",
+    "operator" : "COND_OR",
+    "rule" : { }
+  }, {
+    "id" : "692ba641-dc9a-4f54-9ae6-8e2359c875f3",
+    "ruleId" : "FP_VK_1.2.1.1",
+    "ruleDescription" : "Hvis søknadsdato har passert X svangerskapsuke ...",
+    "operator" : "COND_OR",
+    "rule" : { }
+  }, {
+    "id" : "0d5f6d65-4321-4fb2-90ff-dcd6f379b1b3",
+    "ruleId" : "FP_VK_1",
+    "ruleDescription" : "Hvis utstedtdato for terminbekreftelse er innenfor ...",
+    "operator" : "COND_OR",
+    "rule" : { }
+  }, {
+    "id" : "e233fdc1-3903-4312-8780-78a7c908cdf5",
+    "ruleId" : "Oppfylt",
+    "ruleDescription" : "Oppfylt",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "810c5761-e468-4c08-9346-4f1d4fcfac67",
+    "ruleId" : "1019",
+    "ruleDescription" : "Terminbekreftelsens utstedtdato er før 22. svangerskapsuke",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "3ac035d1-f246-4f8f-8e2d-503528591bcd",
+    "ruleId" : "1001",
+    "ruleDescription" : "Søknadsdato {0} er < tidligste søknadstidspunkt ({1}) (svangerskapsuke {2})",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "59cb77b6-6e50-4056-9bc0-634d349c78f3",
+    "ruleId" : "1026",
+    "ruleDescription" : "Fødsel ikke funnet i folkeregisteret",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "db500927-35b4-4086-8a73-0f09c01e855c",
+    "ruleId" : "FP_VK_1.2.2",
+    "ruleDescription" : "Hvis søker er mor ...",
+    "operator" : "COND_OR",
+    "rule" : { }
+  }, {
+    "id" : "9460cd43-2e8b-4d4d-ab40-af0217302f89",
+    "ruleId" : "Oppfylt",
+    "ruleDescription" : "Oppfylt",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "415d2671-f9e1-4cb2-a3c9-cfd4c0404618",
+    "ruleId" : "1002",
+    "ruleDescription" : "Søker er ikke barnets mor",
+    "operator" : "SINGLE",
+    "rule" : { }
+  }, {
+    "id" : "8fe32f47-5fa9-448c-8667-d5df5a12e30c",
+    "ruleId" : "1003",
+    "ruleDescription" : "Søker er ikke KVINNE({0}), er {1}",
+    "operator" : "SINGLE",
+    "rule" : { }
+  } ],
+  "edges" : [ {
+    "source" : "0d5f6d65-4321-4fb2-90ff-dcd6f379b1b3",
+    "target" : "e233fdc1-3903-4312-8780-78a7c908cdf5",
+    "role" : ""
+  }, {
+    "source" : "0d5f6d65-4321-4fb2-90ff-dcd6f379b1b3",
+    "target" : "810c5761-e468-4c08-9346-4f1d4fcfac67",
+    "role" : "ellers"
+  }, {
+    "source" : "692ba641-dc9a-4f54-9ae6-8e2359c875f3",
+    "target" : "0d5f6d65-4321-4fb2-90ff-dcd6f379b1b3",
+    "role" : "Sjekk søknadsdato har passert X svangerskapsuker"
+  }, {
+    "source" : "692ba641-dc9a-4f54-9ae6-8e2359c875f3",
+    "target" : "3ac035d1-f246-4f8f-8e2d-503528591bcd",
+    "role" : "ellers"
+  }, {
+    "source" : "d74eb302-8a0f-44f0-8976-88e6bcdf547b",
+    "target" : "692ba641-dc9a-4f54-9ae6-8e2359c875f3",
+    "role" : ""
+  }, {
+    "source" : "d74eb302-8a0f-44f0-8976-88e6bcdf547b",
+    "target" : "59cb77b6-6e50-4056-9bc0-634d349c78f3",
+    "role" : "ellers"
+  }, {
+    "source" : "2089d59e-760c-4411-b867-2e95cb880e57",
+    "target" : "d74eb302-8a0f-44f0-8976-88e6bcdf547b",
+    "role" : "(IKKE )"
+  }, {
+    "source" : "db500927-35b4-4086-8a73-0f09c01e855c",
+    "target" : "9460cd43-2e8b-4d4d-ab40-af0217302f89",
+    "role" : "Sjekk søker er mor."
+  }, {
+    "source" : "db500927-35b4-4086-8a73-0f09c01e855c",
+    "target" : "415d2671-f9e1-4cb2-a3c9-cfd4c0404618",
+    "role" : "ellers"
+  }, {
+    "source" : "2089d59e-760c-4411-b867-2e95cb880e57",
+    "target" : "db500927-35b4-4086-8a73-0f09c01e855c",
+    "role" : "ellers"
+  }, {
+    "source" : "1ebb3d5a-981c-4c1d-9e40-6660e119f168",
+    "target" : "2089d59e-760c-4411-b867-2e95cb880e57",
+    "role" : ""
+  }, {
+    "source" : "1ebb3d5a-981c-4c1d-9e40-6660e119f168",
+    "target" : "8fe32f47-5fa9-448c-8667-d5df5a12e30c",
+    "role" : "ellers"
+  } ]
+}

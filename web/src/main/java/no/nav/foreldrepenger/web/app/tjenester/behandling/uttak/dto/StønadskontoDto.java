@@ -1,0 +1,51 @@
+package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
+
+import java.util.List;
+
+public class StønadskontoDto {
+
+    private final String stonadskontotype;
+    private final int maxDager;
+    private final int saldo;
+    private final List<AktivitetSaldoDto> aktivitetSaldoDtoList;
+    private final boolean gyldigForbruk;
+    private final KontoUtvidelser kontoUtvidelser;
+
+    public StønadskontoDto(String stønadskontotype,
+                           int maxDager,
+                           int saldo,
+                           List<AktivitetSaldoDto> aktivitetSaldoDtoList,
+                           boolean gyldigForbruk,
+                           KontoUtvidelser kontoUtvidelser) {
+        this.stonadskontotype = stønadskontotype;
+        this.maxDager = maxDager;
+        this.saldo = saldo;
+        this.aktivitetSaldoDtoList = aktivitetSaldoDtoList;
+        this.gyldigForbruk = gyldigForbruk;
+        this.kontoUtvidelser = kontoUtvidelser;
+    }
+
+    public String getStonadskontotype() {
+        return stonadskontotype;
+    }
+
+    public int getMaxDager() {
+        return maxDager;
+    }
+
+    public int getSaldo() {
+        return saldo;
+    }
+
+    public List<AktivitetSaldoDto> getAktivitetSaldoDtoList() {
+        return aktivitetSaldoDtoList;
+    }
+
+    public boolean isGyldigForbruk() {
+        return gyldigForbruk;
+    }
+
+    public KontoUtvidelser getKontoUtvidelser() {
+        return kontoUtvidelser;
+    }
+}

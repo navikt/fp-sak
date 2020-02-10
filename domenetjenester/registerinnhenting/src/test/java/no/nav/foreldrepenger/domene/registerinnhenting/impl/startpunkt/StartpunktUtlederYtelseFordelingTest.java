@@ -1,0 +1,235 @@
+package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
+
+import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.BEREGNING;
+import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
+import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.UTTAKSVILKÅR;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Collections;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.vedtak.util.FPDateUtil;
+
+public class StartpunktUtlederYtelseFordelingTest {
+
+    private static final BigDecimal ARBEIDSPROSENT_30 = new BigDecimal(30);
+    private static final String AG1 = "123";
+    private static final String AG2 = "456";
+    @Rule
+    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private StartpunktUtlederYtelseFordeling utleder;
+    private SøknadRepository søknadRepository = repositoryProvider.getSøknadRepository();
+    @Mock
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+
+    @Before
+    public void oppsett() {
+        initMocks(this);
+        utleder = new StartpunktUtlederYtelseFordeling(repositoryProvider, skjæringstidspunktTjeneste);
+    }
+
+    @Test
+    public void skal_returnere_inngangsvilkår_dersom_skjæringstidspunkt_er_endret() {
+        // Arrange
+        Behandling originalBehandling = lagFørstegangsBehandling();
+
+        Behandling revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
+
+        opprettYtelsesFordeling(revurdering, AG1);
+
+        LocalDate førsteuttaksdato = LocalDate.now();
+        LocalDate endretUttaksdato = førsteuttaksdato.plusDays(1);
+
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
+
+        var revSkjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(endretUttaksdato).build();
+
+        // Act/Assert
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, revSkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+    }
+
+    @Test
+    public void skal_returnere_beregning_dersom_søker_gradering_på_andel_uten_dagsats() {
+        // Arrange
+        Behandling originalBehandling = lagFørstegangsBehandling();
+
+        Behandling revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+
+        lagreEndringssøknad(revurdering);
+        opprettYtelsesFordelingMedGradering(revurdering, AG2, ARBEIDSPROSENT_30);
+
+        // Act/Assert
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), 1L, 2L)).isEqualTo(BEREGNING);
+    }
+
+    @Test
+    public void startpunkt_uttak_dersom_søknad_gradering_og_orig_behandling_har_ingen_aktiviter_lik_null_dagsats() {
+        // Arrange
+        Behandling originalBehandling = lagFørstegangsBehandling();
+
+        Behandling revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+
+        opprettYtelsesFordelingMedGradering(revurdering, AG1, ARBEIDSPROSENT_30);
+
+        LocalDate førsteuttaksdato = LocalDate.now();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurdering.getId())).thenReturn(skjæringstidspunkt);
+
+        // Act/Assert
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(UTTAKSVILKÅR);
+    }
+
+    @Test
+    public void startpunkt_beregning_dersom_søknad_gradering_og_orig_behandling_har_en_aktivitet_lik_null_dagsats() {
+        // Arrange
+        Behandling originalBehandling = lagFørstegangsBehandling();
+
+        Behandling revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+
+        lagreEndringssøknad(revurdering);
+        opprettYtelsesFordelingMedGradering(revurdering, AG2, ARBEIDSPROSENT_30);
+
+        // Act/Assert
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), 1L, 2L)).isEqualTo(BEREGNING);
+    }
+
+    @Test
+    public void skal_returnere_beregning_dersom_søker_gradering_og_kunn_ett_arbeidsforhold_i_orginalbehandling() {
+        // Arrange
+        Behandling originalBehandling = lagFørstegangsBehandling();
+
+        Behandling revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+
+        LocalDate førsteuttaksdato = LocalDate.now();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
+
+        lagreEndringssøknad(revurdering);
+        opprettYtelsesFordelingMedGradering(revurdering, AG1, ARBEIDSPROSENT_30);
+
+        // Act/Assert
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(BEREGNING);
+    }
+
+    @Test
+    public void startpunkt_beregning_dersom_søknad_er_endringssøknad_med_gradering() {
+        // Arrange
+        Behandling originalBehandling = lagFørstegangsBehandling();
+
+        Behandling revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+
+        lagreEndringssøknad(revurdering);
+        opprettYtelsesFordelingMedGradering(revurdering, AG1, BigDecimal.valueOf(50));
+
+        // Act
+        StartpunktType startpunkt = utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), 1L, 2L);
+
+        // Assert
+        assertThat(startpunkt).isEqualTo(BEREGNING);
+    }
+
+    @Test
+    public void startpunkt_uttak_dersom_søknad_er_endringssøknad_uten_gradering() {
+        // Arrange
+        Behandling originalBehandling = lagFørstegangsBehandling();
+
+        Behandling revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+
+        LocalDate førsteuttaksdato = LocalDate.now();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
+
+        opprettYtelsesFordelingMedGradering(revurdering, AG1, BigDecimal.ZERO);
+        lagreEndringssøknad(revurdering);
+
+        // Act
+        StartpunktType startpunkt = utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, førsteuttaksdato), 1L, 2L);
+
+        // Assert
+        assertThat(startpunkt).isEqualTo(UTTAKSVILKÅR);
+    }
+
+
+    private Behandling lagFørstegangsBehandling() {
+        ScenarioMorSøkerForeldrepenger førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        return førstegangScenario.lagre(repositoryProvider);
+    }
+
+    private Behandling lagRevurdering(Behandling originalBehandling, BehandlingÅrsakType behandlingÅrsakType) {
+        ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING);
+        revurderingScenario.medOriginalBehandling(originalBehandling, behandlingÅrsakType);
+        return revurderingScenario.lagre(repositoryProvider);
+    }
+
+    private void opprettYtelsesFordeling(Behandling revurdering, String arbeidsgiver) {
+        opprettYtelsesFordelingMedGradering(revurdering, arbeidsgiver, BigDecimal.ZERO);
+    }
+
+    private void opprettYtelsesFordelingMedGradering(Behandling behandling, String arbeidsgiver, BigDecimal arbeidsProsent) {
+        OppgittPeriodeEntitet periode = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now(), LocalDate.now().plusDays(7))
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medErArbeidstaker(true)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(arbeidsgiver))
+            .medArbeidsprosent(arbeidsProsent)
+            .build();
+        OppgittFordelingEntitet oppgittFordeling = new OppgittFordelingEntitet(Collections.singletonList(periode), true);
+        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), oppgittFordeling);
+    }
+
+    private void lagreEndringssøknad(Behandling behandling) {
+        byggFamilieHendelse(behandling);
+        SøknadEntitet søknad = new SøknadEntitet.Builder()
+            .medElektroniskRegistrert(true)
+            .medSøknadsdato(FPDateUtil.iDag())
+            .medMottattDato(FPDateUtil.iDag())
+            .medErEndringssøknad(true)
+            .build();
+        søknadRepository.lagreOgFlush(behandling, søknad);
+    }
+
+    private FamilieHendelseEntitet byggFamilieHendelse(Behandling behandling) {
+        FamilieHendelseBuilder søknadHendelse = repositoryProvider.getFamilieHendelseRepository()
+            .opprettBuilderFor(behandling)
+            .medAntallBarn(1);
+        søknadHendelse.medTerminbekreftelse(søknadHendelse.getTerminbekreftelseBuilder()
+            .medTermindato(FPDateUtil.iDag())
+            .medUtstedtDato(FPDateUtil.iDag()));
+        repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadHendelse);
+        return repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getSøknadVersjon();
+    }
+
+
+}

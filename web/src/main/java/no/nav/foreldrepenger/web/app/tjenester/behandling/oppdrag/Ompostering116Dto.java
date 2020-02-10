@@ -1,0 +1,42 @@
+package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
+
+import java.time.LocalDate;
+
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
+
+public class Ompostering116Dto extends SporingDto {
+    private String omPostering;
+    private LocalDate datoOmposterFom;
+    private String tidspktReg;
+    private String saksbehId;
+
+    public Ompostering116Dto(Ompostering116 entitet) {
+        super(entitet, null, entitet.getId());
+    }
+
+    public String getOmPostering() {
+        return omPostering;
+    }
+
+    public LocalDate getDatoOmposterFom() {
+        return datoOmposterFom;
+    }
+
+    public String getTidspktReg() {
+        return tidspktReg;
+    }
+
+    public String getSaksbehId() {
+        return saksbehId;
+    }
+
+    public static Ompostering116Dto fraDomene(Ompostering116 ompostering116) {
+        Ompostering116Dto dto = new Ompostering116Dto(ompostering116);
+        dto.omPostering = ompostering116.getOmPostering();
+        dto.datoOmposterFom = ompostering116.getDatoOmposterFom();
+        dto.tidspktReg = ompostering116.getTidspktReg();
+        dto.saksbehId = ompostering116.getSaksbehId();
+        return dto;
+    }
+
+}

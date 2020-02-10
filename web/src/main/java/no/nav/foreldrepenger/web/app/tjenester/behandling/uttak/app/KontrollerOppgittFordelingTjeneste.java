@@ -1,0 +1,215 @@
+package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
+
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.ALENEOMSORG;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.IKKE_RETT_ANNEN_FORELDER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.SYKDOM_ANNEN_FORELDER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.INSTITUSJON_BARN;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.INSTITUSJON_SØKER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.SYKDOM;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaPeriodeLagreDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakDokumentasjonDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjeneste;
+
+@ApplicationScoped
+public class KontrollerOppgittFordelingTjeneste {
+
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private YtelsesFordelingRepository ytelsesFordelingRepository;
+    private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
+
+    KontrollerOppgittFordelingTjeneste() {
+        //For CDI proxy
+    }
+
+    @Inject
+    public KontrollerOppgittFordelingTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                              BehandlingRepositoryProvider repositoryProvider,
+                                              FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste) {
+        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
+        this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        this.førsteUttaksdatoTjeneste = førsteUttaksdatoTjeneste;
+    }
+
+    /**
+     * Brukes i bekreft aksjonspunkt avklar annen forelder har rett
+     */
+    public void avklarAnnenforelderHarIkkeRett(AvklarAnnenforelderHarRettDto dto, Behandling behandling) {
+        ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandling.getId(), dto.getAnnenforelderHarRett());
+    }
+
+    public void bekreftOppgittePerioder(List<BekreftetOppgittPeriodeDto> bekreftedePerioder, Behandling behandling) {
+        valider(bekreftedePerioder, behandling);
+
+        final List<OppgittPeriodeEntitet> overstyrtPerioder = new ArrayList<>();
+        final List<PeriodeUttakDokumentasjonEntitet> dokumentasjonsperioder = new ArrayList<>();
+
+        for (BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto : bekreftedePerioder) {
+            KontrollerFaktaPeriodeLagreDto bekreftetPeriode = bekreftetOppgittPeriodeDto.getBekreftetPeriode();
+            final OppgittPeriodeBuilder oppgittPeriodeBuilder = oversettPeriode(bekreftetPeriode);
+            if (bekreftetPeriode.getÅrsak().isPresent()) {
+                dokumentasjonsperioder.addAll(oversettDokumentasjonsperioder(bekreftetPeriode.getÅrsak().get(), bekreftetPeriode.getDokumentertePerioder()));
+            }
+            overstyrtPerioder.add(oppgittPeriodeBuilder.build());
+        }
+
+        ytelseFordelingTjeneste.overstyrSøknadsperioder(behandling.getId(), overstyrtPerioder, dokumentasjonsperioder);
+        oppdaterEndringsdato(bekreftedePerioder, behandling);
+    }
+
+    private void valider(List<BekreftetOppgittPeriodeDto> bekreftedePerioder, Behandling behandling) {
+        Optional<LocalDate> førsteUttaksdato = førsteUttaksdatoTjeneste.finnFørsteUttaksdato(behandling);
+        AvklarFaktaUttakValidator.validerOpplysninger(bekreftedePerioder, førsteUttaksdato);
+    }
+
+    private void oppdaterEndringsdato(List<BekreftetOppgittPeriodeDto> bekreftedePerioder, Behandling behandling) {
+        Optional<AvklarteUttakDatoerEntitet> avklarteDatoer = ytelseFordelingTjeneste.hentAggregat(behandling.getId()).getAvklarteDatoer();
+        if (avklarteDatoer.isPresent()) {
+            LocalDate førsteDagIBekreftedePerioder = førsteFomIBekreftedePerioder(bekreftedePerioder);
+            if (førsteDagIBekreftedePerioder.isBefore(avklarteDatoer.get().getGjeldendeEndringsdato())) {
+                AvklarteUttakDatoerEntitet nyeAvklarteDatoer = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer)
+                    .medJustertEndringsdato(førsteDagIBekreftedePerioder)
+                    .build();
+                ytelsesFordelingRepository.lagre(behandling.getId(), nyeAvklarteDatoer);
+            }
+        }
+    }
+
+    private LocalDate førsteFomIBekreftedePerioder(List<BekreftetOppgittPeriodeDto> bekreftedePerioder) {
+        return sortedByFom(bekreftedePerioder).get(0).getBekreftetPeriode().getFom();
+    }
+
+    private List<BekreftetOppgittPeriodeDto> sortedByFom(List<BekreftetOppgittPeriodeDto> bekreftedePerioder) {
+        return bekreftedePerioder.stream()
+            .sorted(Comparator.comparing(o -> o.getBekreftetPeriode().getFom()))
+            .collect(Collectors.toList());
+    }
+
+    private OppgittPeriodeBuilder oversettPeriode(KontrollerFaktaPeriodeLagreDto faktaPeriodeDto) {
+        Objects.requireNonNull(faktaPeriodeDto, "kontrollerFaktaPeriodeDto"); // NOSONAR $NON-NLS-1$
+        final OppgittPeriodeBuilder periodeBuilder = OppgittPeriodeBuilder.ny()
+            .medPeriode(faktaPeriodeDto.getFom(), faktaPeriodeDto.getTom())
+            .medSamtidigUttak(faktaPeriodeDto.getSamtidigUttak())
+            .medSamtidigUttaksprosent(faktaPeriodeDto.getSamtidigUttaksprosent())
+            .medFlerbarnsdager(faktaPeriodeDto.isFlerbarnsdager());
+
+        if (faktaPeriodeDto.getArbeidsgiver() != null) {
+            periodeBuilder.medArbeidsgiver(hentArbeidsgiver(faktaPeriodeDto));
+        }
+
+        if (faktaPeriodeDto.getUttakPeriodeType() != null) {
+            periodeBuilder.medPeriodeType(faktaPeriodeDto.getUttakPeriodeType());
+        }
+        if (faktaPeriodeDto.getArbeidstidsprosent() != null) {
+            periodeBuilder.medErArbeidstaker(faktaPeriodeDto.getErArbeidstaker());
+            periodeBuilder.medErFrilanser(faktaPeriodeDto.getErFrilanser());
+            periodeBuilder.medErSelvstendig(faktaPeriodeDto.getErSelvstendig());
+            periodeBuilder.medArbeidsprosent(faktaPeriodeDto.getArbeidstidsprosent());
+        }
+        if (erUtsettelse(faktaPeriodeDto)) {
+            periodeBuilder.medÅrsak(faktaPeriodeDto.getUtsettelseÅrsak());
+        } else if (erOverføring(faktaPeriodeDto)) {
+            periodeBuilder.medÅrsak(faktaPeriodeDto.getOverføringÅrsak());
+        } else if (erOpphold(faktaPeriodeDto)) {
+            periodeBuilder.medÅrsak(faktaPeriodeDto.getOppholdÅrsak());
+        }
+        if (faktaPeriodeDto.getBegrunnelse() != null) {
+            periodeBuilder.medBegrunnelse(faktaPeriodeDto.getBegrunnelse());
+        }
+        if (faktaPeriodeDto.getResultat() != null) {
+            periodeBuilder.medVurdering(faktaPeriodeDto.getResultat());
+        }
+
+        if (faktaPeriodeDto.getMorsAktivitet() != null && !Årsak.UKJENT.getKode().equals(faktaPeriodeDto.getMorsAktivitet().getKode())) {
+            periodeBuilder.medMorsAktivitet(faktaPeriodeDto.getMorsAktivitet());
+        }
+
+        periodeBuilder.medPeriodeKilde(faktaPeriodeDto.getPeriodeKilde());
+
+        return periodeBuilder;
+    }
+
+    private Arbeidsgiver hentArbeidsgiver(KontrollerFaktaPeriodeLagreDto faktaPeriodeDto) {
+        ArbeidsgiverLagreDto arbeidsgiver = faktaPeriodeDto.getArbeidsgiver();
+        if (!arbeidsgiver.erVirksomhet()) {
+            return Arbeidsgiver.person(arbeidsgiver.getAktørId());
+        }
+        String arbeidsgiverIdentifikator = arbeidsgiver.getIdentifikator();
+        return Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator);
+    }
+
+    private List<PeriodeUttakDokumentasjonEntitet> oversettDokumentasjonsperioder(Årsak årsak, List<UttakDokumentasjonDto> dokumentasjonPerioder) {
+        return dokumentasjonPerioder.stream()
+            .map(periode -> {
+                var dokumentasjonType = finnUttakDokumentasjonType(årsak);
+                return new PeriodeUttakDokumentasjonEntitet(periode.getFom(), periode.getTom(), dokumentasjonType);
+            })
+            .collect(Collectors.toList());
+    }
+
+    private UttakDokumentasjonType finnUttakDokumentasjonType(Årsak årsak) {
+        if (årsak != null) {
+            if (SYKDOM.getKode().equals(årsak.getKode())) {
+                return UttakDokumentasjonType.SYK_SØKER;
+            }
+            if (INSTITUSJON_BARN.getKode().equals(årsak.getKode())) {
+                return UttakDokumentasjonType.INNLAGT_BARN;
+            }
+            if (INSTITUSJON_SØKER.getKode().equals(årsak.getKode())) {
+                return UttakDokumentasjonType.INNLAGT_SØKER;
+            }
+            if (INSTITUSJONSOPPHOLD_ANNEN_FORELDER.getKode().equals(årsak.getKode())) {
+                return UttakDokumentasjonType.INSTITUSJONSOPPHOLD_ANNEN_FORELDRE;
+            }
+            if (SYKDOM_ANNEN_FORELDER.getKode().equals(årsak.getKode())) {
+                return UttakDokumentasjonType.SYKDOM_ANNEN_FORELDER;
+            }
+            if (IKKE_RETT_ANNEN_FORELDER.getKode().equals(årsak.getKode())) {
+                return UttakDokumentasjonType.IKKE_RETT_ANNEN_FORELDER;
+            }
+            if (ALENEOMSORG.getKode().equals(årsak.getKode())) {
+                return UttakDokumentasjonType.ALENEOMSORG_OVERFØRING;
+            }
+        }
+        throw new IllegalStateException("Finner ikke uttakDokumentasjonType for årsak: " + årsak); //NOSONAR
+    }
+
+    private boolean erOverføring(KontrollerFaktaPeriodeLagreDto bekreftetPeriode) {
+        return bekreftetPeriode.getOverføringÅrsak() != null && !Årsak.UKJENT.getKode().equals(bekreftetPeriode.getOverføringÅrsak().getKode());
+    }
+
+    private boolean erUtsettelse(KontrollerFaktaPeriodeLagreDto bekreftetPeriode) {
+        return bekreftetPeriode.getUtsettelseÅrsak() != null && !Årsak.UKJENT.getKode().equals(bekreftetPeriode.getUtsettelseÅrsak().getKode());
+    }
+
+    private boolean erOpphold(KontrollerFaktaPeriodeLagreDto bekreftetPeriode) {
+        return bekreftetPeriode.getOppholdÅrsak() != null && !Årsak.UKJENT.getKode().equals(bekreftetPeriode.getOppholdÅrsak().getKode());
+    }
+
+}

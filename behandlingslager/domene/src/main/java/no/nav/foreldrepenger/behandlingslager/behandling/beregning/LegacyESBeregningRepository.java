@@ -1,0 +1,111 @@
+package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
+
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
+
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+
+import org.hibernate.jpa.QueryHints;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
+
+@ApplicationScoped
+public class LegacyESBeregningRepository {
+
+    private static final long G_MULTIPLIKATOR = 6L;
+
+    private EntityManager entityManager;
+    private BehandlingRepository behandlingRepository;
+
+    LegacyESBeregningRepository() {
+        // for CDI proxy
+    }
+
+    public LegacyESBeregningRepository(EntityManager entityManager) {
+        // for test
+        this(entityManager, new BehandlingRepository(entityManager));
+    }
+
+    @Inject
+    public LegacyESBeregningRepository(@VLPersistenceUnit EntityManager entityManager, BehandlingRepository behandlingRepository) {
+        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        this.behandlingRepository = behandlingRepository;
+        this.entityManager = entityManager;
+    }
+
+    protected EntityManager getEntityManager() {
+        return entityManager;
+    }
+
+    /**
+     * Lagrer beregnignsresultat på behandling. Sørger for at samtidige oppdateringer på samme Behandling, eller andre Behandlinger
+     * på samme Fagsak ikke kan gjøres samtidig.
+     *
+     * @see BehandlingLås
+     */
+    public void lagre(LegacyESBeregningsresultat beregningResultat, BehandlingLås lås) {
+        getEntityManager().persist(beregningResultat);
+        beregningResultat.getBeregninger().forEach(beregning -> getEntityManager().persist(beregning));
+        verifiserBehandlingLås(lås);
+        getEntityManager().flush();
+    }
+
+    public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
+        TypedQuery<BeregningSats> query = entityManager.createQuery("from BeregningSats where satsType=:satsType" + //$NON-NLS-1$
+                " and periode.fomDato<=:dato" + //$NON-NLS-1$
+                " and periode.tomDato>=:dato", BeregningSats.class); //$NON-NLS-1$
+
+        query.setParameter("satsType", satsType); //$NON-NLS-1$
+        query.setParameter("dato", dato); //$NON-NLS-1$
+        query.setHint(QueryHints.HINT_READONLY, "true");//$NON-NLS-1$
+        query.getResultList();
+        return hentEksaktResultat(query);
+    }
+
+    public long avkortingMultiplikatorG(@SuppressWarnings("unused") LocalDate dato) {
+        return G_MULTIPLIKATOR;
+    }
+
+    public Optional<LegacyESBeregning> getSisteBeregning(Long behandlingId) {
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        return getSisteBeregning(behandling);
+    }
+
+    private Optional<LegacyESBeregning> getSisteBeregning(Behandling behandling) {
+        Optional<LegacyESBeregning> beregning = Optional.ofNullable(behandling.getBehandlingsresultat()).map(behandlingsresultat -> behandlingsresultat.getBeregningResultat()).map(beregningResultat -> beregningResultat.getSisteBeregning()).orElse(Optional.empty());
+        return beregning;
+    }
+
+    public void lagreBeregning(Long behandlingId, LegacyESBeregning nyBeregning) {
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        LegacyESBeregning sisteBeregning = getSisteBeregning(behandling).orElse(null);
+
+        LegacyESBeregningsresultat beregningResultat = (sisteBeregning == null ? LegacyESBeregningsresultat.builder()
+                : LegacyESBeregningsresultat.builderFraEksisterende(sisteBeregning.getBeregningResultat()))
+                        .medBeregning(nyBeregning)
+                        .buildFor(behandling);
+
+        BehandlingLås skriveLås = taSkriveLås(behandling);
+        lagre(beregningResultat, skriveLås);
+    }
+
+    protected BehandlingLås taSkriveLås(Behandling behandling) {
+        return behandlingRepository.taSkriveLås(behandling);
+    }
+
+    // sjekk lås og oppgrader til skriv
+    protected void verifiserBehandlingLås(BehandlingLås lås) {
+        BehandlingLåsRepository låsHåndterer = new BehandlingLåsRepository(getEntityManager());
+        låsHåndterer.oppdaterLåsVersjon(lås);
+    }
+}

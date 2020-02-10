@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+      http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd" version="2.1">
+
+    <sequence-generator name="SEQ_STOENADSKONTO" allocation-size="50" sequence-name="SEQ_STOENADSKONTO"/>
+    <sequence-generator name="SEQ_STOENADSKONTOBEREGNING" allocation-size="50" sequence-name="SEQ_STOENADSKONTOBEREGNING"/>
+
+    <sequence-generator name="SEQ_UTTAK_RESULTAT" allocation-size="50" sequence-name="SEQ_UTTAK_RESULTAT" />
+    <sequence-generator name="SEQ_UTTAK_RESULTAT_PERIODE" allocation-size="50" sequence-name="SEQ_UTTAK_RESULTAT_PERIODE" />
+    <sequence-generator name="SEQ_UTTAK_RESULTAT_PERIODER" allocation-size="50" sequence-name="SEQ_UTTAK_RESULTAT_PERIODER" />
+    <sequence-generator name="SEQ_UTTAKSPERIODEGRENSE" allocation-size="50" sequence-name="SEQ_UTTAKSPERIODEGRENSE" />
+    <sequence-generator name="SEQ_UTTAK_RESULTAT_PERIODE_AKT" allocation-size="50" sequence-name="SEQ_UTTAK_RESULTAT_PERIODE_AKT" />
+    <sequence-generator name="SEQ_UTTAK_AKTIVITET" allocation-size="50" sequence-name="SEQ_UTTAK_AKTIVITET" />
+    <sequence-generator name="SEQ_UTTAK_RESULTAT_DOK_REGEL" allocation-size="50" sequence-name="SEQ_UTTAK_RESULTAT_DOK_REGEL" />
+    <sequence-generator name="SEQ_UTTAK_RES_PER_SOKNAD" allocation-size="50" sequence-name="SEQ_UTTAK_RES_PER_SOKNAD" />
+
+    <sequence-generator name="SEQ_SVP_UTTAK_RESULTAT" allocation-size="50" sequence-name="SEQ_SVP_UTTAK_RESULTAT" />
+    <sequence-generator name="SEQ_SVP_UTTAK_RESULTAT_ARBEIDSFORHOLD" allocation-size="50" sequence-name="SEQ_SVP_UTTAK_RESULTAT_ARBEIDSFORHOLD" />
+    <sequence-generator name="SEQ_SVP_UTTAK_RESULTAT_PERIODE" allocation-size="50" sequence-name="SEQ_SVP_UTTAK_RESULTAT_PERIODE" />
+
+    <sequence-generator name="SEQ_GR_YTELSES_FORDELING" allocation-size="50" sequence-name="SEQ_GR_YTELSES_FORDELING"/>
+    <sequence-generator name="SEQ_YF_FORDELING" allocation-size="50" sequence-name="SEQ_YF_FORDELING"/>
+    <sequence-generator name="SEQ_YF_FORDELING_PERIODE" allocation-size="50" sequence-name="SEQ_YF_FORDELING_PERIODE"/>
+    <sequence-generator name="SEQ_YF_AVKLART_DATO" allocation-size="50" sequence-name="SEQ_YF_AVKLART_DATO"/>
+    <sequence-generator name="SEQ_SO_RETTIGHET" allocation-size="50" sequence-name="SEQ_SO_RETTIGHET"/>
+    <sequence-generator name="SEQ_SO_DEKNINGSGRAD" allocation-size="50" sequence-name="SEQ_SO_DEKNINGSGRAD"/>
+    <sequence-generator name="SEQ_YF_DOKUMENTASJON_PERIODE" allocation-size="50" sequence-name="SEQ_YF_DOKUMENTASJON_PERIODE"/>
+    <sequence-generator name="SEQ_YF_DOKUMENTASJON_PERIODER" allocation-size="50" sequence-name="SEQ_YF_DOKUMENTASJON_PERIODER"/>
+
+    <!-- Uttak av FP -->
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeSøknadEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatDokRegelEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.OrgManuellÅrsakEntitet"/>
+
+    <!-- Uttak av FP kodeverk-->
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning"/>
+
+    <!-- Uttak av SVP -->
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet" />
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet" />
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet" />
+
+    <!-- Grunnlag for ytelsesfordeling -->
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingGrunnlagEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUtenOmsorgEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUtenOmsorgEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAnnenforelderHarRettEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPerioderEntitet"/>
+
+</entity-mappings>

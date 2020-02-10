@@ -1,0 +1,110 @@
+package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
+
+import java.util.Optional;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.behandling.BehandlingIdDto;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.vedtak.felles.jpa.Transaction;
+import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
+import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
+import no.nav.vedtak.util.FPDateUtil;
+
+/**
+ * Tester Behandlingskontroll synkront.
+ */
+@Path("/behandlingskontroll")
+@RequestScoped // må være RequestScoped fordi BehandlingskontrollTjeneste er det
+@Transaction
+@Produces(MediaType.APPLICATION_JSON)
+public class BehandlingskontrollRestTjeneste {
+
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+
+    private BehandlingRepository behandlingRepository;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
+
+    public BehandlingskontrollRestTjeneste() {
+        // For Rest-CDI
+    }
+
+    @Inject
+    public BehandlingskontrollRestTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                           BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+                                           BehandlingRepository behandlingRepository) {
+        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
+        this.behandlingRepository = behandlingRepository;
+    }
+
+    @POST
+    @Path("/prosesserBehandling")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "KUN FOR TEST!!!: Kjører behandlingskontroll på en behandling.",
+        summary = ("Kjører behandlingskontroll fra gjeldende steg frem til så langt behandlingen lar seg kjøre automatisk. Først og fremst for synkron/automatisering av behandlingsprosessen."),
+        tags = "behandlingskontroll")
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.UPDATE, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
+    public BehandlingskontrollDto kjørBehandling(
+        @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId må referere en allerede opprettet behandling") @Valid
+                BehandlingIdDto behandlingIdDto) {
+
+        Long behandlingId = behandlingIdDto.getBehandlingId();
+        Behandling behandling = behandlingId != null
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+
+        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        behandlingskontrollTjeneste.prosesserBehandling(kontekst);
+
+        return new BehandlingskontrollDto(behandling.getStatus(), behandling.getAktivtBehandlingSteg(), behandling.getAksjonspunkter());
+    }
+
+    @POST
+    @Path("/taskFortsettBehandling")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "DRIFT: Opprett en manuell FortsettBehandlingTask for en behandling.",
+        summary = ("Oppretter en FortsettBehandlingTask som vil prosessere behandlingen. For håndtering av tilfelle der behandlingen har endt i limbo uten automtisk gjenoppliving."),
+        tags = "behandlingskontroll")
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT)
+    public Response lagFortsettBehandling (
+        @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId må referere en allerede opprettet behandling") @Valid
+            BehandlingIdDto behandlingIdDto) {
+
+        Long behandlingId = behandlingIdDto.getBehandlingId();
+        Behandling behandling = behandlingId != null
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+
+        Optional<BehandlingStegTilstand> tilstand = behandling.getBehandlingStegTilstand();
+        if (!tilstand.isPresent()) {
+            return Response.ok().build();
+        }
+        if (BehandlingStegType.IVERKSETT_VEDTAK.equals(tilstand.get().getBehandlingSteg()) && BehandlingStegStatus.VENTER.equals(tilstand.get().getBehandlingStegStatus())) {
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingGjenopptaStegNesteKjøring(behandling, tilstand.get().getBehandlingSteg(), FPDateUtil.nå());
+        } else {
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
+        }
+        return Response.ok().build();
+    }
+}

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+      http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd" version="2.1">
+
+    <sequence-generator name="SEQ_BEREGNINGSGRUNNLAG" allocation-size="50" sequence-name="SEQ_BEREGNINGSGRUNNLAG" />
+    <sequence-generator name="SEQ_BG_REGEL_SPORING" allocation-size="50" sequence-name="SEQ_BG_REGEL_SPORING" />
+    <sequence-generator name="SEQ_BG_PERIODE" allocation-size="50" sequence-name="SEQ_BG_PERIODE" />
+    <sequence-generator name="SEQ_BG_PERIODE_REGEL_SPORING" allocation-size="50" sequence-name="SEQ_BG_PERIODE_REGEL_SPORING" />
+    <sequence-generator name="SEQ_BG_PERIODE_AARSAK" allocation-size="50" sequence-name="SEQ_BG_PERIODE_AARSAK" />
+    <sequence-generator name="SEQ_BG_ANDEL_ARBEIDSFORHOLD" allocation-size="50" sequence-name="SEQ_BG_ANDEL_ARBEIDSFORHOLD" />
+    <sequence-generator name="SEQ_BG_PR_STATUS_OG_ANDEL" allocation-size="50" sequence-name="SEQ_BG_PR_STATUS_OG_ANDEL" />
+    <sequence-generator name="SEQ_SAMMENLIGNINGSGRUNNLAG" allocation-size="50" sequence-name="SEQ_SAMMENLIGNINGSGRUNNLAG" />
+    <sequence-generator name="SEQ_BG_SG_PR_STATUS" allocation-size="50" sequence-name="SEQ_BG_SG_PR_STATUS" />
+    <sequence-generator name="SEQ_BG_FAKTA_BER_TILFELLE" allocation-size="50" sequence-name="SEQ_BG_FAKTA_BER_TILFELLE" />
+    <sequence-generator name="SEQ_GR_BEREGNINGSGRUNNLAG" allocation-size="50" sequence-name="SEQ_GR_BEREGNINGSGRUNNLAG" />
+    <sequence-generator name="SEQ_BG_FRILANS_ANDEL" allocation-size="50" sequence-name="SEQ_BG_FRILANS_ANDEL" />
+    <sequence-generator name="SEQ_BG_ARBEIDSTAKER_ANDEL" allocation-size="50" sequence-name="SEQ_BG_ARBEIDSTAKER_ANDEL" />
+    <sequence-generator name="SEQ_BG_AKTIVITETER" allocation-size="50" sequence-name="SEQ_BG_AKTIVITETER"/>
+    <sequence-generator name="SEQ_BG_AKTIVITET" allocation-size="50" sequence-name="SEQ_BG_AKTIVITET"/>
+    <sequence-generator name="SEQ_BG_AKTIVITET_OVERSTYRINGER" allocation-size="50" sequence-name="SEQ_BG_AKTIVITET_OVERSTYRINGER"/>
+    <sequence-generator name="SEQ_BG_AKTIVITET_OVERSTYRING" allocation-size="50" sequence-name="SEQ_BG_AKTIVITET_OVERSTYRING"/>
+    <sequence-generator name="SEQ_BG_REFUSJON_OVERSTYRINGER" allocation-size="50" sequence-name="SEQ_BG_REFUSJON_OVERSTYRINGER"/>
+    <sequence-generator name="SEQ_BG_REFUSJON_OVERSTYRING" allocation-size="50" sequence-name="SEQ_BG_REFUSJON_OVERSTYRING"/>
+
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelSporing" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriodeRegelSporing" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriodeÅrsak" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Sammenligningsgrunnlag" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagPrStatus" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagFaktaOmBeregningTilfelle" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagFrilansAndel" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagArbeidstakerAndel" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetEntitet" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetOverstyringerEntitet" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetOverstyringEntitet" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonOverstyringerEntitet" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonOverstyringEntitet" />
+
+</entity-mappings>

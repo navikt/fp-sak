@@ -1,0 +1,127 @@
+package no.nav.foreldrepenger.jsonfeed;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
+import no.nav.foreldrepenger.domene.feed.FeedRepository;
+import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
+import no.nav.foreldrepenger.domene.feed.HendelseCriteria;
+import no.nav.foreldrepenger.domene.feed.SvpVedtakUtgåendeHendelse;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.jsonfeed.dto.VedtakDto;
+import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
+import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Meldingstype;
+
+public class VedtakFattetTjenesteTest {
+
+    private static final String PAYLOAD = "{}";
+    private static final AktørId AKTØR_ID = AktørId.dummy();
+    private static final String HENDELSE_TYPE = Meldingstype.FORELDREPENGER_INNVILGET.getType();
+    private static final long MAX_ANTALL = 2L;
+    private static final long SIST_LEST_SEKVENSID = 1L;
+    private VedtakFattetTjeneste tjeneste;
+    private FeedRepository feedRepository;
+
+    @Before
+    public void setUp() {
+        feedRepository = Mockito.mock(FeedRepository.class);
+        tjeneste = new VedtakFattetTjeneste(feedRepository);
+    }
+
+    @Test
+    public void skal_delegere_til_repository_metode_for_søk_fp_hendelser() {
+        ArgumentCaptor<HendelseCriteria> captor = ArgumentCaptor.forClass(HendelseCriteria.class);
+        FpVedtakUtgåendeHendelse hendelse = mockFpHendelse(SIST_LEST_SEKVENSID + 1);
+
+        when(feedRepository.hentUtgåendeHendelser(eq(FpVedtakUtgåendeHendelse.class), any(HendelseCriteria.class))).thenReturn(List.of(hendelse));
+
+        VedtakDto dto = tjeneste.hentFpVedtak(SIST_LEST_SEKVENSID, MAX_ANTALL, HENDELSE_TYPE, Optional.of(AKTØR_ID));
+
+        verify(feedRepository).hentUtgåendeHendelser(eq(FpVedtakUtgåendeHendelse.class), captor.capture());
+        HendelseCriteria criteria = captor.getValue();
+        assertThat(criteria.getAktørId()).isEqualTo(AKTØR_ID.getId());
+        assertThat(criteria.getMaxAntall()).isEqualTo(MAX_ANTALL + 1);
+        assertThat(criteria.getSisteLestSekvensId()).isEqualTo(SIST_LEST_SEKVENSID);
+        assertThat(criteria.getType()).isEqualTo(HENDELSE_TYPE);
+        assertThat(dto.isHarFlereElementer()).isFalse();
+        assertThat(dto.getElementer()).hasSize(1);
+        assertThat(dto.getElementer().get(0).getType()).isEqualTo(HENDELSE_TYPE);
+        assertThat(dto.getElementer().get(0).getInnhold()).isInstanceOf(ForeldrepengerInnvilget.class);
+        assertThat(dto.getElementer().get(0).getSekvensId()).isEqualTo(SIST_LEST_SEKVENSID + 1);
+    }
+
+    @Test
+    public void skal_delegere_til_repository_metode_for_søk_svp_hendelser() {
+        ArgumentCaptor<HendelseCriteria> captor = ArgumentCaptor.forClass(HendelseCriteria.class);
+        SvpVedtakUtgåendeHendelse hendelse = mockSvpHendelse(SIST_LEST_SEKVENSID + 1);
+
+        when(feedRepository.hentUtgåendeHendelser(eq(SvpVedtakUtgåendeHendelse.class), any(HendelseCriteria.class))).thenReturn(List.of(hendelse));
+
+        VedtakDto dto = tjeneste.hentSvpVedtak(SIST_LEST_SEKVENSID, MAX_ANTALL, HENDELSE_TYPE, Optional.of(AKTØR_ID));
+
+        verify(feedRepository).hentUtgåendeHendelser(eq(SvpVedtakUtgåendeHendelse.class), captor.capture());
+        HendelseCriteria criteria = captor.getValue();
+        assertThat(criteria.getAktørId()).isEqualTo(AKTØR_ID.getId());
+        assertThat(criteria.getMaxAntall()).isEqualTo(MAX_ANTALL + 1);
+        assertThat(criteria.getSisteLestSekvensId()).isEqualTo(SIST_LEST_SEKVENSID);
+        assertThat(criteria.getType()).isEqualTo(HENDELSE_TYPE);
+        assertThat(dto.isHarFlereElementer()).isFalse();
+        assertThat(dto.getElementer()).hasSize(1);
+        assertThat(dto.getElementer().get(0).getType()).isEqualTo(HENDELSE_TYPE);
+        assertThat(dto.getElementer().get(0).getInnhold()).isInstanceOf(ForeldrepengerInnvilget.class);
+        assertThat(dto.getElementer().get(0).getSekvensId()).isEqualTo(SIST_LEST_SEKVENSID + 1);
+    }
+
+    @Test
+    public void hent_hendelser_skal_returnere_at_det_er_flere_hendelser_å_lese() {
+        FpVedtakUtgåendeHendelse hendelse = mockFpHendelse(SIST_LEST_SEKVENSID + 1);
+        FpVedtakUtgåendeHendelse hendelse2 = mockFpHendelse(SIST_LEST_SEKVENSID + 2);
+        when(feedRepository.hentUtgåendeHendelser(eq(FpVedtakUtgåendeHendelse.class), any(HendelseCriteria.class))).thenReturn(List.of(hendelse, hendelse2));
+
+        VedtakDto dto = tjeneste.hentFpVedtak(SIST_LEST_SEKVENSID, 1L, HENDELSE_TYPE, Optional.of(AKTØR_ID));
+
+        assertThat(dto.isHarFlereElementer()).isTrue();
+    }
+
+    @Test
+    public void skal_ignorere_ukjent_type() {
+        FpVedtakUtgåendeHendelse hendelse = mockFpHendelse(SIST_LEST_SEKVENSID + 1);
+        when(hendelse.getType()).thenReturn("Ukjent");
+        when(feedRepository.hentUtgåendeHendelser(eq(FpVedtakUtgåendeHendelse.class), any(HendelseCriteria.class))).thenReturn(List.of(hendelse));
+
+        VedtakDto dto = tjeneste.hentFpVedtak(SIST_LEST_SEKVENSID, 1L, HENDELSE_TYPE, Optional.of(AKTØR_ID));
+
+        assertThat(dto.getElementer()).isEmpty();
+    }
+
+    private FpVedtakUtgåendeHendelse mockFpHendelse(Long sekvensenummer) {
+        FpVedtakUtgåendeHendelse hendelse = mock(FpVedtakUtgåendeHendelse.class);
+        when(hendelse.getType()).thenReturn(HENDELSE_TYPE);
+        when(hendelse.getSekvensnummer()).thenReturn(sekvensenummer);
+        when(hendelse.getPayload()).thenReturn(PAYLOAD);
+        when(hendelse.getOpprettetTidspunkt()).thenReturn(LocalDateTime.now());
+        return hendelse;
+    }
+
+    private SvpVedtakUtgåendeHendelse mockSvpHendelse(Long sekvensenummer) {
+        SvpVedtakUtgåendeHendelse hendelse = mock(SvpVedtakUtgåendeHendelse.class);
+        when(hendelse.getType()).thenReturn(HENDELSE_TYPE);
+        when(hendelse.getSekvensnummer()).thenReturn(sekvensenummer);
+        when(hendelse.getPayload()).thenReturn(PAYLOAD);
+        when(hendelse.getOpprettetTidspunkt()).thenReturn(LocalDateTime.now());
+        return hendelse;
+    }
+}

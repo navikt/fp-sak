@@ -1,0 +1,277 @@
+import groovy.json.JsonSlurperClassic
+
+
+timestamps {
+    def username = ''
+    def password = ''
+    def deploy = false
+    def build = false
+    def owasp = false
+    def skipUTests = '-DskipUTs'
+    def skipITests = '-DskipITs'
+    def secScan = false
+    def hasCredentials = false
+    def fasitCredentialId = ''
+    def deployVersion = ''
+    def pomVersion = ''
+    def miljo = ''
+    def dbEmptyUser = env.es_database_user
+    def agent = ''
+    def mvnVersionParams = ''
+    try {
+        deploy = Boolean.valueOf(DEPLOY)
+        hasCredentials = true
+        fasitCredentialId = env.FASIT_CRED
+        deployVersion = env.DEPLOY_VERSION
+
+    } catch (MissingPropertyException e) {
+        deploy = false
+    }
+
+    try {
+        def _skipUTests = Boolean.valueOf(SKIPUTESTS)
+        if (!_skipUTests) {
+            skipUTests = ''
+        }
+
+    } catch (MissingPropertyException e) {
+        skipUTests = ''
+    }
+
+    try {
+        def _skipITests = Boolean.valueOf(SKIPITESTS)
+        if (!_skipITests) {
+            skipITests = ''
+        }
+
+    } catch (MissingPropertyException e) {
+        skipITests = ''
+    }
+
+    try {
+        owasp = Boolean.valueOf(OWASP)
+        agent = 'A1'
+
+    } catch (MissingPropertyException e) {
+    }
+
+    try {
+        build = Boolean.valueOf(BUILD)
+
+    } catch (MissingPropertyException e) {
+    }
+
+    try {
+        if (env.MILJO != "null") {
+            miljo = env.MILJO
+            if ("t11".equalsIgnoreCase(miljo)) {
+            	agent = 'A1'
+            }
+        }
+
+    } catch (MissingPropertyException e) {
+    }
+
+    try {
+        secScan = Boolean.valueOf(SECSCAN)
+        hasCredentials = true
+        fasitCredentialId = env.FASIT_CRED
+
+    } catch (MissingPropertyException e) {
+    }
+
+    node (agent) {
+        try {
+            env.LANG = "nb_NO.UTF-8"
+
+            stage("Init") {
+                printStage("Init")
+                env.JAVA_HOME = "${tool 'jdk-1.8'}"
+                env.PATH = "${tool 'default-maven'}/bin:${env.PATH}"
+                env.ORACLE_HOME = "/u01/app/oracle/product/11.2.0/xe"
+                step([$class: 'WsCleanup'])
+                checkout scm
+
+                if (hasCredentials) {
+                    withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: fasitCredentialId,
+                                      usernameVariable: 'SAVEDUSERNAME', passwordVariable: 'SAVEDPASSWORD']]) {
+                        username = env.SAVEDUSERNAME
+                        password = env.SAVEDPASSWORD
+                    }
+                }
+            }
+
+            def artifactId = readFile('pom.xml') =~ '<artifactId>(.+)</artifactId>'
+            artifactId = artifactId[0][1]
+
+            def matcher = readFile('pom.xml') =~ '<revision>(.+?)</revision>'
+            revision = matcher ? matcher[0][1] : null
+            matcher = null
+
+            commitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+            timestamp = new Date().format("yyyyMMddHHmmss")
+            String sha = "_${timestamp}_${commitHash}"
+            version = revision + sha
+            mvnVersionParams = "-Drevision=$revision -Dchangelist= -Dsha1=$sha"
+
+            pom = readMavenPom file: 'pom.xml'
+            artifactId = "${pom.artifactId}"
+
+            info('Vers:' + version)
+            info('mvnVersionParams 1: ' + mvnVersionParams)
+
+
+            if (deployVersion.isEmpty()) {
+                def version = readFile('pom.xml') =~ '<version>(.+)</version>'
+                pomVersion = version[0][1]
+                deployVersion = pomVersion
+            }
+
+            if (build || owasp) {
+
+                stage("Build") {
+
+                    printStage("Build")
+                    configFileProvider(
+                            [configFile(fileId: 'navMavenSettingsUtenProxy', variable: 'MAVEN_SETTINGS')]) {
+                        sh 'export APPDATA=web/klient/node/node_modules/npm/bin; mvn -B ' + mvnVersionParams+ ' -s $MAVEN_SETTINGS ' + skipUTests + ' ' + skipITests + ' -Des.database.user=' + dbEmptyUser + ' clean deploy'
+                    }
+
+                    if (!skipITests) {
+                        publishHTML(target: [
+                                allowMissing         : true,
+                                alwaysLinkToLastBuild: false,
+                                keepAll              : true,
+                                reportDir            : '**/target/failsafe-reports',
+                                reportFiles          : '*.html',
+                                reportName           : "Failsafe Report"
+                        ])
+                    }
+                }
+
+                info("Build");
+                if (!secScan && !deploy) {
+                }
+            }
+
+            if (deploy) {
+
+                stage("Deploy") {
+                    printStage("Deploy")
+
+                    configFileProvider(
+                            [configFile(fileId: 'navMavenSettingsUtenProxy', variable: 'MAVEN_SETTINGS')]) {
+                        wrap([$class: 'MaskPasswordsBuildWrapper']) {
+                            sh 'mvn -B -U -s $MAVEN_SETTINGS -Denv=' + miljo + ' -Dapps=' + artifactId + ':' + deployVersion + ' -Dusername=' + username + ' -Dpassword=' + password + ' no.nav.maven.plugins:aura-maven-plugin:RELEASE:verify no.nav.maven.plugins:aura-maven-plugin:RELEASE:deploy'
+                        }
+                    }
+                    def appUrl = getAppUrl(miljo, artifactId)
+                    def ret = "<a href=" + appUrl + ">" + appUrl + "</a>"
+                    info(miljo)
+
+                }
+            }
+
+            if (secScan) {
+
+                stage('Coverage') {
+                    printStage("Coverage")
+                    env.MAVEN_OPTS = "-Xms512m -Xmx1g"
+                    configFileProvider(
+                            [configFile(fileId: 'navMavenSettingsUtenProxy', variable: 'MAVEN_SETTINGS')]) {
+                        sh "export APPDATA=web/klient/node/node_modules/npm/bin; mvn -B ${mvnVersionParams} -P runSonar,runYarnCoverage -s $MAVEN_SETTINGS clean verify -Dmaven.root=${env.WORKSPACE} -Dmaven.test.failure.ignore=true -Des.database.user=${dbEmptyUser}"
+                    }
+                }
+
+
+                stage('Sonar') {
+                    printStage("Sonar")
+                    configFileProvider(
+                            [configFile(fileId: 'navMavenSettingsUtenProxy', variable: 'MAVEN_SETTINGS')]) {
+                        wrap([$class: 'MaskPasswordsBuildWrapper']) {
+                            env.MAVEN_OPTS = "-Xms512m -Xmx1024m"
+                            sh "mvn -B -P runSonar -s $MAVEN_SETTINGS sonar:sonar -pl !docs -Dmaven.root=${env.WORKSPACE} -Dsonar.host.url=http://a34apvl063.devillo.no:9000/sonarqube/ -Dsonar.login=${username} -Dsonar.password=${password}"
+                        }
+                    }
+                }
+
+                publishHTML(target: [
+                        allowMissing         : true,
+                        alwaysLinkToLastBuild: false,
+                        keepAll              : true,
+                        reportDir            : 'web/klient/coverage',
+                        reportFiles          : 'index.html',
+                        reportName           : "JS CoCo"
+                ])
+
+            }
+
+            if (owasp) {
+                stage('OWASP Dep. Check') {
+                    printStage("OWASP Dep.Check")
+                    configFileProvider(
+                            [configFile(fileId: 'navMavenSettings', variable: 'MAVEN_SETTINGS')]) {
+                        sh 'mvn -U -B ' + mvnVersionParams + ' -s $MAVEN_SETTINGS dependency-check:aggregate -U -DmavenSettingsProxyId=utviklerproxy -Dhttps.protocols=TLSv1.1,TLSv1.2'
+                    }
+                    info("OWASP included")
+                }
+
+                stage('Licence Analyser') {
+                    printStage("Licence Analyser")
+                    configFileProvider(
+                            [configFile(fileId: 'navMavenSettingsUtenProxy', variable: 'MAVEN_SETTINGS')]) {
+                        env.MAVEN_OPTS = "-Xms256m -Xmx512m"
+                        sh 'mvn -U -B ' + mvnVersionParams + ' -s $MAVEN_SETTINGS project-info-reports:dependency-management -DmavenSettingsProxyId=utviklerproxy -X'
+                    }
+                }
+
+                publishHTML(target: [
+                        allowMissing         : true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll              : true,
+                        reportDir            : 'target',
+                        reportFiles          : 'dependency-check-report.html, site/dependency-management.html',
+                        reportName           : "Dependency-Check"
+                ])
+            }
+
+            artifactId = null
+            deployVersion = null
+
+        } catch(error) {
+            if (deploy) {
+                info(miljo)
+            }
+            throw error
+        }
+    }
+}
+
+void info(msg) {
+    ansiColor('xterm') {
+        println "\033[45m\033[37m " + msg + " \033[0m"
+    }
+    currentBuild.description = msg
+}
+void printStage(stage) {
+    ansiColor('xterm') {
+        println "\033[46m Entered stage " + stage + " \033[0m"
+    }
+}
+String getAppUrl(miljo, artifactId) {
+    clusterUrl = 'https://fasit.adeo.no/api/v2/environments/' + miljo + '/clusters'
+    response = httpRequest clusterUrl
+    content = response.content
+    json = new JsonSlurperClassic ().parseText(content)
+
+    for (item in json) {
+        applications = item.applications
+        for (app in applications) {
+            name = app.name
+            if (name == artifactId) {
+                return item.loadbalancerurl + '/vedtak'
+            }
+        }
+    }
+    return 'ERROR'
+}

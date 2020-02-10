@@ -1,0 +1,101 @@
+package no.nav.foreldrepenger.domene.uttak.svp;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.input.Barn;
+import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
+import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.svangerskapspenger.domene.søknad.AvklarteDatoer;
+import no.nav.svangerskapspenger.domene.søknad.Ferie;
+
+@ApplicationScoped
+class AvklarteDatoerTjeneste {
+
+    private UttakRepository uttakRepository;
+    private BasisPersonopplysningTjeneste personopplysningTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+
+    AvklarteDatoerTjeneste() {
+        //For CDI
+    }
+
+    @Inject
+    AvklarteDatoerTjeneste(UttakRepositoryProvider repositoryProvider,
+                           BasisPersonopplysningTjeneste personopplysningTjeneste,
+                           InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.personopplysningTjeneste = personopplysningTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+    }
+
+    public AvklarteDatoer finn(UttakInput input) {
+        var ref = input.getBehandlingReferanse();
+        var behandlingId = ref.getBehandlingId();
+        var uttaksgrense = uttakRepository.hentUttaksperiodegrenseHvisEksisterer(behandlingId);
+
+        SvangerskapspengerGrunnlag svpGrunnlag = input.getYtelsespesifiktGrunnlag();
+        var termindato = svpGrunnlag.getFamilieHendelse().getTermindato().orElseThrow(() -> new IllegalStateException("Det skal alltid være termindato på svangerskapspenger søknad."));
+        var fødselsdatoOptional = svpGrunnlag.getFamilieHendelse().getFødselsdato();
+        var dødsdatoBarnOptional = finnMuligDødsdatoBarn(svpGrunnlag.getFamilieHendelse().getBarna());
+        var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandlingId, input.getAktørId(), LocalDate.now());
+        var dødsdatoBrukerOptional = finnMuligDødsdatoBruker(personopplysningerAggregat);
+
+        var medlemskapOpphørsdatoOptional = input.getMedlemskapOpphørsdato();
+
+        var avklarteDatoerBuilder = new AvklarteDatoer.Builder();
+        avklarteDatoerBuilder.medTermindato(termindato);
+        fødselsdatoOptional.ifPresent(fdato -> avklarteDatoerBuilder.medFødselsdato(fdato));
+        dødsdatoBarnOptional.ifPresent(dødsdatoBarn -> avklarteDatoerBuilder.medBarnetsDødsdato(dødsdatoBarn));
+        dødsdatoBrukerOptional.ifPresent(dødsdatoBruker -> avklarteDatoerBuilder.medBrukersDødsdato(dødsdatoBruker));
+        medlemskapOpphørsdatoOptional.ifPresent(medlemskapOpphørsdato -> avklarteDatoerBuilder.medOpphørsdatoForMedlemskap(medlemskapOpphørsdato));
+        if (uttaksgrense.isPresent()) {
+            avklarteDatoerBuilder.medFørsteLovligeUttaksdato(uttaksgrense.get().getFørsteLovligeUttaksdag());
+            var ferier = finnFerier(ref, uttaksgrense.get().getFørsteLovligeUttaksdag());
+            avklarteDatoerBuilder.medFerie(ferier);
+        }
+
+        return avklarteDatoerBuilder.build();
+    }
+
+    private Optional<LocalDate> finnMuligDødsdatoBruker(PersonopplysningerAggregat personopplysningerAggregat) {
+        return Optional.ofNullable(personopplysningerAggregat.getSøker().getDødsdato());
+    }
+
+    private Optional<LocalDate> finnMuligDødsdatoBarn(List<Barn> barna) {
+        var levendeBarn = barna.stream().filter(barn -> barn.getDødsdato().isEmpty()).collect(Collectors.toList());
+        if (levendeBarn.isEmpty()) {
+            return barna.stream()
+                .map(barn -> barn.getDødsdato())
+                .filter(Optional::isPresent)
+                .map(optionalDødsdato -> optionalDødsdato.get())
+                .max(LocalDate::compareTo);
+        }
+        return Optional.empty();
+    }
+
+    private List<Ferie> finnFerier(BehandlingReferanse behandlingRef, LocalDate utledetSkjæringstidspunkt) {
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingRef, utledetSkjæringstidspunkt);
+        var ferier = new ArrayList<Ferie>();
+        inntektsmeldinger
+            .stream()
+            .flatMap(inntektsmelding -> inntektsmelding.getUtsettelsePerioder().stream())
+            .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
+            .forEach(utsettelse -> ferier.addAll(Ferie.opprett(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato())));
+        return ferier;
+    }
+
+}

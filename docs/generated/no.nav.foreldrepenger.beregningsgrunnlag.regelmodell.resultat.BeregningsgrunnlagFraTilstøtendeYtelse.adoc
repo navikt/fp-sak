@@ -1,0 +1,13 @@
+
+=== INPUT
+
+[options="header", cols="10,10,10"]
+|===
+|NAVN|TYP|BESKRIVELSE
+|getTilstøtendeYtelse|no.nav.foreldrepenger.beregningsgrunnlag.regelmodell.grunnlag.inntekt.TilstøtendeYtelse|
+|getBeregningsgrunnlagAndeler|java.util.List|
+|getGrunnbeløp|java.math.BigDecimal|
+|===
+
+
+
