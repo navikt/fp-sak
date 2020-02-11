@@ -43,6 +43,7 @@ public class ArbeidsforholdWrapper {
     private LocalDate overstyrtTom;
     private ArbeidsforholdHandlingType handlingType;
     private List<PermisjonDto> permisjoner;
+    private Boolean kanOppretteNyttArbforFraIM;
 
     public boolean isHarAksjonspunkt() {
         return harAksjonspunkt;
@@ -284,6 +285,14 @@ public class ArbeidsforholdWrapper {
 
     public void setBasertPåInntektsmelding(boolean basertPåInntektsmelding) {
         this.basertPåInntektsmelding = basertPåInntektsmelding;
+    }
+
+    public boolean getKanOppretteNyttArbforFraIM() {
+        return kanOppretteNyttArbforFraIM;
+    }
+
+    public void setKanOppretteNyttArbforFraIM(boolean kanOppretteNyttArbforFraIM) {
+        this.kanOppretteNyttArbforFraIM = kanOppretteNyttArbforFraIM;
     }
 
     @Override

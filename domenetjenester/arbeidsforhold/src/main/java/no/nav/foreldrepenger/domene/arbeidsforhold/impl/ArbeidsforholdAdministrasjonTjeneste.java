@@ -237,6 +237,12 @@ public class ArbeidsforholdAdministrasjonTjeneste {
         wrapper.setSkjaeringstidspunkt(skjæringstidspunkt);
         wrapper.setKilde(yrkesaktiviteter.stream().anyMatch(ya -> !filter.getAnsettelsesPerioder(ya).isEmpty()) ? ArbeidsforholdKilde.AAREGISTERET
             : ArbeidsforholdKilde.INNTEKTSMELDING);
+        ArbeidsforholdKilde kilde = yrkesaktiviteter.stream().anyMatch(ya -> !filter.getAnsettelsesPerioder(ya).isEmpty()) ? ArbeidsforholdKilde.AAREGISTERET
+            : ArbeidsforholdKilde.INNTEKTSMELDING;
+        wrapper.setKilde(kilde);
+        if (kilde.equals(ArbeidsforholdKilde.INNTEKTSMELDING) && arbeidsgiver.getErVirksomhet()) {
+            wrapper.setKanOppretteNyttArbforFraIM(Ambasade.erAmbasade(arbeidsgiver.getOrgnr()));
+        }
 
         if (arbeidsforholdInformasjon.isPresent()) {
             var eksternArbeidsforholdRef = arbeidsforholdInformasjon.get().finnEkstern(inntektsmelding.getArbeidsgiver(), arbeidsforholdRef);
@@ -348,6 +354,11 @@ public class ArbeidsforholdAdministrasjonTjeneste {
         } else if (overstyring.getHandling().equals(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING)) {
             wrapper.setBasertPåInntektsmelding(true);
             wrapper.setBrukArbeidsforholdet(true);
+            if (overstyring.getArbeidsgiver().getErVirksomhet() && Ambasade.erAmbasade(overstyring.getArbeidsgiver().getOrgnr())) {
+                wrapper.setKanOppretteNyttArbforFraIM(true);
+            } else {
+                wrapper.setKanOppretteNyttArbforFraIM(false);
+            }
         } else if (overstyring.getHandling().equals(ArbeidsforholdHandlingType.INNTEKT_IKKE_MED_I_BG)) {
             wrapper.setInntektMedTilBeregningsgrunnlag(true);
             wrapper.setBasertPåInntektsmelding(true);

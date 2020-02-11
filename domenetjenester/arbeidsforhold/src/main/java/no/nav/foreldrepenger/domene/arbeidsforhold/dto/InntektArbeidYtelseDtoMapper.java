@@ -111,6 +111,7 @@ public class InntektArbeidYtelseDtoMapper {
         arbeidsforholdDto.setBrukPermisjon(wrapper.getBrukPermisjon());
         arbeidsforholdDto.setPermisjoner(wrapper.getPermisjoner());
         arbeidsforholdDto.setOverstyrtTom(Tid.TIDENES_ENDE.equals(wrapper.getOverstyrtTom()) ? null : wrapper.getOverstyrtTom());
+        arbeidsforholdDto.setKanOppretteNyttArbforFraIM(wrapper.getKanOppretteNyttArbforFraIM());
         return arbeidsforholdDto;
     }
 
