@@ -42,6 +42,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDoku
 import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
+import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
@@ -72,6 +73,7 @@ public class KlageRestTjeneste {
     private KlageFormkravTjeneste klageFormkravTjeneste;
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private MottatteDokumentRepository mottatteDokumentRepository;
+    private FptilbakeRestKlient fptilbakeRestKlient;
 
     public KlageRestTjeneste() {
         // for CDI proxy
@@ -82,12 +84,14 @@ public class KlageRestTjeneste {
                              KlageRepository klageRepository,
                              MottatteDokumentRepository mottatteDokumentRepository,
                              KlageFormkravTjeneste klageFormkravTjeneste,
-                             KlageVurderingTjeneste klageVurderingTjeneste) {
+                             KlageVurderingTjeneste klageVurderingTjeneste,
+                             FptilbakeRestKlient fptilbakeRestKlient) {
         this.behandlingRepository = behandlingRepository;
         this.klageRepository = klageRepository;
         this.klageFormkravTjeneste = klageFormkravTjeneste;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
+        this.fptilbakeRestKlient = fptilbakeRestKlient;
     }
 
     @GET
@@ -255,8 +259,8 @@ public class KlageRestTjeneste {
         KlagebehandlingDto dto = new KlagebehandlingDto();
         Optional<KlageVurderingResultatDto> nfpVurdering = KlageVurderingResultatDtoMapper.mapNFPKlageVurderingResultatDto(behandling, klageRepository);
         Optional<KlageVurderingResultatDto> nkVurdering = KlageVurderingResultatDtoMapper.mapNKKlageVurderingResultatDto(behandling, klageRepository);
-        Optional<KlageFormkravResultatDto> nfpFormkrav = KlageFormkravResultatDtoMapper.mapNFPKlageFormkravResultatDto(behandling, klageRepository);
-        Optional<KlageFormkravResultatDto> kaFormkrav = KlageFormkravResultatDtoMapper.mapKAKlageFormkravResultatDto(behandling, klageRepository);
+        Optional<KlageFormkravResultatDto> nfpFormkrav = KlageFormkravResultatDtoMapper.mapNFPKlageFormkravResultatDto(behandling, klageRepository, fptilbakeRestKlient);
+        Optional<KlageFormkravResultatDto> kaFormkrav = KlageFormkravResultatDtoMapper.mapKAKlageFormkravResultatDto(behandling, klageRepository, fptilbakeRestKlient);
 
         if (nfpVurdering.isPresent() || nkVurdering.isPresent() || nfpFormkrav.isPresent() || kaFormkrav.isPresent()) {
             nfpVurdering.ifPresent(dto::setKlageVurderingResultatNFP);
