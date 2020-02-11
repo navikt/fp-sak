@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
@@ -19,15 +20,16 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 
-public class ArbeidsforholdUtenRelevantOppgittOpptjening {
+public final class ArbeidsforholdUtenRelevantOppgittOpptjening {
 
-    public ArbeidsforholdUtenRelevantOppgittOpptjening(){
+    private ArbeidsforholdUtenRelevantOppgittOpptjening() {
+        // Skjuler default
     }
 
-    public boolean erUtenRelevantOppgittOpptjening(AksjonspunktUtlederInput param, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlagOpt){
+    public static boolean erUtenRelevantOppgittOpptjening(AksjonspunktUtlederInput param, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlagOpt){
         if (inntektArbeidYtelseGrunnlagOpt.isPresent()) {
             InntektArbeidYtelseGrunnlag grunnlag = inntektArbeidYtelseGrunnlagOpt.get();
-            if (finnesIkkeArbeidsforholdOgYtelser(grunnlag, param.getAktørId(), param.getSkjæringstidspunkt())) {
+            if (finnesIkkeArbeidsforhold(grunnlag, param.getAktørId(), param.getSkjæringstidspunkt()) && !finnesYtelseAAPEllerDP(grunnlag, param.getAktørId())) {
                 return sjekkForUtenOppgittOpptjening(grunnlag);
             }
             return false;
@@ -35,7 +37,16 @@ public class ArbeidsforholdUtenRelevantOppgittOpptjening {
         return true;
     }
 
-    private boolean sjekkForUtenOppgittOpptjening(InntektArbeidYtelseGrunnlag grunnlag) {
+    private static boolean finnesYtelseAAPEllerDP(InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
+        YtelseFilter ytelseFilter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId));
+        return ytelseFilter.getAlleYtelser().stream().anyMatch(yt -> erDPEllerAAP(yt.getRelatertYtelseType()));
+    }
+
+    private static boolean erDPEllerAAP(RelatertYtelseType relatertYtelseType) {
+        return RelatertYtelseType.ARBEIDSAVKLARINGSPENGER.equals(relatertYtelseType) ||  RelatertYtelseType.DAGPENGER.equals(relatertYtelseType);
+    }
+
+    private static boolean sjekkForUtenOppgittOpptjening(InntektArbeidYtelseGrunnlag grunnlag) {
         Optional<OppgittOpptjening> oppgittOpptjeningOpt = grunnlag.getOppgittOpptjening();
         if (oppgittOpptjeningOpt.isPresent()) {
             OppgittOpptjening oppgittOpptjening = oppgittOpptjeningOpt.get();
@@ -56,24 +67,23 @@ public class ArbeidsforholdUtenRelevantOppgittOpptjening {
         return true;
     }
 
-    private boolean finnesIkkeArbeidsforholdOgYtelser(InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId, Skjæringstidspunkt skjæringstidspunkt) {
+    private static boolean finnesIkkeArbeidsforhold(InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId, Skjæringstidspunkt skjæringstidspunkt) {
         var yaFilter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId));
-        var ytFilter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId));
-        return harIkkeRelevantArbeidsforhold(yaFilter, skjæringstidspunkt) && ytFilter.getAlleYtelser().isEmpty();
+        return harIkkeRelevantArbeidsforhold(yaFilter, skjæringstidspunkt);
     }
 
-    private boolean harIkkeRelevantArbeidsforhold(YrkesaktivitetFilter yaFilter, Skjæringstidspunkt skjæringstidspunkt) {
+    private static boolean harIkkeRelevantArbeidsforhold(YrkesaktivitetFilter yaFilter, Skjæringstidspunkt skjæringstidspunkt) {
         return yaFilter.getYrkesaktiviteter().stream()
             .noneMatch(akt -> erRelevant(akt, skjæringstidspunkt));
     }
 
-    private boolean erRelevant(Yrkesaktivitet yrkesaktivitet, Skjæringstidspunkt skjæringstidspunkt) {
+    private static boolean erRelevant(Yrkesaktivitet yrkesaktivitet, Skjæringstidspunkt skjæringstidspunkt) {
         return yrkesaktivitet.getAlleAktivitetsAvtaler().stream()
             .filter(AktivitetsAvtale::erAnsettelsesPeriode)
             .anyMatch(a -> a.getPeriode().inkluderer(skjæringstidspunkt.getUtledetSkjæringstidspunkt()));
     }
 
-    private List<OppgittAnnenAktivitet> finnRelevanteAnnenAktiviteter(OppgittOpptjening oppgittOpptjening) {
+    private static List<OppgittAnnenAktivitet> finnRelevanteAnnenAktiviteter(OppgittOpptjening oppgittOpptjening) {
         return oppgittOpptjening.getAnnenAktivitet().stream()
             .filter(annenAktivitet ->
                 annenAktivitet.getArbeidType().equals(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE) ||
