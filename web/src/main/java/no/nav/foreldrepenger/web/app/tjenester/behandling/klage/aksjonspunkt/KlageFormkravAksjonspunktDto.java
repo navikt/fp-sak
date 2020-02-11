@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 
 
+import java.util.UUID;
+
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -28,6 +31,12 @@ public abstract  class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunk
     @JsonProperty("erSignert")
     private boolean erSignert;
 
+    @JsonProperty("erTilbakekreving")
+    private boolean erTilbakekreving;
+
+    @Valid
+    private KlageTilbakekrevingDto klageTilbakekreving;
+
     @JsonProperty("vedtak")
     // TODO (BehandlingIdDto): bør kunne støtte behandlingUuid også?  Hvorfor heter property "vedtak"?
     private Long påKlagdBehandlingId;
@@ -40,7 +49,10 @@ public abstract  class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunk
         // For Jackson
     }
 
-    public KlageFormkravAksjonspunktDto(boolean erKlagerPart, boolean erFristOverholdt, boolean erKonkret, boolean erSignert, Long påKlagdBehandlingId, String begrunnelse) {
+    public KlageFormkravAksjonspunktDto(boolean erKlagerPart, boolean erFristOverholdt,
+                                        boolean erKonkret, boolean erSignert,
+                                        Long påKlagdBehandlingId, String begrunnelse,
+                                        boolean erTilbakekreving, KlageTilbakekrevingDto klageTilbakekreving) {
         super(begrunnelse);
         this.erKlagerPart = erKlagerPart;
         this.erFristOverholdt = erFristOverholdt;
@@ -48,6 +60,8 @@ public abstract  class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunk
         this.erSignert = erSignert;
         this.påKlagdBehandlingId = påKlagdBehandlingId;
         this.begrunnelse = begrunnelse;
+        this.erTilbakekreving = erTilbakekreving;
+        this.klageTilbakekreving = klageTilbakekreving;
     }
 
     public boolean erKlagerPart() {
@@ -70,9 +84,22 @@ public abstract  class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunk
         return påKlagdBehandlingId;
     }
 
+    public UUID hentpåKlagdEksternBehandlingUuId() {
+        return erTilbakekreving && klageTilbakekreving!= null ? klageTilbakekreving.getPåklagdEksternBehandlingUuid() : null;
+    }
+
     @Override
     public String getBegrunnelse() {
         return begrunnelse;
+    }
+
+    public boolean erTilbakekreving(){
+        return erTilbakekreving;
+    }
+
+    @JsonProperty("tilbakekrevingInfo")
+    public KlageTilbakekrevingDto getKlageTilbakekreving() {
+        return klageTilbakekreving;
     }
 
     @JsonTypeName(AksjonspunktKodeDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP_KODE)
@@ -83,15 +110,12 @@ public abstract  class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunk
             super();
         }
 
-        public KlageFormkravNfpAksjonspunktDto(boolean erKlagerPart,
-                                               boolean erFristOverholdt, boolean erKonkret,
-                                               boolean erSignert, Long vedtakId,
-                                               String begrunnelse ) {
-            super(erKlagerPart, erFristOverholdt, erKonkret, erSignert, vedtakId, begrunnelse);
+        public KlageFormkravNfpAksjonspunktDto(boolean erKlagerPart,boolean erFristOverholdt,
+                                               boolean erKonkret,boolean erSignert,
+                                               Long vedtakId, String begrunnelse,
+                                               boolean erTilbakekreving, KlageTilbakekrevingDto klageTilbakekreving ) {
+            super(erKlagerPart, erFristOverholdt, erKonkret, erSignert, vedtakId, begrunnelse, erTilbakekreving, klageTilbakekreving);
         }
-
-
-
     }
 
     @JsonTypeName(AksjonspunktKodeDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA_KODE)
@@ -102,14 +126,12 @@ public abstract  class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunk
             super();
         }
 
-        public KlageFormkravKaAksjonspunktDto(boolean erKlagerPart,
-                                               boolean erFristOverholdt, boolean erKonkret,
-                                               boolean erSignert, Long vedtakId,
-                                               String begrunnelse ) {
-            super(erKlagerPart, erFristOverholdt, erKonkret, erSignert, vedtakId, begrunnelse);
+        public KlageFormkravKaAksjonspunktDto(boolean erKlagerPart,boolean erFristOverholdt,
+                                              boolean erKonkret,boolean erSignert,
+                                              Long vedtakId, String begrunnelse,
+                                              boolean erTilbakekreving, KlageTilbakekrevingDto klageTilbakekreving) {
+            super(erKlagerPart, erFristOverholdt, erKonkret, erSignert, vedtakId, begrunnelse, erTilbakekreving, klageTilbakekreving);
         }
-
-
-
     }
+
 }

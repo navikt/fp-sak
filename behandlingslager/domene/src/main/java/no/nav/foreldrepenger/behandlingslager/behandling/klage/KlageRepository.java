@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.klage;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -73,6 +74,17 @@ public class KlageRepository {
     public void settPåklagdBehandling(Behandling klageBehandling, Behandling påKlagdBehandling) {
         KlageResultatEntitet klageResultat = hentKlageResultat(klageBehandling);
         klageResultat.settPåKlagdBehandling(påKlagdBehandling);
+        klageResultat.settPåKlagdEksternBehandlingId(null);
+
+        entityManager.persist(klageResultat);
+        entityManager.flush();
+    }
+
+    public void settPåklagdEksternBehandlingUuid(Behandling klageBehandling, UUID påKlagdEksternBehandlingUuid) {
+        KlageResultatEntitet klageResultat = hentKlageResultat(klageBehandling);
+        klageResultat.settPåKlagdEksternBehandlingId(påKlagdEksternBehandlingUuid);
+        klageResultat.settPåKlagdBehandling(null);
+
         entityManager.persist(klageResultat);
         entityManager.flush();
     }

@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandling.klage;
 
+import java.util.UUID;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -39,6 +41,11 @@ public class KlageFormkravTjeneste {
         }
         Behandling påklagetBehandling = behandlingRepository.hentBehandling(påklagetBehandlingId);
         klageRepository.settPåklagdBehandling(klageBehandling, påklagetBehandling);
+    }
+
+    public void oppdaterKlageMedPåklagetEksternBehandlingUuid(Long klageBehandlingId, UUID påklagetEksternBehandlingUuid){
+        Behandling klageBehandling = behandlingRepository.hentBehandling(klageBehandlingId);
+        klageRepository.settPåklagdEksternBehandlingUuid(klageBehandling,påklagetEksternBehandlingUuid);
     }
 
     public void lagreFormkrav(KlageFormkravAdapter dto) {

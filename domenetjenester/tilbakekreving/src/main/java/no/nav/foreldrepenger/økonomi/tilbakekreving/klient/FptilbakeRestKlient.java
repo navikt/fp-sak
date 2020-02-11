@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.økonomi.tilbakekreving.klient;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,6 +16,8 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 public class FptilbakeRestKlient {
 
     public static final String FPTILBAKE_HENT_ÅPEN_TILBAKEKREVING = "/behandlinger/tilbakekreving/aapen";
+
+    public static final String FPTILBAKE_HENT_TILBAKEKREVING_VEDTAK_INFO = "/behandlinger/tilbakekreving/vedtak-info";
 
     private OidcRestClient restClient;
 
@@ -32,14 +35,27 @@ public class FptilbakeRestKlient {
         return restClient.get(uriHentÅpenTilbakekreving, Boolean.class);
     }
 
+    public TilbakekrevingVedtakDto hentTilbakekrevingsVedtakInfo(UUID uuid){
+        URI uriHentTilbakekrevingVedtaksInfo = lagRequestUri(uuid);
+        return restClient.get(uriHentTilbakekrevingVedtaksInfo, TilbakekrevingVedtakDto.class);
+    }
+
     private URI lagRequestUri(Saksnummer saksnummer) {
-        String fptilbakeBaseUrl = FptilbakeFelles.getFptilbakeBaseUrl();
-        String endpoint = fptilbakeBaseUrl + FPTILBAKE_HENT_ÅPEN_TILBAKEKREVING;
+        String endpoint = FptilbakeFelles.getFptilbakeBaseUrl() + FPTILBAKE_HENT_ÅPEN_TILBAKEKREVING;
         try {
             return new URIBuilder(endpoint).addParameter("saksnummer", saksnummer.getVerdi()).build();
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(e);
         }
     }
+    private URI lagRequestUri(UUID uuid) {
+        String endpoint = FptilbakeFelles.getFptilbakeBaseUrl() + FPTILBAKE_HENT_TILBAKEKREVING_VEDTAK_INFO;
+        try {
+            return new URIBuilder(endpoint).addParameter("uuid", uuid.toString()).build();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
 
 }
