@@ -34,14 +34,12 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.InfotrygdHendelse;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.InfotrygdHendelseTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.Meldingstype;
 
 @ApplicationScoped
 public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
 
     private static final Logger log = LoggerFactory.getLogger(IdentifiserOverlappendeInfotrygdYtelseTjeneste.class);
-    private InfotrygdHendelseTjeneste infotrygdHendelseTjeneste;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingOverlappInfotrygdRepository overlappRepository;
@@ -52,10 +50,8 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
 
     @Inject
     public IdentifiserOverlappendeInfotrygdYtelseTjeneste(BeregningsresultatRepository beregningsresultatRepository,
-                                                          InfotrygdHendelseTjeneste infotrygdHendelseTjeneste,
                                                           InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                                           BehandlingOverlappInfotrygdRepository overlappRepository) {
-        this.infotrygdHendelseTjeneste = infotrygdHendelseTjeneste;
         this.iayTjeneste = inntektArbeidYtelseTjeneste;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.overlappRepository = overlappRepository;
@@ -70,13 +66,16 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
         Long behandlingId = behandling.getId();
         Optional<ÅpenDatoIntervallEntitet> periodeVLOpt = fastsettPeriodeVL(behandlingId);
         if (!VedtakResultatType.INNVILGET.equals(behandlingVedtak.getVedtakResultatType())
-            || !periodeVLOpt.isPresent()) {
+            || periodeVLOpt.isEmpty()) {
             return Optional.empty();
         }
         ÅpenDatoIntervallEntitet periodeVL = periodeVLOpt.get();
         Collection<Ytelse> ytelseList = hentRegisterDataFraInfotrygd(behandlingId, behandling.getAktørId(), periodeVL);
 
-        List<InfotrygdHendelse> hendelseListe = infotrygdHendelseTjeneste.hentHendelsesListFraInfotrygdFeed(behandling);
+        // Denne ble forsøkt hentet fra infotrygd men har vært tom i mange måneder. Dermed er overlapp basert på Abakus
+        // Her bør vi se bort fra abakus og bare lagre overlapp mot SYK og OMS.
+        // Mesteparten av koden under kan slettes og betydelig forenkles
+        List<InfotrygdHendelse> hendelseListe = Collections.emptyList();
         boolean finnesMatchMedInnvilIRegisterData = sjekkMotRegisterData(hendelseListe, ytelseList);
         if (finnesMatchMedInnvilIRegisterData) {
             log.info("Det var en hendelse av type ANNULERT fra infotrygd feed som korrelerer med en INNVILGET ytelse i registerdata");
