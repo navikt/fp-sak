@@ -31,7 +31,6 @@ public class AksjonspunktUtlederForVurderArbeidsforhold implements AksjonspunktU
     private static final List<AksjonspunktResultat> INGEN_AKSJONSPUNKTER = emptyList();
 
     private VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste;
-    private ArbeidsforholdUtenRelevantOppgittOpptjening arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste;
 
     private BehandlingRepository behandlingRepository;
 
@@ -47,7 +46,6 @@ public class AksjonspunktUtlederForVurderArbeidsforhold implements AksjonspunktU
         this.behandlingRepository = behandlingRepository;
         this.iayTjeneste = iayTjeneste;
         this.vurderArbeidsforholdTjeneste = vurderArbeidsforholdTjeneste;
-        this.arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste = new ArbeidsforholdUtenRelevantOppgittOpptjening();
     }
 
     @Override
@@ -65,7 +63,7 @@ public class AksjonspunktUtlederForVurderArbeidsforhold implements AksjonspunktU
             }
         }
 
-        if (arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste.erUtenRelevantOppgittOpptjening(param, iayGrunnlag)) {
+        if (ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(param, iayGrunnlag)) {
             return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
         }
 

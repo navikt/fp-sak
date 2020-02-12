@@ -8,6 +8,10 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
+import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,20 +46,18 @@ public class ArbeidsforholdUtenRelevantOppgittOpptjeningImplTest {
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private ArbeidsforholdUtenRelevantOppgittOpptjening arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste;
     private Behandling behandling;
 
     @Before
     public void oppsett(){
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         this.behandling = scenario.lagre(repositoryProvider);
-        this.arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste = new ArbeidsforholdUtenRelevantOppgittOpptjening();
     }
 
     @Test
     public void skal_returne_true_hvis_ingen_IAY(){
         // Act
-        boolean erUtenRelevantOppgittOpptjening = arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste.erUtenRelevantOppgittOpptjening(lagInput(), Optional.empty());
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(), Optional.empty());
         // Assert
         assertThat(erUtenRelevantOppgittOpptjening).isTrue();
     }
@@ -68,7 +70,7 @@ public class ArbeidsforholdUtenRelevantOppgittOpptjeningImplTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
 
         // Act
-        boolean erUtenRelevantOppgittOpptjening = arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
         // Assert
         assertThat(erUtenRelevantOppgittOpptjening).isTrue();
     }
@@ -85,7 +87,7 @@ public class ArbeidsforholdUtenRelevantOppgittOpptjeningImplTest {
                 .medErUtenlandskInntekt(true));
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
         // Act
-        boolean erUtenRelevantOppgittOpptjening = arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
         // Assert
         assertThat(erUtenRelevantOppgittOpptjening).isTrue();
     }
@@ -104,7 +106,7 @@ public class ArbeidsforholdUtenRelevantOppgittOpptjeningImplTest {
         iayBuilder.leggTilAktørArbeid(aktørArbeidBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), iayBuilder);
         // Act
-        boolean erUtenRelevantOppgittOpptjening = arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste.erUtenRelevantOppgittOpptjening(lagInput(skjæringstidspunkt), iayTjeneste.finnGrunnlag(behandling.getId()));
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(skjæringstidspunkt), iayTjeneste.finnGrunnlag(behandling.getId()));
         // Assert
         assertThat(erUtenRelevantOppgittOpptjening).isTrue();
     }
@@ -123,7 +125,7 @@ public class ArbeidsforholdUtenRelevantOppgittOpptjeningImplTest {
         iayBuilder.leggTilAktørArbeid(aktørArbeidBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), iayBuilder);
         // Act
-        boolean erUtenRelevantOppgittOpptjening = arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste.erUtenRelevantOppgittOpptjening(lagInput(skjæringstidspunkt), iayTjeneste.finnGrunnlag(behandling.getId()));
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(skjæringstidspunkt), iayTjeneste.finnGrunnlag(behandling.getId()));
         // Assert
         assertThat(erUtenRelevantOppgittOpptjening).isFalse();
     }
@@ -136,7 +138,7 @@ public class ArbeidsforholdUtenRelevantOppgittOpptjeningImplTest {
         OppgittOpptjeningBuilder oppgittOpptjeningBuilder = opprettOppgittOpptjening(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE);
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
         // Act
-        boolean erUtenRelevantOppgittOpptjening = arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
         // Assert
         assertThat(erUtenRelevantOppgittOpptjening).isFalse();
     }
@@ -149,7 +151,7 @@ public class ArbeidsforholdUtenRelevantOppgittOpptjeningImplTest {
         OppgittOpptjeningBuilder oppgittOpptjeningBuilder = opprettOppgittOpptjening(ArbeidType.VENTELØNN_VARTPENGER);
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
         // Act
-        boolean erUtenRelevantOppgittOpptjening = arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
         // Assert
         assertThat(erUtenRelevantOppgittOpptjening).isFalse();
     }
@@ -162,7 +164,7 @@ public class ArbeidsforholdUtenRelevantOppgittOpptjeningImplTest {
         OppgittOpptjeningBuilder oppgittOpptjeningBuilder = opprettOppgittOpptjening(ArbeidType.ETTERLØNN_SLUTTPAKKE);
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
         // Act
-        boolean erUtenRelevantOppgittOpptjening = arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
         // Assert
         assertThat(erUtenRelevantOppgittOpptjening).isFalse();
     }
@@ -176,7 +178,7 @@ public class ArbeidsforholdUtenRelevantOppgittOpptjeningImplTest {
             .leggTilFrilansOpplysninger(new OppgittFrilans());
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
         // Act
-        boolean erUtenRelevantOppgittOpptjening = arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
         // Assert
         assertThat(erUtenRelevantOppgittOpptjening).isFalse();
     }
@@ -193,7 +195,7 @@ public class ArbeidsforholdUtenRelevantOppgittOpptjeningImplTest {
             .leggTilEgneNæringer(Collections.singletonList(egenNæringBuilder));
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
         // Act
-        boolean erUtenRelevantOppgittOpptjening = arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
         // Assert
         assertThat(erUtenRelevantOppgittOpptjening).isFalse();
     }
@@ -206,10 +208,65 @@ public class ArbeidsforholdUtenRelevantOppgittOpptjeningImplTest {
         OppgittOpptjeningBuilder oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
         // Act
-        boolean erUtenRelevantOppgittOpptjening = arbeidsforholdUtenRelevantOppgittOpptjeningTjeneste.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
         // Assert
         assertThat(erUtenRelevantOppgittOpptjening).isTrue();
     }
+
+    @Test
+    public void skal_returne_true_hvis_man_bare_har_sykepenger(){
+        // Arrange
+        InntektArbeidYtelseAggregatBuilder iayBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        iayTjeneste.lagreIayAggregat(behandling.getId(), iayBuilder);
+        InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder iayYtelse = iayBuilder.getAktørYtelseBuilder(behandling.getAktørId());
+        YtelseBuilder ytelseBuilder = iayYtelse.getYtelselseBuilderForType(Fagsystem.ARENA, RelatertYtelseType.SYKEPENGER, new Saksnummer("999999999"));
+        DatoIntervallEntitet sykePeriode = DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(7));
+        ytelseBuilder.medPeriode(sykePeriode);
+        iayYtelse.leggTilYtelse(ytelseBuilder);
+        iayBuilder.leggTilAktørYtelse(iayYtelse);
+
+        // Act
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
+        // Assert
+        assertThat(erUtenRelevantOppgittOpptjening).isTrue();
+    }
+
+    @Test
+    public void skal_returne_false_hvis_man_bare_har_aap(){
+        // Arrange
+        InntektArbeidYtelseAggregatBuilder iayBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        iayTjeneste.lagreIayAggregat(behandling.getId(), iayBuilder);
+        InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder iayYtelse = iayBuilder.getAktørYtelseBuilder(behandling.getAktørId());
+        YtelseBuilder ytelseBuilder = iayYtelse.getYtelselseBuilderForType(Fagsystem.ARENA, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, new Saksnummer("999999999"));
+        DatoIntervallEntitet sykePeriode = DatoIntervallEntitet.fraOgMed(LocalDate.now().minusDays(1));
+        ytelseBuilder.medPeriode(sykePeriode);
+        iayYtelse.leggTilYtelse(ytelseBuilder);
+        iayBuilder.leggTilAktørYtelse(iayYtelse);
+
+        // Act
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
+        // Assert
+        assertThat(erUtenRelevantOppgittOpptjening).isFalse();
+    }
+
+    @Test
+    public void skal_returne_false_hvis_man_bare_har_dp(){
+        // Arrange
+        InntektArbeidYtelseAggregatBuilder iayBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        iayTjeneste.lagreIayAggregat(behandling.getId(), iayBuilder);
+        InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder iayYtelse = iayBuilder.getAktørYtelseBuilder(behandling.getAktørId());
+        YtelseBuilder ytelseBuilder = iayYtelse.getYtelselseBuilderForType(Fagsystem.ARENA, RelatertYtelseType.DAGPENGER, new Saksnummer("999999999"));
+        DatoIntervallEntitet sykePeriode = DatoIntervallEntitet.fraOgMed(LocalDate.now().minusDays(1));
+        ytelseBuilder.medPeriode(sykePeriode);
+        iayYtelse.leggTilYtelse(ytelseBuilder);
+        iayBuilder.leggTilAktørYtelse(iayYtelse);
+
+        // Act
+        boolean erUtenRelevantOppgittOpptjening = ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening(lagInput(), iayTjeneste.finnGrunnlag(behandling.getId()));
+        // Assert
+        assertThat(erUtenRelevantOppgittOpptjening).isFalse();
+    }
+
 
     private OppgittOpptjeningBuilder opprettOppgittOpptjening(ArbeidType arbeidType) {
         DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMed(LocalDate.now());
