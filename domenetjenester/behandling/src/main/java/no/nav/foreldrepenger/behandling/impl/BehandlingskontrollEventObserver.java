@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling.impl;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
+import static no.nav.vedtak.felles.integrasjon.kafka.Fagsystem.FPSAK;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -23,8 +24,8 @@ import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.vedtak.felles.integrasjon.kafka.BehandlingProsessEventDto;
+import no.nav.vedtak.felles.integrasjon.kafka.EventHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -48,7 +49,7 @@ public class BehandlingskontrollEventObserver {
 
     public void observerStoppetEvent(@Observes BehandlingskontrollEvent.StoppetEvent event) {
         try {
-            ProsessTaskData prosessTaskData = opprettProsessTask(event.getBehandlingId(), BehandlingProsessEventDto.EventHendelse.BEHANDLINGSKONTROLL_EVENT);
+            ProsessTaskData prosessTaskData = opprettProsessTask(event.getBehandlingId(), EventHendelse.BEHANDLINGSKONTROLL_EVENT);
             prosessTaskRepository.lagre(prosessTaskData);
         } catch (Exception ex) {
             log.warn("Publisering av StoppetEvent feilet", ex);
@@ -59,7 +60,7 @@ public class BehandlingskontrollEventObserver {
     public void observerAksjonspunkterFunnetEvent(@Observes AksjonspunktStatusEvent event) {
         if (event.getAksjonspunkter().stream().anyMatch(e -> e.erOpprettet() && AUTO_MANUELT_SATT_PÅ_VENT.equals(e.getAksjonspunktDefinisjon()))) {
             try {
-                ProsessTaskData prosessTaskData = opprettProsessTask(event.getBehandlingId(), BehandlingProsessEventDto.EventHendelse.AKSJONSPUNKT_OPPRETTET);
+                ProsessTaskData prosessTaskData = opprettProsessTask(event.getBehandlingId(), EventHendelse.AKSJONSPUNKT_OPPRETTET);
                 prosessTaskRepository.lagre(prosessTaskData);
             } catch (Exception ex) {
                 log.warn("Publisering av AksjonspunkterFunnetEvent feilet", ex);
@@ -69,7 +70,7 @@ public class BehandlingskontrollEventObserver {
 
     public void observerBehandlingAvsluttetEvent(@Observes BehandlingStatusEvent.BehandlingAvsluttetEvent event) {
         try {
-            ProsessTaskData prosessTaskData = opprettProsessTask(event.getBehandlingId(), BehandlingProsessEventDto.EventHendelse.AKSJONSPUNKT_AVBRUTT);
+            ProsessTaskData prosessTaskData = opprettProsessTask(event.getBehandlingId(), EventHendelse.AKSJONSPUNKT_AVBRUTT);
             prosessTaskRepository.lagre(prosessTaskData);
         } catch (Exception ex) {
             log.warn("Publisering av BehandlingAvsluttetEvent feilet", ex);
@@ -78,14 +79,14 @@ public class BehandlingskontrollEventObserver {
 
     public void observerAksjonspunktHarEndretBehandlendeEnhetEvent(@Observes BehandlingEnhetEvent event) {
         try {
-            ProsessTaskData prosessTaskData = opprettProsessTask(event.getBehandlingId(), BehandlingProsessEventDto.EventHendelse.AKSJONSPUNKT_HAR_ENDRET_BEHANDLENDE_ENHET);
+            ProsessTaskData prosessTaskData = opprettProsessTask(event.getBehandlingId(), EventHendelse.AKSJONSPUNKT_HAR_ENDRET_BEHANDLENDE_ENHET);
             prosessTaskRepository.lagre(prosessTaskData);
         } catch (Exception ex) {
             log.warn("Publisering av AksjonspunktHarEndretBehandlendeEnhetEvent feilet", ex);
         }
     }
 
-    private ProsessTaskData opprettProsessTask(Long behandlingId, BehandlingProsessEventDto.EventHendelse eventHendelse) throws IOException {
+    private ProsessTaskData opprettProsessTask(Long behandlingId, EventHendelse eventHendelse) throws IOException {
         ProsessTaskData taskData = new ProsessTaskData(PubliserEventTask.TASKTYPE);
         taskData.setCallIdFraEksisterende();
         taskData.setPrioritet(50);
@@ -107,13 +108,13 @@ public class BehandlingskontrollEventObserver {
         return jsonWriter.toString();
     }
 
-    private BehandlingProsessEventDto getProduksjonstyringEventDto(BehandlingProsessEventDto.EventHendelse eventHendelse, Behandling behandling) {
+    private BehandlingProsessEventDto getProduksjonstyringEventDto(EventHendelse eventHendelse, Behandling behandling) {
         Map<String, String> aksjonspunktKoderMedStatusListe = new HashMap<>();
 
         behandling.getAksjonspunkter().forEach(aksjonspunkt -> aksjonspunktKoderMedStatusListe.put(aksjonspunkt.getAksjonspunktDefinisjon().getKode(), aksjonspunkt.getStatus().getKode()));
 
         return BehandlingProsessEventDto.builder()
-            .medFagsystem(Fagsystem.FPSAK.getKode())
+            .medFagsystem(FPSAK)
             .medBehandlingId(behandling.getId())
             .medSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi())
             .medAktørId(behandling.getAktørId().getId())

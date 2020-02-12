@@ -53,7 +53,7 @@
         <prosesstask.version>2.0.0-20200118083448-d87fd6d</prosesstask.version>
 
         <metrics.version>3.2.5</metrics.version>
-        <fp-kontrakter.version>5.1_20191210141010_6a7f399</fp-kontrakter.version>
+        <fp-kontrakter.version>5.1-20200211164354-f6cea52</fp-kontrakter.version>
         <kalkulus.version>1.0-20200210163157-7a38bb9</kalkulus.version>
 
     </properties>
