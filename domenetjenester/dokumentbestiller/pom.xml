@@ -90,11 +90,6 @@
 		</dependency>
 
 		<!-- Kontrakter -->
-		<dependency>
-			<groupId>no.nav.foreldrepenger.kontrakter</groupId>
-			<artifactId>dokumentbestiller-v1</artifactId>
-			<classifier>jaxb</classifier>
-		</dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter.topics</groupId>
             <artifactId>hendelse-dokumentbestilling</artifactId>
