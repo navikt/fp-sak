@@ -7,4 +7,4 @@ services:
       - 1521:1521
     container_name: oraclefpsak
     volumes:
-      - ./init.d:/docker-entrypoint-initdb.d/
+      - ./init.d/initdb.sql:/docker-entrypoint-initdb.d/

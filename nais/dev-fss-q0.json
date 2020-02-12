@@ -66,7 +66,6 @@
     "MQGATEWAY02_PORT": "1413",
 
     "FPRISK_RISIKOKLASSIFISERING_HENT_URL": "https://fprisk-q0.nais.preprod.local/fprisk/api/risikovurdering/hent",
-    "INFOTRYGD_HENDELSER_API_URL": "https://infotrygd-hendelser-api-q0.nais.preprod.local/infotrygd/hendelser",
     "FPFORMIDLING_ERDOKUMENTPRODUSERT_URL": "http://fpformidling/fpformidling/api/brev/dokument-sendt",
     "FPFORMIDLING_BESTILLBREV_URL": "http://fpformidling/fpformidling/api/brev/bestill",
     "OIDC_STS_JWKS_URL": "https://security-token-service.nais.preprod.local/rest/v1/sts/jwks",
