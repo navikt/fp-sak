@@ -187,8 +187,6 @@ spec:
     # Restservice
     - name: FPRISK_RISIKOKLASSIFISERING_HENT_URL
       value: fprisk_risikoklassifisering_hent.url
-    - name: INFOTRYGD_HENDELSER_API_URL
-      value: infotrygd_hendelser_api.url
     - name: FPFORMIDLING_ERDOKUMENTPRODUSERT_URL
       value: fpformidling_erdokumentprodusert.url
     - name: FPFORMIDLING_BESTILLBREV_URL
