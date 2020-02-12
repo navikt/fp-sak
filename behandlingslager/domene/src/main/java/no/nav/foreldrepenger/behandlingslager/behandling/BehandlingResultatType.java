@@ -35,10 +35,10 @@ public enum BehandlingResultatType implements Kodeverdi {
     HENLAGT_BRUKER_DØD("HENLAGT_BRUKER_DØD", "Henlagt, brukeren er død"),
     MERGET_OG_HENLAGT("MERGET_OG_HENLAGT", "Mottatt ny søknad"),
     HENLAGT_SØKNAD_MANGLER("HENLAGT_SØKNAD_MANGLER", "Henlagt søknad mangler"),
-    FORELDREPENGER_ENDRET("FORELDREPENGER_ENDRET", "Foreldrepenger er endret"),
+    FORELDREPENGER_ENDRET("FORELDREPENGER_ENDRET", "Sak er endret"),
     INGEN_ENDRING("INGEN_ENDRING", "Ingen endring"),
     MANGLER_BEREGNINGSREGLER("MANGLER_BEREGNINGSREGLER", "Mangler beregningsregler"),
-    
+
     // Klage
     KLAGE_AVVIST("KLAGE_AVVIST", "Klage er avvist"),
     KLAGE_MEDHOLD("KLAGE_MEDHOLD", "Medhold"),
@@ -48,7 +48,7 @@ public enum BehandlingResultatType implements Kodeverdi {
     DELVIS_MEDHOLD_I_KLAGE("DELVIS_MEDHOLD_I_KLAGE", "Delvis medhold i klage"),
     HJEMSENDE_UTEN_OPPHEVE("HJEMSENDE_UTEN_OPPHEVE", "Behandlingen er hjemsendt"),
     UGUNST_MEDHOLD_I_KLAGE("UGUNST_MEDHOLD_I_KLAGE", "Ugunst medhold i klage"),
-    
+
     // Anke
     ANKE_AVVIST("ANKE_AVVIST", "Anke er avvist"),
     ANKE_OMGJOER("ANKE_OMGJOER", "Bruker har fått omgjøring i anke"),
@@ -56,13 +56,13 @@ public enum BehandlingResultatType implements Kodeverdi {
     ANKE_YTELSESVEDTAK_STADFESTET("ANKE_YTELSESVEDTAK_STADFESTET", "Anken er stadfestet/opprettholdt"),
     ANKE_DELVIS_OMGJOERING_TIL_GUNST("ANKE_DELVIS_OMGJOERING_TIL_GUNST", "Anke er delvis omgjøring, til gunst"),
     ANKE_TIL_UGUNST("ANKE_TIL_UGUNST", "Gunst omgjør i anke"),
-    
+
     // Innsyn
     INNSYN_INNVILGET("INNSYN_INNVILGET", "Innsynskrav er innvilget"),
     INNSYN_DELVIS_INNVILGET("INNSYN_DELVIS_INNVILGET", "Innsynskrav er delvis innvilget"),
     INNSYN_AVVIST("INNSYN_AVVIST", "Innsynskrav er avvist"),
     HENLAGT_INNSYN_TRUKKET("HENLAGT_INNSYN_TRUKKET", "Henlagt, innsynskrav er trukket"),
-    
+
     ;
 
     private static final Set<BehandlingResultatType> HENLEGGELSESKODER_FOR_SØKNAD = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(HENLAGT_SØKNAD_TRUKKET, HENLAGT_FEILOPPRETTET, HENLAGT_BRUKER_DØD, HENLAGT_SØKNAD_MANGLER, MANGLER_BEREGNINGSREGLER)));
@@ -75,7 +75,7 @@ public enum BehandlingResultatType implements Kodeverdi {
     private static final Map<String, BehandlingResultatType> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "BEHANDLING_RESULTAT_TYPE";
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -86,7 +86,7 @@ public enum BehandlingResultatType implements Kodeverdi {
 
     @JsonIgnore
     private String navn;
-    
+
     private String kode;
 
     private BehandlingResultatType(String kode) {
@@ -113,7 +113,7 @@ public enum BehandlingResultatType implements Kodeverdi {
     public static Map<String, BehandlingResultatType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
-    
+
     @Override
     public String getNavn() {
         return navn;
@@ -124,22 +124,22 @@ public enum BehandlingResultatType implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
-    
+
     public static void main(String[] args) {
         System.out.println(KODER.keySet());
     }
-    
+
     public static Set<BehandlingResultatType> getAlleHenleggelseskoder() {
         return ALLE_HENLEGGELSESKODER;
     }
@@ -203,7 +203,7 @@ public enum BehandlingResultatType implements Kodeverdi {
                 return null;
         }
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<BehandlingResultatType, String> {
         @Override
