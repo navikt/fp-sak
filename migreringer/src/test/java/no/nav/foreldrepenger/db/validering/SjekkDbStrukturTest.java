@@ -8,7 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimeZone;
 import javax.sql.DataSource;
 
 import org.junit.BeforeClass;
@@ -22,10 +21,6 @@ import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
  * Tester at alle migreringer følger standarder for navn og god praksis.
  */
 public class SjekkDbStrukturTest {
-
-    static {
-        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
-    }
 
     private static final String HJELP = "\n\nDu har nylig lagt til en ny tabell eller kolonne som ikke er dokumentert ihht. gjeldende regler for dokumentasjon."
         + "\nVennligst gå over sql scriptene og dokumenter tabellene på korrekt måte.";
