@@ -114,10 +114,10 @@ public class IAYMapperTilKalkulus {
 
     public static Map<Arbeidsgiver, ArbeidsgiverOpplysningerDto> mapArbeidsforholdOpplysninger(Map<no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver, ArbeidsgiverOpplysninger> arbeidsgiverOpplysninger, List<ArbeidsforholdOverstyring> overstyringer) {
         Map<Arbeidsgiver, ArbeidsgiverOpplysningerDto> returnMap = new HashMap<>();
-        arbeidsgiverOpplysninger.entrySet().stream()
-            .forEach(e -> returnMap.put(mapArbeidsgiver(e.getKey()), mapOpplysning(e.getValue())));
+        arbeidsgiverOpplysninger.forEach((key, value) -> returnMap.put(mapArbeidsgiver(key), mapOpplysning(value)));
         overstyringer
             .stream()
+            .filter(overstyring -> overstyring.getArbeidsgiverNavn() != null) // Vi er kun interessert i overstyringer der SBH har endret navn på arbeidsgiver
             .findFirst()
             .ifPresent(arbeidsforhold -> returnMap.put(mapArbeidsgiver(arbeidsforhold.getArbeidsgiver()),
                 new ArbeidsgiverOpplysningerDto(arbeidsforhold.getArbeidsgiver().getOrgnr(), arbeidsforhold.getArbeidsgiverNavn())));
