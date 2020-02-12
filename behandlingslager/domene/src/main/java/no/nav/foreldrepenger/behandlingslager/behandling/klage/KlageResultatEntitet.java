@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.behandlingslager.behandling.klage;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -30,6 +32,9 @@ public class KlageResultatEntitet extends BaseEntitet {
     @JoinColumn(name = "paaklagd_behandling_id")
     private Behandling påKlagdBehandling;
 
+    @Column(name = "paaklagd_ekstern_uuid")
+    private UUID påKlagdEksternBehandlingUuId;
+
     public KlageResultatEntitet() {
         // Hibernate
     }
@@ -47,11 +52,19 @@ public class KlageResultatEntitet extends BaseEntitet {
     }
 
     public Optional<Behandling> getPåKlagdBehandling() {
-        return påKlagdBehandling == null ? Optional.empty() : Optional.of(påKlagdBehandling);
+        return Optional.ofNullable(påKlagdBehandling);
+    }
+
+    public Optional<UUID> getPåKlagdEksternBehandling() {
+        return Optional.ofNullable(påKlagdEksternBehandlingUuId);
     }
 
     public void settPåKlagdBehandling(Behandling behandling) {
         this.påKlagdBehandling = behandling;
+    }
+
+    public void settPåKlagdEksternBehandlingId(UUID påKlagdEksternBehandlingId) {
+        this.påKlagdEksternBehandlingUuId = påKlagdEksternBehandlingId;
     }
 
     @Override
@@ -93,6 +106,11 @@ public class KlageResultatEntitet extends BaseEntitet {
 
         public Builder medPåKlagdBehandling(Behandling påKlagdBehandling) {
             klageResultatEntitetMal.påKlagdBehandling = påKlagdBehandling;
+            return this;
+        }
+
+        public Builder medPåKlagdEksternBehandling(UUID påKlagdEksternBehandlingId) {
+            klageResultatEntitetMal.påKlagdEksternBehandlingUuId = påKlagdEksternBehandlingId;
             return this;
         }
 

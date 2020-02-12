@@ -45,15 +45,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<vl-foreldrepenger-uttak-regler.version>3.0-20200203160400-05898a2</vl-foreldrepenger-uttak-regler.version>
+		<fp-uttak.version>3.0-20200212121924-6e10be9</fp-uttak.version>
 
-        <vl-svangerskapspenger-uttak-regler.version>2.1-20200130175841-176ecdd</vl-svangerskapspenger-uttak-regler.version>
+        <svp-uttak.version>2.1-20200130175841-176ecdd</svp-uttak.version>
         <!-- <felles.version>1.4.2-20191218110056-fa5b90a</felles.version> -->
         <felles.version>1.5-20200204090057-9b4d00e</felles.version>
         <prosesstask.version>2.0.0-20200118083448-d87fd6d</prosesstask.version>
 
         <metrics.version>3.2.5</metrics.version>
-        <fp-kontrakter.version>5.1_20191210141010_6a7f399</fp-kontrakter.version>
+        <fp-kontrakter.version>5.1-20200211164354-f6cea52</fp-kontrakter.version>
         <kalkulus.version>1.0-20200210163157-7a38bb9</kalkulus.version>
 
     </properties>
@@ -181,12 +181,12 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>uttak-regler</artifactId>
-                <version>${vl-foreldrepenger-uttak-regler.version}</version>
+                <version>${fp-uttak.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>uttak-regler</artifactId>
-                <version>${vl-foreldrepenger-uttak-regler.version}</version>
+                <version>${fp-uttak.version}</version>
                 <classifier>sources</classifier>
             </dependency>
 
@@ -194,12 +194,12 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>svp-uttak</artifactId>
-                <version>${vl-svangerskapspenger-uttak-regler.version}</version>
+                <version>${svp-uttak.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>svp-uttak</artifactId>
-                <version>${vl-svangerskapspenger-uttak-regler.version}</version>
+                <version>${svp-uttak.version}</version>
                 <classifier>sources</classifier>
             </dependency>
 

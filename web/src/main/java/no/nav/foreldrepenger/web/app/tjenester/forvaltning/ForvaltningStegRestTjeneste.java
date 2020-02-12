@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KONTROLLER_FAKTA;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType.FØRSTEGANGSSØKNAD;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.util.Optional;
@@ -117,7 +119,7 @@ public class ForvaltningStegRestTjeneste {
 
         Optional<VilkårResultat> vilkårResultatOpt = vilkårResultatRepository.hentHvisEksisterer(behandlingId);
 
-        if(vilkårResultatOpt.isPresent()) {
+        if (vilkårResultatOpt.isPresent()) {
             VilkårResultat vilkårResultat = vilkårResultatOpt.get();
             Optional<Vilkår> opptjeningsvilkåretOpt = vilkårResultat.getVilkårene()
                     .stream()
@@ -131,11 +133,15 @@ public class ForvaltningStegRestTjeneste {
 
                 VilkårResultat nyttVilkårResulatat = builder.build();
                 vilkårResultatRepository.lagre(behandlingId, nyttVilkårResulatat);
+
+                Behandling behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
+                if (behandling.erRevurdering()) {
+                    hoppTilbake(behandlingId, KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
+                } else if (behandling.getType() == FØRSTEGANGSSØKNAD) {
+                    hoppTilbake(behandlingId, KONTROLLER_FAKTA_ARBEIDSFORHOLD);
+                }
             }
         }
-
-        hoppTilbake(behandlingId, KONTROLLER_FAKTA_ARBEIDSFORHOLD);
-
         return Response.ok().build();
     }
 
@@ -203,8 +209,8 @@ public class ForvaltningStegRestTjeneste {
 
         String fraStegNavn = behandling.getAktivtBehandlingSteg() != null ? behandling.getAktivtBehandlingSteg().getNavn() : null;
         HistorikkInnslagTekstBuilder historieBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.SPOLT_TILBAKE)
-            .medBegrunnelse("Behandlingen er flyttet fra " + fraStegNavn + " tilbake til " + tilStegNavn);
+                .medHendelse(HistorikkinnslagType.SPOLT_TILBAKE)
+                .medBegrunnelse("Behandlingen er flyttet fra " + fraStegNavn + " tilbake til " + tilStegNavn);
         historieBuilder.build(nyeRegisteropplysningerInnslag);
         historikkRepository.lagre(nyeRegisteropplysningerInnslag);
     }
