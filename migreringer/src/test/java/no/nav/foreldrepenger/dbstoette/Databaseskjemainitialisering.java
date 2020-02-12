@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.dbstoette;
 
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,6 +21,7 @@ public final class Databaseskjemainitialisering {
     private static final AtomicBoolean GUARD_UNIT_TEST_SKJEMAER = new AtomicBoolean();
 
     public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));
         migrerUnittestSkjemaer();
     }
 
