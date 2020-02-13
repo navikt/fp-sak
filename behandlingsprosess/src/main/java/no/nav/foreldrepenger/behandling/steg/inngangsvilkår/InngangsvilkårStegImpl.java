@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.steg.inngangsvilkår;
 import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT;
 import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_UTTAKSPLAN;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -17,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -60,8 +62,14 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
         }
 
         if (skipSteget(kontekst)) {
+            // Vil ikke re-evaluere hvis allerede overstyrt til avslag/oppfylt. Vil man endre overstyring gjøres det ved FORVED
+            VilkårUtfallType overstyrtUtfall = overstyrtVilkårUtfall(kontekst.getBehandlingId()).orElse(VilkårUtfallType.UDEFINERT);
+            if (VilkårUtfallType.IKKE_OPPFYLT.equals(overstyrtUtfall)) {
+                return getBehandleStegResultatVedAvslag(behandling, Collections.emptyList());
+            }
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
+
 
         // vilkårTyper kan her vær tom, men vi går videre med et likevel (VURDERSAMLET steget skriver ned vilkåresultat)
 
@@ -119,11 +127,15 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     protected BehandleStegResultat stegResultatVilkårIkkeOppfylt(RegelResultat regelResultat, Behandling behandling) {
         // Forbedring: InngangsvilkårStegImpl som annoterbar med FagsakYtelseType og BehandlingType
         // Her hardkodes disse parameterne
+        return getBehandleStegResultatVedAvslag(behandling, regelResultat.getAksjonspunktDefinisjoner());
+    }
+
+    private BehandleStegResultat getBehandleStegResultatVedAvslag(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
         if (behandling.erRevurdering() && behandling.getFagsak().getYtelseType().equals(FagsakYtelseType.FORELDREPENGER)
             && !harAvslåttForrigeBehandling(behandling)) {
-            return BehandleStegResultat.fremoverførtMedAksjonspunkter(FREMHOPP_TIL_UTTAKSPLAN, regelResultat.getAksjonspunktDefinisjoner());
+            return BehandleStegResultat.fremoverførtMedAksjonspunkter(FREMHOPP_TIL_UTTAKSPLAN, aksjonspunktDefinisjoner);
         }
-        return BehandleStegResultat.fremoverførtMedAksjonspunkter(FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT, regelResultat.getAksjonspunktDefinisjoner());
+        return BehandleStegResultat.fremoverførtMedAksjonspunkter(FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT, aksjonspunktDefinisjoner);
     }
 
     @SuppressWarnings("unused")
@@ -162,11 +174,17 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
 
     protected boolean erVilkårOverstyrt(Long behandlingId) {
         Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
-        Optional<VilkårResultat> resultatOpt = behandlingsresultat.map(Behandlingsresultat::getVilkårResultat);
-        if (resultatOpt.isPresent()) {
-            VilkårResultat vilkårResultat = resultatOpt.get();
-            return vilkårResultat.getVilkårene().stream().filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType())).anyMatch(Vilkår::erOverstyrt);
-        }
-        return false;
+        return behandlingsresultat.map(Behandlingsresultat::getVilkårResultat).map(VilkårResultat::getVilkårene).orElse(Collections.emptyList()).stream()
+            .filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType()))
+            .anyMatch(Vilkår::erOverstyrt);
+    }
+
+    private Optional<VilkårUtfallType> overstyrtVilkårUtfall(Long behandlingId) {
+        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
+        return behandlingsresultat.map(Behandlingsresultat::getVilkårResultat).map(VilkårResultat::getVilkårene).orElse(Collections.emptyList()).stream()
+            .filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType()))
+            .filter(Vilkår::erOverstyrt)
+            .map(Vilkår::getGjeldendeVilkårUtfall)
+            .findFirst();
     }
 }
