@@ -129,7 +129,7 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtlederTest {
     }
 
     private UttakInput input(Behandling behandling, Annenpart annenpart) {
-        var fpGrunnlag = new ForeldrepengerGrunnlag().medAnnepart(annenpart);
+        var fpGrunnlag = new ForeldrepengerGrunnlag().medAnnenpart(annenpart);
         return new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag);
     }
 
