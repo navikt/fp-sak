@@ -41,7 +41,8 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder implements
         var ref = input.getBehandlingReferanse();
         var ytelseFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.getBehandlingId());
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsGjeldendeUttak(input.getYtelsespesifiktGrunnlag());
-        if (ytelseFordeling.isPresent() &&
+        if (!ref.erRevurdering() &&
+            ytelseFordeling.isPresent() &&
             !oppgittHarAnnenForeldreRett(ytelseFordeling.get()) &&
             annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
             return List.of(AksjonspunktDefinisjon.ANNEN_FORELDER_IKKE_RETT_OG_LØPENDE_VEDTAK);
@@ -52,7 +53,7 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder implements
 
     @Override
     public boolean skalBrukesVedOppdateringAvYtelseFordeling() {
-        return true;
+        return false;
     }
 
     private Optional<UttakResultatEntitet> hentAnnenpartsGjeldendeUttak(ForeldrepengerGrunnlag fpGrunnlag) {

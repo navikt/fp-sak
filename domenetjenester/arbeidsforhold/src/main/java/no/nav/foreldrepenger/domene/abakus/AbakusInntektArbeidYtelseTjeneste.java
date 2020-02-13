@@ -22,7 +22,7 @@ import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.RefusjonskravDatoerDto;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest;
-import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest.Dataset;
+import no.nav.abakus.iaygrunnlag.request.Dataset;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest.GrunnlagVersjon;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerMottattRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerRequest;
@@ -308,7 +308,8 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
             tilBehandling.getUuid(),
             fraBehandling.getUuid(),
             KodeverkMapper.fraFagsakYtelseType(tilBehandling.getFagsakYtelseType()),
-            new AktørIdPersonident(tilBehandling.getAktørId().getId()));
+            new AktørIdPersonident(tilBehandling.getAktørId().getId()),
+            Set.of(Dataset.values()));
         try {
             abakusTjeneste.kopierGrunnlag(request);
         } catch (IOException e) {

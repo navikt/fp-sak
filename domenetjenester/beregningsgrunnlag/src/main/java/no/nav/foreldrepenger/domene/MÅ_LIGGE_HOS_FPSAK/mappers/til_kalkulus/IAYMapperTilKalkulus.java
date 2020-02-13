@@ -365,7 +365,8 @@ public class IAYMapperTilKalkulus {
         return new RefusjonskravDatoDto(
             mapArbeidsgiver(refusjonskravDato.getArbeidsgiver()),
             refusjonskravDato.getFørsteDagMedRefusjonskrav().orElse(null),
-            refusjonskravDato.getFørsteInnsendingAvRefusjonskrav()
+            refusjonskravDato.getFørsteInnsendingAvRefusjonskrav(),
+            refusjonskravDato.harRefusjonFraStart()
         );
     }
 }
