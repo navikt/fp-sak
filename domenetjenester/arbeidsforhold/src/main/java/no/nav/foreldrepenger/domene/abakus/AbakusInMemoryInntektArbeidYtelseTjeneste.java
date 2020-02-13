@@ -116,19 +116,19 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
             .filter(im -> !im.getRefusjonBeløpPerMnd().erNullEllerNulltall() || !im.getEndringerRefusjon().isEmpty())
             .collect(Collectors.groupingBy(Inntektsmelding::getArbeidsgiver)).entrySet().stream()
             .map(entry -> {
-            LocalDate førsteInnsendingAvRefusjon = entry.getValue().stream().map(Inntektsmelding::getInnsendingstidspunkt).min(Comparator.naturalOrder()).map(LocalDateTime::toLocalDate).orElse(TIDENES_ENDE);
-            LocalDate førsteDatoForRefusjon = entry.getValue().stream()
-                .map(im -> {
-                    if (!im.getRefusjonBeløpPerMnd().erNullEllerNulltall()) {
-                        return im.getStartDatoPermisjon().orElse(TIDENES_ENDE);
-                    } else {
-                        return im.getEndringerRefusjon().stream()
-                            .filter(er -> !er.getRefusjonsbeløp().erNullEllerNulltall())
-                            .min(Comparator.comparing(Refusjon::getFom))
-                            .map(Refusjon::getFom).orElse(TIDENES_ENDE);
-                    }
-                }).min(Comparator.naturalOrder()).orElse(TIDENES_ENDE);
-                return new RefusjonskravDato(entry.getKey(), førsteDatoForRefusjon, førsteInnsendingAvRefusjon);
+                LocalDate førsteInnsendingAvRefusjon = entry.getValue().stream().map(Inntektsmelding::getInnsendingstidspunkt).min(Comparator.naturalOrder()).map(LocalDateTime::toLocalDate).orElse(TIDENES_ENDE);
+                LocalDate førsteDatoForRefusjon = entry.getValue().stream()
+                    .map(im -> {
+                        if (!im.getRefusjonBeløpPerMnd().erNullEllerNulltall()) {
+                            return im.getStartDatoPermisjon().orElse(TIDENES_ENDE);
+                        } else {
+                            return im.getEndringerRefusjon().stream()
+                                .filter(er -> !er.getRefusjonsbeløp().erNullEllerNulltall())
+                                .min(Comparator.comparing(Refusjon::getFom))
+                                .map(Refusjon::getFom).orElse(TIDENES_ENDE);
+                        }
+                    }).min(Comparator.naturalOrder()).orElse(TIDENES_ENDE);
+                return new RefusjonskravDato(entry.getKey(), førsteDatoForRefusjon, førsteInnsendingAvRefusjon, entry.getValue().stream().anyMatch(im -> !im.getRefusjonBeløpPerMnd().erNullEllerNulltall()));
             }).collect(Collectors.toList());
     }
 

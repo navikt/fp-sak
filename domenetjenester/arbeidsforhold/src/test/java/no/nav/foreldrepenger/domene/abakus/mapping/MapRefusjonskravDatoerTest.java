@@ -24,7 +24,7 @@ public class MapRefusjonskravDatoerTest {
         LocalDate førsteDagMedRefusjonskrav = LocalDate.now().minusDays(20);
         String orgnr = KUNSTIG_ORG;
         RefusjonskravDatoerDto dto = new RefusjonskravDatoerDto(List.of(new RefusjonskravDatoDto(new Organisasjon(orgnr),
-            førsteInnsendingAvRefusjonskrav, førsteDagMedRefusjonskrav)));
+            førsteInnsendingAvRefusjonskrav, førsteDagMedRefusjonskrav, true)));
 
         // Act
         List<RefusjonskravDato> refusjonskravDatoer = MapRefusjonskravDatoer.map(dto);
@@ -34,5 +34,7 @@ public class MapRefusjonskravDatoerTest {
         assertThat(refusjonskravDatoer.get(0).getArbeidsgiver()).isEqualTo(Arbeidsgiver.virksomhet(orgnr));
         assertThat(refusjonskravDatoer.get(0).getFørsteDagMedRefusjonskrav().get()).isEqualTo(førsteDagMedRefusjonskrav);
         assertThat(refusjonskravDatoer.get(0).getFørsteInnsendingAvRefusjonskrav()).isEqualTo(førsteInnsendingAvRefusjonskrav);
+        assertThat(refusjonskravDatoer.get(0).harRefusjonFraStart()).isEqualTo(true);
+
     }
 }
