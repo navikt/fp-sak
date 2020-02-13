@@ -22,7 +22,7 @@ public final class ArbeidsforholdMapper {
     }
 
     static Arbeidsforhold mapArbeidsforholdFraBeregningsgrunnlag(BeregningsgrunnlagPrStatusOgAndel andel) {
-        if (AktivitetStatus.FRILANSER.equals(andel.getAktivitetStatus())) {
+        if (AktivitetStatus.FRILANSER.equals(AktivitetStatusMapper.fraBGTilVL(andel.getAktivitetStatus()))) {
             return Arbeidsforhold.frilansArbeidsforhold();
         }
         Optional<Arbeidsgiver> arbeidsgiver = andel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver);
