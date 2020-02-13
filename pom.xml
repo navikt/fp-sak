@@ -54,7 +54,7 @@
 
         <metrics.version>3.2.5</metrics.version>
         <fp-kontrakter.version>5.1-20200211164354-f6cea52</fp-kontrakter.version>
-        <kalkulus.version>1.0-20200212135720-16d0734</kalkulus.version>
+        <kalkulus.version>1.0-20200213103612-d4782fe</kalkulus.version>
 
     </properties>
 
