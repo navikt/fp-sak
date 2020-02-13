@@ -13,7 +13,6 @@ final class AktivitetStatusMapper {
 
     private static final Map<no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus, AktivitetStatus> REGEL_TIL_VL_MAP;
     private static final Map<AktivitetStatus, no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus> VL_TIL_REGEL_MAP;
-    private static final Map<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus, AktivitetStatus> BG_TIL_VL_MAP;
 
     private AktivitetStatusMapper() {
         //"Statisk" klasse
@@ -42,20 +41,6 @@ final class AktivitetStatusMapper {
         VL_TIL_REGEL_MAP = Collections.unmodifiableMap(map);
     }
 
-    static {
-        BG_TIL_VL_MAP = new HashMap<>();
-        BG_TIL_VL_MAP.put(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.ARBEIDSAVKLARINGSPENGER, AktivitetStatus.ARBEIDSAVKLARINGSPENGER);
-        BG_TIL_VL_MAP.put(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.DAGPENGER, AktivitetStatus.DAGPENGER);
-        BG_TIL_VL_MAP.put(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.FRILANSER, AktivitetStatus.FRILANSER);
-        BG_TIL_VL_MAP.put(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.ARBEIDSTAKER, AktivitetStatus.ARBEIDSTAKER);
-        BG_TIL_VL_MAP.put(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
-        BG_TIL_VL_MAP.put(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.KUN_YTELSE, AktivitetStatus.KUN_YTELSE);
-        BG_TIL_VL_MAP.put(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.BRUKERS_ANDEL, AktivitetStatus.BRUKERS_ANDEL);
-        BG_TIL_VL_MAP.put(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.MILITÆR_ELLER_SIVIL, AktivitetStatus.MILITÆR_ELLER_SIVIL);
-        BG_TIL_VL_MAP.put(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.VENTELØNN_VARTPENGER, AktivitetStatus.VENTELØNN_VARTPENGER);
-        BG_TIL_VL_MAP.put(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.TTLSTØTENDE_YTELSE, AktivitetStatus.TTLSTØTENDE_YTELSE);
-    }
-
     static AktivitetStatus fraRegelTilVl(BeregningsresultatAndel andel) {
         if (andel.getAktivitetStatus().equals(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus.ATFL)) {
             Arbeidsforhold arbeidsforhold = andel.getArbeidsforhold();
@@ -73,12 +58,4 @@ final class AktivitetStatusMapper {
         }
         throw new IllegalArgumentException("Ukjent AktivitetStatus " + vlAktivitetStatus);
     }
-
-    static AktivitetStatus fraBGTilVL(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus bgAktivitetStatus) {
-        if (BG_TIL_VL_MAP.containsKey(bgAktivitetStatus)) {
-            return BG_TIL_VL_MAP.get(bgAktivitetStatus);
-        }
-        throw new IllegalArgumentException("Ukjent AktivitetStatus " + bgAktivitetStatus);
-    }
-
 }
