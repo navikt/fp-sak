@@ -80,7 +80,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
     private UttakInput lagInput(Behandling behandling, FamilieHendelser familieHendelser, Annenpart annenpart) {
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(familieHendelser)
-            .medAnnepart(annenpart);
+            .medAnnenpart(annenpart);
         return new UttakInput(BehandlingReferanse.fra(behandling, lagSkjæringstidspunkt(LocalDate.now())), null, ytelsespesifiktGrunnlag);
     }
 

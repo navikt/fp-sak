@@ -67,7 +67,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         return nyttGrunnlag;
     }
 
-    public ForeldrepengerGrunnlag medAnnepart(Annenpart annenpart) {
+    public ForeldrepengerGrunnlag medAnnenpart(Annenpart annenpart) {
         var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
         nyttGrunnlag.annenpart = annenpart;
         return nyttGrunnlag;

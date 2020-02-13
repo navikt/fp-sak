@@ -354,7 +354,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
             .medErTapendeBehandling(true)
             .medOriginalBehandling(new OriginalBehandling(behandling.getId(), familieHendelser))
             .medFamilieHendelser(familieHendelser)
-            .medAnnepart(new Annenpart(false, behandlingFar.getId()));
+            .medAnnenpart(new Annenpart(false, behandlingFar.getId()));
         var iayGrunnlag = iayTjeneste.hentGrunnlag(revurderingBerørtSak.getId());
         var input = new UttakInput(BehandlingReferanse.fra(revurderingBerørtSak), iayGrunnlag, fpGrunnlag)
             .medBehandlingÅrsaker(Set.of(BERØRT_BEHANDLING));
@@ -388,7 +388,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
             .medErTapendeBehandling(true)
             .medOriginalBehandling(new OriginalBehandling(behandling.getId(), familieHendelser))
             .medFamilieHendelser(familieHendelser)
-            .medAnnepart(new Annenpart(false, behandlingFar.getId()));
+            .medAnnenpart(new Annenpart(false, behandlingFar.getId()));
         var iayGrunnlag = iayTjeneste.hentGrunnlag(revurderingBerørtSak.getId());
         var input = new UttakInput(BehandlingReferanse.fra(revurderingBerørtSak), iayGrunnlag, fpGrunnlag)
             .medBehandlingÅrsaker(Set.of(BERØRT_BEHANDLING));
