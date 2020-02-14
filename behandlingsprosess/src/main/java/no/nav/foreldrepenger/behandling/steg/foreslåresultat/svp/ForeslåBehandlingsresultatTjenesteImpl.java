@@ -109,7 +109,7 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
             }
         }
     }
-    
+
     private boolean skalTilInfoTrygd(BehandlingReferanse ref) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(ref.getSaksnummer()).orElseThrow();
         return fagsak.getSkalTilInfotrygd();
@@ -117,6 +117,6 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
 
 
     private boolean erVarselOmRevurderingSendt(BehandlingReferanse ref) {
-        return dokumentBehandlingTjeneste.erDokumentProdusert(ref.getBehandlingId(), DokumentMalType.REVURDERING_DOK);
+        return dokumentBehandlingTjeneste.erDokumentBestilt(ref.getBehandlingId(), DokumentMalType.REVURDERING_DOK);
     }
 }

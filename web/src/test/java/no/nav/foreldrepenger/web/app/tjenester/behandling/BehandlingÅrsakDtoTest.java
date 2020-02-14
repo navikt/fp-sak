@@ -10,17 +10,17 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import no.finn.unleash.FakeUnleash;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
@@ -39,7 +39,7 @@ public class BehandlingÅrsakDtoTest {
     private BehandlingDtoTjeneste behandlingDtoTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private TilbakekrevingRepository tilbakekrevingRepository = new TilbakekrevingRepository(repoRule.getEntityManager());
-    private FakeUnleash unleash = new FakeUnleash();
+    private BehandlingDokumentRepository behandlingDokumentRepository = new BehandlingDokumentRepository(repoRule.getEntityManager());
 
     @Before
     public void setup() {
@@ -48,8 +48,8 @@ public class BehandlingÅrsakDtoTest {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, stputil);
         var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(repoRule.getEntityManager());
         var opptjeningIUtlandDokStatusTjeneste = new OpptjeningIUtlandDokStatusTjeneste(new OpptjeningIUtlandDokStatusRepository(repoRule.getEntityManager()));
-        behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
-            null, unleash, opptjeningIUtlandDokStatusTjeneste);
+        behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository,
+            skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository);
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
@@ -63,7 +63,6 @@ public class BehandlingÅrsakDtoTest {
             .medManueltOpprettet(true);
         behandlingÅrsak.buildFor(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
-
     }
 
     @Test

@@ -101,7 +101,7 @@ public class SendBrevForAutopunkt {
     }
 
     private boolean harSendtBrevForMal(Long behandlingId, DokumentMalType malType) {
-        return dokumentBehandlingTjeneste.erDokumentProdusert(behandlingId, malType);
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, malType);
     }
 
     private LocalDate beregnBehandlingstidsfrist(Aksjonspunkt ap, Behandling behandling) {

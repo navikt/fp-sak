@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.post;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.setStandardfelter;
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.AbstractVedtaksbrevOverstyringshåndterer.FPSAK_LAGRE_FRITEKST_INN_FORMIDLING;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -15,7 +14,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
@@ -26,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -43,8 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
-import no.nav.foreldrepenger.dokumentbestiller.klient.FormidlingDataTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.klient.TekstFraSaksbehandler;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
@@ -101,12 +98,11 @@ public class BehandlingDtoTjeneste {
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private SøknadRepository søknadRepository;
-    private Unleash unleash;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
     private BehandlingRepository behandlingRepository;
-    private FormidlingDataTjeneste formidlingDataTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste;
+    private BehandlingDokumentRepository behandlingDokumentRepository;
 
     BehandlingDtoTjeneste() {
         // for CDI proxy
@@ -117,9 +113,8 @@ public class BehandlingDtoTjeneste {
                                  HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                  TilbakekrevingRepository tilbakekrevingRepository,
                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                 FormidlingDataTjeneste formidlingDataTjeneste,
-                                 Unleash unleash,
-                                 OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste) {
+                                 OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste,
+                                 BehandlingDokumentRepository behandlingDokumentRepository) {
 
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.uttakRepository = repositoryProvider.getUttakRepository();
@@ -127,12 +122,11 @@ public class BehandlingDtoTjeneste {
         this.tilbakekrevingRepository = tilbakekrevingRepository;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.unleash = unleash;
         this.svangerskapspengerUttakResultatRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.formidlingDataTjeneste = formidlingDataTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.opptjeningIUtlandDokStatusTjeneste = opptjeningIUtlandDokStatusTjeneste;
+        this.behandlingDokumentRepository = behandlingDokumentRepository;
     }
 
     private static BehandlingDto lagBehandlingDto(Behandling behandling,
@@ -420,31 +414,27 @@ public class BehandlingDtoTjeneste {
             return Optional.empty();
         }
         BehandlingsresultatDto dto = new BehandlingsresultatDto();
-        Optional<TekstFraSaksbehandler> tekstFraSaksbehandlerOptional = Optional.empty();
-            dto.setId(behandlingsresultat.getId());
-            dto.setType(behandlingsresultat.getBehandlingResultatType());
-            dto.setAvslagsarsak(behandlingsresultat.getAvslagsårsak());
-            dto.setKonsekvenserForYtelsen(behandlingsresultat.getKonsekvenserForYtelsen());
-            dto.setRettenTil(behandlingsresultat.getRettenTil());
-            dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling).orElse(null));
-            dto.setErRevurderingMedUendretUtfall(erRevurderingMedUendretUtfall(behandling));
-            if (unleash.isEnabled(FPSAK_LAGRE_FRITEKST_INN_FORMIDLING)) {
-                tekstFraSaksbehandlerOptional = formidlingDataTjeneste.hentSaksbehandlerTekst(behandling.getUuid());
-            }
-            //For å støtte eksiterende data inn i FPSAK
-            if (tekstFraSaksbehandlerOptional.isPresent()) {
-                final TekstFraSaksbehandler tekstFraSaksbehandlerDto = tekstFraSaksbehandlerOptional.get();
-                dto.setAvslagsarsakFritekst(tekstFraSaksbehandlerDto.getAvslagarsakFritekst());
-                dto.setVedtaksbrev(tekstFraSaksbehandlerDto.getVedtaksbrev());
-                dto.setOverskrift(tekstFraSaksbehandlerDto.getOverskrift());
-                dto.setFritekstbrev(tekstFraSaksbehandlerDto.getFritekstbrev());
-            } else {
-                dto.setAvslagsarsakFritekst(behandlingsresultat.getAvslagarsakFritekst());
-                dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());
-                dto.setOverskrift(behandlingsresultat.getOverskrift());
-                dto.setFritekstbrev(behandlingsresultat.getFritekstbrev());
-            }
-            return Optional.of(dto);
+        dto.setId(behandlingsresultat.getId());
+        dto.setType(behandlingsresultat.getBehandlingResultatType());
+        dto.setAvslagsarsak(behandlingsresultat.getAvslagsårsak());
+        dto.setKonsekvenserForYtelsen(behandlingsresultat.getKonsekvenserForYtelsen());
+        dto.setRettenTil(behandlingsresultat.getRettenTil());
+        dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling).orElse(null));
+        dto.setErRevurderingMedUendretUtfall(erRevurderingMedUendretUtfall(behandling));
+
+        // TODO(JEJ): Bytte ut etter første prodsetting og migrering på TFP-1404 (leser alltid fra gammelt sted i tilfelle gammel node skriver dit):
+//        Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+//        if (behandlingDokument.isPresent()) {
+//            dto.setAvslagsarsakFritekst(behandlingDokument.get().getVedtakFritekst());
+//            dto.setOverskrift(behandlingDokument.get().getOverstyrtBrevOverskrift());
+//            dto.setFritekstbrev(behandlingDokument.get().getOverstyrtBrevFritekst());
+//        }
+        dto.setAvslagsarsakFritekst(behandlingsresultat.getAvslagarsakFritekst());
+        dto.setOverskrift(behandlingsresultat.getOverskrift());
+        dto.setFritekstbrev(behandlingsresultat.getFritekstbrev());
+
+        dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());
+        return Optional.of(dto);
     }
 
     private boolean erRevurderingMedUendretUtfall(Behandling behandling) {

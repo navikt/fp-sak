@@ -88,6 +88,6 @@ public class KompletthetsjekkerFelles {
     }
 
     public boolean erSendtBrev(Long behandlingId, DokumentMalType dokumentMalType) {
-        return dokumentBehandlingTjeneste.erDokumentProdusert(behandlingId, dokumentMalType);
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, dokumentMalType);
     }
 }

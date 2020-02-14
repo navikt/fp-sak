@@ -120,7 +120,7 @@ public class BrevRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Boolean harProdusertDokument(@Valid DokumentProdusertDto dto) {
         Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
-        return dokumentBehandlingTjeneste.erDokumentProdusert(behandling.getId(), DokumentMalType.fraKode(dto.getDokumentMal())); // NOSONAR
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.fraKode(dto.getDokumentMal())); // NOSONAR
     }
 
     @GET
@@ -131,6 +131,6 @@ public class BrevRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Boolean harSendtVarselOmRevurdering(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return dokumentBehandlingTjeneste.erDokumentProdusert(behandling.getId(), DokumentMalType.REVURDERING_DOK); // NOSONAR
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.REVURDERING_DOK); // NOSONAR
     }
 }

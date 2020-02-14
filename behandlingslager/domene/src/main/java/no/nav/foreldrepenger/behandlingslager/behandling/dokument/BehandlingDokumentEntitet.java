@@ -1,0 +1,162 @@
+package no.nav.foreldrepenger.behandlingslager.behandling.dokument;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+
+@Entity(name = "BehandlingDokument")
+@Table(name = "BEHANDLING_DOKUMENT")
+public class BehandlingDokumentEntitet extends BaseEntitet {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BEHANDLING_DOKUMENT")
+    private Long id;
+
+    @Column(name = "behandling_id", nullable = false, updatable = false, unique = true)
+    private Long behandlingId;
+
+    @Column(name = "overstyrt_brev_overskrift")
+    private String overstyrtBrevOverskrift;
+
+    @Lob
+    @Column(name = "overstyrt_brev_fritekst")
+    private String overstyrtBrevFritekst;
+
+    @Lob
+    @Column(name = "vedtak_fritekst")
+    private String vedtakFritekst;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "behandlingDokument", cascade = CascadeType.ALL)
+    private List<BehandlingDokumentBestiltEntitet> bestilteDokumenter = new ArrayList<>();
+
+    protected BehandlingDokumentEntitet() {
+        // for hibernate
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Long getBehandlingId() {
+        return behandlingId;
+    }
+
+    public String getOverstyrtBrevOverskrift() {
+        return overstyrtBrevOverskrift;
+    }
+
+    public String getOverstyrtBrevFritekst() {
+        return overstyrtBrevFritekst;
+    }
+
+    public String getVedtakFritekst() {
+        return vedtakFritekst;
+    }
+
+    public List<BehandlingDokumentBestiltEntitet> getBestilteDokumenter() {
+        return bestilteDokumenter;
+    }
+
+    public void leggTilBestiltDokument(BehandlingDokumentBestiltEntitet bestiltDokument) {
+        Objects.requireNonNull(bestiltDokument, "bestiltDokument");
+        bestilteDokumenter.add(bestiltDokument);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        BehandlingDokumentEntitet that = (BehandlingDokumentEntitet) o;
+        return Objects.equals(behandlingId, that.behandlingId) &&
+            Objects.equals(overstyrtBrevOverskrift, that.overstyrtBrevOverskrift) &&
+            Objects.equals(overstyrtBrevFritekst, that.overstyrtBrevFritekst) &&
+            Objects.equals(vedtakFritekst, that.vedtakFritekst);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(behandlingId, overstyrtBrevOverskrift, overstyrtBrevFritekst, vedtakFritekst);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "<" +
+            (id != null ? "id=" + id + ", " : "")
+            + "behandling=" + behandlingId + ", "
+            + ">";
+    }
+
+    public static class Builder {
+        private BehandlingDokumentEntitet behandlingDokumentMal;
+
+        private Builder() {
+            behandlingDokumentMal = new BehandlingDokumentEntitet();
+        }
+
+        public static BehandlingDokumentEntitet.Builder ny() {
+            return new Builder();
+        }
+
+        public static BehandlingDokumentEntitet.Builder fraEksisterende(BehandlingDokumentEntitet behandlingDokument) {
+            BehandlingDokumentEntitet.Builder builder = new Builder()
+                .medBehandling(behandlingDokument.getBehandlingId())
+                .medOverstyrtBrevOverskrift(behandlingDokument.getOverstyrtBrevOverskrift())
+                .medOverstyrtBrevFritekst(behandlingDokument.getOverstyrtBrevFritekst())
+                .medVedtakFritekst(behandlingDokument.getVedtakFritekst())
+                .medBestilteDokumenter(behandlingDokument.getBestilteDokumenter());
+            builder.behandlingDokumentMal.id = behandlingDokument.id;
+            return builder;
+        }
+
+        public BehandlingDokumentEntitet.Builder medBehandling(Long behandlingId) {
+            behandlingDokumentMal.behandlingId = behandlingId;
+            return this;
+        }
+
+        public BehandlingDokumentEntitet.Builder medOverstyrtBrevOverskrift(String overstyrtBrevOverskrift) {
+            behandlingDokumentMal.overstyrtBrevOverskrift = overstyrtBrevOverskrift;
+            return this;
+        }
+
+        public BehandlingDokumentEntitet.Builder medOverstyrtBrevFritekst(String overstyrtBrevFritekst) {
+            behandlingDokumentMal.overstyrtBrevFritekst = overstyrtBrevFritekst;
+            return this;
+        }
+
+        public BehandlingDokumentEntitet.Builder medVedtakFritekst(String vedtakFritekst) {
+            behandlingDokumentMal.vedtakFritekst = vedtakFritekst;
+            return this;
+        }
+
+        public BehandlingDokumentEntitet.Builder medBestilteDokumenter(List<BehandlingDokumentBestiltEntitet> bestilteDokumenter) {
+            behandlingDokumentMal.bestilteDokumenter = bestilteDokumenter;
+            return this;
+        }
+
+        public BehandlingDokumentEntitet build() {
+            verifyStateForBuild();
+            return behandlingDokumentMal;
+        }
+
+        public void verifyStateForBuild() {
+            Objects.requireNonNull(behandlingDokumentMal.behandlingId, "Behandling må være satt");
+        }
+    }
+}

@@ -18,11 +18,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import no.finn.unleash.FakeUnleash;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
@@ -35,6 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
@@ -65,7 +65,8 @@ public class BehandlingDtoTjenesteImplTest {
     @Inject
     private OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste;
 
-    private FakeUnleash unleash = new FakeUnleash();
+    @Inject
+    private BehandlingDokumentRepository behandlingDokumentRepository;
 
     private BehandlingDtoTjeneste tjeneste;
 
@@ -77,7 +78,7 @@ public class BehandlingDtoTjenesteImplTest {
     public void setUp() {
         existingRoutes = RestUtils.getRoutes();
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
-            null, unleash, opptjeningIUtlandDokStatusTjeneste);
+            opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository);
     }
 
     @Test

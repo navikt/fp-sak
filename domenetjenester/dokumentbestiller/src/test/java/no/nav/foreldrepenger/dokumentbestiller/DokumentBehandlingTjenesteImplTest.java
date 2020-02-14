@@ -1,10 +1,12 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -17,11 +19,14 @@ import org.mockito.MockitoAnnotations;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dokumentbestiller.klient.FormidlingRestKlient;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.util.FPDateUtil;
 
@@ -32,9 +37,10 @@ public class DokumentBehandlingTjenesteImplTest {
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
 
     @Mock
-    BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     private AbstractTestScenario<?> scenario;
+    private BehandlingDokumentRepository behandlingDokumentRepository;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private Behandling behandling;
     private BehandlingRepository behandlingRepository;
@@ -45,7 +51,8 @@ public class DokumentBehandlingTjenesteImplTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, null, behandlingskontrollTjeneste, null, null);
+        behandlingDokumentRepository = new BehandlingDokumentRepository(repoRule.getEntityManager());
+        dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, null, behandlingskontrollTjeneste, null, mock(FormidlingRestKlient.class), behandlingDokumentRepository);
         this.scenario = ScenarioMorSøkerEngangsstønad
             .forFødsel()
             .medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().minusDays(3)));
@@ -113,5 +120,40 @@ public class DokumentBehandlingTjenesteImplTest {
         behandling = scenario.lagre(repositoryProvider);
         dokumentBehandlingTjeneste.oppdaterBehandlingMedNyFrist(behandling, now);
         assertThat(behandlingRepository.hentBehandling(behandling.getId()).getBehandlingstidFrist()).isEqualTo(now);
+    }
+
+    @Test
+    public void skal_logge_i_repo_at_dokument_er_bestilt() {
+        // Arrange
+        behandling = scenario.lagre(repositoryProvider);
+
+        // Act
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENT_DOK);
+
+        // Assert
+        Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+        assertThat(behandlingDokument.isPresent()).isTrue();
+        assertThat(behandlingDokument.get().getBestilteDokumenter().size()).isEqualTo(1);
+        assertThat(behandlingDokument.get().getBestilteDokumenter().get(0).getDokumentMalType()).isEqualTo(DokumentMalType.INNHENT_DOK.getKode());
+    }
+
+    @Test
+    public void skal_returnere_true_når_dokument_er_bestilt() {
+        // Arrange
+        behandling = scenario.lagre(repositoryProvider);
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENT_DOK);
+
+        // Act+Assert
+        assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENT_DOK)).isTrue();
+    }
+
+    @Test
+    public void skal_returnere_false_når_dokument_ikke_er_bestilt() {
+        // Arrange
+        behandling = scenario.lagre(repositoryProvider);
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.ETTERLYS_INNTEKTSMELDING_DOK);
+
+        // Act+Assert
+        assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENT_DOK)).isFalse();
     }
 }

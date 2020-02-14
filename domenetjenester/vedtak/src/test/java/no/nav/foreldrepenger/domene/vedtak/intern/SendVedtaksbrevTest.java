@@ -175,7 +175,7 @@ public class SendVedtaksbrevTest {
     @Test
     public void senderBrevOmUendretUtfallVedRevurdering() {
         when(behandlingVedtak.isBeslutningsvedtak()).thenReturn(true);
-        when(dokumentBehandlingTjeneste.erDokumentProdusert(behandling.getId(), DokumentMalType.REVURDERING_DOK))
+        when(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.REVURDERING_DOK))
             .thenReturn(true);
 
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
@@ -186,7 +186,7 @@ public class SendVedtaksbrevTest {
     @Test
     public void senderIkkeBrevOmUendretUtfallHvisIkkeSendtVarselbrevOmRevurdering() {
         when(behandlingVedtak.isBeslutningsvedtak()).thenReturn(true);
-        when(dokumentBehandlingTjeneste.erDokumentProdusert(behandling.getId(), DokumentMalType.REVURDERING_DOK))
+        when(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.REVURDERING_DOK))
             .thenReturn(false);
 
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
