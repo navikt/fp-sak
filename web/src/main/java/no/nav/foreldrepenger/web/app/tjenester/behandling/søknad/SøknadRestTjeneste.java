@@ -103,7 +103,7 @@ public class SøknadRestTjeneste {
     }
 
     @GET
-    @Path(SOKNAD_GJELDENDE_PATH)
+    @Path(SOKNAD_GJELDENDE_PART_PATH)
     @Operation(description = "Hent informasjon om gjeldende søknad",
         tags = "søknad",
         responses = {
@@ -127,6 +127,10 @@ public class SøknadRestTjeneste {
         }
 
         Optional<Behandling> originalBehandling = behandling.getOriginalBehandling();
-        return originalBehandling.isEmpty() ? null : getGjeldendeSøknad(new UuidDto(originalBehandling.get().getUuid()));
+        if (originalBehandling.isPresent()) {
+            return getGjeldendeSøknad(new UuidDto(originalBehandling.get().getUuid()));
+        }
+
+        return null;
     }
 }
