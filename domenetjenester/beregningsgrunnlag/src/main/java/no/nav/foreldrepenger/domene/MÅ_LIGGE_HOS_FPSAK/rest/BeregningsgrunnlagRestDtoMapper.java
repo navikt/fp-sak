@@ -213,7 +213,7 @@ class BeregningsgrunnlagRestDtoMapper {
             .medOverstyrtPrÅr(fraFpsak.getOverstyrtPrÅr())
             .medFordeltPrÅr(fraFpsak.getFordeltPrÅr())
             .medRedusertPrÅr(fraFpsak.getRedusertPrÅr())
-            .medRedusertBrukersAndelPrÅr(fraFpsak.getRedusertPrÅr())
+            .medRedusertBrukersAndelPrÅr(fraFpsak.getRedusertBrukersAndelPrÅr())
             .medMaksimalRefusjonPrÅr(fraFpsak.getMaksimalRefusjonPrÅr())
             .medRedusertRefusjonPrÅr(fraFpsak.getRedusertRefusjonPrÅr())
             .medÅrsbeløpFraTilstøtendeYtelse(fraFpsak.getÅrsbeløpFraTilstøtendeYtelse() == null ? null : fraFpsak.getÅrsbeløpFraTilstøtendeYtelse().getVerdi())
