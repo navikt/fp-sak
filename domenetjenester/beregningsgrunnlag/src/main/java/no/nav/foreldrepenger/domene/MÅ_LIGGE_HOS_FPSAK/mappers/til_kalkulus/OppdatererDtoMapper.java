@@ -192,7 +192,7 @@ public class OppdatererDtoMapper {
             fastsettMånedsinntektUtenInntektsmeldingAndelDto.getAndelsnr(),
             new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FastsatteVerdierDto(
                 fastsettMånedsinntektUtenInntektsmeldingAndelDto.getFastsattBeløp(),
-                Inntektskategori.fraKode(fastsettMånedsinntektUtenInntektsmeldingAndelDto.getInntektskategori().getKode())));
+                fastsettMånedsinntektUtenInntektsmeldingAndelDto.getInntektskategori() == null ?  null : Inntektskategori.fraKode(fastsettMånedsinntektUtenInntektsmeldingAndelDto.getInntektskategori().getKode())));
     }
 
     private static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.VurderLønnsendringDto mapVurderLønnsendringDto(VurderLønnsendringDto vurdertLonnsendring) {

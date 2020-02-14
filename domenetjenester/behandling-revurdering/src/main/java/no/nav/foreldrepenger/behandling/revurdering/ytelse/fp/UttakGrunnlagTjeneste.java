@@ -83,7 +83,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
             .medOriginalBehandling(originalBehandling.orElse(null));
         if (fagsakRelasjon.isPresent()) {
             var annenpart = annenpart(fagsakRelasjon.get(), familiehendelser, behandling);
-            grunnlag = grunnlag.medAnnepart(annenpart.orElse(null));
+            grunnlag = grunnlag.medAnnenpart(annenpart.orElse(null));
 
         }
         return Optional.of(grunnlag);
