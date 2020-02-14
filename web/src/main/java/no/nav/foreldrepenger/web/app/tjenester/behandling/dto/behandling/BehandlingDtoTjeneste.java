@@ -387,6 +387,7 @@ public class BehandlingDtoTjeneste {
             UuidDto originalUuidDto = new UuidDto(originalBehandling.getUuid());
             dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_PATH, "familiehendelse-original-behandling", originalUuidDto));
             dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad-original-behandling", originalUuidDto));
+            dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "gjeldende-soknad", originalUuidDto));
             Optional<UttakResultatEntitet> uttakResultatHvisEksisterer = uttakRepository.hentUttakResultatHvisEksisterer(originalBehandling.getId());
 
             // FIXME hvorfor ytelsspesifikke urler her?  Bør kun ha en beregningresultat
