@@ -100,6 +100,8 @@ public class BehandlingRestTjeneste {
     public static final String SETT_PA_VENT_PATH = BASE_PATH + SETT_PA_VENT_PART_PATH;
     private static final String HANDLING_RETTIGHETER_PART_PATH = "/handling-rettigheter";
     public static final String HANDLING_RETTIGHETER_PATH = BASE_PATH + HANDLING_RETTIGHETER_PART_PATH;
+    private static final String REVURDERING_ORIGINAL_PART_PATH = "/revurdering-original";
+    public static final String REVURDERING_ORIGINAL_PATH = BASE_PATH + REVURDERING_ORIGINAL_PART_PATH; //NOSONAR TFP-2234
     private static final String ENDRE_VENTEFRIST_PART_PATH = "/endre-pa-vent";
     public static final String ENDRE_VENTEFRIST_PATH = BASE_PATH + ENDRE_VENTEFRIST_PART_PATH;
 
@@ -226,6 +228,34 @@ public class BehandlingRestTjeneste {
             : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
         AsyncPollingStatus taskStatus = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, null).orElse(null);
         UtvidetBehandlingDto dto = behandlingDtoTjeneste.lagUtvidetBehandlingDto(behandling, taskStatus);
+        ResponseBuilder responseBuilder = Response.ok().entity(dto);
+        return responseBuilder.build();
+    }
+
+    @GET
+    @Path(REVURDERING_ORIGINAL_PART_PATH)
+    @Operation(description = "Hent avsluttet førstegangsbehandling gitt id",
+        summary = ("Henter førstegangsbehandlingen som er/blir revurdert"),
+        tags = "behandlinger",
+        responses = {
+            @ApiResponse(responseCode = "200",
+                description = "Returnerer avsluttet førstegangsbehandling",
+                content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = UtvidetBehandlingDto.class)
+                )
+            )
+        }
+    )
+    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response hentRevurderingensOriginalBehandling(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
+            ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
+            : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
+
+        UtvidetBehandlingDto dto = behandlingDtoTjeneste.lagUtvidetBehandlingDtoForRevurderingensOriginalBehandling(behandling);
         ResponseBuilder responseBuilder = Response.ok().entity(dto);
         return responseBuilder.build();
     }

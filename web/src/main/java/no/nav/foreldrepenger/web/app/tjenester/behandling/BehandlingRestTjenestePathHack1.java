@@ -48,6 +48,8 @@ public class BehandlingRestTjenestePathHack1 {
     static final String BASE_PATH = "/behandling";
     private static final String BEHANDLING_PART_PATH = "";
     public static final String BEHANDLING_PATH = BASE_PATH + BEHANDLING_PART_PATH;
+    private static final String REVURDERING_ORGINAL_PART_PATH = "/revurdering-original";
+    public static final String REVURDERING_ORGINAL_PATH = BASE_PATH + REVURDERING_ORGINAL_PART_PATH;
     private static final String STATUS_PART_PATH = "/status";
     public static final String STATUS_PATH = BASE_PATH + STATUS_PART_PATH;
 
@@ -116,5 +118,26 @@ public class BehandlingRestTjenestePathHack1 {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response hentBehandlingResultat(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return behandlingRestTjeneste.hentBehandlingResultat(new BehandlingIdDto(uuidDto));
+    }
+
+    @GET
+    @Path(REVURDERING_ORGINAL_PART_PATH)
+    @Operation(description = "Hent avsluttet førstegangsbehandling gitt id",
+        summary = ("Henter førstegangsbehandlingen som er/blir revurdert"),
+        tags = "behandlinger",
+        responses = {
+            @ApiResponse(responseCode = "200",
+                description = "Returnerer avsluttet førstegangsbehandling",
+                content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = UtvidetBehandlingDto.class)
+                )
+            )
+        }
+    )
+    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response hentRevurderingensOriginalBehandling(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        return behandlingRestTjeneste.hentRevurderingensOriginalBehandling(new BehandlingIdDto(uuidDto));
     }
 }

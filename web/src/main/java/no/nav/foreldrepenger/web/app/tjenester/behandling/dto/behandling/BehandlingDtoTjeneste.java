@@ -52,6 +52,7 @@ import no.nav.foreldrepenger.familiehendelse.rest.FamiliehendelseRestTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BekreftedeAksjonspunkterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.AnkeRestTjeneste;
@@ -215,6 +216,30 @@ public class BehandlingDtoTjeneste {
         if (asyncStatus != null && !asyncStatus.isPending()) {
             dto.setAsyncStatus(asyncStatus);
         }
+        return dto;
+    }
+
+    public UtvidetBehandlingDto lagUtvidetBehandlingDtoForRevurderingensOriginalBehandling(Behandling originalBehandling) {
+        UuidDto uuidDto = new UuidDto(originalBehandling.getUuid());
+        UtvidetBehandlingDto dto = new UtvidetBehandlingDto();
+
+        Optional<Behandling> sisteAvsluttedeIkkeHenlagteBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(originalBehandling.getFagsakId());
+        var erBehandlingMedGjeldendeVedtak = erBehandlingMedGjeldendeVedtak(originalBehandling, sisteAvsluttedeIkkeHenlagteBehandling);
+        setStandardfelter(originalBehandling, dto, erBehandlingMedGjeldendeVedtak);
+        var behandlingsresultatDto = lagBehandlingsresultatDto(originalBehandling);
+        dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
+
+        dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_PATH, "familiehendelse", uuidDto));
+        dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad", uuidDto));
+        Optional<UttakResultatEntitet> uttakResultatHvisEksisterer = uttakRepository.hentUttakResultatHvisEksisterer(originalBehandling.getId());
+
+        // FIXME hvorfor ytelsspesifikke urler her?  Bør kun ha en beregningresultat
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(originalBehandling.getFagsakYtelseType())) {
+            dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad", uuidDto));
+        } else if (uttakResultatHvisEksisterer.isPresent()) {
+            dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger", uuidDto));
+        }
+
         return dto;
     }
 
@@ -388,6 +413,11 @@ public class BehandlingDtoTjeneste {
 
         behandling.getOriginalBehandling().ifPresent(originalBehandling -> {
             UuidDto originalUuidDto = new UuidDto(originalBehandling.getUuid());
+
+            // Denne brukes kun av FPFORMIDLING
+            dto.leggTil(get(BehandlingRestTjenestePathHack1.REVURDERING_ORGINAL_PATH, "original-behandling", originalUuidDto));
+
+            // Det under brukes kun av FPSAK-FRONTEND
             dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_PATH, "familiehendelse-original-behandling", originalUuidDto));
             dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad-original-behandling", originalUuidDto));
 
