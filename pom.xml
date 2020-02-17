@@ -414,12 +414,6 @@
             </dependency>
 
             <dependency>
-                <groupId>no.nav.folketrygdloven</groupId>
-                <artifactId>beregningsgrunnlag-regelmodell</artifactId>
-                <version>2.1-20200121130215-ad804eb</version>
-            </dependency>
-
-            <dependency>
                 <groupId>no.nav.modig</groupId>
                 <artifactId>modig-testcertificates</artifactId>
                 <version>1.2.6-SNAPSHOT</version>

@@ -61,10 +61,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>no.nav.folketrygdloven</groupId>
-            <artifactId>beregningsgrunnlag-regelmodell</artifactId>
-        </dependency>
-        <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-testutilities</artifactId>
             <scope>test</scope>
