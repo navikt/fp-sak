@@ -52,6 +52,7 @@ import no.nav.foreldrepenger.familiehendelse.rest.FamiliehendelseRestTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BekreftedeAksjonspunkterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.AnkeRestTjeneste;
@@ -383,11 +384,12 @@ public class BehandlingDtoTjeneste {
         lagTilbakekrevingValgLink(behandling).ifPresent(dto::leggTil);
         lagSimuleringResultatLink(behandling).ifPresent(dto::leggTil);
 
-        // Denne brukes kun av FPFORMIDLING
-        dto.leggTil(get(SøknadRestTjeneste.SOKNAD_GJELDENDE_PATH, "gjeldende-soknad", uuidDto));
-
         behandling.getOriginalBehandling().ifPresent(originalBehandling -> {
             UuidDto originalUuidDto = new UuidDto(originalBehandling.getUuid());
+
+            // Denne brukes kun av FPFORMIDLING
+            dto.leggTil(get(BehandlingRestTjenestePathHack1.BEHANDLING_PATH, "original-behandling", originalUuidDto));
+
             dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_PATH, "familiehendelse-original-behandling", originalUuidDto));
             dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad-original-behandling", originalUuidDto));
 
