@@ -25,7 +25,7 @@ public class MapRefusjonskravDatoer {
     }
 
     private static RefusjonskravDato mapRefusjonskravDato(RefusjonskravDatoDto rd) {
-        return new RefusjonskravDato(mapArbeidsgiver(rd.getArbeidsgiver()), rd.getFørsteDagMedRefusjonskrav(), rd.getFørsteInnsendingAvRefusjonskrav());
+        return new RefusjonskravDato(mapArbeidsgiver(rd.getArbeidsgiver()), rd.getFørsteDagMedRefusjonskrav(), rd.getFørsteInnsendingAvRefusjonskrav(), rd.harRefusjonFraStart());
     }
 
     private static Arbeidsgiver mapArbeidsgiver(Aktør arbeidsgiverDto) {

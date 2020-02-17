@@ -191,7 +191,7 @@ public class SaldoerDtoTjenesteImplTest {
     private ForeldrepengerGrunnlag fpGrunnlag(Annenpart annenpart) {
         var familieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
-        return new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser).medAnnepart(annenpart);
+        return new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser).medAnnenpart(annenpart);
     }
 
     @Test

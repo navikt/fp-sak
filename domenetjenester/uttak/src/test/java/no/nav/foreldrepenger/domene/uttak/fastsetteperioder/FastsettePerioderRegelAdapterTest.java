@@ -732,7 +732,7 @@ public class FastsettePerioderRegelAdapterTest {
         YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
             .medErTapendeBehandling(true)
             .medFamilieHendelser(familieHendelser)
-            .medAnnepart(new Annenpart(false, farBehandling.getId()))
+            .medAnnenpart(new Annenpart(false, farBehandling.getId()))
             .medOriginalBehandling(new OriginalBehandling(morBehandling.getId(), null));
         var input = new UttakInput(ref, null, ytelsespesifiktGrunnlag)
             .medBeregningsgrunnlagStatuser(andelTjeneste.hentStatuser())
