@@ -383,11 +383,12 @@ public class BehandlingDtoTjeneste {
         lagTilbakekrevingValgLink(behandling).ifPresent(dto::leggTil);
         lagSimuleringResultatLink(behandling).ifPresent(dto::leggTil);
 
-        // Denne brukes kun av FPFORMIDLING
-        dto.leggTil(get(SøknadRestTjeneste.SOKNAD_GJELDENDE_PATH, "gjeldende-soknad", uuidDto));
-
         behandling.getOriginalBehandling().ifPresent(originalBehandling -> {
             UuidDto originalUuidDto = new UuidDto(originalBehandling.getUuid());
+
+            // Denne brukes kun av FPFORMIDLING
+            dto.leggTil(get(BehandlingRestTjeneste.BEHANDLINGER_ALLE_PATH, "original-behandling", originalUuidDto));
+
             dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_PATH, "familiehendelse-original-behandling", originalUuidDto));
             dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad-original-behandling", originalUuidDto));
 
