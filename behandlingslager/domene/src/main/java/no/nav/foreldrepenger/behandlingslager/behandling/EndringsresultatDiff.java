@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static no.nav.vedtak.util.Objects.check;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +67,9 @@ public class EndringsresultatDiff {
     }
 
     public boolean erSporedeFeltEndret() {
-        check(støtterSporingsendringer, "Utviklerfeil: ikke satt opp til å støtte sporing på felter"); //$NON-NLS-1$
+        if(!støtterSporingsendringer) {
+            throw new IllegalArgumentException("Utviklerfeil: ikke satt opp til å støtte sporing på felter");
+        }
         return erSporedeFeltEndret  || getChildren().stream().anyMatch(EndringsresultatDiff::erSporedeFeltEndret);
     }
 

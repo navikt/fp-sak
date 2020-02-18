@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.behandlingskontroll;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.vedtak.util.Objects;
 
 /**
  * Brukes for intern håndtering av flyt på et steg. Inneholder kode for stegets nye status. Hvis status er fremoverføring,
@@ -40,12 +38,4 @@ public class StegProsesseringResultat {
         return getClass().getSimpleName() + "<nyStegStatus=" + nyStegStatus + ", transisjon=" + transisjon + ">"; // NOSONAR //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
-    static void validerKombinasjon(BehandlingStegStatus nyStegStatus, BehandlingStegType målsteg) {
-        Objects.check(nyStegStatus != null, "resultat må være satt"); //$NON-NLS-1$
-        if (BehandlingStegStatus.FREMOVERFØRT.equals(nyStegStatus)) {
-            Objects.check(målsteg != null, "målsteg må være satt ved fremoverføring"); //$NON-NLS-1$
-        } else {
-            Objects.check(målsteg == null, "målsteg skal ikke være satt ved resultat " + nyStegStatus.getKode()); //$NON-NLS-1$
-        }
-    }
 }

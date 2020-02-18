@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.typer;
 
-import static no.nav.vedtak.util.Objects.check;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -96,7 +94,9 @@ public class Stillingsprosent implements Serializable, IndexKey, TraverseValue {
         if (verdi == null) {
             return;
         }
-        check(verdi.compareTo(BigDecimal.ZERO) >= 0, "Prosent må være >= 0"); //$NON-NLS-1$
+        if (verdi.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Prosent må være >= 0");
+        }
     }
 
     private BigDecimal fiksNegativOgMax(BigDecimal verdi) {
