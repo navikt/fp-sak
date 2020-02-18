@@ -18,13 +18,11 @@ class FastsettBehandlingsresultatVedEndring {
     public static Behandlingsresultat fastsett(Behandling revurdering,
                                                Betingelser er,
                                                UttakResultatHolder uttakresultatFraOriginalBehandling,
-                                               UttakResultatHolder uttakresultatAnnenPart,
-                                               HarEtablertYtelse harEtablertYtelse,
-                                               boolean erSluttPåStønadsdager) {
+                                               HarEtablertYtelse harEtablertYtelse) {
         List<KonsekvensForYtelsen> konsekvenserForYtelsen = utledKonsekvensForYtelsen(er.endringIBeregning, er.endringIUttakFraEndringstidspunkt);
 
-        if (!harEtablertYtelse.vurder(er.minstEnInnvilgetBehandlingUtenPåfølgendeOpphør, er.opphørFørEllerEtterDagensDato,
-            uttakresultatFraOriginalBehandling, uttakresultatAnnenPart, erSluttPåStønadsdager)) {
+        if (!harEtablertYtelse.vurder(revurdering, er.minstEnInnvilgetBehandlingUtenPåfølgendeOpphør, er.opphørFørEllerEtterDagensDato,
+            uttakresultatFraOriginalBehandling)) {
             return harEtablertYtelse.fastsettForIkkeEtablertYtelse(revurdering, konsekvenserForYtelsen);
         }
 

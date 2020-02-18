@@ -35,7 +35,7 @@ import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
-public class HarEtablertYtelseTest {
+public class HarEtablertYtelseImplTest {
 
     @Rule
     public final RepositoryRule repoRule = new UnittestRepositoryRule();
@@ -73,8 +73,8 @@ public class HarEtablertYtelseTest {
         );
 
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(true, br -> false,
-            new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)), new UttakResultatHolderImpl(Optional.empty()), false);
+        boolean etablertYtelse = harEtablertYtelse.vurder( null,true, br -> false,
+            new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)));
 
         // Assert
         assertThat(etablertYtelse).isTrue();
@@ -90,8 +90,8 @@ public class HarEtablertYtelseTest {
         );
         boolean finnesInnvilgetIkkeOpphørtVedtak = false;
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(finnesInnvilgetIkkeOpphørtVedtak, br -> false,
-            new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)), new UttakResultatHolderImpl(Optional.empty()), false);
+        boolean etablertYtelse = harEtablertYtelse.vurder(null, finnesInnvilgetIkkeOpphørtVedtak, br -> false,
+            new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -106,8 +106,8 @@ public class HarEtablertYtelseTest {
             Collections.singletonList(new LocalDateInterval(dagensDato.minusDays(10), dagensDato))
         );
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(true, br -> false,
-            new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)), new UttakResultatHolderImpl(Optional.empty()), false);
+        boolean etablertYtelse = harEtablertYtelse.vurder(null, true, br -> false,
+            new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
 
         // Assert
         assertThat(etablertYtelse).isTrue();
@@ -122,8 +122,8 @@ public class HarEtablertYtelseTest {
             Collections.singletonList(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(5)))
         );
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(false, br -> false,
-            new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)),new UttakResultatHolderImpl( Optional.empty()), false);
+        boolean etablertYtelse = harEtablertYtelse.vurder(null, false, br -> false,
+            new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -138,8 +138,8 @@ public class HarEtablertYtelseTest {
             Collections.singletonList(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5)))
         );
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(true, br -> false,
-            new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)),new UttakResultatHolderImpl( Optional.empty()), false);
+        boolean etablertYtelse = harEtablertYtelse.vurder(null, true, br -> false,
+            new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
 
         // Assert
         assertThat(etablertYtelse).isFalse();

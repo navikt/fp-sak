@@ -18,14 +18,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.ErEndringIUttakFraEndringsdatoImpl;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.HarEtablertYtelseImpl;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.RevurderingBehandlingsresultatutleder;
 import no.nav.foreldrepenger.behandling.steg.foreslåresultat.AvslagsårsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -57,6 +54,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
@@ -75,7 +73,6 @@ public class ForeslåBehandlingsresultatTjenesteTest {
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(repoRule.getEntityManager());
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
     private EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(EndringsdatoRevurderingUtlederImpl.class);
-    private RelatertBehandlingTjeneste relatertBehandlingTjeneste = mock(RelatertBehandlingTjeneste.class);
     private OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
@@ -93,10 +90,8 @@ public class ForeslåBehandlingsresultatTjenesteTest {
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
             beregningsgrunnlagTjeneste,
             endringsdatoRevurderingUtlederImpl,
-            relatertBehandlingTjeneste,
             opphørUttakTjeneste,
             uttakInputTjeneste,
-            new HarEtablertYtelseImpl(),
             new ErEndringIUttakFraEndringsdatoImpl(),
             new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl(),
             skjæringstidspunktTjeneste,

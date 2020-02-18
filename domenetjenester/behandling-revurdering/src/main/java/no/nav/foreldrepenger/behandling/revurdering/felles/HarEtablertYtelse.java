@@ -12,11 +12,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 public interface HarEtablertYtelse {
 
 
-    boolean vurder(boolean finnesInnvilgetIkkeOpphørtVedtak,
+    boolean vurder(Behandling revurdering,
+                   boolean finnesInnvilgetIkkeOpphørtVedtak,
                    VurderOpphørDagensDato opphørFørEllerEtterDagensDato,
-                   UttakResultatHolder uttakresultatOpt,
-                   UttakResultatHolder uttakresultatAnnenPart,
-                   boolean erSluttPåStønadsdager);
+                   UttakResultatHolder uttakresultatOpt);
 
     Behandlingsresultat fastsettForIkkeEtablertYtelse(Behandling revurdering, List<KonsekvensForYtelsen> konsekvenserForYtelsen);
 
