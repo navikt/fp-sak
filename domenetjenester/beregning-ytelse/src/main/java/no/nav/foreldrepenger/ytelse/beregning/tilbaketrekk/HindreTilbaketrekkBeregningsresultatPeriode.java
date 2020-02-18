@@ -6,14 +6,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 
 class HindreTilbaketrekkBeregningsresultatPeriode {
+    private static final Logger LOGGER = LoggerFactory.getLogger(VurderArbeidsforholdTjeneste.class);
 
     private HindreTilbaketrekkBeregningsresultatPeriode() {
         // skjul public constructor
@@ -78,6 +83,7 @@ class HindreTilbaketrekkBeregningsresultatPeriode {
             .sum();
 
         if (bgDagsats != utbetDagsats) {
+            LOGGER.info("Dagsats som er feil: " + bgDagsats + " Tilhørende periode: " + beregningsresultatPeriode);
             throw new IllegalStateException("Utviklerfeil: utbetDagsats er ulik bgDagsats");
         }
     }
