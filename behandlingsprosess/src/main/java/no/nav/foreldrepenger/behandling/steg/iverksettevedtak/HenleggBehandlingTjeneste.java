@@ -78,7 +78,7 @@ public class HenleggBehandlingTjeneste {
             opprettOppgaveTilInfotrygd(behandling);
         }
         lagHistorikkinnslagForHenleggelse(behandlingId, årsakKode, begrunnelse, HistorikkAktør.SAKSBEHANDLER);
-        // TODO(jol): Ekstraher logikk rundt køing og berørt til behandling-prosessering - oppdatere her og iverksettfelles
+
         if (behandling.erYtelseBehandling() && FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             startTaskForDekøingAvBerørtBehandling(behandling);
         }
