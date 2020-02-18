@@ -118,6 +118,14 @@ public class BeregningsresultatPeriode extends BaseEntitet {
     }
 
     @Override
+    public String toString() {
+        return "BeregningsresultatPeriode{" +
+            "beregningsresultatAndelList=" + beregningsresultatAndelList +
+            ", periode=" + periode +
+            '}';
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(periode);
     }
