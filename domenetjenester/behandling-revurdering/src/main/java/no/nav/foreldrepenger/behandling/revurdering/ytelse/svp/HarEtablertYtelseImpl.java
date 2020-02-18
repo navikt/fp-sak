@@ -22,11 +22,10 @@ import no.nav.vedtak.util.FPDateUtil;
 public class HarEtablertYtelseImpl implements HarEtablertYtelse {
 
     @Override
-    public boolean vurder(boolean finnesInnvilgetIkkeOpphørtVedtak,
+    public boolean vurder(Behandling revurdering,
+                          boolean finnesInnvilgetIkkeOpphørtVedtak,
                           VurderOpphørDagensDato opphørFørEllerEtterDagensDato,
-                          UttakResultatHolder uttakResultatHolder,
-                          UttakResultatHolder uttakresultatAnnenPart,
-                          boolean harEtablertYtelsen) {
+                          UttakResultatHolder uttakResultatHolder) {
         return harEtablertYtelse(finnesInnvilgetIkkeOpphørtVedtak, opphørFørEllerEtterDagensDato, uttakResultatHolder);
     }
 

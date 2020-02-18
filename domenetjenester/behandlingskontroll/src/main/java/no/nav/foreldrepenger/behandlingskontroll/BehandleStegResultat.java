@@ -94,7 +94,7 @@ public class BehandleStegResultat {
         return new BehandleStegResultat(this.transisjon, liste);
     }
 
-    // Må selv lage historikkinnslag i steget
+    // Må selv lage historikkinnslag i steget + ingen støtte for kø-håndtering (ikke relevant før INSØK.UT).
     public static BehandleStegResultat henlagtBehandling() {
         return new BehandleStegResultat(FellesTransisjoner.HENLAGT, Collections.emptyList());
     }

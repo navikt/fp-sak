@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VENT_PÅ_SØKNAD;
-import static no.nav.vedtak.util.Objects.check;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -114,7 +113,9 @@ public class KompletthetModell {
 
     private AksjonspunktDefinisjon finnSisteAutopunktKnyttetTilKompletthetssjekk(BehandlingReferanse ref) {
         List<AksjonspunktDefinisjon> rangerteAutopunkter = rangerKompletthetsfunksjonerKnyttetTilAutopunkt(ref.getFagsakYtelseType(), ref.getBehandlingType());
-        check(rangerteAutopunkter.size() > 0, "Utvklerfeil: Skal alltid finnes kompletthetsfunksjoner"); //$NON-NLS-1$
+        if (rangerteAutopunkter.isEmpty()) {
+            throw new IllegalArgumentException("Utvklerfeil: Skal alltid finnes kompletthetsfunksjoner");
+        }
         // Hent siste
         return rangerteAutopunkter.get(rangerteAutopunkter.size() - 1);
     }
