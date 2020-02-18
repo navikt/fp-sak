@@ -127,7 +127,7 @@ public class AnkeVurderingTjeneste {
             && gammeltAnkeVurderingResultat.get().erSubsidiartRealitetsbehandles() == ankeVurderingResultat.erSubsidiartRealitetsbehandles()
             && gammeltAnkeVurderingResultat.get().getFritekstTilBrev().equals(ankeVurderingResultat.getFritekstTilBrev())
             && (  (gammeltAnkeVurderingResultat.get().getBegrunnelse() == null && ankeVurderingResultat.getBegrunnelse() == null) ||
-                  (gammeltAnkeVurderingResultat.get().getBegrunnelse() != null  && gammeltAnkeVurderingResultat.get().getBegrunnelse().equals(ankeVurderingResultat.getBegrunnelse()))    )
+                  (gammeltAnkeVurderingResultat.get().getBegrunnelse() != null  && gammeltAnkeVurderingResultat.get().getBegrunnelse().equals(ankeVurderingResultat.getBegrunnelse())) )
             && gammeltAnkeVurderingResultat.get().getGjelderVedtak() == ankeVurderingResultat.getGjelderVedtak();
     }
 
