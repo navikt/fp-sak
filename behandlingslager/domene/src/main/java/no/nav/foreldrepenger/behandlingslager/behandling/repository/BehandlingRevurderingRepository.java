@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 
-import static no.nav.vedtak.util.Objects.check;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -165,13 +163,6 @@ public class BehandlingRevurderingRepository {
         return finnFagsakPåMedforelder(fagsak).flatMap(fs -> finnKøetYtelsesbehandling(fs.getId()));
     }
 
-    public Optional<Behandling> finnKøetBehandlingMedforelderFraId(Long fagsakId) {
-        return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId)
-            .flatMap(fr -> fr.getRelatertFagsakFraId(fagsakId))
-            .flatMap(fs -> finnKøetYtelsesbehandling(fs.getId()));
-    }
-
-
     public Optional<Fagsak> finnFagsakPåMedforelder(Fagsak fagsak) {
         return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak).flatMap(fr -> fr.getRelatertFagsak(fagsak));
     }
@@ -195,6 +186,12 @@ public class BehandlingRevurderingRepository {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .findFirst();
+    }
+
+    private static void check(boolean check, String message) {
+        if (!check) {
+            throw new IllegalArgumentException(message);
+        }
     }
 
     private static Optional<Behandling> optionalFirst(List<Behandling> behandlinger) {

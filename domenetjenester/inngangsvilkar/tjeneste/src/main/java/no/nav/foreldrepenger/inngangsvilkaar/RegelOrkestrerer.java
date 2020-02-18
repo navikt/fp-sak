@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.vedtak.util.Objects;
 
 
 @ApplicationScoped
@@ -91,8 +90,10 @@ public class RegelOrkestrerer {
     }
 
     private void validerMaksEttVilkår(List<Vilkår> vilkårSomSkalBehandle) {
-        Objects.check(vilkårSomSkalBehandle.size() <= 1, "Kun ett vilkår skal evalueres per regelkall. " +
-            "Her angis vilkår: " + vilkårSomSkalBehandle.stream().map(v -> v.getVilkårType().getKode()).collect(Collectors.joining(",")));
+        if (vilkårSomSkalBehandle.size() > 1) {
+            throw new IllegalArgumentException("Kun ett vilkår skal evalueres per regelkall. " +
+                "Her angis vilkår: " + vilkårSomSkalBehandle.stream().map(v -> v.getVilkårType().getKode()).collect(Collectors.joining(",")));
+        }
     }
 
     protected VilkårData vurderVilkår(VilkårType vilkårType, BehandlingReferanse ref) {
