@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.util.FPDateUtil;
@@ -46,7 +45,6 @@ public abstract class RevurderingBehandlingsresultatutlederFellesImpl implements
     private OpphørUttakTjeneste opphørUttakTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private HarEtablertYtelse harEtablertYtelse;
     private ErEndringIUttakFraEndringsdato erEndringIUttakFraEndringsdato;
     private ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -59,7 +57,6 @@ public abstract class RevurderingBehandlingsresultatutlederFellesImpl implements
                                                            HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                                            MedlemTjeneste medlemTjeneste,
                                                            OpphørUttakTjeneste opphørUttakTjeneste,
-                                                           HarEtablertYtelse harEtablertYtelse,
                                                            ErEndringIUttakFraEndringsdato erEndringIUttakFraEndringsdato,
                                                            ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
                                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
@@ -71,7 +68,6 @@ public abstract class RevurderingBehandlingsresultatutlederFellesImpl implements
         this.opphørUttakTjeneste = opphørUttakTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
-        this.harEtablertYtelse = harEtablertYtelse;
         this.erEndringIUttakFraEndringsdato = erEndringIUttakFraEndringsdato;
         this.erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak = erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -86,13 +82,10 @@ public abstract class RevurderingBehandlingsresultatutlederFellesImpl implements
 
         UttakResultatHolder revurderingUttak = getUttakResultat(revurderingRef.getBehandlingId());
         UttakResultatHolder originalBehandlingUttak = getUttakResultat(originalBehandling.getId());
-        UttakResultatHolder annenpartUttak = getAnnenPartUttak(revurderingRef.getSaksnummer());
 
-        return bestemBehandlingsresultatForRevurderingCore(revurderingRef, revurdering, originalBehandling, revurderingUttak, originalBehandlingUttak,
-            annenpartUttak, erVarselOmRevurderingSendt);
+        return bestemBehandlingsresultatForRevurderingCore(revurderingRef, revurdering, originalBehandling, revurderingUttak,
+            originalBehandlingUttak, erVarselOmRevurderingSendt);
     }
-
-    protected abstract UttakResultatHolder getAnnenPartUttak(Saksnummer saksnummer);
 
     protected abstract UttakResultatHolder getUttakResultat(Long behandlingId);
 
@@ -101,7 +94,7 @@ public abstract class RevurderingBehandlingsresultatutlederFellesImpl implements
                                                                             Behandling originalBehandling,
                                                                             UttakResultatHolder uttakresultatRevurderingOpt,
                                                                             UttakResultatHolder uttakresultatOriginalOpt,
-                                                                            UttakResultatHolder uttakresultatAnnenPartOpt, boolean erVarselOmRevurderingSendt) {
+                                                                            boolean erVarselOmRevurderingSendt) {
         if (!revurdering.getType().equals(BehandlingType.REVURDERING)) {
             throw new IllegalStateException("Utviklerfeil: Skal ikke kunne havne her uten en revurderingssak");
         }
@@ -154,10 +147,10 @@ public abstract class RevurderingBehandlingsresultatutlederFellesImpl implements
             harInnvilgetIkkeOpphørtVedtak(revurdering.getFagsak()), gittOpphørFørEllerEtterDagensDato());
 
         return FastsettBehandlingsresultatVedEndring.fastsett(revurdering, betingelser,
-            uttakresultatOriginalOpt, uttakresultatAnnenPartOpt, harEtablertYtelse, erSluttPåStønadsdager(originalBehandling));
+            uttakresultatOriginalOpt, harEtablertYtelse());
     }
 
-    protected abstract boolean erSluttPåStønadsdager(Behandling behandling);
+    protected abstract HarEtablertYtelse harEtablertYtelse();
 
     protected abstract LocalDate finnEndringsdato(BehandlingReferanse revurderingRef);
 
