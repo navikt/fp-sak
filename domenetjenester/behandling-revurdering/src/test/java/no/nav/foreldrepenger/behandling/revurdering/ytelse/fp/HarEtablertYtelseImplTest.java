@@ -2,8 +2,12 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,13 +18,19 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
-import no.nav.foreldrepenger.behandling.revurdering.felles.HarEtablertYtelse;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagUttakResultatPlanTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
@@ -30,13 +40,14 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
-public class HarEtablertYtelseTest {
+public class HarEtablertYtelseImplTest {
 
     @Rule
     public final RepositoryRule repoRule = new UnittestRepositoryRule();
@@ -47,21 +58,39 @@ public class HarEtablertYtelseTest {
     @FagsakYtelseTypeRef("FP")
     private RevurderingEndring revurderingEndring;
 
+
+    @Inject
+    private UttakInputTjeneste uttakInputTjeneste;
+
+    @Inject
+    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
+
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     private UttakRepository uttakRepository;
 
     private Behandling behandlingSomSkalRevurderes;
-    private HarEtablertYtelse harEtablertYtelse;
+    private HarEtablertYtelseImpl harEtablertYtelse;
+    private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
+    private Behandling originalBehandling;
 
     @Before
     public void setUp() {
         uttakRepository = repositoryProvider.getUttakRepository();
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
+        var fødselsdato = LocalDate.of(2017, 10, 10);
+        var førstegangsScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100())
+            .medDefaultOppgittFordeling(fødselsdato);
+        førstegangsScenario.medSøknadHendelse().medFødselsDato(fødselsdato);
+        originalBehandling = førstegangsScenario
+            .lagre(repositoryProvider);
+        var scenarioRevurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        behandlingSomSkalRevurderes = scenarioRevurdering.lagre(repositoryProvider);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
-        VirksomhetEntitet virksomhet = new VirksomhetEntitet.Builder().medOrgnr(KUNSTIG_ORG).medNavn("Virksomheten").oppdatertOpplysningerNå().build();
+        var virksomhet = new VirksomhetEntitet.Builder().medOrgnr(KUNSTIG_ORG).medNavn("Virksomheten").oppdatertOpplysningerNå().build();
         repositoryProvider.getVirksomhetRepository().lagre(virksomhet);
-        harEtablertYtelse = new HarEtablertYtelseImpl();
+        stønadskontoSaldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
+        harEtablertYtelse = new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste);
     }
 
     @Test
@@ -75,11 +104,31 @@ public class HarEtablertYtelseTest {
         );
 
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(true, br -> false,
-            new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)),new UttakResultatHolderImpl( Optional.empty()), false);
+        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), false);
 
         // Assert
         assertThat(etablertYtelse).isTrue();
+    }
+
+    private boolean vurder(UttakResultatEntitet uttakResultatOriginal, boolean finnesInnvilgetIkkeOpphørtVedtak, Optional<UttakResultatEntitet> uttakAnnenpart, boolean sluttPåTrekkdager) {
+        when(stønadskontoSaldoTjeneste.erSluttPåStønadsdager(any())).thenReturn(sluttPåTrekkdager);
+        uttakAnnenpart.ifPresent(uttak -> {
+            var scenarioAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel();
+            scenarioAnnenpart.medBehandlingVedtak()
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .medVedtakstidspunkt(LocalDateTime.now())
+                .medAnsvarligSaksbehandler(" ");
+            var behandlingAnnenpart = scenarioAnnenpart
+                .lagre(repositoryProvider);
+            repositoryProvider.getFagsakRepository().oppdaterFagsakStatus(behandlingAnnenpart.getFagsakId(), FagsakStatus.LØPENDE);
+            repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(originalBehandling.getFagsak(), behandlingAnnenpart.getFagsak(), originalBehandling);
+            uttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingAnnenpart.getId(), uttakAnnenpart.get().getOpprinneligPerioder());
+            behandlingAnnenpart.avsluttBehandling();
+            repositoryProvider.getBehandlingRepository().lagre(behandlingAnnenpart, repositoryProvider.getBehandlingLåsRepository().taLås(behandlingAnnenpart.getId()));
+        });
+
+        return harEtablertYtelse.vurder(behandlingSomSkalRevurderes, finnesInnvilgetIkkeOpphørtVedtak, br -> false,
+            new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)));
     }
 
     @Test
@@ -94,8 +143,7 @@ public class HarEtablertYtelseTest {
         );
         boolean finnesInnvilgetIkkeOpphørtVedtak = false;
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(finnesInnvilgetIkkeOpphørtVedtak, br -> false,
-            new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)), new UttakResultatHolderImpl(Optional.empty()), false);
+        boolean etablertYtelse = vurder(uttakResultatOriginal, finnesInnvilgetIkkeOpphørtVedtak, Optional.empty(), false);
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -112,8 +160,7 @@ public class HarEtablertYtelseTest {
             List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER)
         );
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(true, br -> false,
-            new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)),new UttakResultatHolderImpl( Optional.empty()), false);
+        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), false);
 
         // Assert
         assertThat(etablertYtelse).isTrue();
@@ -130,8 +177,7 @@ public class HarEtablertYtelseTest {
             List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER)
         );
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(true, br -> false,
-            new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)), new UttakResultatHolderImpl(Optional.empty()), true);
+        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), true);
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -148,8 +194,7 @@ public class HarEtablertYtelseTest {
             List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER)
         );
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(true, br -> false,
-            new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)), new UttakResultatHolderImpl(Optional.empty()), true);
+        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), true);
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -166,8 +211,7 @@ public class HarEtablertYtelseTest {
             List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER)
         );
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(true, br -> false,
-            new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)), new UttakResultatHolderImpl(Optional.empty()), false);
+        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), false);
 
         // Assert
         assertThat(etablertYtelse).isTrue();
@@ -191,8 +235,7 @@ public class HarEtablertYtelseTest {
         );
 
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(true, br -> false, new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)),
-            new UttakResultatHolderImpl(Optional.of(uttakResultatAnnenPart)), true);
+        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.of(uttakResultatAnnenPart), true);
 
         // Assert
         assertThat(etablertYtelse).isTrue();

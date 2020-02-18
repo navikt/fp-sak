@@ -16,7 +16,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -46,6 +45,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
@@ -54,11 +54,11 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
-import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.fp.EndringsdatoRevurderingUtlederImpl;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.util.Tuple;
@@ -72,7 +72,6 @@ public class ForeslåBehandlingsresultatTjenesteTest {
 
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(repoRule.getEntityManager());
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
-    private EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(EndringsdatoRevurderingUtlederImpl.class);
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste = mock(RelatertBehandlingTjeneste.class);
     private OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
@@ -94,12 +93,8 @@ public class ForeslåBehandlingsresultatTjenesteTest {
             skjæringstidspunktTjeneste, medlemTjeneste, andelGraderingTjeneste);
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
             beregningsgrunnlagTjeneste,
-            endringsdatoRevurderingUtlederImpl,
-            relatertBehandlingTjeneste,
-            stønadskontoSaldoTjeneste,
             opphørUttakTjeneste,
-            uttakInputTjeneste,
-            new HarEtablertYtelseImpl(),
+            new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste),
             new ErEndringIUttakFraEndringsdatoImpl(),
             new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl(),
             skjæringstidspunktTjeneste,
@@ -153,12 +148,10 @@ public class ForeslåBehandlingsresultatTjenesteTest {
     @Test
     public void skalKalleBestemBehandlingsresultatForRevurderingNårInnvilgetRevurdering() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultSøknadTerminbekreftelse();
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         Behandling behandling = scenario.lagre(repositoryProvider);
         Behandling revurdering = lagRevurdering(behandling);
         inngangsvilkårOgUttak(revurdering, VilkårUtfallType.OPPFYLT);
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(LocalDate.now());
 
         // Act
         foreslåBehandlingsresultat(revurdering);
@@ -258,6 +251,8 @@ public class ForeslåBehandlingsresultatTjenesteTest {
                     .medOriginalBehandling(originalBehandling))
             .build();
         behandlingRepository.lagre(revurdering, behandlingRepository.taSkriveLås(revurdering));
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(LocalDate.now()).build();
+        repositoryProvider.getYtelsesFordelingRepository().lagre(revurdering.getId(), avklarteUttakDatoer);
         return revurdering;
     }
 
