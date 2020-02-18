@@ -63,7 +63,7 @@ class BeregningsgrunnlagRestDtoMapper {
         BeregningsgrunnlagRestDto.Builder builder = BeregningsgrunnlagRestDto.builder();
 
         //med
-        builder.medGrunnbeløp(beregningsgrunnlagFraFpsak.getGrunnbeløp().getVerdi());
+        builder.medGrunnbeløp(beregningsgrunnlagFraFpsak.getGrunnbeløp() == null ? null : beregningsgrunnlagFraFpsak.getGrunnbeløp().getVerdi());
         builder.medOverstyring(beregningsgrunnlagFraFpsak.isOverstyrt());
         builder.medSkjæringstidspunkt(beregningsgrunnlagFraFpsak.getSkjæringstidspunkt());
         if (beregningsgrunnlagFraFpsak.getSammenligningsgrunnlag() != null) {
@@ -168,7 +168,7 @@ class BeregningsgrunnlagRestDtoMapper {
     public static BeregningsgrunnlagAktivitetStatusRestDto.Builder mapAktivitetStatus(BeregningsgrunnlagAktivitetStatus fraFpsak) {
         BeregningsgrunnlagAktivitetStatusRestDto.Builder builder = new BeregningsgrunnlagAktivitetStatusRestDto.Builder();
         builder.medAktivitetStatus(AktivitetStatus.fraKode(fraFpsak.getAktivitetStatus().getKode()));
-        builder.medHjemmel(Hjemmel.fraKode(fraFpsak.getHjemmel().getKode()));
+        builder.medHjemmel(fraFpsak.getHjemmel() == null ? null : Hjemmel.fraKode(fraFpsak.getHjemmel().getKode()));
 
         return builder;
     }
