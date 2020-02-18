@@ -11,11 +11,23 @@
     <version>${revision}${sha1}${changelist}</version>
 
     <scm>
-        <connection>scm:git:http://stash.devillo.no/scm/vedfp/vl-foreldrepenger.git</connection>
-        <developerConnection>scm:git:http://stash.devillo.no/scm/vedfp/vl-foreldrepenger.git</developerConnection>
-        <url>http://stash.devillo.no/projects/VEDFP/repos/vl-foreldrepenger/browse</url>
-        <tag>vl-foreldrepenger-1.0.0</tag>
+        <connection>scm:git:https://github.com/navikt/fp-sak.git</connection>
+        <developerConnection>scm:git:https://github.com/navikt/fp-sak.git</developerConnection>
+        <url>https://github.com/navikt/fp-sak</url>
+        <tag>HEAD</tag>
     </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>repo.adeo.no-releases</id>
+            <url>https://repo.adeo.no/repository/maven-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>repo.adeo.no-snapshots</id>
+            <url>https://repo.adeo.no/repository/maven-snapshots</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
 
     <modules>
         <module>migreringer</module>
@@ -35,17 +47,19 @@
 
     <properties>
         <java.version>11</java.version> <!--Brukes av jenkins -->
-        <argLine>-Xms256m -Dfile.encoding=UTF-8 -Dlog.level.no.nav=WARN
-        </argLine> <!-- default argLine for surefire-plugin -->
+
+        <!-- default argLine for surefire-plugin -->
+        <argLine>-Xms256m -Dlog.level.no.nav=WARN -Dfile.encoding=${project.build.sourceEncoding}</argLine>
         <jacoco.skip>true</jacoco.skip> <!-- default skip coverage -->
 
         <revision>4.0.0</revision>
         <sha1></sha1>
         <changelist>-SNAPSHOT</changelist>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<fp-uttak.version>3.0-20200212121924-6e10be9</fp-uttak.version>
+        <fp-uttak.version>3.0-20200212121924-6e10be9</fp-uttak.version>
 
         <svp-uttak.version>2.1-20200130175841-176ecdd</svp-uttak.version>
         <!-- <felles.version>1.4.2-20191218110056-fa5b90a</felles.version> -->
@@ -746,6 +760,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.2</version>
+                    <configuration>
+                        <argLine>${argLine}</argLine>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -770,7 +787,7 @@
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
-                        <encoding>UTF-8</encoding>
+                        <encoding>${project.build.sourceEncoding}</encoding>
                         <release>${java.version}</release>
                     </configuration>
                 </plugin>
@@ -929,7 +946,6 @@
     </build>
 
     <profiles>
-
         <profile>
             <id>runSonar</id>
             <activation>
@@ -943,7 +959,7 @@
                 <sonar.language/>
                 <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
                 <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-                <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
+                <sonar.sourceEncoding>${project.build.sourceEncoding}</sonar.sourceEncoding>
                 <sonar.java.source>${java.version}</sonar.java.source>
                 <sonar.sources>.</sonar.sources>
                 <sonar.inclusions>src/main/java/**</sonar.inclusions>
@@ -959,20 +975,6 @@
                 <sonar.javascript.file.suffixes>.js,.jsx</sonar.javascript.file.suffixes>
                 <sonar.leak.period>previous_analysis</sonar.leak.period>
             </properties>
-
         </profile>
-
     </profiles>
-    <distributionManagement>
-        <repository>
-            <id>repo.adeo.no-releases</id>
-            <url>https://repo.adeo.no/repository/maven-releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>repo.adeo.no-snapshots</id>
-            <url>https://repo.adeo.no/repository/maven-snapshots</url>
-            <uniqueVersion>false</uniqueVersion>
-        </snapshotRepository>
-    </distributionManagement>
-
 </project>
