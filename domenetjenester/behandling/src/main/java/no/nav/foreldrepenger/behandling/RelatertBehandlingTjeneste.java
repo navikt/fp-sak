@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -72,14 +71,6 @@ public class RelatertBehandlingTjeneste {
         Optional<Behandling> annenPartsBehandling = hentAnnenPartsGjeldendeVedtattBehandling(saksnummer);
         if(annenPartsBehandling.isPresent()) {
             return uttakRepository.hentUttakResultatHvisEksisterer(annenPartsBehandling.get().getId());
-        }
-        return Optional.empty();
-    }
-
-    public Optional<SvangerskapspengerUttakResultatEntitet> hentAnnenPartsGjeldendeVedtattUttaksplanSVP(Saksnummer saksnummer) {
-        Optional<Behandling> annenPartsBehandling = hentAnnenPartsGjeldendeVedtattBehandling(saksnummer);
-        if(annenPartsBehandling.isPresent()) {
-            return uttakRepositorySVP.hentHvisEksisterer(annenPartsBehandling.get().getId());
         }
         return Optional.empty();
     }

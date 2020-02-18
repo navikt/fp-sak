@@ -2,9 +2,7 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FASTSATT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -82,7 +80,6 @@ import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.fp.EndringsdatoRevurderingUtlederImpl;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -121,7 +118,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     private VergeRepository vergeRepository;
 
     @Inject
-    private AndelGraderingTjeneste andelGraderingTjeneste;
+    private UttakInputTjeneste uttakInputTjeneste;
 
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -138,14 +135,15 @@ public class RevurderingBehandlingsresultatutlederTest {
     private Behandling behandlingSomSkalRevurderes;
     private Behandling revurdering;
     private LocalDate endringsdato = LocalDate.now().minusMonths(3);
-    private EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(EndringsdatoRevurderingUtlederImpl.class);
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste = mock(RelatertBehandlingTjeneste.class);
     private OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
 
     @Before
     public void setUp() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultSøknadTerminbekreftelse();
+            .medDefaultSøknadTerminbekreftelse()
+            .medDefaultOppgittFordeling(endringsdato)
+            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(endringsdato).build());
         scenario.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now())
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
@@ -155,18 +153,12 @@ public class RevurderingBehandlingsresultatutlederTest {
             false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
-        HarEtablertYtelse harEtablertYtelse = new HarEtablertYtelseImpl();
+        HarEtablertYtelse harEtablertYtelse = new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste);
         ErEndringIUttakFraEndringsdato erEndringIUttakFraEndringsdato = new ErEndringIUttakFraEndringsdatoImpl();
         ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl();
-        UttakInputTjeneste uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, hentBeregningsgrunnlagTjeneste, iayTjeneste,
-            skjæringstidspunktTjeneste, medlemTjeneste, andelGraderingTjeneste);
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
             hentBeregningsgrunnlagTjeneste,
-            endringsdatoRevurderingUtlederImpl,
-            relatertBehandlingTjeneste,
-            stønadskontoSaldoTjeneste,
             opphørUttakTjeneste,
-            uttakInputTjeneste,
             harEtablertYtelse,
             erEndringIUttakFraEndringsdato,
             erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
@@ -217,9 +209,6 @@ public class RevurderingBehandlingsresultatutlederTest {
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(vilkårResultat, lås);
 
-        // Ikke oppfylt inngangsvilkår i perioden (medlemskap)
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
-
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
         Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
@@ -268,8 +257,6 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(vilkårResultat, lås);
-
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
