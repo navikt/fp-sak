@@ -124,7 +124,11 @@ public class AnkeVurderingTjeneste {
             && gammeltAnkeVurderingResultat.get().erFristIkkeOverholdt() == ankeVurderingResultat.erFristIkkeOverholdt()
             && gammeltAnkeVurderingResultat.get().erIkkeKonkret() == ankeVurderingResultat.erIkkeKonkret()
             && gammeltAnkeVurderingResultat.get().erIkkeSignert() == ankeVurderingResultat.erIkkeSignert()
-            && gammeltAnkeVurderingResultat.get().erSubsidiartRealitetsbehandles() == ankeVurderingResultat.erSubsidiartRealitetsbehandles();
+            && gammeltAnkeVurderingResultat.get().erSubsidiartRealitetsbehandles() == ankeVurderingResultat.erSubsidiartRealitetsbehandles()
+            && gammeltAnkeVurderingResultat.get().getFritekstTilBrev().equals(ankeVurderingResultat.getFritekstTilBrev())
+            && (  (gammeltAnkeVurderingResultat.get().getBegrunnelse() == null && ankeVurderingResultat.getBegrunnelse() == null) ||
+                  (gammeltAnkeVurderingResultat.get().getBegrunnelse() != null  && gammeltAnkeVurderingResultat.get().getBegrunnelse().equals(ankeVurderingResultat.getBegrunnelse()))    )
+            && gammeltAnkeVurderingResultat.get().getGjelderVedtak() == ankeVurderingResultat.getGjelderVedtak();
     }
 
     private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, AnkeVurderingAdapter adapter) {
