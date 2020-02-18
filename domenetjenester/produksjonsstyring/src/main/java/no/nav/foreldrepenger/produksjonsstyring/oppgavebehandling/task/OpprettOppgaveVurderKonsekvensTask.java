@@ -1,7 +1,8 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task;
 
 import static no.nav.foreldrepenger.historikk.OppgaveÅrsak.VURDER_KONS_FOR_YTELSE;
-import static no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask.TASKTYPE;
+
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import static no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask.TASKTYPE;
 
 /**
  * <p>
@@ -33,6 +35,7 @@ public class OpprettOppgaveVurderKonsekvensTask extends FagsakProsessTask {
     public static final String PRIORITET_HØY = "høy";
     public static final String PRIORITET_NORM = "normal";
     public static final String STANDARD_BESKRIVELSE = "Må behandle sak i VL!";
+    public static final String KEY_GJELDENDE_AKTØR_ID = "aktuellAktørId"; //Settes kun ved opphør av ytelse i Infotrygd ellers null
     private static final Logger log = LoggerFactory.getLogger(OpprettOppgaveVurderKonsekvensTask.class);
 
     private OppgaveTjeneste oppgaveTjeneste;
@@ -53,8 +56,17 @@ public class OpprettOppgaveVurderKonsekvensTask extends FagsakProsessTask {
         String behandlendeEnhet = prosessTaskData.getPropertyValue(KEY_BEHANDLENDE_ENHET);
         String beskrivelse = prosessTaskData.getPropertyValue(KEY_BESKRIVELSE);
         String prioritet = prosessTaskData.getPropertyValue(KEY_PRIORITET);
+        Optional<String> gjeldendeAktørId = Optional.ofNullable(prosessTaskData.getPropertyValue(KEY_GJELDENDE_AKTØR_ID));
+
         boolean høyPrioritet = PRIORITET_HØY.equals(prioritet);
-        String oppgaveId = oppgaveTjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(prosessTaskData.getFagsakId(), VURDER_KONS_FOR_YTELSE, behandlendeEnhet, beskrivelse, høyPrioritet);
+
+        //vurder opphør av ytelse i Infotrygd pga overlapp på far - vet ikke saksnummer
+        String oppgaveId;
+        if (gjeldendeAktørId.isPresent()) {
+            oppgaveId = oppgaveTjeneste.opprettMedPrioritetOgBeskrivelseBasertPåAktørId(gjeldendeAktørId.get(), prosessTaskData.getFagsakId(), VURDER_KONS_FOR_YTELSE, behandlendeEnhet, beskrivelse, høyPrioritet);
+        }else {
+            oppgaveId = oppgaveTjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(prosessTaskData.getFagsakId(), VURDER_KONS_FOR_YTELSE, behandlendeEnhet, beskrivelse, høyPrioritet);
+        }
         log.info("Oppgave opprettet i GSAK for å vurdere konsekvens for ytelse på enhet {}. Oppgavenummer: {}. Prioritet: {}", behandlendeEnhet, oppgaveId, prioritet); // NOSONAR
     }
 }
