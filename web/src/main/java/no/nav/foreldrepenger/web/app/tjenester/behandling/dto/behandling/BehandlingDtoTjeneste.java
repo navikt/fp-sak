@@ -48,6 +48,7 @@ import no.nav.foreldrepenger.dokumentbestiller.klient.TekstFraSaksbehandler;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.FamiliehendelseRestTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
@@ -105,6 +106,7 @@ public class BehandlingDtoTjeneste {
     private BehandlingRepository behandlingRepository;
     private FormidlingDataTjeneste formidlingDataTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
+    private OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste;
 
     BehandlingDtoTjeneste() {
         // for CDI proxy
@@ -116,7 +118,8 @@ public class BehandlingDtoTjeneste {
                                  TilbakekrevingRepository tilbakekrevingRepository,
                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                  FormidlingDataTjeneste formidlingDataTjeneste,
-                                 Unleash unleash) {
+                                 Unleash unleash,
+                                 OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste) {
 
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.uttakRepository = repositoryProvider.getUttakRepository();
@@ -129,6 +132,7 @@ public class BehandlingDtoTjeneste {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.formidlingDataTjeneste = formidlingDataTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        this.opptjeningIUtlandDokStatusTjeneste = opptjeningIUtlandDokStatusTjeneste;
     }
 
     private static BehandlingDto lagBehandlingDto(Behandling behandling,
@@ -335,6 +339,10 @@ public class BehandlingDtoTjeneste {
         }
 
         dto.leggTil(get(InntektArbeidYtelseRestTjeneste.INNTEKT_ARBEID_YTELSE_PATH, "inntekt-arbeid-ytelse", uuidDto));
+
+        if (opptjeningIUtlandDokStatusTjeneste.hentStatus(behandling.getId()).isPresent()) {
+            dto.leggTil(get(OpptjeningRestTjeneste.UTLAND_DOK_STATUS_PATH, "utland-dok-status", uuidDto));
+        }
 
 
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
