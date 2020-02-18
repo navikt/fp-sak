@@ -4,9 +4,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.HarEtablertYtelse;
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -15,36 +18,63 @@ import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")
 public class HarEtablertYtelseImpl implements HarEtablertYtelse {
 
-    @Override
-    public boolean vurder(boolean finnesInnvilgetIkkeOpphørtVedtak,
-                          VurderOpphørDagensDato opphørFørEllerEtterDagensDato,
-                          UttakResultatHolder uttakResultatHolder,
-                          UttakResultatHolder uttakresultatAnnenPart,
-                          boolean erSluttPåStønadsdager) {
-        return harEtablertYtelse(finnesInnvilgetIkkeOpphørtVedtak, opphørFørEllerEtterDagensDato, uttakResultatHolder, uttakresultatAnnenPart, erSluttPåStønadsdager);
+    private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
+    private UttakInputTjeneste uttakInputTjeneste;
+    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
+
+    @Inject
+    public HarEtablertYtelseImpl(StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
+                                 UttakInputTjeneste uttakInputTjeneste,
+                                 RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
+        this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
+        this.uttakInputTjeneste = uttakInputTjeneste;
+        this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
     }
 
-    private boolean harEtablertYtelse(boolean erMinstEnInnvilgetBehandlingUtenPåfølgendeOpphør,
-                                      VurderOpphørDagensDato opphørFørEllerEtterDagensDato,
-                                      UttakResultatHolder uttakresultat,
-                                      UttakResultatHolder uttakresultatAnnenPart,
-                                      boolean erSluttPåStønadsdager) {
-        if (!uttakresultat.eksistererUttakResultat()) {
+    HarEtablertYtelseImpl() {
+        //CDI
+    }
+
+    @Override
+    public boolean vurder(Behandling revurdering,
+                          boolean finnesInnvilgetIkkeOpphørtVedtak,
+                          VurderOpphørDagensDato opphørFørEllerEtterDagensDato,
+                          UttakResultatHolder uttakResultatHolder) {
+        if (!uttakResultatHolder.eksistererUttakResultat()) {
             return false;
         }
 
-
-        if (erSisteVedtakAvslagEllerOpphør(uttakresultat, opphørFørEllerEtterDagensDato) ||
-            erDagensDatoEtterSistePeriodeIUttak(uttakresultat, uttakresultatAnnenPart) && erSluttPåStønadsdager) {
+        if (erSisteVedtakAvslagEllerOpphør(uttakResultatHolder, opphørFørEllerEtterDagensDato)) {
             return false;
         }
-        return erMinstEnInnvilgetBehandlingUtenPåfølgendeOpphør;
+
+        var annenpartUttak = getAnnenPartUttak(revurdering.getFagsak().getSaksnummer());
+        if (erDagensDatoEtterSistePeriodeIUttak(uttakResultatHolder, annenpartUttak)) {
+            var uttakInputOriginalBehandling = uttakInputTjeneste.lagInput(revurdering.getOriginalBehandling().orElseThrow());
+            if (stønadskontoSaldoTjeneste.erSluttPåStønadsdager(uttakInputOriginalBehandling)) {
+                return false;
+            }
+        }
+        return finnesInnvilgetIkkeOpphørtVedtak;
+    }
+
+    private UttakResultatHolder getAnnenPartUttak(Saksnummer saksnummer) {
+        return new UttakResultatHolderImpl(relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattUttaksplan(saksnummer)
+            .filter(this::erTilknyttetLøpendeFagsak));
+    }
+
+    private boolean erTilknyttetLøpendeFagsak(UttakResultatEntitet uttakResultatEntitet) {
+        return uttakResultatEntitet.getBehandlingsresultat().getBehandling().getFagsak().getStatus().equals(FagsakStatus.LØPENDE);
     }
 
     @Override
