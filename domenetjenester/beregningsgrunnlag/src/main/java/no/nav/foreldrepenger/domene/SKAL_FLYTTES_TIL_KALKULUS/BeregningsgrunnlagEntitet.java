@@ -287,22 +287,6 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
             return this;
         }
 
-        public Builder fjernAllePerioder() {
-            verifiserKanModifisere();
-            kladd.beregningsgrunnlagPerioder = new ArrayList<>();
-            return this;
-        }
-
-        public Builder fjernAktivitetstatus(AktivitetStatus status) {
-            verifiserKanModifisere();
-            List<BeregningsgrunnlagAktivitetStatus> statuserSomSkalFjernes = kladd.aktivitetStatuser.stream().filter(a -> Objects.equals(a.getAktivitetStatus(), status)).collect(Collectors.toList());
-            if (statuserSomSkalFjernes.size() != 1) {
-                throw new IllegalStateException("Ikke entydig hvilken status som skal fjernes fra beregningsgrunnlaget.");
-            }
-            kladd.aktivitetStatuser.remove(statuserSomSkalFjernes.get(0));
-            return this;
-        }
-
         public Builder leggTilFaktaOmBeregningTilfeller(List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller) {
             verifiserKanModifisere();
             faktaOmBeregningTilfeller.forEach(this::leggTilFaktaOmBeregningTilfeller);

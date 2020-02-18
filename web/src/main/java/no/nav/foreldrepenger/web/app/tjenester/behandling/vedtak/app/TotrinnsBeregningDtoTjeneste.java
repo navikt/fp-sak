@@ -66,7 +66,7 @@ public class TotrinnsBeregningDtoTjeneste {
 
         return beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
             .flatMap(bgps -> bgps.getBeregningsgrunnlagPrStatusOgAndelList().stream())
-            .filter(andel -> andel.getAktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .filter(andel -> AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE.equals(AktivitetStatus.fraKode(andel.getAktivitetStatus().getKode())))
             .anyMatch(andel -> andel.getOverstyrtPrÅr() != null);
     }
 
@@ -76,7 +76,7 @@ public class TotrinnsBeregningDtoTjeneste {
                 new IllegalStateException("Fant ingen beregningsgrunnlag med id " + beregningsgrunnlagId.toString()));
         return beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
             .flatMap(bgps -> bgps.getBeregningsgrunnlagPrStatusOgAndelList().stream())
-            .filter(andel -> andel.getAktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .filter(andel -> AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE.equals(AktivitetStatus.fraKode(andel.getAktivitetStatus().getKode())))
             .anyMatch(andel -> andel.getOverstyrtPrÅr() != null);
     }
 }

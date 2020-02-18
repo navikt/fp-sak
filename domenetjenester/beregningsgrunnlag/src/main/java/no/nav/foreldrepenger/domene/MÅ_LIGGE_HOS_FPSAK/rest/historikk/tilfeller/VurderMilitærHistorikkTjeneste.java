@@ -35,7 +35,7 @@ public class VurderMilitærHistorikkTjeneste extends FaktaOmBeregningHistorikkTj
 
     private boolean harMilitærstatus(BeregningsgrunnlagEntitet beregningsgrunnlag) {
         return beregningsgrunnlag.getAktivitetStatuser().stream()
-            .anyMatch(status -> AktivitetStatus.MILITÆR_ELLER_SIVIL.equals(status.getAktivitetStatus()));
+            .anyMatch(status -> AktivitetStatus.MILITÆR_ELLER_SIVIL.equals(AktivitetStatus.fraKode(status.getAktivitetStatus().getKode())));
     }
 
 }
