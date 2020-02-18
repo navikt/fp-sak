@@ -103,34 +103,6 @@ public class AvklarHendelseAksjonspunktUtlederTest {
         assertThat(aksjonspunkter).contains(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST);
     }
 
-    @Test // #6
-    public void skal_utlede_aksjonspunkt_for_ytelse_innvilget_når_behandling_har_årsak_for_det() {
-        // Arrange
-        Behandling revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
-        var input = lagInput(revurdering)
-            .medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_TILSTØTENDE_YTELSE_INNVILGET));
-
-        // Act
-        var aksjonspunkter = avklarHendelseAksjonspunktUtleder.utledAksjonspunkterFor(input);
-
-        // Assert
-        assertThat(aksjonspunkter).contains(AksjonspunktDefinisjon.KONTROLLER_TILSTØTENDE_YTELSER_INNVILGET);
-    }
-
-    @Test // #7
-    public void skal_utlede_aksjonspunkt_for_ytelse_opphørt_når_behandling_har_årsak_for_det() {
-        // Arrange
-        Behandling revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
-        var input = lagInput(revurdering)
-            .medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_TILSTØTENDE_YTELSE_OPPHØRT));
-
-        // Act
-        var aksjonspunkter = avklarHendelseAksjonspunktUtleder.utledAksjonspunkterFor(input);
-
-        // Assert
-        assertThat(aksjonspunkter).contains(AksjonspunktDefinisjon.KONTROLLER_TILSTØTENDE_YTELSER_OPPHØRT);
-    }
-
     @Test // Felles
     public void skal_ikke_utlede_aksjonspunkter_når_ingen_av_kriteriene_er_oppfylt() {
         // Arrange
