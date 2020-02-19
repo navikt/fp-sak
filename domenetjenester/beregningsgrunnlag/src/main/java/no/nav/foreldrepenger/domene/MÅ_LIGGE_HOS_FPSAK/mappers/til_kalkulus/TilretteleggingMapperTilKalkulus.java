@@ -60,24 +60,4 @@ public class TilretteleggingMapperTilKalkulus {
         return UttakArbeidType.fraKode(uttakArbeidType.getKode());
     }
 
-    public static List<SvpTilretteleggingDto> mapTilrettelegginger(List<SvpTilretteleggingEntitet> aktuelleArbeidsgivereMedTilrettelegginger) {
-        return aktuelleArbeidsgivereMedTilrettelegginger.stream()
-            .map(TilretteleggingMapperTilKalkulus::mapSvpTilrettelegging)
-            .collect(Collectors.toList());
-    }
-
-    private static SvpTilretteleggingDto mapSvpTilrettelegging(SvpTilretteleggingEntitet svpTilretteleggingEntitet) {
-        return new SvpTilretteleggingDto.Builder()
-            .medArbeidsgiver(svpTilretteleggingEntitet.getArbeidsgiver().map((Arbeidsgiver arbeidsgiver) -> IAYMapperTilKalkulus.mapArbeidsgiver(arbeidsgiver)).orElse(null))
-            .medInternArbeidsforholdRef(svpTilretteleggingEntitet.getInternArbeidsforholdRef().map(IAYMapperTilKalkulus::mapArbeidsforholdRef).orElse(null))
-            .medSkalBrukes(svpTilretteleggingEntitet.getSkalBrukes())
-            .medHarSøktDelvisTilrettelegging(harSøktDelvisTilrettelegging(svpTilretteleggingEntitet.getTilretteleggingFOMListe()))
-            .build();
-    }
-
-    private static boolean harSøktDelvisTilrettelegging(List<TilretteleggingFOM> tilretteleggingFOMListe) {
-        return tilretteleggingFOMListe.stream()
-            .anyMatch(tilretteleggingFOM -> no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType.DELVIS_TILRETTELEGGING.equals(tilretteleggingFOM.getType()));
-    }
-
 }
