@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
@@ -53,6 +54,7 @@ public class BehandlingRepositoryProvider {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
     private SvangerskapspengerRepository svangerskapspengerRepository;
+    private OpptjeningIUtlandDokStatusRepository opptjeningIUtlandDokStatusRepository;
 
     private BehandlingRepository behandlingRepository;
     private FagsakLåsRepository fagsakLåsRepository;
@@ -87,6 +89,7 @@ public class BehandlingRepositoryProvider {
         this.søknadRepository = new SøknadRepository(entityManager, this.behandlingRepository);
         this.uttakRepository = new UttakRepository(entityManager);
         this.behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
+        this.opptjeningIUtlandDokStatusRepository = new OpptjeningIUtlandDokStatusRepository(entityManager);
 
         // inntekt arbeid ytelser
         this.virksomhetRepository = new VirksomhetRepository();
@@ -202,4 +205,7 @@ public class BehandlingRepositoryProvider {
         return svangerskapspengerRepository;
     }
 
+    public OpptjeningIUtlandDokStatusRepository getOpptjeningIUtlandDokStatusRepository() {
+        return opptjeningIUtlandDokStatusRepository;
+    }
 }

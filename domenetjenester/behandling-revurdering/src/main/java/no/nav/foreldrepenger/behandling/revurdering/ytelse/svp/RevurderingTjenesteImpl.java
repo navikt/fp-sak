@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -37,10 +38,11 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private PersonopplysningRepository personopplysningRepository;
     private MedlemskapRepository medlemskapRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
+    private OpptjeningIUtlandDokStatusRepository opptjeningIUtlandDokStatusRepository;
+    private SvangerskapspengerRepository svangerskapspengerRepository;
     private RevurderingTjenesteFelles revurderingTjenesteFelles;
     private RevurderingEndring revurderingEndring;
     private InntektArbeidYtelseTjeneste iayTjeneste;
-    private SvangerskapspengerRepository svangerskapspengerRepository;
     private VergeRepository vergeRepository;
 
     public RevurderingTjenesteImpl() {
@@ -49,11 +51,11 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
     @Inject
     public RevurderingTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                      BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                      InntektArbeidYtelseTjeneste iayTjeneste,
-                                      @FagsakYtelseTypeRef("SVP") RevurderingEndring revurderingEndring,
-                                      RevurderingTjenesteFelles revurderingTjenesteFelles,
-                                      VergeRepository vergeRepository) {
+                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                   InntektArbeidYtelseTjeneste iayTjeneste,
+                                   @FagsakYtelseTypeRef("SVP") RevurderingEndring revurderingEndring,
+                                   RevurderingTjenesteFelles revurderingTjenesteFelles,
+                                   VergeRepository vergeRepository) {
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -61,9 +63,10 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
+        this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
+        this.opptjeningIUtlandDokStatusRepository = repositoryProvider.getOpptjeningIUtlandDokStatusRepository();
         this.revurderingEndring = revurderingEndring;
         this.revurderingTjenesteFelles = revurderingTjenesteFelles;
-        this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
         this.vergeRepository = vergeRepository;
     }
 
@@ -117,7 +120,8 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             });
         }
         vergeRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
-        
+        opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
+
         // gjør til slutt, innebærer kall til abakus
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
     }

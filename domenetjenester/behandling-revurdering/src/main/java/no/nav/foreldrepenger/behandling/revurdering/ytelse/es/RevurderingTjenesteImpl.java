@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -35,6 +36,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private PersonopplysningRepository personopplysningRepository;
     private MedlemskapRepository medlemskapRepository;
     private SøknadRepository søknadRepository;
+    private OpptjeningIUtlandDokStatusRepository opptjeningIUtlandDokStatusRepository;
     private RevurderingTjenesteFelles revurderingTjenesteFelles;
     private RevurderingEndring revurderingEndring;
     private VergeRepository vergeRepository;
@@ -45,16 +47,17 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
     @Inject
     public RevurderingTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                     @FagsakYtelseTypeRef("ES") RevurderingEndring revurderingEndring,
-                                     RevurderingTjenesteFelles revurderingTjenesteFelles,
-                                     VergeRepository vergeRepository) {
+                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                   @FagsakYtelseTypeRef("ES") RevurderingEndring revurderingEndring,
+                                   RevurderingTjenesteFelles revurderingTjenesteFelles,
+                                   VergeRepository vergeRepository) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
+        this.opptjeningIUtlandDokStatusRepository = repositoryProvider.getOpptjeningIUtlandDokStatusRepository();
         this.revurderingEndring = revurderingEndring;
         this.revurderingTjenesteFelles = revurderingTjenesteFelles;
         this.vergeRepository = vergeRepository;
@@ -105,6 +108,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);
             vergeRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);
         }
+        opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);
     }
 
     @Override

@@ -134,8 +134,7 @@ public class BehandlingDvhMapper {
 
         String utenlandstilsnitt = "NASJONAL";
 
-        Optional<Aksjonspunkt>  utlandsakAksjonpunkt =   behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE)
-            .or(() -> behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK));
+        Optional<Aksjonspunkt>  utlandsakAksjonpunkt =   behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE);
 
         if(utlandsakAksjonpunkt.isPresent()){
             if (HistorikkEndretFeltVerdiType.EØS_BOSATT_NORGE.getKode().equals(utlandsakAksjonpunkt.get().getBegrunnelse())) {
