@@ -38,6 +38,8 @@ import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class AksjonspunktutlederTilbaketrekkTest {
 
@@ -70,11 +72,12 @@ public class AksjonspunktutlederTilbaketrekkTest {
         aksjonspunktutlederTilbaketrekk = new AksjonspunktutlederTilbaketrekk(new BeregningsresultatTidslinjetjeneste(beregningsresultatRepository), inntektArbeidYtelseTjeneste);
     }
 
+
     @Test
     public void skal_få_aksjonspunkt_for_arbeidsforhold_som_tilkommer_med_avsluttet_arbeidsforhold_i_ulike_virksomheter() {
         // Arrange
-        lagUtbetaltBeregningsresultatMedEnAndelTilBruker();
-        lagBeregningsresultatForTilkommetArbeidMedRefusjon();
+        lagUtbetaltBeregningsresultatMedEnAndelTilBruker(ARBEIDSGIVER1, SKJÆRINGSTIDSPUNKT);
+        lagBeregningsresultatForTilkommetArbeidMedRefusjon(ARBEIDSGIVER2, ARBEIDSGIVER1, SKJÆRINGSTIDSPUNKT);
         lagIayForAvsluttetOgTilkommetArbeid();
 
         // Act
@@ -82,6 +85,53 @@ public class AksjonspunktutlederTilbaketrekkTest {
 
         // Assert
         assertThat(aksjonspunktResultater.size()).isEqualTo(1);
+    }
+
+    @Test
+    public void skal_få_aksjonspunkt_for_arbeidsforhold_med_ansettelsesperioder_som_slutter_før_skjæringstidspunktet() {
+        // Arrange
+        // Bygg IAY
+        InntektArbeidYtelseAggregatBuilder registerBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("977011833");
+        InternArbeidsforholdRef arbeidsforholdId1 = InternArbeidsforholdRef.nyRef();
+        YrkesaktivitetBuilder ya1 = lagYrkesaktivitet(arbeidsgiver, arbeidsforholdId1, DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.minusMonths(3)));
+        Arbeidsgiver arbeidsgiver2 = Arbeidsgiver.virksomhet("924042648");
+        YrkesaktivitetBuilder ya2 = lagYrkesaktivitet(arbeidsgiver2, InternArbeidsforholdRef.nullRef(), DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1)));
+        InternArbeidsforholdRef arbeidsforholdId = InternArbeidsforholdRef.nyRef();
+        YrkesaktivitetBuilder ya3 = lagYrkesaktivitet(arbeidsgiver, arbeidsforholdId, DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1).minusDays(1)));
+        leggTilYrkesaktiviteter(registerBuilder, ya1, ya2, ya3);
+        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), registerBuilder);
+
+        // ALLEREDE UTBETALT
+        lagUtbetaltBeregningsresultatMedEnAndelTilBruker(arbeidsgiver, SKJÆRINGSTIDSPUNKT.plusMonths(1));
+        // NYTT RESULTAT
+        lagBeregningsresultatForTilkommetArbeidMedRefusjon(arbeidsgiver2, arbeidsgiver, SKJÆRINGSTIDSPUNKT.plusMonths(1));
+
+        // Act
+        List<AksjonspunktResultat> aksjonspunktResultater = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(new AksjonspunktUtlederInput(behandlingReferanse));
+
+        // Assert
+        assertThat(aksjonspunktResultater.size()).isEqualTo(1);
+    }
+
+    private void leggTilYrkesaktiviteter(InntektArbeidYtelseAggregatBuilder registerBuilder, YrkesaktivitetBuilder... yas) {
+        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = registerBuilder.getAktørArbeidBuilder(behandling.getAktørId());
+        for (YrkesaktivitetBuilder ya : yas) {
+            aktørArbeidBuilder.leggTilYrkesaktivitet(ya);
+        }
+        registerBuilder.leggTilAktørArbeid(aktørArbeidBuilder);
+    }
+
+    private YrkesaktivitetBuilder lagYrkesaktivitet(Arbeidsgiver arbeidsgiver4, InternArbeidsforholdRef arbeidsforholdId, DatoIntervallEntitet periode) {
+        return YrkesaktivitetBuilder.oppdatere(Optional.empty())
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                .medPeriode(periode))
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medPeriode(periode))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsforholdId(arbeidsforholdId)
+            .medArbeidsgiver(arbeidsgiver4);
     }
 
     private void lagIayForAvsluttetOgTilkommetArbeid() {
@@ -107,18 +157,18 @@ public class AksjonspunktutlederTilbaketrekkTest {
             .medArbeidsgiver(ARBEIDSGIVER2);
     }
 
-    private void lagUtbetaltBeregningsresultatMedEnAndelTilBruker() {
+    private void lagUtbetaltBeregningsresultatMedEnAndelTilBruker(Arbeidsgiver arbeidsgiver, LocalDate beregningsresultatPeriodeFom) {
         BeregningsresultatEntitet build = BeregningsresultatEntitet.builder()
             .medRegelInput("regelinput")
             .medRegelSporing("Regelsporing")
             .build();
         BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(2))
+            .medBeregningsresultatPeriodeFomOgTom(beregningsresultatPeriodeFom, beregningsresultatPeriodeFom.plusMonths(2))
             .build(build);
         BeregningsresultatAndel.builder()
             .medDagsats(DAGSATS)
             .medBrukerErMottaker(true)
-            .medArbeidsgiver(ARBEIDSGIVER1)
+            .medArbeidsgiver(arbeidsgiver)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medStillingsprosent(BigDecimal.valueOf(100))
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
@@ -129,18 +179,18 @@ public class AksjonspunktutlederTilbaketrekkTest {
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(ORIGINAL_BEHANDLING_ID)).thenReturn(Optional.of(build));
     }
 
-    private void lagBeregningsresultatForTilkommetArbeidMedRefusjon() {
+    private void lagBeregningsresultatForTilkommetArbeidMedRefusjon(Arbeidsgiver tilkommetArbeid, Arbeidsgiver bortfaltArbeid, LocalDate beregningsresultatPeriodeFom) {
         BeregningsresultatEntitet build = BeregningsresultatEntitet.builder()
             .medRegelInput("regelinput")
             .medRegelSporing("Regelsporing")
             .build();
         BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(2))
+            .medBeregningsresultatPeriodeFomOgTom(beregningsresultatPeriodeFom, beregningsresultatPeriodeFom.plusMonths(2))
             .build(build);
         BeregningsresultatAndel.builder()
             .medDagsats(0)
             .medBrukerErMottaker(true)
-            .medArbeidsgiver(ARBEIDSGIVER1)
+            .medArbeidsgiver(bortfaltArbeid)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medStillingsprosent(BigDecimal.valueOf(100))
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
@@ -151,13 +201,24 @@ public class AksjonspunktutlederTilbaketrekkTest {
         BeregningsresultatAndel.builder()
             .medDagsats(DAGSATS)
             .medBrukerErMottaker(false)
-            .medArbeidsgiver(ARBEIDSGIVER2)
+            .medArbeidsgiver(tilkommetArbeid)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medStillingsprosent(BigDecimal.valueOf(100))
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
             .medDagsatsFraBg(DAGSATS)
+            .build(periode);
+        BeregningsresultatAndel.builder()
+            .medDagsats(0)
+            .medBrukerErMottaker(true)
+            .medArbeidsgiver(tilkommetArbeid)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medStillingsprosent(BigDecimal.valueOf(0))
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
+            .medDagsatsFraBg(0)
             .build(periode);
         when(beregningsresultatRepository.hentBeregningsresultat(behandling.getId())).thenReturn(Optional.of(build));
     }
