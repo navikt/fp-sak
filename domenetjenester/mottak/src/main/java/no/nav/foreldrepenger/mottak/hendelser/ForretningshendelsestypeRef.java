@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 @Documented
 public @interface ForretningshendelsestypeRef {
 
-    String YTELSE_HENDELSE = "YTELSE_HENDELSE";
     String FØDSEL_HENDELSE = "FØDSEL";
     String DØD_HENDELSE = "DØD";
     String DØDFØDSEL_HENDELSE = "DØDFØDSEL";
@@ -40,11 +39,8 @@ public @interface ForretningshendelsestypeRef {
         private String navn;
 
         public ForretningshendelsestypeRefLiteral(ForretningshendelseType forretningshendelseType) {
-            if (ForretningshendelseType.erYtelseHendelseType(forretningshendelseType)) {
-                this.navn = YTELSE_HENDELSE;
-            } else {
-                this.navn = forretningshendelseType.getKode();
-            }
+            this.navn = forretningshendelseType.getKode();
+
         }
 
         @Override
