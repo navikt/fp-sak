@@ -6,6 +6,7 @@ import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -140,6 +141,29 @@ public class BeregningsgrunnlagRepository {
     }
 
     /**
+     * Henter {@link BeregningsgrunnlagGrunnlagEntitet} uten registeraktiviter for behandling.
+     * @return List over alle grunnlag uten registeraktiviteter
+     */
+    public List<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagUtenRegisterForBehandling(Long behandlingId) {
+        TypedQuery<BeregningsgrunnlagGrunnlagEntitet> query = entityManager.createQuery(
+            "from BeregningsgrunnlagGrunnlagEntitet " +
+                "where registerAktiviteter is null and behandlingId=:behandlingId", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
+        query.setParameter(BEHANDLING_ID, behandlingId); //$NON-NLS-1$
+        return query.getResultList();
+    }
+
+    /**
+     * Henter {@link BeregningsgrunnlagGrunnlagEntitet} uten registeraktiviter for behandling.
+     * @return List over alle grunnlag uten registeraktiviteter
+     */
+    public List<Long> hentBehandlingIdForGrunnlagUtenRegister() {
+        TypedQuery<Long> query = entityManager.createQuery(
+            "select distinct(behandlingId) from BeregningsgrunnlagGrunnlagEntitet " +
+                "where registerAktiviteter is null", Long.class); //$NON-NLS-1$
+        return query.getResultList();
+    }
+
+    /**
      * @deprecated Fjernes etter kjøring er ferdig
      *
      * Oppretter prosesstask for tilbakerulling av saker grunnet splitting av sammenligningsgrunnlag
@@ -197,6 +221,16 @@ public class BeregningsgrunnlagRepository {
         return grunnlagEntitet;
     }
 
+    public BeregningsgrunnlagGrunnlagEntitet lagreUtenAktivt(Long behandlingId, BeregningsgrunnlagGrunnlagBuilder builder, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+        Objects.requireNonNull(behandlingId, BEHANDLING_ID);
+        Objects.requireNonNull(builder, BUILDER);
+        Objects.requireNonNull(beregningsgrunnlagTilstand, BEREGNINGSGRUNNLAG_TILSTAND);
+        BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = builder.build(behandlingId, beregningsgrunnlagTilstand);
+        grunnlagEntitet.setAktiv(false);
+        lagreOgFlushUtenAktivt(grunnlagEntitet);
+        return grunnlagEntitet;
+    }
+
     public void lagreRegisterAktiviteter(Long behandlingId,
                                          BeregningAktivitetAggregatEntitet beregningAktivitetAggregat,
                                          BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
@@ -238,6 +272,10 @@ public class BeregningsgrunnlagRepository {
         BeregningsgrunnlagGrunnlagBuilder builder = opprettGrunnlagBuilderFor(behandlingId);
         builder.medRefusjonOverstyring(beregningRefusjonOverstyringer);
         lagreOgFlush(behandlingId, builder.build(behandlingId, beregningsgrunnlagTilstand));
+    }
+    private void lagreOgFlushUtenAktivt(BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag) {
+        lagreGrunnlag(nyttGrunnlag);
+        entityManager.flush();
     }
 
     private void lagreOgFlush(Long behandlingId, BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag) {

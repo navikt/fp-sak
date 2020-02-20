@@ -124,7 +124,7 @@ public class KalkulusTilBehandlingslagerMapper {
         return oppdatere.buildUtenIdOgTilstand();
     }
 
-    private static BeregningAktivitetAggregatEntitet mapRegisterAktiviteter(BeregningAktivitetAggregatDto registerAktiviteter) {
+    public static BeregningAktivitetAggregatEntitet mapRegisterAktiviteter(BeregningAktivitetAggregatDto registerAktiviteter) {
         BeregningAktivitetAggregatEntitet.Builder builder = BeregningAktivitetAggregatEntitet.builder();
         registerAktiviteter.getBeregningAktiviteter().forEach(mapBeregningAktivitet(builder));
         builder.medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());

@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -13,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task.OpprettRegisterAktitviteterTask;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task.TilbakerullingBeregningTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -47,6 +50,31 @@ public class ForvaltningBeregningRestTjeneste {
     }
 
     @POST
+    @Path("/opprettRegisterAktiviteterPåBehandling")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Oppretter tasker for å opprette registeraktiviteter for alle saker", tags = "FORVALTNING-beregning")
+    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    public Response migrerRegisterPåBehandling(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
+        opprettTask(behandling, OpprettRegisterAktitviteterTask.TASKNAME);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/opprettRegisterAktiviteter")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Oppretter tasker for å opprette registeraktiviteter for alle saker", tags = "FORVALTNING-beregning")
+    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    public Response migrerRegisterAlleSaker() {
+        List<Long> ider = beregningsgrunnlagRepository.hentBehandlingIdForGrunnlagUtenRegister();
+        ider.forEach(id -> {
+            Behandling behandling = behandlingRepository.hentBehandling(id);
+            opprettTask(behandling, OpprettRegisterAktitviteterTask.TASKNAME);
+        });
+        return Response.ok().build();
+    }
+
+    @POST
     @Path("/tilbakerullingAlleSakerBeregning")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Rull saker tilbake til beregning", tags = "FORVALTNING-beregning")
@@ -68,7 +96,11 @@ public class ForvaltningBeregningRestTjeneste {
     }
 
     private void opprettTilbakerullingBeregningTask(Behandling behandling) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(TilbakerullingBeregningTask.TASKNAME);
+        opprettTask(behandling, TilbakerullingBeregningTask.TASKNAME);
+    }
+
+    private void opprettTask(Behandling behandling, String taskname) {
+        ProsessTaskData prosessTaskData = new ProsessTaskData(taskname);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);
