@@ -6,11 +6,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -25,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.InternalUtil;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @Entity(name = "Aksjonspunkt")
 @Table(name = "AKSJONSPUNKT")
@@ -67,13 +63,6 @@ public class Aksjonspunkt extends BaseEntitet {
      */
     @Column(name = "begrunnelse")
     private String begrunnelse;
-
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "fomDato", column = @Column(name = "periode_fom")),
-            @AttributeOverride(name = "tomDato", column = @Column(name = "periode_tom"))
-    })
-    private DatoIntervallEntitet periode;
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "TOTRINN_BEHANDLING", nullable = false)
@@ -202,13 +191,12 @@ public class Aksjonspunkt extends BaseEntitet {
         return Objects.equals(getAksjonspunktDefinisjon(), kontrollpunkt.getAksjonspunktDefinisjon())
             && Objects.equals(behandling, kontrollpunkt.behandling)
             && Objects.equals(getStatus(), kontrollpunkt.getStatus())
-            && Objects.equals(getPeriode(), kontrollpunkt.getPeriode())
             && Objects.equals(getFristTid(), kontrollpunkt.getFristTid());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAksjonspunktDefinisjon(), behandling, getStatus(), getPeriode(), getFristTid());
+        return Objects.hash(getAksjonspunktDefinisjon(), behandling, getStatus(), getFristTid());
     }
 
     public String getBegrunnelse() {
@@ -254,18 +242,6 @@ public class Aksjonspunkt extends BaseEntitet {
         this.venteårsak = venteårsak;
     }
 
-    public DatoIntervallEntitet getPeriode() {
-        return periode;
-    }
-
-    /**
-     * (optional)
-     * Periode aksjonspunktet peker på.
-     */
-    void setPeriode(DatoIntervallEntitet periode) {
-        this.periode = periode;
-    }
-
     public boolean gjelderKlageFormkrav() {
         return (AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP.equals(getAksjonspunktDefinisjon())
             || AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA.equals(getAksjonspunktDefinisjon()));
@@ -298,19 +274,6 @@ public class Aksjonspunkt extends BaseEntitet {
         Builder(Aksjonspunkt opprinneligAp) {
             this.opprinneligAp = opprinneligAp;
             this.aksjonspunkt = new Aksjonspunkt(opprinneligAp.getAksjonspunktDefinisjon());
-        }
-
-        /**
-         * Angir om aksjonspunktet gjelder en spesifikk periode. Forutsetter at opplysningene aksjonspunktet er
-         * opprettet for er periodisert.
-         * <p>
-         * NB: Skal kun brukes for aksjonspunkt som kan repteres flere multipliser for en behandling (eks. per periode i
-         * utgangsvilkår).
-         */
-        Aksjonspunkt.Builder medPeriode(DatoIntervallEntitet status) {
-            sjekkTilstand();
-            this.aksjonspunkt.setPeriode(status);
-            return this;
         }
 
         private void sjekkTilstand() {
@@ -352,7 +315,6 @@ public class Aksjonspunkt extends BaseEntitet {
 
         private void kopierBasisfelter(Aksjonspunkt fra, Aksjonspunkt til) {
             til.setBegrunnelse(fra.getBegrunnelse());
-            til.setPeriode(fra.getPeriode());
             til.setVenteårsak(fra.getVenteårsak());
             til.setFristTid(fra.getFristTid());
             til.setStatus(fra.getStatus(), fra.getBegrunnelse());
@@ -390,7 +352,6 @@ public class Aksjonspunkt extends BaseEntitet {
             ", status=" + status +
             ", behandlingStegFunnet=" + getBehandlingStegFunnet() +
             ", versjon=" + versjon +
-            ", periode=" + periode +
             ", toTrinnsBehandling=" + isToTrinnsBehandling() +
             ", fristTid=" + getFristTid() +
             '}';
