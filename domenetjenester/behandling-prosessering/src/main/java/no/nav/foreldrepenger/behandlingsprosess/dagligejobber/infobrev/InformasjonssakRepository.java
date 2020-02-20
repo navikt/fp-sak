@@ -65,7 +65,7 @@ public class InformasjonssakRepository {
          */
         List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
         Query query = entityManager.createNativeQuery(
-        " select fs.id, trunc(fs.opprettet_tid), anpa.aktoer_id, ub.foedsel_dato, beh.behandlende_enhet, beh.behandlende_enhet_navn from fagsak fs " +
+        " select distinct fs.id, trunc(fs.opprettet_tid), anpa.aktoer_id, ub.foedsel_dato, beh.behandlende_enhet, beh.behandlende_enhet_navn from fagsak fs " +
             " join fagsak_relasjon fr on (fs.id in (fr.fagsak_en_id , fr.fagsak_to_id) and fr.aktiv='J' and fr.fagsak_to_id is null) " +
             " join behandling beh on beh.fagsak_id = fs.id " +
             " join behandling_resultat br on (br.behandling_id=beh.id and br.behandling_resultat_type in (:restyper)) " +
@@ -126,7 +126,7 @@ public class InformasjonssakRepository {
          */
         List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
         Query query = entityManager.createNativeQuery(
-            " select fs.id, trunc(fs.opprettet_tid), anpa.aktoer_id, ub.foedsel_dato, beh.behandlende_enhet, beh.behandlende_enhet_navn from fagsak fs " +
+            " select distinct fs.id, trunc(fs.opprettet_tid), anpa.aktoer_id, ub.foedsel_dato, beh.behandlende_enhet, beh.behandlende_enhet_navn from fagsak fs " +
                 " join fagsak_relasjon fr on (fs.id in (fr.fagsak_en_id , fr.fagsak_to_id) and fr.aktiv='J' and fr.fagsak_to_id is null) " +
                 " join behandling beh on beh.fagsak_id = fs.id " +
                 " join behandling_resultat br on (br.behandling_id=beh.id and br.behandling_resultat_type in (:restyper)) " +
