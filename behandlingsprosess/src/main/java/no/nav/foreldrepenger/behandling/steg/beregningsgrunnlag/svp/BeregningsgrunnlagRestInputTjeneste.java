@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @FagsakYtelseTypeRef("SVP")
 public class BeregningsgrunnlagRestInputTjeneste extends BeregningsgrunnlagRestInputFelles {
 
-    private SvangerskapspengerRepository svangerskapspengerRepository;
     private BeregnTilrettleggingsperioderTjeneste tilrettleggingsperioderTjeneste;
 
     protected BeregningsgrunnlagRestInputTjeneste() {
@@ -44,28 +43,17 @@ public class BeregningsgrunnlagRestInputTjeneste extends BeregningsgrunnlagRestI
                                                InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                                ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
         super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, andelGraderingTjeneste, inntektsmeldingTjeneste, arbeidsgiverTjeneste);
-        this.svangerskapspengerRepository = Objects.requireNonNull(behandlingRepositoryProvider.getSvangerskapspengerRepository(), "svangerskapspengerRepository");
         this.tilrettleggingsperioderTjeneste = Objects.requireNonNull(tilrettleggingsperioderTjeneste, "tilrettleggingsperioderTjeneste");
     }
 
     @Override
     public YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref) {
         var tilretteleggingMedUtbelingsgrad = tilrettleggingsperioderTjeneste.beregnPerioder(ref);
-        var aktuelleArbeidsgivereMedTilrettelegginger = hentAktuelleTilrettelegginger(ref);
 
         return new SvangerskapspengerGrunnlag(
-            TilretteleggingMapperTilKalkulus.mapTilretteleggingerMedUtbetalingsgrad(tilretteleggingMedUtbelingsgrad),
-            TilretteleggingMapperTilKalkulus.mapTilrettelegginger(aktuelleArbeidsgivereMedTilrettelegginger)
+            TilretteleggingMapperTilKalkulus.mapTilretteleggingerMedUtbetalingsgrad(tilretteleggingMedUtbelingsgrad)
         );
     }
 
-    private List<SvpTilretteleggingEntitet> hentAktuelleTilrettelegginger(BehandlingReferanse ref) {
-        var svpGrunnlagEntitetOpt = svangerskapspengerRepository.hentGrunnlag(ref.getBehandlingId());
-        List<SvpTilretteleggingEntitet> tilrettelegginger = svpGrunnlagEntitetOpt.isPresent()
-            ? new TilretteleggingFilter(svpGrunnlagEntitetOpt.get()).getAktuelleTilretteleggingerFiltrert()
-            : Collections.emptyList();
-
-        return tilrettelegginger;
-    }
 }
 

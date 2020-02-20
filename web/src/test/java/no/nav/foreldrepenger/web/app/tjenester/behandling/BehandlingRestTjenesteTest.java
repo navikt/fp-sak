@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
@@ -47,6 +48,7 @@ public class BehandlingRestTjenesteTest {
     private BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste = mock(BehandlingsutredningApplikasjonTjeneste.class);
     private BehandlingsoppretterApplikasjonTjeneste behandlingsoppretterApplikasjonTjeneste = mock(BehandlingsoppretterApplikasjonTjeneste.class);
     private BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjenste = mock(BehandlingsprosessApplikasjonTjeneste.class);
+    private OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste = mock(OpptjeningIUtlandDokStatusTjeneste.class);
     private TilbakekrevingRepository tilbakekrevingRepository = mock(TilbakekrevingRepository.class);
     private FakeUnleash unleash = new FakeUnleash();
 
@@ -60,7 +62,7 @@ public class BehandlingRestTjenesteTest {
             Period.parse("P6M"), Period.parse("P1Y"), Period.parse("P6M"));
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, stputil);
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository,
-            skjæringstidspunktTjeneste, null, unleash);
+            skjæringstidspunktTjeneste, null, unleash, opptjeningIUtlandDokStatusTjeneste);
 
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningApplikasjonTjeneste,
             behandlingsoppretterApplikasjonTjeneste,

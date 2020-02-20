@@ -370,7 +370,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN, VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP,
             TOTRINN, EnumSet.of(ES, FP, SVP)),
     MANUELL_MARKERING_AV_UTLAND_SAKSTYPE(AksjonspunktKodeDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE_KODE, AksjonspunktType.MANUELL, "Manuell markering av utenlandssak",
-            BehandlingStegType.VURDER_KOMPLETTHET, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTLAND, ENTRINN, EnumSet.of(ES, FP, SVP)),
+            BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.UTLAND, ENTRINN, EnumSet.of(ES, FP, SVP)),
     AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING(AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING_KODE, AksjonspunktType.SAKSBEHANDLEROVERSTYRING,
             "Saksbehandler endret søknadsperioder uten aksjonspunkt", BehandlingStegType.VURDER_UTTAK, VurderingspunktType.INN, UTEN_VILKÅR,
             SkjermlenkeType.FAKTA_OM_UTTAK, TOTRINN, EnumSet.of(FP, SVP)),

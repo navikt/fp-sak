@@ -11,6 +11,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import no.finn.unleash.FakeUnleash;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -20,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
@@ -45,7 +47,9 @@ public class BehandlingÅrsakDtoTest {
             Period.parse("P6M"), Period.parse("P1Y"), Period.parse("P6M"));
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, stputil);
         var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(repoRule.getEntityManager());
-        behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste, null, unleash);
+        var opptjeningIUtlandDokStatusTjeneste = new OpptjeningIUtlandDokStatusTjeneste(new OpptjeningIUtlandDokStatusRepository(repoRule.getEntityManager()));
+        behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
+            null, unleash, opptjeningIUtlandDokStatusTjeneste);
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());

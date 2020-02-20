@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -30,7 +29,6 @@ public class RelatertBehandlingTjeneste {
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private BehandlingRepository behandlingRepository;
     private UttakRepository uttakRepository;
-    private SvangerskapspengerUttakResultatRepository uttakRepositorySVP;
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
     RelatertBehandlingTjeneste() {
@@ -43,7 +41,6 @@ public class RelatertBehandlingTjeneste {
         this.fagsakRelasjonRepository = behandlingRepositoryProvider.getFagsakRelasjonRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.uttakRepository = behandlingRepositoryProvider.getUttakRepository();
-        this.uttakRepositorySVP = behandlingRepositoryProvider.getSvangerskapspengerUttakResultatRepository();
         this.behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
     }
 
