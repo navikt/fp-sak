@@ -185,7 +185,7 @@ public class IAYMapperTilKalkulus {
         builder.medAngittArbeidsgiverNavn(arbeidsforholdOverstyring.getArbeidsgiverNavn());
         builder.medAngittStillingsprosent(arbeidsforholdOverstyring.getStillingsprosent() == null ? null : new Stillingsprosent(arbeidsforholdOverstyring.getStillingsprosent().getVerdi()));
         builder.medArbeidsforholdRef(arbeidsforholdOverstyring.getArbeidsforholdRef() == null ? null : mapArbeidsforholdRef(arbeidsforholdOverstyring.getArbeidsforholdRef()));
-        builder.medArbeidsforholdRef(arbeidsforholdOverstyring.getNyArbeidsforholdRef() == null ? null : mapArbeidsforholdRef(arbeidsforholdOverstyring.getNyArbeidsforholdRef()));
+        builder.medNyArbeidsforholdRef(arbeidsforholdOverstyring.getNyArbeidsforholdRef() == null ? null : mapArbeidsforholdRef(arbeidsforholdOverstyring.getNyArbeidsforholdRef()));
         builder.medBeskrivelse(arbeidsforholdOverstyring.getBegrunnelse());
 
         return builder;
