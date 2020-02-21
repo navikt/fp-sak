@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
+import java.util.Objects;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -103,8 +105,8 @@ class EndringIBeregningsresultat {
         if (!resultatAndel.getAktivitetStatus().equals(aktivitetStatus) || resultatAndel.erBrukerMottaker() != brukerErMottaker) {
             return false;
         }
-        if (resultatAndel.getArbeidsgiver().isPresent()) {
-            return resultatAndel.getArbeidsgiver().get().equals(arbeidsgiver) && resultatAndel.getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
+        if(resultatAndel.getArbeidsgiver().isPresent()){
+            return resultatAndel.getArbeidsgiver().get().equals(arbeidsgiver) && Objects.equals(arbeidsforholdRef.getReferanse(), resultatAndel.getArbeidsforholdRef().getReferanse());
         }
         return true;
     }
