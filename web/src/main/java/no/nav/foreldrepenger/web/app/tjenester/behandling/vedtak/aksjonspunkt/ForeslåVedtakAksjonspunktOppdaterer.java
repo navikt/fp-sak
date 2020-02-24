@@ -1,12 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -14,18 +12,18 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.dokumentbestiller.klient.FormidlingRestKlient;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.BehandlingUuidDto;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.TekstFraSaksbehandlerDto;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = ForeslaVedtakAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOverstyringshåndterer implements AksjonspunktOppdaterer<ForeslaVedtakAksjonspunktDto> {
 
+    private BehandlingDokumentRepository behandlingDokumentRepository;
 
     ForeslåVedtakAksjonspunktOppdaterer() {
         // for CDI proxy
@@ -36,9 +34,9 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
                                                HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
                                                OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag,
                                                VedtakTjeneste vedtakTjeneste,
-                                               FormidlingRestKlient formidlingRestKlient,
-                                               Unleash unleash) {
-        super(repositoryProvider, historikkApplikasjonTjeneste, opprettToTrinnsgrunnlag, vedtakTjeneste, formidlingRestKlient, unleash);
+                                               BehandlingDokumentRepository behandlingDokumentRepository) {
+        super(repositoryProvider, historikkApplikasjonTjeneste, opprettToTrinnsgrunnlag, vedtakTjeneste, behandlingDokumentRepository);
+        this.behandlingDokumentRepository = behandlingDokumentRepository;
     }
 
     @Override
@@ -59,28 +57,25 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
     }
 
     private void oppdaterBegrunnelse(Behandling behandling, String begrunnelse) {
+        Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+
         behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).ifPresent(behandlingsresultat -> {
-            if ((BehandlingType.KLAGE.equals(behandling.getType()) || behandlingsresultat.isBehandlingsresultatAvslåttOrOpphørt() || begrunnelse != null)
-                || skalNullstilleFritekstfelt(behandling, behandlingsresultat)) {
-                if (unleash.isEnabled(FPSAK_LAGRE_FRITEKST_INN_FORMIDLING)) {
-                    Optional<TekstFraSaksbehandlerDto> tekstFraSaksbehandlerDtoOptional = formidlingRestKlient.hentTekstFraSaksbehandler(new BehandlingUuidDto(behandling.getUuid()));
-                    if (tekstFraSaksbehandlerDtoOptional.isPresent()
-                        && Objects.nonNull(tekstFraSaksbehandlerDtoOptional.get().getAvklarFritekst())) {
-                        final TekstFraSaksbehandlerDto tekstFraSaksbehandlerDto = tekstFraSaksbehandlerDtoOptional.get();
-                        tekstFraSaksbehandlerDto.setAvklarFritekst(begrunnelse);
-                        formidlingRestKlient.lagreTekstFraSaksbehandler(tekstFraSaksbehandlerDto);
-                    }
-                } else {
-                    behandlingsresultat.setAvslagarsakFritekst(begrunnelse);
-                }
+            if (BehandlingType.KLAGE.equals(behandling.getType()) || behandlingsresultat.isBehandlingsresultatAvslåttOrOpphørt()
+                || begrunnelse != null || skalNullstilleFritekstfelt(behandling, behandlingsresultat, behandlingDokument)) {
+
+                BehandlingDokumentEntitet.Builder behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandlingDokument);
+                behandlingDokumentBuilder.medBehandling(behandling.getId());
+                behandlingDokumentBuilder.medVedtakFritekst(begrunnelse);
+                behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
+                behandlingsresultat.setAvslagarsakFritekst(begrunnelse);
             }
         });
         behandling.setAnsvarligSaksbehandler(getCurrentUserId());
     }
 
-    private boolean skalNullstilleFritekstfelt(Behandling behandling, Behandlingsresultat behandlingsresultat) {
+    private boolean skalNullstilleFritekstfelt(Behandling behandling, Behandlingsresultat behandlingsresultat, Optional<BehandlingDokumentEntitet> behandlingDokument) {
         return !BehandlingType.KLAGE.equals(behandling.getType()) && !behandlingsresultat.isBehandlingsresultatAvslåttOrOpphørt()
-            && behandlingsresultat.getAvslagarsakFritekst() != null;
+            && (behandlingsresultat.getAvslagarsakFritekst() != null || (behandlingDokument.isPresent() && behandlingDokument.get().getVedtakFritekst() != null));
     }
 
     protected String getCurrentUserId() {

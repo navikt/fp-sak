@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt;
 
-import no.finn.unleash.Unleash;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
@@ -10,6 +11,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
@@ -17,20 +20,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
-import no.nav.foreldrepenger.dokumentbestiller.klient.FormidlingRestKlient;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.TekstFraSaksbehandlerDto;
 
 public abstract class AbstractVedtaksbrevOverstyringshåndterer {
-    public static final String FPSAK_LAGRE_FRITEKST_INN_FORMIDLING = "fpsak.lagre_fritekst_inn_fpformidling";
     protected HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     BehandlingsresultatRepository behandlingsresultatRepository;
     protected OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag;
     private VedtakTjeneste vedtakTjeneste;
-    FormidlingRestKlient formidlingRestKlient;
-    protected Unleash unleash;
+    private BehandlingDokumentRepository behandlingDokumentRepository;
 
     AbstractVedtaksbrevOverstyringshåndterer() {
         // for CDI proxy
@@ -44,21 +43,19 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.opprettToTrinnsgrunnlag = opprettToTrinnsgrunnlag;
         this.vedtakTjeneste = vedtakTjeneste;
-        this.unleash = null;
+        this.behandlingDokumentRepository = null;
     }
 
     AbstractVedtaksbrevOverstyringshåndterer(BehandlingRepositoryProvider repositoryProvider,
                                              HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
                                              OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag,
                                              VedtakTjeneste vedtakTjeneste,
-                                             FormidlingRestKlient formidlingRestKlient,
-                                             Unleash unleash) {
+                                             BehandlingDokumentRepository behandlingDokumentRepository) {
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.opprettToTrinnsgrunnlag = opprettToTrinnsgrunnlag;
         this.vedtakTjeneste = vedtakTjeneste;
-        this.formidlingRestKlient = formidlingRestKlient;
-        this.unleash = unleash;
+        this.behandlingDokumentRepository = behandlingDokumentRepository;
     }
 
     void oppdaterVedtaksbrev(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param, OppdateringResultat.Builder builder) {
@@ -74,25 +71,19 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
     private void settFritekstBrev(Behandling behandling, String overskrift, String fritekst) {
         behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).ifPresent(behandlingsresultat -> {
-            if (unleash != null && unleash.isEnabled(FPSAK_LAGRE_FRITEKST_INN_FORMIDLING)) {
-                formidlingRestKlient.lagreTekstFraSaksbehandler(mapTekstFraSaksbehandlerDto(behandling, overskrift, fritekst));
-            } else {
-                Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
-                    .medOverskrift(overskrift)
-                    .medFritekstbrev(fritekst)
-                    .medVedtaksbrev(Vedtaksbrev.FRITEKST)
-                    .buildFor(behandling);
-            }
+            Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+            BehandlingDokumentEntitet.Builder behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandlingDokument);
+            behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder
+                .medBehandling(behandling.getId())
+                .medOverstyrtBrevOverskrift(overskrift)
+                .medOverstyrtBrevFritekst(fritekst)
+                .build());
+            Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
+                .medOverskrift(overskrift)
+                .medFritekstbrev(fritekst)
+                .medVedtaksbrev(Vedtaksbrev.FRITEKST)
+                .buildFor(behandling);
         });
-    }
-
-    private TekstFraSaksbehandlerDto mapTekstFraSaksbehandlerDto(Behandling behandling, String overskrift, String fritekst) {
-        TekstFraSaksbehandlerDto tekstFraSaksbehandlerDto = new TekstFraSaksbehandlerDto();
-        tekstFraSaksbehandlerDto.setBehandlingUuid(behandling.getUuid());
-        tekstFraSaksbehandlerDto.setVedtaksbrev(no.nav.foreldrepenger.kontrakter.formidling.kodeverk.Vedtaksbrev.FRITEKST);
-        tekstFraSaksbehandlerDto.setTittel(overskrift);
-        tekstFraSaksbehandlerDto.setFritekst(fritekst);
-        return tekstFraSaksbehandlerDto;
     }
 
     private void opprettToTrinnsKontrollpunktForFritekstBrev(BekreftetAksjonspunktDto dto, Behandling behandling, OppdateringResultat.Builder builder) {
@@ -142,5 +133,9 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         innslag.setBehandlingId(behandling.getId());
         tekstBuilder.build(innslag);
         historikkApplikasjonTjeneste.lagInnslag(innslag);
+    }
+
+    BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(Optional<BehandlingDokumentEntitet> behandlingDokument) {
+        return behandlingDokument.map(BehandlingDokumentEntitet.Builder::fraEksisterende).orElseGet(BehandlingDokumentEntitet.Builder::ny);
     }
 }

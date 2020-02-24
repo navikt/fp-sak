@@ -78,14 +78,14 @@ public class BrevRestTjenesteTest {
     @Test
     public void harSendtVarselOmRevurdering() {
         // Arrange
-        when(dokumentBehandlingTjenesteMock.erDokumentProdusert(any(), any())).thenReturn(true);
+        when(dokumentBehandlingTjenesteMock.erDokumentBestilt(any(), any())).thenReturn(true);
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(mock(Behandling.class));
 
         // Act
         Boolean harSendt = brevRestTjeneste.harSendtVarselOmRevurdering(new UuidDto(UUID.randomUUID()));
 
         // Assert
-        verify(dokumentBehandlingTjenesteMock).erDokumentProdusert(any(), any());
+        verify(dokumentBehandlingTjenesteMock).erDokumentBestilt(any(), any());
         assertThat(harSendt).isEqualTo(true);
     }
 }
