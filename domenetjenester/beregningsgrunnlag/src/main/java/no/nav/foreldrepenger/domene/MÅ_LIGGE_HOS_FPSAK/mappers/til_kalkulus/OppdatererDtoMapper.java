@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.ArbeidstakerandelUtenIMMottarYtelseDto;
+import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.DagpengeAndelLagtTilBesteberegningDto;
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FastsattBrukersAndel;
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.RefusjonskravPrArbeidsgiverVurderingDto;
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.VurderMilitærDto;
@@ -231,7 +232,14 @@ public class OppdatererDtoMapper {
     }
 
     private static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.BesteberegningFødendeKvinneDto mapBesteberegningFødendeKvinneDto(no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.BesteberegningFødendeKvinneDto besteberegningAndeler) {
-        return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.BesteberegningFødendeKvinneDto(mapBesteberegningAndeler(besteberegningAndeler.getBesteberegningAndelListe()));
+        return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.BesteberegningFødendeKvinneDto(
+            mapBesteberegningAndeler(besteberegningAndeler.getBesteberegningAndelListe()),
+            besteberegningAndeler.getNyDagpengeAndel() == null ? null : mapNyDagpengeandel(besteberegningAndeler.getNyDagpengeAndel())
+            );
+    }
+
+    private static DagpengeAndelLagtTilBesteberegningDto mapNyDagpengeandel(no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.DagpengeAndelLagtTilBesteberegningDto nyDagpengeAndel) {
+        return new DagpengeAndelLagtTilBesteberegningDto(nyDagpengeAndel.getFastsatteVerdier().getFastsattBeløp(), Inntektskategori.fraKode(nyDagpengeAndel.getFastsatteVerdier().getInntektskategori().getKode()));
     }
 
     private static List<no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.BesteberegningFødendeKvinneAndelDto> mapBesteberegningAndeler(List<no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.BesteberegningFødendeKvinneAndelDto> besteberegningAndelListe) {
