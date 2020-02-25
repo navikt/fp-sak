@@ -214,9 +214,6 @@ INSERT INTO ORG_MANUELL_BEHANDLING (ID,VIRKSOMHETSNUMMER,MANUELL_BEH_ARSAK) VALU
 INSERT INTO ORG_MANUELL_BEHANDLING (ID,VIRKSOMHETSNUMMER,MANUELL_BEH_ARSAK) VALUES (SEQ_ORG_MANUELL_BEHANDLING.nextval,'885002862','Norges Nasjonale Institusjon for Menneskerettigheter Avd Kautokeino');
 INSERT INTO ORG_MANUELL_BEHANDLING (ID,VIRKSOMHETSNUMMER,MANUELL_BEH_ARSAK) VALUES (SEQ_ORG_MANUELL_BEHANDLING.nextval,'914781329','Norges Nasjonale Institusjon for Menneskerettigheter Avd Oslo');
 -------------------------------------------------
-INSERT INTO PROSESS_TASK (ID, TASK_TYPE, NESTE_KJOERING_ETTER) VALUES (SEQ_PROSESS_TASK.nextval, 'abakus.iaygrunnlag.migrering', sysdate);
-INSERT INTO PROSESS_TASK (ID, TASK_TYPE, NESTE_KJOERING_ETTER) VALUES (SEQ_PROSESS_TASK.nextval, 'abakus.iaygrunnlag.migrering.sammenligning', sysdate);
--------------------------------------------------
 INSERT INTO PROSESS_TASK_FEILHAND (KODE,NAVN,BESKRIVELSE,INPUT_VARIABEL1,INPUT_VARIABEL2) VALUES ('DEFAULT','Eksponentiell back-off med tak','',null,null);
 INSERT INTO PROSESS_TASK_FEILHAND (KODE,NAVN,BESKRIVELSE,INPUT_VARIABEL1,INPUT_VARIABEL2) VALUES ('ÅPNINGSTID','Åpningstidsbasert feilhåndtering','Åpningstidsbasert feilhåndtering. INPUT_VARIABEL1 = åpningstid og INPUT_VARIABEL2 = stengetid',6,21);
 INSERT INTO PROSESS_TASK_FEILHAND (KODE,NAVN,BESKRIVELSE,INPUT_VARIABEL1,INPUT_VARIABEL2) VALUES ('TIL_GSAK_BACKOFF','Til Gsak ved funksjonell feil','Send sak til manuell journalføring hos gsak dersom det oppstår en funksjonell feil. Andre feil håndters som for DEFAULT.',null,null);
