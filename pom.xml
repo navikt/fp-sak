@@ -63,7 +63,7 @@
         <prosesstask.version>2.0.0-20200118083448-d87fd6d</prosesstask.version>
 
         <metrics.version>3.2.5</metrics.version>
-        <fp-kontrakter.version>5.1-20200211164354-f6cea52</fp-kontrakter.version>
+        <fp-kontrakter.version>5.1-20200224152726-2b69c0e</fp-kontrakter.version>
         <kalkulus.version>1.0-20200225165122-44bd132</kalkulus.version>
     </properties>
 
@@ -179,6 +179,16 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.kontrakter</groupId>
                 <artifactId>inntektsmelding-v1</artifactId>
+                <version>${fp-kontrakter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+                <artifactId>oppdragskjema-v1</artifactId>
+                <version>${fp-kontrakter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+                <artifactId>grensesnittavstemming-v1</artifactId>
                 <version>${fp-kontrakter.version}</version>
             </dependency>
             <dependency>
@@ -479,14 +489,8 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.kontrakter</groupId>
-                <artifactId>okonomistotte-v1</artifactId>
-                <version>2.0_20190311110043_ddc2d1e</version>
-                <classifier>jaxb</classifier>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.kontrakter</groupId>
-                <artifactId>grensesnittavstemming-v1</artifactId>
-                <version>2.3_20180507114256_2ed2065</version>
+                <artifactId>dokumentbestiller-v1</artifactId>
+                <version>2.0_20190816101820_003f3bb</version>
                 <classifier>jaxb</classifier>
             </dependency>
             <dependency>
