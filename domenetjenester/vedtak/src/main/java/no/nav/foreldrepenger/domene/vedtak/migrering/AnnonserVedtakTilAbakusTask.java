@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.familie.topic.TopicManifest;
-import no.nav.folketrygdloven.kalkulator.JacksonJsonConfig;
+import no.nav.folketrygdloven.kalkulator.JsonMapper;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -72,7 +72,7 @@ public class AnnonserVedtakTilAbakusTask implements ProsessTaskHandler {
             if (behandling.isPresent()) {
                 Behandling behandlingen = behandling.get();
                 final Ytelse ytelse = vedtattYtelseTjeneste.genererYtelse(behandlingen);
-                producer.sendJsonMedNøkkel(behandlingen.getUuid().toString(), JacksonJsonConfig.toJson(ytelse, PubliserVedtattYtelseHendelseFeil.FEILFACTORY::kanIkkeSerialisere));
+                producer.sendJsonMedNøkkel(behandlingen.getUuid().toString(), JsonMapper.toJson(ytelse, PubliserVedtattYtelseHendelseFeil.FEILFACTORY::kanIkkeSerialisere));
             }
             sisteFagsakId = fagsak.getId();
         }

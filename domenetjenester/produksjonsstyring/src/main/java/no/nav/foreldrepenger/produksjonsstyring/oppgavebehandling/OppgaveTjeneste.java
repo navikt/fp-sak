@@ -142,9 +142,24 @@ public class OppgaveTjeneste {
 
     public String opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(Long fagsakId, OppgaveÅrsak oppgaveÅrsak, String enhetsId, String beskrivelse, boolean høyPrioritet) {
         Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+
         Personinfo personSomBehandles = hentPersonInfo(fagsak.getAktørId());
+
         OpprettOppgaveRequest request = createRequest(fagsak, personSomBehandles, oppgaveÅrsak, enhetsId, beskrivelse,
             hentPrioritetKode(høyPrioritet), DEFAULT_OPPGAVEFRIST_DAGER);
+        WSOpprettOppgaveResponse response = service.opprettOppgave(request);
+        return response.getOppgaveId();
+    }
+
+    public String opprettMedPrioritetOgBeskrivelseBasertPåAktørId(String gjeldendeAktørId, Long fagsakId, OppgaveÅrsak oppgaveÅrsak, String enhetsId, String beskrivelse, boolean høyPrioritet) {
+
+        AktørId aktørId = new AktørId(gjeldendeAktørId);
+        Personinfo personSomBehandles = hentPersonInfo(aktørId);
+
+        Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+
+
+        OpprettOppgaveRequest request = createRequest(personSomBehandles, oppgaveÅrsak, enhetsId, beskrivelse, hentPrioritetKode(høyPrioritet), DEFAULT_OPPGAVEFRIST_DAGER, finnUnderkategoriKode(fagsak.getYtelseType()));
         WSOpprettOppgaveResponse response = service.opprettOppgave(request);
         return response.getOppgaveId();
     }
@@ -393,8 +408,8 @@ public class OppgaveTjeneste {
             .medFagomradeKode(FagomradeKode.FOR.getKode())
             .medFnr(personinfo.getPersonIdent().getIdent())
             .medBrukerTypeKode(BrukerType.PERSON)
-            .medAktivFra(FPDateUtil.iDag())
-            .medAktivTil(helgeJustertFrist(FPDateUtil.iDag().plusDays(fristDager)))
+            .medAktivFra(LocalDate.now())
+            .medAktivTil(helgeJustertFrist(LocalDate.now().plusDays(fristDager)))
             .medOppgavetypeKode(oppgaveÅrsak.getKode())
             .medSaksnummer(fagsak.getSaksnummer() != null ? fagsak.getSaksnummer().getVerdi() : fagsak.getId().toString()) // Mer iht PK-38815
             .medPrioritetKode(prioritetKode.toString())
@@ -403,6 +418,28 @@ public class OppgaveTjeneste {
             .medUnderkategoriKode(underkategoriKode)
             .build();
     }
+    private OpprettOppgaveRequest createRequest(Personinfo personinfo, OppgaveÅrsak oppgaveÅrsak,
+                                                String enhetsId, String beskrivelse, PrioritetKode prioritetKode,
+                                                int fristDager, String underkategoriKode) {
+
+        OpprettOppgaveRequest.Builder builder = OpprettOppgaveRequest.builder();
+
+        return builder
+            .medOpprettetAvEnhetId(Integer.parseInt(enhetsId))
+            .medAnsvarligEnhetId(enhetsId)
+            .medFagomradeKode(FagomradeKode.FOR.getKode())
+            .medFnr(personinfo.getPersonIdent().getIdent())
+            .medBrukerTypeKode(BrukerType.PERSON)
+            .medAktivFra(LocalDate.now())
+            .medAktivTil(helgeJustertFrist(LocalDate.now().plusDays(fristDager)))
+            .medOppgavetypeKode(oppgaveÅrsak.getKode())
+            .medPrioritetKode(prioritetKode.toString())
+            .medBeskrivelse(beskrivelse)
+            .medLest(false)
+            .medUnderkategoriKode(underkategoriKode)
+            .build();
+    }
+
 
     // Sett frist til mandag hvis fristen er i helgen.
     private LocalDate helgeJustertFrist(LocalDate dato) {
