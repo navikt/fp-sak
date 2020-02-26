@@ -262,7 +262,7 @@ class BeregningsgrunnlagRestDtoMapper {
             boolean harPeriodeAndelForSammeArbeidsgiverMedReferanse = fraFpsak.getBeregningsgrunnlagPeriode().getBeregningsgrunnlagPrStatusOgAndelList()
                 .stream()
                 .filter(a -> a.getAktivitetStatus().erArbeidstaker())
-                .filter(a -> a.getArbeidsgiver().isPresent() && a.getArbeidsgiver().get().equals(arbeidsgiver))
+                .filter(a -> a.getArbeidsgiver().isPresent() && a.getArbeidsgiver().get().getIdentifikator().equals(arbeidsgiver.getIdentifikator()))
                 .anyMatch(a -> a.getArbeidsforholdRef().isPresent() && a.getArbeidsforholdRef().get().gjelderForSpesifiktArbeidsforhold());
 
             if (harPeriodeAndelForSammeArbeidsgiverMedReferanse) {

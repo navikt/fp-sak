@@ -81,13 +81,13 @@ public class KompletthetsjekkerFelles {
     }
 
     public void sendBrev(Long behandlingId, DokumentMalType dokumentMalType, String årsakskode) {
-        if (!dokumentBehandlingTjeneste.erDokumentProdusert(behandlingId, dokumentMalType)) {
+        if (!erSendtBrev(behandlingId, dokumentMalType)) {
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandlingId, dokumentMalType, null, årsakskode);
             dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
     }
 
     public boolean erSendtBrev(Long behandlingId, DokumentMalType dokumentMalType) {
-        return dokumentBehandlingTjeneste.erDokumentProdusert(behandlingId, dokumentMalType);
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, dokumentMalType);
     }
 }

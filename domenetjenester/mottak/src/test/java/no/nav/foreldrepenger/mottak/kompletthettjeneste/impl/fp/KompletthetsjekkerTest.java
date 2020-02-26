@@ -170,7 +170,7 @@ public class KompletthetsjekkerTest {
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingGrunnlag();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, FPDateUtil.iDag().minusWeeks(4), STARTDATO_PERMISJON);
-        when(dokumentBehandlingTjenesteMock.erDokumentProdusert(any(), any())).thenReturn(true);
+        when(dokumentBehandlingTjenesteMock.erDokumentBestilt(any(), any())).thenReturn(true);
 
         // Act
         KompletthetResultat kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(lagRef(behandling, STARTDATO_PERMISJON));

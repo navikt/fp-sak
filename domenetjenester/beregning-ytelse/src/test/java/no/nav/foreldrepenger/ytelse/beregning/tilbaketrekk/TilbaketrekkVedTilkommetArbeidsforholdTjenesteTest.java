@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
 
@@ -67,8 +68,8 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
     @Test
     public void skal_finne_største_tilbaketrekk_ved_tilbaketrekk_mellom_to_arbeidsforhold() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1);
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)), ARBEIDSGIVER2);
+        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1, InternArbeidsforholdRef.nullRef());
+        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)), ARBEIDSGIVER2, InternArbeidsforholdRef.nullRef());
 
         BRNøkkelMedAndeler originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
         BRNøkkelMedAndeler revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
@@ -87,10 +88,35 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
     }
 
     @Test
+    public void skal_finne_største_tilbaketrekk_ved_tilbaketrekk_mellom_to_arbeidsforhold_der_bortfalt_har_fleire_tidligere_avtaler() {
+        // Arrange
+        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1, InternArbeidsforholdRef.nyRef());
+        Yrkesaktivitet avsluttetGammelAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.minusMonths(5)), ARBEIDSGIVER1, InternArbeidsforholdRef.nyRef());
+
+        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)), ARBEIDSGIVER2, InternArbeidsforholdRef.nullRef());
+
+        BRNøkkelMedAndeler originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
+        BRNøkkelMedAndeler revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
+        BRNøkkelMedAndeler tilkommetNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
+
+        List<BRNøkkelMedAndeler> revurderingNøkler = List.of(tilkommetNøkkel, revurderingNøkkel);
+        List<BRNøkkelMedAndeler> originaleNøkler = List.of(originalNøkkel);
+        List<Yrkesaktivitet> yrkesaktiviteter = List.of(avsluttetGammelAktivitet, eksisterendeAktivitet, tilkommetAktivitet);
+
+        // Act
+        Optional<TilbaketrekkForTilkommetArbeidEntry> tilbaketrekkForTilkommetArbeidEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(revurderingNøkler, originaleNøkler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
+
+        // Assert
+        assertThat(tilbaketrekkForTilkommetArbeidEntry).isPresent();
+        assertThat(tilbaketrekkForTilkommetArbeidEntry.get().finnHindretTilbaketrekk()).isEqualTo(DAGSATS);
+    }
+
+
+    @Test
     public void skal_ikkje_finne_tilbaketrekk_når_det_ikkje_skal_gjerast_tilbaketrekk() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1);
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)), ARBEIDSGIVER2);
+        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1, InternArbeidsforholdRef.nullRef());
+        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)), ARBEIDSGIVER2, InternArbeidsforholdRef.nullRef());
 
         BRNøkkelMedAndeler originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
         BRNøkkelMedAndeler revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, revurderingPeriode);
@@ -110,9 +136,9 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
     @Test
     public void skal_finne_største_tilbaketrekk_ved_tilbaketrekk_mellom_to_avsluttede_og_en_tilkommet_refusjon_mindre_enn_tilbaketrekk() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1);
-        Yrkesaktivitet eksisterendeAktivitet2 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(15)), ARBEIDSGIVER3);
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)), ARBEIDSGIVER2);
+        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1, InternArbeidsforholdRef.nullRef());
+        Yrkesaktivitet eksisterendeAktivitet2 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(15)), ARBEIDSGIVER3, InternArbeidsforholdRef.nullRef());
+        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)), ARBEIDSGIVER2, InternArbeidsforholdRef.nullRef());
 
         BRNøkkelMedAndeler originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
         BRNøkkelMedAndeler originalNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER3, originalPeriode);
@@ -138,10 +164,10 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
     @Test
     public void skal_finne_største_tilbaketrekk_ved_tilbaketrekk_mellom_tre_avsluttede_og_en_tilkommet_tilbaketrekk_mindre_enn_refusjon() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1);
-        Yrkesaktivitet eksisterendeAktivitet2 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(15)), ARBEIDSGIVER3);
-        Yrkesaktivitet eksisterendeAktivitet3 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(2).plusDays(1)), ARBEIDSGIVER4);
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)), ARBEIDSGIVER2);
+        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1, InternArbeidsforholdRef.nullRef());
+        Yrkesaktivitet eksisterendeAktivitet2 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(15)), ARBEIDSGIVER3, InternArbeidsforholdRef.nullRef());
+        Yrkesaktivitet eksisterendeAktivitet3 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(2).plusDays(1)), ARBEIDSGIVER4, InternArbeidsforholdRef.nullRef());
+        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)), ARBEIDSGIVER2, InternArbeidsforholdRef.nullRef());
 
         BRNøkkelMedAndeler originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
         BRNøkkelMedAndeler originalNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER3, originalPeriode);
@@ -168,12 +194,12 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
     @Test
     public void skal_finne_største_tilbaketrekk_ved_tilbaketrekk_mellom_tre_avsluttede_og_tre_tilkommet_men_kun_deler_av_settet_er_med_i_tilbaketrekk() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(16)), ARBEIDSGIVER1);
-        Yrkesaktivitet eksisterendeAktivitet2 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(15)), ARBEIDSGIVER3);
-        Yrkesaktivitet eksisterendeAktivitet3 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER4);
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusDays(20)), ARBEIDSGIVER2);
-        Yrkesaktivitet tilkommetAktivitet2 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2)), ARBEIDSGIVER5);
-        Yrkesaktivitet tilkommetAktivitet3 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2).plusDays(10)), ARBEIDSGIVER6);
+        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(16)), ARBEIDSGIVER1, InternArbeidsforholdRef.nullRef());
+        Yrkesaktivitet eksisterendeAktivitet2 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(15)), ARBEIDSGIVER3, InternArbeidsforholdRef.nullRef());
+        Yrkesaktivitet eksisterendeAktivitet3 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER4, InternArbeidsforholdRef.nullRef());
+        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusDays(20)), ARBEIDSGIVER2, InternArbeidsforholdRef.nullRef());
+        Yrkesaktivitet tilkommetAktivitet2 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2)), ARBEIDSGIVER5, InternArbeidsforholdRef.nullRef());
+        Yrkesaktivitet tilkommetAktivitet3 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2).plusDays(10)), ARBEIDSGIVER6, InternArbeidsforholdRef.nullRef());
 
         BRNøkkelMedAndeler originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(50, ARBEIDSGIVER1, originalPeriode);
         BRNøkkelMedAndeler originalNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(80, ARBEIDSGIVER3, originalPeriode);
@@ -200,10 +226,11 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
     }
 
 
-    private Yrkesaktivitet lagYrkesaktivitet(DatoIntervallEntitet periode, Arbeidsgiver arbeidsgiver) {
+    private Yrkesaktivitet lagYrkesaktivitet(DatoIntervallEntitet periode, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdId) {
         return YrkesaktivitetBuilder.oppdatere(Optional.empty())
             .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny().medPeriode(periode))
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsforholdId(arbeidsforholdId)
             .medArbeidsgiver(arbeidsgiver).build();
     }
 

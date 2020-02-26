@@ -22,8 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseSorteringReposit
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.kontrakter.abonnent.infotrygd.InfotrygdHendelseDto;
-import no.nav.foreldrepenger.kontrakter.abonnent.infotrygd.InfotrygdHendelseDtoBuilder;
 import no.nav.foreldrepenger.kontrakter.abonnent.tps.DødfødselHendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.tps.FødselHendelseDto;
 import no.nav.foreldrepenger.mottak.hendelser.HendelseSorteringTjeneste;
@@ -32,13 +30,11 @@ import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
 import no.nav.foreldrepenger.mottak.hendelser.MottattHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.kontrakt.DødfødselHendelse;
 import no.nav.foreldrepenger.mottak.hendelser.kontrakt.FødselHendelse;
-import no.nav.foreldrepenger.mottak.hendelser.kontrakt.YtelseHendelse;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacAktørIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacHendelseWrapperDto;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.impl.DødfødselForretningshendelseRegistrerer;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.impl.ForretningshendelseRegistrererProvider;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.impl.FødselForretningshendelseRegistrerer;
-import no.nav.foreldrepenger.web.app.tjenester.hendelser.impl.InfotrygdHendelseRegistrerer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -63,11 +59,9 @@ public class HendelserRestTjenesteTest {
 
         FødselForretningshendelseRegistrerer fødselRegistrerer = new FødselForretningshendelseRegistrerer(mottattHendelseTjeneste);
         DødfødselForretningshendelseRegistrerer dødfødselRegistrerer = new DødfødselForretningshendelseRegistrerer(mottattHendelseTjeneste);
-        InfotrygdHendelseRegistrerer infotrygdRegistrerer = new InfotrygdHendelseRegistrerer(mottattHendelseTjeneste);
         ForretningshendelseRegistrererProvider provider = mock(ForretningshendelseRegistrererProvider.class);
         doReturn(fødselRegistrerer).when(provider).finnRegistrerer(any(FødselHendelseDto.class));
         doReturn(dødfødselRegistrerer).when(provider).finnRegistrerer(any(DødfødselHendelseDto.class));
-        doReturn(infotrygdRegistrerer).when(provider).finnRegistrerer(any(InfotrygdHendelseDto.class));
 
         hendelserRestTjeneste = new HendelserRestTjeneste(mottattHendelseTjeneste, sorteringTjeneste, provider);
     }
@@ -110,34 +104,6 @@ public class HendelserRestTjenesteTest {
         assertThat(task.getPayloadAsString()).isEqualTo(JsonMapper.toJson(new DødfødselHendelse(aktørIdForeldre.stream().map(AktørId::getId).collect(Collectors.toList()), dødfødseldato)));
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE)).isEqualTo("DØDFØDSEL");
-    }
-
-    @Test
-    public void skal_ta_imot_infotrygdhendelse_og_opprette_prosesstask() {
-        // Arrange
-        LocalDate fom = LocalDate.now();
-        String identDato = "2018-10-10";
-        String aktørId = "0000000000000";
-        String typeYtelse = "ab";
-        String hendelseKode = InfotrygdHendelseDto.Hendelsetype.YTELSE_ENDRET.name();
-        InfotrygdHendelseDto infotrygdDto = lagInfotrygdHendelse(InfotrygdHendelseDto.Hendelsetype.YTELSE_ENDRET,
-            aktørId,
-            typeYtelse,
-            fom,
-            identDato);
-
-        // Act
-        hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(infotrygdDto));
-        repoRule.getEntityManager().flush();
-
-        // Assert
-        assertThat(hendelsemottakRepository.hendelseErNy(HENDELSE_ID)).isFalse();
-        List<ProsessTaskData> tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        ProsessTaskData task = tasks.stream().filter(d -> Objects.equals(KlargjørHendelseTask.TASKTYPE, d.getTaskType())).findFirst().orElseThrow();
-        assertThat(task.getTaskType()).isEqualTo(KlargjørHendelseTask.TASKTYPE);
-        assertThat(task.getPayloadAsString()).isEqualTo(JsonMapper.toJson(new YtelseHendelse(hendelseKode, typeYtelse, aktørId, fom, identDato)));
-        assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
-        assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE)).isEqualTo(hendelseKode);
     }
 
     @Test
@@ -208,33 +174,4 @@ public class HendelserRestTjenesteTest {
         return hendelse;
     }
 
-    private InfotrygdHendelseDto lagInfotrygdHendelse(InfotrygdHendelseDto.Hendelsetype hendelsetype,
-                                                      String aktørId,
-                                                      String typeYtelse,
-                                                      LocalDate fom,
-                                                      String identDato) {
-        InfotrygdHendelseDtoBuilder builder;
-        switch (hendelsetype) {
-            case YTELSE_OPPHØRT:
-                builder = InfotrygdHendelseDtoBuilder.opphørt();
-                break;
-            case YTELSE_ENDRET:
-                builder = InfotrygdHendelseDtoBuilder.endring();
-                break;
-            case YTELSE_ANNULERT:
-                builder = InfotrygdHendelseDtoBuilder.annulert();
-                break;
-            case YTELSE_INNVILGET:
-                builder = InfotrygdHendelseDtoBuilder.innvilget();
-                break;
-            default:
-                throw new IllegalArgumentException("ugyldig hendelsetype");
-        }
-        return builder.medUnikId(HENDELSE_ID)
-            .medAktørId(aktørId)
-            .medFraOgMed(fom)
-            .medIdentdato(identDato)
-            .medTypeYtelse(typeYtelse)
-            .build();
-    }
 }

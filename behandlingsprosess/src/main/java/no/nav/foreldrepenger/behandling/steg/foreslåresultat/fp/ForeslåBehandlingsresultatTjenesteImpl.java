@@ -60,7 +60,6 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
         return uttakResultat.isPresent() && uttakResultat.get().getGjeldendePerioder().getPerioder().stream().anyMatch(UttakResultatPeriodeEntitet::isInnvilget);
     }
 
-
     @Override
     public Behandlingsresultat foreslåBehandlingsresultat(BehandlingReferanse ref) {
         Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId());
@@ -83,7 +82,6 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
     private boolean sjekkVilkårAvslått(Behandlingsresultat behandlingsresultat) {
         return behandlingsresultat.isVilkårAvslått() || !minstEnGyldigUttaksPeriode(behandlingsresultat);
     }
-
 
     private void vilkårAvslått(BehandlingReferanse ref, Behandlingsresultat behandlingsresultat) {
         Optional<Vilkår> ikkeOppfyltVilkår = behandlingsresultat.getVilkårResultat().hentIkkeOppfyltVilkår();
@@ -109,6 +107,6 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
     }
 
     private boolean erVarselOmRevurderingSendt(BehandlingReferanse ref) {
-        return dokumentBehandlingTjeneste.erDokumentProdusert(ref.getBehandlingId(), DokumentMalType.REVURDERING_DOK);
+        return dokumentBehandlingTjeneste.erDokumentBestilt(ref.getBehandlingId(), DokumentMalType.REVURDERING_DOK);
     }
 }

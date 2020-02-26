@@ -62,8 +62,14 @@ public enum BehandlingÅrsakType implements Kodeverdi {
 
     RE_REGISTEROPPLYSNING("RE-REGISTEROPPL", "Nye registeropplysninger"),
     RE_OPPLYSNINGER_OM_YTELSER("RE-YTELSE", "Nye opplysninger om ytelse"),
+
+    // UTGÅTT. men ikke slett - er noen behandlinger med disse i årsak-tabellen.
+
+    @Deprecated // Infotrygd hendelse-feed. 2 behandlinger med forekomst
     RE_TILSTØTENDE_YTELSE_INNVILGET("RE-TILST-YT-INNVIL", "Tilstøtende ytelse innvilget"),
+    @Deprecated // Ukjent intensjon. Ingen forekomster i DB. Kan slettes
     RE_ENDRING_BEREGNINGSGRUNNLAG("RE-ENDR-BER-GRUN", "Nye opplysninger som kan påvirke beregningsgrunnlaget"),
+    @Deprecated // Infotrygd hendelse-feed. 2 behandlinger med forekomst
     RE_TILSTØTENDE_YTELSE_OPPHØRT("RE-TILST-YT-OPPH", "Tilstøtende ytelse opphørt"),
 
     UDEFINERT("-", "Ikke definert"),

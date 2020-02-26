@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -91,7 +90,6 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
         if (!behandling.harAksjonspunktMedType(MANUELL_MARKERING_AV_UTLAND_SAKSTYPE) && !behandling.erRevurdering() && harOppgittUtenlandskInntekt(kontekst.getBehandlingId())) {
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AUTOMATISK_MARKERING_AV_UTENLANDSSAK));
-            opprettOppgaveForInnhentingAvDokumentasjon(behandling);
         }
         // Vurder kompletthet
         // Sjekke om koblet medforelder har åpen behandling
@@ -112,18 +110,11 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     private boolean harOppgittUtenlandskInntekt(Long behandlingId) {
         Optional<OppgittOpptjening> oppgittOpptening = iayTjeneste.finnGrunnlag(behandlingId)
-                .flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening);
+            .flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening);
         if (!oppgittOpptening.isPresent()) {
             return false;
         }
         return oppgittOpptening.get().getOppgittArbeidsforhold().stream().anyMatch(OppgittArbeidsforhold::erUtenlandskInntekt);
-    }
-
-    private void opprettOppgaveForInnhentingAvDokumentasjon(Behandling behandling) {
-        OppgaveÅrsak oppgaveÅrsak = OppgaveÅrsak.BEHANDLE_SAK;
-        AksjonspunktDefinisjon aksjonspunktDef = AUTOMATISK_MARKERING_AV_UTENLANDSSAK;
-        oppgaveTjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), oppgaveÅrsak,
-            behandling.getBehandlendeEnhet(), aksjonspunktDef.getNavn(), false);
     }
 
     private Optional<Behandling> finnÅpenBehandlingPåMedforelder(Fagsak fagsak) {

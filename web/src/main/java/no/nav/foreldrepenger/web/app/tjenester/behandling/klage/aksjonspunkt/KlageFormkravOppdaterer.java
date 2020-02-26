@@ -275,7 +275,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         if ((harLagretPåklagdBehandling || harLagretPåklagdEksternBehandling) && nyPåklagdBehandling == null) {
             return true;
         }
-        if (!harLagretPåklagdBehandling && !harLagretPåklagdEksternBehandling && nyPåklagdBehandling != null) {
+        if (!harLagretPåklagdBehandling && !harLagretPåklagdEksternBehandling) {
             return true;
         }
         if (harLagretPåklagdBehandling && formkravDto.erTilbakekreving()) {
@@ -285,7 +285,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
             return true;
         }
         if (harLagretPåklagdBehandling && !formkravDto.erTilbakekreving()) {
-            return !klageResultat.getPåKlagdBehandling().get().equals(nyPåklagdBehandling);  //NOSONAR
+            return !klageResultat.getPåKlagdBehandling().get().getId().equals(nyPåklagdBehandling);  //NOSONAR
         }
         if (harLagretPåklagdEksternBehandling && formkravDto.erTilbakekreving()) {
             return !klageResultat.getPåKlagdEksternBehandling().get().equals(formkravDto.hentpåKlagdEksternBehandlingUuId()); //NOSONAR

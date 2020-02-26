@@ -100,7 +100,7 @@ public class ForeslåVedtakTjenesteTest {
         kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
 
         when(oppgaveTjeneste.hentOppgaveListe(any(AktørId.class), any())).thenReturn(oppgaveinfoerSomReturneres);
-        when(dokumentBehandlingTjeneste.erDokumentProdusert(anyLong(), any())).thenReturn(true);
+        when(dokumentBehandlingTjeneste.erDokumentBestilt(anyLong(), any())).thenReturn(true);
 
         SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(historikkRepository, oppgaveTjeneste);
         tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, ankeRepository, klageRepository, behandlingskontrollTjeneste, sjekkMotEksisterendeOppgaverTjeneste);

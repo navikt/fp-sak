@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrs
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.BrevHistorikkinnslag;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -21,6 +22,7 @@ public class DokumentKafkaBestiller {
     private BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private BrevHistorikkinnslag brevHistorikkinnslag;
+    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
     public DokumentKafkaBestiller() {
         //CDI
@@ -29,10 +31,12 @@ public class DokumentKafkaBestiller {
     @Inject
     public DokumentKafkaBestiller(BehandlingRepository behandlingRepository,
                                   ProsessTaskRepository prosessTaskRepository,
-                                  BrevHistorikkinnslag brevHistorikkinnslag) {
+                                  BrevHistorikkinnslag brevHistorikkinnslag,
+                                  DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.brevHistorikkinnslag = brevHistorikkinnslag;
+        this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
 
     public void bestillBrevFraKafka(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
@@ -50,6 +54,7 @@ public class DokumentKafkaBestiller {
 
     public void bestillBrev(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {
         opprettKafkaTask(behandling, dokumentMalType, fritekst, årsak, aktør);
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, dokumentMalType);
         brevHistorikkinnslag.opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, dokumentMalType);
     }
 

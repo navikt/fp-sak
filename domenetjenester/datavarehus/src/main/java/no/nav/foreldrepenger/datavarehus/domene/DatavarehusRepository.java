@@ -70,7 +70,8 @@ public class DatavarehusRepository {
     public long oppdater(Long eksisterendeBehandlingId, Long eksisterendeVedtakId, String nyVedtakXml) {
         Optional<VedtakUtbetalingDvh> eksisterende = finn(eksisterendeBehandlingId, eksisterendeVedtakId);
         if (eksisterende.isPresent()) {
-            return oppdater(eksisterende.get(), nyVedtakXml);
+            return
+                oppdater(eksisterende.get(), nyVedtakXml);
         }
         throw new IllegalStateException(String.format("Finner ikke eksiterende dvh vedtak utbetaling for behandling %s og vedtak %s", eksisterendeBehandlingId, eksisterendeVedtakId));
     }

@@ -4,7 +4,6 @@ import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus.AVBRUTT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus.UTFØRT;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,13 +11,11 @@ import java.time.LocalDate;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -39,16 +36,6 @@ public class UtlandssakManuellOverstyringTest {
 
     @Inject
     private AksjonspunktApplikasjonTjeneste applikasjonstjeneste;
-
-
-    @Before
-    public void setup() {
-
-    }
-
-    private Behandling hentOppdatertBehandling(Long behandlingId) {
-        return behandlingRepository.hentBehandling(behandlingId);
-    }
 
     @Test
     public void spesial_tilfelle_utland_markering() throws Exception {
@@ -76,13 +63,8 @@ public class UtlandssakManuellOverstyringTest {
 
         // Assert
         behandling = behandlingRepository.hentBehandling(behandlingId);
-        assertThat(behandling.getAktivtBehandlingSteg()).isEqualTo(BehandlingStegType.VURDER_KOMPLETTHET);
-        assertThat(behandling.getBehandlingStegStatus()).isEqualTo(BehandlingStegStatus.UTGANG);
-        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(SJEKK_MANGLENDE_FØDSEL).orElse(null).getStatus()).isEqualTo(AVBRUTT);
-        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AUTOMATISK_MARKERING_AV_UTENLANDSSAK).orElse(null).getStatus()).isEqualTo(UTFØRT);
-        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET).orElse(null).getStatus()).isEqualTo(AVBRUTT);
+        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(SJEKK_MANGLENDE_FØDSEL).orElseThrow().getStatus()).isEqualTo(UTFØRT);
+        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AUTOMATISK_MARKERING_AV_UTENLANDSSAK).orElseThrow().getStatus()).isEqualTo(UTFØRT);
+        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET).orElseThrow().getStatus()).isEqualTo(UTFØRT);
     }
-
-
-
 }

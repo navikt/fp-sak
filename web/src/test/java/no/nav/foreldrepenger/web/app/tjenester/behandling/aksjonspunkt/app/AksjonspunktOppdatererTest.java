@@ -17,7 +17,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import no.finn.unleash.FakeUnleash;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -25,6 +24,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
@@ -34,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.dokumentbestiller.klient.FormidlingRestKlient;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
@@ -55,6 +55,11 @@ import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
 public class AksjonspunktOppdatererTest {
+
+    private static final String BEGRUNNELSE = "begrunnelse";
+    private static final String ANSVARLIG_SAKSBEHANLDER = "saksbehandler";
+    private static final String OVERSKRIFT = "overskrift";
+    private static final String FRITEKST = "fritekst";
 
     @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
@@ -83,6 +88,9 @@ public class AksjonspunktOppdatererTest {
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private OpprettToTrinnsgrunnlag opprettTotrinnsgrunnlag;
 
+    @Inject
+    private BehandlingDokumentRepository behandlingDokumentRepository;
+
     @Before
     public void setup() {
         totrinnRepository = new TotrinnRepository(entityManager);
@@ -106,34 +114,58 @@ public class AksjonspunktOppdatererTest {
     @Test
     public void bekreft_foreslå_vedtak_aksjonspkt_setter_ansvarlig_saksbehandler() {
         ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-        scenario.medSøknad()
-            .medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
-        scenario.medSøknadHendelse()
-            .medFødselsDato(now);
-
+        scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
+        scenario.medSøknadHendelse().medFødselsDato(now);
         Behandling behandling = scenario.lagre(repositoryProvider);
 
-        ForeslaVedtakAksjonspunktDto dto = new ForeslaVedtakAksjonspunktDto("begrunnelse", null, null, false) {
-        };
+        ForeslaVedtakAksjonspunktDto dto = new ForeslaVedtakAksjonspunktDto(BEGRUNNELSE, null, null, false);
         ForeslåVedtakAksjonspunktOppdaterer foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
             repositoryProvider, mock(HistorikkTjenesteAdapter.class),
             opprettTotrinnsgrunnlag,
             vedtakTjeneste,
-            mock(FormidlingRestKlient.class),
-            new FakeUnleash()) {
+            behandlingDokumentRepository) {
             @Override
             protected String getCurrentUserId() {
                 // return test verdi
-                return "hello";
+                return ANSVARLIG_SAKSBEHANLDER;
             }
         };
+
+        // Act
         foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
-        assertThat(behandling.getAnsvarligSaksbehandler()).isEqualTo("hello");
+
+        // Assert
+        assertThat(behandling.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANLDER);
+    }
+
+    @Test
+    public void bekreft_foreslå_vedtak_aksjonspunkt_lagrer_begrunnelse_og_overstyrende_fritekst_i_behandling_dokument() {
+        // Arrange
+        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
+        scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
+        scenario.medSøknadHendelse().medFødselsDato(now);
+        Behandling behandling = scenario.lagre(repositoryProvider);
+
+        ForeslaVedtakAksjonspunktDto dto = new ForeslaVedtakAksjonspunktDto(BEGRUNNELSE, OVERSKRIFT, FRITEKST, true);
+        ForeslåVedtakAksjonspunktOppdaterer foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
+            repositoryProvider, mock(HistorikkTjenesteAdapter.class),
+            opprettTotrinnsgrunnlag,
+            vedtakTjeneste,
+            behandlingDokumentRepository);
+
+        // Act
+        foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
+
+        // Assert
+        Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+        assertThat(behandlingDokument.isPresent()).isTrue();
+        assertThat(behandlingDokument.get().getVedtakFritekst()).isEqualTo(BEGRUNNELSE);
+        assertThat(behandlingDokument.get().getOverstyrtBrevOverskrift()).isEqualTo(OVERSKRIFT);
+        assertThat(behandlingDokument.get().getOverstyrtBrevFritekst()).isEqualTo(FRITEKST);
     }
 
     @Test
     public void oppdaterer_aksjonspunkt_med_beslutters_vurdering_ved_totrinnskontroll() {
-
         ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
             .medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);

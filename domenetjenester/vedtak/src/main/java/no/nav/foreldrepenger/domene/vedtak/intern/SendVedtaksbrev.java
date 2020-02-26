@@ -158,6 +158,6 @@ public class SendVedtaksbrev {
     }
 
     private Boolean harSendtVarselOmRevurdering(Long behandlingId) {
-        return dokumentBehandlingTjeneste.erDokumentProdusert(behandlingId, DokumentMalType.REVURDERING_DOK);
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, DokumentMalType.REVURDERING_DOK);
     }
 }

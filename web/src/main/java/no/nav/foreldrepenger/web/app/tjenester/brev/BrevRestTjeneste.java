@@ -107,6 +107,7 @@ public class BrevRestTjeneste {
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK, sporingslogg = false)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public List<BrevmalDto> hentMaler(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        LOGGER.info("Utvikler-feil: Gammel tjeneste for henting av brevmaler via Fpsak ble kalt. Skal ikke skje etter TFP-1404 på fpsak-frontend - gi beskjed til Jan Erik!");
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return dokumentBehandlingTjeneste.hentBrevmalerFor(behandling.getId());
     }
@@ -119,7 +120,7 @@ public class BrevRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Boolean harProdusertDokument(@Valid DokumentProdusertDto dto) {
         Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
-        return dokumentBehandlingTjeneste.erDokumentProdusert(behandling.getId(), DokumentMalType.fraKode(dto.getDokumentMal())); // NOSONAR
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.fraKode(dto.getDokumentMal())); // NOSONAR
     }
 
     @GET
@@ -130,6 +131,6 @@ public class BrevRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Boolean harSendtVarselOmRevurdering(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return dokumentBehandlingTjeneste.erDokumentProdusert(behandling.getId(), DokumentMalType.REVURDERING_DOK); // NOSONAR
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.REVURDERING_DOK); // NOSONAR
     }
 }

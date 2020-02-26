@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
+import static no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval.TIDENES_ENDE;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,6 +12,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -115,13 +118,20 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
 
     private static Predicate<BeregningsresultatAndel> korrespondererTilAvsluttetArbeidsforhold(LocalDate startdatoArbeid, LocalDate skjæringstidspunkt, Collection<Yrkesaktivitet> yrkesaktiviteter) {
         return beregningsresultatAndel ->
-            yrkesaktiviteter.stream()
-            .filter(matchMedAndel(beregningsresultatAndel.getArbeidsgiver().get(), beregningsresultatAndel.getArbeidsforholdRef()))
-            .allMatch(harAnsettelsesperiodeSomSlutterMellomDatoer(skjæringstidspunkt, startdatoArbeid));
+        {
+            List<Yrkesaktivitet> matchendeAktiviteter = yrkesaktiviteter.stream()
+                .filter(matchMedAndel(beregningsresultatAndel.getArbeidsgiver().get(), beregningsresultatAndel.getArbeidsforholdRef()))
+                .collect(Collectors.toList());
+            boolean harPeriodeSomSlutterFørStartdato = matchendeAktiviteter.stream()
+                .anyMatch(harAnsettelsesperiodeSomSlutterMellomDatoer(skjæringstidspunkt, startdatoArbeid));
+            boolean harIkkePeriodeSomSlutterEtterStartdato = matchendeAktiviteter.stream()
+                .noneMatch(harAnsettelsesperiodeSomSlutterMellomDatoer(startdatoArbeid, TIDENES_ENDE));
+            return harPeriodeSomSlutterFørStartdato && harIkkePeriodeSomSlutterEtterStartdato;
+        };
     }
 
-    private static Predicate<Yrkesaktivitet> harAnsettelsesperiodeSomSlutterMellomDatoer(LocalDate skjæringstidspunkt, LocalDate startdatoArbeid) {
-        return ya -> ya.getAlleAktivitetsAvtaler().stream().filter(AktivitetsAvtale::erAnsettelsesPeriode).anyMatch(periodeLiggerMellomDatoer(skjæringstidspunkt, startdatoArbeid));
+    private static Predicate<Yrkesaktivitet> harAnsettelsesperiodeSomSlutterMellomDatoer(LocalDate dato1, LocalDate dato2) {
+        return ya -> ya.getAlleAktivitetsAvtaler().stream().filter(AktivitetsAvtale::erAnsettelsesPeriode).anyMatch(periodeLiggerMellomDatoer(dato1, dato2));
     }
 
     private static Predicate<AktivitetsAvtale> periodeLiggerMellomDatoer(LocalDate skjæringstidspunkt, LocalDate startdatoArbeid) {

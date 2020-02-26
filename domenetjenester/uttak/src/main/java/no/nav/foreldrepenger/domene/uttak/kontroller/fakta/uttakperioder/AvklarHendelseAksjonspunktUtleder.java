@@ -33,14 +33,6 @@ public class AvklarHendelseAksjonspunktUtleder implements FaktaUttakAksjonspunkt
             resultat.add(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST);
         }
 
-        if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_TILSTØTENDE_YTELSE_INNVILGET)) {
-            resultat.add(AksjonspunktDefinisjon.KONTROLLER_TILSTØTENDE_YTELSER_INNVILGET);
-        }
-
-        if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_TILSTØTENDE_YTELSE_OPPHØRT)) {
-            resultat.add(AksjonspunktDefinisjon.KONTROLLER_TILSTØTENDE_YTELSER_OPPHØRT);
-        }
-
         return resultat;
     }
 

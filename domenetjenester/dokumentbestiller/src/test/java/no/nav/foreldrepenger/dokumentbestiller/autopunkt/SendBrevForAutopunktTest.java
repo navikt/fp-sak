@@ -65,7 +65,7 @@ public class SendBrevForAutopunktTest {
             dokumentBehandlingTjeneste,
             repositoryProvider);
 
-        doReturn(false).when(dokumentBehandlingTjeneste).erDokumentProdusert(Mockito.eq(behandling.getId()), Mockito.any());
+        doReturn(false).when(dokumentBehandlingTjeneste).erDokumentBestilt(Mockito.eq(behandling.getId()), Mockito.any());
         doNothing().when(dokumentBestillerApplikasjonTjeneste).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN), Mockito.anyBoolean());
     }
 
@@ -84,7 +84,7 @@ public class SendBrevForAutopunktTest {
         new BehandlingÅrsak.Builder(List.of(oppholdÅrsak)).buildFor(behandling);
         Aksjonspunkt autopunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD).get();
         aksjonspunktRepository.setFrist(autopunkt, FPDateUtil.iDag().plusWeeks(3).atStartOfDay(), Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV);
-        doReturn(false).when(dokumentBehandlingTjeneste).erDokumentProdusert(Mockito.eq(behandling.getId()), Mockito.any());
+        doReturn(false).when(dokumentBehandlingTjeneste).erDokumentBestilt(Mockito.eq(behandling.getId()), Mockito.any());
         doNothing().when(dokumentBestillerApplikasjonTjeneste).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN), Mockito.anyBoolean());
 
         sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling, autopunkt);
@@ -99,7 +99,7 @@ public class SendBrevForAutopunktTest {
         new BehandlingÅrsak.Builder(List.of(oppholdÅrsak)).buildFor(behandling);
         Aksjonspunkt autopunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD).get();
         aksjonspunktRepository.setFrist(autopunkt, FPDateUtil.iDag().plusWeeks(3).atStartOfDay(), Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV);
-        doReturn(false).when(dokumentBehandlingTjeneste).erDokumentProdusert(Mockito.eq(behandling.getId()), Mockito.any());
+        doReturn(false).when(dokumentBehandlingTjeneste).erDokumentBestilt(Mockito.eq(behandling.getId()), Mockito.any());
         doNothing().when(dokumentBestillerApplikasjonTjeneste).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN), Mockito.anyBoolean());
 
         sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling, autopunkt);
@@ -113,7 +113,7 @@ public class SendBrevForAutopunktTest {
         Behandling behandling = scenarioMorSøkerForeldrepenger.lagMocked();
         Aksjonspunkt autopunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD).get();
         aksjonspunktRepository.setFrist(autopunkt, FPDateUtil.iDag().plusWeeks(3).atStartOfDay(), Venteårsak.AVV_DOK);
-        doReturn(true).when(dokumentBehandlingTjeneste).erDokumentProdusert(behandling.getId(), DokumentMalType.INNTEKTSMELDING_FOR_TIDLIG_DOK);
+        doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.INNTEKTSMELDING_FOR_TIDLIG_DOK);
         doNothing().when(dokumentBestillerApplikasjonTjeneste).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN), Mockito.anyBoolean());
         sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling, autopunkt);
         Mockito.verify(dokumentBestillerApplikasjonTjeneste, times(0)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN), Mockito.anyBoolean());
@@ -128,7 +128,7 @@ public class SendBrevForAutopunktTest {
 
     @Test
     public void sendBrevForTidligSøknadBareEnGang() {
-        doReturn(true).when(dokumentBehandlingTjeneste).erDokumentProdusert(behandling.getId(), DokumentMalType.FORLENGET_TIDLIG_SOK);
+        doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.FORLENGET_TIDLIG_SOK);
         sendBrevForAutopunkt.sendBrevForTidligSøknad(behandling, aksjonspunkt);
         Mockito.verify(dokumentBestillerApplikasjonTjeneste, times(0)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN), Mockito.anyBoolean());
     }
@@ -143,7 +143,7 @@ public class SendBrevForAutopunktTest {
 
     @Test
     public void sendBrevForVenterFødselBareEnGang() {
-        doReturn(true).when(dokumentBehandlingTjeneste).erDokumentProdusert(behandling.getId(), DokumentMalType.FORLENGET_MEDL_DOK);
+        doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.FORLENGET_MEDL_DOK);
         Aksjonspunkt spyAp = Mockito.spy(aksjonspunkt);
         sendBrevForAutopunkt.sendBrevForVenterPåFødsel(behandling, spyAp);
         Mockito.verify(dokumentBestillerApplikasjonTjeneste, times(0)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN), Mockito.anyBoolean());
