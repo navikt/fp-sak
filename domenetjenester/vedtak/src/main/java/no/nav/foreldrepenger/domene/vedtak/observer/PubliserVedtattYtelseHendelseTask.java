@@ -14,7 +14,7 @@ import javax.validation.ValidatorFactory;
 
 import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.familie.topic.TopicManifest;
-import no.nav.folketrygdloven.kalkulator.JacksonJsonConfig;
+import no.nav.folketrygdloven.kalkulator.JsonMapper;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -85,7 +85,7 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
                 .collect(Collectors.toList());
             throw new IllegalArgumentException("Vedtatt-ytelse valideringsfeil \n " + allErrors);
         }
-        return JacksonJsonConfig.toJson(ytelse, PubliserVedtattYtelseHendelseFeil.FEILFACTORY::kanIkkeSerialisere);
+        return JsonMapper.toJson(ytelse, PubliserVedtattYtelseHendelseFeil.FEILFACTORY::kanIkkeSerialisere);
     }
 
 
