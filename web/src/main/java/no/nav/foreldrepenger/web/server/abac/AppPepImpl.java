@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.web.server.abac;
+
 import javax.annotation.Priority;
 import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.interceptor.Interceptor;
 
-import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.AbacSporingslogg;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
@@ -31,6 +31,6 @@ public class AppPepImpl extends no.nav.vedtak.sikkerhet.abac.PepImpl {
     /** Ta hensyn til at flere aksjonspunker kan vurderes per request. */
     @Override
     protected int getAntallResources(PdpRequest pdpRequest) {
-        return pdpRequest.getAntall(ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
+        return pdpRequest.getAntall(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
     }
 }
