@@ -38,7 +38,8 @@ public abstract class BeregningsgrunnlagInputFelles {
                                          InntektArbeidYtelseTjeneste iayTjeneste,
                                          SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                          AndelGraderingTjeneste andelGraderingTjeneste,
-                                         OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste, InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+                                         OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
+                                         InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.behandlingRepository = Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
@@ -51,52 +52,53 @@ public abstract class BeregningsgrunnlagInputFelles {
         // for CDI proxy
     }
 
+    public abstract YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref);
+
+    /** Returnerer input hvis data er på tilgjengelig for det, ellers Exception. */
+    public BeregningsgrunnlagInput lagInput(Long behandlingId) {
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        return lagInput(behandling, iayGrunnlag);
+    }
+
     public BeregningsgrunnlagInput lagInput(Behandling behandling) {
         var behandlingId = behandling.getId();
         var iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
 
-        return lagInput(ref, iayGrunnlag).orElseThrow();
+        return lagInput(ref, iayGrunnlag);
     }
 
     public BeregningsgrunnlagInput lagInput(BehandlingReferanse referanse) {
         var iayGrunnlag = iayTjeneste.hentGrunnlag(referanse.getBehandlingId());
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(referanse.getBehandlingId());
-        return lagInput(referanse.medSkjæringstidspunkt(skjæringstidspunkt), iayGrunnlag).orElseThrow();
+        return lagInput(referanse.medSkjæringstidspunkt(skjæringstidspunkt), iayGrunnlag);
     }
 
-    private Optional<BeregningsgrunnlagInput> lagInput(Behandling behandling, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    private BeregningsgrunnlagInput lagInput(Behandling behandling, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         return lagInput(ref, iayGrunnlag);
     }
 
-    /** Returnerer input hvis data er på tilgjengelig for det, ellers Optional.empty(). */
-    private Optional<BeregningsgrunnlagInput> lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    /** Returnerer input hvis data er på tilgjengelig for det, ellers Exception. */
+    private BeregningsgrunnlagInput lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var aktivitetGradering = andelGraderingTjeneste.utled(ref);
         var opptjeningAktiviteter = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iayGrunnlag);
         if (opptjeningAktiviteter.isEmpty()) {
-            return Optional.empty();
+            throw new IllegalStateException("No value present: Fant ikke forventet OpptjeningAktiviteter for behandling.");
         }
         List<RefusjonskravDato> refusjonskravDatoer = inntektsmeldingTjeneste.hentAlleRefusjonskravDatoerForFagsak(ref.getSaksnummer());
 
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
-        return Optional.of(new BeregningsgrunnlagInput(
+
+        return new BeregningsgrunnlagInput(
             MapBehandlingRef.mapRef(ref),
             IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag),
             OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow()),
             aktivitetGradering,
             IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
-            ytelseGrunnlag));
+            ytelseGrunnlag);
     }
-
-    /** Returnerer input hvis data er på tilgjengelig for det, ellers Optional.empty(). */
-    public BeregningsgrunnlagInput lagInput(Long behandlingId) {
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        return lagInput(behandling, iayGrunnlag).orElseThrow();
-    }
-
-    public abstract YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref);
 }
