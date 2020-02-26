@@ -126,12 +126,6 @@
 			<artifactId>vedtak</artifactId>
 		</dependency>
 
-		<!-- Sikkerhet - ABAC -->
-		<dependency>
-			<groupId>no.nav.abac.policies</groupId>
-			<artifactId>abac-foreldrepenger-policies-alfa</artifactId>
-		</dependency>
-
 		<!-- REST + WebService -->
 		<dependency>
 			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
@@ -346,13 +340,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-
-			<dependency>
-			    <!-- ABAC policy attributter for Foreldrepenger -->
-				<groupId>no.nav.abac.policies</groupId>
-				<artifactId>abac-foreldrepenger-policies-alfa</artifactId>
-				<version>4.5.0</version>
-			</dependency>
 
 			<dependency>
 				<groupId>org.apache.geronimo.components</groupId>

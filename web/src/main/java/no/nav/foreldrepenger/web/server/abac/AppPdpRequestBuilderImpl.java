@@ -16,8 +16,6 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
-import no.nav.abac.common.xacml.CommonAttributter;
-import no.nav.abac.foreldrepenger.xacml.ForeldrepengerAttributter;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
@@ -36,6 +34,7 @@ import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumer;
 import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
+import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.abac.PdpRequestBuilder;
@@ -104,17 +103,17 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         Set<String> fnrs = attributter.getVerdier(AppAbacAttributtType.FNR);
 
         PdpRequest pdpRequest = new PdpRequest();
-        pdpRequest.put(CommonAttributter.RESOURCE_FELLES_DOMENE, ABAC_DOMAIN);
+        pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE, ABAC_DOMAIN);
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, attributter.getIdToken());
-        pdpRequest.put(CommonAttributter.XACML_1_0_ACTION_ACTION_ID, attributter.getActionType().getEksternKode());
-        pdpRequest.put(CommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource().getEksternKode());
+        pdpRequest.put(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID, attributter.getActionType().getEksternKode());
+        pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, attributter.getResource().getEksternKode());
         if (!aktører.isEmpty()) {
-            pdpRequest.put(CommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, aktører);
+            pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, aktører);
         }
         if (!fnrs.isEmpty()) {
-            pdpRequest.put(CommonAttributter.RESOURCE_FELLES_PERSON_FNR, fnrs);
+            pdpRequest.put(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR, fnrs);
         }
-        pdpRequest.put(ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, aksjonspunktType);
+        pdpRequest.put(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, aksjonspunktType);
         return pdpRequest;
     }
 
@@ -122,11 +121,11 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
                                      PipBehandlingsData behandlingData) {
         PdpRequest pdpRequest = lagPdpRequest(attributter, aktørIder, aksjonspunktType);
         AbacUtil.oversettBehandlingStatus(behandlingData.getBehandligStatus())
-            .ifPresent(it -> pdpRequest.put(ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_BEHANDLINGSSTATUS, it.getEksternKode()));
+            .ifPresent(it -> pdpRequest.put(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_BEHANDLINGSSTATUS, it.getEksternKode()));
         AbacUtil.oversettFagstatus(behandlingData.getFagsakStatus())
-            .ifPresent(it -> pdpRequest.put(ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_SAKSSTATUS, it.getEksternKode()));
+            .ifPresent(it -> pdpRequest.put(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_SAKSSTATUS, it.getEksternKode()));
         behandlingData.getAnsvarligSaksbehandler()
-            .ifPresent(it -> pdpRequest.put(ForeldrepengerAttributter.RESOURCE_FORELDREPENGER_SAK_ANSVARLIG_SAKSBEHANDLER, it));
+            .ifPresent(it -> pdpRequest.put(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_ANSVARLIG_SAKSBEHANDLER, it));
         return pdpRequest;
     }
 
@@ -134,7 +133,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         Set<UUID> uuids = attributter.getVerdier(AppAbacAttributtType.BEHANDLING_UUID);
         Set<Long> behandlingIdVerdier = attributter.getVerdier(AppAbacAttributtType.BEHANDLING_ID);
         Set<Long> behandlingId0 = behandlingIdVerdier.stream().mapToLong(Long::valueOf).boxed().collect(Collectors.toSet());
-        
+
         Set<Long> behandlingsIder = new LinkedHashSet<>(behandlingId0);
         behandlingsIder.addAll(pipRepository.behandlingsIdForUuid(uuids));
         behandlingsIder.addAll(pipRepository.behandlingsIdForOppgaveId(attributter.getVerdier(AppAbacAttributtType.OPPGAVE_ID)));
@@ -156,10 +155,10 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     private Set<Long> utledFagsakIder(AbacAttributtSamling attributter) {
         Set<Long> fagsakIder = new HashSet<>();
         fagsakIder.addAll(attributter.getVerdier(AppAbacAttributtType.FAGSAK_ID));
-        
-        // 
+
+        //
         fagsakIder.addAll(pipRepository.fagsakIderForSøker(tilAktørId(attributter.getVerdier(AppAbacAttributtType.SAKER_MED_FNR))));
-        
+
         // fra saksnummer
         Set<String> saksnummere = attributter.getVerdier(AppAbacAttributtType.SAKSNUMMER);
         fagsakIder.addAll(pipRepository.fagsakIdForSaksnummer(saksnummere));
@@ -172,7 +171,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         Set<String> påkrevdJournalpostIdVerdier = attributter.getVerdier(AppAbacAttributtType.EKSISTERENDE_JOURNALPOST_ID);
         Set<JournalpostId> påkrevdJournalpostId = påkrevdJournalpostIdVerdier.stream().map(JournalpostId::new).collect(Collectors.toSet());
         fagsakIder.addAll(hentOgSjekkAtFinnes(saksnummere, påkrevdJournalpostId));
-        
+
         return fagsakIder;
     }
 
