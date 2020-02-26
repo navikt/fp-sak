@@ -10,7 +10,6 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,24 +19,23 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-public class InfotrygdFPGrunnlag  {
+public class InfotrygdPSGrunnlag {
+    private static final String DEFAULT_URI = "http://infotrygd-grunnlag-paaroerende-sykdom.default/paaroerendeSykdom/grunnlag";
 
-    private static final String DEFAULT_URI = "http://infotrygd-foreldrepenger.default/grunnlag";
-
-    private static final Logger LOG = LoggerFactory.getLogger(InfotrygdFPGrunnlag.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InfotrygdPSGrunnlag.class);
 
     private OidcRestClient restClient;
     private URI uri;
     private String uriString;
 
     @Inject
-    public InfotrygdFPGrunnlag(OidcRestClient restClient, @KonfigVerdi(value = "fpsak.it.fp.grunnlag.url", defaultVerdi = DEFAULT_URI) URI uri) {
+    public InfotrygdPSGrunnlag(OidcRestClient restClient, @KonfigVerdi(value = "fpsak.it.ps.grunnlag.url", defaultVerdi = DEFAULT_URI) URI uri) {
         this.restClient = restClient;
         this.uri = uri;
         this.uriString = uri.toString();
     }
 
-    public InfotrygdFPGrunnlag() {
+    public InfotrygdPSGrunnlag() {
         // CDI
     }
 
@@ -48,13 +46,12 @@ public class InfotrygdFPGrunnlag  {
                 .addParameter("fnr", fnr)
                 .addParameter("fom", konverter(fom))
                 .addParameter("tom", konverter(tom)).build();
-            LOG.trace("Slår opp grunnlag FP fra {}", request);
+            LOG.trace("Slår opp grunnlag PS fra {}", request);
             var grunnlag = restClient.get(request, Grunnlag[].class);
             LOG.info("fpsak infotrygd REST {} fikk grunnlag {}", uriString, Arrays.toString(grunnlag));
             return Arrays.asList(grunnlag);
         } catch (Exception e) {
-            LOG.info("FPSAK Infotrygd Grunnlag - Feil ved oppslag mot {}, returnerer ingen grunnlag", uriString, e);
-            //throw InfotrygdRestFeil.FACTORY.feilfratjeneste(uriString).toException();
+            LOG.info("FPSAK Infotrygd PS Grunnlag - Feil ved oppslag mot {}, returnerer ingen grunnlag", uriString, e);
             return Collections.emptyList();
         }
     }
