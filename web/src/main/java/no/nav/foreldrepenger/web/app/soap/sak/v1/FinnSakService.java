@@ -23,14 +23,15 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.binding.FinnSakListeSikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.binding.ForeldrepengesakV1;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Aktoer;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Behandlingstema;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Sak;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Saksstatus;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.meldinger.FinnSakListeRequest;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.meldinger.FinnSakListeResponse;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.FinnSakListeResponse;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.FinnSakListeResponse2;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.FinnSakListeSikkerhetsbegrensning;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.ForeldrepengesakV1;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.Aktoer;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.Behandlingstema;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.Sak;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.Saksstatus;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.FinnSakListeRequest;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -48,7 +49,7 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
     wsdlLocation = "wsdl/no/nav/tjeneste/virksomhet/foreldrepengesak/v1/foreldrepengesak.wsdl",
     serviceName = "foreldrepengesak_v1",
     portName = "foreldrepengesak_v1Port",
-    endpointInterface = "no.nav.tjeneste.virksomhet.foreldrepengesak.v1.binding.ForeldrepengesakV1"
+    endpointInterface = "no.nav.tjeneste.virksomhet.foreldrepengesak.v1.ForeldrepengesakV1"
 )
 @SoapWebService(endpoint = "/sak/finnSak/v1", tjenesteBeskrivelseURL = "https://confluence.adeo.no/pages/viewpage.action?pageId=220528950")
 public class FinnSakService implements ForeldrepengesakV1 {
@@ -77,7 +78,7 @@ public class FinnSakService implements ForeldrepengesakV1 {
 
     @Override
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, ressurs = BeskyttetRessursResourceAttributt.SAKLISTE)
-    public FinnSakListeResponse finnSakListe(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FinnSakListeRequest request)
+    public FinnSakListeResponse2 finnSakListe(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FinnSakListeRequest request)
         throws FinnSakListeSikkerhetsbegrensning {
 
         Aktoer sakspart = request.getSakspart();
@@ -89,8 +90,8 @@ public class FinnSakService implements ForeldrepengesakV1 {
     }
 
     // pkg scope for enhetstest
-    FinnSakListeResponse lagResponse(List<Fagsak> fagsaker) {
-        FinnSakListeResponse response = new FinnSakListeResponse();
+    FinnSakListeResponse2 lagResponse(List<Fagsak> fagsaker) {
+        FinnSakListeResponse2 response = new FinnSakListeResponse2();
         List<Sak> saksliste = response.getSakListe();
         for (Fagsak fagsak : fagsaker) {
             saksliste.add(lagEksternRepresentasjon(fagsak));

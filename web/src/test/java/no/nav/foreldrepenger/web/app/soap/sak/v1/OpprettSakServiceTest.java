@@ -43,11 +43,11 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakFeil;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.OpprettSakUgyldigInput;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.informasjon.Aktoer;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.informasjon.Behandlingstema;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.meldinger.OpprettSakRequest;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.meldinger.OpprettSakResponse;
+import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.OpprettSakUgyldigInput;
+import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.Aktoer;
+import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.Behandlingstema;
+import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.OpprettSakRequest;
+import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.OpprettSakResponse2;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.testutilities.Whitebox;
@@ -138,7 +138,7 @@ public class OpprettSakServiceTest {
         when(journalTjeneste.hentInngåendeJournalpostHoveddokument(any())).thenReturn(ArkivJournalPost.Builder.ny().medJournalpostId(JOURNALPOST_ID)
             .medHoveddokument(ArkivDokument.Builder.ny().medDokumentKategori(DokumentKategori.UDEFINERT).medDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build()).build());
 
-        OpprettSakResponse response = service.opprettSak(request);
+        OpprettSakResponse2 response = service.opprettSak(request);
         assertThat(response.getSakId()).as("Forventer at saksnummer blir returnert ut fra tjenesten.").isEqualTo(expectedSakId.getVerdi());
     }
 
@@ -159,7 +159,7 @@ public class OpprettSakServiceTest {
         mockOppdaterFagsakMedGsakId(fagsak, expectedSakId);
 
         // Act
-        OpprettSakResponse response = service.opprettSak(request);
+        OpprettSakResponse2 response = service.opprettSak(request);
 
         ArgumentCaptor<FagsakYtelseType> captor = ArgumentCaptor.forClass(FagsakYtelseType.class);
         verify(opprettSakTjeneste, times(1)).opprettSakVL(any(Personinfo.class), captor.capture(), any(JournalpostId.class));
@@ -184,7 +184,7 @@ public class OpprettSakServiceTest {
             .medHoveddokument(ArkivDokument.Builder.ny().medDokumentKategori(DokumentKategori.UDEFINERT).medDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT).build()).build());
 
         @SuppressWarnings("unused")
-        OpprettSakResponse response = service.opprettSak(request);
+        OpprettSakResponse2 response = service.opprettSak(request);
     }
 
     @Test(expected = FunksjonellException.class)
@@ -202,7 +202,7 @@ public class OpprettSakServiceTest {
             .medHoveddokument(ArkivDokument.Builder.ny().medDokumentKategori(DokumentKategori.UDEFINERT).medDokumentTypeId(DokumentTypeId.FLEKSIBELT_UTTAK_FORELDREPENGER).build()).build());
 
         @SuppressWarnings("unused")
-        OpprettSakResponse response = service.opprettSak(request);
+        OpprettSakResponse2 response = service.opprettSak(request);
     }
 
     @Test(expected = FunksjonellException.class)
@@ -223,13 +223,13 @@ public class OpprettSakServiceTest {
         when(journalTjeneste.hentInngåendeJournalpostHoveddokument(any())).thenReturn(ArkivJournalPost.Builder.ny().medJournalpostId(JOURNALPOST_ID)
             .medHoveddokument(ArkivDokument.Builder.ny().medDokumentKategori(DokumentKategori.UDEFINERT).medDokumentTypeId(DokumentTypeId.INNTEKTSMELDING).build()).build());
 
-        OpprettSakResponse response = service.opprettSak(request);
+        OpprettSakResponse2 response = service.opprettSak(request);
         assertThat(response.getSakId()).as("Forventer at saksnummer blir returnert ut fra tjenesten.").isEqualTo(expectedSakId.getVerdi());
 
         when(fagsak.getStatus()).thenReturn(FagsakStatus.LØPENDE);
 
         @SuppressWarnings("unused")
-        OpprettSakResponse response2 = service.opprettSak(request);
+        OpprettSakResponse2 response2 = service.opprettSak(request);
     }
 
 
@@ -248,7 +248,7 @@ public class OpprettSakServiceTest {
         when(journalTjeneste.hentInngåendeJournalpostHoveddokument(any())).thenReturn(ArkivJournalPost.Builder.ny().medJournalpostId(JOURNALPOST_ID)
             .medHoveddokument(ArkivDokument.Builder.ny().medDokumentKategori(DokumentKategori.UDEFINERT).medDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON).build()).build());
 
-        OpprettSakResponse response = service.opprettSak(request);
+        OpprettSakResponse2 response = service.opprettSak(request);
         assertThat(response.getSakId()).as("Forventer at saksnummer blir returnert ut fra tjenesten.").isEqualTo(expectedSakId.getVerdi());
     }
 
@@ -267,7 +267,7 @@ public class OpprettSakServiceTest {
             .medHoveddokument(ArkivDokument.Builder.ny().medDokumentKategori(DokumentKategori.KLAGE_ELLER_ANKE).medDokumentTypeId(DokumentTypeId.UDEFINERT).build()).build());
 
         @SuppressWarnings("unused")
-        OpprettSakResponse response = service.opprettSak(request);
+        OpprettSakResponse2 response = service.opprettSak(request);
     }
 
     @Test
@@ -286,7 +286,7 @@ public class OpprettSakServiceTest {
             .medHoveddokument(ArkivDokument.Builder.ny().medDokumentKategori(DokumentKategori.SØKNAD).medDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).build()).build());
 
 
-        OpprettSakResponse response = service.opprettSak(request);
+        OpprettSakResponse2 response = service.opprettSak(request);
         assertThat(response.getSakId()).as("Forventer at saksnummer blir returnert ut fra tjenesten.").isEqualTo(expectedSakId.getVerdi());
     }
 
@@ -308,7 +308,7 @@ public class OpprettSakServiceTest {
         mockOppdaterFagsakMedGsakId(fagsak, expectedSakId);
 
         // Act
-        OpprettSakResponse response = service.opprettSak(request);
+        OpprettSakResponse2 response = service.opprettSak(request);
 
         ArgumentCaptor<FagsakYtelseType> captor = ArgumentCaptor.forClass(FagsakYtelseType.class);
         verify(opprettSakTjeneste, times(1)).opprettSakVL(any(Personinfo.class), captor.capture(), any(JournalpostId.class));

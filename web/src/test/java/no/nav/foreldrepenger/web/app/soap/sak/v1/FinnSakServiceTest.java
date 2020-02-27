@@ -21,8 +21,9 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Sak;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.meldinger.FinnSakListeResponse;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.FinnSakListeResponse;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.Sak;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.FinnSakListeResponse2;
 
 public class FinnSakServiceTest {
 
@@ -48,7 +49,7 @@ public class FinnSakServiceTest {
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         final Behandling behandling = scenario.lagre(repositoryProvider);
 
-        FinnSakListeResponse respons = finnSakService.lagResponse(Collections.singletonList(behandling.getFagsak()));
+        FinnSakListeResponse2 respons = finnSakService.lagResponse(Collections.singletonList(behandling.getFagsak()));
 
         assertThat(respons.getSakListe()).hasSize(1);
         Sak sak = respons.getSakListe().get(0);
@@ -64,7 +65,7 @@ public class FinnSakServiceTest {
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
         final Behandling behandling = scenario.lagre(repositoryProvider);
 
-        FinnSakListeResponse respons = finnSakService.lagResponse(Collections.singletonList(behandling.getFagsak()));
+        FinnSakListeResponse2 respons = finnSakService.lagResponse(Collections.singletonList(behandling.getFagsak()));
 
         assertThat(respons.getSakListe()).hasSize(1);
         Sak sak = respons.getSakListe().get(0);
@@ -82,7 +83,7 @@ public class FinnSakServiceTest {
 
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, null, new Saksnummer("1338"));
         fagsak.setId(1L);
-        FinnSakListeResponse respons = finnSakService.lagResponse(Collections.singletonList(fagsak));
+        FinnSakListeResponse2 respons = finnSakService.lagResponse(Collections.singletonList(fagsak));
 
         assertThat(respons.getSakListe()).hasSize(1);
         Sak sak = respons.getSakListe().get(0);
@@ -100,7 +101,7 @@ public class FinnSakServiceTest {
 
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, navBruker, null, new Saksnummer("1339"));
         fagsak.setId(1L);
-        FinnSakListeResponse respons = finnSakService.lagResponse(Collections.singletonList(fagsak));
+        FinnSakListeResponse2 respons = finnSakService.lagResponse(Collections.singletonList(fagsak));
 
         assertThat(respons.getSakListe()).hasSize(1);
         Sak sak = respons.getSakListe().get(0);

@@ -4,8 +4,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.annotation.WebServlet;
 
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.BehandleForeldrepengesakV1;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.binding.ForeldrepengesakV1;
+import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.BehandleForeldrepengesakV1;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.ForeldrepengesakV1;
 import no.nav.vedtak.felles.integrasjon.felles.ws.AbstractSoapServlet;
 
 @ApplicationScoped
