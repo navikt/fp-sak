@@ -35,7 +35,7 @@ public class OpprettOppgaveVurderKonsekvensTask extends FagsakProsessTask {
     public static final String PRIORITET_HØY = "høy";
     public static final String PRIORITET_NORM = "normal";
     public static final String STANDARD_BESKRIVELSE = "Må behandle sak i VL!";
-    public static final String KEY_GJELDENDE_AKTØR_ID = "aktuellAktørId"; //Settes kun ved opphør av ytelse i Infotrygd ellers null
+    public static final String KEY_GJELDENDE_AKTØR_ID = "aktuellAktoerId"; //Settes kun ved opphør av ytelse i Infotrygd ellers null
     private static final Logger log = LoggerFactory.getLogger(OpprettOppgaveVurderKonsekvensTask.class);
 
     private OppgaveTjeneste oppgaveTjeneste;
