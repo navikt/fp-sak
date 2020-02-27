@@ -113,7 +113,7 @@ public class VurderOpphørAvYtelser  {
         aktørIdListSjekkInfotrygd.forEach(aktørId -> {
             Boolean overlappInfotrygd = sjekkOverlappInfortrygd.harForeldrepengerInfotrygdSomOverlapper(aktørId, startDatoIVB) ;
             if(overlappInfotrygd) {
-                log.info("Overlapp INFOTRYGD på aktør {} for vedtatt sak {}", aktørId, gjeldendeFagsak.getSaksnummer());
+                håndtereOpphørInfotrygd(behandlingId, gjeldendeFagsak, aktørId);
             }
         });
         //Sjekker om det finnes overlapp i fpsak
@@ -128,11 +128,21 @@ public class VurderOpphørAvYtelser  {
         });
     }
 
+    private void håndtereOpphørInfotrygd(Long behandlingId, Fagsak gjeldendeFagsak, AktørId aktørId) {
+        Behandling gjeldendeBehandling = behandlingRepository.hentBehandling(behandlingId);
+
+        opprettTaskForÅVurdereKonsekvens(gjeldendeFagsak.getId(), gjeldendeBehandling.getBehandlendeEnhet(),
+            "Nytt barn i VL: Vurder opphør av ytelse i Infotrygd", Optional.of(aktørId.getId()));
+
+        log.info("Overlapp INFOTRYGD på aktør {} for vedtatt sak {}", aktørId, gjeldendeFagsak.getSaksnummer());
+    }
+
     private void håndtereOpphør(Fagsak sakOpphør) {
         Optional<Behandling> sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(sakOpphør.getId());
         if (sisteBehandling.isPresent() && !sisteBehandling.get().harBehandlingÅrsak(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN)) {
 
-            opprettTaskForÅVurdereKonsekvens(sakOpphør.getId(), sisteBehandling.get().getBehandlendeEnhet());
+            opprettTaskForÅVurdereKonsekvens(sakOpphør.getId(), sisteBehandling.get().getBehandlendeEnhet(),
+                "Nytt barn: Vurder om ytelse skal opphøre", Optional.empty());
 
             if (sisteBehandling.get().erAvsluttet()) {
                 Behandling revurderingOpphør = opprettRevurdering(sakOpphør, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
@@ -210,10 +220,13 @@ public class VurderOpphørAvYtelser  {
         return revurdering;
     }
 
-    private void opprettTaskForÅVurdereKonsekvens(Long fagsakId, String behandlendeEnhetsId) {
+    private void opprettTaskForÅVurdereKonsekvens(Long fagsakId, String behandlendeEnhetsId, String oppgaveBeskrivelse, Optional<String> gjeldendeAktørId) {
         ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, behandlendeEnhetsId);
-        prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, "Nytt barn: Vurder om ytelse skal opphøre");
+        prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, oppgaveBeskrivelse);
+        gjeldendeAktørId.ifPresent(a-> {
+            prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_GJELDENDE_AKTØR_ID, gjeldendeAktørId.get());
+        });
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
         prosessTaskData.setFagsakId(fagsakId);
         prosessTaskData.setCallIdFraEksisterende();
