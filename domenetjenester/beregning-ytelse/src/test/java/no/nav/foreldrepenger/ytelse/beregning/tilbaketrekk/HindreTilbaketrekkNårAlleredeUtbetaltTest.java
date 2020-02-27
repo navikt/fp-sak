@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.util.FPDateUtil;
 
 public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
@@ -34,6 +35,8 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     private static final Arbeidsgiver ARBEIDSGIVER1 = Arbeidsgiver.virksomhet("900050001");
     private static final Arbeidsgiver ARBEIDSGIVER2 = Arbeidsgiver.virksomhet("900050002");
     private static final Arbeidsgiver ARBEIDSGIVER3 = Arbeidsgiver.virksomhet("900050003");
+    private static final InternArbeidsforholdRef MED_INTERNREFERANSE = InternArbeidsforholdRef.nyRef();
+    private static final InternArbeidsforholdRef UTEN_INTERNREFERANSE = InternArbeidsforholdRef.nullRef();
 
     private HindreTilbaketrekkNårAlleredeUtbetalt tjeneste;
 
@@ -54,14 +57,14 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         // Arrange
         settSimulertNåtidTil(LocalDate.of(2019, Month.FEBRUARY, 4));
         BeregningsresultatPeriode forrigeBrp = lagBeregningsresultatPeriode();
-        lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 1500);
-        lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 0);
+        lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 1500, UTEN_INTERNREFERANSE);
+        lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 0, UTEN_INTERNREFERANSE);
         BeregningsresultatEntitet forrigeTY = forrigeBrp.getBeregningsresultat();
 
         BeregningsresultatPeriode beregningsgrunnlagBrp = lagBeregningsresultatPeriode();
-        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, true, 0);
-        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, true, 0);
-        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, false, 1500);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, true, 0, UTEN_INTERNREFERANSE);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, false, 1500, UTEN_INTERNREFERANSE);
         BeregningsresultatEntitet beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
         Yrkesaktivitet yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
@@ -178,16 +181,16 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         // Arrange
         settSimulertNåtidTil(LocalDate.of(2019, Month.FEBRUARY, 4));
         BeregningsresultatPeriode forrigeBrp = lagBeregningsresultatPeriode();
-        lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 0);
-        lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 1500);
-        lagAndel(forrigeBrp, ARBEIDSGIVER2, true, 600);
+        lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
+        lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 1500, UTEN_INTERNREFERANSE);
+        lagAndel(forrigeBrp, ARBEIDSGIVER2, true, 600, UTEN_INTERNREFERANSE);
         BeregningsresultatEntitet forrigeTY = forrigeBrp.getBeregningsresultat();
 
         BeregningsresultatPeriode beregningsgrunnlagBrp = lagBeregningsresultatPeriode();
-        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, true, 0);
-        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, false, 1050);
-        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, true, 0);
-        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, false, 1050);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, false, 1050, UTEN_INTERNREFERANSE);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, true, 0, UTEN_INTERNREFERANSE);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, false, 1050, UTEN_INTERNREFERANSE);
         BeregningsresultatEntitet beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
         // Act
@@ -273,19 +276,19 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         // Arrange
         settSimulertNåtidTil(LocalDate.of(2019, Month.FEBRUARY, 4));
         BeregningsresultatPeriode forrigeBrp = lagBeregningsresultatPeriode();
-        lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 0);
-        lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 1500);
-        lagAndel(forrigeBrp, ARBEIDSGIVER2, true, 240);
-        lagAndel(forrigeBrp, ARBEIDSGIVER3, true, 360);
+        lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
+        lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 1500, UTEN_INTERNREFERANSE);
+        lagAndel(forrigeBrp, ARBEIDSGIVER2, true, 240, UTEN_INTERNREFERANSE);
+        lagAndel(forrigeBrp, ARBEIDSGIVER3, true, 360, UTEN_INTERNREFERANSE);
         BeregningsresultatEntitet forrigeTY = forrigeBrp.getBeregningsresultat();
 
         BeregningsresultatPeriode beregningsgrunnlagBrp = lagBeregningsresultatPeriode();
-        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, true, 0);
-        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, false, 600);
-        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, true, 0);
-        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, false, 600);
-        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER3, true, 0);
-        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER3, false, 900);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, false, 600, UTEN_INTERNREFERANSE);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, true, 0, UTEN_INTERNREFERANSE);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, false, 600, UTEN_INTERNREFERANSE);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER3, true, 0, UTEN_INTERNREFERANSE);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER3, false, 900, UTEN_INTERNREFERANSE);
         BeregningsresultatEntitet beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
         // Act
@@ -369,12 +372,71 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         });
     }
 
+    @Test
+    public void skalIkkeOmfordeleTilTilkommetArbeidsforholdISammeOrganisasjonNårEndring() {
+        // Arrange
+        settSimulertNåtidTil(SISTE_UTTAKSDAG.plusMonths(2));
+        BeregningsresultatPeriode forrigeBrp = lagBeregningsresultatPeriode();
+
+        lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 834, MED_INTERNREFERANSE);
+        lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 1, MED_INTERNREFERANSE);
+        BeregningsresultatEntitet forrigeTY = forrigeBrp.getBeregningsresultat();
+
+        BeregningsresultatPeriode beregningsgrunnlagBrp = lagBeregningsresultatPeriode();
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, false, 834, MED_INTERNREFERANSE);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, true, 0, MED_INTERNREFERANSE);
+        lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
+
+        BeregningsresultatEntitet beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
+
+        Yrkesaktivitet eksisterendeAktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.minusYears(2))))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsforholdId(MED_INTERNREFERANSE)
+            .medArbeidsgiver(ARBEIDSGIVER1).build();
+        Yrkesaktivitet tilkommetAktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT)))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsforholdId(UTEN_INTERNREFERANSE)
+            .medArbeidsgiver(ARBEIDSGIVER1).build();
+
+        // Act
+        BeregningsresultatEntitet utbetTY = tjeneste.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinje(
+            forrigeTY.getBeregningsresultatPerioder(),
+            beregningsgrunnlagTY.getBeregningsresultatPerioder()), List.of(eksisterendeAktivitet, tilkommetAktivitet), SKJÆRINGSTIDSPUNKT);
+
+        // Assert
+        List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
+        assertThat(beregningsresultatPerioder).hasSize(1);
+        var p0 = beregningsresultatPerioder.get(0);
+
+        List<BeregningsresultatAndel> p0andeler = p0.getBeregningsresultatAndelList();
+        assertThat(p0andeler).hasSize(3);
+        assertThat(p0andeler).anySatisfy(andel -> {
+            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
+            assertThat(andel.getArbeidsforholdRef()).isSameAs(MED_INTERNREFERANSE);
+            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(833);
+        });
+        assertThat(p0andeler).anySatisfy(andel -> {
+            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+            assertThat(andel.getArbeidsforholdRef()).isSameAs(MED_INTERNREFERANSE);
+            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(1);
+        });
+        assertThat(p0andeler).anySatisfy(andel -> {
+            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+            assertThat(andel.getArbeidsforholdRef()).isEqualTo(null);
+            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+        });
+    }
+
     private BeregningsresultatEntitet lagBeregningsresultatFP(boolean brukerErMottaker, int dagsats) {
         BeregningsresultatPeriode brp = lagBeregningsresultatPeriode();
         if (!brukerErMottaker) {
-            lagAndel(brp, ARBEIDSGIVER1, true, 0);
+            lagAndel(brp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
         }
-        lagAndel(brp, ARBEIDSGIVER1, brukerErMottaker, dagsats);
+        lagAndel(brp, ARBEIDSGIVER1, brukerErMottaker, dagsats, UTEN_INTERNREFERANSE);
         return brp.getBeregningsresultat();
     }
 
@@ -388,7 +450,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
             .build(br);
     }
 
-    private BeregningsresultatAndel lagAndel(BeregningsresultatPeriode brp, Arbeidsgiver arbeidsgiver, boolean brukerErMottaker, int dagsats) {
+    private BeregningsresultatAndel lagAndel(BeregningsresultatPeriode brp, Arbeidsgiver arbeidsgiver, boolean brukerErMottaker, int dagsats, InternArbeidsforholdRef internArbeidsforholdRef) {
         return BeregningsresultatAndel.builder()
             .medBrukerErMottaker(brukerErMottaker)
             .medArbeidsgiver(arbeidsgiver)
@@ -396,6 +458,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
             .medUtbetalingsgrad(new BigDecimal(100))
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medArbeidsforholdRef(internArbeidsforholdRef)
             .medDagsats(dagsats)
             .medDagsatsFraBg(dagsats)
             .build(brp);

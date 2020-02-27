@@ -54,7 +54,10 @@ class HindreTilbaketrekkBeregningsresultatPeriode {
                 .map(resultatAndel -> lagResultatBuilder(alleEndringer, resultatAndel))
                 .forEach(builder -> builder.build(beregningsresultatPeriode));
 
-            postcondition(bgDagsats, beregningsresultatPeriode);
+            if(utbetaltDagsatsAvvikerFraBeregningsgrunnlag(bgDagsats, beregningsresultatPeriode)){
+                LOGGER.info("Dagsats som er feil: {} Tilhørende periode: {} Forrige andeler: {} BgAndeler: {} ", bgDagsats, beregningsresultatPeriode, forrigeAndeler, bgAndeler);
+                throw new IllegalStateException("Utviklerfeil: utbetDagsats er ulik bgDagsats");
+            }
         }
         return beregningsresultatPeriode;
     }
@@ -77,15 +80,12 @@ class HindreTilbaketrekkBeregningsresultatPeriode {
         return alleEndringer.stream().filter(e -> e.gjelderResultatAndel(resultatAndel)).findFirst();
     }
 
-    private static void postcondition(int bgDagsats, BeregningsresultatPeriode beregningsresultatPeriode) {
+    private static boolean utbetaltDagsatsAvvikerFraBeregningsgrunnlag(int bgDagsats, BeregningsresultatPeriode beregningsresultatPeriode) {
         int utbetDagsats = beregningsresultatPeriode.getBeregningsresultatAndelList().stream()
             .mapToInt(BeregningsresultatAndel::getDagsats)
             .sum();
 
-        if (bgDagsats != utbetDagsats) {
-            LOGGER.info("Dagsats som er feil: " + bgDagsats + " Tilhørende periode: " + beregningsresultatPeriode);
-            throw new IllegalStateException("Utviklerfeil: utbetDagsats er ulik bgDagsats");
-        }
+        return bgDagsats != utbetDagsats;
     }
 
     private static boolean kunUtbetalingTilArbeidsgiver(List<BeregningsresultatAndel> andeler) {
