@@ -25,15 +25,10 @@
                             <goal>wsimport</goal>
                         </goals>
                         <configuration>
-                            <args>
-                                <arg>-B-XautoNameResolution</arg>
-                            </args>
                             <keep>true</keep>
-                            <packageName>no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1</packageName>
                             <wsdlFiles>
                                 <wsdlFile>${project.basedir}/src/main/resources/wsdl/no/nav/tjeneste/virksomhet/behandleForeldrepengesak/v1/Binding.wsdl</wsdlFile>
                             </wsdlFiles>
-                            <wsdlDirectory>${project.basedir}/src/main/resources/wsdl</wsdlDirectory>
                         </configuration>
                     </execution>
                 </executions>

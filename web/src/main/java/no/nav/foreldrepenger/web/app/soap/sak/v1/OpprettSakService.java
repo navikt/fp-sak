@@ -23,14 +23,13 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.BehandleForeldrepengesakV1;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.OpprettSakRequest;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.OpprettSakSakEksistererAllerede;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.OpprettSakSikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.OpprettSakUgyldigInput;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.UgyldigInput;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.OpprettSakRequest;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.OpprettSakResponse2;
+import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.BehandleForeldrepengesakV1;
+import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.OpprettSakSakEksistererAllerede;
+import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.OpprettSakSikkerhetsbegrensning;
+import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.OpprettSakUgyldigInput;
+import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.feil.UgyldigInput;
+import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.meldinger.OpprettSakRequest;
+import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.meldinger.OpprettSakResponse;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
 import no.nav.vedtak.felles.integrasjon.felles.ws.VLFaultListenerUnntakKonfigurasjon;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -54,7 +53,7 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
     wsdlLocation = "wsdl/no/nav/tjeneste/virksomhet/behandleForeldrepengesak/v1/behandleForeldrepengesak.wsdl",
     serviceName = "BehandleForeldrepengesak_v1",
     portName = "BehandleForeldrepengesak_v1Port",
-    endpointInterface = "no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.BehandleForeldrepengesakV1")
+    endpointInterface = "no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.BehandleForeldrepengesakV1")
 @SoapWebService(endpoint = "/sak/opprettSak/v1", tjenesteBeskrivelseURL = "https://confluence.adeo.no/pages/viewpage.action?pageId=220529015")
 public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
@@ -80,7 +79,7 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
     @Override
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
-    public OpprettSakResponse2 opprettSak(
+    public OpprettSakResponse opprettSak(
         @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) OpprettSakRequest opprettSakRequest)
         throws OpprettSakSakEksistererAllerede, OpprettSakSikkerhetsbegrensning, OpprettSakUgyldigInput {
 
@@ -176,8 +175,8 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
         return faultInfo;
     }
 
-    private OpprettSakResponse2 lagResponse(Saksnummer saksnummer) {
-        OpprettSakResponse2 response = new OpprettSakResponse2();
+    private OpprettSakResponse lagResponse(Saksnummer saksnummer) {
+        OpprettSakResponse response = new OpprettSakResponse();
         response.setSakId(saksnummer.getVerdi());
         return response;
     }
