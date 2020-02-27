@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -47,6 +48,7 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.SjekkOverlappForeldrepengerInfotrygdTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
@@ -228,6 +230,33 @@ public class VurderOpphørAvYtelserTest {
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyAvsBehandlingMor.getId());
         verify(revurderingTjenesteMock, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
         verify(sjekkInfotrygdTjeneste, times(0)).harForeldrepengerInfotrygdSomOverlapper(any(),any() );
+    }
+    @Test
+    public void oppretteTaskVurderKonsekvensIngenGjeldendeAktørId() {
+        String KEY_GJELDENDE_AKTØR_ID="aktuellAktoerId";
+
+        Behandling nyBehMorSomIkkeOverlapper = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1, AKTØR_ID_MOR, null);
+        Fagsak fagsakNy = nyBehMorSomIkkeOverlapper.getFagsak();
+
+        vurderOpphørAvYtelser.opprettTaskForÅVurdereKonsekvens(fagsakNy.getId(),"Test", "Test", Optional.empty() );
+        ProsessTaskData vurderKonsekvens = prosessTaskRepository.finnIkkeStartet().stream().findFirst().orElse(null);
+        Optional<String> gjeldendeAktørId = Optional.ofNullable(vurderKonsekvens.getPropertyValue(KEY_GJELDENDE_AKTØR_ID));
+
+        assertThat(gjeldendeAktørId.isPresent()).isFalse();
+    }
+
+    @Test
+    public void oppretteTaskVurderKonsekvensMedAktørId() {
+        String KEY_GJELDENDE_AKTØR_ID="aktuellAktoerId";
+
+        Behandling nyBehMorSomIkkeOverlapper = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1, AKTØR_ID_MOR, null);
+        Fagsak fagsakNy = nyBehMorSomIkkeOverlapper.getFagsak();
+
+        vurderOpphørAvYtelser.opprettTaskForÅVurdereKonsekvens(fagsakNy.getId(), "Test2", "Test2", Optional.of(AKTØR_ID_MOR.getId()));
+        ProsessTaskData vurderKonsekvens = prosessTaskRepository.finnIkkeStartet().stream().findFirst().orElse(null);
+        Optional<String> gjeldendeAktørId = Optional.ofNullable(vurderKonsekvens.getPropertyValue(KEY_GJELDENDE_AKTØR_ID));
+
+        assertThat(gjeldendeAktørId.isPresent()).isTrue();
     }
 
     private Behandling lagBehandlingMor( LocalDate fødselsDato, AktørId aktørId, AktørId medfAktørId)
