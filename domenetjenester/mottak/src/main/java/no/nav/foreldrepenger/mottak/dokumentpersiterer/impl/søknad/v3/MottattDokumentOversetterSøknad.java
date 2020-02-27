@@ -6,6 +6,7 @@ import static java.util.Objects.nonNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -372,17 +373,17 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         }
 
         Optional<SvpGrunnlagEntitet> eksisterendeGrunnlag = svangerskapspengerRepository.hentGrunnlag(behandling.getId());
-        if (eksisterendeGrunnlag.isPresent()) {
-            var gamleTilrettelegginger = new TilretteleggingFilter(eksisterendeGrunnlag.get()).getAktuelleTilretteleggingerUfiltrert().stream()
+        eksisterendeGrunnlag.ifPresent(eg -> {
+            List<SvpTilretteleggingEntitet> gamle = eg.getOpprinneligeTilrettelegginger() != null ?
+                eg.getOpprinneligeTilrettelegginger().getTilretteleggingListe() : Collections.emptyList();
+            gamle.stream()
                 .filter(tlg -> tilrettelegginger.stream().noneMatch(tlg2 -> gjelderSammeArbeidsforhold(tlg, tlg2)))
-                .collect(Collectors.toList());
-
-            for(SvpTilretteleggingEntitet tilrettelegging: gamleTilrettelegginger){
-                var builder = new SvpTilretteleggingEntitet.Builder(tilrettelegging);
-                builder.medKopiertFraTidligereBehandling(true);
-                tilrettelegginger.add(builder.build());
-            }
-        }
+                .forEach(tilrettelegging -> {
+                    var builder = new SvpTilretteleggingEntitet.Builder(tilrettelegging);
+                    builder.medKopiertFraTidligereBehandling(true);
+                    tilrettelegginger.add(builder.build());
+                });
+        });
 
         SvpGrunnlagEntitet svpGrunnlag = svpBuilder.medOpprinneligeTilrettelegginger(tilrettelegginger).build();
         svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
