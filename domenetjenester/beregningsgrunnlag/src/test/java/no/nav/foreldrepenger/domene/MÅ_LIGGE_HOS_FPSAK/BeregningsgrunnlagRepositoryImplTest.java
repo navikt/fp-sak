@@ -425,7 +425,7 @@ public class BeregningsgrunnlagRepositoryImplTest {
         assertThat(bgPeriodeLest.getBeregningsgrunnlagPrStatusOgAndelList()).hasSize(1);
         assertThat(bgPrStatusOgAndelLest).isEqualTo(bgPeriodeLagret.getBeregningsgrunnlagPrStatusOgAndelList().get(0));
         assertThat(bgPeriodeÅrsakLest).isEqualTo(bgPeriodeLagret.getBeregningsgrunnlagPeriodeÅrsaker().get(0));
-        assertThat(bgPeriodeLest.getRegelEvaluering()).isEqualTo(bgPeriodeLagret.getRegelEvaluering());
+        assertThat(bgPeriodeLest.getRegelEvalueringForeslå()).isEqualTo(bgPeriodeLagret.getRegelEvalueringForeslå());
     }
 
     @Test

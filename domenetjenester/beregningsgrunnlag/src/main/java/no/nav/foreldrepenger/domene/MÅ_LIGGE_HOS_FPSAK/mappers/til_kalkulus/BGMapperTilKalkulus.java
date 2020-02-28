@@ -57,7 +57,8 @@ public class BGMapperTilKalkulus {
         builder.medRedusertPrÅr(fraFpsak.getRedusertPrÅr());
         builder.medRegelEvalueringFastsett(fraFpsak.getRegelInputFastsett(), fraFpsak.getRegelEvalueringFastsett());
         builder.medRegelEvalueringFinnGrenseverdi(fraFpsak.getRegelInputFinnGrenseverdi(), fraFpsak.getRegelEvalueringFinnGrenseverdi());
-        builder.medRegelEvalueringForeslå(fraFpsak.getRegelInput(), fraFpsak.getRegelEvaluering());
+        builder.medRegelEvalueringForeslå(fraFpsak.getRegelInputForeslå(), fraFpsak.getRegelEvalueringForeslå());
+        builder.medRegelEvalueringFordel(fraFpsak.getRegelInputFordel(), fraFpsak.getRegelEvalueringFordel());
         builder.medRegelEvalueringVilkårsvurdering(fraFpsak.getRegelInputVilkårvurdering(), fraFpsak.getRegelEvalueringVilkårvurdering());
 
         //legg til

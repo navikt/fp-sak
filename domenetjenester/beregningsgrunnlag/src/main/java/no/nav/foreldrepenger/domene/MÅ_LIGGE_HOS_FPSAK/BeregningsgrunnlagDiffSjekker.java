@@ -100,7 +100,7 @@ class BeregningsgrunnlagDiffSjekker {
             if (aktivPeriode.getRegelInputVilkårvurdering() != null && !aktivPeriode.getRegelInputVilkårvurdering().equals(forrigePeriode.getRegelInputVilkårvurdering())) {
                 return true;
             }
-            if (aktivPeriode.getRegelInput() != null && !aktivPeriode.getRegelInput().equals(forrigePeriode.getRegelInput())) {
+            if (aktivPeriode.getRegelInputForeslå() != null && !aktivPeriode.getRegelInputForeslå().equals(forrigePeriode.getRegelInputForeslå())) {
                 return true;
             }
             Tuple<List<BeregningsgrunnlagPrStatusOgAndel>, List<BeregningsgrunnlagPrStatusOgAndel>> resultat = finnAndeler(aktivPeriode, forrigePeriode);
