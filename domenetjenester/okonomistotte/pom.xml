@@ -44,8 +44,7 @@
 
 		<dependency>
 			<groupId>no.nav.foreldrepenger.kontrakter</groupId>
-			<artifactId>okonomistotte-v1</artifactId>
-			<classifier>jaxb</classifier>
+			<artifactId>oppdragskjema-v1</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>no.nav.foreldrepenger.kontrakter</groupId>
@@ -54,7 +53,6 @@
 		<dependency>
 			<groupId>no.nav.foreldrepenger.kontrakter</groupId>
 			<artifactId>grensesnittavstemming-v1</artifactId>
-			<classifier>jaxb</classifier>
 		</dependency>
 
 		<dependency>

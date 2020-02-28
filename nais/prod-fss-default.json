@@ -1,0 +1,97 @@
+{
+  "cluster": "prod",
+  "oracle.config": "oracle/data/prod/config/fpsak",
+  "oracle.fpsak.secret": "oracle/data/prod/creds/fpsak-fpsak",
+  "oracle.dvh.secret": "oracle/data/prod/creds/fpsak-fpsak_hist",
+  "fpsak.serviceuser": "serviceuser/data/prod/srvengangsstonad",
+  "ldap.serviceuser": "serviceuser/data/prod/srvssolinux",
+  "namespace": "default",
+  "minReplicas": "4",
+  "maxReplicas": "6",
+  "ingresses": [
+    "https://fpsak.nais.adeo.no"
+  ],
+  "env": {
+    "APPDYNAMICS_AGENT_ACCOUNT_NAME": "PROD",
+
+    "KAFKA_AKSJONSPUNKTHENDELSE_TOPIC": "privat-foreldrepenger-aksjonspunkthendelse-p",
+    "KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID": "KP-privat-foreldrepenger-aksjonspunkthendelse-p",
+    "KAFKA_AKSJONSPUNKTHENDELSE_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
+    "KAFKA_AKSJONSPUNKTHENDELSE_GROUP_ID": "KC-privat-foreldrepenger-aksjonspunkthendelse-p",
+    "KAFKA_HISTORIKKINNSLAG_TOPIC": "privat-foreldrepenger-historikkinnslag",
+    "KAFKA_RISIKOKLASSIFISERING_TOPIC": "privat-foreldrepenger-fprisk-utfor",
+    "KAFKA_RISIKOKLASSIFISERING_CLIENT_ID": "KP-privat-foreldrepenger-fprisk-utfor",
+    "KAFKA_RISIKOKLASSIFISERING_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
+    "KAFKA_RISIKOKLASSIFISERING_GROUP_ID": "KC-privat-foreldrepenger-fprisk-utfor",
+    "KAFKA_KONTROLL_RESULTAT_TOPIC": "privat-foreldrepenger-kontroll-resultat",
+    "KAFKA_KONTROLL_RESULTAT_CLIENT_ID": "KP-privat-foreldrepenger-kontroll-resultat",
+    "KAFKA_KONTROLL_RESULTAT_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
+    "KAFKA_KONTROLL_RESULTAT_GROUP_ID": "KC-privat-foreldrepenger-kontroll-resultat",
+    "KAFKA_DOKUMENTBESTILLING_TOPIC": "privat-foreldrepenger-dokumenthendelse",
+    "KAFKA_DOKUMENTBESTILLING_CLIENT_ID": "KP-privat-foreldrepenger-dokumenthendelse",
+    "SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
+
+    "SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/",
+    "BOOTSTRAP_SERVERS": "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443",
+    "BUCKET_URL": "http://s3.nais-rook",
+    "FP_TILKJENTYTELSE_V1_TOPIC_URL": "privat-foreldrepenger-tilkjentytelse-v1-p",
+    "OIDC_STS_ISSUER_URL": "https://security-token-service.nais.adeo.no",
+
+    "FPSAK_CHANNEL_NAME": "P_FPSAK",
+    "FPSAK_CHANNEL_QUEUEMANAGER": "mq://a01apvl063.adeo.no:1414/MPLSC02",
+
+    "LOADBALANCER_FQDN": "fpsak.nais.adeo.no",
+    "LOADBALANCER_FPSAK_POOLNAME": "nais",
+    "LOADBALANCER_FPSAK_CONTEXTROOTS": "fpsak",
+
+    "OIDC_OPENAM_AGENTNAME": "fpsak-p",
+    "OIDC_OPENAM_HOSTURL": "https://isso.adeo.no/isso/oauth2",
+    "OIDC_OPENAM_ISSUERURL": "https://isso.adeo.no:443/isso/oauth2",
+    "OIDC_OPENAM_JWKSURL": "https://isso.adeo.no:443/isso/oauth2/connect/jwk_uri",
+
+    "LDAP_URL": "ldaps://ldapgw.adeo.no",
+    "LDAP_BASEDN": "dc=adeo,dc=no",
+    "LDAP_DOMAIN": "ADEO.NO",
+    "LDAP_USER_BASEDN": "ou=NAV,ou=BusinessUnits,dc=adeo,dc=no",
+    "LDAP_SERVICEUSER_BASEDN": "ou=ServiceAccounts,dc=adeo,dc=no",
+
+    "SBEH_SAKSBEHANDLING_QUEUENAME": "QA.P_SBEH.SAKSBEHANDLING",
+    "FPSAK_OKONOMI_OPPDRAG_MOTTAK_QUEUENAME": "QA.P_FPSAK.OB04_OPPDRAG_FP_XML_KVITT",
+    "FPSAK_OKONOMI_OPPDRAG_MOTTAK_QUEUEMANAGER": "mq://a01apvl063.adeo.no:1414/MPLSC02",
+    "RAY_AVSTEM_DATA_QUEUENAME": "QA.P234.OB29_AVSTEMMING_XML",
+    "FPSAK_OKONOMI_OPPDRAG_SEND_QUEUENAME": "QA.P231.OB04_OPPDRAG_FP_XML",
+
+    "MQGATEWAY02_NAME": "MPLSC02",
+    "MQGATEWAY02_HOSTNAME": "a01apvl063.adeo.no",
+    "MQGATEWAY02_PORT": "1414",
+
+    "FPRISK_RISIKOKLASSIFISERING_HENT_URL": "https://fprisk.nais.adeo.no/fprisk/api/risikovurdering/hent",
+    "FPFORMIDLING_ERDOKUMENTPRODUSERT_URL": "http://fpformidling/fpformidling/api/brev/dokument-sendt",
+    "FPFORMIDLING_BESTILLBREV_URL": "http://fpformidling/fpformidling/api/brev/bestill",
+    "OIDC_STS_JWKS_URL": "https://security-token-service.nais.adeo.no/rest/v1/sts/jwks",
+    "FPFORMIDLING_FORHAANDSVISBREV_URL": "https://fpformidling.nais.adeo.no/fpformidling/api/brev/forhandsvis",
+    "FPFORMIDLING_HENTBREVMALER_URL": "http://fpformidling/fpformidling/api/brev/maler",
+    "FPABAKUS_URL": "http://fpabakus/fpabakus",
+    "FPFORMIDLING_LAGRESAKSBEHANDLERTEKST_URL": "http://fpformidling/fpformidling/api/saksbehandlertekst/lagre-saksbehandler-tekst",
+    "FPFORMIDLING_HENTSAKSBEHANDLERTEKST_URL": "http://fpformidling/fpformidling/api/saksbehandlertekst/hent-saksbehandler-tekst",
+    "ABAC_PDP_ENDPOINT_URL": "https://wasapp.adeo.no/asm-pdp/authorize",
+    "FPOPPDRAG_SIMULERINGRESULTAT_URL": "https://fpoppdrag.nais.adeo.no/fpoppdrag/api/simulering/resultat",
+
+    "SAK_V1_URL": "https://wasapp.adeo.no/nav-gsak-ws/SakV1",
+    "AKTOER_V2_URL": "https://app.adeo.no/aktoerregister/ws/Aktoer/v2",
+    "DOKUMENTPRODUKSJON_V2_URL": "https://dokprod.nais.adeo.no/dokprod/ws/dokumentproduksjon/v2",
+    "BEHANDLEINNGAAENDEJOURNAL_V1_URL": "https://dokarkiv.nais.adeo.no/services/behandleinngaaendejournal/v1",
+    "INNGAAENDEJOURNAL_V1_URL": "https://dokarkiv.nais.adeo.no/services/inngaaendejournal/v1",
+    "JOURNAL_V3_URL": "https://dokarkiv.nais.adeo.no/services/journal/v3",
+    "BEHANDLESAK_V2_URL": "https://wasapp.adeo.no/nav-gsak-ws/BehandleSakV2",
+    "ORGANISASJON_V4_URL": "https://modapp.adeo.no/ereg/ws/OrganisasjonService/v4",
+    "OPPGAVE_V3_URL": "https://wasapp.adeo.no/nav-gsak-ws/OppgaveV3",
+    "BEHANDLEOPPGAVE_V1_URL": "https://wasapp.adeo.no/nav-gsak-ws/BehandleOppgaveV1",
+    "MEDLEM_V2_URL": "https://app.adeo.no/medl2/ws/Medlemskap/v2",
+    "ARBEIDSFORDELING_V1_URL": "https://app.adeo.no/norg2/ws/Arbeidsfordeling/v1",
+    "PERSON_V3_URL": "https://wasapp.adeo.no/tpsws/ws/Person/v3",
+    "KODEVERK_V2_URL": "https://kodeverk.nais.adeo.no/ws/kodeverk/v2",
+
+    "SERVICEGATEWAY_URL": "https://service-gw.adeo.no/"
+  }
+}
