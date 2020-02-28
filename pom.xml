@@ -68,12 +68,7 @@
 
         <metrics.version>3.2.5</metrics.version>
         <fp-kontrakter.version>5.1-20200211164354-f6cea52</fp-kontrakter.version>
-<<<<<<< HEAD
-        <kalkulus.version>1.0-20200225165122-44bd132</kalkulus.version>
-=======
-        <kalkulus.version>1.0-20200220145849-a2b7e48</kalkulus.version>
-
->>>>>>> NOJIRA Bump kalkulus
+        <kalkulus.version>1.0-20200228083822-7f8912a</kalkulus.version>
     </properties>
 
     <prerequisites>

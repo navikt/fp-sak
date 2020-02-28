@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,21 +113,20 @@ public class IAYMapperTilKalkulus {
         return builder.build();
     }
 
-    public static Map<Arbeidsgiver, ArbeidsgiverOpplysningerDto> mapArbeidsforholdOpplysninger(Map<no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver, ArbeidsgiverOpplysninger> arbeidsgiverOpplysninger, List<ArbeidsforholdOverstyring> overstyringer) {
-        Map<Arbeidsgiver, ArbeidsgiverOpplysningerDto> returnMap = new HashMap<>();
-        arbeidsgiverOpplysninger.forEach((key, value) -> returnMap.put(mapArbeidsgiver(key), mapOpplysning(value)));
+    public static List<ArbeidsgiverOpplysningerDto> mapArbeidsforholdOpplysninger(Map<no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver, ArbeidsgiverOpplysninger> arbeidsgiverOpplysninger, List<ArbeidsforholdOverstyring> overstyringer) {
+        List<ArbeidsgiverOpplysningerDto> arbeidsgiverOpplysningerDtos = new ArrayList<>();
+        arbeidsgiverOpplysninger.forEach((key, value) -> arbeidsgiverOpplysningerDtos.add(mapOpplysning(key, value)));
         overstyringer
             .stream()
             .filter(overstyring -> overstyring.getArbeidsgiverNavn() != null) // Vi er kun interessert i overstyringer der SBH har endret navn på arbeidsgiver
             .findFirst()
-            .ifPresent(arbeidsforhold -> returnMap.put(mapArbeidsgiver(arbeidsforhold.getArbeidsgiver()),
-                new ArbeidsgiverOpplysningerDto(arbeidsforhold.getArbeidsgiver().getOrgnr(), arbeidsforhold.getArbeidsgiverNavn())));
-        return returnMap;
+            .ifPresent(arbeidsforhold -> arbeidsgiverOpplysningerDtos.add(new ArbeidsgiverOpplysningerDto(arbeidsforhold.getArbeidsgiver().getOrgnr(), arbeidsforhold.getArbeidsgiverNavn())));
+        return arbeidsgiverOpplysningerDtos;
 
     }
 
-    public  static ArbeidsgiverOpplysningerDto mapOpplysning(ArbeidsgiverOpplysninger arbeidsgiverOpplysninger) {
-        return new ArbeidsgiverOpplysningerDto(arbeidsgiverOpplysninger.getIdentifikator(), arbeidsgiverOpplysninger.getNavn(), arbeidsgiverOpplysninger.getFødselsdato());
+    public  static ArbeidsgiverOpplysningerDto mapOpplysning(no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver key, ArbeidsgiverOpplysninger arbeidsgiverOpplysninger) {
+        return new ArbeidsgiverOpplysningerDto(key.getIdentifikator(), arbeidsgiverOpplysninger.getNavn(), arbeidsgiverOpplysninger.getFødselsdato());
     }
 
     private static OppgittOpptjeningDtoBuilder mapOppgittOpptjening(OppgittOpptjening oppgittOpptjening) {
