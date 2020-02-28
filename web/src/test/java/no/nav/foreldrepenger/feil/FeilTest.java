@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.feil;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,19 @@ public class FeilTest {
     private final List<String> duplikatFeil = new ArrayList<>();
     private final List<String> prefiksFeil = new ArrayList<>();
     private final Map<String, AnnotationInstance> unikeKoder = new HashMap<>(1000);
+    private final static String KALKULUS_PREFIX = "FT-";
+    private final static String KAFKA_PREFIX = "VLKAFKA-";
+    private final static String FPSAK_PREFIX = "FP-";
+    private final static String VL_PREFIX = "F-";
+    private final static List<String> GYLDIGE_PREFIXER = new ArrayList<>();
+
+    static {
+        GYLDIGE_PREFIXER.add(KALKULUS_PREFIX);
+        GYLDIGE_PREFIXER.add(KAFKA_PREFIX);
+        GYLDIGE_PREFIXER.add(VL_PREFIX);
+        GYLDIGE_PREFIXER.add(FPSAK_PREFIX);
+    }
+
 
     @Test
     public void test_Feil_annotation_deklarasjoner() {
@@ -46,10 +60,19 @@ public class FeilTest {
     }
 
     private void verifiserFeilPrefiks(AnnotationInstance ai, String feilkode) {
-        if (!(feilkode.startsWith("F-") || feilkode.startsWith("FP-") || feilkode.startsWith("VLKAFKA-"))) {
+        if (!gyldigPrefix(feilkode)) {
             prefiksFeil
-                .add(String.format("Metode %s har feilkode som ikke begynner med prefiks [\"F-\", \"FP-\"]: %s", ai.target().asMethod().name(), feilkode));
+                .add(String.format("Metode %s har feilkode som ikke begynner med en av de gyldige prefiksene: %s Metode hadde feilkode:  %s", ai.target().asMethod().name(), GYLDIGE_PREFIXER, feilkode));
         }
+    }
+
+    private boolean gyldigPrefix(String feilkode) {
+        for (String prefix : GYLDIGE_PREFIXER) {
+            if (feilkode.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean equalsTarget(AnnotationInstance prev, AnnotationInstance ai) {
