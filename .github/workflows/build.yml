@@ -13,10 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: actions/cache@v1
+      # Brukes ukenummer i cache_key da pomene endrer seg alt for ofte.
+      - name: Set cache key
+        run: |
+          echo "::set-env name=CACHE_KEY::$(date +%U)"
+      - uses: actions/cache@v1.1.0
         with:
           path: ~/.github/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
           restore-keys: |
             ${{ runner.os }}-maven-
       - uses: actions/setup-java@v1
@@ -69,7 +73,8 @@ jobs:
           title: Deploy av ${{ env.TAG }}
           labels: deployment
           body: |
-            Kommenter med <b>/promote ${{ env.TAG }} env namespace</b>, hvor <b>env</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret.
+            Kommenter med <b>/promote env namespace</b>, hvor <b>env</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret.
+
             <table>
             <tr><th>Cluster</th><th>Namespace</th></tr>
             <tr><td>dev-fss</td><td>t4, q0, q1</td></tr>
@@ -82,5 +87,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           issue-number: ${{ steps.createdeployissue.outputs.number }}
-          body: /promote ${{ env.TAG }} dev-fss t4
+          body: /promote dev-fss t4
 
