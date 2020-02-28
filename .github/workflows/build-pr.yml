@@ -10,10 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      # Brukes ukenummer i cache_key da pomene endrer seg alt for ofte.
+      - name: Set cache key
+        run: |
+          echo "::set-env name=CACHE_KEY::$(date +%U)"
       - uses: actions/cache@v1
         with:
           path: ~/.github/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
           restore-keys: |
             ${{ runner.os }}-maven-
       - uses: actions/setup-java@v1
