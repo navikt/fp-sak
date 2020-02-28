@@ -69,7 +69,7 @@
 
         <metrics.version>3.2.5</metrics.version>
         <fp-kontrakter.version>5.1-20200224152726-2b69c0e</fp-kontrakter.version>
-        <kalkulus.version>1.0-20200225165122-44bd132</kalkulus.version>
+        <kalkulus.version>1.0-20200227165901-39bfaa3</kalkulus.version>
     </properties>
 
     <prerequisites>
@@ -512,12 +512,6 @@
             <!-- 3dje parts NAV felleskomponenter -->
             <!-- NB: Definer scope der det brukes, ikke her. -->
 
-<!--            <dependency>
-                <groupId>no.nav.tjenester</groupId>
-                <artifactId>nav-foreldrepengesak-v1-tjenestespesifikasjon</artifactId>
-                <version>1.1.0</version>
-                <classifier>jaxws</classifier>
-            </dependency>-->
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>foreldrepengesak-v1</artifactId>
@@ -528,13 +522,6 @@
                 <artifactId>behandleForeldrepengesak-v1</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
-<!--            <dependency>
-                <groupId>no.nav.tjenester</groupId>
-                <artifactId>nav-behandleForeldrepengesak-v1-tjenestespesifikasjon</artifactId>
-                <version>1.0.1</version>
-                <classifier>jaxws</classifier>
-            </dependency>-->
 
             <!-- EKSTRA TEST AVHENGIGHETER FOR LOKAL WEBSERVER -->
             <!-- NB: Definer scope der det brukes, ikke her. -->
