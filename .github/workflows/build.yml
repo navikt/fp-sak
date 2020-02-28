@@ -19,7 +19,7 @@ jobs:
           echo "::set-env name=CACHE_KEY::$(date +%U)"
       - uses: actions/cache@v1.1.0
         with:
-          path: ~/.github/.m2/repository
+          path: ~/.github/.m2
           key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
           restore-keys: |
             ${{ runner.os }}-maven-
