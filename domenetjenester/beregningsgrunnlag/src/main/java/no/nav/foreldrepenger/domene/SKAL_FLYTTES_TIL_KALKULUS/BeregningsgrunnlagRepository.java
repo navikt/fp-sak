@@ -141,27 +141,24 @@ public class BeregningsgrunnlagRepository {
     }
 
     /**
-     * Henter {@link BeregningsgrunnlagGrunnlagEntitet} uten registeraktiviter for behandling.
-     * @return List over alle grunnlag uten registeraktiviteter
+     * For analysering av SVP feil og opprydning av denne
      */
-    public List<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagUtenRegisterForBehandling(Long behandlingId) {
+    public List<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagForPotensielleFeilSVP() {
         TypedQuery<BeregningsgrunnlagGrunnlagEntitet> query = entityManager.createQuery(
             "from BeregningsgrunnlagGrunnlagEntitet " +
-                "where registerAktiviteter is null and behandlingId=:behandlingId", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
-        query.setParameter(BEHANDLING_ID, behandlingId); //$NON-NLS-1$
+                "where beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
+                "and opprettetTidspunkt > :opprettetFom " +
+                "and opprettetTidspunkt < :opprettetTom and aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
+        BeregningsgrunnlagTilstand beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.FASTSATT;
+        LocalDate opprettetFom = LocalDate.of(2020, 2, 10);
+        LocalDate opprettetTom = LocalDate.of(2020, 2, 14);
+        query.setParameter("opprettetFom", opprettetFom); //$NON-NLS-1$
+        query.setParameter("opprettetTom", opprettetTom); //$NON-NLS-1$
+        query.setParameter("aktivt", true); //$NON-NLS-1$
+        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand); //$NON-NLS-1$
         return query.getResultList();
     }
 
-    /**
-     * Henter {@link BeregningsgrunnlagGrunnlagEntitet} uten registeraktiviter for behandling.
-     * @return List over alle grunnlag uten registeraktiviteter
-     */
-    public List<Long> hentBehandlingIdForGrunnlagUtenRegister() {
-        TypedQuery<Long> query = entityManager.createQuery(
-            "select distinct(behandlingId) from BeregningsgrunnlagGrunnlagEntitet " +
-                "where registerAktiviteter is null", Long.class); //$NON-NLS-1$
-        return query.getResultList();
-    }
 
     /**
      * @deprecated Fjernes etter kjøring er ferdig
