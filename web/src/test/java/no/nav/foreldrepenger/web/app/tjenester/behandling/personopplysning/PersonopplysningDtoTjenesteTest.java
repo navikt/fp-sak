@@ -12,6 +12,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -36,11 +37,13 @@ public class PersonopplysningDtoTjenesteTest {
 
     @Inject
     private VergeRepository vergeRepository;
+    @Inject
+    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
 
 
     @Before
     public void setUp() {
-        tjeneste = new PersonopplysningDtoTjeneste(this.personopplysningTjeneste, repositoryProvider, vergeRepository);
+        tjeneste = new PersonopplysningDtoTjeneste(this.personopplysningTjeneste, repositoryProvider, vergeRepository, relatertBehandlingTjeneste);
     }
 
     @Test
