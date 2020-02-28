@@ -19,10 +19,10 @@ jobs:
           echo "::set-env name=CACHE_KEY::$(date +%U)"
       - uses: actions/cache@v1.1.0
         with:
-          path: ~/.github/.m2
-          key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}-new
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}-new2
           restore-keys: |
-            ${{ runner.os }}-maven-
+            ${{ runner.os }}-maven-new
       - uses: actions/setup-java@v1
         with:
           java-version: 1.11
@@ -44,7 +44,7 @@ jobs:
         shell: bash
         run: |
           echo "Building artifacts $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn jacoco:prepare-agent deploy -e --batch-mode --settings ./.github/.m2/settings.xml -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(date "+%Y.%m.%d")-$(echo $GITHUB_SHA | cut -c1-7) -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true  -Djacoco.destFile=$(pwd)/target/jacoco.exec
+          mvn jacoco:prepare-agent deploy -e --batch-mode --settings ./.m2/settings.xml -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(date "+%Y.%m.%d")-$(echo $GITHUB_SHA | cut -c1-7) -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true  -Djacoco.destFile=$(pwd)/target/jacoco.exec
           echo "Deployed artifacts"
           echo ::set-env name=TAG::$(date "+%Y.%m.%d")-$(echo $GITHUB_SHA | cut -c1-7)
           echo ::set-env name=IMAGE::$IMAGE_BASE:$(date "+%Y.%m.%d")-$(echo $GITHUB_SHA | cut -c1-7)
