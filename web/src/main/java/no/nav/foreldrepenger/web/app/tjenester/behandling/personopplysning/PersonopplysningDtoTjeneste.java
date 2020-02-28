@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -28,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadDtoFeil;
 
 @ApplicationScoped
@@ -37,6 +39,7 @@ public class PersonopplysningDtoTjeneste {
     private PersonopplysningTjeneste personopplysningTjeneste;
     private BehandlingRepository behandlingRepository;
     private FamilieHendelseRepository familieHendelseRepository;
+    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
 
     PersonopplysningDtoTjeneste() {
     }
@@ -44,11 +47,13 @@ public class PersonopplysningDtoTjeneste {
     @Inject
     public PersonopplysningDtoTjeneste(PersonopplysningTjeneste personopplysningTjeneste,
                                        BehandlingRepositoryProvider repositoryProvider,
-                                       VergeRepository vergeRepository) {
+                                       VergeRepository vergeRepository,
+                                       RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.vergeRepository = vergeRepository;
+        this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
     }
 
     private static List<PersonadresseDto> lagAddresseDto(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
@@ -109,13 +114,15 @@ public class PersonopplysningDtoTjeneste {
                 .hentAggregatHvisEksisterer(behandlingId);
             PersonopplysningerAggregat aggregat = aggregatOpt.get();
             return Optional.ofNullable(aggregat.getSøker())
-                .map(søker -> mapPersonopplysningDto(behandlingId, søker, aggregat, familieHendelseAggregat));
+                .map(søker -> mapPersonopplysningDto(behandling, søker, aggregat, familieHendelseAggregat));
         }
         return Optional.empty();
     }
 
-    private PersonopplysningDto mapPersonopplysningDto(Long behandlingId, PersonopplysningEntitet søker,
-                                                       PersonopplysningerAggregat aggregat, Optional<FamilieHendelseGrunnlagEntitet> familieHendelseAggregat) {
+    private PersonopplysningDto mapPersonopplysningDto(Behandling behandling,
+                                                       PersonopplysningEntitet søker,
+                                                       PersonopplysningerAggregat aggregat,
+                                                       Optional<FamilieHendelseGrunnlagEntitet> familieHendelseAggregat) {
 
         PersonopplysningDto dto = enkelMapping(søker, aggregat);
 
@@ -133,12 +140,9 @@ public class PersonopplysningDtoTjeneste {
                 .collect(Collectors.toList()));
         }
 
-        Optional<OppgittAnnenPartEntitet> oppgittAnnenPart = aggregat.getOppgittAnnenPart();
+        var annenPart = mapAnnenpart(søker, aggregat, behandling.getFagsak().getSaksnummer());
+        annenPart.ifPresent(dto::setAnnenPart);
 
-        if (oppgittAnnenPart.isPresent()) {
-            Optional<PersonopplysningDto> annenPart = mapAnnenPart(søker, aggregat, oppgittAnnenPart.get());
-            annenPart.ifPresent(dto::setAnnenPart);
-        }
         Optional<PersonopplysningEntitet> ektefelleOpt = aggregat.getEktefelle();
         if (ektefelleOpt.isPresent() && ektefelleOpt.get().equals(søker)) {
             throw SøknadDtoFeil.FACTORY.kanIkkeVæreSammePersonSomSøker().toException();
@@ -148,25 +152,47 @@ public class PersonopplysningDtoTjeneste {
             PersonopplysningDto ektefelle = enkelMapping(ektefelleOpt.get(), aggregat);
             dto.setEktefelle(ektefelle);
         }
-
-        if (harVerge(behandlingId)) {
-            dto.setHarVerge(true);
-        }
+        dto.setHarVerge(harVerge(behandling.getId()));
         return dto;
     }
 
-    private Optional<PersonopplysningDto> mapAnnenPart(PersonopplysningEntitet søker, PersonopplysningerAggregat aggregat, OppgittAnnenPartEntitet oppgittAnnenPart) {
-        if (søker.getAktørId().equals(oppgittAnnenPart.getAktørId())) {
-            throw SøknadDtoFeil.FACTORY.kanIkkeVæreBådeFarOgMorTilEtBarn().toException();
+    private Optional<PersonopplysningDto> mapAnnenpart(PersonopplysningEntitet søker,
+                                                       PersonopplysningerAggregat aggregat,
+                                                       Saksnummer saksnummner) {
+        Optional<PersonopplysningDto> annenPart = Optional.empty();
+        var oppgittAnnenPart = aggregat.getOppgittAnnenPart();
+        if (oppgittAnnenPart.isPresent()) {
+            if (søker.getAktørId().equals(oppgittAnnenPart.get().getAktørId())) {
+                throw SøknadDtoFeil.FACTORY.kanIkkeVæreBådeFarOgMorTilEtBarn().toException();
+            }
+            annenPart = mapOppgittAnnenPart(aggregat);
         }
+        if (annenPart.isEmpty()) {
+            var relatertBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(saksnummner);
+            if (relatertBehandling.isPresent()) {
+                annenPart = mapRelatertAnnenpart(aggregat, relatertBehandling.get());
+            }
+        }
+        return annenPart;
+    }
 
+    private Optional<PersonopplysningDto> mapRelatertAnnenpart(PersonopplysningerAggregat aggregat, Behandling relatertBehandling) {
+        var personopplysning = aggregat.getPersonopplysning(relatertBehandling.getAktørId());
+        if (personopplysning == null) {
+            return Optional.empty();
+        }
+        return Optional.of(enkelMapping(personopplysning, aggregat));
+    }
+
+    private Optional<PersonopplysningDto> mapOppgittAnnenPart(PersonopplysningerAggregat aggregat) {
         PersonopplysningDto annenPart = null;
         Optional<PersonopplysningEntitet> annenPartOpt = aggregat.getAnnenPart();
 
+        Optional<OppgittAnnenPartEntitet> oppgittAnnenPart = aggregat.getOppgittAnnenPart();
         if (annenPartOpt.isPresent()) {
             annenPart = enkelMapping(annenPartOpt.get(), aggregat);
-        } else if (harOppgittLand(oppgittAnnenPart.getUtenlandskFnrLand())) {
-            annenPart = enkelUtenlandskAnnenPartMapping(oppgittAnnenPart);
+        } else if (oppgittAnnenPart.isPresent() && harOppgittLand(oppgittAnnenPart.get().getUtenlandskFnrLand())) {
+            annenPart = enkelUtenlandskAnnenPartMapping(oppgittAnnenPart.get());
         }
 
         if (annenPart != null) {
