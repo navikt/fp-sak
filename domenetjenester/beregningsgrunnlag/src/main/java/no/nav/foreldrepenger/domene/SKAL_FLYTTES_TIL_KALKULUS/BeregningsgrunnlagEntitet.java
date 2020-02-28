@@ -75,26 +75,6 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
     @MapKey(name = "regelType")
     private Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> regelSporingMap = new HashMap<>();
 
-    @Lob
-    @Column(name = "regellogg_skjaringstidspunkt")
-    private String regelloggSkjæringstidspunkt;
-
-    @Lob
-    @Column(name = "regellogg_brukers_status")
-    private String regelloggBrukersStatus;
-
-    @Lob
-    @Column(name = "regelinput_skjaringstidspunkt")
-    private String regelInputSkjæringstidspunkt;
-
-    @Lob
-    @Column(name = "regelinput_brukers_status")
-    private String regelInputBrukersStatus;
-
-    @Lob
-    @Column(name = "regelinput_periodisering")
-    private String regelinputPeriodisering;
-
     @Embedded
     @AttributeOverrides(@AttributeOverride(name = "verdi", column = @Column(name = "grunnbeloep")))
     @ChangeTracked
@@ -148,23 +128,23 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
     }
 
     public String getRegelinputPeriodisering() {
-        return regelSporingMap.containsKey(PERIODISERING) ? regelSporingMap.get(PERIODISERING).getRegelInput() : regelinputPeriodisering;
+        return regelSporingMap.containsKey(PERIODISERING) ? regelSporingMap.get(PERIODISERING).getRegelInput() : null;
     }
 
     public String getRegelInputSkjæringstidspunkt() {
-        return regelSporingMap.containsKey(SKJÆRINGSTIDSPUNKT) ? regelSporingMap.get(SKJÆRINGSTIDSPUNKT).getRegelInput() : regelInputSkjæringstidspunkt;
+        return regelSporingMap.containsKey(SKJÆRINGSTIDSPUNKT) ? regelSporingMap.get(SKJÆRINGSTIDSPUNKT).getRegelInput() : null;
     }
 
     public String getRegelloggSkjæringstidspunkt() {
-        return regelSporingMap.containsKey(SKJÆRINGSTIDSPUNKT) ? regelSporingMap.get(SKJÆRINGSTIDSPUNKT).getRegelEvaluering() : regelloggSkjæringstidspunkt;
+        return regelSporingMap.containsKey(SKJÆRINGSTIDSPUNKT) ? regelSporingMap.get(SKJÆRINGSTIDSPUNKT).getRegelEvaluering() : null;
     }
 
     public String getRegelInputBrukersStatus() {
-        return regelSporingMap.containsKey(SKJÆRINGSTIDSPUNKT) ? regelSporingMap.get(SKJÆRINGSTIDSPUNKT).getRegelInput() : regelInputBrukersStatus;
+        return regelSporingMap.containsKey(SKJÆRINGSTIDSPUNKT) ? regelSporingMap.get(SKJÆRINGSTIDSPUNKT).getRegelInput() : null;
     }
 
     public String getRegelloggBrukersStatus() {
-        return regelSporingMap.containsKey(BRUKERS_STATUS) ? regelSporingMap.get(BRUKERS_STATUS).getRegelEvaluering() : regelloggBrukersStatus;
+        return regelSporingMap.containsKey(BRUKERS_STATUS) ? regelSporingMap.get(BRUKERS_STATUS).getRegelEvaluering() : null;
     }
 
     public Hjemmel getHjemmel() {
@@ -317,40 +297,32 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
 
         public Builder medRegelloggSkjæringstidspunkt(String regelInput, String regelEvaluering) {
             verifiserKanModifisere();
-            // Lagrer til begge regel-sporinger til vi har kjørt migrering
             BeregningsgrunnlagRegelSporing.ny()
                 .medRegelInput(regelInput)
                 .medRegelEvaluering(regelEvaluering)
                 .medRegelType(SKJÆRINGSTIDSPUNKT)
                 .build(kladd);
-            kladd.regelInputSkjæringstidspunkt = regelInput;
-            kladd.regelloggSkjæringstidspunkt = regelEvaluering;
             return this;
         }
 
         public Builder medRegelloggBrukersStatus(String regelInput, String regelEvaluering) {
             verifiserKanModifisere();
-            // Lagrer til begge regel-sporinger til vi har kjørt migrering
             BeregningsgrunnlagRegelSporing.ny()
                 .medRegelInput(regelInput)
                 .medRegelEvaluering(regelEvaluering)
                 .medRegelType(BRUKERS_STATUS)
                 .build(kladd);
-            kladd.regelInputBrukersStatus = regelInput;
-            kladd.regelloggBrukersStatus = regelEvaluering;
             return this;
         }
 
         public Builder medRegelinputPeriodisering(String regelInput) {
             verifiserKanModifisere();
-          // Lagrer til begge regel-sporinger til vi har kjørt migrering
             if (regelInput != null) {
                 BeregningsgrunnlagRegelSporing.ny()
                     .medRegelInput(regelInput)
                     .medRegelType(PERIODISERING)
                     .build(kladd);
             }
-            kladd.regelinputPeriodisering = regelInput;
             return this;
         }
 
