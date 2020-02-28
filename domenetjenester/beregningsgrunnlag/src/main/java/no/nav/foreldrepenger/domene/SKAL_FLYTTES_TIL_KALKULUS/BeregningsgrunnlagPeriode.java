@@ -88,46 +88,6 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
     @MapKey(name = "regelType")
     private Map<BeregningsgrunnlagPeriodeRegelType, BeregningsgrunnlagPeriodeRegelSporing> regelSporingMap = new HashMap<>();
 
-    @Lob
-    @Column(name = "regel_evaluering")
-    private String regelEvaluering;
-
-    @Lob
-    @Column(name = "regel_evaluering_fastsett")
-    private String regelEvalueringFastsett;
-
-    @Lob
-    @Column(name = "regel_input")
-    private String regelInput;
-
-    @Lob
-    @Column(name = "regel_input_fastsett")
-    private String regelInputFastsett;
-
-    @Lob
-    @Column(name = "regel_input_fastsett_2")
-    private String regelInputFastsettNr2;
-
-    @Lob
-    @Column(name = "regel_evaluering_fastsett_2")
-    private String regelEvalueringFastsettNr2;
-
-    @Lob
-    @Column(name = "regel_input_vilkar")
-    private String regelInputVilkårvurdering;
-
-    @Lob
-    @Column(name = "regel_evaluering_vilkar")
-    private String regelEvalueringVilkårvurdering;
-
-    @Lob
-    @Column(name = "regel_input_oppdater_svp")
-    private String regelInputOppdatereGrunnlagSVP;
-
-    @Lob
-    @Column(name = "regel_evaluering_oppdater_svp")
-    private String regelEvalueringOppdatereGrunnlagSVP;
-
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "beregningsgrunnlagPeriode", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<BeregningsgrunnlagPeriodeÅrsak> beregningsgrunnlagPeriodeÅrsaker = new ArrayList<>();
 
@@ -269,20 +229,28 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
         return new Builder(eksisterendeBeregningsgrunnlagPeriode);
     }
 
-    public String getRegelEvaluering() {
-        return regelSporingMap.containsKey(FORESLÅ) ?  regelSporingMap.get(FORESLÅ).getRegelEvaluering() : regelEvaluering;
+    public String getRegelEvalueringForeslå() {
+        return regelSporingMap.containsKey(FORESLÅ) ?  regelSporingMap.get(FORESLÅ).getRegelEvaluering() : null;
     }
 
     public String getRegelEvalueringFastsett() {
-        return regelSporingMap.containsKey(FASTSETT) ?  regelSporingMap.get(FASTSETT).getRegelEvaluering() : regelEvalueringFastsett;
+        return regelSporingMap.containsKey(FASTSETT) ?  regelSporingMap.get(FASTSETT).getRegelEvaluering() : null;
     }
 
-    public String getRegelInput() {
-        return regelSporingMap.containsKey(FORESLÅ)  ? regelSporingMap.get(FORESLÅ).getRegelInput() : regelInput;
+    public String getRegelEvalueringFordel() {
+        return regelSporingMap.containsKey(FORDEL) ?  regelSporingMap.get(FORDEL).getRegelEvaluering() : null;
+    }
+
+    public String getRegelInputForeslå() {
+        return regelSporingMap.containsKey(FORESLÅ)  ? regelSporingMap.get(FORESLÅ).getRegelInput() : null;
+    }
+
+    public String getRegelInputFordel() {
+        return regelSporingMap.containsKey(FORDEL)  ? regelSporingMap.get(FORDEL).getRegelInput() : null;
     }
 
     public String getRegelInputFastsett() {
-        return regelSporingMap.containsKey(FASTSETT) ? regelSporingMap.get(FASTSETT).getRegelInput() : regelInputFastsett;
+        return regelSporingMap.containsKey(FASTSETT) ? regelSporingMap.get(FASTSETT).getRegelInput() : null;
     }
 
     public String getRegelInputFinnGrenseverdi() {
@@ -290,15 +258,15 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
     }
 
     public String getRegelInputVilkårvurdering() {
-        return regelSporingMap.containsKey(VILKÅR_VURDERING) ?  regelSporingMap.get(VILKÅR_VURDERING).getRegelInput() : regelInputVilkårvurdering;
+        return regelSporingMap.containsKey(VILKÅR_VURDERING) ?  regelSporingMap.get(VILKÅR_VURDERING).getRegelInput() : null;
     }
 
     public String getRegelEvalueringVilkårvurdering() {
-        return regelSporingMap.containsKey(VILKÅR_VURDERING) ?  regelSporingMap.get(VILKÅR_VURDERING).getRegelEvaluering() : regelEvalueringVilkårvurdering;
+        return regelSporingMap.containsKey(VILKÅR_VURDERING) ?  regelSporingMap.get(VILKÅR_VURDERING).getRegelEvaluering() : null;
     }
 
     public String getRegelInputOppdatereGrunnlagSVP() {
-        return regelSporingMap.containsKey(OPPDATER_GRUNNLAG_SVP) ?  regelSporingMap.get(OPPDATER_GRUNNLAG_SVP).getRegelInput() : regelInputOppdatereGrunnlagSVP;
+        return regelSporingMap.containsKey(OPPDATER_GRUNNLAG_SVP) ?  regelSporingMap.get(OPPDATER_GRUNNLAG_SVP).getRegelInput() : null;
     }
 
     public String getRegelEvalueringFinnGrenseverdi() {
@@ -395,10 +363,6 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
                 .medRegelEvaluering(regelEvaluering)
                 .medRegelType(FORESLÅ)
                 .build(kladd);
-
-            // Følgende skal fjernes etter migrering
-            kladd.regelInput = regelInput;
-            kladd.regelEvaluering = regelEvaluering;
             return this;
         }
 
@@ -420,10 +384,6 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
                 .medRegelEvaluering(regelEvaluering)
                 .medRegelType(FASTSETT)
                 .build(kladd);
-
-            // Følgende skal fjernes etter migrering
-            kladd.regelInputFastsett = regelInput;
-            kladd.regelEvalueringFastsett = regelEvaluering;
             return this;
         }
 
@@ -435,10 +395,6 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
                 .medRegelEvaluering(regelEvaluering)
                 .medRegelType(VILKÅR_VURDERING)
                 .build(kladd);
-
-            // Følgende skal fjernes etter migrering
-            kladd.regelInputVilkårvurdering = regelInput;
-            kladd.regelEvalueringVilkårvurdering = regelEvaluering;
             return this;
         }
 
