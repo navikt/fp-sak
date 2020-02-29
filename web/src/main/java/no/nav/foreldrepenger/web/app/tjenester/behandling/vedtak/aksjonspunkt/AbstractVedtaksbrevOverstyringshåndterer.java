@@ -38,17 +38,6 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     AbstractVedtaksbrevOverstyringshåndterer(BehandlingRepositoryProvider repositoryProvider,
                                              HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
                                              OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag,
-                                             VedtakTjeneste vedtakTjeneste) {
-        this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
-        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        this.opprettToTrinnsgrunnlag = opprettToTrinnsgrunnlag;
-        this.vedtakTjeneste = vedtakTjeneste;
-        this.behandlingDokumentRepository = null;
-    }
-
-    AbstractVedtaksbrevOverstyringshåndterer(BehandlingRepositoryProvider repositoryProvider,
-                                             HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
-                                             OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag,
                                              VedtakTjeneste vedtakTjeneste,
                                              BehandlingDokumentRepository behandlingDokumentRepository) {
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;

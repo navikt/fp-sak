@@ -31,6 +31,7 @@
 
     <modules>
         <module>migreringer</module>
+        <module>integrasjoner</module>
 
         <module>behandlingslager</module>
         <module>infrastrukturtjenester</module>
@@ -67,7 +68,9 @@
         <prosesstask.version>2.0.0-20200118083448-d87fd6d</prosesstask.version>
 
         <metrics.version>3.2.5</metrics.version>
-        <fp-kontrakter.version>5.1-20200211164354-f6cea52</fp-kontrakter.version>
+      
+        <fp-kontrakter.version>5.1-20200224152726-2b69c0e</fp-kontrakter.version>
+      
         <kalkulus.version>1.0-20200228083822-7f8912a</kalkulus.version>
     </properties>
 
@@ -183,6 +186,16 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.kontrakter</groupId>
                 <artifactId>inntektsmelding-v1</artifactId>
+                <version>${fp-kontrakter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+                <artifactId>oppdragskjema-v1</artifactId>
+                <version>${fp-kontrakter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+                <artifactId>grensesnittavstemming-v1</artifactId>
                 <version>${fp-kontrakter.version}</version>
             </dependency>
             <dependency>
@@ -483,18 +496,6 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.kontrakter</groupId>
-                <artifactId>okonomistotte-v1</artifactId>
-                <version>2.0_20190311110043_ddc2d1e</version>
-                <classifier>jaxb</classifier>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.kontrakter</groupId>
-                <artifactId>grensesnittavstemming-v1</artifactId>
-                <version>2.3_20180507114256_2ed2065</version>
-                <classifier>jaxb</classifier>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.kontrakter</groupId>
                 <artifactId>dokumentbestiller-v1</artifactId>
                 <version>2.0_20190816101820_003f3bb</version>
                 <classifier>jaxb</classifier>
@@ -514,16 +515,14 @@
             <!-- NB: Definer scope der det brukes, ikke her. -->
 
             <dependency>
-                <groupId>no.nav.tjenester</groupId>
-                <artifactId>nav-foreldrepengesak-v1-tjenestespesifikasjon</artifactId>
-                <version>1.1.0</version>
-                <classifier>jaxws</classifier>
+                <groupId>no.nav.foreldrepenger</groupId>
+                <artifactId>foreldrepengesak-v1</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.tjenester</groupId>
-                <artifactId>nav-behandleForeldrepengesak-v1-tjenestespesifikasjon</artifactId>
-                <version>1.0.1</version>
-                <classifier>jaxws</classifier>
+                <groupId>no.nav.foreldrepenger</groupId>
+                <artifactId>behandleForeldrepengesak-v1</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
             <!-- EKSTRA TEST AVHENGIGHETER FOR LOKAL WEBSERVER -->
@@ -976,4 +975,5 @@
             </properties>
         </profile>
     </profiles>
+
 </project>

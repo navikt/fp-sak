@@ -91,18 +91,16 @@
 			<artifactId>ldap-klient</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>no.nav.tjenester</groupId>
-			<artifactId>nav-behandleForeldrepengesak-v1-tjenestespesifikasjon</artifactId>
-			<classifier>jaxws</classifier>
-		</dependency>
-		<dependency>
 			<groupId>no.nav.foreldrepenger</groupId>
 			<artifactId>behandlingsprosess-steg</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>no.nav.tjenester</groupId>
-			<artifactId>nav-foreldrepengesak-v1-tjenestespesifikasjon</artifactId>
-			<classifier>jaxws</classifier>
+			<groupId>no.nav.foreldrepenger</groupId>
+			<artifactId>foreldrepengesak-v1</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.foreldrepenger</groupId>
+			<artifactId>behandleForeldrepengesak-v1</artifactId>
 		</dependency>
 
 		<dependency>
