@@ -17,12 +17,12 @@ jobs:
       - name: Set cache key
         run: |
           echo "::set-env name=CACHE_KEY::$(date +%U)"
-      - uses: actions/cache@v1.1.0
+      - uses: actions/cache@v1.1.2
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}-new2
+          key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
           restore-keys: |
-            ${{ runner.os }}-maven-new
+            ${{ runner.os }}-maven-$(date -v-7d +%U)
       - uses: actions/setup-java@v1
         with:
           java-version: 1.11
