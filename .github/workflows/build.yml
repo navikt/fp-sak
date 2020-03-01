@@ -12,17 +12,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       # Brukes ukenummer i cache_key da pomene endrer seg alt for ofte.
+      # Alternative key med cache fra forrige uke som blir lagret etterpå under CACHE_KEY.
       - name: Set cache key
         run: |
-          echo "::set-env name=CACHE_KEY::$(date +%U)"
+          echo "::set-env name=CACHE_KEY::$(expr $(date +%V) - 1 + 1)"
+          echo "::set-env name=PREVIOUS_CACHE_KEY::$(expr $(date +%V) - 1)"
       - uses: actions/cache@v1.1.2
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
           restore-keys: |
-            ${{ runner.os }}-maven-$(date -v-7d +%U)
+            ${{ runner.os }}-maven-${{ env.PREVIOUS_CACHE_KEY }}
       - uses: actions/setup-java@v1
         with:
           java-version: 1.11
@@ -43,7 +45,7 @@ jobs:
         shell: bash
         run: |
           echo "Building artifacts $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn jacoco:prepare-agent deploy -e --batch-mode --settings ./.m2/settings.xml -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(date "+%Y.%m.%d")-$(echo $GITHUB_SHA | cut -c1-7) -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true  -Djacoco.destFile=$(pwd)/target/jacoco.exec
+          mvn --quiet jacoco:prepare-agent deploy -e --batch-mode --settings ./.m2/settings.xml -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(date "+%Y.%m.%d")-$(echo $GITHUB_SHA | cut -c1-7) -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true  -Djacoco.destFile=$(pwd)/target/jacoco.exec
           echo "Deployed artifacts"
           echo ::set-env name=TAG::$(date "+%Y.%m.%d")-$(echo $GITHUB_SHA | cut -c1-7)
           echo ::set-env name=IMAGE::$IMAGE_BASE:$(date "+%Y.%m.%d")-$(echo $GITHUB_SHA | cut -c1-7)
