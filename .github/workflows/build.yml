@@ -22,7 +22,7 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
           restore-keys: |
-            ${{ runner.os }}-maven-new2
+            ${{ runner.os }}-maven-$(date -v-7d +%U)
       - uses: actions/setup-java@v1
         with:
           java-version: 1.11
