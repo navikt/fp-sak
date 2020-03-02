@@ -66,14 +66,8 @@
     "MQGATEWAY02_PORT": "1412",
 
     "FPRISK_RISIKOKLASSIFISERING_HENT_URL": "https://fprisk-t4.nais.preprod.local/fprisk/api/risikovurdering/hent",
-    "FPFORMIDLING_ERDOKUMENTPRODUSERT_URL": "http://fpformidling/fpformidling/api/brev/dokument-sendt",
-    "FPFORMIDLING_BESTILLBREV_URL": "http://fpformidling/fpformidling/api/brev/bestill",
     "OIDC_STS_JWKS_URL": "https://security-token-service-t4.nais.preprod.local/rest/v1/sts/jwks",
-    "FPFORMIDLING_FORHAANDSVISBREV_URL": "https://fpformidlisng-t4.nais.preprod.local/fpformidling/api/brev/forhandsvis",
-    "FPFORMIDLING_HENTBREVMALER_URL": "http://fpformidling/fpformidling/api/brev/maler",
     "FPABAKUS_URL": "http://fpabakus/fpabakus",
-    "FPFORMIDLING_LAGRESAKSBEHANDLERTEKST_URL": "http://fpformidling/fpformidling/api/saksbehandlertekst/lagre-saksbehandler-tekst",
-    "FPFORMIDLING_HENTSAKSBEHANDLERTEKST_URL": "http://fpformidling/fpformidling/api/saksbehandlertekst/hent-saksbehandler-tekst",
     "ABAC_PDP_ENDPOINT_URL": "https://wasapp-t4.adeo.no/asm-pdp/authorize",
     "FPOPPDRAG_SIMULERINGRESULTAT_URL": "https://fpoppdrag-t4.nais.preprod.local/fpoppdrag/api/simulering/resultat",
 

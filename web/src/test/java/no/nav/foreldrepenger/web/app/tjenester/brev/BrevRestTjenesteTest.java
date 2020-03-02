@@ -9,8 +9,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import org.junit.Before;
@@ -22,9 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt√
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentMalRestriksjon;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BrevmalDto;
 
 public class BrevRestTjenesteTest {
 
@@ -54,25 +50,6 @@ public class BrevRestTjenesteTest {
 
         // Assert
         verify(dokumentBestillerApplikasjonTjenesteMock).bestillDokument(eq(bestillBrevDto), eq(HistorikkAkt√∏r.SAKSBEHANDLER), eq(true));
-    }
-
-    @Test
-    public void henterBrevmaler() {
-        // Arrange
-        long behandlingId = 1L;
-        when(dokumentBehandlingTjenesteMock.hentBrevmalerFor(behandlingId))
-            .thenReturn(Collections.singletonList(new BrevmalDto("INNHEN", "Innhent dokumentasjon", DokumentMalRestriksjon.INGEN, true)));
-        Behandling behandling = mock(Behandling.class);
-        when(behandling.getId()).thenReturn(behandlingId);
-        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
-
-        // Act
-        List<BrevmalDto> brevmaler = brevRestTjeneste.hentMaler(new UuidDto(UUID.randomUUID()));
-
-        // Assert
-        verify(dokumentBehandlingTjenesteMock).hentBrevmalerFor(behandlingId);
-        assertThat(brevmaler).hasSize(1);
-        assertThat(brevmaler.get(0).getNavn()).isEqualTo("Innhent dokumentasjon");
     }
 
     @Test

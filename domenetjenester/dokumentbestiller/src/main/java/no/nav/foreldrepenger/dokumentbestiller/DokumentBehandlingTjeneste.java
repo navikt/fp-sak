@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.dokumentbestiller;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,11 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Terminb
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BrevmalDto;
-import no.nav.foreldrepenger.dokumentbestiller.klient.FormidlingRestKlient;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.BehandlingUuidDto;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
@@ -43,7 +38,6 @@ public class DokumentBehandlingTjeneste {
     private OppgaveTjeneste oppgaveTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
-    private FormidlingRestKlient formidlingRestKlient;
     private BehandlingDokumentRepository behandlingDokumentRepository;
 
     public DokumentBehandlingTjeneste() {
@@ -55,43 +49,14 @@ public class DokumentBehandlingTjeneste {
                                       OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
                                       BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                       OppgaveTjeneste oppgaveTjeneste,
-                                      FormidlingRestKlient formidlingRestKlient,
                                       BehandlingDokumentRepository behandlingDokumentRepository) {
-
         Objects.requireNonNull(repositoryProvider, "repositoryProvider");
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.formidlingRestKlient = formidlingRestKlient;
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
-    }
-
-    public List<BrevmalDto> hentBrevmalerFor(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        final List<no.nav.foreldrepenger.kontrakter.formidling.v1.BrevmalDto> brevmalDtos = formidlingRestKlient.hentBrevMaler(new BehandlingUuidDto(behandling.getUuid()));
-        List<BrevmalDto> brevmalListe = new ArrayList<>();
-        for (no.nav.foreldrepenger.kontrakter.formidling.v1.BrevmalDto brevmalDto : brevmalDtos) {
-            brevmalListe.add(new BrevmalDto(brevmalDto.getKode(), brevmalDto.getNavn(), mapDokumentMalRestriksjon(brevmalDto.getRestriksjon().getKode()), brevmalDto.getTilgjengelig()));
-        }
-        return brevmalListe;
-    }
-
-    private DokumentMalRestriksjon mapDokumentMalRestriksjon(String restriksjon) {
-        if (DokumentMalRestriksjon.ÅPEN_BEHANDLING.getKode().equals(restriksjon)) {
-            return DokumentMalRestriksjon.ÅPEN_BEHANDLING;
-        } else if (DokumentMalRestriksjon.ÅPEN_BEHANDLING_IKKE_SENDT.getKode().equals(restriksjon)) {
-            return DokumentMalRestriksjon.ÅPEN_BEHANDLING_IKKE_SENDT;
-        } else if (DokumentMalRestriksjon.REVURDERING.getKode().equals(restriksjon)) {
-            return DokumentMalRestriksjon.REVURDERING;
-        } else {
-            return DokumentMalRestriksjon.INGEN;
-        }
-    }
-
-    public Optional<BehandlingDokumentEntitet> hentBehandlingDokumentHvisEksisterer(Long behandlingId) {
-        return behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
     }
 
     public void loggDokumentBestilt(Behandling behandling, DokumentMalType dokumentMalTypeKode) {
@@ -106,18 +71,10 @@ public class DokumentBehandlingTjeneste {
 
     public boolean erDokumentBestilt(Long behandlingId, DokumentMalType dokumentMalTypeKode) {
         Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
-        if (behandlingDokument.isPresent()) {
-            boolean dokumentBestilt = behandlingDokument.get().getBestilteDokumenter().stream()
-                .map(BehandlingDokumentBestiltEntitet::getDokumentMalType)
-                .collect(Collectors.toList())
-                .contains(dokumentMalTypeKode.getKode());
-            if (dokumentBestilt) {
-                return true;
-            }
-        }
-        // TODO(JEJ): Fjerne etter migrering av data til Fpsak er utført (TFP-1404):
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        return formidlingRestKlient.erDokumentProdusert(new DokumentProdusertDto(behandling.getUuid(), dokumentMalTypeKode.getKode()));
+        return behandlingDokument.isPresent() && behandlingDokument.get().getBestilteDokumenter().stream()
+            .map(BehandlingDokumentBestiltEntitet::getDokumentMalType)
+            .collect(Collectors.toList())
+            .contains(dokumentMalTypeKode.getKode());
     }
 
     public void settBehandlingPåVent(Long behandlingId, Venteårsak venteårsak) {

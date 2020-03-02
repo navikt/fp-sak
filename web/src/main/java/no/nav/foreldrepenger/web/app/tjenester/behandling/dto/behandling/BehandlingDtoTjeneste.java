@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -424,16 +425,12 @@ public class BehandlingDtoTjeneste {
         dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling).orElse(null));
         dto.setErRevurderingMedUendretUtfall(erRevurderingMedUendretUtfall(behandling));
 
-        // TODO(JEJ): Bytte ut etter første prodsetting og migrering på TFP-1404 (leser alltid fra gammelt sted i tilfelle gammel node skriver dit):
-//        Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
-//        if (behandlingDokument.isPresent()) {
-//            dto.setAvslagsarsakFritekst(behandlingDokument.get().getVedtakFritekst());
-//            dto.setOverskrift(behandlingDokument.get().getOverstyrtBrevOverskrift());
-//            dto.setFritekstbrev(behandlingDokument.get().getOverstyrtBrevFritekst());
-//        }
-        dto.setAvslagsarsakFritekst(behandlingsresultat.getAvslagarsakFritekst());
-        dto.setOverskrift(behandlingsresultat.getOverskrift());
-        dto.setFritekstbrev(behandlingsresultat.getFritekstbrev());
+        Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+        if (behandlingDokument.isPresent()) {
+            dto.setAvslagsarsakFritekst(behandlingDokument.get().getVedtakFritekst());
+            dto.setOverskrift(behandlingDokument.get().getOverstyrtBrevOverskrift());
+            dto.setFritekstbrev(behandlingDokument.get().getOverstyrtBrevFritekst());
+        }
 
         dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());
         return Optional.of(dto);

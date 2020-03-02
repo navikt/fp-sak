@@ -68,8 +68,6 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
                 .medOverstyrtBrevFritekst(fritekst)
                 .build());
             Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
-                .medOverskrift(overskrift)
-                .medFritekstbrev(fritekst)
                 .medVedtaksbrev(Vedtaksbrev.FRITEKST)
                 .buildFor(behandling);
         });

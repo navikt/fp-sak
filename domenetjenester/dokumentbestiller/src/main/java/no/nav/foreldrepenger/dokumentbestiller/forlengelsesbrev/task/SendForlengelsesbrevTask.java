@@ -55,19 +55,9 @@ public class SendForlengelsesbrevTask implements ProsessTaskHandler {
     private void sendForlengelsesbrevOgOppdaterBehandling(Behandling behandling, BehandlingskontrollKontekst kontekst) {
         behandling.setBehandlingstidFrist(FPDateUtil.iDag().plusWeeks(behandling.getType().getBehandlingstidFristUker()));
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        if (!skalSendeForlengelsesbrevAutomatisk(behandling.getId())) { //NOSONAR
-            return;
-        }
-        // Kommentert ut siden ForlengetDokument er markert for fjerning fra fpsak. Hvis brevet noen gang skal taes i bruk
-        // igjen, må det bestilles via fpformidling istedet.
-/*      DokumentType forlengetDokument = new ForlengetDokument(DokumentMalType.FORLENGET_DOK);
-        Long dokumentDataId = dokumentDataTjeneste.lagreDokumentData(behandling.getId(), forlengetDokument);
-        dokumentBestillerApplikasjonTjeneste.produserDokument(dokumentDataId, HistorikkAktør.VEDTAKSLØSNINGEN, null);*/
-    }
-
-    private boolean skalSendeForlengelsesbrevAutomatisk(Long behandlingId) {
-        log.info("Brev ikke sendt for behandling: {}, automatisk utsendelse slått av for alle", behandlingId);
-        return false;
+        log.info("Brev ikke sendt for behandling: {}, automatisk utsendelse slått av for alle", behandling.getId());
+        // Pr mars 2020 er det ikke ønsket å sende ut forengelsesbrev da det tidligere skapte for mye støy.
+        // Dersom det skal gjeninnføres må brevet bestilles via fp-formidling.
     }
 
     private boolean behandlingsfristUtløpt(Behandling behandling) {
