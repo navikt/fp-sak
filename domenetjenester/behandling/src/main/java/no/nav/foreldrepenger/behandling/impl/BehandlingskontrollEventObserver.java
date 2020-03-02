@@ -126,6 +126,7 @@ public class BehandlingskontrollEventObserver {
             .medBehandlingTypeKode(behandling.getType().getKode())
             .medOpprettetBehandling(behandling.getOpprettetDato())
             .medAksjonspunktKoderMedStatusListe(aksjonspunktKoderMedStatusListe)
+            .medEksternId(behandling.getUuid())
             .build();
     }
 }
