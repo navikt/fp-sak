@@ -68,8 +68,10 @@
         <prosesstask.version>2.0.0-20200118083448-d87fd6d</prosesstask.version>
 
         <metrics.version>3.2.5</metrics.version>
+      
         <fp-kontrakter.version>5.1-20200224152726-2b69c0e</fp-kontrakter.version>
-        <kalkulus.version>1.0-20200227165901-39bfaa3</kalkulus.version>
+      
+        <kalkulus.version>1.0-20200228083822-7f8912a</kalkulus.version>
     </properties>
 
     <prerequisites>
