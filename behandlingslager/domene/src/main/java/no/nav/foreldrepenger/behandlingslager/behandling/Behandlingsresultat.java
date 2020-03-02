@@ -18,7 +18,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -88,18 +87,8 @@ public class Behandlingsresultat extends BaseEntitet {
     @Column(name = "vedtaksbrev", nullable = false)
     private Vedtaksbrev vedtaksbrev = Vedtaksbrev.UDEFINERT;
 
-    @Column(name = "avslag_arsak_fritekst")
-    private String avslagarsakFritekst;
-
     @OneToMany(mappedBy = "behandlingsresultat")
     private Set<Uttaksperiodegrense> uttaksperiodegrense = new HashSet<>();
-
-    @Column(name = "overskrift")
-    private String overskrift;
-
-    @Lob
-    @Column(name = "fritekstbrev")
-    private String fritekstbrev;
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "endret_dekningsgrad", nullable = false)
@@ -181,22 +170,6 @@ public class Behandlingsresultat extends BaseEntitet {
 
     public void setAvslagsårsak(Avslagsårsak avslagsårsak) {
         this.avslagsårsak = Optional.ofNullable(avslagsårsak).orElse(Avslagsårsak.UDEFINERT);
-    }
-
-    public String getAvslagarsakFritekst() {
-        return avslagarsakFritekst;
-    }
-
-    public void setAvslagarsakFritekst(String avslagarsakFritekst) {
-        this.avslagarsakFritekst = avslagarsakFritekst;
-    }
-
-    public String getOverskrift() {
-        return overskrift;
-    }
-
-    public String getFritekstbrev() {
-        return fritekstbrev;
     }
 
     public RettenTil getRettenTil() {
@@ -353,24 +326,6 @@ public class Behandlingsresultat extends BaseEntitet {
         public Builder medAvslagsårsak(Avslagsårsak avslagsårsak) {
             validerKanModifisere();
             this.behandlingsresultat.avslagsårsak = Optional.ofNullable(avslagsårsak).orElse(Avslagsårsak.UDEFINERT);
-            return this;
-        }
-
-        public Builder medAvslagarsakFritekst(String avslagarsakFritekst) {
-            validerKanModifisere();
-            this.behandlingsresultat.avslagarsakFritekst = avslagarsakFritekst;
-            return this;
-        }
-
-        public Builder medOverskrift(String overskrift) {
-            validerKanModifisere();
-            this.behandlingsresultat.overskrift = overskrift;
-            return this;
-        }
-
-        public Builder medFritekstbrev(String fritekstbrev) {
-            validerKanModifisere();
-            this.behandlingsresultat.fritekstbrev = fritekstbrev;
             return this;
         }
 

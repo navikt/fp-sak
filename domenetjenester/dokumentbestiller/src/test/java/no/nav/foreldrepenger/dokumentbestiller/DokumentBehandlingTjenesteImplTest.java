@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -26,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.dokumentbestiller.klient.FormidlingRestKlient;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.util.FPDateUtil;
 
@@ -52,7 +50,7 @@ public class DokumentBehandlingTjenesteImplTest {
         MockitoAnnotations.initMocks(this);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingDokumentRepository = new BehandlingDokumentRepository(repoRule.getEntityManager());
-        dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, null, behandlingskontrollTjeneste, null, mock(FormidlingRestKlient.class), behandlingDokumentRepository);
+        dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, null, behandlingskontrollTjeneste, null, behandlingDokumentRepository);
         this.scenario = ScenarioMorSøkerEngangsstønad
             .forFødsel()
             .medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().minusDays(3)));

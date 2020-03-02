@@ -187,22 +187,10 @@ spec:
     # Restservice
     - name: FPRISK_RISIKOKLASSIFISERING_HENT_URL
       value: fprisk_risikoklassifisering_hent.url
-    - name: FPFORMIDLING_ERDOKUMENTPRODUSERT_URL
-      value: fpformidling_erdokumentprodusert.url
-    - name: FPFORMIDLING_BESTILLBREV_URL
-      value: fpformidling_bestillbrev.url
     - name: OIDC_STS_JWKS_URL
       value: oidc_sts.jwksurl
-    - name: FPFORMIDLING_FORHAANDSVISBREV_URL
-      value: fpformidling_forhaandsvisbrev.url
-    - name: FPFORMIDLING_HENTBREVMALER_URL
-      value: fpformidling_hentbrevmaler.url
     - name: FPABAKUS_URL
       value: fpabakus.url
-    - name: FPFORMIDLING_LAGRESAKSBEHANDLERTEKST_URL
-      value: fpformidling_lagresaksbehandlertekst.url
-    - name: FPFORMIDLING_HENTSAKSBEHANDLERTEKST_URL
-      value: fpformidling_hentsaksbehandlertekst.url
     - name: ABAC_PDP_ENDPOINT_URL
       value: abac_pdp_endpoint.url
     - name: FPOPPDRAG_SIMULERINGRESULTAT_URL

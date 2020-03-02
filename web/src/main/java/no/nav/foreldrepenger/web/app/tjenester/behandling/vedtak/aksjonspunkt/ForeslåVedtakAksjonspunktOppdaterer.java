@@ -67,7 +67,6 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
                 behandlingDokumentBuilder.medBehandling(behandling.getId());
                 behandlingDokumentBuilder.medVedtakFritekst(begrunnelse);
                 behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
-                behandlingsresultat.setAvslagarsakFritekst(begrunnelse);
             }
         });
         behandling.setAnsvarligSaksbehandler(getCurrentUserId());
@@ -75,7 +74,7 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
 
     private boolean skalNullstilleFritekstfelt(Behandling behandling, Behandlingsresultat behandlingsresultat, Optional<BehandlingDokumentEntitet> behandlingDokument) {
         return !BehandlingType.KLAGE.equals(behandling.getType()) && !behandlingsresultat.isBehandlingsresultatAvslåttOrOpphørt()
-            && (behandlingsresultat.getAvslagarsakFritekst() != null || (behandlingDokument.isPresent() && behandlingDokument.get().getVedtakFritekst() != null));
+            && behandlingDokument.isPresent() && behandlingDokument.get().getVedtakFritekst() != null;
     }
 
     protected String getCurrentUserId() {
