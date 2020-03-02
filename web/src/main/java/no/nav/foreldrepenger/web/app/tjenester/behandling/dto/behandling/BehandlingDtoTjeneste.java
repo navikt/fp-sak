@@ -145,6 +145,8 @@ public class BehandlingDtoTjeneste {
 
         if (behandling.erYtelseBehandling()) {
             dto.leggTil(get(VergeRestTjeneste.VERGE_BEHANDLINGSMENY_PATH, "finn-menyvalg-for-verge", uuidDto));
+            dto.leggTil(get(PersonRestTjeneste.PERSONOPPLYSNINGER_PATH, "soeker-personopplysninger", uuidDto));
+            dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         }
 
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
