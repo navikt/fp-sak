@@ -28,6 +28,11 @@ public abstract class FamiliehendelseDto {
         return søknadType.equals(this.soknadType);
     }
 
+    @JsonProperty("soknadType")
+    public SøknadType getSoknadType() {
+        return soknadType;
+    }
+
     @JsonProperty("skjaringstidspunkt")
     public LocalDate getSkjæringstidspunkt() {
         return skjæringstidspunkt;
