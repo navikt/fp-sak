@@ -27,6 +27,8 @@ jobs:
           java-version: 1.11
 
       - name: Hent og start Oracle image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: oracle
         shell: bash
         run: |
@@ -36,15 +38,16 @@ jobs:
           rm -f nohup.out
           docker-compose -f oracle/docker-compose.yml up oracle >nohup.out 2>&1 &
           sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build
-        shell: bash
+      - name: Set build version
         run: |
-          echo "Building $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn package --quiet --batch-mode --settings ./.m2/settings.xml --file pom.xml -Dchangelist= -Dsha1=-$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)
+          echo "::set-env name=BUILD_VERSION::$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)"
+      - name: Build
         env:
           TZ: "Europe/Oslo"
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          echo "Building $BUILD_VERSION"
+          mvn package --quiet --batch-mode --settings ./.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION}

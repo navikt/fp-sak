@@ -28,7 +28,10 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 1.11
+
       - name: Hent og start Oracle image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: oracle
         shell: bash
         run: |
@@ -38,33 +41,34 @@ jobs:
           rm -f nohup.out
           docker-compose -f oracle/docker-compose.yml up oracle >nohup.out 2>&1 &
           sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set build version
+        run: |
+          echo "::set-env name=BUILD_VERSION::$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)"
 
       - name: Build artifacts & deploy
-        shell: bash
-        run: |
-          echo "Building artifacts $(echo $GITHUB_SHA | cut -c1-7)"
-          mvn jacoco:prepare-agent deploy --quiet -e --batch-mode --settings ./.m2/settings.xml -Dmaven.wagon.http.pool=false --file pom.xml -Dchangelist= -Dsha1=-$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7) -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true  -Djacoco.destFile=$(pwd)/target/jacoco.exec
-          echo "Deployed artifacts"
-          echo ::set-env name=TAG::$(mvn help:evaluate --batch-mode --settings ./.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)
-          echo ::set-env name=IMAGE::$IMAGE_BASE:$(mvn help:evaluate --batch-mode --settings ./.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)
         env:
           TZ: "Europe/Oslo"
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          echo "Building artifacts $BUILD_VERSION"
+          mvn jacoco:prepare-agent deploy --quiet -e --batch-mode --settings ./.m2/settings.xml -Dmaven.wagon.http.pool=false -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true -Djacoco.destFile=$(pwd)/target/jacoco.exec
+          echo "Deployed artifacts"
+          echo "::set-env name=TAG::$(mvn help:evaluate --batch-mode --settings ./.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)"
 
       - name: Bygg og push docker-image
-        run: |
-          docker build --pull --tag ${IMAGE} --tag ${IMAGE_BASE}:latest .
-          echo "$GITHUB_PASSWORD" | docker login --username "$GITHUB_USERNAME" --password-stdin https://docker.pkg.github.com
-          docker push ${IMAGE_BASE}:latest
-          docker push $IMAGE
         env:
           TZ: "Europe/Oslo"
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+        run: |
+          docker build --pull --tag ${IMAGE_BASE}:${TAG} --tag ${IMAGE_BASE}:latest .
+          echo "$GITHUB_PASSWORD" | docker login --username "$GITHUB_USERNAME" --password-stdin https://docker.pkg.github.com
+          docker push ${IMAGE_BASE}:latest
+          docker push ${IMAGE_BASE}:${TAG}
 
       - name: Opprett deployment issue
         if: success()
