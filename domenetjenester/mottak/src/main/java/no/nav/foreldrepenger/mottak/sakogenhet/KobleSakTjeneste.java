@@ -112,7 +112,8 @@ public class KobleSakTjeneste {
         if (filtrert.isEmpty()) {
             return Optional.empty();
         } else if (filtrert.size() > 1) {
-            HendelserFeil.FACTORY.flereMuligeFagsakerÅKobleTil(fagsak.getId()).log(logger);
+            String kandidater = filtrert.stream().map(f -> f.getId().toString()).collect(Collectors.joining(", "));
+            HendelserFeil.FACTORY.flereMuligeFagsakerÅKobleTil(fagsak.getId(), kandidater).log(logger);
             return Optional.empty();
         }
         return Optional.of(filtrert.get(0));

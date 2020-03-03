@@ -218,6 +218,22 @@ public class KobleSakTjenesteTest {
         assertThat(relatertSak).isNotPresent();
     }
 
+    @Test
+    public void finner_to_fagsaker_på_mor_og_lar_være_å_koble_til_noen_av_dem() {
+        // Arrange
+        settOppTpsStrukturer(false, false);
+
+        opprettBehandlingMorSøkerFødselTerminFødsel(LocalDate.now(), LocalDate.now(), FAR_AKTØR_ID);
+        opprettBehandlingMorSøkerFødselTerminFødsel(LocalDate.now(), LocalDate.now(), FAR_AKTØR_ID);
+        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+
+        // Act
+        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+
+        // Assert
+        assertThat(morsSak).isEmpty();
+    }
+
     private Behandling opprettBehandlingMorSøkerFødselTermin(LocalDate termindato, AktørId annenPart) {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Ola Dunk");
