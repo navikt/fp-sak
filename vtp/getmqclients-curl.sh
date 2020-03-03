@@ -1,5 +1,5 @@
 apt-get install -y curl
-token=${secrets.GITHUB_ACCESS_TOKEN}
+token="$GITHUB_PASSWORD"
 
 echo "Henter siste test-jars for sakogbehandling-klient og okonomistotte-klient"
 

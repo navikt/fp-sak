@@ -1,7 +1,7 @@
 echo "Henter siste test-jars for sakogbehandling-klient og okonomistotte-klient"
 export LC_ALL=en_US.UTF-8
 export http_proxy=socks5h://host.docker.internal:5000
-token=${secrets.GITHUB_ACCESS_TOKEN}
+token="$GITHUB_PASSWORD"
 
 wget --no-check-certificate --quiet --method GET --timeout=0 --header "Authorization: Bearer $token" \
    'https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/sakogbehandling-klient/maven-metadata.xml' \
