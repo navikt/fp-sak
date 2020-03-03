@@ -29,6 +29,10 @@
         </dependency>
         <dependency>
             <groupId>no.nav.folketrygdloven.kalkulus</groupId>
+            <artifactId>domenetjenester</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.folketrygdloven.kalkulus</groupId>
             <artifactId>felles</artifactId>
         </dependency>
 
