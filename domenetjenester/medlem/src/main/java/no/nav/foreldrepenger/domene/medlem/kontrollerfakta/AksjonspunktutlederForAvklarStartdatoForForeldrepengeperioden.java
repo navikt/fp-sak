@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -19,6 +18,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @ApplicationScoped
 public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden implements AksjonspunktUtleder {
@@ -49,6 +50,10 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden imple
 
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
+        if (BehandlingType.REVURDERING.equals(param.getBehandlingType())) {
+            return INGEN_AKSJONSPUNKTER;
+        }
+
         Long behandlingId = param.getBehandlingId();
         Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlagOptional = iayTjeneste.finnGrunnlag(behandlingId);
         Optional<InntektsmeldingAggregat> inntektsmeldingerOptional = inntektArbeidYtelseGrunnlagOptional.flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger);
@@ -73,7 +78,7 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden imple
         LocalDate startdatoOppgittAvBruker = skjæringstidspunkt;
 
         if (samsvarerStartdatoerFraInntektsmeldingOgBruker(startdatoOppgittAvBruker, inntektsmeldinger) == NEI) {
-            if (erMinstEttArbeidsforholdLøpende(filter) == JA) {
+            if (erMinstEttArbeidsforholdLøpende(filter, skjæringstidspunkt) == JA) {
                 if (samsvarerAlleLøpendeArbeidsforholdMedStartdatoFraBruker(filter, inntektsmeldinger, startdatoOppgittAvBruker) == NEI) {
                     return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_STARTDATO_FOR_FORELDREPENGEPERIODEN);
                 }
@@ -88,7 +93,7 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden imple
         return filter.getYrkesaktiviteter()
             .stream()
             .filter(Yrkesaktivitet::erArbeidsforhold)
-            .anyMatch(yrkesaktivitet -> samsvarerIkkeMellomLøpendeArbeidsforholdOgStartdatoFrabruker(filter.getAktivitetsAvtalerForArbeid(yrkesaktivitet),
+            .anyMatch(yrkesaktivitet -> samsvarerIkkeMellomLøpendeArbeidsforholdOgStartdatoFrabruker(filter.getAnsettelsesPerioder(yrkesaktivitet),
                 inntektsmeldingAggregat, startdatoOppgittAvBruker, yrkesaktivitet)) ? NEI : JA;
     }
 
@@ -96,15 +101,12 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden imple
                                                                                  InntektsmeldingAggregat inntektsmeldingAggregat,
                                                                                  LocalDate startdatoOppgittAvBruker,
                                                                                  Yrkesaktivitet yrkesaktivitet) {
-        var løpendeAvtaler = aktivitetsAvtaler
-            .stream()
-            .filter(AktivitetsAvtale::getErLøpende).collect(Collectors.toList());
-        return løpendeAvtaler.stream()
-            .anyMatch(aktivitetsAvtale -> {
-                var inntektsmeldingerFor = inntektsmeldingAggregat.getInntektsmeldingerFor(yrkesaktivitet.getArbeidsgiver());
-                return inntektsmeldingerFor.stream()
+        var løpendeAnsettelse = aktivitetsAvtaler.stream()
+            .map(AktivitetsAvtale::getPeriode)
+            .map(DatoIntervallEntitet::getTomDato)
+            .anyMatch(startdatoOppgittAvBruker::isBefore);
+        return løpendeAnsettelse && inntektsmeldingAggregat.getInntektsmeldingerFor(yrkesaktivitet.getArbeidsgiver()).stream()
                     .anyMatch(inntektsmelding -> !samsvarerOppgittOgInntektsmeldingDato(startdatoOppgittAvBruker, inntektsmelding));
-            });
     }
 
     private boolean samsvarerOppgittOgInntektsmeldingDato(LocalDate startdatoOppgittAvBruker, Inntektsmelding inntektsmelding) {
@@ -112,11 +114,14 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden imple
             .equals(endreDatoHvisLørdagEllerSøndag(startdatoOppgittAvBruker));
     }
 
-    Utfall erMinstEttArbeidsforholdLøpende(YrkesaktivitetFilter filter) {
+    Utfall erMinstEttArbeidsforholdLøpende(YrkesaktivitetFilter filter, LocalDate skjæringstidspunkt) {
         boolean minstEttLøpende = filter.getYrkesaktiviteter().stream()
-            .map(ya -> filter.getAnsettelsesPerioder(ya))
+            .filter(Yrkesaktivitet::erArbeidsforhold)
+            .map(filter::getAnsettelsesPerioder)
             .flatMap(Collection::stream)
-            .anyMatch(AktivitetsAvtale::getErLøpende);
+            .map(AktivitetsAvtale::getPeriode)
+            .map(DatoIntervallEntitet::getTomDato)
+            .anyMatch(skjæringstidspunkt::isBefore);
         return minstEttLøpende ? JA : NEI;
     }
 

@@ -37,8 +37,8 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilde
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.konfig.Tid;
 
 public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest {
@@ -88,7 +88,7 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_fordi_inget_arbeidsforhold_er_løpende_selvom_startdatoene_ikke_samsvarer() {
+    public void skal_opprette_aksjonspunkt_for_aktivt_arbeidsforhold_er_løpende_når_startdatoene_ikke_samsvarer() {
         // Arrange
         AktørId aktørId = AktørId.dummy();
         LocalDate fødselsdato = LocalDate.now();
@@ -96,10 +96,32 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
         Behandling behandling = lagre(scenario);
-        opprettArbeidsforhold(behandling, fødselsdato, fødselsdato.plusMonths(3L));
+        opprettArbeidsforhold(behandling, fødselsdato.minusMonths(1), fødselsdato.plusMonths(3L));
 
         opprettOppgittFordeling(fødselsdato, behandling);
         opprettInntektsmelding(fødselsdato.plusDays(2L), behandling);
+
+        // Act
+        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
+
+        // Assert
+        assertThat(aksjonspunktResultater).hasSize(1);
+        assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.AVKLAR_STARTDATO_FOR_FORELDREPENGEPERIODEN);
+    }
+
+    @Test
+    public void skal_ikke_opprette_aksjonspunkt_for_aktivt_arbeidsforhold_er_løpende_når_startdatoene_samsvarer() {
+        // Arrange
+        AktørId aktørId = AktørId.dummy();
+        LocalDate fødselsdato = LocalDate.now();
+
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
+        scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
+        Behandling behandling = lagre(scenario);
+        opprettArbeidsforhold(behandling, fødselsdato.minusMonths(1), fødselsdato.plusMonths(3L));
+
+        opprettOppgittFordeling(fødselsdato, behandling);
+        opprettInntektsmelding(fødselsdato, behandling);
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
