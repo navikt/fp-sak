@@ -20,9 +20,9 @@ public interface HendelserFeil extends DeklarerteFeil {
     Feil familiehendelseUtenDato(Long fagSakId);
 
     @TekniskFeil(feilkode = "FP-059216",
-            feilmelding = "Flere mulige fagsaker å koble til for fagsakId=%s",
+            feilmelding = "Flere mulige fagsaker å koble til for fagsakId=%s: %s",
             logLevel = LogLevel.WARN)
-    Feil flereMuligeFagsakerÅKobleTil(Long fagSakId);
+    Feil flereMuligeFagsakerÅKobleTil(Long fagSakId, String kandidater);
 
     @TekniskFeil(feilkode = "FP-852565",
             feilmelding = "Håndterer ikke barnets familierelasjoner fra TPS fagsakId=%s",
