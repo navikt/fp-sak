@@ -72,7 +72,7 @@ public class ForvaltningBeregningRestTjeneste {
         List<Behandling> svpBehandlinger = grunnlagList.stream().map(BeregningsgrunnlagGrunnlagEntitet::getBehandlingId).map(behandlingRepository::hentBehandling)
             .filter(b -> b.getFagsakYtelseType().equals(FagsakYtelseType.SVANGERSKAPSPENGER))
             .collect(Collectors.toList());
-        List<Saksnummer> saksnummerList = new ArrayList<>();
+        List<String> saksnummerList = new ArrayList<>();
         for (Behandling behandling : svpBehandlinger) {
             BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = grunnlagList.stream().filter(gr -> gr.getBehandlingId().equals(behandling.getId())).findFirst().orElseThrow();
             LocalDate skjæringstidspunkt = grunnlagEntitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt).orElseThrow();
@@ -89,7 +89,7 @@ public class ForvaltningBeregningRestTjeneste {
                 .collect(Collectors.toList());
 
             if (andelerSomManglerRefusjon.size() > 0) {
-                saksnummerList.add(behandling.getFagsak().getSaksnummer());
+                saksnummerList.add(behandling.getFagsak().getSaksnummer().getVerdi());
             }
         }
         return Response.ok(saksnummerList).build();
