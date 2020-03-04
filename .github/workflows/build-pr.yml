@@ -4,7 +4,6 @@ on: [pull_request]
 
 env:
   ORACLE_IMAGE: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
-  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fp-sak
   TZ: "Europe/Oslo"
 
 jobs:
@@ -62,7 +61,22 @@ jobs:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
         run: |
-          docker build --build-arg DOWNLOAD_SCRIPT=getmqclients-GA.sh --build-arg TOKEN_CARRIER="$GITHUB_PASSWORD" --pull --tag ${IMAGE_BASE}:${TAG} --tag ${IMAGE_BASE}:latest .
+          docker build --pull --tag ${IMAGE_BASE}:${TAG} --tag ${IMAGE_BASE}:latest .
           echo "$GITHUB_PASSWORD" | docker login --username "$GITHUB_USERNAME" --password-stdin https://docker.pkg.github.com
-#          docker push ${IMAGE_BASE}:latest
-#          docker push ${IMAGE_BASE}:${TAG}
+          docker push ${IMAGE_BASE}:latest
+          docker push ${IMAGE_BASE}:${TAG}
+
+      - name: Trigger bygg og push docker-image for bruk i test
+        if: success()
+        shell: bash
+        run: |
+          curl -XPOST -u "x-access-token:${{secrets.GITHUB_ACCESS_TOKEN}}" \
+          -H "Accept: application/vnd.github.everest-preview+json" \
+          -H "Content-Type: application/json" \
+          https://api.github.com/repos/navikt/fp-sak/dispatches \
+          --data '{"event_type": "fpsak-docker-image-for-test",
+                   "client_payload": {
+                      "trigger": "${{ github.repository }}",
+                      "version": "${{ env.TAG }}",
+                      "image": "${{ env.IMAGE_BASE }}"
+                  }}'
