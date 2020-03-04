@@ -1,5 +1,12 @@
 apt-get install -y curl
-token="$GITHUB_PASSWORD"
+token="$1"
+
+if [ -z "$token" ]
+then
+  echo "Token som brukes for autentisering mot github er NULL and docker build vill feile!"
+else
+  echo "Token som brukes for autentisering mot github er IKKE NULL"
+fi
 
 echo "Henter siste test-jars for sakogbehandling-klient og okonomistotte-klient"
 
