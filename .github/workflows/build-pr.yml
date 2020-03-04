@@ -60,7 +60,7 @@ jobs:
         shell: bash
         run: |
           chmod +x ./vtp/getmqclientsGA.sh && ./vtp/getmqclientsGA.sh "$GITHUB_PASSWORD"
-          docker build --pull --tag ${IMAGE} --tag ${IMAGE_BASE}:latest .
+          docker build --pull --tag ${IMAGE} --tag ${IMAGE_BASE}:latest . --build-arg DOWNLOAD_SCRIPT=empty.sh
           echo "$GITHUB_PASSWORD" | docker login --username "$GITHUB_USERNAME" --password-stdin https://docker.pkg.github.com
 #          docker push ${IMAGE_BASE}:latest
 #          docker push $IMAGE
