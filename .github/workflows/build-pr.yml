@@ -57,7 +57,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Bygg, tag og push Docker image
+        shell: bash
         run: |
+          chmod +x ./vtp/getmqclientsGA.sh && ./vtp/getmqclientsGA.sh "$GITHUB_PASSWORD"
           docker build --pull --tag ${IMAGE} --tag ${IMAGE_BASE}:latest .
           echo "$GITHUB_PASSWORD" | docker login --username "$GITHUB_USERNAME" --password-stdin https://docker.pkg.github.com
 #          docker push ${IMAGE_BASE}:latest
