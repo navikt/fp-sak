@@ -5,6 +5,7 @@ import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -150,8 +151,8 @@ public class BeregningsgrunnlagRepository {
                 "and opprettetTidspunkt > :opprettetFom " +
                 "and opprettetTidspunkt < :opprettetTom and aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
         BeregningsgrunnlagTilstand beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.FASTSATT;
-        LocalDate opprettetFom = LocalDate.of(2020, 2, 10);
-        LocalDate opprettetTom = LocalDate.of(2020, 2, 14);
+        LocalDateTime opprettetFom = LocalDateTime.of(LocalDate.of(2020, 2, 10), LocalTime.NOON);
+        LocalDateTime opprettetTom = LocalDateTime.of(LocalDate.of(2020, 2, 14), LocalTime.NOON);
         query.setParameter("opprettetFom", opprettetFom); //$NON-NLS-1$
         query.setParameter("opprettetTom", opprettetTom); //$NON-NLS-1$
         query.setParameter("aktivt", true); //$NON-NLS-1$
