@@ -1,7 +1,7 @@
 echo "Henter siste test-jars for sakogbehandling-klient og okonomistotte-klient"
 export LC_ALL=en_US.UTF-8
 export http_proxy=socks5h://host.docker.internal:5000
-token=${{ secrets.GITHUB_ACCESS_TOKEN }}
+token="$GITHUB_PASSWORD"
 
 if [ -z "$token" ]
 then
@@ -10,6 +10,12 @@ else
   echo "Token som brukes i autentisering mot github er IKKE NULL"
 fi
 
+
+wget 'https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/sakogbehandling-klient/maven-metadata.xml' \
+   -O maven-metadata-sb2.xml -nv -t 2
+sbversion2=$(grep "<latest>" maven-metadata-sb2.xml | sed -e 's/.*<latest>\(.*\)<\/latest>.*/\1/' | cut -c1,2,3,6-)
+echo "Siste versjon sak og behandling er $sbversion2"
+rm maven-metadata-sb2.xml
 
 wget --no-check-certificate --quiet --method GET --timeout=0 --header "Authorization: Bearer $token" \
    'https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/sakogbehandling-klient/maven-metadata.xml' \
@@ -34,6 +40,9 @@ rm maven-metadata-jms.xml
 
 
 
+echo "Henter sak og behandling..."
+wget --content-on-error "https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/sakogbehandling-klient/$sbversion/sakogbehandling-klient-$sbversion-tests.jar" \
+    -O sakogbehandling-klient.jar -nv -t 2
 
 echo "Henter sak og behandling..."
 wget --user=x-token --password=$token --content-on-error "https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/sakogbehandling-klient/$sbversion/sakogbehandling-klient-$sbversion-tests.jar" \
