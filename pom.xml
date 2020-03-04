@@ -95,6 +95,11 @@
                 <artifactId>felles</artifactId>
                 <version>${kalkulus.version}</version>
             </dependency>
+            <dependency>
+                <groupId>no.nav.folketrygdloven.kalkulus</groupId>
+                <artifactId>domenetjenester</artifactId>
+                <version>${kalkulus.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
