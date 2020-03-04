@@ -5,9 +5,9 @@ token="$1"
 
 if [ -z "$token" ]
 then
-  echo "Token som brukes i autentisering mot github er NULL and docker build vill feile!"
+  echo "Token som brukes for autentisering mot github er NULL and docker build vill feile!"
 else
-  echo "Token som brukes i autentisering mot github er IKKE NULL"
+  echo "Token som brukes for autentisering mot github er IKKE NULL"
 fi
 
 
