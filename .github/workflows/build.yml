@@ -55,8 +55,8 @@ jobs:
         shell: bash
         run: |
           echo "Building artifacts $BUILD_VERSION"
-          mvn jacoco:prepare-agent deploy --quiet -e --batch-mode --settings ./.m2/settings.xml -Dmaven.wagon.http.pool=false -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true -Djacoco.destFile=$(pwd)/target/jacoco.exec
-          echo "Deployed artifacts"
+          mvn jacoco:prepare-agent install --quiet -e --batch-mode --settings ./.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -Djacoco.destFile=$(pwd)/target/jacoco.exec -Pgithub
+          echo "Build artifacts"
           echo "::set-env name=TAG::$(mvn help:evaluate --batch-mode --settings ./.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)"
 
       - name: Bygg og push docker-image

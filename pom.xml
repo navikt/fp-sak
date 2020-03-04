@@ -975,6 +975,19 @@
                 <sonar.leak.period>previous_analysis</sonar.leak.period>
             </properties>
         </profile>
+        <profile>
+        <id>github</id>
+        <activation>
+            <activeByDefault>false</activeByDefault>
+        </activation>
+            <distributionManagement>
+                <repository>
+                    <id>github1</id>
+                    <name>Github navikt Maven Packages</name>
+                    <url>https://maven.pkg.github.com/navikt/fp-sak</url>
+                </repository>
+            </distributionManagement>
+        </profile>
     </profiles>
 
 </project>
