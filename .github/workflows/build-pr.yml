@@ -4,6 +4,7 @@ on: [pull_request]
 
 env:
   ORACLE_IMAGE: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
+  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fp-sak
   TZ: "Europe/Oslo"
 
 jobs:
