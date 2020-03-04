@@ -52,6 +52,9 @@ public class SammenligningsgrunnlagPrStatus extends BaseEntitet {
     @Column(name = "avvik_promille_ny", nullable = false)
     private BigDecimal avvikPromilleNy = BigDecimal.ZERO;
 
+    @Column(name = "avvik_promille", nullable = false)
+    private BigDecimal avvikPromille = BigDecimal.ZERO;
+
     @JsonBackReference
     @OneToOne(optional = false)
     @JoinColumn(name = "beregningsgrunnlag_id", nullable = false, updatable = false, unique = true)
@@ -145,6 +148,7 @@ public class SammenligningsgrunnlagPrStatus extends BaseEntitet {
 
         public Builder medAvvikPromilleNy(BigDecimal avvikPromille) {
             if(avvikPromille != null) {
+                sammenligningsgrunnlagMal.avvikPromille = avvikPromille;
                 sammenligningsgrunnlagMal.avvikPromilleNy = avvikPromille;
             }
             return this;
