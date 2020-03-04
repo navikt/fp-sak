@@ -62,7 +62,7 @@ jobs:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
         run: |
-          docker build -f Dockerfile_test --pull --tag ${IMAGE_BASE}:${TAG} --tag ${IMAGE_BASE}:latest . --build-arg DOWNLOAD_SCRIPT=getmqclientsGA.sh --build-arg TOKEN_CARRIER="$GITHUB_PASSWORD"
+          docker build --build-arg DOWNLOAD_SCRIPT=getmqclients-GA.sh --build-arg TOKEN_CARRIER="$GITHUB_PASSWORD" --pull --tag ${IMAGE_BASE}:${TAG} --tag ${IMAGE_BASE}:latest .
           echo "$GITHUB_PASSWORD" | docker login --username "$GITHUB_USERNAME" --password-stdin https://docker.pkg.github.com
 #          docker push ${IMAGE_BASE}:latest
 #          docker push ${IMAGE_BASE}:${TAG}

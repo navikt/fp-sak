@@ -1,13 +1,14 @@
-echo "Henter siste test-jars for sakogbehandling-klient og okonomistotte-klient"
 export LC_ALL=en_US.UTF-8
-export http_proxy=socks5h://host.docker.internal:5000
+
 token="$1"
 
 if [ -z "$token" ]
 then
-  echo "Token som brukes for autentisering mot github er NULL and docker build vill feile!"
+  echo "Token er NULL!"
+  echo "Autentisering mot github vil feile og wget vil returnere 400: Bad Response"
 else
-  echo "Token som brukes for autentisering mot github er IKKE NULL"
+  echo "Token OK."
+  echo "Henter siste test-jars for sakogbehandling-klienten, okonomistotte-klienten og felles-integrasjon-jms-klienten"
 fi
 
 
