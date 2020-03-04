@@ -60,7 +60,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		    <fp-uttak.version>3.0-20200219155057-a303797</fp-uttak.version>
+        <fp-uttak.version>3.0-20200219155057-a303797</fp-uttak.version>
 
         <svp-uttak.version>2.1-20200130175841-176ecdd</svp-uttak.version>
         <!-- <felles.version>1.4.2-20191218110056-fa5b90a</felles.version> -->
@@ -687,7 +687,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-remote-resources-plugin</artifactId>
-                    <version>1.5</version>
+                    <version>1.7.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -968,11 +968,25 @@
                 <sonar.coverage.exclusions>${sonar.exclusions}</sonar.coverage.exclusions>
                 <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
                 <sonar.jacoco.reportPaths>${maven.root}/target/jacoco.exec</sonar.jacoco.reportPaths>
-                <sonar.javascript.lcov.reportPaths>${maven.root}/web/klient/coverage/lcov.info
+                <sonar.javascript.lcov.reportPaths>
+                    ${maven.root}/web/klient/coverage/lcov.info
                 </sonar.javascript.lcov.reportPaths>
                 <sonar.javascript.file.suffixes>.js,.jsx</sonar.javascript.file.suffixes>
                 <sonar.leak.period>previous_analysis</sonar.leak.period>
             </properties>
+        </profile>
+        <profile>
+        <id>github</id>
+        <activation>
+            <activeByDefault>false</activeByDefault>
+        </activation>
+            <distributionManagement>
+                <repository>
+                    <id>github1</id>
+                    <name>Github navikt Maven Packages</name>
+                    <url>https://maven.pkg.github.com/navikt/fp-sak</url>
+                </repository>
+            </distributionManagement>
         </profile>
     </profiles>
 

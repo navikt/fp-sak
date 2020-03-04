@@ -42,7 +42,9 @@
                 <artifactId>maven-remote-resources-plugin</artifactId>
                 <executions>
                     <execution>
-                        <goals><goal>bundle</goal></goals>
+                        <goals>
+                            <goal>bundle</goal>
+                        </goals>
                     </execution>
                 </executions>
                 <configuration>
@@ -79,14 +81,6 @@
                 <configuration>
                     <deployAtEnd>true</deployAtEnd>
                     <skip>false</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-remote-resources-plugin</artifactId>
-                <configuration>
-                	<parallel>all</parallel>
-                	<threadCount>5</threadCount>
                 </configuration>
             </plugin>
         </plugins>
