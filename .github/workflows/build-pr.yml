@@ -4,6 +4,7 @@ on: [pull_request]
 
 env:
   ORACLE_IMAGE: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
+  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fp-sak
   TZ: "Europe/Oslo"
 
 jobs:
@@ -43,11 +44,25 @@ jobs:
       - name: Set build version
         run: |
           echo "::set-env name=BUILD_VERSION::$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)"
-      - name: Build
+
+      - name: Build artifacts & deploy
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          echo "Building $BUILD_VERSION"
-          mvn package --quiet --batch-mode --settings ./.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION}
+          echo "Building artifacts $BUILD_VERSION"
+          mvn jacoco:prepare-agent install --quiet -e --batch-mode --settings ./.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -Djacoco.destFile=$(pwd)/target/jacoco.exec -Pgithub
+          echo "Build artifacts"
+          echo "::set-env name=TAG::$(mvn help:evaluate --batch-mode --settings ./.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)"
+
+      - name: Bygg og push docker-image
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+        run: |
+          docker build -f DockerFile_test --pull --tag ${IMAGE_BASE}:${TAG} --tag ${IMAGE_BASE}:latest . --build-arg DOWNLOAD_SCRIPT=getmqclientsGA.sh --build-arg TOKEN_CARRIER="$GITHUB_PASSWORD"
+          echo "$GITHUB_PASSWORD" | docker login --username "$GITHUB_USERNAME" --password-stdin https://docker.pkg.github.com
+#          docker push ${IMAGE_BASE}:latest
+#          docker push ${IMAGE_BASE}:${TAG}
