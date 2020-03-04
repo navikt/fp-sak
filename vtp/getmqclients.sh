@@ -1,7 +1,15 @@
 echo "Henter siste test-jars for sakogbehandling-klient og okonomistotte-klient"
 export LC_ALL=en_US.UTF-8
 export http_proxy=socks5h://host.docker.internal:5000
-token="$GITHUB_PASSWORD"
+token=${{ secrets.GITHUB_ACCESS_TOKEN }}
+
+if [ -z "$token" ]
+then
+  echo "Token som brukes i autentisering mot github er NULL and docker build vill feile!"
+else
+  echo "Token som brukes i autentisering mot github er IKKE NULL"
+fi
+
 
 wget --no-check-certificate --quiet --method GET --timeout=0 --header "Authorization: Bearer $token" \
    'https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/sakogbehandling-klient/maven-metadata.xml' \
