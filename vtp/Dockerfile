@@ -1,4 +1,5 @@
-FROM docker.pkg.github.com/navikt/fp-sak/fp-sak:latest
+ARG VERSION=latest
+FROM docker.pkg.github.com/navikt/fp-sak/fp-sak:$VERSION
 
 # Hack to temporarily bypass MQ, will fail build as it will fail autotests
 ARG DOWNLOAD_SCRIPT=getmqclients.sh
