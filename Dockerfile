@@ -27,7 +27,3 @@ RUN chmod +x /s3upload.sh
 
 # Export vault properties
 COPY export-vault.sh /init-scripts/export-vault.sh
-
-# Prep for running in VTP environment, correct log format
-RUN mkdir /app/vtp-lib
-COPY web/target/test-classes/logback-dev.xml /app/vtp-lib/logback-test.xml

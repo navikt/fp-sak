@@ -1,6 +1,10 @@
 ARG VERSION=latest
 FROM docker.pkg.github.com/navikt/fp-sak/fp-sak:$VERSION
 
+# Prep for running in VTP environment, correct log format
+RUN mkdir /app/vtp-lib
+COPY web/target/test-classes/logback-dev.xml /app/vtp-lib/logback-test.xml
+
 # Hack to temporarily bypass MQ, will fail build as it will fail autotests
 ARG DOWNLOAD_SCRIPT=getmqclients.sh
 ARG TOKEN_CARRIER=""
