@@ -1,5 +1,6 @@
 ARG VERSION=latest
-FROM docker.pkg.github.com/navikt/fp-sak/fpsak:$VERSION
+ARG REPO=docker.pkg.github.com/navikt/fp-sak/fpsak
+FROM $REPO:$VERSION
 
 # Prep for running in VTP environment, correct log format
 RUN mkdir /app/vtp-lib
