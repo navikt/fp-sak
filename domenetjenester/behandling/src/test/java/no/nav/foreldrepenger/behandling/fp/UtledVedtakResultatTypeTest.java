@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.behandling.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,8 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 
 public class UtledVedtakResultatTypeTest {
 
-    private final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-
     private ScenarioMorSøkerForeldrepenger scenarioFørstegang;
 
     @Before
@@ -38,7 +33,7 @@ public class UtledVedtakResultatTypeTest {
         Behandling behandling = scenarioKlage.lagMocked();
 
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling, Optional.empty(), Optional.empty());
+        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.VEDTAK_I_KLAGEBEHANDLING);
@@ -51,7 +46,7 @@ public class UtledVedtakResultatTypeTest {
         Behandling behandling = scenarioAnke.lagMocked();
 
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling, Optional.empty(), Optional.empty());
+        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.VEDTAK_I_ANKEBEHANDLING);
@@ -64,7 +59,7 @@ public class UtledVedtakResultatTypeTest {
         Behandling behandling = scenarioKlage.lagMocked();
 
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling, Optional.empty(), Optional.empty());
+        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.VEDTAK_I_INNSYNBEHANDLING);
@@ -77,7 +72,7 @@ public class UtledVedtakResultatTypeTest {
         Behandling behandling = scenarioFørstegang.lagMocked();
 
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling, Optional.empty(), Optional.empty());
+        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.AVSLAG);
@@ -90,7 +85,7 @@ public class UtledVedtakResultatTypeTest {
         Behandling behandling = scenarioFørstegang.lagMocked();
 
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling, Optional.empty(), Optional.empty());
+        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.INNVILGET);
@@ -103,7 +98,7 @@ public class UtledVedtakResultatTypeTest {
         Behandling behandling = scenarioFørstegang.lagMocked();
 
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling, Optional.empty(), Optional.empty());
+        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.INNVILGET);
@@ -118,10 +113,10 @@ public class UtledVedtakResultatTypeTest {
         // Arrange
         scenarioFørstegang.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT));
         Behandling behandling1 = scenarioFørstegang.lagMocked();
-        Behandling behandling2 = lagRevurdering(behandling1, BehandlingResultatType.INGEN_ENDRING);
+        Behandling behandling2 = lagRevurdering(behandling1);
 
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling2, Optional.empty(), Optional.empty());
+        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling2);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.AVSLAG);
@@ -137,49 +132,23 @@ public class UtledVedtakResultatTypeTest {
         // Arrange
         scenarioFørstegang.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         Behandling behandling1 = scenarioFørstegang.lagMocked();
-        Behandling behandling2 = lagRevurdering(behandling1, BehandlingResultatType.INGEN_ENDRING);
-        Behandling behandling3 = lagRevurdering(behandling2, BehandlingResultatType.INGEN_ENDRING);
+        Behandling behandling2 = lagRevurdering(behandling1);
+        Behandling behandling3 = lagRevurdering(behandling2);
 
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling3, Optional.empty(), Optional.empty());
+        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling3);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.INNVILGET);
     }
 
-    @Test
-    public void vedtakResultatTypeSettesTilINNVILGETForOpphørMedDatoEtterSkjæringstidspunkt() {
-        // Arrange
-        scenarioFørstegang.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR));
-        Behandling behandling = scenarioFørstegang.lagMocked();
-
-        // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling, Optional.of(SKJÆRINGSTIDSPUNKT.plusDays(1)), Optional.of(SKJÆRINGSTIDSPUNKT));
-
-        // Assert
-        assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.INNVILGET);
-    }
-
-    @Test
-    public void vedtakResultatTypeSettesTilAVSLAGForOpphørMedDatoLikSkjæringstidspunkt() {
-        // Arrange
-        scenarioFørstegang.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR));
-        Behandling behandling = scenarioFørstegang.lagMocked();
-
-        // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling, Optional.of(SKJÆRINGSTIDSPUNKT), Optional.of(SKJÆRINGSTIDSPUNKT));
-
-        // Assert
-        assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.AVSLAG);
-    }
-
-    private Behandling lagRevurdering(Behandling tidligereBehandling, BehandlingResultatType behandlingResultatType) {
+    private Behandling lagRevurdering(Behandling tidligereBehandling) {
         BehandlingÅrsak.Builder årsakBuilder = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING)
             .medOriginalBehandling(tidligereBehandling);
         Behandling revurdering = Behandling.fraTidligereBehandling(tidligereBehandling, BehandlingType.REVURDERING)
             .medBehandlingÅrsak(årsakBuilder)
             .build();
-        Behandlingsresultat.builder().medBehandlingResultatType(behandlingResultatType).buildFor(revurdering);
+        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INGEN_ENDRING).buildFor(revurdering);
         return revurdering;
     }
 }
