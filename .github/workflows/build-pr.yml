@@ -43,6 +43,7 @@ jobs:
       - name: Set build version
         run: |
           echo "::set-env name=BUILD_VERSION::$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)"
+
       - name: Build
         env:
           GITHUB_USERNAME: x-access-token

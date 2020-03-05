@@ -1,28 +1,38 @@
 apt-get install -y curl
-export http_proxy=socks5h://host.docker.internal:5000
+token="$1"
+
+if [ -z "$token" ]
+then
+  echo "Token som brukes for autentisering mot github er NULL and docker build vill feile!"
+else
+  echo "Token som brukes for autentisering mot github er IKKE NULL"
+fi
 
 echo "Henter siste test-jars for sakogbehandling-klient og okonomistotte-klient"
 
-curl https://repo.adeo.no/repository/maven-public/no/nav/vedtak/felles/integrasjon/sakogbehandling-klient/maven-metadata.xml -o maven-metadata-sb.xml -s
-sbversion=$(grep "<version>" maven-metadata-sb.xml | sed 's/<[^>]*>//g'| awk '{ print $1 }' | tail -n 1)
+curl -u $username:$token https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/sakogbehandling-klient/maven-metadata.xml -o maven-metadata-sb.xml -s
+sbversion=$(grep "<latest>" maven-metadata-sb.xml | sed -e 's/.*<latest>\(.*\)<\/latest>.*/\1/' | cut -c1,2,3,6-)
 echo "Siste versjon sak og behandling er $sbversion"
 rm maven-metadata-sb.xml
 
-curl https://repo.adeo.no/repository/maven-public/no/nav/vedtak/felles/integrasjon/okonomistotte-jms/maven-metadata.xml -o maven-metadata-o.xml -s
-oversion=$(grep "<version>" maven-metadata-o.xml | sed 's/<[^>]*>//g'| awk '{ print $1 }' | tail -n 1)
+curl -u $username:$token https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/okonomistotte-jms/maven-metadata.xml -o maven-metadata-o.xml -s
+oversion=$(grep "<latest>" maven-metadata-o.xml | sed -e 's/.*<latest>\(.*\)<\/latest>.*/\1/' | cut -c1,2,3,6-)
 echo "Siste versjon okonomistotte er $oversion"
 rm maven-metadata-o.xml
 
-curl https://repo.adeo.no/repository/maven-public/no/nav/vedtak/felles/integrasjon/felles-integrasjon-jms/maven-metadata.xml -o maven-metadata-jms.xml -s
-jmsversion=$(grep "<version>" maven-metadata-jms.xml | sed 's/<[^>]*>//g'| awk '{ print $1 }' | tail -n 1)
+curl -u $username:$token https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/felles-integrasjon-jms/maven-metadata.xml -o maven-metadata-jms.xml -s
+jmsversion=$(grep "<latest>" maven-metadata-jms.xml | sed -e 's/.*<latest>\(.*\)<\/latest>.*/\1/' | cut -c1,2,3,6-)
 echo "Siste versjon felles-integrasjon-jms er $jmsversion"
 rm maven-metadata-jms.xml
 
 echo "Henter sak og behandling..."
-curl "https://repo.adeo.no/repository/maven-public/no/nav/vedtak/felles/integrasjon/sakogbehandling-klient/$sbversion/sakogbehandling-klient-$sbversion-tests.jar" -o sakogbehandling-klient.jar  -s
+curl --location --request GET "https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/sakogbehandling-klient/$sbversion/sakogbehandling-klient-$sbversion-tests.jar" \
+--header "Authorization: Bearer $token" > sakogbehandling-klient.jar
 
 echo "Henter okonomi..."
-curl "https://repo.adeo.no/repository/maven-public/no/nav/vedtak/felles/integrasjon/okonomistotte-jms/$oversion/okonomistotte-jms-$oversion-tests.jar" -o okonomi.jar -s
+curl --location --request GET "https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/okonomistotte-jms/$oversion/okonomistotte-jms-$oversion-tests.jar" \
+--header "Authorization: Bearer $token" > okonomi.jar
 
-echo "Henter felles-integrasjon-jms"
-curl "https://repo.adeo.no/repository/maven-public/no/nav/vedtak/felles/integrasjon/felles-integrasjon-jms/$jmsversion/felles-integrasjon-jms-$jmsversion-tests.jar" -o felles-integrasjon-jms.jar -s
+echo "Henter felles-integrasjon-jms..."
+curl --location --request GET "https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/felles-integrasjon-jms/$jmsversion/felles-integrasjon-jms-$jmsversion-tests.jar" \
+--header "Authorization: Bearer $token" > felles-integrasjon-jms.jar
