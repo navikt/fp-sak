@@ -64,6 +64,6 @@ spec:
   sidecar: true # refresh token
   env:
   {{#each env}}
-     - name: {{@key}}
-  value: "{{this}}"
+    - name: {{@key}}
+      value: "{{this}}"
   {{/each}}
