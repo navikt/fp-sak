@@ -1,9 +1,6 @@
 name: Bygger image for test
 
 on:
-  push:
-    branches:
-      - master    # Push events on master branch
   repository_dispatch:
     types: [fpsak-docker-image-for-test]
 
