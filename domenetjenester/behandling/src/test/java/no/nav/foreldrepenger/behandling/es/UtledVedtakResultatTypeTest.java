@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.behandling.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +32,7 @@ public class UtledVedtakResultatTypeTest {
         Behandling behandling = scenarioKlage.lagMocked();
 
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling);
+        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling, Optional.empty(), Optional.empty());
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.VEDTAK_I_KLAGEBEHANDLING);
@@ -43,7 +45,7 @@ public class UtledVedtakResultatTypeTest {
         Behandling behandling = scenarioKlage.lagMocked();
 
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling);
+        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling, Optional.empty(), Optional.empty());
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.VEDTAK_I_INNSYNBEHANDLING);
@@ -56,7 +58,7 @@ public class UtledVedtakResultatTypeTest {
         Behandling behandling = scenarioFørstegang.lagMocked();
 
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling);
+        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling, Optional.empty(), Optional.empty());
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.AVSLAG);
@@ -69,7 +71,7 @@ public class UtledVedtakResultatTypeTest {
         Behandling behandling = scenarioFørstegang.lagMocked();
 
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling);
+        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(behandling, Optional.empty(), Optional.empty());
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.INNVILGET);
