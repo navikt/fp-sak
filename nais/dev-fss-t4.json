@@ -12,11 +12,7 @@
     "https://fpsak-t4.nais.preprod.local/"
   ],
   "env": {
-    "APP_NAME": "fpsak",
     "APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
-    "APPDYNAMICS_CONTROLLER_HOST_NAME": "appdynamics.adeo.no",
-    "APPDYNAMICS_CONTROLLER_SSL_ENABLED": "true",
-    "APPDYNAMICS_CONTROLLER_PORT": "443",
 
     "KAFKA_AKSJONSPUNKTHENDELSE_TOPIC": "privat-foreldrepenger-aksjonspunkthendelse-t4",
     "KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID": "KP-privat-foreldrepenger-aksjonspunkthendelse-t4",

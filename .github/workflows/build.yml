@@ -6,7 +6,7 @@ on:
       - master    # Push events on master branch
 env:
   ORACLE_IMAGE: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
-  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fp-sak
+  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fpsak
   TZ: "Europe/Oslo"
 
 jobs:
