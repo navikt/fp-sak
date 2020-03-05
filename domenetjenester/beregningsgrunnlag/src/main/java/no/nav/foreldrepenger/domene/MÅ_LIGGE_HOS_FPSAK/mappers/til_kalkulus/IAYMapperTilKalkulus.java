@@ -304,7 +304,7 @@ public class IAYMapperTilKalkulus {
         builder.medBehandlingsTema(TemaUnderkategori.fraKode(ytelse.getBehandlingsTema().getKode()));
         builder.medKilde(Fagsystem.fraKode(ytelse.getKilde().getKode()));
         builder.medPeriode(mapDatoIntervall(ytelse.getPeriode()));
-        builder.medYtelseType(FagsakYtelseType.fraKode(ytelse.getRelatertYtelseType().getKode()));
+//        builder.medYtelseType(FagsakYtelseType.fraKode(ytelse.getRelatertYtelseType().getKode()));
         return builder;
     }
 
