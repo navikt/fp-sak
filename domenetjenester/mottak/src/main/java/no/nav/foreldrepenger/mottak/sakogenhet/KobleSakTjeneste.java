@@ -49,6 +49,9 @@ public class KobleSakTjeneste {
 
     private Logger logger = LoggerFactory.getLogger(KobleSakTjeneste.class);
 
+    private static final int TIDLIGSTE_FØDSEL_I_UKER_FØR_TERMIN = 19;
+    private static final int SENESTE_FØDSEL_I_UKER_ETTER_TERMIN = 4;
+
     private TpsTjeneste tpsTjeneste;
     private PersonopplysningRepository personopplysningRepository;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -189,12 +192,29 @@ public class KobleSakTjeneste {
         } else if (nåværende.getGjelderFødsel() && !barnFraTps.isEmpty() && aktuell.getGjelderFødsel()) {
             final LocalDate fødselsdato = barnFraTps.get(0).getFødselsdato();
             return overlapperHendelserFor(fødselsdato, 2, aktuell.getSkjæringstidspunkt());
+        } else if(!harSammeType(aktuell, nåværende.getType()) && nåværende.getGjelderFødsel() && aktuell.getGjelderFødsel()) {
+            return matcherTidspunkt(nåværende, aktuell);
         } else if (harSammeType(aktuell, nåværende.getType()) && nåværende.getGjelderAdopsjon()) {
             return matcherBarn(nåværende, aktuell);
         } else if (gjelderStebarnsadopsjon(nåværende, aktuell) || gjelderStebarnsadopsjon(aktuell, nåværende)) {
             return matcherBarn(nåværende, aktuell);
         }
         return false;
+    }
+
+    private Boolean matcherTidspunkt(FamilieHendelseEntitet nåværende, FamilieHendelseEntitet aktuell) {
+        LocalDate termin;
+        LocalDate fødselsdato;
+        if(harSammeType(nåværende, FamilieHendelseType.FØDSEL)) {
+            if(!aktuell.getTerminbekreftelse().isPresent() || !nåværende.getFødselsdato().isPresent()) return false;
+            termin = aktuell.getTerminbekreftelse().get().getTermindato();
+            fødselsdato = nåværende.getFødselsdato().get();
+        } else if (harSammeType(aktuell, FamilieHendelseType.FØDSEL)) {
+            if(!nåværende.getTerminbekreftelse().isPresent() || !aktuell.getFødselsdato().isPresent()) return false;
+            termin = nåværende.getTerminbekreftelse().get().getTermindato();
+            fødselsdato = aktuell.getFødselsdato().get();
+        } else return false;
+        return (fødselsdato.isAfter(termin.minusWeeks(TIDLIGSTE_FØDSEL_I_UKER_FØR_TERMIN)) && fødselsdato.isBefore(termin.plusWeeks(SENESTE_FØDSEL_I_UKER_ETTER_TERMIN)));
     }
 
     private boolean gjelderStebarnsadopsjon(FamilieHendelseEntitet nåværende, FamilieHendelseEntitet aktuell) {

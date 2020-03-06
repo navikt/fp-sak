@@ -109,6 +109,60 @@ public class KobleSakTjenesteTest {
     }
 
     @Test
+    public void finn_mors_fagsak_dersom_mor_søker_termin_og_gjensidig_oppgitt_søknad_ved_tidlig_fødsel_uten_at_barnet_er_registrert_i_TPS() {
+        // Oppsett
+        settOppTpsStrukturer(true, true, false);
+
+        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(19).minusDays(1), FAR_AKTØR_ID);
+        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+
+        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+
+        assertThat(morsSak).isPresent();
+        assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
+    }
+
+    @Test
+    public void finn_ikke_mors_fagsak_dersom_mor_søker_termin_og_gjensidig_oppgitt_søknad_ved_for_tidlig_fødsel() {
+        // Oppsett
+        settOppTpsStrukturer(true, true);
+
+        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(19), FAR_AKTØR_ID);
+        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+
+        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+
+        assertThat(morsSak).isNotPresent();
+    }
+
+    @Test
+    public void finn_mors_fagsak_dersom_mor_søker_termin_får_bekreftet_fødsel_og_gjensidig_oppgitt_søknad_ved_forsinket_fødsel_uten_at_barnet_er_registrert_i_TPS() {
+        // Oppsett
+        settOppTpsStrukturer(true, true, false);
+
+        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusWeeks(4).plusDays(1), FAR_AKTØR_ID);
+        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+
+        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+
+        assertThat(morsSak).isPresent();
+        assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
+    }
+
+    @Test
+    public void finn_ikke_mors_fagsak_dersom_mor_søker_termin_og_gjensidig_oppgitt_søknad_ved_for_sen_fødsel() {
+        // Oppsett
+        settOppTpsStrukturer(true, true);
+
+        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusWeeks(4), FAR_AKTØR_ID);
+        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+
+        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+
+        assertThat(morsSak).isNotPresent();
+    }
+
+    @Test
     public void finn_mors_fagsak_dersom_termin_og_en_part_oppgir_annen_part() {
         // Oppsett
         settOppTpsStrukturer(false, false);
@@ -387,6 +441,10 @@ public class KobleSakTjenesteTest {
     }
 
     private void settOppTpsStrukturer(boolean medNyligFødt, boolean medKunMor) {
+        settOppTpsStrukturer(medNyligFødt, medKunMor, true);
+    }
+
+    private void settOppTpsStrukturer(boolean medNyligFødt, boolean medKunMor, boolean nyfødtbarnEriTPS) {
         HashSet<Familierelasjon> tilBarna = new HashSet<>(
             medNyligFødt ? List.of(relasjontilEldreBarn, relasjontilBarn) : List.of(relasjontilEldreBarn));
         HashSet<Familierelasjon> tilForeldre = new HashSet<>(medKunMor ? List.of(relasjontilMor) : List.of(relasjontilMor, relasjontilFar));
@@ -409,9 +467,12 @@ public class KobleSakTjenesteTest {
         when(tpsTjeneste.hentAktørForFnr(FAR_IDENT)).thenReturn(Optional.of(FAR_AKTØR_ID));
         when(tpsTjeneste.hentBrukerForAktør(MOR_AKTØR_ID)).thenReturn(Optional.of(MOR_PINFO));
         when(tpsTjeneste.hentBrukerForAktør(FAR_AKTØR_ID)).thenReturn(Optional.of(FAR_PINFO));
-        when(tpsTjeneste.hentBrukerForAktør(BARN_AKTØR_ID)).thenReturn(Optional.of(BARN_PINFO));
         when(tpsTjeneste.hentBrukerForAktør(ELDRE_BARN_AKTØR_ID)).thenReturn(Optional.of(ELDRE_BARN_PINFO));
         when(tpsTjeneste.hentBrukerForFnr(ELDRE_BARN_IDENT)).thenReturn(Optional.of(ELDRE_BARN_PINFO));
-        when(tpsTjeneste.hentBrukerForFnr(BARN_IDENT)).thenReturn(Optional.of(BARN_PINFO));
+        if(nyfødtbarnEriTPS) {
+            when(tpsTjeneste.hentBrukerForAktør(BARN_AKTØR_ID)).thenReturn(Optional.of(BARN_PINFO));
+            when(tpsTjeneste.hentBrukerForFnr(BARN_IDENT)).thenReturn(Optional.of(BARN_PINFO));
+        }
+
     }
 }
