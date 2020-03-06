@@ -2,7 +2,7 @@ kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
   name: fpsak
-  namespace: NAMESPACE_VAL
+  namespace: {{namespace}}
   labels:
     team: teamforeldrepenger
 spec:
@@ -64,6 +64,6 @@ spec:
   sidecar: true # refresh token
   env:
   {{#each env}}
-    - name: {{@key}}
-      value: "{{this}}"
+   - name: {{@key}}
+     value: "{{this}}"
   {{/each}}
