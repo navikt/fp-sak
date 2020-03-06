@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
 import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class FamilieHendelseTjeneste {
@@ -206,7 +205,7 @@ public class FamilieHendelseTjeneste {
         }
         LocalDate fhDato = grunnlag.finnGjeldendeFødselsdato();
         Period fhDatoPlussFrist = FamilieHendelseType.FØDSEL.equals(grunnlag.getGjeldendeVersjon().getType()) ? REGISTRERING_FRIST_ETTER_FØDSEL : REGISTRERING_FRIST_ETTER_TERMIN;
-        return FPDateUtil.iDag().isAfter(fhDato.plus(fhDatoPlussFrist));
+        return LocalDate.now().isAfter(fhDato.plus(fhDatoPlussFrist));
     }
 
     public void kopierGrunnlag(Long fraBehandlingId, Long tilBehandlingId) {

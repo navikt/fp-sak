@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.registerinnhenting;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
@@ -24,12 +25,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterinnhentingHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * Oppdaterer registeropplysninger for engangsstønader og skrur behandlingsprosessen tilbake
@@ -85,13 +86,13 @@ public class RegisterdataEndringshåndterer {
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
             return false;
         }
-        LocalDateTime midnatt = FPDateUtil.iDag().atStartOfDay();
+        LocalDateTime midnatt = LocalDate.now().atStartOfDay();
         Optional<LocalDateTime> opplysningerOppdatertTidspunkt = behandlingRepository.hentSistOppdatertTidspunkt(behandling.getId());
         if (oppdatereRegisterdataTidspunkt == null) {
             // konfig-verdien er ikke satt
             return erOpplysningerOppdatertTidspunktFør(midnatt, opplysningerOppdatertTidspunkt);
         }
-        LocalDateTime nårOppdatereRegisterdata = FPDateUtil.nå().minus(oppdatereRegisterdataTidspunkt);
+        LocalDateTime nårOppdatereRegisterdata = LocalDateTime.now().minus(oppdatereRegisterdataTidspunkt);
         if (nårOppdatereRegisterdata.isAfter(midnatt)) {
             // konfigverdien er etter midnatt, da skal midnatt gjelde
             return erOpplysningerOppdatertTidspunktFør(midnatt, opplysningerOppdatertTidspunkt);
@@ -102,7 +103,7 @@ public class RegisterdataEndringshåndterer {
 
     public void sikreInnhentingRegisteropplysningerVedNesteOppdatering(Behandling behandling) {
         // Flytt oppdatert tidspunkt passe langt tilbale
-        behandlingRepository.oppdaterSistOppdatertTidspunkt(behandling, FPDateUtil.nå().minusWeeks(1).minusDays(1));
+        behandlingRepository.oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(1).minusDays(1));
     }
 
     boolean erOpplysningerOppdatertTidspunktFør(LocalDateTime nårOppdatereRegisterdata,
@@ -125,7 +126,9 @@ public class RegisterdataEndringshåndterer {
             if (utledÅrsaker) {
                 lagBehandlingÅrsakerOgHistorikk(behandling, endringsresultat);
             }
-            endringskontroller.spolTilStartpunkt(behandling, endringsresultat);
+            // Sikre håndtering av manglende fødsel
+            endringskontroller.spolTilStartpunkt(behandling, endringsresultat,
+                gåttOverTerminDatoOgIngenFødselsdato ? StartpunktType.SØKERS_RELASJON_TIL_BARNET : StartpunktType.UDEFINERT);
         }
     }
 
@@ -154,7 +157,7 @@ public class RegisterdataEndringshåndterer {
         registerdataInnhenter.innhentIAYIAbakus(behandling);
 
         // oppdater alltid tidspunktet grunnlagene ble oppdater eller forsøkt oppdatert!
-        behandlingRepository.oppdaterSistOppdatertTidspunkt(behandling, FPDateUtil.nå());
+        behandlingRepository.oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now());
         // Finn alle endringer som registerinnhenting har gjort på behandlingsgrunnlaget
         EndringsresultatDiff endringsresultat = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(behandling.getId(), grunnlagSnapshot);
         return endringsresultat;

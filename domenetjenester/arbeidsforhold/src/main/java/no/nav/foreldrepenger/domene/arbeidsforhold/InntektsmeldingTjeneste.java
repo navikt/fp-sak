@@ -2,7 +2,15 @@ package no.nav.foreldrepenger.domene.arbeidsforhold;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.iay.modell.*;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.Ambasade;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingSomIkkeKommer;
+import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -10,7 +18,14 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -230,12 +245,16 @@ public class InntektsmeldingTjeneste {
                     return gjelderFor && ansettelsesPerioder.stream()
                         .anyMatch(ap -> ap.getPeriode().inkluderer(skjæringstidspunktet) || ap.getPeriode().getTomDato().isAfter(skjæringstidspunktet));
                 });
-            if (skalFjernes) {
+            if (skalFjernes && !erAmbasade(im)) {
                 fjernes.add(im);
             }
         });
         kladd.removeAll(fjernes);
         return List.copyOf(kladd);
+    }
+
+    private static boolean erAmbasade(Inntektsmelding im) {
+        return im.getArbeidsgiver().getErVirksomhet() && Ambasade.erAmbasade(im.getArbeidsgiver().getOrgnr());
     }
 
     private Map<String, Inntektsmelding> hentIMMedIndexKey(Long behandlingId) {

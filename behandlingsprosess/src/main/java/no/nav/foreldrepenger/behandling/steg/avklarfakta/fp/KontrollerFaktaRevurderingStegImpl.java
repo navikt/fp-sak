@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingskontroll.StartpunktRef;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -64,7 +63,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @BehandlingStegRef(kode = "KOFAK")
 @BehandlingTypeRef("BT-004")
 @FagsakYtelseTypeRef("FP")
-@StartpunktRef
 @ApplicationScoped
 class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private static final Logger LOGGER = LoggerFactory.getLogger(KontrollerFaktaRevurderingStegImpl.class);
@@ -177,10 +175,11 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 var orgBehandlingsresultat = getBehandlingsresultat(ref.getOriginalBehandlingId().get());
                 if (orgBehandlingsresultat != null && !orgBehandlingsresultat.isVilkårAvslått()) {
                     // Revurdering av innvilget behandling. Hvis vilkår er avslått må man tillate re-evalueres
-                    StartpunktType startpunktForGrunnlagsendringer = startpunktTjeneste.utledStartpunktMotOriginalBehandling(ref);
-                    startpunkt = startpunktForGrunnlagsendringer.equals(StartpunktType.UDEFINERT)
-                        ? (inneholderEndringssøknadPerioderFørSkjæringstidspunkt(revurdering, ref) ? StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP
-                        : StartpunktType.UTTAKSVILKÅR) : startpunktForGrunnlagsendringer;
+                    startpunkt = startpunktTjeneste.utledStartpunktMotOriginalBehandling(ref);
+                    if (startpunkt.equals(StartpunktType.UDEFINERT)) {
+                        startpunkt = inneholderEndringssøknadPerioderFørSkjæringstidspunkt(revurdering, ref) ?
+                            StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP : StartpunktType.UTTAKSVILKÅR;
+                    }
                 }
             }
         }

@@ -13,6 +13,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt.Builder;
+import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -50,6 +51,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     private OpptjeningRepository opptjeningRepository;
     private SøknadRepository søknadRepository;
     private BehandlingRepository behandlingRepository;
+    private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
 
     SkjæringstidspunktTjenesteImpl() {
         // CDI
@@ -57,6 +59,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     @Inject
     public SkjæringstidspunktTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
+                                          YtelseMaksdatoTjeneste beregnMorsMaksdatoTjeneste,
                                           SkjæringstidspunktUtils utlederUtils) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -65,6 +68,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.utlederUtils = utlederUtils;
+        this.ytelseMaksdatoTjeneste = beregnMorsMaksdatoTjeneste;
     }
 
     @Override
@@ -91,7 +95,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
-        builder.medUtledetSkjæringstidspunkt(utlederUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato, familieHendelseGrunnlag));
+        Optional<LocalDate> morsMaksDato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getFagsak().getRelasjonsRolleType());
+        builder.medUtledetSkjæringstidspunkt(utlederUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato, familieHendelseGrunnlag, morsMaksDato));
 
         return builder.build();
     }

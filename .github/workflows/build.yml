@@ -59,7 +59,7 @@ jobs:
           echo "Build artifacts"
           echo "::set-env name=TAG::$(mvn help:evaluate --batch-mode --settings ./.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)"
 
-      - name: Bygg og push docker-image
+      - name: Bygg og push docker-image for distribuering
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
@@ -68,6 +68,22 @@ jobs:
           echo "$GITHUB_PASSWORD" | docker login --username "$GITHUB_USERNAME" --password-stdin https://docker.pkg.github.com
           docker push ${IMAGE_BASE}:latest
           docker push ${IMAGE_BASE}:${TAG}
+
+      - name: Bygg og push docker-image for bruk under testing
+        if: success()
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+        run: |
+          docker build -f vtp/Dockerfile --pull \
+            --build-arg DOWNLOAD_SCRIPT=getmqclients-GA.sh \
+            --build-arg TOKEN_CARRIER="$GITHUB_PASSWORD" \
+            --build-arg VERSION=${TAG} \
+            --tag ${IMAGE_BASE}-test:${TAG} \
+            --tag ${IMAGE_BASE}-test:latest .
+          echo "$GITHUB_PASSWORD" | docker login --username "$GITHUB_USERNAME" --password-stdin https://docker.pkg.github.com
+          docker push ${IMAGE_BASE}-test:latest
+          docker push ${IMAGE_BASE}-test:${TAG}
 
       - name: Opprett deployment issue
         if: success()
@@ -85,6 +101,7 @@ jobs:
             <tr><td>dev-fss</td><td>t4, q0, q1</td></tr>
             <tr><td>prod-fss</td><td>default</td></tr>
             </table>
+
       - name: Trigg deploy til dev
         if: success()
         uses: peter-evans/create-or-update-comment@v1

@@ -46,6 +46,7 @@ public class ArbeidsforholdDto {
     private Boolean inntektMedTilBeregningsgrunnlag;
     private List<PermisjonDto> permisjoner;
     private LocalDate overstyrtTom;
+    private Boolean kanOppretteNyttArbforFraIM;
 
     public String getNavn() {
         return navn;
@@ -293,6 +294,14 @@ public class ArbeidsforholdDto {
 
     public void setOverstyrtTom(LocalDate overstyrtTom) {
         this.overstyrtTom = overstyrtTom;
+    }
+
+    public Boolean getKanOppretteNyttArbforFraIM() {
+        return kanOppretteNyttArbforFraIM;
+    }
+
+    public void setKanOppretteNyttArbforFraIM(Boolean kanOppretteNyttArbforFraIM) {
+        this.kanOppretteNyttArbforFraIM = kanOppretteNyttArbforFraIM;
     }
 
 }
