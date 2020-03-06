@@ -50,15 +50,15 @@ spec:
     enabled: true
     paths:
       - mountPath: /var/run/secrets/nais.io/defaultDSconfig
-        kvPath: {{oracle.config}}
+        kvPath: {{oracleconfig}}
       - mountPath: /var/run/secrets/nais.io/defaultDS
-        kvPath:  {{oracle.fpsak.secret}}
+        kvPath:  {{oraclefpsaksecret}}
       - mountPath: /var/run/secrets/nais.io/dvhDS
-        kvPath:  {{oracle.dvh.secret}}
+        kvPath:  {{oracledvhsecret}}
       - mountPath: /var/run/secrets/nais.io/serviceuser
-        kvPath: {{fpsak.serviceuser}}
+        kvPath: {{fpsakserviceuser}}
       - mountPath: /var/run/secrets/nais.io/ldap
-        kvPath: {{ldap.serviceuser}}
+        kvPath: {{ldapserviceuser}}
       - mountPath: /var/run/secrets/nais.io/vault
         kvPath: /kv/{{cluster}}/fss/fpsak/{{namespace}}
   sidecar: true # refresh token
