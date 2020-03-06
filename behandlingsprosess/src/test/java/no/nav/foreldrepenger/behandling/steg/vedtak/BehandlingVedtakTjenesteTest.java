@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.vedtak;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -11,9 +10,7 @@ import java.util.Properties;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -42,10 +39,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class BehandlingVedtakTjenesteTest {
@@ -64,16 +58,11 @@ public class BehandlingVedtakTjenesteTest {
     @Before
     public void setUp() {
         BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer = mock(BehandlingVedtakEventPubliserer.class);
-        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
-        OpphørUttakTjeneste opphørUttakTjeneste = new OpphørUttakTjeneste(new UttakRepositoryProvider(repositoryProvider.getEntityManager()));
-        behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider, opphørUttakTjeneste, skjæringstidspunktTjeneste);
+        behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider);
     }
 
-    // Tester behandlingsresultattype OPPHØR med opphør etter skjæringstidspunkt
     @Test
-    public void skal_opprette_behandlingsvedtak_for_revurdering_med_opphør_etter_skjæringstidspunkt() {
+    public void skal_opprette_behandlingsvedtak_for_revurdering_med_opphør() {
         // Arrange
         Behandling originalBehandling = lagInnvilgetOriginalBehandling();
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
@@ -92,31 +81,7 @@ public class BehandlingVedtakTjenesteTest {
         // Assert
         Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(revurdering.getId());
         assertThat(vedtak).isPresent();
-        assertThat(vedtak.get().getVedtakResultatType()).isEqualTo(VedtakResultatType.INNVILGET);
-    }
-
-    // Tester behandlingsresultattype opphør for opphør på skjæringstidspunkt
-    @Test
-    public void skal_opprette_behandlingsvedtak_for_revurdering_med_opphør_på_skjæringstidspunkt() {
-        // Arrange
-        Behandling originalBehandling = lagInnvilgetOriginalBehandling();
-        Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandling(originalBehandling)).build();
-        manipulerBehandling.forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
-        BehandlingLås behandlingLås = lagreBehandling(revurdering);
-        opprettFamilieHendelseGrunnlag(originalBehandling, revurdering);
-        Fagsak fagsak = revurdering.getFagsak();
-        BehandlingskontrollKontekst revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
-        oppdaterMedBehandlingsresultat(revurderingKontekst, BehandlingResultatType.OPPHØR);
-        lagUttaksresultatOpphørPåSkjæringstidspunkt(revurdering);
-
-        // Act
-        behandlingVedtakTjeneste.opprettBehandlingVedtak(revurderingKontekst, revurdering);
-
-        // Assert
-        Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(revurdering.getId());
-        assertThat(vedtak).isPresent();
-        assertThat(vedtak.get().getVedtakResultatType()).isEqualTo(VedtakResultatType.AVSLAG);
+        assertThat(vedtak.get().getVedtakResultatType()).isEqualTo(VedtakResultatType.OPPHØR);
     }
 
     private Behandling lagInnvilgetOriginalBehandling() {
@@ -131,13 +96,6 @@ public class BehandlingVedtakTjenesteTest {
         uttakResultatPerioderEntitet.leggTilPeriode(lagOpphørtPeriode(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1), SKJÆRINGSTIDSPUNKT.plusMonths(6)));
         uttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), uttakResultatPerioderEntitet);
     }
-
-    private void lagUttaksresultatOpphørPåSkjæringstidspunkt(Behandling revurdering) {
-        UttakResultatPerioderEntitet uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
-        uttakResultatPerioderEntitet.leggTilPeriode(lagOpphørtPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(6)));
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), uttakResultatPerioderEntitet);
-    }
-
 
     private UttakResultatPeriodeEntitet lagInnvilgetUttakPeriode(LocalDate fom, LocalDate tom) {
         return new UttakResultatPeriodeEntitet.Builder(fom, tom)
@@ -158,7 +116,6 @@ public class BehandlingVedtakTjenesteTest {
         behandlingRepository.lagre(behandling, behandlingLås);
         return behandlingLås;
     }
-
 
     private void oppdaterMedBehandlingsresultat(BehandlingskontrollKontekst kontekst, BehandlingResultatType behandlingResultatType) {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
@@ -181,7 +138,6 @@ public class BehandlingVedtakTjenesteTest {
         repository.flush();
     }
 
-
     private BehandlingskontrollKontekst byggBehandlingsgrunnlagFPForFødsel(BehandlingStegType behandlingStegType) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now())
@@ -195,5 +151,4 @@ public class BehandlingVedtakTjenesteTest {
         Fagsak fagsak = behandling.getFagsak();
         return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
     }
-
 }

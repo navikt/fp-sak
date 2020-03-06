@@ -31,7 +31,8 @@ public class VedtaksbrevUtleder {
     }
 
     static boolean erAvlåttEllerOpphørt(BehandlingVedtak behandlingVedtak) {
-        return VedtakResultatType.AVSLAG.equals(behandlingVedtak.getVedtakResultatType());
+        return VedtakResultatType.AVSLAG.equals(behandlingVedtak.getVedtakResultatType())
+            || VedtakResultatType.OPPHØR.equals(behandlingVedtak.getVedtakResultatType());
     }
 
     static boolean erKlageBehandling(BehandlingVedtak behandlingVedtak) {

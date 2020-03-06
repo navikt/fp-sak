@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.behandling.fp;
 
-import java.time.LocalDate;
 import java.util.Objects;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -14,8 +12,7 @@ public class UtledVedtakResultatType {
         // hide public contructor
     }
 
-    public static VedtakResultatType utled(Behandling behandling, BehandlingResultatType behandlingResultatType, Optional<LocalDate> opphørsdato,
-                                           Optional<LocalDate> skjæringstidspunkt) {
+    public static VedtakResultatType utled(Behandling behandling, BehandlingResultatType behandlingResultatType) {
         Objects.requireNonNull(behandling, "behandling");
         Objects.requireNonNull(behandlingResultatType);
 
@@ -37,18 +34,16 @@ public class UtledVedtakResultatType {
         if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingResultatType)) {
             Behandling originalBehandling = behandling.getOriginalBehandling()
                 .orElseThrow(() -> new IllegalStateException("Kan ikke ha resultat INGEN ENDRING uten å ha en original behandling"));
-            return utled(originalBehandling, Optional.empty(), skjæringstidspunkt);
+            return utled(originalBehandling);
         }
         if (BehandlingResultatType.OPPHØR.equals(behandlingResultatType)) {
-            if (opphørsdato.isPresent() && skjæringstidspunkt.isPresent() && opphørsdato.get().isAfter(skjæringstidspunkt.get())) {
-                return VedtakResultatType.INNVILGET;
-            }
+            return VedtakResultatType.OPPHØR;
         }
         return VedtakResultatType.AVSLAG;
     }
 
-    public static VedtakResultatType utled(Behandling behandling, Optional<LocalDate> opphørsdato, Optional<LocalDate> skjæringstidspunkt) {
+    public static VedtakResultatType utled(Behandling behandling) {
         BehandlingResultatType behandlingResultatType = behandling.getBehandlingsresultat().getBehandlingResultatType();
-        return utled(behandling, behandlingResultatType, opphørsdato, skjæringstidspunkt);
+        return utled(behandling, behandlingResultatType);
     }
 }
