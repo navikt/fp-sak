@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class StartpunktUtlederYtelseFordelingTest {
 
@@ -68,10 +67,10 @@ public class StartpunktUtlederYtelseFordelingTest {
         LocalDate førsteuttaksdato = LocalDate.now();
         LocalDate endretUttaksdato = førsteuttaksdato.plusDays(1);
 
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
-        var revSkjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(endretUttaksdato).build();
+        var revSkjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(endretUttaksdato).medUtledetSkjæringstidspunkt(endretUttaksdato).build();
 
         // Act/Assert
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, revSkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
@@ -101,7 +100,7 @@ public class StartpunktUtlederYtelseFordelingTest {
         opprettYtelsesFordelingMedGradering(revurdering, AG1, ARBEIDSPROSENT_30);
 
         LocalDate førsteuttaksdato = LocalDate.now();
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurdering.getId())).thenReturn(skjæringstidspunkt);
 
@@ -166,14 +165,14 @@ public class StartpunktUtlederYtelseFordelingTest {
         Behandling revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
 
         LocalDate førsteuttaksdato = LocalDate.now();
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         opprettYtelsesFordelingMedGradering(revurdering, AG1, BigDecimal.ZERO);
         lagreEndringssøknad(revurdering);
 
         // Act
-        StartpunktType startpunkt = utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, førsteuttaksdato), 1L, 2L);
+        StartpunktType startpunkt = utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L);
 
         // Assert
         assertThat(startpunkt).isEqualTo(UTTAKSVILKÅR);
@@ -213,8 +212,8 @@ public class StartpunktUtlederYtelseFordelingTest {
         byggFamilieHendelse(behandling);
         SøknadEntitet søknad = new SøknadEntitet.Builder()
             .medElektroniskRegistrert(true)
-            .medSøknadsdato(FPDateUtil.iDag())
-            .medMottattDato(FPDateUtil.iDag())
+            .medSøknadsdato(LocalDate.now())
+            .medMottattDato(LocalDate.now())
             .medErEndringssøknad(true)
             .build();
         søknadRepository.lagreOgFlush(behandling, søknad);
@@ -225,8 +224,8 @@ public class StartpunktUtlederYtelseFordelingTest {
             .opprettBuilderFor(behandling)
             .medAntallBarn(1);
         søknadHendelse.medTerminbekreftelse(søknadHendelse.getTerminbekreftelseBuilder()
-            .medTermindato(FPDateUtil.iDag())
-            .medUtstedtDato(FPDateUtil.iDag()));
+            .medTermindato(LocalDate.now())
+            .medUtstedtDato(LocalDate.now()));
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadHendelse);
         return repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getSøknadVersjon();
     }

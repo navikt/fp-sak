@@ -7,7 +7,7 @@ import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 
-public interface KontrollerFaktaAksjonspunktUtleder {
+public interface KontrollerFaktaInngangsVilkårUtleder {
 
     List<AksjonspunktResultat> utledAksjonspunkter(BehandlingReferanse ref);
 

@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingskontroll.StartpunktRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
@@ -54,7 +53,6 @@ public class KontrollerFaktaStegImplTest {
     private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
 
     @Inject
-    @StartpunktRef
     @FagsakYtelseTypeRef("FP")
     @BehandlingTypeRef
     private KontrollerFaktaSteg steg;

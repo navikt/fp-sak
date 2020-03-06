@@ -16,21 +16,21 @@ import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.domene.registerinnhenting.KontrollerFaktaAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.registerinnhenting.KontrollerFaktaInngangsVilkårUtleder;
 
-public abstract class KontrollerFaktaTjenesteImpl implements KontrollerFaktaAksjonspunktUtleder {
+public abstract class KontrollerFaktaTjenesteInngangsVilkår implements KontrollerFaktaInngangsVilkårUtleder {
 
-    private static final Logger logger = LoggerFactory.getLogger(KontrollerFaktaTjenesteImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(KontrollerFaktaTjenesteInngangsVilkår.class);
 
     private KontrollerFaktaUtledere utlederTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
-    protected KontrollerFaktaTjenesteImpl() {
+    protected KontrollerFaktaTjenesteInngangsVilkår() {
         // for CDI proxy
     }
 
-    protected KontrollerFaktaTjenesteImpl(KontrollerFaktaUtledere utlederTjeneste,
-                                          BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+    protected KontrollerFaktaTjenesteInngangsVilkår(KontrollerFaktaUtledere utlederTjeneste,
+                                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.utlederTjeneste = utlederTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }

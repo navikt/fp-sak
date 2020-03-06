@@ -78,7 +78,6 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class RegisterdataInnhenter {
@@ -499,7 +498,7 @@ public class RegisterdataInnhenter {
     }
 
     public void oppdaterSistOppdatertTidspunkt(Behandling behandling) {
-        behandlingRepository.oppdaterSistOppdatertTidspunkt(behandling, FPDateUtil.nå());
+        behandlingRepository.oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now());
     }
 
     public void innhentIAYIAbakus(Behandling behandling) {

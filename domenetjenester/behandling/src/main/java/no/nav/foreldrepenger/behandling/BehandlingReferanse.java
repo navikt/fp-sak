@@ -78,6 +78,9 @@ public class BehandlingReferanse {
         return fra(behandling, (LocalDate) null);
     }
 
+    /*
+     * Unngå bruk av denne.
+     */
     public static BehandlingReferanse fra(Behandling behandling, LocalDate utledetSkjæringstidspunkt) {
         return new BehandlingReferanse(behandling.getFagsakYtelseType(),
             behandling.getType(),

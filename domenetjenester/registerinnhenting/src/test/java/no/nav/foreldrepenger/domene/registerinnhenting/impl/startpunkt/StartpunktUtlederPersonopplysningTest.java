@@ -25,15 +25,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.familiehendelse.dødsfall.BarnBorteEndringIdentifiserer;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonRelasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
+import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.familiehendelse.dødsfall.BarnBorteEndringIdentifiserer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class StartpunktUtlederPersonopplysningTest {
 
@@ -68,7 +67,7 @@ public class StartpunktUtlederPersonopplysningTest {
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         AktørId søkerAktørId = førstegangScenario.getDefaultBrukerAktørId();
         PersonInformasjon.Builder builderForRegisteropplysninger = førstegangScenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn("Kari K").brukerKjønn(NavBrukerKjønn.KVINNE).fødselsdato(FPDateUtil.iDag().minusYears(28)).sivilstand(SivilstandType.UGIFT).region(Region.NORDEN));
+            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn("Kari K").brukerKjønn(NavBrukerKjønn.KVINNE).fødselsdato(LocalDate.now().minusYears(28)).sivilstand(SivilstandType.UGIFT).region(Region.NORDEN));
         førstegangScenario.medRegisterOpplysninger(builderForRegisteropplysninger.build());
         Behandling originalBehandling = førstegangScenario.lagre(repositoryProvider);
         Long behandlingId = originalBehandling.getId();
@@ -81,7 +80,7 @@ public class StartpunktUtlederPersonopplysningTest {
         revurderingScenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
         revurderingScenario.medBekreftetHendelse().medFødselsDato(nyBekreftetfødselsdato);
         PersonInformasjon.Builder revurderingPOBuilder = revurderingScenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn("Kari Mari").brukerKjønn(NavBrukerKjønn.KVINNE).fødselsdato(FPDateUtil.iDag().minusYears(28)).sivilstand(SivilstandType.UGIFT).region(Region.NORDEN))
+            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn("Kari Mari").brukerKjønn(NavBrukerKjønn.KVINNE).fødselsdato(LocalDate.now().minusYears(28)).sivilstand(SivilstandType.UGIFT).region(Region.NORDEN))
             .leggTilPersonopplysninger(Personopplysning.builder().aktørId(BARN_AKTØR_ID).navn("Barn Abbas").brukerKjønn(NavBrukerKjønn.KVINNE).fødselsdato(nyBekreftetfødselsdato).sivilstand(SivilstandType.UGIFT).region(Region.NORDEN))
             .leggTilRelasjon(PersonRelasjon.builder().fraAktørId(søkerAktørId).tilAktørId(BARN_AKTØR_ID).relasjonsrolle(RelasjonsRolleType.BARN))
             .leggTilRelasjon(PersonRelasjon.builder().fraAktørId(BARN_AKTØR_ID).tilAktørId(søkerAktørId).relasjonsrolle(RelasjonsRolleType.MORA));
@@ -100,7 +99,7 @@ public class StartpunktUtlederPersonopplysningTest {
         revurdering2Scenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
         revurdering2Scenario.medBekreftetHendelse().medFødselsDato(nyBekreftetfødselsdato);
         PersonInformasjon.Builder revurdering2POBuilder = revurdering2Scenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn("Kari Mari").brukerKjønn(NavBrukerKjønn.KVINNE).fødselsdato(FPDateUtil.iDag().minusYears(28)).sivilstand(SivilstandType.UGIFT).region(Region.NORDEN))
+            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn("Kari Mari").brukerKjønn(NavBrukerKjønn.KVINNE).fødselsdato(LocalDate.now().minusYears(28)).sivilstand(SivilstandType.UGIFT).region(Region.NORDEN))
             .leggTilPersonopplysninger(Personopplysning.builder().aktørId(BARN_AKTØR_ID).navn("Barn Abbas").brukerKjønn(NavBrukerKjønn.KVINNE).fødselsdato(nyBekreftetfødselsdato).dødsdato(origSkjæringsdato).sivilstand(SivilstandType.UGIFT).region(Region.NORDEN))
             .leggTilRelasjon(PersonRelasjon.builder().fraAktørId(søkerAktørId).tilAktørId(BARN_AKTØR_ID).relasjonsrolle(RelasjonsRolleType.BARN))
             .leggTilRelasjon(PersonRelasjon.builder().fraAktørId(BARN_AKTØR_ID).tilAktørId(søkerAktørId).relasjonsrolle(RelasjonsRolleType.MORA));
@@ -124,7 +123,7 @@ public class StartpunktUtlederPersonopplysningTest {
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         AktørId søkerAktørId = førstegangScenario.getDefaultBrukerAktørId();
         PersonInformasjon.Builder builderForRegisteropplysninger = førstegangScenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn("Kari K").brukerKjønn(NavBrukerKjønn.KVINNE).fødselsdato(FPDateUtil.iDag().minusYears(28)).sivilstand(SivilstandType.UGIFT).region(Region.NORDEN));
+            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn("Kari K").brukerKjønn(NavBrukerKjønn.KVINNE).fødselsdato(LocalDate.now().minusYears(28)).sivilstand(SivilstandType.UGIFT).region(Region.NORDEN));
         førstegangScenario.medRegisterOpplysninger(builderForRegisteropplysninger.build());
         Behandling originalBehandling = førstegangScenario.lagre(repositoryProvider);
         Long behandlingId = originalBehandling.getId();
@@ -137,8 +136,8 @@ public class StartpunktUtlederPersonopplysningTest {
         revurderingScenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
         revurderingScenario.medBekreftetHendelse().medFødselsDato(nyBekreftetfødselsdato);
         PersonInformasjon.Builder revurderingPOBuilder = revurderingScenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn("Kari Mari").brukerKjønn(NavBrukerKjønn.KVINNE).fødselsdato(FPDateUtil.iDag().minusYears(28)).sivilstand(SivilstandType.GIFT).region(Region.NORDEN))
-            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(EKTE_AKTØR_ID).navn("Far Mor").brukerKjønn(NavBrukerKjønn.MANN).fødselsdato(FPDateUtil.iDag().minusYears(28)).sivilstand(SivilstandType.GIFT).region(Region.NORDEN))
+            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn("Kari Mari").brukerKjønn(NavBrukerKjønn.KVINNE).fødselsdato(LocalDate.now().minusYears(28)).sivilstand(SivilstandType.GIFT).region(Region.NORDEN))
+            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(EKTE_AKTØR_ID).navn("Far Mor").brukerKjønn(NavBrukerKjønn.MANN).fødselsdato(LocalDate.now().minusYears(28)).sivilstand(SivilstandType.GIFT).region(Region.NORDEN))
             .leggTilRelasjon(PersonRelasjon.builder().fraAktørId(søkerAktørId).tilAktørId(EKTE_AKTØR_ID).relasjonsrolle(RelasjonsRolleType.EKTE))
             .leggTilRelasjon(PersonRelasjon.builder().fraAktørId(EKTE_AKTØR_ID).tilAktørId(søkerAktørId).relasjonsrolle(RelasjonsRolleType.EKTE));
         revurderingScenario.medRegisterOpplysninger(revurderingPOBuilder.build());
