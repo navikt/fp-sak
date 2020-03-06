@@ -13,7 +13,6 @@
   ],
   "env": {
     "APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
-
     "KAFKA_AKSJONSPUNKTHENDELSE_TOPIC": "privat-foreldrepenger-aksjonspunkthendelse-q0",
     "KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID": "KP-privat-foreldrepenger-aksjonspunkthendelse-q0",
     "KAFKA_AKSJONSPUNKTHENDELSE_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.preprod.local",
@@ -30,47 +29,38 @@
     "KAFKA_DOKUMENTBESTILLING_TOPIC": "privat-foreldrepenger-dokumenthendelse-q0",
     "KAFKA_DOKUMENTBESTILLING_CLIENT_ID": "KP-privat-foreldrepenger-dokumenthendelse-q0",
     "SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.preprod.local",
-
     "SECURITYTOKENSERVICE_URL": "https://sts-q0.preprod.local/SecurityTokenServiceProvider/",
     "BOOTSTRAP_SERVERS": "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
     "BUCKET_URL": "http://s3.nais-rook",
     "FP_TILKJENTYTELSE_V1_TOPIC_URL": "privat-foreldrepenger-tilkjentytelse-v1-q0",
     "OIDC_STS_ISSUER_URL": "https://security-token-service.nais.preprod.local",
-
     "FPSAK_CHANNEL_NAME": "Q0_FPSAK",
     "FPSAK_CHANNEL_QUEUEMANAGER": "mq://b27apvl178.preprod.local:1413/MQ0LSC02",
-
     "LOADBALANCER_FQDN": "fpsak-q0.nais.preprod.local",
     "LOADBALANCER_FPSAK_POOLNAME": "nais",
     "LOADBALANCER_FPSAK_CONTEXTROOTS": "fpsak",
-
     "OIDC_OPENAM_AGENTNAME": "fpsak-q0",
     "OIDC_OPENAM_HOSTURL": "https://isso-q.adeo.no:443/isso/oauth2",
     "OIDC_OPENAM_ISSUERURL": "https://isso-q.adeo.no:443/isso/oauth2",
     "OIDC_OPENAM_JWKSURL": "https://isso-q.adeo.no:443/isso/oauth2/connect/jwk_uri",
-
     "LDAP_URL": "ldaps://ldapgw.preprod.local",
     "LDAP_BASEDN": "dc=preprod,dc=local",
     "LDAP_DOMAIN": "PREPROD.LOCAL",
     "LDAP_USER_BASEDN": "ou=NAV,ou=BusinessUnits,dc=preprod,dc=local",
     "LDAP_SERVICEUSER_BASEDN": "ou=ServiceAccounts,dc=preprod,dc=local",
-
     "SBEH_SAKSBEHANDLING_QUEUENAME": "QA.Q0_SBEH.SAKSBEHANDLING",
     "FPSAK_OKONOMI_OPPDRAG_MOTTAK_QUEUENAME": "QA.Q0_FPSAK.OB04_OPPDRAG_FP_XML_KVITT",
     "FPSAK_OKONOMI_OPPDRAG_MOTTAK_QUEUEMANAGER": "mq://b27apvl178.preprod.local:1413/MQ0LSC02",
     "RAY_AVSTEM_DATA_QUEUENAME": "QA.Q0_234.OB29_AVSTEMMING_XML",
     "FPSAK_OKONOMI_OPPDRAG_SEND_QUEUENAME": "QA.Q0_231.OB04_OPPDRAG_FP_XML",
-
     "MQGATEWAY02_NAME": "MQ0LSC02",
     "MQGATEWAY02_HOSTNAME": "b27apvl178.preprod.local",
     "MQGATEWAY02_PORT": "1413",
-
     "FPRISK_RISIKOKLASSIFISERING_HENT_URL": "https://fprisk-q0.nais.preprod.local/fprisk/api/risikovurdering/hent",
     "OIDC_STS_JWKS_URL": "https://security-token-service.nais.preprod.local/rest/v1/sts/jwks",
     "FPABAKUS_URL": "http://fpabakus/fpabakus",
     "ABAC_PDP_ENDPOINT_URL": "https://wasapp-q0.adeo.no/asm-pdp/authorize",
     "FPOPPDRAG_SIMULERINGRESULTAT_URL": "https://fpoppdrag-q0.nais.preprod.local/fpoppdrag/api/simulering/resultat",
-
     "SAK_V1_URL": "https://wasapp-q0.adeo.no/nav-gsak-ws/SakV1",
     "AKTOER_V2_URL": "https://app-q0.adeo.no/aktoerregister/ws/Aktoer/v2",
     "DOKUMENTPRODUKSJON_V2_URL": "https://dokprod-q0.nais.preprod.local/dokprod/ws/dokumentproduksjon/v2",
@@ -85,7 +75,6 @@
     "ARBEIDSFORDELING_V1_URL": "https://app-q0.adeo.no/norg2/ws/Arbeidsfordeling/v1",
     "PERSON_V3_URL": "https://wasapp-q0.adeo.no/tpsws/ws/Person/v3",
     "KODEVERK_V2_URL": "https://kodeverk.nais.preprod.local/ws/kodeverk/v2",
-
     "SERVICEGATEWAY_URL": "https://service-gw-q0.preprod.local/"
   }
 }
