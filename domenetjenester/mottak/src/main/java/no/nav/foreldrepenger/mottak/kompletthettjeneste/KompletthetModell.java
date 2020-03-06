@@ -79,6 +79,7 @@ public class KompletthetModell {
             Boolean.compare(apDef1.tilbakehoppVedGjenopptakelse(), apDef2.tilbakehoppVedGjenopptakelse());
 
         return KOMPLETTHETSFUNKSJONER.keySet().stream()
+            .filter(apdef -> apdef.getYtelseTyper().contains(ytelseType))
             .sorted(stegRekkefølge
                 .thenComparing(tilbakehoppRekkefølge.reversed()))
             .collect(toList());

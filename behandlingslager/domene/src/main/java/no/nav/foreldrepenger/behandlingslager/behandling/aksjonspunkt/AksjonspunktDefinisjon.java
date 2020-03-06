@@ -390,13 +390,13 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             UTEN_SKJERMLENKE, ENTRINN, FORBLI, "P3W", EnumSet.of(ES, FP, SVP)),
     AUTO_SATT_PÅ_VENT_REVURDERING(AksjonspunktKodeDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING_KODE, AksjonspunktType.AUTOPUNKT,
             "Satt på vent etter varsel om revurdering", BehandlingStegType.VARSEL_REVURDERING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE,
-            ENTRINN, FORBLI, "P4W", EnumSet.of(ES, FP)),
+            ENTRINN, FORBLI, "P4W", EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_PÅ_OPPTJENINGSOPPLYSNINGER(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_OPPTJENINGSOPPLYSNINGER_KODE, AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger",
             BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, VurderingspunktType.UT, VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.FAKTA_FOR_OPPTJENING,
         ENTRINN, TILBAKE, "P2W", EnumSet.of(FP, SVP)),
     VENT_PÅ_SCANNING(AksjonspunktKodeDefinisjon.VENT_PÅ_SCANNING_KODE,
             AksjonspunktType.AUTOPUNKT, "Venter på scanning", BehandlingStegType.VURDER_INNSYN, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE,
-            "P3D", EnumSet.of(ES, FP)),
+            "P3D", EnumSet.of(ES, FP, SVP)),
     VENT_PGA_FOR_TIDLIG_SØKNAD(AksjonspunktKodeDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD_KODE, AksjonspunktType.AUTOPUNKT, "Satt på vent pga for tidlig søknad",
             BehandlingStegType.VURDER_KOMPLETTHET, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_KOMPLETT_OPPDATERING(AksjonspunktKodeDefinisjon.AUTO_VENT_KOMPLETT_OPPDATERING_KODE, AksjonspunktType.AUTOPUNKT, "Vent på oppdatering som passerer kompletthetssjekk",
@@ -404,7 +404,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     AUTO_KØET_BEHANDLING(AksjonspunktKodeDefinisjon.AUTO_KØET_BEHANDLING_KODE,
             AksjonspunktType.AUTOPUNKT, "Autokøet behandling", BehandlingStegType.INNHENT_SØKNADOPP, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN,
-        FORBLI, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
+        FORBLI, UTEN_FRIST, EnumSet.of(FP)),
     VENT_PÅ_SØKNAD(AksjonspunktKodeDefinisjon.VENT_PÅ_SØKNAD_KODE,
             AksjonspunktType.AUTOPUNKT, "Venter på søknad", BehandlingStegType.REGISTRER_SØKNAD, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE,
             "P3W", EnumSet.of(ES, FP, SVP)),
@@ -432,13 +432,13 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AUTO_VENT_DELVIS_TILRETTELEGGING_OG_REFUSJON_SVP(AksjonspunktKodeDefinisjon.AUTO_VENT_DELVIS_TILRETTELEGGING_OG_REFUSJON_SVP_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt delvis SVP og refusjon",
             BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_ETTERLYST_INNTEKTSMELDING(AksjonspunktKodeDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING_KODE, AksjonspunktType.AUTOPUNKT, "Vent på etterlyst inntektsmelding",
-            BehandlingStegType.INREG_AVSL, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, "P3W", EnumSet.of(ES, FP, SVP)),
+            BehandlingStegType.INREG_AVSL, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, "P3W", EnumSet.of(FP, SVP)),
     AUTO_VENT_AAP_DP_ENESTE_AKTIVITET_SVP(AksjonspunktKodeDefinisjon.AUTO_VENT_AAP_DP_ENESTE_AKTIVITET_SVP_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt AAP/DP eneste aktivitet SVP",
             BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER(AksjonspunktKodeDefinisjon.AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt anke venter på merknader fra bruker",
-            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP)),
+            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN(AksjonspunktKodeDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt anke oversendt til Trygderetten",
-            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP)),
+            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_FLERE_ARBEIDSFORHOLD_SAMME_ORG_SVP(AksjonspunktKodeDefinisjon.AUTO_VENT_FLERE_ARBEIDSFORHOLD_SAMME_ORG_SVP_KODE, AksjonspunktType.AUTOPUNKT,
             "Autopunkt Flere arbeidsforhold i samme virksomhet SVP", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT,
         UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
@@ -630,6 +630,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     public VilkårType getVilkårType() {
         return (Objects.equals(VilkårType.UDEFINERT, vilkårType) ? null : vilkårType);
+    }
+
+    public Set<FagsakYtelseType> getYtelseTyper() {
+        return ytelseTyper == null ? Collections.emptySet() : ytelseTyper.stream().map(y -> FagsakYtelseType.fraKode(y.name())).collect(Collectors.toSet());
     }
 
     public boolean tilbakehoppVedGjenopptakelse() {
