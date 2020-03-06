@@ -1,7 +1,8 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Any;
@@ -13,20 +14,20 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingskontroll.StartpunktRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.domene.registerinnhenting.KontrollerFaktaAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.registerinnhenting.KontrollerFaktaInngangsVilkårUtleder;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
@@ -40,10 +41,11 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @Dependent
 public class Endringskontroller {
     private static final Logger LOGGER = LoggerFactory.getLogger(Endringskontroller.class);
+    private static final Set<StartpunktType> STARTPUNKT_INNGANG_VILKÅR = StartpunktType.inngangsVilkårStartpunkt();
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
     private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;
-    private Instance<KontrollerFaktaAksjonspunktUtleder> kontrollerFaktaTjenester;
+    private Instance<KontrollerFaktaInngangsVilkårUtleder> kontrollerFaktaTjenester;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private Instance<StartpunktTjeneste> startpunktTjenester;
 
@@ -57,7 +59,7 @@ public class Endringskontroller {
                               @Any Instance<StartpunktTjeneste> startpunktTjenester,
                               OppgaveTjeneste oppgaveTjeneste,
                               RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste,
-                              @Any Instance<KontrollerFaktaAksjonspunktUtleder> kontrollerFaktaTjenester,
+                              @Any Instance<KontrollerFaktaInngangsVilkårUtleder> kontrollerFaktaTjenester,
                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -71,7 +73,7 @@ public class Endringskontroller {
         return behandling.getType().erYtelseBehandlingType() && behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP);
     }
 
-    public void spolTilStartpunkt(Behandling behandling, EndringsresultatDiff endringsresultat) {
+    public void spolTilStartpunkt(Behandling behandling, EndringsresultatDiff endringsresultat, StartpunktType senesteStartpunkt) {
         Long behandlingId = behandling.getId();
         Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
@@ -81,6 +83,10 @@ public class Endringskontroller {
         StartpunktType startpunkt = FagsakYtelseTypeRef.Lookup.find(startpunktTjenester, behandling.getFagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + behandling.getFagsakYtelseType().getKode()))
             .utledStartpunktForDiffBehandlingsgrunnlag(ref, endringsresultat);
+
+        if (startpunkt.getRangering() > senesteStartpunkt.getRangering()) {
+            startpunkt = senesteStartpunkt;
+        }
 
         if (startpunkt.equals(StartpunktType.UDEFINERT)) {
             return; // Ingen detekterte endringer - ingen tilbakespoling
@@ -99,11 +105,9 @@ public class Endringskontroller {
 
         oppdaterStartpunktVedBehov(behandling, startpunktType);
 
-        // Gjør aksjonspunktutledning utenom steg kun hvis man har passert KOFAK og evt hopper tilbake. Dette pga KOARB.UT->INN
-        if (harUtførtKontrollerFakta(behandling)) {
-            BehandlingStegType funnetSteg = tilbakeføres ? tilSteg : fraSteg;
-            List<AksjonspunktResultat> aksjonspunktResultater = utledAksjonspunkterTilHøyreForStartpunkt(ref, startpunktType);
-            behandlingskontrollTjeneste.lagreAksjonspunktResultat(kontekst, funnetSteg, aksjonspunktResultater);
+        // Gjør aksjonspunktutledning utenom steg kun for startpunkt inne i inngangsvilkårene
+        if (harUtførtKontrollerFakta(behandling) && STARTPUNKT_INNGANG_VILKÅR.contains(startpunktType)) {
+            utledAksjonspunkterTilHøyreForStartpunkt(kontekst, startpunktType, ref, behandling);
         }
 
         if (tilbakeføres) {
@@ -131,8 +135,7 @@ public class Endringskontroller {
         }
         //Skal bare settes på nytt dersom startpunkt er tidligere i prosessen.
         StartpunktType gammelt = behandling.getStartpunkt();
-        StartpunktType nytt = nyttStartpunkt;
-        if (nytt.getRangering() < gammelt.getRangering()) {
+        if (nyttStartpunkt.getRangering() < gammelt.getRangering()) {
             behandling.setStartpunkt(nyttStartpunkt);
         }
     }
@@ -155,21 +158,23 @@ public class Endringskontroller {
         }
     }
 
-    // Orkestrerer aksjonspunktene for kontroll av fakta som utføres etter et startpunkt
-    // Dersom ingen spesifikk KontrollerFaktaTjeneste er angitt for startpunktet, så utføres generell kontroll av fakta
-    // (Det er forventet at protokoll for KontrollerFaktaTjeneste vil evolvere i senere leveranser)
-    private List<AksjonspunktResultat> utledAksjonspunkterTilHøyreForStartpunkt(BehandlingReferanse ref, StartpunktType startpunkt) {
-        List<AksjonspunktResultat> startpunktSpesfikkeApForKontrollAvFakta = StartpunktRef.Lookup.find(KontrollerFaktaAksjonspunktUtleder.class, kontrollerFaktaTjenester, ref.getFagsakYtelseType(), ref.getBehandlingType(), startpunkt.getKode())
-            .map(tjeneste -> tjeneste.utledAksjonspunkterTilHøyreForStartpunkt(ref, startpunkt))
-            .orElse(Collections.emptyList());
-        if (!startpunktSpesfikkeApForKontrollAvFakta.isEmpty()) {
-            // Disse må utføres før de generelle kontrollene
-            return startpunktSpesfikkeApForKontrollAvFakta;
-        }
-
-        List<AksjonspunktResultat> generelleApForKontrollAvFakta = StartpunktRef.Lookup.find(KontrollerFaktaAksjonspunktUtleder.class, kontrollerFaktaTjenester, ref.getFagsakYtelseType(), ref.getBehandlingType(), null)
-            .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.getFagsakYtelseType().getKode() + " behandlingtype: " + ref.getBehandlingType().getKode()))
+    // Orkestrerer aksjonspunktene for kontroll av fakta som utføres ifm tilbakehopp til et sted innen inngangsvilkår
+    private void utledAksjonspunkterTilHøyreForStartpunkt(BehandlingskontrollKontekst kontekst, StartpunktType startpunkt, BehandlingReferanse ref, Behandling behandling) {
+        var resultater = FagsakYtelseTypeRef.Lookup.find(KontrollerFaktaInngangsVilkårUtleder.class, kontrollerFaktaTjenester, ref.getFagsakYtelseType())
+            .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.getFagsakYtelseType().getKode()))
             .utledAksjonspunkterTilHøyreForStartpunkt(ref, startpunkt);
-        return generelleApForKontrollAvFakta;
+        List<Aksjonspunkt> avbrytes = behandling.getÅpneAksjonspunkter().stream()
+            .filter(ap -> !ap.erManueltOpprettet() && !ap.erAutopunkt())
+            .filter(ap -> resultater.stream().noneMatch(ar -> ap.getAksjonspunktDefinisjon().equals(ar.getAksjonspunktDefinisjon())))
+            .collect(Collectors.toList());
+        var opprettes = resultater.stream()
+            .filter(ar -> !AksjonspunktStatus.UTFØRT.equals(behandling.getAksjonspunktMedDefinisjonOptional(ar.getAksjonspunktDefinisjon()).map(Aksjonspunkt::getStatus).orElse(AksjonspunktStatus.OPPRETTET)))
+            .collect(Collectors.toList());
+        if (!avbrytes.isEmpty()) {
+            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), avbrytes);
+        }
+        if (!opprettes.isEmpty()) {
+            behandlingskontrollTjeneste.lagreAksjonspunktResultat(kontekst, BehandlingStegType.KONTROLLER_FAKTA, opprettes);
+        }
     }
 }

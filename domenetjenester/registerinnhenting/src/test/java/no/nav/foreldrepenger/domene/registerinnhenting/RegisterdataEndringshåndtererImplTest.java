@@ -6,6 +6,7 @@ import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -87,7 +88,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteI
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
-import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
 public class RegisterdataEndringshåndtererImplTest {
@@ -224,7 +224,7 @@ public class RegisterdataEndringshåndtererImplTest {
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.get(0).getType()).isEqualTo(HistorikkinnslagType.NYE_REGOPPLYSNINGER);
 
-        verify(endringskontroller, times(1)).spolTilStartpunkt(any(Behandling.class), any());
+        verify(endringskontroller, times(1)).spolTilStartpunkt(any(Behandling.class), any(), any());
     }
 
     @Test
@@ -284,7 +284,7 @@ public class RegisterdataEndringshåndtererImplTest {
     @Test
     public void skal_starte_i_SRB_når_tre_uker_etter_termin_og_ingen_fødselsdato() {
         // Arrange
-        LocalDate fDato = FPDateUtil.iDag().minusWeeks(3);
+        LocalDate fDato = LocalDate.now().minusWeeks(3);
 
         Personinfo søker = opprettSøkerinfo();
         when(personinfoAdapter.innhentSaksopplysningerForSøker(Mockito.any(AktørId.class))).thenReturn(søker);
@@ -301,7 +301,7 @@ public class RegisterdataEndringshåndtererImplTest {
             .oppdaterRegisteropplysningerOgReposisjonerBehandlingVedEndringer(behandling);
 
         // Assert
-        verify(endringskontroller, times(1)).spolTilStartpunkt(any(Behandling.class), any(EndringsresultatDiff.class));
+        verify(endringskontroller, times(1)).spolTilStartpunkt(any(Behandling.class), any(EndringsresultatDiff.class), eq(StartpunktType.SØKERS_RELASJON_TIL_BARNET));
     }
 
     @Test
@@ -355,7 +355,7 @@ public class RegisterdataEndringshåndtererImplTest {
             .oppdaterRegisteropplysningerOgReposisjonerBehandlingVedEndringer(behandling);
 
         // Assert
-        verify(endringskontroller, times(0)).spolTilStartpunkt(any(), any());
+        verify(endringskontroller, times(0)).spolTilStartpunkt(any(), any(), any());
     }
 
 

@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.OffentligYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtleder {
@@ -62,7 +61,7 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
         AktørId aktørId = param.getAktørId();
 
         LocalDate skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        LocalDate vurderingsTidspunkt = FPDateUtil.iDag().isAfter(skjæringstidspunkt) ? FPDateUtil.iDag() : skjæringstidspunkt;
+        LocalDate vurderingsTidspunkt = LocalDate.now().isAfter(skjæringstidspunkt) ? LocalDate.now() : skjæringstidspunkt;
 
         Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlagOpt = iayTjeneste.finnGrunnlag(behandlingId);
         if (!inntektArbeidYtelseGrunnlagOpt.isPresent()) {

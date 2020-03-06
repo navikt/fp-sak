@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.inngangsvilkaar.opptjening;
+package no.nav.foreldrepenger.behandling;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;

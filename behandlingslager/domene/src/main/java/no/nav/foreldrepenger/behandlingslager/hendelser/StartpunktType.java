@@ -15,8 +15,8 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -178,10 +178,14 @@ public enum StartpunktType implements Kodeverdi {
         return VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(startpunkt);
     }
 
+    public static Set<StartpunktType> inngangsVilkårStartpunkt() {
+        return Set.of(SØKERS_RELASJON_TIL_BARNET, INNGANGSVILKÅR_OPPLYSNINGSPLIKT, INNGANGSVILKÅR_MEDLEMSKAP);
+    }
+
     public int getRangering() {
         return rangering;
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<StartpunktType, String> {
         @Override

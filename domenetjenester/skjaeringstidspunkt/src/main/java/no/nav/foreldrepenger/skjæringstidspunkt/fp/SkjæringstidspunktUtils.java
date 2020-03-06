@@ -95,48 +95,43 @@ public class SkjæringstidspunktUtils {
     }
 
     LocalDate utledSkjæringstidspunktFraBehandling(Behandling behandling, LocalDate førsteUttaksDato,
-                                                   Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag) {
+                                                   Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag, Optional<LocalDate> morsMaksDato) {
 
         if (familieHendelseGrunnlag.isPresent()) {
-            final FamilieHendelseGrunnlagEntitet fhGrunnlag = familieHendelseGrunnlag.get();
-            final FagsakÅrsak årsak = finnFagsakÅrsak(fhGrunnlag.getGjeldendeVersjon());
-            final SoekerRolle rolle = finnFagsakSøkerRolle(behandling);
-
-            final LocalDate gjeldendeHendelseDato = fhGrunnlag.getGjeldendeVersjon().getGjelderFødsel() ? fhGrunnlag.finnGjeldendeFødselsdato()
-                : fhGrunnlag.getGjeldendeVersjon().getSkjæringstidspunkt();
-            final Optional<LocalDate> gjeldendeTerminDato = fhGrunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
-
-            final LocalDate gjeldendeSkjæringstidspunkt = evaluerSkjæringstidspunktOpptjening(behandling.getId(), årsak, rolle, gjeldendeHendelseDato,
-                gjeldendeTerminDato, førsteUttaksDato);
-            return gjeldendeSkjæringstidspunkt;
+            return evaluerSkjæringstidspunktOpptjening(behandling, førsteUttaksDato, familieHendelseGrunnlag.get(), morsMaksDato);
         }
         return førsteUttaksDato;
     }
 
-    private LocalDate evaluerSkjæringstidspunktOpptjening(Long behandlingId, FagsakÅrsak årsak, SoekerRolle rolle, LocalDate hendelseDato,
-                                                          Optional<LocalDate> terminDato, LocalDate førsteUttaksdato) {
+    private LocalDate evaluerSkjæringstidspunktOpptjening(Behandling behandling, LocalDate førsteUttaksDato,
+                                                          FamilieHendelseGrunnlagEntitet fhGrunnlag, Optional<LocalDate> morsMaksDato) {
         OpptjeningsperiodeGrunnlag grunnlag = new OpptjeningsperiodeGrunnlag();
 
-        grunnlag.setFagsakÅrsak(årsak);
-        grunnlag.setSøkerRolle(rolle);
+        final LocalDate gjeldendeHendelseDato = fhGrunnlag.getGjeldendeVersjon().getGjelderFødsel() ? fhGrunnlag.finnGjeldendeFødselsdato()
+            : fhGrunnlag.getGjeldendeVersjon().getSkjæringstidspunkt();
+
+
+        grunnlag.setFagsakÅrsak(finnFagsakÅrsak(fhGrunnlag.getGjeldendeVersjon()));
+        grunnlag.setSøkerRolle(finnFagsakSøkerRolle(behandling));
         if (grunnlag.getFagsakÅrsak() == null || grunnlag.getSøkerRolle() == null) {
             throw new IllegalArgumentException(
-                "Utvikler-feil: Finner ikke årsak(" + grunnlag.getFagsakÅrsak() + ")/rolle(" + grunnlag.getSøkerRolle() + ") for behandling:" + behandlingId);
+                "Utvikler-feil: Finner ikke årsak(" + grunnlag.getFagsakÅrsak() + ")/rolle(" + grunnlag.getSøkerRolle() + ") for behandling:" + behandling.getId());
         }
 
-        grunnlag.setHendelsesDato(hendelseDato);
-        terminDato.ifPresent(grunnlag::setTerminDato);
+        grunnlag.setHendelsesDato(gjeldendeHendelseDato);
+        fhGrunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).ifPresent(grunnlag::setTerminDato);
 
         if (grunnlag.getHendelsesDato() == null) {
             grunnlag.setHendelsesDato(grunnlag.getTerminDato());
             if (grunnlag.getHendelsesDato() == null) {
-                throw new IllegalArgumentException("Utvikler-feil: Finner ikke hendelsesdato for behandling:" + behandlingId);
+                throw new IllegalArgumentException("Utvikler-feil: Finner ikke hendelsesdato for behandling:" + behandling.getId());
             }
         }
 
         grunnlag.setTidligsteUttakFørFødselPeriode(tidligsteUttakFørFødselPeriode);
         grunnlag.setPeriodeLengde(opptjeningsperiode);
-        grunnlag.setFørsteUttaksDato(førsteUttaksdato);
+        grunnlag.setFørsteUttaksDato(førsteUttaksDato);
+        morsMaksDato.ifPresent(grunnlag::setMorsMaksdato);
 
         final RegelFastsettOpptjeningsperiode fastsettPeriode = new RegelFastsettOpptjeningsperiode();
         final OpptjeningsPeriode periode = new OpptjeningsPeriode();

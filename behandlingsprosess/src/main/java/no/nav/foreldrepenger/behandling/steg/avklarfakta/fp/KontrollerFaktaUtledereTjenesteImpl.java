@@ -43,7 +43,7 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
 
         Long behandlingId = ref.getBehandlingId();
         final Optional<FamilieHendelseGrunnlagEntitet> hendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
-        if (!hendelseGrunnlag.isPresent()) {
+        if (hendelseGrunnlag.isEmpty()) {
             throw FEILFACTORY.behandlingsmotivKanIkkeUtledes(behandlingId).toException();
         }
 
