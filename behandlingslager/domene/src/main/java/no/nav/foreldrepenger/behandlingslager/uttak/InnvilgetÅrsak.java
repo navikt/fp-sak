@@ -64,7 +64,7 @@ public enum InnvilgetÅrsak implements PeriodeResultatÅrsak {
     GRADERING_FORELDREPENGER_KUN_MOR_HAR_RETT("2034", "§14-10, jf. §14-16: Gradering foreldrepenger, kun mor har rett", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10,14-16\"}}}", Set.of(UTTAK), Set.of(FORELDREPENGER)),
     FORELDREPENGER_KUN_FAR_HAR_RETT_MOR_UFØR("2036", "§14-14 tredje ledd: Innvilget foreldrepenger, kun far har rett og mor er ufør", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14\"}}}", Set.of(UTTAK), Set.of(FORELDREPENGER)),
     FORELDREPENGER_FELLESPERIODE_TIL_FAR("2037", "§14-9, jf. §14-13: Innvilget fellesperiode til far", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9\"}}}", Set.of(UTTAK), Set.of(FELLESPERIODE)),
-    FORELDREPENGER_REDUSERT_GRAD_PGA_SAMTIDIG_UTTAK("2038", "§ 14-10 sjette ledd: Samtidig uttak", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}", Set.of(UTTAK)),
+    FORELDREPENGER_REDUSERT_GRAD_PGA_SAMTIDIG_UTTAK("2038", "§14-10 sjette ledd: Samtidig uttak", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}", Set.of(UTTAK)),
     ;
 
     public static PeriodeResultatÅrsak UKJENT = PeriodeResultatÅrsak.UKJENT;
