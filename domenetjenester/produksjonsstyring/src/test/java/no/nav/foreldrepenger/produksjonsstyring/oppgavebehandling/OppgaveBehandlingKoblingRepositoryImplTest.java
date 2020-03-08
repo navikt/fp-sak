@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -15,7 +16,6 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.vedtak.felles.testutilities.db.Repository;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class OppgaveBehandlingKoblingRepositoryImplTest {
 
@@ -61,7 +61,7 @@ public class OppgaveBehandlingKoblingRepositoryImplTest {
         lagOppgave(registrer);
 
         // Act
-        List<OppgaveBehandlingKobling> behandlingKobling = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(FPDateUtil.iDag(), FPDateUtil.iDag(), Set.of(OppgaveÅrsak.BEHANDLE_SAK, OppgaveÅrsak.REVURDER));
+        List<OppgaveBehandlingKobling> behandlingKobling = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(LocalDate.now(), LocalDate.now(), Set.of(OppgaveÅrsak.BEHANDLE_SAK, OppgaveÅrsak.REVURDER));
 
         // Assert
         assertThat(behandlingKobling).hasSize(2);
@@ -69,7 +69,7 @@ public class OppgaveBehandlingKoblingRepositoryImplTest {
         // Change + reassert
         revurder.ferdigstillOppgave("I11111");
         lagOppgave(revurder);
-        behandlingKobling = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(FPDateUtil.iDag(), FPDateUtil.iDag(), Set.of(OppgaveÅrsak.BEHANDLE_SAK, OppgaveÅrsak.REVURDER));
+        behandlingKobling = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(LocalDate.now(), LocalDate.now(), Set.of(OppgaveÅrsak.BEHANDLE_SAK, OppgaveÅrsak.REVURDER));
         assertThat(behandlingKobling).hasSize(1);
 
     }

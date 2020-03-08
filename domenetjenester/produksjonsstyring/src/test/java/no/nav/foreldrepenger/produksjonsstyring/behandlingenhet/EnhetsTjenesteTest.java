@@ -53,8 +53,8 @@ public class EnhetsTjenesteTest {
     private static Familierelasjon relasjontilBarn = new Familierelasjon(BARN_IDENT, RelasjonsRolleType.BARN, BARN_FØDT, "Vei", true);
     private static Familierelasjon relasjonEkteFar = new Familierelasjon(FAR_IDENT, RelasjonsRolleType.EKTE, LocalDate.of(1991,11,11), "Vei", true);
 
-    private static OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4802", "NAV Bærum", "AKTIV");
-    private static OrganisasjonsEnhet enhetKode6 = new OrganisasjonsEnhet("2103", "NAV Viken", "AKTIV");
+    private static OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4802", "NAV Bærum");
+    private static OrganisasjonsEnhet enhetKode6 = new OrganisasjonsEnhet("2103", "NAV Viken");
 
     private static GeografiskTilknytning tilknytningNormal = new GeografiskTilknytning("0219", null);
     private static GeografiskTilknytning tilknytningKode6 = new GeografiskTilknytning("0219", "SPSF");

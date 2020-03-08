@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.kodeverk.app;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -92,7 +90,6 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.tjeneste.virksomhet.arbeidsfordeling.v1.informasjon.Enhetsstatus;
 
 @ApplicationScoped
 public class HentKodeverkTjeneste {
@@ -230,13 +227,7 @@ public class HentKodeverkTjeneste {
     }
 
     public List<OrganisasjonsEnhet> hentBehandlendeEnheter() {
-        final String statusAktiv = Enhetsstatus.AKTIV.name();
-
-        List<OrganisasjonsEnhet> orgEnhetsListe = enhetsTjeneste.hentEnhetListe();
-
-        return orgEnhetsListe.stream()
-            .filter(organisasjonsEnhet -> statusAktiv.equals(organisasjonsEnhet.getStatus()))
-            .collect(toList());
+        return enhetsTjeneste.hentEnhetListe();
     }
 
     public static void main(String[] args) {
