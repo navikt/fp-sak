@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
-import no.nav.vedtak.util.FPDateUtil;
 
 @Entity(name = "OppgaveBehandlingKobling")
 @Table(name = "OPPGAVE_BEHANDLING_KOBLING")
@@ -91,7 +90,7 @@ public class OppgaveBehandlingKobling extends BaseEntitet {
     }
 
     public void ferdigstillOppgave(String ferdigstiltAv) {
-        this.ferdigstiltTid = FPDateUtil.nå();
+        this.ferdigstiltTid = LocalDateTime.now();
         this.ferdigstiltAv = ferdigstiltAv;
         this.ferdigstilt = true;
     }

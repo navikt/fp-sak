@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.produksjonsstyring.arbeidsfordeling.ArbeidsfordelingTjeneste;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class EnhetsTjeneste {
@@ -109,11 +108,11 @@ public class EnhetsTjeneste {
     }
 
     private void oppdaterEnhetCache() {
-        if (sisteInnhenting.isBefore(FPDateUtil.iDag())) {
+        if (sisteInnhenting.isBefore(LocalDate.now())) {
             enhetKode6 = arbeidsfordelingTjeneste.hentEnhetForDiskresjonskode(Diskresjonskode.KODE6.getKode(), BehandlingTema.UDEFINERT);
             enhetKlage = arbeidsfordelingTjeneste.getKlageInstansEnhet();
             alleBehandlendeEnheter = arbeidsfordelingTjeneste.finnAlleBehandlendeEnhetListe(BehandlingTema.UDEFINERT);
-            sisteInnhenting = FPDateUtil.iDag();
+            sisteInnhenting = LocalDate.now();
         }
     }
 

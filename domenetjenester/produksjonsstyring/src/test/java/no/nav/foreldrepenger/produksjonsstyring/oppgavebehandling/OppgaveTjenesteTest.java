@@ -50,7 +50,6 @@ import no.nav.vedtak.felles.integrasjon.oppgave.OppgaveConsumer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class OppgaveTjenesteTest {
 
@@ -390,7 +389,7 @@ public class OppgaveTjenesteTest {
         WSOpprettOppgaveResponse mockResponse = new WSOpprettOppgaveResponse();
         mockResponse.setOppgaveId(gsakOppgaveId);
 
-        LocalDate forventetFrist = helgeJustert(FPDateUtil.iDag().plusDays(1));
+        LocalDate forventetFrist = helgeJustert(LocalDate.now().plusDays(1));
         ArgumentCaptor<OpprettOppgaveRequest> captor = ArgumentCaptor.forClass(OpprettOppgaveRequest.class);
         when(oppgavebehandlingConsumer.opprettOppgave(captor.capture())).thenReturn(mockResponse);
 
@@ -420,7 +419,7 @@ public class OppgaveTjenesteTest {
         WSOpprettOppgaveResponse mockResponse = new WSOpprettOppgaveResponse();
         mockResponse.setOppgaveId(gsakOppgaveId);
 
-        LocalDate forventetFrist = helgeJustert(FPDateUtil.iDag().plusDays(1));
+        LocalDate forventetFrist = helgeJustert(LocalDate.now().plusDays(1));
         ArgumentCaptor<OpprettOppgaveRequest> captor = ArgumentCaptor.forClass(OpprettOppgaveRequest.class);
         when(oppgavebehandlingConsumer.opprettOppgave(captor.capture())).thenReturn(mockResponse);
 

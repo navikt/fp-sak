@@ -1,25 +1,39 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
+import java.util.Objects;
+
 public class OrganisasjonsEnhet {
 
     private String enhetId;
     private String enhetNavn;
-    private String status;
 
     public OrganisasjonsEnhet(String enhetId, String enhetNavn) {
         this.enhetId = enhetId;
         this.enhetNavn = enhetNavn;
     }
 
-    public OrganisasjonsEnhet(String enhetId, String enhetNavn, String status){
-        this.enhetId = enhetId;
-        this.enhetNavn = enhetNavn;
-        this.status = status;
-    }
-
     public String getEnhetId() { return enhetId; }
 
     public String getEnhetNavn(){ return enhetNavn; }
 
-    public String getStatus() { return status; }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OrganisasjonsEnhet that = (OrganisasjonsEnhet) o;
+        return enhetId.equals(that.enhetId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(enhetId);
+    }
+
+    @Override
+    public String toString() {
+        return "OrganisasjonsEnhet{" +
+            "enhetId='" + enhetId + '\'' +
+            ", enhetNavn='" + enhetNavn + '\'' +
+            '}';
+    }
 }

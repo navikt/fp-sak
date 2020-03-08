@@ -18,7 +18,6 @@ import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelse
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.sakogbehandling.SakOgBehandlingClient;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.util.FPDateUtil;
 
 @Dependent
 class SakOgBehandlingAdapterMQImpl implements SakOgBehandlingAdapter {
@@ -108,7 +107,7 @@ class SakOgBehandlingAdapterMQImpl implements SakOgBehandlingAdapter {
         avslutningsstatus.setValue("ok");
         behandlingAvsluttet.setAvslutningsstatus(avslutningsstatus);
 
-        behandlingAvsluttet.setHendelsesTidspunkt(gregDate(FPDateUtil.iDag()));
+        behandlingAvsluttet.setHendelsesTidspunkt(gregDate(LocalDate.now()));
 
         Aktoer aktoer = new Aktoer();
         aktoer.setAktoerId(avsluttetBehandlingStatus.getAktørId());

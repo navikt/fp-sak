@@ -14,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.produksjonsstyring.arbeidsfordeling.ArbeidsfordelingTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.arbeidsfordeling.rest.ArbeidsfordelingRestKlient;
 import no.nav.tjeneste.virksomhet.arbeidsfordeling.v1.informasjon.Enhetsstatus;
 import no.nav.tjeneste.virksomhet.arbeidsfordeling.v1.informasjon.Organisasjonsenhet;
 import no.nav.tjeneste.virksomhet.arbeidsfordeling.v1.meldinger.FinnAlleBehandlendeEnheterListeRequest;
@@ -34,7 +35,8 @@ public class ArbeidsfordelingTjenesteTest {
     private static final BehandlingTema BEHANDLING_TEMA = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
 
     private ArbeidsfordelingConsumer consumer = mock(ArbeidsfordelingConsumer.class);
-    private ArbeidsfordelingTjeneste tjeneste = new ArbeidsfordelingTjeneste(consumer);
+    private ArbeidsfordelingRestKlient rest = mock(ArbeidsfordelingRestKlient.class);
+    private ArbeidsfordelingTjeneste tjeneste = new ArbeidsfordelingTjeneste(consumer, rest);
 
     @Test(expected = TekniskException.class)
     public void skal_kaste_exception_når_søk_etter_behandlende_enhet_er_tom() throws Exception {
@@ -89,8 +91,8 @@ public class ArbeidsfordelingTjenesteTest {
 
     @Test
     public void skal_returnere_enhet_for_kode6() throws Exception {
-        FinnAlleBehandlendeEnheterListeResponse kode6 = opprettResponseMedKode6Enhet();
-        when(consumer.finnAlleBehandlendeEnheterListe(any())).thenReturn(kode6);
+        FinnBehandlendeEnhetListeResponse kode6 = opprettResponseMedKode6Enhet();
+        when(consumer.finnBehandlendeEnhetListe(any())).thenReturn(kode6);
 
         BehandlingTema behandlingTema = BEHANDLING_TEMA;
         OrganisasjonsEnhet organisasjonsEnhet = tjeneste.hentEnhetForDiskresjonskode(KODE6_DISKRESJON, behandlingTema);
@@ -99,8 +101,8 @@ public class ArbeidsfordelingTjenesteTest {
         assertThat(organisasjonsEnhet.getEnhetId()).isEqualTo(KODE6_ENHET);
     }
 
-    private FinnAlleBehandlendeEnheterListeResponse opprettResponseMedKode6Enhet() throws Exception {
-        FinnAlleBehandlendeEnheterListeResponse response = new FinnAlleBehandlendeEnheterListeResponse();
+    private FinnBehandlendeEnhetListeResponse opprettResponseMedKode6Enhet() throws Exception {
+        FinnBehandlendeEnhetListeResponse response = new FinnBehandlendeEnhetListeResponse();
         Organisasjonsenhet enhet = new Organisasjonsenhet();
         enhet.setEnhetId(KODE6_ENHET);
         enhet.setEnhetNavn("NAV Viken");
