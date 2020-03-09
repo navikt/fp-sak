@@ -113,7 +113,7 @@ public class KobleSakTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(true, true, false);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(19).minusDays(1), FAR_AKTØR_ID);
+        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(19), FAR_AKTØR_ID);
         Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
 
         Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
@@ -127,7 +127,7 @@ public class KobleSakTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(true, true);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(19), FAR_AKTØR_ID);
+        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(19).plusDays(1), FAR_AKTØR_ID);
         Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
 
         Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
@@ -140,7 +140,7 @@ public class KobleSakTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(true, true, false);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusWeeks(4).plusDays(1), FAR_AKTØR_ID);
+        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusWeeks(4), FAR_AKTØR_ID);
         Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
 
         Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
@@ -154,7 +154,7 @@ public class KobleSakTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(true, true);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusWeeks(4), FAR_AKTØR_ID);
+        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusWeeks(4).minusDays(1), FAR_AKTØR_ID);
         Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
 
         Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);

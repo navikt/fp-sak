@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.sakogenhet;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,6 +15,8 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.threeten.extra.Interval;
+import no.nav.foreldrepenger.behandlingslager.IntervallUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,7 +217,9 @@ public class KobleSakTjeneste {
             termin = nåværende.getTerminbekreftelse().get().getTermindato();
             fødselsdato = aktuell.getFødselsdato().get();
         } else return false;
-        return (fødselsdato.isAfter(termin.minusWeeks(TIDLIGSTE_FØDSEL_I_UKER_FØR_TERMIN)) && fødselsdato.isBefore(termin.plusWeeks(SENESTE_FØDSEL_I_UKER_ETTER_TERMIN)));
+
+        Interval treffintervall = IntervallUtil.byggIntervall(termin.minusWeeks(TIDLIGSTE_FØDSEL_I_UKER_FØR_TERMIN),termin.plusWeeks(SENESTE_FØDSEL_I_UKER_ETTER_TERMIN));
+        return treffintervall.contains(fødselsdato.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
     private boolean gjelderStebarnsadopsjon(FamilieHendelseEntitet nåværende, FamilieHendelseEntitet aktuell) {
