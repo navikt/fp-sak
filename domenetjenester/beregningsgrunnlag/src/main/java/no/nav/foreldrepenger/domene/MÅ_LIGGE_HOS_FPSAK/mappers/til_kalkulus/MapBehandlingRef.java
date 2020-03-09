@@ -1,8 +1,7 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus;
 
 import no.nav.folketrygdloven.kalkulator.modell.behandling.BehandlingReferanse;
-import no.nav.folketrygdloven.kalkulator.modell.behandling.BehandlingStatus;
-import no.nav.folketrygdloven.kalkulator.modell.behandling.FagsakYtelseType;
+import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FagsakYtelseType;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.Skjæringstidspunkt;
 import no.nav.folketrygdloven.kalkulator.modell.typer.AktørId;
 
@@ -15,7 +14,6 @@ public class MapBehandlingRef {
             behandlingReferanse.getBehandlingId(),
             behandlingReferanse.getBehandlingUuid(),
             behandlingReferanse.getOriginalBehandlingId(),
-            BehandlingStatus.fraKode(behandlingReferanse.getBehandlingStatus().getKode()),
             mapSkjæringstidspunkt(behandlingReferanse.getSkjæringstidspunkt()));
     }
 
