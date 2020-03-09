@@ -40,40 +40,47 @@ public class ToForeldreBarnDødTjeneste {
         this.uttakRepository = uttakRepository;
     }
 
-    public Behandling finnBehandlingSomSkalRevurderes(Behandling behandlingF1, Behandling behandlingF2){
+    public Behandling finnBehandlingSomSkalRevurderes(Behandling behandlingF1, Behandling behandlingF2) {
         List<UttakResultatPeriodeEntitet> uttaksPerioderF1 = finnPerioderMedUtbetalingsProsentUlik0(behandlingF1);
-        if(hentAktivPeriodeHvisFinnes(uttaksPerioderF1).isPresent()){
+        if (hentAktivPeriodeHvisFinnes(uttaksPerioderF1).isPresent()) {
             return behandlingF1;
         }
         List<UttakResultatPeriodeEntitet> uttaksPerioderF2 = finnPerioderMedUtbetalingsProsentUlik0(behandlingF2);
-        if(hentAktivPeriodeHvisFinnes(uttaksPerioderF2).isPresent()){
+        if (hentAktivPeriodeHvisFinnes(uttaksPerioderF2).isPresent()) {
             return behandlingF2;
         }
-        return finnBehandlingMedNærmesteUttak(behandlingF1, uttaksPerioderF1,behandlingF2,uttaksPerioderF2);
+        if (uttaksPerioderF1.isEmpty() && !uttaksPerioderF2.isEmpty()) {
+            return behandlingF2;
+        } else if (uttaksPerioderF2.isEmpty()) {
+            return behandlingF1;
+        }
+        return finnBehandlingMedNærmesteUttak(behandlingF1, uttaksPerioderF1, behandlingF2, uttaksPerioderF2);
     }
 
-    private List<UttakResultatPeriodeEntitet> finnPerioderMedUtbetalingsProsentUlik0(Behandling behandling){
-        return uttakRepository.hentUttakResultat(behandling.getId())
-            .getGjeldendePerioder()
-            .getPerioder().stream().filter(this::uttakPeriodeHarUtbetalingsprosentStørreEnn0)
-            .collect(Collectors.toList());
+    private List<UttakResultatPeriodeEntitet> finnPerioderMedUtbetalingsProsentUlik0(Behandling behandling) {
+        return uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())
+            .map(uttakResultat -> uttakResultat
+                .getGjeldendePerioder()
+                .getPerioder().stream().filter(this::uttakPeriodeHarUtbetalingsprosentStørreEnn0)
+                .collect(Collectors.toList()))
+            .orElse(Collections.emptyList());
     }
 
-    private boolean uttakPeriodeHarUtbetalingsprosentStørreEnn0(UttakResultatPeriodeEntitet periode){
+    private boolean uttakPeriodeHarUtbetalingsprosentStørreEnn0(UttakResultatPeriodeEntitet periode) {
         return periode.getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getUtbetalingsprosent().compareTo(BigDecimal.ZERO) > 0);
     }
 
-    private Optional<UttakResultatPeriodeEntitet> hentAktivPeriodeHvisFinnes(List<UttakResultatPeriodeEntitet> perioder){
+    private Optional<UttakResultatPeriodeEntitet> hentAktivPeriodeHvisFinnes(List<UttakResultatPeriodeEntitet> perioder) {
         return perioder.stream().filter(this::erAktivNå).findFirst();
     }
 
-    private boolean erAktivNå(UttakResultatPeriodeEntitet periode){
+    private boolean erAktivNå(UttakResultatPeriodeEntitet periode) {
         LocalDate iDag = iDag();
         return periode.getFom().isBefore(iDag) && periode.getTom().isAfter(iDag);
     }
 
     private Behandling finnBehandlingMedNærmesteUttak(Behandling behandlingF1, List<UttakResultatPeriodeEntitet> uttaksPerioderF1,
-                                                      Behandling behandlingF2, List<UttakResultatPeriodeEntitet> uttaksPerioderF2){
+                                                      Behandling behandlingF2, List<UttakResultatPeriodeEntitet> uttaksPerioderF2) {
         List<LocalDate> uttaksGrenserF1 = finnUttaksGrenser(uttaksPerioderF1);
         List<LocalDate> uttaksGrenserF2 = finnUttaksGrenser(uttaksPerioderF2);
         List<Integer> avstanderF1 = uttaksGrenserF1.stream().map(this::avstandTilNåMedBuffer).collect(Collectors.toList());
@@ -85,16 +92,16 @@ public class ToForeldreBarnDødTjeneste {
 
     private List<LocalDate> finnUttaksGrenser(List<UttakResultatPeriodeEntitet> uttaksPerioder) {
         List<LocalDate> uttaksGrenser = new ArrayList<>();
-        for(UttakResultatPeriodeEntitet periode : uttaksPerioder){
+        for (UttakResultatPeriodeEntitet periode : uttaksPerioder) {
             uttaksGrenser.add(periode.getFom());
             uttaksGrenser.add(periode.getTom());
         }
         return uttaksGrenser;
     }
 
-    private Integer avstandTilNåMedBuffer(LocalDate date){
+    private Integer avstandTilNåMedBuffer(LocalDate date) {
         LocalDate iDag = iDag();
-        if(date.isBefore(iDag)){
+        if (date.isBefore(iDag)) {
             date = date.minusDays(BUFFER);
         }
         return Math.abs((iDag.getYear() - date.getYear())*ANTALL_DAGER_I_ET_ÅR + iDag.getDayOfYear() - date.getDayOfYear());

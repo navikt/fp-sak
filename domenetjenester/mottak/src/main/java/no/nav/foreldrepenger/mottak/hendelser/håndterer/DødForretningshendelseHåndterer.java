@@ -43,7 +43,7 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
 
     @Override
     public void håndterAvsluttetBehandling(Behandling avsluttetBehandling, ForretningshendelseType forretningshendelseType, BehandlingÅrsakType behandlingÅrsakType) {
-        // Vi vet nå at denne behandlingen er avsluttet, og at det ikke finnes en åpen behandling på berørt sak
+        // Vi vet nå at denne behandlingen er avsluttet og innvilget, og at dersom det finnes en åpen behandling på medforelder, så er den køet
         // Hvis det er barnet som har dødd må begge foreldrenes saker revurderes.
         // Revurderer forelderen med nærmest uttak først. Velges v.h.a ToForeldreBarnDødTjeneste
         if (BehandlingÅrsakType.RE_HENDELSE_DØD_BARN.equals(behandlingÅrsakType)) {
@@ -52,7 +52,8 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
                 behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakPåMedforelder.get().getId())
                 : Optional.empty();
             if (behandlingPåMedforelder.isPresent()
-                && skalOppretteRevurderingPåMedForelderFørst(avsluttetBehandling,behandlingPåMedforelder.get())) {
+                && !behandlingPåMedforelder.get().erKøet()
+                && skalOppretteRevurderingPåMedForelderFørst(avsluttetBehandling, behandlingPåMedforelder.get())) {
                 // Dette er annen parts fagsak, og mor har en fagsak
                 håndterKøetBehandling(avsluttetBehandling.getFagsak(), behandlingÅrsakType);
                 return;
@@ -68,8 +69,7 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
         forretningshendelseHåndtererFelles.fellesHåndterKøetBehandling(fagsak, behandlingÅrsakType, køetBehandlingOpt);
     }
 
-
-    private boolean skalOppretteRevurderingPåMedForelderFørst(Behandling behandling, Behandling behandlingPåMedforelder){
-        return behandlingPåMedforelder == toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandling,behandlingPåMedforelder);
+    private boolean skalOppretteRevurderingPåMedForelderFørst(Behandling behandling, Behandling behandlingPåMedforelder) {
+        return behandlingPåMedforelder == toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandling, behandlingPåMedforelder);
     }
 }
