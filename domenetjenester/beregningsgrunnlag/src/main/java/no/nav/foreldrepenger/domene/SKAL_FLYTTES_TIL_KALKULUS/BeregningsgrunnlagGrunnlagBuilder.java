@@ -19,8 +19,16 @@ public class BeregningsgrunnlagGrunnlagBuilder {
         return new BeregningsgrunnlagGrunnlagBuilder(new BeregningsgrunnlagGrunnlagEntitet(kladd));
     }
 
+
     public static BeregningsgrunnlagGrunnlagBuilder oppdatere(Optional<BeregningsgrunnlagGrunnlagEntitet> kladd) {
         return kladd.map(BeregningsgrunnlagGrunnlagBuilder::oppdatere).orElseGet(BeregningsgrunnlagGrunnlagBuilder::nytt);
+    }
+
+
+    @Deprecated
+    // KUN FOR MIGRERING AV FEILSAKER
+    public static BeregningsgrunnlagGrunnlagBuilder endre(Optional<BeregningsgrunnlagGrunnlagEntitet> kladd) {
+        return kladd.map(BeregningsgrunnlagGrunnlagBuilder::new).orElseGet(BeregningsgrunnlagGrunnlagBuilder::nytt);
     }
 
     public BeregningsgrunnlagGrunnlagBuilder medBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {

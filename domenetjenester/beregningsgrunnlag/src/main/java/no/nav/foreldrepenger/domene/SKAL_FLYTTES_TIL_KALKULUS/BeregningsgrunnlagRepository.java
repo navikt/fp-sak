@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -142,6 +143,36 @@ public class BeregningsgrunnlagRepository {
     }
 
     /**
+     * FORVALTNINGSTJENESTE: Henter grunnlag uten grunnbeløp
+     * @return List med grunnlag uten grunnbeløp
+     */
+    public List<Long> hentBehandlingIdForGrunnlagUtenGrunnbeløp() {
+        TypedQuery<Long> query = entityManager.createQuery(
+            "select distinct behandlingId from BeregningsgrunnlagGrunnlagEntitet " +
+                "where beregningsgrunnlag.grunnbeløp is null " +
+                "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand", Long.class); //$NON-NLS-1$
+        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, BeregningsgrunnlagTilstand.OPPRETTET); //$NON-NLS-1$
+        return query.getResultList();
+    }
+
+    /**
+     * FORVALTNINGSTJENESTE: Henter grunnlag uten grunnbeløp
+     * @return List med grunnlag uten grunnbeløp
+     */
+    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagUtenGrunnbeløp(Long behandlingId) {
+        TypedQuery<BeregningsgrunnlagGrunnlagEntitet> query = entityManager.createQuery(
+            "from BeregningsgrunnlagGrunnlagEntitet " +
+                "where behandlingId=:behandlingId " +
+                "and beregningsgrunnlag.grunnbeløp is null " +
+                "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
+                "order by opprettetTidspunkt desc, id desc", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
+        query.setParameter(BEHANDLING_ID, behandlingId); //$NON-NLS-1$
+        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, BeregningsgrunnlagTilstand.OPPRETTET); //$NON-NLS-1$
+        query.setMaxResults(1);
+        return query.getResultStream().findFirst();
+    }
+
+    /**
      * For analysering av SVP feil og opprydning av denne
      */
     public List<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagForPotensielleFeilSVP() {
@@ -207,6 +238,20 @@ public class BeregningsgrunnlagRepository {
         builder.medBeregningsgrunnlag(beregningsgrunnlag);
         BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = builder.build(behandlingId, beregningsgrunnlagTilstand);
         lagreOgFlush(behandlingId, grunnlagEntitet);
+        return grunnlagEntitet;
+    }
+
+    @Deprecated
+    // KUN FOR MIGRERING
+    public BeregningsgrunnlagGrunnlagEntitet lagreForMigrering(Long behandlingId, BeregningsgrunnlagEntitet beregningsgrunnlag, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+        Objects.requireNonNull(behandlingId, BEHANDLING_ID);
+        Objects.requireNonNull(beregningsgrunnlag, BEREGNING_AKTIVITET_AGGREGAT);
+        Objects.requireNonNull(beregningsgrunnlagTilstand, BEREGNINGSGRUNNLAG_TILSTAND);
+
+        BeregningsgrunnlagGrunnlagBuilder builder = opprettGrunnlagBuilderForEndring(behandlingId);
+        builder.medBeregningsgrunnlag(beregningsgrunnlag);
+        BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = builder.build(behandlingId, beregningsgrunnlagTilstand);
+        lagreOgFlushUtenAktivt(grunnlagEntitet);
         return grunnlagEntitet;
     }
 
@@ -340,6 +385,13 @@ public class BeregningsgrunnlagRepository {
         Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlag = entitetOpt.isPresent() ? Optional.of(entitetOpt.get()) : Optional.empty();
         return BeregningsgrunnlagGrunnlagBuilder.oppdatere(grunnlag);
     }
+
+    private BeregningsgrunnlagGrunnlagBuilder opprettGrunnlagBuilderForEndring(Long behandlingId) {
+        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
+        Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlag = entitetOpt.isPresent() ? Optional.of(entitetOpt.get()) : Optional.empty();
+        return BeregningsgrunnlagGrunnlagBuilder.endre(grunnlag);
+    }
+
 
     public void deaktiverBeregningsgrunnlagGrunnlagEntitet(Long behandlingId) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
