@@ -407,7 +407,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         FORBLI, UTEN_FRIST, EnumSet.of(FP)),
     VENT_PÅ_SØKNAD(AksjonspunktKodeDefinisjon.VENT_PÅ_SØKNAD_KODE,
             AksjonspunktType.AUTOPUNKT, "Venter på søknad", BehandlingStegType.REGISTRER_SØKNAD, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE,
-            "P3W", EnumSet.of(ES, FP, SVP)),
+            "P3W", EnumSet.of(FP, SVP)),
     AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST_KODE, AksjonspunktType.AUTOPUNKT, "Vent på rapporteringsfrist for inntekt",
             BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_PÅ_REGLER_FOR_DØDFØDSEL_80P_DEKNINGSGRAD(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_REGLER_FOR_DØDFØDSEL_80P_DEKNINGSGRAD_KODE, AksjonspunktType.AUTOPUNKT,
