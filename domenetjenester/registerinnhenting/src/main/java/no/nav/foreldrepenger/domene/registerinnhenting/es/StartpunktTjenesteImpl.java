@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.es;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -11,19 +14,33 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.domene.arbeidsforhold.AktørYtelseEndring;
+import no.nav.foreldrepenger.domene.arbeidsforhold.IAYGrunnlagDiff;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("ES")
 public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
     private Instance<StartpunktUtleder> utledere;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private InntektArbeidYtelseTjeneste iayTjeneste;
 
     @Inject
-    public StartpunktTjenesteImpl(@Any Instance<StartpunktUtleder> utledere) {
+    public StartpunktTjenesteImpl(@Any Instance<StartpunktUtleder> utledere,
+                                  FamilieHendelseTjeneste familieHendelseTjeneste,
+                                  InntektArbeidYtelseTjeneste iayTjeneste) {
         this.utledere = utledere;
+        this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.iayTjeneste = iayTjeneste;
     }
 
     StartpunktTjenesteImpl() {
@@ -37,17 +54,55 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
     @Override
     public StartpunktType utledStartpunktForDiffBehandlingsgrunnlag(BehandlingReferanse revurdering, EndringsresultatDiff differanse) {
-        StartpunktType startpunkt = differanse.hentKunDelresultater().stream()
-            .map(diff -> utledStartpunktForDelresultat(revurdering, diff))
+        StartpunktType startpunkt = utledStartpunkterES(revurdering, differanse).stream()
             .min(Comparator.comparing(StartpunktType::getRangering))
             .orElse(StartpunktType.UDEFINERT);
         return StartpunktType.inngangsVilkårStartpunkt().contains(startpunkt) ? startpunkt : StartpunktType.UDEFINERT;
+    }
+
+    private List<StartpunktType> utledStartpunkterES(BehandlingReferanse revurdering, EndringsresultatDiff differanse) {
+        List<StartpunktType> startpunkter = new ArrayList<>();
+        FamilieHendelseGrunnlagEntitet grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.getBehandlingId());
+        if (skalSjekkeForManglendeFødsel(grunnlagForBehandling))
+            startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
+
+        differanse.hentDelresultat(FamilieHendelseGrunnlagEntitet.class).filter(EndringsresultatDiff::erSporedeFeltEndret).ifPresent(diff -> {
+            if (erAntallBekreftedeBarnEndret((long) diff.getGrunnlagId1(), (long) diff.getGrunnlagId2()))
+                startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
+        });
+        differanse.hentDelresultat(MedlemskapAggregat.class).filter(EndringsresultatDiff::erSporedeFeltEndret)
+            .ifPresent(diff -> startpunkter.add(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP));
+        differanse.hentDelresultat(PersonInformasjonEntitet.class).filter(EndringsresultatDiff::erSporedeFeltEndret)
+            .ifPresent(diff -> startpunkter.add(utledStartpunktForDelresultat(revurdering, diff)));
+        differanse.hentDelresultat(InntektArbeidYtelseGrunnlag.class).filter(EndringsresultatDiff::erSporedeFeltEndret).ifPresent(diff -> {
+            InntektArbeidYtelseGrunnlag grunnlag1 = iayTjeneste.hentGrunnlagForGrunnlagId(revurdering.getBehandlingId(), (UUID)diff.getGrunnlagId1());
+            InntektArbeidYtelseGrunnlag grunnlag2 = iayTjeneste.hentGrunnlagForGrunnlagId(revurdering.getBehandlingId(), (UUID)diff.getGrunnlagId2());
+            IAYGrunnlagDiff iayGrunnlagDiff = new IAYGrunnlagDiff(grunnlag1, grunnlag2);
+            AktørYtelseEndring aktørYtelseEndringForSøker = iayGrunnlagDiff
+                .endringPåAktørYtelseForAktør(revurdering.getSaksnummer(), revurdering.getUtledetSkjæringstidspunkt(), revurdering.getAktørId());
+            if (aktørYtelseEndringForSøker.erEksklusiveYtelserEndret())
+                startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
+        });
+        return startpunkter;
     }
 
     private StartpunktType utledStartpunktForDelresultat(BehandlingReferanse revurdering, EndringsresultatDiff diff) {
         var utleder = GrunnlagRef.Lookup.find(StartpunktUtleder.class, utledere, diff.getGrunnlag()).orElseThrow();
         return utleder.erBehovForStartpunktUtledning(diff) ?
             utleder.utledStartpunkt(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2()) : StartpunktType.UDEFINERT;
+    }
+
+    private boolean erAntallBekreftedeBarnEndret(Long id1, Long id2) {
+        FamilieHendelseGrunnlagEntitet grunnlag1 = familieHendelseTjeneste.hentFamilieHendelserPåGrunnlagId(id1);
+        FamilieHendelseGrunnlagEntitet grunnlag2 = familieHendelseTjeneste.hentFamilieHendelserPåGrunnlagId(id2);
+        Integer antallBarn1 = grunnlag1.getGjeldendeVersjon().getAntallBarn();
+        Integer antallBarn2 = grunnlag2.getGjeldendeVersjon().getAntallBarn();
+
+        return !antallBarn1.equals(antallBarn2);
+    }
+
+    private boolean skalSjekkeForManglendeFødsel(FamilieHendelseGrunnlagEntitet grunnlagForBehandling) {
+        return familieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(grunnlagForBehandling);
     }
 
 }

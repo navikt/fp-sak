@@ -23,12 +23,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapsho
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.registerinnhenting.EndringsresultatSjekker;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
-import no.nav.foreldrepenger.domene.registerinnhenting.fp.StartpunktTjenesteImpl;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
@@ -52,11 +52,13 @@ public class StartpunktTjenesteImplTest {
 
         endringsresultatSjekker = mock(EndringsresultatSjekker.class);
 
+        var familietjeneste = mock(FamilieHendelseTjeneste.class);
+
         // Mock startpunktutlederprovider
         var utledere = new UnitTestLookupInstanceImpl<StartpunktUtleder>(
             (behandling, grunnlagId1, grunnlagId2) -> StartpunktType.OPPTJENING);
 
-        tjeneste = new StartpunktTjenesteImpl(utledere, endringsresultatSjekker);
+        tjeneste = new StartpunktTjenesteImpl(utledere, endringsresultatSjekker, familietjeneste);
     }
 
     @Test
