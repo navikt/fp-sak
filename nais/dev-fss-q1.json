@@ -72,7 +72,6 @@
     "OPPGAVE_V3_URL": "https://wasapp-q1.adeo.no/nav-gsak-ws/OppgaveV3",
     "BEHANDLEOPPGAVE_V1_URL": "https://wasapp-q1.adeo.no/nav-gsak-ws/BehandleOppgaveV1",
     "MEDLEM_V2_URL": "https://app-q1.adeo.no/medl2/ws/Medlemskap/v2",
-    "ARBEIDSFORDELING_V1_URL": "https://app-q1.adeo.no/norg2/ws/Arbeidsfordeling/v1",
     "ARBEIDSFORDELING_RS_URL": "https://app-q1.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
     "PERSON_V3_URL": "https://wasapp-q1.adeo.no/tpsws/ws/Person/v3",
     "KODEVERK_V2_URL": "https://kodeverk.nais.preprod.local/ws/kodeverk/v2",

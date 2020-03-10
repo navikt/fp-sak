@@ -2,8 +2,7 @@ package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.ArgumentMatchers.matches;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -11,10 +10,12 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.stubbing.Answer;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
@@ -27,7 +28,9 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.produksjonsstyring.arbeidsfordeling.ArbeidsfordelingTjeneste;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRestKlient;
 
 public class EnhetsTjenesteTest {
 
@@ -55,21 +58,23 @@ public class EnhetsTjenesteTest {
 
     private static OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4802", "NAV Bærum");
     private static OrganisasjonsEnhet enhetKode6 = new OrganisasjonsEnhet("2103", "NAV Viken");
+    private static ArbeidsfordelingResponse respNormal = new ArbeidsfordelingResponse("4802", "NAV Bærum", "Aktiv", "FPY");
+    private static ArbeidsfordelingResponse respKode6 = new ArbeidsfordelingResponse("2103", "NAV Viken", "Aktiv", "KO");
+
 
     private static GeografiskTilknytning tilknytningNormal = new GeografiskTilknytning("0219", null);
     private static GeografiskTilknytning tilknytningKode6 = new GeografiskTilknytning("0219", "SPSF");
     private static GeografiskTilknytning relatertKode6 = new GeografiskTilknytning(null, "SPSF");
 
     private TpsTjeneste tpsTjeneste;
-    private ArbeidsfordelingTjeneste arbeidsfordelingTjeneste;
+    private ArbeidsfordelingRestKlient arbeidsfordelingTjeneste;
     private EnhetsTjeneste enhetsTjeneste;
 
 
     @Before
     public void oppsett() {
         tpsTjeneste = mock(TpsTjeneste.class);
-        arbeidsfordelingTjeneste = mock(ArbeidsfordelingTjeneste.class);
-        when(arbeidsfordelingTjeneste.getKlageInstansEnhet()).thenReturn(new OrganisasjonsEnhet("4292", "NAV Klageinstans Midt-Norge"));
+        arbeidsfordelingTjeneste = mock(ArbeidsfordelingRestKlient.class);
         enhetsTjeneste = new EnhetsTjeneste(tpsTjeneste, arbeidsfordelingTjeneste);
     }
 
@@ -200,9 +205,10 @@ public class EnhetsTjenesteTest {
         when(tpsTjeneste.hentGeografiskTilknytning(ELDRE_BARN_IDENT)).thenReturn(barnKode6 ? tilknytningKode6 : tilknytningNormal);
         when(tpsTjeneste.hentGeografiskTilknytning(BARN_IDENT)).thenReturn(morKode6 ? tilknytningKode6 : tilknytningNormal);
 
-        when(arbeidsfordelingTjeneste.finnBehandlendeEnhet(any(),isNull(), any())).thenReturn(enhetNormal);
-        when(arbeidsfordelingTjeneste.finnBehandlendeEnhet(any(), matches("SPSF"), any())).thenReturn(enhetKode6);
-        when(arbeidsfordelingTjeneste.hentEnhetForDiskresjonskode(matches("SPSF"), any())).thenReturn(enhetKode6);
+        doAnswer((Answer<List<ArbeidsfordelingResponse>>) invocation -> {
+            ArbeidsfordelingRequest data = (ArbeidsfordelingRequest) invocation.getArguments()[0];
+            return Objects.equals("SPSF", data.getDiskresjonskode()) ? List.of(respKode6) : List.of(respNormal);
+        }).when(arbeidsfordelingTjeneste).finnEnhet(any(ArbeidsfordelingRequest.class));
 
         when(tpsTjeneste.hentDiskresjonskoderForFamilierelasjoner(MOR_IDENT))
             .thenReturn(barnKode6 || (annenPartKode6 && foreldreRelatertTps) ? Collections.singletonList(relatertKode6): Collections.emptyList());
