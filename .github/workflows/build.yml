@@ -60,6 +60,7 @@ jobs:
           echo "::set-env name=TAG::$(mvn help:evaluate --batch-mode --settings ./.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)"
 
       - name: Bygg og push docker-image for distribuering
+        if: success()
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
@@ -85,6 +86,20 @@ jobs:
           docker push ${IMAGE_BASE}-test:latest
           docker push ${IMAGE_BASE}-test:${TAG}
 
+      - name: Trigger fpsak-autotest til å kjøre tester
+        if: success()
+        shell: bash
+        run: |
+          curl -XPOST -u "x-access-token:${{secrets.GITHUB_ACCESS_TOKEN}}" \
+          -H "Accept: application/vnd.github.everest-preview+json" \
+          -H "Content-Type: application/json" \
+          https://api.github.com/repos/navikt/fpsak-autotest/dispatches \
+          --data '{"event_type": "fpsak-autotest",
+                   "client_payload": {
+                      "trigger": "${{ github.repository }}",
+                      "version": "${{ env.TAG }}"
+                  }}'
+
       - name: Opprett deployment issue
         if: success()
         uses: maxkomarychev/oction-create-issue@v0.7.1
@@ -94,7 +109,7 @@ jobs:
           title: Deploy av ${{ env.TAG }}
           labels: deployment
           body: |
-            Kommenter med <b>/promote env namespace</b>, hvor <b>env</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret.
+            Kommenter med <b>/promote cluster namespace</b>, hvor <b>Cluster</b> er et gyldig clusternavn og <b>namespace</b> et eksisterende namespace i det clusteret.
 
             <table>
             <tr><th>Cluster</th><th>Namespace</th></tr>
