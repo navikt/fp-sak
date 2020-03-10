@@ -1,6 +1,10 @@
 name: Bygg pull request
 
-on: [pull_request]
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - master
 
 env:
   ORACLE_IMAGE: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
