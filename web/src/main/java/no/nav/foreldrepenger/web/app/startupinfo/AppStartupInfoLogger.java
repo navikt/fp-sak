@@ -99,17 +99,16 @@ class AppStartupInfoLogger {
     }
 
     private static boolean ignore(String key) {
-        for (String ignore : IGNORE) {
-            if (key.toLowerCase().endsWith(ignore.toLowerCase())) {
-                return true;
-            }
-        }
-        return false;
+        return matchEndsWith(key, IGNORE);
     }
 
     private static boolean secret(String key) {
-        for (String secret : SECRETS) {
-            if (key.toLowerCase().endsWith(secret.toLowerCase())) {
+        return matchEndsWith(key, SECRETS);
+    }
+
+    private static boolean matchEndsWith(String key, List<String> elems) {
+        for (String elem : elems) {
+            if (key.toLowerCase().endsWith(elem.toLowerCase())) {
                 return true;
             }
         }
