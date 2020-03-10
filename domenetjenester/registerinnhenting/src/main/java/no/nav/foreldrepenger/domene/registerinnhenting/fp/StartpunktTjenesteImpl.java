@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.fp;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -15,10 +17,12 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.EndringsresultatSjekker;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")
@@ -27,15 +31,19 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
     private Instance<StartpunktUtleder> utledere;
     private EndringsresultatSjekker endringsresultatSjekker;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     StartpunktTjenesteImpl() {
         // For CDI
     }
 
     @Inject
-    public StartpunktTjenesteImpl(@Any Instance<StartpunktUtleder> utledere, EndringsresultatSjekker endringsresultatSjekker) {
+    public StartpunktTjenesteImpl(@Any Instance<StartpunktUtleder> utledere,
+                                  EndringsresultatSjekker endringsresultatSjekker,
+                                  FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.utledere = utledere;
         this.endringsresultatSjekker = endringsresultatSjekker;
+        this.familieHendelseTjeneste = familieHendelseTjeneste;
     }
 
     @Override
@@ -46,15 +54,22 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
         EndringsresultatSnapshot snapshotOriginalBehandling = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(origBehandlingId);
         EndringsresultatDiff diff = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(revurdering.getId(), snapshotOriginalBehandling);
         LOGGER.info("Endringsresultat ved revurdering={} er: {}", revurdering.getId(), diff);// NOSONAR //$NON-NLS-1$
-        StartpunktType startpunktType = utledStartpunktForDiffBehandlingsgrunnlag(revurdering, diff);
+        return utledStartpunktForDiffBehandlingsgrunnlag(revurdering, diff);
 
-        return startpunktType;
     }
 
     @Override
     public StartpunktType utledStartpunktForDiffBehandlingsgrunnlag(BehandlingReferanse revurdering, EndringsresultatDiff differanse) {
-        return differanse.hentKunDelresultater().stream()
+        List<StartpunktType> startpunkter = new ArrayList<>();
+        FamilieHendelseGrunnlagEntitet grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.getBehandlingId());
+        if (skalSjekkeForManglendeFødsel(grunnlagForBehandling))
+            startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
+
+        differanse.hentKunDelresultater().stream()
             .map(diff -> utledStartpunktForDelresultat(revurdering, diff))
+            .forEach(startpunkter::add);
+
+        return startpunkter.stream()
             .min(Comparator.comparing(StartpunktType::getRangering))
             .orElse(StartpunktType.UDEFINERT);
     }
@@ -65,4 +80,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
             utleder.utledStartpunkt(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2()) : StartpunktType.UDEFINERT;
     }
 
+    private boolean skalSjekkeForManglendeFødsel(FamilieHendelseGrunnlagEntitet grunnlagForBehandling) {
+        return familieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(grunnlagForBehandling);
+    }
 }
