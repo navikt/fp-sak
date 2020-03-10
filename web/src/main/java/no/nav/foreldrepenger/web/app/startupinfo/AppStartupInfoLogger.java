@@ -10,8 +10,11 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import javax.enterprise.context.Dependent;
+import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 
+import org.jboss.resteasy.annotations.Query;
+import org.jboss.weld.util.reflection.Formats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +57,7 @@ class AppStartupInfoLogger {
 
     void logAppStartupInfo() {
         log(HILITE_START + " " + OPPSTARTSINFO + " " + START + " " + HILITE_SLUTT);
+        logVersjoner();
         logKonfigurasjon();
         logSelftest();
         log(HILITE_START + " " + OPPSTARTSINFO + " " + SLUTT + " " + HILITE_SLUTT);
@@ -148,5 +152,18 @@ class AppStartupInfoLogger {
 
     private static String getStatus(boolean isHealthy) {
         return isHealthy ? "OK" : "ERROR";
+    }
+
+    private void logVersjoner() {
+        // Noen biblioteker er bundlet med jboss og kan skape konflikter, eller jboss
+        // overstyrer vår overstyring via modul classpath
+        // her logges derfor hva som er effektivt tilgjengelig av ulike biblioteker som
+        // kan være påvirket ved oppstart
+        log("Bibliotek: Hibernate: {}", org.hibernate.Version.getVersionString());
+        log("Bibliotek: Weld: {}", Formats.version(null));
+        log("Bibliotek: CDI: {}", CDI.class.getPackage().getImplementationVendor() + ":"
+                + CDI.class.getPackage().getSpecificationVersion());
+        log("Bibliotek: Resteasy: {}", Query.class.getPackage().getImplementationVersion()); // tilfeldig valgt Resteasy
+                                                                                             // klasse
     }
 }
