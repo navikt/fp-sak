@@ -330,7 +330,7 @@ public class IAYMapperTilKalkulus {
 
     private static YtelseAnvistDto mapYtelseAnvist(YtelseAnvist ytelseAnvist) {
         YtelseAnvistDtoBuilder builder = YtelseAnvistDtoBuilder.ny();
-        builder.medAnvistPeriode(Intervall.fraOgMedTilOgMed(ytelseAnvist.getAnvistFOM(), ytelseAnvist.getAnvistFOM()));
+        builder.medAnvistPeriode(Intervall.fraOgMedTilOgMed(ytelseAnvist.getAnvistFOM(), ytelseAnvist.getAnvistTOM()));
         ytelseAnvist.getBeløp().ifPresent(beløp -> builder.medBeløp(beløp.getVerdi()));
         ytelseAnvist.getDagsats().ifPresent(dagsats -> builder.medDagsats(dagsats.getVerdi()));
         ytelseAnvist.getUtbetalingsgradProsent().ifPresent(stillingsprosent -> builder.medUtbetalingsgradProsent(stillingsprosent.getVerdi()));
