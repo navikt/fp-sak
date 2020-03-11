@@ -18,6 +18,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import org.hibernate.jpa.QueryHints;
 
 import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
@@ -173,20 +174,26 @@ public class BeregningsgrunnlagRepository {
     }
 
     /**
-     * For analysering av SVP feil og opprydning av denne
+     * For analysering av meldekortfeil og opprydning av disse
      */
-    public List<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagForPotensielleFeilSVP() {
+    public List<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagForPotensielleFeilMeldekort() {
         TypedQuery<BeregningsgrunnlagGrunnlagEntitet> query = entityManager.createQuery(
-            "from BeregningsgrunnlagGrunnlagEntitet " +
-                "where beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
-                "and opprettetTidspunkt > :opprettetFom " +
-                "and opprettetTidspunkt < :opprettetTom and aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
+            "select gr from BeregningsgrunnlagGrunnlagEntitet gr " +
+                "INNER JOIN Beregningsgrunnlag bg ON gr.beregningsgrunnlag = bg " +
+                "INNER JOIN BeregningsgrunnlagAktivitetStatus aks ON aks.beregningsgrunnlag = bg " +
+                "where (aks.aktivitetStatus = :status1 OR aks.aktivitetStatus = :status2) " +
+                "and gr.beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
+                "and gr.opprettetTidspunkt > :opprettetFom " +
+                "and gr.opprettetTidspunkt < :opprettetTom " +
+                "and gr.aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
         BeregningsgrunnlagTilstand beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.FASTSATT;
         LocalDateTime opprettetFom = LocalDateTime.of(LocalDate.of(2020, 2, 10), LocalTime.NOON);
-        LocalDateTime opprettetTom = LocalDateTime.of(LocalDate.of(2020, 2, 14), LocalTime.NOON);
+        LocalDateTime opprettetTom = LocalDateTime.of(LocalDate.of(2020, 3, 10), LocalTime.NOON);
         query.setParameter("opprettetFom", opprettetFom); //$NON-NLS-1$
         query.setParameter("opprettetTom", opprettetTom); //$NON-NLS-1$
         query.setParameter("aktivt", true); //$NON-NLS-1$
+        query.setParameter("status1", no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.ARBEIDSAVKLARINGSPENGER); //$NON-NLS-1$
+        query.setParameter("status2", no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.DAGPENGER); //$NON-NLS-1$
         query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand); //$NON-NLS-1$
         return query.getResultList();
     }
@@ -461,3 +468,4 @@ public class BeregningsgrunnlagRepository {
         return grunnlagMedForrigeTiltandOpt;
     }
 }
+
