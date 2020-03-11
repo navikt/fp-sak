@@ -7,7 +7,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -34,11 +33,6 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
     }
 
     @Override
-    public boolean erBehovForStartpunktUtledning(EndringsresultatDiff diff) {
-        return true;
-    }
-
-    @Override
     public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object id1, Object id2) {
         long grunnlag1 = (long) id1;
         long grunnlag2 = (long) id2;
@@ -52,11 +46,6 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.SØKERS_RELASJON_TIL_BARNET, "antall barn", grunnlag1, grunnlag2);
             return StartpunktType.SØKERS_RELASJON_TIL_BARNET;
         }
-        if (skalSjekkeForManglendeFødsel(grunnlagForBehandling)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.SØKERS_RELASJON_TIL_BARNET, "manglende fødsel", grunnlag1, grunnlag2);
-            return StartpunktType.SØKERS_RELASJON_TIL_BARNET;
-        }
-
         FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "familiehendelse", grunnlag1, grunnlag2);
         return StartpunktType.UTTAKSVILKÅR;
     }
@@ -98,7 +87,4 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
         return !antallBarn1.equals(antallBarn2);
     }
 
-    private boolean skalSjekkeForManglendeFødsel(FamilieHendelseGrunnlagEntitet grunnlagForBehandling) {
-        return familieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(grunnlagForBehandling);
-    }
 }
