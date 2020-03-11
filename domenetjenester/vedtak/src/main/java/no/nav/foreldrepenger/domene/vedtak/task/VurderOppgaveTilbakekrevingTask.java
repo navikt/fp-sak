@@ -54,7 +54,7 @@ public class VurderOppgaveTilbakekrevingTask extends BehandlingProsessTask {
         if (skalOppretteOppgaveTilbakekreving(behandling)) {
             FagsakYtelseType fagsakYtelseType = behandling.getFagsakYtelseType();
             String ytelse = finnBeskrivelseForYtelsetype(fagsakYtelseType);
-            String beskrivelse = "Feilutbetaling " + ytelse + ". Opprett en tilbakekrevingsbehandling i Infotrygd.";
+            String beskrivelse = "Feilutbetaling " + ytelse + ".";
 
             String oppgaveId = oppgaveTjeneste.opprettOppgaveFeilutbetaling(behandlingId, beskrivelse);
             log.info("Opprettet oppgave i GSAK for tilbakebetaling. BehandlingId: {}. OppgaveId: {}.", behandlingId, oppgaveId);
