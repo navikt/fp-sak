@@ -183,11 +183,12 @@ public class BeregningsgrunnlagRepository {
             "select gr from BeregningsgrunnlagGrunnlagEntitet gr " +
                 "INNER JOIN Beregningsgrunnlag bg ON gr.beregningsgrunnlag = bg " +
                 "INNER JOIN BeregningsgrunnlagAktivitetStatus aks ON aks.beregningsgrunnlag = bg " +
-                "where (aks.aktivitetStatus = :status1 OR aks.aktivitetStatus = :status2) " +
-                "and gr.beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
-                "and gr.opprettetTidspunkt > :opprettetFom " +
+                "where gr.opprettetTidspunkt > :opprettetFom " +
                 "and gr.opprettetTidspunkt < :opprettetTom " +
-                "and aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
+                "and gr.beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
+                "and (aks.aktivitetStatus = :status1 OR aks.aktivitetStatus = :status2) " +
+                "and gr.aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
+
         BeregningsgrunnlagTilstand beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.FASTSATT;
         LocalDateTime opprettetFom = LocalDateTime.of(LocalDate.of(2020, 2, 10), LocalTime.NOON);
         LocalDateTime opprettetTom = LocalDateTime.of(LocalDate.of(2020, 3, 10), LocalTime.NOON);
