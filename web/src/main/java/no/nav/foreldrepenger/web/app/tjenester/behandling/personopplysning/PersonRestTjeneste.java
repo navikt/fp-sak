@@ -18,6 +18,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -52,6 +55,8 @@ public class PersonRestTjeneste {
     public static final String MEDLEMSKAP_V2_PATH = BASE_PATH + MEDLEMSKAP_V2_PART_PATH; //NOSONAR TFP-2234
     private static final String PERSONOPPLYSNINGER_PART_PATH = "/person/personopplysninger";
     public static final String PERSONOPPLYSNINGER_PATH = BASE_PATH + PERSONOPPLYSNINGER_PART_PATH; //NOSONAR TFP-2234
+
+    private static final Logger LOG = LoggerFactory.getLogger(PersonRestTjeneste.class);
 
     private VergeRepository vergeRepository;
     private VergeDtoTjeneste vergeDtoTjenesteImpl;
@@ -145,6 +150,7 @@ public class PersonRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public MedlemDto getMedlemskap(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = getBehandlingsId(behandlingIdDto);
+        LOG.info("MedlemDto v1 hentes behandlingId {}", behandlingId);
         Optional<MedlemDto> medlemDto = medlemDtoTjeneste.lagMedlemDto(behandlingId);
         return medlemDto.orElse(null);
     }
@@ -169,7 +175,7 @@ public class PersonRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public MedlemV2Dto hentMedlemskap(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = getBehandlingsId(behandlingIdDto);
-        Optional<MedlemV2Dto> medlemDto = medlemDtoTjeneste.lagMedlemPeriodisertDto(behandlingId);
+        Optional<MedlemV2Dto> medlemDto = medlemDtoTjeneste.lagMedlemV2Dto(behandlingId);
         return medlemDto.orElse(null);
     }
 

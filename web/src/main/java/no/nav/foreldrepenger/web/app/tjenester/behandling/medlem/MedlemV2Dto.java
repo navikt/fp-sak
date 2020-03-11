@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -8,6 +9,7 @@ public class MedlemV2Dto {
     private List<InntektDto> inntekt;
     private List<MedlemskapPerioderDto> medlemskapPerioder;
     private Set<MedlemPeriodeDto> perioder;
+    private LocalDate fom; // gjeldendeFra
 
     public MedlemV2Dto() {
         // trengs for deserialisering av JSON
@@ -35,5 +37,13 @@ public class MedlemV2Dto {
 
     void setPerioder(Set<MedlemPeriodeDto> perioder) {
         this.perioder = perioder;
+    }
+
+    public LocalDate getFom() {
+        return fom;
+    }
+
+    public void setFom(LocalDate fom) {
+        this.fom = fom;
     }
 }

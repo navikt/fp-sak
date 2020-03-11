@@ -72,12 +72,12 @@ public class MedlemDtoTjeneste {
 
     @Inject
     public MedlemDtoTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                 ArbeidsgiverTjeneste arbeidsgiverTjeneste,
-                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                 InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                 MedlemTjeneste medlemTjeneste,
-                                 PersonopplysningTjeneste personopplysningTjeneste,
-                                 PersonopplysningDtoTjeneste personopplysningDtoTjeneste) {
+                             ArbeidsgiverTjeneste arbeidsgiverTjeneste,
+                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                             InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                             MedlemTjeneste medlemTjeneste,
+                             PersonopplysningTjeneste personopplysningTjeneste,
+                             PersonopplysningDtoTjeneste personopplysningDtoTjeneste) {
 
         this.medlemskapRepository = behandlingRepositoryProvider.getMedlemskapRepository();
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
@@ -201,7 +201,7 @@ public class MedlemDtoTjeneste {
         }
     }
 
-    public Optional<MedlemV2Dto> lagMedlemPeriodisertDto(Long behandlingId) {
+    public Optional<MedlemV2Dto> lagMedlemV2Dto(Long behandlingId) {
         Optional<MedlemskapAggregat> medlemskapOpt = medlemskapRepository.hentMedlemskap(behandlingId);
         final Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         final MedlemV2Dto dto = new MedlemV2Dto();
@@ -210,11 +210,46 @@ public class MedlemDtoTjeneste {
         mapInntekter(dto, behandlingId, personopplysningerAggregat.orElse(null), ref);
         mapSkjæringstidspunkt(dto, medlemskapOpt.orElse(null), behandling.getAksjonspunkter(), ref);
         mapRegistrerteMedlPerioder(dto, medlemskapOpt.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder).orElse(Collections.emptySet()));
+        dto.setFom(mapMedlemV2Fom(behandling, ref, personopplysningerAggregat, medlemskapOpt).orElse(null));
 
         if (behandling.getAksjonspunkter().stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).collect(Collectors.toList()).contains(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP)) {
             mapAndrePerioder(dto, medlemskapOpt.flatMap(MedlemskapAggregat::getVurderingLøpendeMedlemskap).map(VurdertMedlemskapPeriodeEntitet::getPerioder).orElse(Collections.emptySet()), ref);
         }
         return Optional.of(dto);
+    }
+
+    private Optional<LocalDate> mapMedlemV2Fom(Behandling behandling, BehandlingReferanse ref,
+                                               Optional<PersonopplysningerAggregat> personopplysningerAggregat,
+                                               Optional<MedlemskapAggregat> medlemskapAggregat) {
+        var fom = medlemV2FomFraMedlemskap(ref, medlemskapAggregat);
+        // TODO Fom fra personopplysninger kun revurdering og foreldrepenger, bør skilles ut som egen DTO for FP+BT-004
+        if (personopplysningerAggregat.isPresent()) {
+            var endringerIPersonopplysninger = medlemTjeneste.søkerHarEndringerIPersonopplysninger(behandling);
+            var endredeAttributter = endringerIPersonopplysninger.getEndredeAttributter();
+            if (!endredeAttributter.isEmpty()) {
+                return endringerIPersonopplysninger.getGjeldendeFra();
+            }
+
+            /* Ingen endringer i personopplysninger (siden siste vedtatte medlemskapsperiode),
+            så vi setter gjeldende f.o.m fra nyeste endring i personstatus. Denne vises b.a. ifm. aksjonspunkt 5022 */
+            if (fom.isPresent() && personopplysningerAggregat.get().getPersonstatusFor(ref.getAktørId()) != null) {
+                if (fom.get().isBefore(personopplysningerAggregat.get().getPersonstatusFor(ref.getAktørId()).getPeriode().getFomDato())) {
+                    return Optional.ofNullable(personopplysningerAggregat.get().getPersonstatusFor(ref.getAktørId()).getPeriode().getFomDato());
+                }
+            }
+        }
+        return fom;
+    }
+
+    private Optional<LocalDate> medlemV2FomFraMedlemskap(BehandlingReferanse ref, Optional<MedlemskapAggregat> medlemskapAggregat) {
+        if (medlemskapAggregat.isPresent()) {
+            var aggregat = medlemskapAggregat.get();
+            var vurdertMedlemskapOpt = aggregat.getVurdertMedlemskap();
+            if (vurdertMedlemskapOpt.isPresent()) {
+                return ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet();
+            }
+        }
+        return Optional.empty();
     }
 
     private void mapRegistrerteMedlPerioder(MedlemV2Dto dto, Set<MedlemskapPerioderEntitet> perioder) {
@@ -255,7 +290,11 @@ public class MedlemDtoTjeneste {
         dto.setPerioder(periodeSet);
     }
 
-    private MedlemPeriodeDto mapTilPeriodeDtoSkjæringstidspunkt(Long behandlingId, Optional<VurdertMedlemskap> vurdertMedlemskapOpt, LocalDate vurderingsdato, Set<VurderingsÅrsak> årsaker, Set<Aksjonspunkt> aksjonspunkter) {
+    private MedlemPeriodeDto mapTilPeriodeDtoSkjæringstidspunkt(Long behandlingId,
+                                                                Optional<VurdertMedlemskap> vurdertMedlemskapOpt,
+                                                                LocalDate vurderingsdato,
+                                                                Set<VurderingsÅrsak> årsaker,
+                                                                Set<Aksjonspunkt> aksjonspunkter) {
         final MedlemPeriodeDto periodeDto = new MedlemPeriodeDto();
         periodeDto.setÅrsaker(årsaker);
         personopplysningDtoTjeneste.lagPersonopplysningDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysninger);
@@ -289,10 +328,6 @@ public class MedlemDtoTjeneste {
             periodeDto.setBegrunnelse(vurdertMedlemskap.getBegrunnelse());
         }
         return periodeDto;
-    }
-
-    public Optional<MedlemDto> lagMedlemDto(Behandling behandling) {
-        return lagMedlemDto(behandling.getId());
     }
 
     private List<InntektDto> lagInntektDto(InntektArbeidYtelseGrunnlag grunnlag, PersonopplysningerAggregat personopplysningerAggregat, BehandlingReferanse ref) {
