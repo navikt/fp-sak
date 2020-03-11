@@ -1,41 +1,62 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.produksjonsstyring.arbeidsfordeling.ArbeidsfordelingTjeneste;
+import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRestKlient;
 
 @ApplicationScoped
 public class EnhetsTjeneste {
 
+    private static final String TEMAGRUPPE = "FMLI"; // Kodeverk Temagrupper - dekker FOR + OMS
+    private static final String TEMA = Tema.FOR.getOffisiellKode(); // Kodeverk Tema
+    private static final String OPPGAVETYPE = OppgaveÅrsak.BEHANDLE_SAK.getKode(); // Kodeverk Oppgavetype - NFP , uten spesialenheter
+    private static final String ENHET_TYPE_NFP = "FPY"; // NOSONAR Kodeverk EnhetstyperNORG - NFP , uten spesialenheter (alt dropp behtype og filter på denne)
+    private static final String DISKRESJON_K6 = Diskresjonskode.KODE6.getOffisiellKode(); // Kodeverk Diskresjonskoder
+    private static final String BEHANDLINGTYPE = BehandlingType.FØRSTEGANGSSØKNAD.getOffisiellKode(); // Kodeverk Behandlingstype, bruker søknad
+    private static final String NK_ENHET_ID = "4292";
+
+    private static final OrganisasjonsEnhet KLAGE_ENHET =  new OrganisasjonsEnhet(NK_ENHET_ID, "NAV Klageinstans Midt-Norge");
+
+    private static final Logger logger = LoggerFactory.getLogger(EnhetsTjeneste.class);
+
     private TpsTjeneste tpsTjeneste;
-    private ArbeidsfordelingTjeneste arbeidsfordelingTjeneste;
+    private ArbeidsfordelingRestKlient norgRest;
 
     private LocalDate sisteInnhenting = LocalDate.MIN;
-    // Produksjonsstyring skjer på nivå TEMA - behandlingTema ikke hensyntatt in NORG2
     private OrganisasjonsEnhet enhetKode6;
-    private OrganisasjonsEnhet enhetKlage;
-    private List<OrganisasjonsEnhet> alleBehandlendeEnheter;
+    private List<OrganisasjonsEnhet> alleBehandlendeEnheter = new ArrayList<>();
 
     public EnhetsTjeneste() {
         // For CDI proxy
     }
 
     @Inject
-    public EnhetsTjeneste(TpsTjeneste tpsTjeneste, ArbeidsfordelingTjeneste arbeidsfordelingTjeneste) {
+    public EnhetsTjeneste(TpsTjeneste tpsTjeneste,
+                          ArbeidsfordelingRestKlient arbeidsfordelingRestKlient) {
         this.tpsTjeneste = tpsTjeneste;
-        this.arbeidsfordelingTjeneste = arbeidsfordelingTjeneste;
+        this.norgRest = arbeidsfordelingRestKlient;
     }
 
 
@@ -50,20 +71,20 @@ public class EnhetsTjeneste {
 
         GeografiskTilknytning geografiskTilknytning = tpsTjeneste.hentGeografiskTilknytning(fnr);
         String aktivDiskresjonskode = geografiskTilknytning.getDiskresjonskode();
-        if (!Diskresjonskode.KODE6.getKode().equals(aktivDiskresjonskode)) {
+        if (!DISKRESJON_K6.equals(aktivDiskresjonskode)) {
             boolean relasjonMedK6 = tpsTjeneste.hentDiskresjonskoderForFamilierelasjoner(fnr).stream()
-                .anyMatch(geo -> Diskresjonskode.KODE6.getKode().equals(geo.getDiskresjonskode()));
+                .anyMatch(geo -> DISKRESJON_K6.equals(geo.getDiskresjonskode()));
             if (relasjonMedK6) {
-                aktivDiskresjonskode = Diskresjonskode.KODE6.getKode();
+                aktivDiskresjonskode = DISKRESJON_K6;
             }
         }
 
-        return arbeidsfordelingTjeneste.finnBehandlendeEnhet(geografiskTilknytning.getTilknytning(), aktivDiskresjonskode, behandlingTema);
+        return hentEnheterFor(geografiskTilknytning.getTilknytning(), aktivDiskresjonskode, behandlingTema).get(0);
     }
 
     Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgitte(String enhetId, List<AktørId> relaterteAktører) {
         oppdaterEnhetCache();
-        if (enhetKode6.getEnhetId().equals(enhetId) || enhetKlage.getEnhetId().equals(enhetId)) {
+        if (enhetKode6.getEnhetId().equals(enhetId) || NK_ENHET_ID.equals(enhetId)) {
             return Optional.empty();
         }
 
@@ -72,7 +93,7 @@ public class EnhetsTjeneste {
 
     Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkRegistrerteRelasjoner(String enhetId, BehandlingTema behandlingTema, AktørId aktørId, Optional<AktørId> kobletAktørId, List<AktørId> relaterteAktører) {
         oppdaterEnhetCache();
-        if (enhetKode6.getEnhetId().equals(enhetId) || enhetKlage.getEnhetId().equals(enhetId)) {
+        if (enhetKode6.getEnhetId().equals(enhetId) || NK_ENHET_ID.equals(enhetId)) {
             return Optional.empty();
         }
 
@@ -100,7 +121,7 @@ public class EnhetsTjeneste {
         for (AktørId relatert : relaterteAktører) {
             PersonIdent personIdent = tpsTjeneste.hentFnrForAktør(relatert);
             GeografiskTilknytning geo = tpsTjeneste.hentGeografiskTilknytning(personIdent);
-            if (Diskresjonskode.KODE6.getKode().equals(geo.getDiskresjonskode())) {
+            if (DISKRESJON_K6.equals(geo.getDiskresjonskode())) {
                 return Optional.of(enhetKode6);
             }
         }
@@ -109,9 +130,10 @@ public class EnhetsTjeneste {
 
     private void oppdaterEnhetCache() {
         if (sisteInnhenting.isBefore(LocalDate.now())) {
-            enhetKode6 = arbeidsfordelingTjeneste.hentEnhetForDiskresjonskode(Diskresjonskode.KODE6.getKode(), BehandlingTema.UDEFINERT);
-            enhetKlage = arbeidsfordelingTjeneste.getKlageInstansEnhet();
-            alleBehandlendeEnheter = arbeidsfordelingTjeneste.finnAlleBehandlendeEnhetListe(BehandlingTema.UDEFINERT);
+            enhetKode6 = hentEnheterFor(null, DISKRESJON_K6, BehandlingTema.UDEFINERT).get(0);
+            alleBehandlendeEnheter.clear();
+            alleBehandlendeEnheter.addAll(hentEnheterFor(null, null, BehandlingTema.UDEFINERT));
+            alleBehandlendeEnheter.add(KLAGE_ENHET);
             sisteInnhenting = LocalDate.now();
         }
     }
@@ -127,7 +149,7 @@ public class EnhetsTjeneste {
 
     OrganisasjonsEnhet enhetsPresedens(OrganisasjonsEnhet enhetSak1, OrganisasjonsEnhet enhetSak2, boolean arverKlage) {
         oppdaterEnhetCache();
-        if (arverKlage && enhetKlage.getEnhetId().equals(enhetSak1.getEnhetId())) {
+        if (arverKlage && NK_ENHET_ID.equals(enhetSak1.getEnhetId())) {
             return enhetSak1;
         }
         if (enhetKode6.getEnhetId().equals(enhetSak1.getEnhetId()) || enhetKode6.getEnhetId().equals(enhetSak2.getEnhetId())) {
@@ -138,7 +160,28 @@ public class EnhetsTjeneste {
 
     OrganisasjonsEnhet getEnhetKlage() {
         oppdaterEnhetCache();
-        return enhetKlage;
+        return KLAGE_ENHET;
+    }
+
+    private List<OrganisasjonsEnhet> hentEnheterFor(String geografi, String diskresjon, BehandlingTema behandlingTema) {
+        List<ArbeidsfordelingResponse> restenhet;
+        var request = ArbeidsfordelingRequest.ny()
+            .medTemagruppe(TEMAGRUPPE)
+            .medTema(TEMA)
+            .medOppgavetype(OPPGAVETYPE)
+            .medBehandlingstype(BEHANDLINGTYPE)
+            .medBehandlingstema(behandlingTema.getOffisiellKode())
+            .medDiskresjonskode(diskresjon)
+            .medGeografiskOmraade(geografi)
+            .build();
+        if (geografi == null && diskresjon == null) {
+            restenhet = norgRest.hentAlleAktiveEnheter(request);
+        } else {
+            restenhet = norgRest.finnEnhet(request);
+        }
+        return restenhet.stream()
+            .map(r -> new OrganisasjonsEnhet(r.getEnhetNr(), r.getEnhetNavn()))
+            .collect(Collectors.toList());
     }
 
 }
