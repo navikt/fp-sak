@@ -61,6 +61,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     @Override
     public StartpunktType utledStartpunktForDiffBehandlingsgrunnlag(BehandlingReferanse revurdering, EndringsresultatDiff differanse) {
         List<StartpunktType> startpunkter = new ArrayList<>();
+        // Denne skal oppstå selv om grunnlaget er uendret. Eneste kjente tidsfristavhengige
         FamilieHendelseGrunnlagEntitet grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.getBehandlingId());
         if (skalSjekkeForManglendeFødsel(grunnlagForBehandling))
             startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);

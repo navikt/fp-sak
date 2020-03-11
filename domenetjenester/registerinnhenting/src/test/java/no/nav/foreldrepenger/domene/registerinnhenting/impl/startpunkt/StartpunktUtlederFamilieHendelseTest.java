@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
 import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.SØKERS_RELASJON_TIL_BARNET;
+import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.UTTAKSVILKÅR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -114,66 +115,5 @@ public class StartpunktUtlederFamilieHendelseTest {
         // Act/Assert
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, nySkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
-
-    @Test
-    public void skal_returnere_startpunkt_relasjon_dersom_mangler_bekreftet_etter_frist() {
-        // Arrange
-        LocalDate fødselSøknad = LocalDate.now().minusDays(20);
-        LocalDate origSkjæringsdato = fødselSøknad.minusWeeks(3);
-
-        ScenarioMorSøkerForeldrepenger førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFødselAdopsjonsdato(List.of(fødselSøknad))
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
-        Behandling originalBehandling = førstegangScenario.lagre(repositoryProvider);
-
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
-
-        ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFødselAdopsjonsdato(List.of(fødselSøknad))
-            .medBehandlingType(BehandlingType.REVURDERING);
-        revurderingScenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
-        Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurdering.getId())).thenReturn(skjæringstidspunkt);
-        var fgf = repositoryProvider.getFamilieHendelseRepository().hentIdPåAktivFamiliehendelse(originalBehandling.getId());
-        var fgr = repositoryProvider.getFamilieHendelseRepository().hentIdPåAktivFamiliehendelse(revurdering.getId());
-
-        // Act/Assert
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), fgf.get(), fgr.get())).isEqualTo(SØKERS_RELASJON_TIL_BARNET);
-    }
-
-    @Test
-    public void skal_returnere_startpunkt_relasjon_dersom_mangler_bekreftet_etter_frist_med_overstyrt_termin() {
-        // Arrange
-        LocalDate fødselSøknad = LocalDate.now().minusWeeks(5);
-        LocalDate origSkjæringsdato = fødselSøknad.minusWeeks(3);
-
-        ScenarioMorSøkerForeldrepenger førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
-        førstegangScenario.medSøknadHendelse().medAntallBarn(1)
-            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medNavnPå("Lege Legesen")
-                .medTermindato(fødselSøknad)
-                .medUtstedtDato(origSkjæringsdato));
-        førstegangScenario.medOverstyrtHendelse().medAntallBarn(1)
-            .medTerminbekreftelse(førstegangScenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
-                .medNavnPå("Lege Legesen")
-                .medTermindato(fødselSøknad)
-                .medUtstedtDato(origSkjæringsdato));
-
-        Behandling originalBehandling = førstegangScenario.lagre(repositoryProvider);
-
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
-
-        Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING).build();
-        repositoryProvider.getBehandlingRepository().lagre(revurdering, repositoryProvider.getBehandlingRepository().taSkriveLås(revurdering));
-        familieHendelseTjeneste.kopierGrunnlag(originalBehandling.getId(), revurdering.getId());
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurdering.getId())).thenReturn(skjæringstidspunkt);
-        var fgf = repositoryProvider.getFamilieHendelseRepository().hentIdPåAktivFamiliehendelse(originalBehandling.getId());
-        var fgr = repositoryProvider.getFamilieHendelseRepository().hentIdPåAktivFamiliehendelse(revurdering.getId());
-
-        // Act/Assert
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), fgf.get(), fgr.get())).isEqualTo(SØKERS_RELASJON_TIL_BARNET);
-    }
+    
 }
