@@ -173,7 +173,9 @@ public class BeregningsgrunnlagRepository {
         return query.getResultStream().findFirst();
     }
 
+
     /**
+     *
      * For analysering av meldekortfeil og opprydning av disse
      */
     public List<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagForPotensielleFeilMeldekort() {
@@ -185,7 +187,7 @@ public class BeregningsgrunnlagRepository {
                 "and gr.beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
                 "and gr.opprettetTidspunkt > :opprettetFom " +
                 "and gr.opprettetTidspunkt < :opprettetTom " +
-                "and gr.aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
+                "and aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
         BeregningsgrunnlagTilstand beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.FASTSATT;
         LocalDateTime opprettetFom = LocalDateTime.of(LocalDate.of(2020, 2, 10), LocalTime.NOON);
         LocalDateTime opprettetTom = LocalDateTime.of(LocalDate.of(2020, 3, 10), LocalTime.NOON);
