@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
@@ -22,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -74,7 +71,6 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         Behandling behandling = param.getBehandling();
         oppdaterBehandlingDersomMigrert(behandling, dto);
         Long behandlingId = param.getBehandlingId();
-        Optional<AksjonspunktDefinisjon> ekstraAksjonspunkt;
         OppdateringResultat.Builder resultatBuilder = OppdateringResultat.utenTransisjon();
 
         if (dto.getUfullstendigSoeknad()) {

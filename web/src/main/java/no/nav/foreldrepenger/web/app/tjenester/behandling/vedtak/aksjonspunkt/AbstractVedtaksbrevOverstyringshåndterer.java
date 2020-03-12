@@ -52,8 +52,6 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
             Behandling behandling = param.getBehandling();
             settFritekstBrev(behandling, dto.getOverskrift(), dto.getFritekstBrev());
             opprettToTrinnsKontrollpunktForFritekstBrev(dto, behandling, builder);
-            opprettAksjonspunktForFatterVedtak(behandling, builder);
-            opprettToTrinnsgrunnlag.settNyttTotrinnsgrunnlag(behandling);
             opprettHistorikkinnslag(behandling);
         }
     }
@@ -74,15 +72,15 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     }
 
     private void opprettToTrinnsKontrollpunktForFritekstBrev(BekreftetAksjonspunktDto dto, Behandling behandling, OppdateringResultat.Builder builder) {
-        if (!behandling.isToTrinnsBehandling()) {
-            behandling.setToTrinnsBehandling();
-        }
+        behandling.setToTrinnsBehandling();
         builder.medTotrinn();
         AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
         if (!AksjonspunktDefinisjon.FORESLÅ_VEDTAK.equals(aksjonspunktDefinisjon)) {
-            ekskluderOrginaltAksjonspunktFraTotrinnsVurdering(dto, behandling, builder);
+            ekskluderOriginaltAksjonspunktFraTotrinnsVurdering(dto, behandling, builder);
             registrerNyttKontrollpunktIAksjonspunktRepo(behandling, builder);
         }
+        opprettToTrinnsgrunnlag.settNyttTotrinnsgrunnlag(behandling);
+        opprettAksjonspunktForFatterVedtak(behandling, builder);
     }
 
     void opprettAksjonspunktForFatterVedtak(Behandling behandling, OppdateringResultat.Builder builder) {
@@ -93,7 +91,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         builder.medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.FATTER_VEDTAK, AksjonspunktStatus.OPPRETTET);
     }
 
-    private void ekskluderOrginaltAksjonspunktFraTotrinnsVurdering(BekreftetAksjonspunktDto dto, Behandling behandling, OppdateringResultat.Builder builder) {
+    private void ekskluderOriginaltAksjonspunktFraTotrinnsVurdering(BekreftetAksjonspunktDto dto, Behandling behandling, OppdateringResultat.Builder builder) {
         AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
         behandling.getÅpentAksjonspunktMedDefinisjonOptional(aksjonspunktDefinisjon)
             .ifPresent(ap -> builder.medAvbruttAksjonspunkt());

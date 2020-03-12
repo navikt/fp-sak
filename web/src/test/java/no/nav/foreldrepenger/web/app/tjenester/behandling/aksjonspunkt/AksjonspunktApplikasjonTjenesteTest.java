@@ -45,7 +45,7 @@ import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
-public class AksjonspunktApplikasjonTjenesteImplTest {
+public class AksjonspunktApplikasjonTjenesteTest {
 
     private static final String BEGRUNNELSE = "begrunnelse";
     private static final LocalDate TERMINDATO = FPDateUtil.iDag().plusDays(40);

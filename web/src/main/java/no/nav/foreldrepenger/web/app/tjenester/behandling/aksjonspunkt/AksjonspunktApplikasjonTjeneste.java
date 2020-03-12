@@ -62,7 +62,12 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 public class AksjonspunktApplikasjonTjeneste {
     private static final Logger LOGGER = LoggerFactory.getLogger(AksjonspunktApplikasjonTjeneste.class);
 
-    private static final Set<AksjonspunktDefinisjon> VEDTAK_AP = Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
+    private static final Set<AksjonspunktDefinisjon> VEDTAK_AP = Set.of(
+        AksjonspunktDefinisjon.FORESLÅ_VEDTAK,
+        AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL,
+        AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT,
+        AksjonspunktDefinisjon.FATTER_VEDTAK
+    );
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -162,14 +167,12 @@ public class AksjonspunktApplikasjonTjeneste {
             OppdateringResultat henleggelse = funnetHenleggelse.get();
             henleggBehandlingTjeneste.henleggBehandling(kontekst.getBehandlingId(),
                 henleggelse.getHenleggelseResultat(), henleggelse.getHenleggingsbegrunnelse());
-            return;
-        }
-
-        Optional<TransisjonIdentifikator> fremoverTransisjon = overhoppResultat.finnFremoverTransisjon();
-        if (fremoverTransisjon.isPresent()) {
-            TransisjonIdentifikator riktigTransisjon = utledFremhoppTransisjon(kontekst, fremoverTransisjon.get());
-            behandlingskontrollTjeneste.fremoverTransisjon(riktigTransisjon, kontekst);
-            return;
+        } else {
+            Optional<TransisjonIdentifikator> fremoverTransisjon = overhoppResultat.finnFremoverTransisjon();
+            if (fremoverTransisjon.isPresent()) {
+                TransisjonIdentifikator riktigTransisjon = utledFremhoppTransisjon(kontekst, fremoverTransisjon.get());
+                behandlingskontrollTjeneste.fremoverTransisjon(riktigTransisjon, kontekst);
+            }
         }
     }
 
