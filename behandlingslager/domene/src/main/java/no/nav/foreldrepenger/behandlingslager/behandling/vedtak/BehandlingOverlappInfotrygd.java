@@ -41,6 +41,7 @@ public class BehandlingOverlappInfotrygd extends BaseEntitet {
         @AttributeOverride(name = "fomDato", column = @Column(name = "VL_FOM")),
         @AttributeOverride(name = "tomDato", column = @Column(name = "VL_TOM"))
     })
+
     private ÅpenDatoIntervallEntitet periodeVL;
 
     @Embedded
@@ -49,6 +50,9 @@ public class BehandlingOverlappInfotrygd extends BaseEntitet {
         @AttributeOverride(name = "tomDato", column = @Column(name = "INFOTRYGD_TOM"))
     })
     private ÅpenDatoIntervallEntitet periodeInfotrygd;
+
+    @Column(name = "YTELSE_INFOTRYGD")
+    private String ytelseInfotrygd;
 
     protected BehandlingOverlappInfotrygd() {
     }
@@ -73,6 +77,10 @@ public class BehandlingOverlappInfotrygd extends BaseEntitet {
         return periodeInfotrygd;
     }
 
+    public String getYtelseInfotrygd() {
+        return ytelseInfotrygd;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object == this) {
@@ -85,12 +93,13 @@ public class BehandlingOverlappInfotrygd extends BaseEntitet {
         return Objects.equals(saksnummer, that.saksnummer) &&
             Objects.equals(behandlingId, that.behandlingId) &&
             Objects.equals(periodeVL, that.periodeVL) &&
-            Objects.equals(periodeInfotrygd, that.periodeInfotrygd);
+            Objects.equals(periodeInfotrygd, that.periodeInfotrygd) &&
+            Objects.equals(ytelseInfotrygd, that.ytelseInfotrygd);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(saksnummer, behandlingId, periodeVL, periodeInfotrygd);
+        return Objects.hash(saksnummer, behandlingId, periodeVL, periodeInfotrygd, ytelseInfotrygd);
     }
 
     public static Builder builder() {
@@ -102,6 +111,7 @@ public class BehandlingOverlappInfotrygd extends BaseEntitet {
         private Long behandlingId;
         private ÅpenDatoIntervallEntitet periodeVL;
         private ÅpenDatoIntervallEntitet periodeInfotrygd;
+        private String ytelseInfotrygd;
 
         public Builder medSaksnummer(Saksnummer saksnummer) {
             this.saksnummer = saksnummer;
@@ -123,6 +133,11 @@ public class BehandlingOverlappInfotrygd extends BaseEntitet {
             return this;
         }
 
+        public Builder medYtelseInfotrygd(String ytelseInfotrygd) {
+            this.ytelseInfotrygd = ytelseInfotrygd;
+            return this;
+        }
+
         public BehandlingOverlappInfotrygd build() {
             verifyStateForBuild();
             BehandlingOverlappInfotrygd behandlingOverlappInfotrygd = new BehandlingOverlappInfotrygd();
@@ -130,6 +145,7 @@ public class BehandlingOverlappInfotrygd extends BaseEntitet {
             behandlingOverlappInfotrygd.behandlingId = behandlingId;
             behandlingOverlappInfotrygd.periodeVL = periodeVL;
             behandlingOverlappInfotrygd.periodeInfotrygd = periodeInfotrygd;
+            behandlingOverlappInfotrygd.ytelseInfotrygd = ytelseInfotrygd;
             return behandlingOverlappInfotrygd;
         }
 
@@ -138,7 +154,7 @@ public class BehandlingOverlappInfotrygd extends BaseEntitet {
             Objects.requireNonNull(behandlingId);
             Objects.requireNonNull(periodeVL);
             Objects.requireNonNull(periodeInfotrygd);
-            Objects.requireNonNull(saksnummer);
+            Objects.requireNonNull(ytelseInfotrygd);
         }
     }
 }

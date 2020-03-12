@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.domene.vedtak.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,652 +14,261 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygd;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygdRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.vedtak.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.InfotrygdHendelse;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.Meldingstype;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdPSGrunnlag;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdSPGrunnlag;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Tema;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.TemaKode;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Vedtak;
+import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
+@RunWith(CdiRunner.class)
 public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
 
-    private static final String INNVILGET = Meldingstype.INFOTRYGD_INNVILGET.getType();
-    private static final String ANNULERT = Meldingstype.INFOTRYGD_ANNULLERT.getType();
-    private static final String OPPHOERT = Meldingstype.INFOTRYGD_OPPHOERT.getType();
-    private static final String ENDRET = Meldingstype.INFOTRYGD_ENDRET.getType();
+    private IdentifiserOverlappendeInfotrygdYtelseTjeneste overlappendeInfotrygdYtelseTjeneste;
 
     @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
+    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private final EntityManager entityManager = repoRule.getEntityManager();
+    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+    private BeregningsresultatRepository beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
+    private BehandlingOverlappInfotrygdRepository overlappRepository = new BehandlingOverlappInfotrygdRepository(entityManager);
 
     @Mock
-    private BeregningsresultatRepository beregningsresultatRepository;
-
+    private AktørConsumer aktørConsumerMock;
     @Mock
-    private BehandlingOverlappInfotrygdRepository overlappRepository;
-
-    private IdentifiserOverlappendeInfotrygdYtelseTjeneste tjeneste;
-
+    private InfotrygdPSGrunnlag infotrygdPSGrTjenesteMock;
     @Mock
-    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private InfotrygdSPGrunnlag infotrygdSPGrTjenesteMock;
 
-    @Mock
-    private InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag;
+    private Behandling behandlingFP;
+    private LocalDate førsteUttaksdatoFp;
 
-    private Behandling behandling;
-
-    private LocalDate startdatoVLYtelse;
-
-    private BehandlingVedtak behandlingVedtak;
 
     @Before
     public void oppsett() {
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        behandling = scenario.lagMocked();
-        this.startdatoVLYtelse = LocalDate.now();
-        behandlingVedtak = lagVedtak(VedtakResultatType.INNVILGET);
+
+        initMocks(this);
+        aktørConsumerMock = mock(AktørConsumer.class);
+        infotrygdPSGrTjenesteMock = mock(InfotrygdPSGrunnlag.class);
+        infotrygdSPGrTjenesteMock = mock(InfotrygdSPGrunnlag.class);
+        overlappendeInfotrygdYtelseTjeneste = new IdentifiserOverlappendeInfotrygdYtelseTjeneste(beregningsresultatRepository, aktørConsumerMock,infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock , overlappRepository);
+        this.førsteUttaksdatoFp = LocalDate.now().plusMonths(1);
+
+        ScenarioMorSøkerForeldrepenger scenarioAvsluttetBehMor = ScenarioMorSøkerForeldrepenger.forFødsel();
+        scenarioAvsluttetBehMor.medSøknadHendelse().medFødselsDato(førsteUttaksdatoFp);
+        scenarioAvsluttetBehMor.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenarioAvsluttetBehMor.medVilkårResultatType(VilkårResultatType.INNVILGET);
+        scenarioAvsluttetBehMor.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        behandlingFP = scenarioAvsluttetBehMor.lagre(repositoryProvider);
+        PersonIdent person = new PersonIdent("12345678901");
+        when(aktørConsumerMock.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(person.getIdent()));
     }
 
     // CASE 1:
     // Løpende ytelse: Ja, infotrygd ytelse opphører samme dag som FP
-    // Nyeste hendelse: Innvilget
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: Ja, lik
-    // Skal iverksettes: Nei
-    // VedtakResultatType: Avslag
     @Test
-    public void skal_iverksettes_når_vedtak_avslått() {
-
+    public void overlapp_når_Fp_starter_samme_dag_som_IT_opphører() {
         // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            List.of(INNVILGET, ENDRET, OPPHOERT, ANNULERT),
-            List.of(startdatoVLYtelse, startdatoVLYtelse.plusDays(1), startdatoVLYtelse.plusDays(2), startdatoVLYtelse.plusDays(3))
-        );
-        AktørYtelse infotrygdAktørYtelse = lagAktørYtelse(startdatoVLYtelse.minusDays(5), startdatoVLYtelse, RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusWeeks(1)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusWeeks(1).plusDays(1), startdatoVLYtelse.plusWeeks(2))
-        );
+        List<Vedtak> vedtakPeriode = new ArrayList<>();
+        Vedtak vedtak = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp, 100);
+        vedtakPeriode.add(vedtak);
+        Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp, vedtakPeriode);
 
-        opprettOgMockFellesTjenester(infotrygdAktørYtelse);
-        behandlingVedtak = lagVedtak(VedtakResultatType.AVSLAG);
+        List<Grunnlag> infotrygdPSGrList = new ArrayList<>();
+        infotrygdPSGrList.add(infotrygPSGrunnlag);
+
+        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(infotrygdPSGrList);
+        when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
+
+        BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
+        beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
+        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd(behandlingFP);
 
         // Assert
-        assertThat(overlapp).isEmpty();
+        assertThat(overlappIT).hasSize(1);
+        assertThat(overlappIT.get(0).getPeriodeInfotrygd().getTomDato()).isEqualTo(førsteUttaksdatoFp);
     }
 
-    // CASE 1:
-    // Løpende ytelse: Ja, infotrygd ytelse opphører samme dag som FP
-    // Nyeste hendelse: Innvilget
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: Ja, lik
-    // Skal iverksettes: Nei
     @Test
-    public void skal_ikke_iverksette_når_infotrygd_ytelse_opphører_samme_dag_som_FP_starter_og_nyeste_hendelse_er_innvilget_med_fom_lik_startdato() {
+    public void flereOverlappIlisten() {
 
         // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            List.of(INNVILGET, ENDRET, OPPHOERT, ANNULERT),
-            List.of(startdatoVLYtelse, startdatoVLYtelse.plusDays(1), startdatoVLYtelse.plusDays(2), startdatoVLYtelse.plusDays(3))
-        );
-        AktørYtelse infotrygdAktørYtelse = lagAktørYtelse(startdatoVLYtelse.minusDays(5), startdatoVLYtelse, RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusWeeks(1)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusWeeks(1).plusDays(1), startdatoVLYtelse.plusWeeks(2))
-        );
+        List<Vedtak> vedtakPerioder = new ArrayList<>();
+        Vedtak vedtak1 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(5), 100);
+        vedtakPerioder.add(vedtak1);
+        Vedtak vedtak2 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(4), førsteUttaksdatoFp.plusDays(20), 100);
+        vedtakPerioder.add(vedtak2);
 
-        opprettOgMockFellesTjenester(infotrygdAktørYtelse);
+        Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp, førsteUttaksdatoFp.plusDays(30), vedtakPerioder);
+
+        List<Vedtak> vedtakPerioderSP = new ArrayList<>();
+        Vedtak vedtakSP1 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(10), førsteUttaksdatoFp, 100);
+        vedtakPerioderSP.add(vedtakSP1);
+
+        Grunnlag infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusDays(20),førsteUttaksdatoFp, vedtakPerioderSP);
+
+        List<Grunnlag> infotrygdPSGrList = new ArrayList<>();
+        infotrygdPSGrList.add(infotrygPSGrunnlag);
+        List<Grunnlag> infotrygdSPGrList = new ArrayList<>();
+        infotrygdSPGrList.add(infotrygSPGrunnlag);
+
+        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(infotrygdPSGrList);
+        when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(infotrygdSPGrList);
+
+        BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
+        beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
+        List<BehandlingOverlappInfotrygd> flereSomOverlapper = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd(behandlingFP);
 
         // Assert
-        assertThat(overlapp).isPresent();
+        assertThat(flereSomOverlapper).hasSize(2);
     }
-
-    // CASE 2:
-    // Løpende ytelse: Ja, infotrygd ytelse opphører samme dag som FP
-    // Nyeste hendelse: Innvilget
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: Ja, tidligere
-    // Skal iverksettes: Nei
     @Test
-    public void skal_ikke_kunne_iverksette_når_infotrygd_ytelse_opphører_samme_dag_som_FP_starter_og_nyeste_hendelse_er_innvilget_med_fom_før_startdato() {
+    public void flereGrunnlagMenEttOverlappIlisten() {
 
         // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            List.of(INNVILGET, ENDRET, OPPHOERT, ANNULERT),
-            List.of(startdatoVLYtelse.minusDays(2), startdatoVLYtelse.minusDays(1), startdatoVLYtelse, startdatoVLYtelse.plusDays(2))
-        );
-        AktørYtelse infotrygdAktørYtelse = lagAktørYtelse(startdatoVLYtelse.minusDays(5), startdatoVLYtelse, RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusWeeks(1)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusWeeks(1).plusDays(1), startdatoVLYtelse.plusWeeks(2))
-        );
+        List<Vedtak> vedtakPerioder = new ArrayList<>();
+        Vedtak vedtak1 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(5), 100);
+        vedtakPerioder.add(vedtak1);
+        Vedtak vedtak2 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(4), førsteUttaksdatoFp.plusDays(20), 100);
+        vedtakPerioder.add(vedtak2);
 
-        opprettOgMockFellesTjenester(infotrygdAktørYtelse);
+        Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp, førsteUttaksdatoFp.plusDays(30), vedtakPerioder);
+
+        List<Vedtak> vedtakPerioderSP = new ArrayList<>();
+        Vedtak vedtakSP1 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(10), førsteUttaksdatoFp.minusDays(1), 100);
+        vedtakPerioderSP.add(vedtakSP1);
+
+        Grunnlag infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusDays(20),førsteUttaksdatoFp, vedtakPerioderSP);
+
+        List<Grunnlag> infotrygdPSGrList = new ArrayList<>();
+        infotrygdPSGrList.add(infotrygPSGrunnlag);
+        List<Grunnlag> infotrygdSPGrList = new ArrayList<>();
+        infotrygdSPGrList.add(infotrygSPGrunnlag);
+
+        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(infotrygdPSGrList);
+        when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(infotrygdSPGrList);
+
+        BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
+        beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
+        List<BehandlingOverlappInfotrygd> flereSomOverlapper = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd(behandlingFP);
 
         // Assert
-        assertThat(overlapp).isPresent();
-
+        assertThat(flereSomOverlapper).hasSize(1);
+        assertThat(flereSomOverlapper.get(0).getPeriodeInfotrygd().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusDays(20));
     }
-
-    // CASE 3:
-    // Løpende ytelse: Ja, infotrygd ytelse opphører samme dag som FP
-    // Nyeste hendelse: Innvilget
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: Nei, etter
-    // Skal iverksettes: Nei
     @Test
-    public void skal_ikke_kunne_iverksette_når_infotrygd_ytelse_opphører_samme_dag_som_FP_starter_og_nyeste_hendelse_er_innvilget_med_fom_etter_startdato() {
-
+    public void ingenOverlapp() {
         // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            List.of(INNVILGET, ENDRET, OPPHOERT, ANNULERT),
-            List.of(startdatoVLYtelse.plusDays(1), startdatoVLYtelse.plusDays(2), startdatoVLYtelse.plusDays(3), startdatoVLYtelse.plusDays(4))
-        );
-        AktørYtelse infotrygdAktørYtelse = lagAktørYtelse(startdatoVLYtelse.minusDays(5), startdatoVLYtelse, RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusWeeks(1)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusWeeks(1).plusDays(1), startdatoVLYtelse.plusWeeks(2))
-        );
+        List<Vedtak> vedtakPeriode = new ArrayList<>();
+        Vedtak vedtak = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(1), 100);
+        vedtakPeriode.add(vedtak);
+        Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(1), vedtakPeriode);
 
-        opprettOgMockFellesTjenester(infotrygdAktørYtelse);
+        List<Grunnlag> infotrygdPSGrList = new ArrayList<>();
+        infotrygdPSGrList.add(infotrygPSGrunnlag);
+
+        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(infotrygdPSGrList);
+        when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
+
+        BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
+        beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
+        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd(behandlingFP);
 
         // Assert
-        assertThat(overlapp).isPresent();
-
+        assertThat(overlappIT).hasSize(0);
     }
 
-    // CASE 4:
-    // Løpende ytelse: Ja, FP opphører samme dag som infotrygd ytelse
-    // Nyeste hendelse: Innvilget
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: Ja, lik
-    // Skal iverksettes: Nei
     @Test
-    public void skal_ikke_kunne_iverksette_når_FP_opphører_samme_dag_som_infotrygd_ytelse_starter_og_nyeste_hendelse_er_innvilget_med_fom_lik_startdato() {
-
+    public void ingenGrunnlag() {
         // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            List.of(INNVILGET, ENDRET, OPPHOERT, ANNULERT),
-            List.of(startdatoVLYtelse, startdatoVLYtelse.plusDays(1), startdatoVLYtelse.plusDays(2), startdatoVLYtelse.plusDays(3))
-        );
-        AktørYtelse infotrygdAktørYtelse = lagAktørYtelse(startdatoVLYtelse.plusDays(7), startdatoVLYtelse.plusDays(14), RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusDays(2)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusDays(3), startdatoVLYtelse.plusDays(7))
-        );
+        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
+        when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
 
-        opprettOgMockFellesTjenester(infotrygdAktørYtelse);
+        BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
+        beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
+        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd(behandlingFP);
 
         // Assert
-        assertThat(overlapp).isPresent();
-
+        assertThat(overlappIT).isEmpty();
     }
 
-    // CASE 5:
-    // Løpende ytelse: Ja, FP opphører samme dag som infotrygd ytelse
-    // Nyeste hendelse: Innvilget
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: Ja, tidligere
-    // Skal iverksettes: Nei
-    @Test
-    public void skal_ikke_kunne_iverksette_når_FP_opphører_samme_dag_som_infotrygd_ytelse_starter_og_nyeste_hendelse_er_innvilget_med_fom_før_startdato() {
+    public Grunnlag lagGrunnlagPSIT(LocalDate fom, LocalDate tom, List<Vedtak> vedtakPerioder) {
+        Periode periode= new Periode(fom, tom);
+        Tema tema = new Tema(TemaKode.BS, "Pleiepenger");
 
-        // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            List.of(INNVILGET, ENDRET, OPPHOERT, ANNULERT),
-            List.of(startdatoVLYtelse.minusDays(1), startdatoVLYtelse, startdatoVLYtelse.plusDays(1), startdatoVLYtelse.plusDays(2))
-        );
-        AktørYtelse aktørYtelse = lagAktørYtelse(startdatoVLYtelse.plusDays(7), startdatoVLYtelse.plusDays(14), RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusDays(2)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusDays(3), startdatoVLYtelse.plusDays(7))
-        );
-
-        opprettOgMockFellesTjenester(aktørYtelse);
-
-        // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
-
-        // Assert
-        assertThat(overlapp).isPresent();
-
+        Grunnlag grunnlagIT = new Grunnlag(null, tema, null, null, null, null, periode, null, null, null, tom, 0, LocalDate.now().minusMonths(1), LocalDate.now().minusMonths(1), "", vedtakPerioder);
+        return grunnlagIT;
     }
 
-    // CASE 6:
-    // Løpende ytelse: Ja, FP opphører samme dag som infotrygd ytelse
-    // Nyeste hendelse: Innvilget
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: Nei, etter
-    // Skal iverksettes: Nei
-    @Test
-    public void skal_ikke_kunne_iverksette_når_FP_opphører_samme_dag_som_infotrygd_ytelse_starter_og_nyeste_hendelse_er_innvilget_med_fom_etter_startdato() {
+    public Vedtak lagVedtakForGrunnlag(LocalDate fom, LocalDate tom, int utbetGrad) {
+        Periode periode = new Periode(fom, tom);
+        Vedtak vedtak = new Vedtak(periode, utbetGrad);
 
-        // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            List.of(INNVILGET, ENDRET, OPPHOERT, ANNULERT),
-            List.of(startdatoVLYtelse.plusDays(1), startdatoVLYtelse.plusDays(2), startdatoVLYtelse.plusDays(3), startdatoVLYtelse.plusDays(4))
-        );
-        AktørYtelse aktørYtelse = lagAktørYtelse(startdatoVLYtelse.plusDays(7), startdatoVLYtelse.plusDays(14), RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusDays(2)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusDays(3), startdatoVLYtelse.plusDays(7))
-        );
-
-        opprettOgMockFellesTjenester(aktørYtelse);
-
-        // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
-
-        // Assert
-        assertThat(overlapp).isPresent();
-
+        return vedtak;
     }
 
+    public Grunnlag lagGrunnlagSPIT(LocalDate fom, LocalDate tom, List<Vedtak> vedtakPerioder) {
+        Periode periode= new Periode(fom, tom);
+        Tema tema = new Tema(TemaKode.SP, "Sykepenger");
 
-    // CASE 11:
-    // Løpende ytelse: Ja, infotrygd ytelse opphører samme dag som FP
-    // Nyeste hendelse: Opphoert
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: Nei, etter
-    // Skal iverksettes: Nei
-    @Test
-    public void skal_ikke_kunne_iverksette_når_infotrygd_ytelse_opphører_samme_dag_som_FP_starter_og_nyeste_hendelse_er_opphoert_med_fom_etter_startdato() {
-
-        // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            List.of(INNVILGET, ENDRET, OPPHOERT),
-            List.of(startdatoVLYtelse.minusDays(1), startdatoVLYtelse, startdatoVLYtelse.plusDays(1))
-        );
-        AktørYtelse aktørYtelse = lagAktørYtelse(startdatoVLYtelse.minusDays(5), startdatoVLYtelse, RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusWeeks(1)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusWeeks(1).plusDays(1), startdatoVLYtelse.plusWeeks(2))
-        );
-
-        opprettOgMockFellesTjenester(aktørYtelse);
-
-        // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
-
-        // Assert
-        assertThat(overlapp).isPresent();
-
+        Grunnlag grunnlagIT = new Grunnlag(null, tema, null, null, null, null, periode, null, null, null, tom, 0, LocalDate.now().minusMonths(1), LocalDate.now().minusMonths(1), "", vedtakPerioder);
+        return grunnlagIT;
     }
 
-    // CASE 12:
-    // Løpende ytelse: Ja
-    // Nyeste hendelse: Opphoert
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: Nei
-    // Skal iverksettes: Nei
-    @Test
-    public void skal_ikke_kunne_iverksette_når_FP_opphører_samme_dag_som_infotrygd_ytelse_starter_og_nyeste_hendelse_er_opphoert_med_fom_etter_startdato() {
-
-        // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            List.of(INNVILGET, ENDRET, OPPHOERT),
-            List.of(startdatoVLYtelse.minusDays(1), startdatoVLYtelse, startdatoVLYtelse.plusDays(1))
-        );
-        AktørYtelse aktørYtelse = lagAktørYtelse(startdatoVLYtelse.plusDays(7), startdatoVLYtelse.plusDays(14), RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusDays(2)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusDays(3), startdatoVLYtelse.plusDays(7))
-        );
-
-        opprettOgMockFellesTjenester(aktørYtelse);
-
-        // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
-
-        // Assert
-        assertThat(overlapp).isPresent();
-
-    }
-
-    // CASE 13:
-    // Løpende ytelse: Ja, infotrygd ytelse opphører samme dag som FP
-    // Nyeste hendelse: Ingen
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: N/A
-    // Skal iverksettes: Nei
-    @Test
-    public void skal_ikke_kunne_iverksette_når_infotrygd_ytelse_opphører_samme_dag_som_FP_starter_og_ingen_nyeste_hendelse() {
-
-        // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            Collections.emptyList(),
-            Collections.emptyList()
-        );
-        AktørYtelse aktørYtelse = lagAktørYtelse(startdatoVLYtelse.minusDays(5), startdatoVLYtelse, RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusWeeks(1)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusWeeks(1).plusDays(1), startdatoVLYtelse.plusWeeks(2))
-        );
-
-        opprettOgMockFellesTjenester(aktørYtelse);
-
-        // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
-
-        // Assert
-        assertThat(overlapp).isPresent();
-
-    }
-
-    // CASE 14:
-    // Løpende ytelse: Ja, FP opphører samme dag som infotrygd ytelse
-    // Nyeste hendelse: Ingen
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: N/A
-    // Skal iverksettes: Nei
-    @Test
-    public void skal_ikke_kunne_iverksette_når_FP_opphører_samme_dag_som_infotrygd_ytelse_starter_og_ingen_nyeste_hendelse() {
-
-        // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            Collections.emptyList(),
-            Collections.emptyList()
-        );
-        AktørYtelse aktørYtelse = lagAktørYtelse(startdatoVLYtelse.plusDays(7), startdatoVLYtelse.plusDays(14), RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusDays(3)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusDays(4), startdatoVLYtelse.plusDays(7))
-        );
-
-        opprettOgMockFellesTjenester(aktørYtelse);
-
-        // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
-
-        // Assert
-        assertThat(overlapp).isPresent();
-
-    }
-
-    // CASE 21:
-    // Løpende ytelse: Nei, infotrygd ytlese opphører dagen før FP
-    // Nyeste hendelse: Opphoert
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: Ja, tidligere
-    // Skal iverksettes: Ja
-    @Test
-    public void skal_kunne_iverksette_når_infotrygd_ytelse_opphører_dagen_før_FP_starter_og_nyeste_hendelse_er_opphoert_med_fom_før_startdato() {
-
-        // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            List.of(INNVILGET, ENDRET, OPPHOERT),
-            List.of(startdatoVLYtelse.minusDays(3), startdatoVLYtelse.minusDays(2), startdatoVLYtelse.minusDays(1))
-        );
-        AktørYtelse aktørYtelse = lagAktørYtelse(startdatoVLYtelse.minusDays(5), startdatoVLYtelse.minusDays(1), RelatertYtelseTilstand.AVSLUTTET);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusWeeks(1)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusWeeks(1).plusDays(1), startdatoVLYtelse.plusWeeks(2))
-        );
-
-        opprettOgMockFellesTjenester(aktørYtelse);
-
-        // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
-
-        // Assert
-        assertThat(overlapp).isEmpty();
-
-    }
-
-    // CASE 22:
-    // Løpende ytelse: Nei, infotrygd ytlese opphører dagen før FP
-    // Nyeste hendelse: Opphoert
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: Ja, lik
-    // Skal iverksettes: Ja
-    @Test
-    public void skal_kunne_iverksette_når_infotrygd_ytelse_opphører_dagen_før_FP_starter_og_nyeste_hendelse_er_opphoert_med_fom_lik_startdato() {
-
-        // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            List.of(INNVILGET, ENDRET, OPPHOERT),
-            List.of(startdatoVLYtelse.minusDays(2), startdatoVLYtelse.minusDays(1), startdatoVLYtelse)
-        );
-        AktørYtelse aktørYtelse = lagAktørYtelse(startdatoVLYtelse.minusDays(5), startdatoVLYtelse.minusDays(1), RelatertYtelseTilstand.AVSLUTTET);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusWeeks(1)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusWeeks(1).plusDays(1), startdatoVLYtelse.plusWeeks(2))
-        );
-
-        opprettOgMockFellesTjenester(aktørYtelse);
-
-        // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
-
-        // Assert
-        assertThat(overlapp).isEmpty();
-
-    }
-
-    // CASE 23:
-    // Løpende ytelse: Nei, FP opphører dagen før infortrygd ytelse
-    // Nyeste hendelse: Opphoert
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: Ja, tidligere
-    // Skal iverksettes: Ja
-    @Test
-    public void skal_kunne_iverksette_når_FP_opphører_dagen_før_infotrygd_ytelse_starter_og_nyeste_hendelse_er_opphoert_med_fom_før_startdato() {
-
-        // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            List.of(INNVILGET, ENDRET, OPPHOERT),
-            List.of(startdatoVLYtelse.minusDays(3), startdatoVLYtelse.minusDays(2), startdatoVLYtelse.minusDays(1))
-        );
-        AktørYtelse aktørYtelse = lagAktørYtelse(startdatoVLYtelse.plusDays(8), startdatoVLYtelse.plusDays(12), RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusDays(3)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusDays(4), startdatoVLYtelse.plusDays(7))
-        );
-
-        opprettOgMockFellesTjenester(aktørYtelse);
-
-        // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
-
-        // Assert
-        assertThat(overlapp).isEmpty();
-
-    }
-
-    // CASE 24:
-    // Løpende ytelse: Nei, FP opphører dagen før infortrygd ytelse
-    // Nyeste hendelse: Opphoert
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: Ja, lik
-    // Skal iverksettes: Ja
-    @Test
-    public void skal_kunne_iverksette_når_FP_opphører_dagen_før_infotrygd_ytelse_starter_og_nyeste_hendelse_er_opphoert_med_fom_lik_startdato() {
-
-        // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            List.of(INNVILGET, ENDRET, OPPHOERT),
-            List.of(startdatoVLYtelse.minusDays(2), startdatoVLYtelse.minusDays(1), startdatoVLYtelse)
-        );
-        AktørYtelse aktørYtelse = lagAktørYtelse(startdatoVLYtelse.plusDays(8), startdatoVLYtelse.plusDays(12), RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusDays(3)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusDays(4), startdatoVLYtelse.plusDays(7))
-        );
-
-        opprettOgMockFellesTjenester(aktørYtelse);
-
-        // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
-
-        // Assert
-        assertThat(overlapp).isEmpty();
-
-    }
-
-    // CASE 27:
-    // Løpende ytelse: Nei, infortrygd ytlese opphører før FP starter
-    // Nyeste hendelse: Ingen
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: N/A
-    // Skal iverksettes: Ja
-    @Test
-    public void skal_kunne_iverksette_når_infotrygd_ytelse_opphører_dagen_før_FP_starter_og_ingen_nyeste_hendelse() {
-
-        // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            Collections.emptyList(),
-            Collections.emptyList()
-        );
-        AktørYtelse aktørYtelse = lagAktørYtelse(startdatoVLYtelse.minusDays(5), startdatoVLYtelse.minusDays(1), RelatertYtelseTilstand.AVSLUTTET);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusWeeks(1)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusWeeks(1).plusDays(1), startdatoVLYtelse.plusWeeks(2))
-        );
-
-        opprettOgMockFellesTjenester(aktørYtelse);
-
-        // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
-
-        // Assert
-        assertThat(overlapp).isEmpty();
-
-    }
-
-    // CASE 28:
-    // Løpende ytelse: Nei, FP opphører før infotrygd ytelse starter
-    // Nyeste hendelse: Ingen
-    // Hendelse FOM dato tidligere/lik startdato for VL ytelse: N/A
-    // Skal iverksettes: Ja
-    @Test
-    public void skal_kunne_iverksette_når_FP_opphører_dagen_før_infotrygd_ytelse_starter_og_ingen_nyeste_hendelse() {
-
-        // Arrange
-        List<InfotrygdHendelse> hendelser = lagInfotrygdHendelse(
-            Collections.emptyList(),
-            Collections.emptyList()
-        );
-        AktørYtelse aktørYtelse = lagAktørYtelse(startdatoVLYtelse.plusDays(8), startdatoVLYtelse.plusDays(12), RelatertYtelseTilstand.LØPENDE);
-        opprettOgLagreBeregningsResultat(
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse, startdatoVLYtelse.plusDays(3)),
-            DatoIntervallEntitet.fraOgMedTilOgMed(startdatoVLYtelse.plusDays(4), startdatoVLYtelse.plusDays(7))
-        );
-
-        opprettOgMockFellesTjenester(aktørYtelse);
-
-        // Act
-        Optional<BehandlingOverlappInfotrygd> overlapp = tjeneste.vurder(behandling, behandlingVedtak);
-
-        // Assert
-        assertThat(overlapp).isEmpty();
-
-    }
-
-    private BehandlingVedtak lagVedtak(VedtakResultatType vedtakResultatType) {
-        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
-        BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
-            .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
-            .medAnsvarligSaksbehandler("E2354345")
-            .medVedtakResultatType(vedtakResultatType)
-            .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
-            .medBehandlingsresultat(behandlingsresultat)
-            .build();
-        return behandlingVedtak;
-    }
-
-    private List<InfotrygdHendelse> lagInfotrygdHendelse(List<String> typeList, List<LocalDate> datoList) {
-        List<InfotrygdHendelse> hendelser = new ArrayList<>();
-        int ix = 0;
-        long sekvensnummer = 0L;
-        for (String type : typeList) {
-            InfotrygdHendelse hendelse = InfotrygdHendelse.builder()
-                .medAktørId(1001L)
-                .medIdentDato("20180101")
-                .medFom(datoList.get(ix++))
-                .medSekvensnummer(sekvensnummer++)
-                .medType(type)
-                .medTypeYtelse(RelatertYtelseType.SYKEPENGER.getKode())
-                .build();
-            hendelser.add(hendelse);
-        }
-        return hendelser;
-    }
-
-    private AktørYtelse lagAktørYtelse(LocalDate fom, LocalDate tom, RelatertYtelseTilstand relatertYtelseTilstand) {
-        YtelseBuilder ytelseBuilder = lagYtelse(fom, tom, relatertYtelseTilstand);
-        return InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder.oppdatere(Optional.empty())
-            .medAktørId(behandling.getAktørId())
-            .leggTilYtelse(ytelseBuilder)
-            .build();
-    }
-
-    private YtelseBuilder lagYtelse(LocalDate fom, LocalDate tom, RelatertYtelseTilstand relatertYtelseTilstand) {
-        return YtelseBuilder.oppdatere(Optional.empty())
-            .medYtelseType(RelatertYtelseType.FORELDREPENGER)
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
-            .medKilde(Fagsystem.INFOTRYGD)
-            .medStatus(relatertYtelseTilstand);
-    }
-
-    private void opprettOgLagreBeregningsResultat(DatoIntervallEntitet... perioder) {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
-        for (DatoIntervallEntitet periode : perioder) {
-            BeregningsresultatPeriode beregningsresultatPeriode = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(periode.getFomDato(), periode.getTomDato())
-                .build(beregningsresultat);
-            lagBeregningsresultatAndel(beregningsresultatPeriode);
-            beregningsresultat.addBeregningsresultatPeriode(beregningsresultatPeriode);
-        }
-
-        Mockito.when(beregningsresultatRepository.hentUtbetBeregningsresultat(Mockito.any())).thenReturn(Optional.of(beregningsresultat));
-    }
-
-    private void lagBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode) {
+    private BeregningsresultatEntitet lagBeregningsresultatFP(LocalDate periodeFom, LocalDate periodeTom) {
+        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
+        BeregningsresultatPeriode beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
+            .build(beregningsresultat);
         BeregningsresultatAndel.builder()
-            .medBrukerErMottaker(true)
-            .medStillingsprosent(BigDecimal.valueOf(100))
-            .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-            .medDagsatsFraBg(100)
-            .medDagsats(100)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medDagsats(200)
+            .medDagsatsFraBg(200)
+            .medBrukerErMottaker(true)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medStillingsprosent(BigDecimal.valueOf(100))
             .build(beregningsresultatPeriode);
+        return beregningsresultat;
     }
-
-    private void opprettOgMockFellesTjenester(AktørYtelse aktørYtelse) {
-        tjeneste = new IdentifiserOverlappendeInfotrygdYtelseTjeneste(beregningsresultatRepository, inntektArbeidYtelseTjeneste, overlappRepository);
-
-        InntektArbeidYtelseGrunnlag iayg = Mockito.mock(InntektArbeidYtelseGrunnlag.class);
-        when(iayg.getAktørYtelseFraRegister(Mockito.any())).thenReturn(Optional.of(aktørYtelse));
-
-        when(inntektArbeidYtelseTjeneste.finnGrunnlag(Mockito.any())).thenReturn(Optional.of(iayg));
-    }
-
 }

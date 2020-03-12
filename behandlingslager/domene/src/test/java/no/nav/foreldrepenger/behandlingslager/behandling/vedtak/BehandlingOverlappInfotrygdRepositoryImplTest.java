@@ -39,11 +39,13 @@ public class BehandlingOverlappInfotrygdRepositoryImplTest {
         Behandling behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
         ÅpenDatoIntervallEntitet periodeInfotrygd = ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 12, 1), LocalDate.of(2019, 1, 1));
         ÅpenDatoIntervallEntitet periodeVL = ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 1, 1), LocalDate.of(2019, 5, 1));
+        String ytelseInfotrygd = "BS";
         BehandlingOverlappInfotrygd behandlingOverlappInfotrygd = BehandlingOverlappInfotrygd.builder()
             .medSaksnummer(behandling.getFagsak().getSaksnummer())
             .medBehandlingId(behandling.getId())
             .medPeriodeInfotrygd(periodeInfotrygd)
             .medPeriodeVL(periodeVL)
+            .medYtelseInfotrygd(ytelseInfotrygd)
             .build();
 
         // Act
@@ -56,6 +58,7 @@ public class BehandlingOverlappInfotrygdRepositoryImplTest {
         assertThat(hentet.getSaksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer());
         assertThat(hentet.getPeriodeInfotrygd()).isEqualTo(periodeInfotrygd);
         assertThat(hentet.getPeriodeVL()).isEqualTo(periodeVL);
+        assertThat(hentet.getYtelseInfotrygd()).isEqualTo(ytelseInfotrygd);
 
     }
 }

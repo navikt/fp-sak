@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.iverksettevedtak.svp;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -26,7 +28,7 @@ public class IverksetteVedtakStegRevurdering extends IverksetteVedtakStegTilgren
     public IverksetteVedtakStegRevurdering(BehandlingRepositoryProvider repositoryProvider,
                                               @FagsakYtelseTypeRef("SVP") OpprettProsessTaskIverksett opprettProsessTaskIverksett,
                                               VurderBehandlingerUnderIverksettelse tidligereBehandlingUnderIverksettelse,
-                                              IdentifiserOverlappendeInfotrygdYtelseTjeneste identifiserOverlappendeInfotrygdYtelse) {
+                                           IdentifiserOverlappendeInfotrygdYtelseTjeneste identifiserOverlappendeInfotrygdYtelse) {
         super(repositoryProvider, opprettProsessTaskIverksett, tidligereBehandlingUnderIverksettelse, identifiserOverlappendeInfotrygdYtelse);
     }
 }
