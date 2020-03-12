@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -16,9 +19,14 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 public class KalkulusKonfigInjecter {
 
     private static final String INNTEKT_RAPPORTERING_FRIST_DATO = "inntekt.rapportering.frist.dato";
+    private static List<String> TOGGLES = new ArrayList<>();
     private int inntektRapporteringFristDagIMåneden;
 
     private Unleash unleash;
+
+    static {
+        TOGGLES.add("fpsak.splitteSammenligningATFL");
+    }
 
     public KalkulusKonfigInjecter() {
         // CDI
@@ -31,12 +39,13 @@ public class KalkulusKonfigInjecter {
     }
 
     void leggTilKonfigverdier(BeregningsgrunnlagInput input) {
-        leggTilToggles(input);
         input.leggTilKonfigverdi(INNTEKT_RAPPORTERING_FRIST_DATO, inntektRapporteringFristDagIMåneden);
     }
 
-    private void leggTilToggles(BeregningsgrunnlagInput input) {
-        input.setToggles(unleash.getFeatureToggleNames().stream().collect(Collectors.toMap(feature -> feature, (f) -> unleash.isEnabled(f))));
+    void leggTilFeatureToggles(BeregningsgrunnlagInput input) {
+        Map<String, Boolean> toggleMap = new HashMap<>();
+        TOGGLES.forEach(toggle -> toggleMap.put(toggle, unleash.isEnabled(toggle)));
+        input.setToggles(toggleMap);
     }
 
 }

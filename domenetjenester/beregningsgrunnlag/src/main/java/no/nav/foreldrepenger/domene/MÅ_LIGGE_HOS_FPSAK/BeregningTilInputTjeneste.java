@@ -57,6 +57,7 @@ public class BeregningTilInputTjeneste {
                 .medBeregningsgrunnlagGrunnlag(BehandlingslagerTilKalkulusMapper.mapGrunnlag(grunnlagEntitet, input.getInntektsmeldinger()));
         }
         kalkulusKonfigInjecter.leggTilKonfigverdier(input);
+        kalkulusKonfigInjecter.leggTilFeatureToggles(input);
         return lagBeregningsgrunnlagHistorikk(newInput);
     }
 
