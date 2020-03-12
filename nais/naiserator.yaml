@@ -7,45 +7,37 @@ metadata:
     team: teamforeldrepenger
 spec:
   image:  {{image}}
-  port: 8080 # Required. The port number which is exposed by the container and should receive HTTP traffic.
+  port: 8080 
   ingresses:
   {{#each ingresses as |url|}}
      - {{url}}
   {{/each}}
-  liveness: # HTTP endpoint that signals 200 OK when the application is running.
+  liveness:
     path: /fpsak/internal/health/isAlive
     initialDelay: 30
     timeout: 5
-    periodSeconds: 10     # How often (in seconds) to perform the probe. Default to 10 seconds
-    failureThreshold: 27 # when a Pod starts and the probe fails,
-    # nais will try failureThreshold times before giving up and restarting the Pod
-    # Defaults to 3
-  readiness: # HTTP endpoint that signals 200 OK when it is okay to start routing traffic to the application.
+    periodSeconds: 10    
+    failureThreshold: 27 
+  readiness: 
     path: /fpsak/internal/health/isReady
     initialDelay: 30
     timeout: 5
     periodSeconds: 10
     failureThreshold: 27
-  prometheus: # Optional.
-    enabled: true # if true the pod will be scraped for metrics by prometheus
-    path: /fpsak/internal/metrics/prometheus # Path to prometheus-metrics
+  prometheus:
+    enabled: true 
+    path: /fpsak/internal/metrics/prometheus 
   replicas:
     min: {{minReplicas}}
     max: {{maxReplicas}}
     cpuThresholdPercentage: 80
-  leaderElection: false
-  istio: # Optional.
-    enabled: false
-  resources: # Optional. See: http://kubernetes.io/docs/user-guide/compute-resources/
+  resources: 
     limits:
-      cpu: "4000m" # == 4 cpuer
-      memory: "3072Mi"  # app will be killed if exceeding these limits
-    requests: # App is guaranteed the requested resources and  will be scheduled on nodes with at least this amount of resources available
-      cpu: "500m" # == 0,5 cpu
+      cpu: "4000m" 
+      memory: "3072Mi"
+    requests: 
+      cpu: "500m"
       memory: "2048Mi"
-  logformat: accesslog # Optional. The format of the logs from the container if the logs should be handled differently than plain text or json
-  logtransform: dns_loglevel # Optional. The transformation of the logs, if they should be handled differently than plain text or json
-  webproxy: false # Optional. Expose web proxy configuration to the application using the HTTP_PROXY, HTTPS_PROXY and NO_PROXY environment variables.
   vault:
     enabled: true
     paths:
@@ -61,7 +53,7 @@ spec:
         kvPath: {{ldapserviceuser}}
       - mountPath: /var/run/secrets/nais.io/vault
         kvPath: /kv/{{cluster}}/fss/fpsak/{{namespace}}
-  sidecar: true # refresh token
+  sidecar: true 
   env:
   {{#each env}}
    - name: {{@key}}
