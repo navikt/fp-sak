@@ -62,8 +62,8 @@
 
         <fp-uttak.version>3.0-20200219155057-a303797</fp-uttak.version>
 
-        <svp-uttak.version>2.1-20200130175841-176ecdd</svp-uttak.version>
-        <!-- <felles.version>1.4.2-20191218110056-fa5b90a</felles.version> -->
+        <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
+
         <felles.version>1.6-20200309160245-03ff62e</felles.version>
         <prosesstask.version>2.0.0-20200118083448-d87fd6d</prosesstask.version>
 

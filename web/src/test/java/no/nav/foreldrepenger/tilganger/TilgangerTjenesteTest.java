@@ -1,16 +1,16 @@
-package no.nav.foreldrepenger.web.app.tjenester.saksbehandler;
+package no.nav.foreldrepenger.tilganger;
 
-import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
+import no.nav.vedtak.felles.integrasjon.ldap.LdapBruker;
 import org.junit.Before;
 import org.junit.Test;
 
-import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.dto.InnloggetNavAnsattDto;
-import no.nav.vedtak.felles.integrasjon.ldap.LdapBruker;
+import java.util.List;
 
-public class NavAnsattRestTjenesteTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class TilgangerTjenesteTest {
+
     private static final String gruppenavnSaksbehandler = "Saksbehandler";
     private static final String gruppenavnVeileder = "Veileder";
     private static final String gruppenavnBeslutter = "Beslutter";
@@ -19,11 +19,11 @@ public class NavAnsattRestTjenesteTest {
     private static final String gruppenavnKode6 = "Kode6";
     private static final String gruppenavnKode7 = "Kode7";
     private static final Boolean skalViseDetaljerteFeilmeldinger = true;
-    private NavAnsattRestTjeneste saksbehandlerTjeneste;
+    private TilgangerTjeneste tilgangerTjeneste;
 
     @Before
     public void setUp() {
-        saksbehandlerTjeneste = new NavAnsattRestTjeneste(gruppenavnSaksbehandler, gruppenavnVeileder, gruppenavnBeslutter, gruppenavnOverstyrer, gruppenavnEgenAnsatt, gruppenavnKode6, gruppenavnKode7, skalViseDetaljerteFeilmeldinger);
+        tilgangerTjeneste = new TilgangerTjeneste(gruppenavnSaksbehandler, gruppenavnVeileder, gruppenavnBeslutter, gruppenavnOverstyrer, gruppenavnEgenAnsatt, gruppenavnKode6, gruppenavnKode7, skalViseDetaljerteFeilmeldinger);
     }
 
     @Test
@@ -31,8 +31,8 @@ public class NavAnsattRestTjenesteTest {
         LdapBruker brukerUtenforSaksbehandlerGruppe = getTestBruker();
         LdapBruker brukerISaksbehandlerGruppe = getTestBruker(gruppenavnSaksbehandler);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenSaksbehandlerRettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerUtenforSaksbehandlerGruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedSaksbehandlerRettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerISaksbehandlerGruppe);
+        InnloggetNavAnsattDto innloggetBrukerUtenSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforSaksbehandlerGruppe);
+        InnloggetNavAnsattDto innloggetBrukerMedSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerISaksbehandlerGruppe);
 
         assertThat(innloggetBrukerUtenSaksbehandlerRettighet.getKanSaksbehandle()).isFalse();
         assertThat(innloggetBrukerMedSaksbehandlerRettighet.getKanSaksbehandle()).isTrue();
@@ -43,8 +43,8 @@ public class NavAnsattRestTjenesteTest {
         LdapBruker brukerUtenforVeilederGruppe = getTestBruker();
         LdapBruker brukerIVeilederGruppe = getTestBruker(gruppenavnVeileder);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenVeilederRettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerUtenforVeilederGruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedVeilederRettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerIVeilederGruppe);
+        InnloggetNavAnsattDto innloggetBrukerUtenVeilederRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforVeilederGruppe);
+        InnloggetNavAnsattDto innloggetBrukerMedVeilederRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIVeilederGruppe);
 
         assertThat(innloggetBrukerUtenVeilederRettighet.getKanVeilede()).isFalse();
         assertThat(innloggetBrukerMedVeilederRettighet.getKanVeilede()).isTrue();
@@ -55,8 +55,8 @@ public class NavAnsattRestTjenesteTest {
         LdapBruker brukerUtenforBeslutterGruppe = getTestBruker();
         LdapBruker brukerIBeslutterGruppe = getTestBruker(gruppenavnBeslutter);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenBeslutterRettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerUtenforBeslutterGruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedBeslutterRettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerIBeslutterGruppe);
+        InnloggetNavAnsattDto innloggetBrukerUtenBeslutterRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforBeslutterGruppe);
+        InnloggetNavAnsattDto innloggetBrukerMedBeslutterRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIBeslutterGruppe);
 
         assertThat(innloggetBrukerUtenBeslutterRettighet.getKanBeslutte()).isFalse();
         assertThat(innloggetBrukerMedBeslutterRettighet.getKanBeslutte()).isTrue();
@@ -67,8 +67,8 @@ public class NavAnsattRestTjenesteTest {
         LdapBruker brukerUtenforOverstyrerGruppe = getTestBruker();
         LdapBruker brukerIOverstyrerGruppe = getTestBruker(gruppenavnOverstyrer);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenOverstyrerRettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerUtenforOverstyrerGruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedOverstyrerRettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerIOverstyrerGruppe);
+        InnloggetNavAnsattDto innloggetBrukerUtenOverstyrerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforOverstyrerGruppe);
+        InnloggetNavAnsattDto innloggetBrukerMedOverstyrerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIOverstyrerGruppe);
 
         assertThat(innloggetBrukerUtenOverstyrerRettighet.getKanOverstyre()).isFalse();
         assertThat(innloggetBrukerMedOverstyrerRettighet.getKanOverstyre()).isTrue();
@@ -79,8 +79,8 @@ public class NavAnsattRestTjenesteTest {
         LdapBruker brukerUtenforEgenAnsattGruppe = getTestBruker();
         LdapBruker brukerIEgenAnsattGruppe = getTestBruker(gruppenavnEgenAnsatt);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenEgenAnsattRettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerUtenforEgenAnsattGruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedEgenAnsattRettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerIEgenAnsattGruppe);
+        InnloggetNavAnsattDto innloggetBrukerUtenEgenAnsattRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforEgenAnsattGruppe);
+        InnloggetNavAnsattDto innloggetBrukerMedEgenAnsattRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIEgenAnsattGruppe);
 
         assertThat(innloggetBrukerUtenEgenAnsattRettighet.getKanBehandleKodeEgenAnsatt()).isFalse();
         assertThat(innloggetBrukerMedEgenAnsattRettighet.getKanBehandleKodeEgenAnsatt()).isTrue();
@@ -91,8 +91,8 @@ public class NavAnsattRestTjenesteTest {
         LdapBruker brukerUtenforKode6Gruppe = getTestBruker();
         LdapBruker brukerIKode6Gruppe = getTestBruker(gruppenavnKode6);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenKode6Rettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerUtenforKode6Gruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedKode6Rettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerIKode6Gruppe);
+        InnloggetNavAnsattDto innloggetBrukerUtenKode6Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforKode6Gruppe);
+        InnloggetNavAnsattDto innloggetBrukerMedKode6Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIKode6Gruppe);
 
         assertThat(innloggetBrukerUtenKode6Rettighet.getKanBehandleKode6()).isFalse();
         assertThat(innloggetBrukerMedKode6Rettighet.getKanBehandleKode6()).isTrue();
@@ -103,8 +103,8 @@ public class NavAnsattRestTjenesteTest {
         LdapBruker brukerUtenforKode7Gruppe = getTestBruker();
         LdapBruker brukerIKode7Gruppe = getTestBruker(gruppenavnKode7);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenKode7Rettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerUtenforKode7Gruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedKode7Rettighet = saksbehandlerTjeneste.getInnloggetBrukerDto(null, brukerIKode7Gruppe);
+        InnloggetNavAnsattDto innloggetBrukerUtenKode7Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforKode7Gruppe);
+        InnloggetNavAnsattDto innloggetBrukerMedKode7Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIKode7Gruppe);
 
         assertThat(innloggetBrukerUtenKode7Rettighet.getKanBehandleKode7()).isFalse();
         assertThat(innloggetBrukerMedKode7Rettighet.getKanBehandleKode7()).isTrue();
@@ -113,4 +113,6 @@ public class NavAnsattRestTjenesteTest {
     private static LdapBruker getTestBruker(String... grupper) {
         return new LdapBruker("Testbruker", List.of(grupper));
     }
+
+
 }

@@ -103,7 +103,7 @@ public class SvangerskapspengerTjeneste {
 
     private List<SvpTilretteleggingDatoDto> utledTilretteleggingDatoer(SvpTilretteleggingEntitet svpTilrettelegging) {
         return svpTilrettelegging.getTilretteleggingFOMListe().stream()
-            .map(fom -> new SvpTilretteleggingDatoDto(fom.getFomDato(), fom.getType(), fom.getStillingsprosent()))
+            .map(fom -> new SvpTilretteleggingDatoDto(fom.getFomDato(), fom.getType(), fom.getStillingsprosent(), fom.getOverstyrtUtbetalingsgrad()))
             .collect(Collectors.toList());
     }
 }

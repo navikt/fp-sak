@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.saksbehandler.dto;
+package no.nav.foreldrepenger.tilganger;
 
 import java.time.LocalDateTime;
 
@@ -103,7 +103,7 @@ public class InnloggetNavAnsattDto {
         private Boolean kanBehandleKode7;
         private Boolean skalViseDetaljerteFeilmeldinger;
 
-        Builder() {
+        public Builder() {
             kanSaksbehandle = false;
             kanVeilede = false;
             kanBeslutte = false;

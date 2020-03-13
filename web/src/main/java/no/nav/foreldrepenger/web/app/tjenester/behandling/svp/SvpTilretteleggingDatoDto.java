@@ -9,15 +9,21 @@ public class SvpTilretteleggingDatoDto {
     private LocalDate fom;
     private TilretteleggingType type;
     private BigDecimal stillingsprosent;
+    private BigDecimal overstyrtUtbetalingsgrad;
 
     public SvpTilretteleggingDatoDto() {
         //nix
     }
 
     SvpTilretteleggingDatoDto(LocalDate fom, TilretteleggingType type, BigDecimal stillingsprosent) {
+        this(fom, type, stillingsprosent, null);
+    }
+
+    SvpTilretteleggingDatoDto(LocalDate fom, TilretteleggingType type, BigDecimal stillingsprosent, BigDecimal overstyrtUtbetalingsgrad) {
         this.fom = fom;
         this.type = type;
         this.stillingsprosent = stillingsprosent;
+        this.overstyrtUtbetalingsgrad = overstyrtUtbetalingsgrad;
     }
 
     public LocalDate getFom() {
@@ -32,18 +38,24 @@ public class SvpTilretteleggingDatoDto {
         return stillingsprosent;
     }
 
-    public SvpTilretteleggingDatoDto setFom(LocalDate fom) {
+    public void setFom(LocalDate fom) {
         this.fom = fom;
-        return this;
     }
 
-    public SvpTilretteleggingDatoDto setType(TilretteleggingType type) {
+    public void setType(TilretteleggingType type) {
         this.type = type;
-        return this;
     }
 
-    public SvpTilretteleggingDatoDto setStillingsprosent(BigDecimal stillingsprosent) {
+    public void setStillingsprosent(BigDecimal stillingsprosent) {
         this.stillingsprosent = stillingsprosent;
-        return this;
     }
+
+    public BigDecimal getOverstyrtUtbetalingsgrad() {
+        return overstyrtUtbetalingsgrad;
+    }
+
+    public void setOverstyrtUtbetalingsgrad(BigDecimal overstyrtUtbetalingsgrad) {
+        this.overstyrtUtbetalingsgrad = overstyrtUtbetalingsgrad;
+    }
+
 }
