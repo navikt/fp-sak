@@ -91,7 +91,7 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest {
     public void skal_opprette_aksjonspunkt_for_aktivt_arbeidsforhold_er_løpende_når_startdatoene_ikke_samsvarer() {
         // Arrange
         AktørId aktørId = AktørId.dummy();
-        LocalDate fødselsdato = LocalDate.now();
+        LocalDate fødselsdato = LocalDate.now().minusDays(1);
 
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
@@ -102,7 +102,7 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest {
         opprettInntektsmelding(fødselsdato.plusDays(2L), behandling);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
+        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, fødselsdato));
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
