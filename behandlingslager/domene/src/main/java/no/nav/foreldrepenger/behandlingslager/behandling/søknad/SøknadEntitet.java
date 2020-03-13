@@ -84,7 +84,7 @@ public class SøknadEntitet extends BaseEntitet {
     /**
      * Deep copy.
      */
-    SøknadEntitet(SøknadEntitet søknadMal) {
+    SøknadEntitet(SøknadEntitet søknadMal, boolean kopierVedlegg) {
         this.begrunnelseForSenInnsending = søknadMal.getBegrunnelseForSenInnsending();
         this.elektroniskRegistrert = søknadMal.getElektroniskRegistrert();
         this.setFarSøkerType(søknadMal.getFarSøkerType());
@@ -96,10 +96,12 @@ public class SøknadEntitet extends BaseEntitet {
         if (søknadMal.getSpråkkode() != null) {
             this.språkkode = søknadMal.getSpråkkode();
         }
-        for (SøknadVedleggEntitet aSøknadVedlegg : søknadMal.getSøknadVedlegg()) {
-            SøknadVedleggEntitet kopi = new SøknadVedleggEntitet(aSøknadVedlegg);
-            kopi.setSøknad(this);
-            this.søknadVedlegg.add(kopi);
+        if (kopierVedlegg) {
+            for (SøknadVedleggEntitet aSøknadVedlegg : søknadMal.getSøknadVedlegg()) {
+                SøknadVedleggEntitet kopi = new SøknadVedleggEntitet(aSøknadVedlegg);
+                kopi.setSøknad(this);
+                this.søknadVedlegg.add(kopi);
+            }
         }
         this.brukerRolle = søknadMal.getRelasjonsRolleType();
     }
@@ -242,12 +244,12 @@ public class SøknadEntitet extends BaseEntitet {
         private SøknadEntitet søknadMal;
 
         public Builder() {
-            this(new SøknadEntitet());
+            this.søknadMal = new SøknadEntitet();
         }
 
-        public Builder(SøknadEntitet søknad) {
+        public Builder(SøknadEntitet søknad, boolean kopierVedlegg) {
             if (søknad != null) {
-                this.søknadMal = new SøknadEntitet(søknad);
+                this.søknadMal = new SøknadEntitet(søknad, kopierVedlegg);
             } else {
                 this.søknadMal = new SøknadEntitet();
             }
