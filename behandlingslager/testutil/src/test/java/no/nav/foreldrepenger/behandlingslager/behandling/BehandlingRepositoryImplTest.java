@@ -392,7 +392,7 @@ public class BehandlingRepositoryImplTest {
 
         // Arrange
         Behandling behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
-        opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_MEDLEMSKAP, igår);
+        opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET, igår);
         lagreBehandling(behandling1);
 
         // Act
@@ -404,8 +404,6 @@ public class BehandlingRepositoryImplTest {
 
     @Test
     public void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_naar_lukket_aksjonspunkt() {
-
-        LocalDateTime.now().minusDays(1);
         Behandling behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
         Aksjonspunkt aksjonspunkt = opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
         aksjonspunktRepository.setTilUtført(aksjonspunkt, "ferdig");

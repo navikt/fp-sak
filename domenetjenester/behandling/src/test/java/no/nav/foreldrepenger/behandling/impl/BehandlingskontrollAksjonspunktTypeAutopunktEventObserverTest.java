@@ -38,8 +38,6 @@ public class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
     private HistorikkInnslagForAksjonspunktEventObserver observer; // objectet vi tester
 
     private BehandlingskontrollKontekst behandlingskontrollKontekst;
-    private AksjonspunktDefinisjon autopunktDefinisjon;
-    private AksjonspunktDefinisjon manuellpunktDefinisjon;
     private Aksjonspunkt autopunkt;
     private Aksjonspunkt manuellpunkt;
     private HistorikkRepository historikkRepository;
@@ -49,14 +47,12 @@ public class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
 
     @Before
     public void setup() {
-        autopunktDefinisjon = AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
-        manuellpunktDefinisjon = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_MEDLEMSKAP;
 
         manuellpunkt = Mockito.mock(Aksjonspunkt.class);
-        when(manuellpunkt.getAksjonspunktDefinisjon()).thenReturn(manuellpunktDefinisjon);
+        when(manuellpunkt.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
 
         autopunkt = Mockito.mock(Aksjonspunkt.class);
-        when(autopunkt.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjon);
+        when(autopunkt.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
         when(autopunkt.getFristTid()).thenReturn(LocalDateTime.of(localDate, LocalDateTime.now().toLocalTime()));
         when(autopunkt.erOpprettet()).thenReturn(true);
 
