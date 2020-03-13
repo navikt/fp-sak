@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.domene.vedtak.es;
 
 import static java.time.Month.JANUARY;
 import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.KVINNE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_MEDLEMSKAP;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -382,7 +382,7 @@ public class VedtakXmlTest {
             .build();
 
         utførAksjonspunkt(behandling, SØKERS_OPPLYSNINGSPLIKT_MANU);
-        utførAksjonspunkt(behandling, KONTROLLER_OPPLYSNINGER_OM_MEDLEMSKAP);
+        utførAksjonspunkt(behandling, KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST);
 
         manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, stegType);
         Behandlingsresultat behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);

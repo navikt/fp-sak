@@ -72,10 +72,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AVKLAR_TILLEGGSOPPLYSNINGER(
             AksjonspunktKodeDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER_KODE, AksjonspunktType.MANUELL, "Avklar tilleggsopplysninger",
             BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    MANUELL_VURDERING_AV_MEDLEMSKAP(
-            AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_MEDLEMSKAP_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av medlemskapsvilkåret",
-            BehandlingStegType.VURDER_SØKNADSFRISTVILKÅR, VurderingspunktType.UT, VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP,
-            ENTRINN, EnumSet.of(ES)),
     MANUELL_VURDERING_AV_OMSORGSVILKÅRET(
             AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av omsorgsvilkåret",
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT, VilkårType.OMSORGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OMSORG, TOTRINN,
@@ -257,9 +253,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
     KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE(
             AksjonspunktKodeDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE, AksjonspunktType.MANUELL, "Kontroller realitetsbehandling/klage",
-            BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
-    KONTROLLER_OPPLYSNINGER_OM_MEDLEMSKAP(
-            AksjonspunktKodeDefinisjon.KONTROLLER_OPPLYSNINGER_OM_MEDLEMSKAP_KODE, AksjonspunktType.MANUELL, "Kontroller opplysninger om medlemskap",
             BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
     KONTROLLER_OPPLYSNINGER_OM_FORDELING_AV_STØNADSPERIODEN(
             AksjonspunktKodeDefinisjon.KONTROLLER_OPPLYSNINGER_OM_FORDELING_AV_STØNADSPERIODEN_KODE, AksjonspunktType.MANUELL,
