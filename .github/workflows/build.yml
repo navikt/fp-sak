@@ -102,10 +102,13 @@ jobs:
             <tr><td>prod-fss</td><td>default</td></tr>
             </table>
 
-#      - name: Trigg deploy til dev
-#        if: success()
-#        uses: peter-evans/create-or-update-comment@v1
-#        with:
-#          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-#          issue-number: ${{ steps.createdeployissue.outputs.number }}
-#          body: /promote dev-fss t4
+      - name: Trigg deploy til dev
+        if: success()
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          issue-number: ${{ steps.createdeployissue.outputs.number }}
+          body: |
+            Autotestene kjøres ikke via Github Action og GA kan dermed ikke automatisk promotere fpsak til t4.
+            Jenkins vil deploye fpsak automatisk til T4, gitt at alle autotestene går grønt.
+            Videre promotering til q0, q1 og prod kan gjøres her med promote kommando.
