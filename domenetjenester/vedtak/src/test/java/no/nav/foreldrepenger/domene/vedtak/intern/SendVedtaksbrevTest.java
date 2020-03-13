@@ -74,7 +74,7 @@ public class SendVedtaksbrevTest {
         behandlingRepository = scenario.mockBehandlingRepository();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         behandlingVedtak = scenario.mockBehandlingVedtak();
-        sendVedtaksbrev = new SendVedtaksbrev(behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), null, dokumentBestillerApplikasjonTjeneste, dokumentBehandlingTjeneste, klageRepository, null);
+        sendVedtaksbrev = new SendVedtaksbrev(behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), null, dokumentBestillerApplikasjonTjeneste, dokumentBehandlingTjeneste, klageRepository);
         when(behandlingsresultat.getVedtaksbrev()).thenReturn(Vedtaksbrev.AUTOMATISK);
         when(behandlingVedtak.getBehandlingsresultat()).thenReturn(behandlingsresultat);
         when(behandlingVedtak.getVedtakResultatType()).thenReturn(VedtakResultatType.INNVILGET);
