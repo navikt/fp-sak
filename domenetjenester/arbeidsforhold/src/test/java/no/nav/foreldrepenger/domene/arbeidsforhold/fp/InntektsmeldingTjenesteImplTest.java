@@ -107,6 +107,7 @@ public class InntektsmeldingTjenesteImplTest {
     private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste;
     private Arbeidsgiver arbeidsgiver;
     private ArbeidsforholdTjenesteMock arbeidsforholdTjenesteMock;
+    private Arbeidsgiver arbeidsgiver2;
 
     @Before
     public void setUp() throws Exception {
@@ -122,7 +123,7 @@ public class InntektsmeldingTjenesteImplTest {
         when(virksomhetTjeneste.hentOgLagreOrganisasjon(any())).thenReturn(virksomhet1);
         arbeidsforholdTjenesteMock = new ArbeidsforholdTjenesteMock(false);
         var vurderArbeidsforholdTjeneste = mock(VurderArbeidsforholdTjeneste.class);
-        var arbeidsgiver2 = Arbeidsgiver.virksomhet(virksomhet2.getOrgnr());
+        arbeidsgiver2 = Arbeidsgiver.virksomhet(virksomhet2.getOrgnr());
         Set<InternArbeidsforholdRef> arbeidsforholdRefSet = new HashSet<>();
         arbeidsforholdRefSet.add(ARBEIDSFORHOLD_ID);
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap = new HashMap<>();
@@ -329,6 +330,25 @@ public class InntektsmeldingTjenesteImplTest {
         assertThat(inntektsmeldingerPåAktiveArbeidsforhold).hasSize(1);
     }
 
+    @Test
+    public void skal_ikke_fjerne_inntektsmelding_for_arbeidsforhold_som_ikke_har_vært_aktivt_i_opplysningsperioden() {
+        // Arrange
+        Behandling behandling = opprettBehandling();
+        LocalDate skjæringstidspunktet = I_DAG.minusDays(1);
+        BehandlingReferanse ref = lagReferanse(behandling);
+
+        // Act
+        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
+            DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunktet.plusWeeks(1), ARBEIDSFORHOLD_TIL), ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD,
+            BigDecimal.TEN);
+        lagreInntektsmelding(I_DAG.minusDays(2), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver2);
+
+        // Assert
+        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, I_DAG)).hasSize(1);
+
+    }
+
+
     private boolean erDisjonkteListerAvInntektsmeldinger(List<Inntektsmelding> imsA, List<Inntektsmelding> imsB) {
         return Collections.disjoint(
             imsA.stream().map(Inntektsmelding::getJournalpostId).collect(Collectors.toList()),
@@ -336,10 +356,10 @@ public class InntektsmeldingTjenesteImplTest {
     }
 
     private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern, EksternArbeidsforholdRef arbeidsforholdId) {
-        lagreInntektsmelding(mottattDato, behandling, arbeidsforholdIdIntern, arbeidsforholdId, BigDecimal.TEN);
+        lagreInntektsmelding(mottattDato, behandling, arbeidsforholdIdIntern, arbeidsforholdId, BigDecimal.TEN, arbeidsgiver);
     }
 
-    private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern, EksternArbeidsforholdRef arbeidsforholdId, BigDecimal beløp) {
+    private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern, EksternArbeidsforholdRef arbeidsforholdId, BigDecimal beløp, Arbeidsgiver arbeidsgiver) {
         JournalpostId journalPostId = new JournalpostId(journalpostIdInc.getAndIncrement());
 
         var inntektsmelding = InntektsmeldingBuilder.builder()
