@@ -102,10 +102,10 @@ jobs:
             <tr><td>prod-fss</td><td>default</td></tr>
             </table>
 
-      - name: Trigg deploy til dev
-        if: success()
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-          issue-number: ${{ steps.createdeployissue.outputs.number }}
-          body: /promote dev-fss t4
+#      - name: Trigg deploy til dev
+#        if: success()
+#        uses: peter-evans/create-or-update-comment@v1
+#        with:
+#          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+#          issue-number: ${{ steps.createdeployissue.outputs.number }}
+#          body: /promote dev-fss t4
