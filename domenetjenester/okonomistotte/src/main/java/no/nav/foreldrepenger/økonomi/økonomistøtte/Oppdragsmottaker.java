@@ -74,6 +74,13 @@ public class Oppdragsmottaker {
     }
 
     @Override
+    public String toString() {
+        return "Oppdragsmottaker{" +
+            "orgnr='" + orgnr + '\'' +
+            '}';
+    }
+
+    @Override
     public boolean equals(Object arg0) {
         if (!(arg0 instanceof Oppdragsmottaker)) return false;
         Oppdragsmottaker other = (Oppdragsmottaker) arg0;
