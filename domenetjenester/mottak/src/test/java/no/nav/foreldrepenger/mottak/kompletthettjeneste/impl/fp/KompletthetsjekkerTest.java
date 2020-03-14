@@ -286,7 +286,7 @@ public class KompletthetsjekkerTest {
 
     private void opprettSøknadMedPåkrevdVedlegg(Behandling behandling) {
         testUtil.byggOgLagreSøknadMedNyOppgittFordeling(behandling, false);
-        SøknadEntitet søknad = new SøknadEntitet.Builder(søknadRepository.hentSøknad(behandling)).leggTilVedlegg(
+        SøknadEntitet søknad = new SøknadEntitet.Builder(søknadRepository.hentSøknad(behandling), false).leggTilVedlegg(
             new SøknadVedleggEntitet.Builder()
                 .medSkjemanummer(KODE_INNLEGGELSE)
                 .medErPåkrevdISøknadsdialog(true)
