@@ -74,7 +74,7 @@ public class InntektArbeidYtelseDtoMapper {
     }
 
     private boolean skalKunneLageArbeidsforholdFraInntektsmelding(Set<ArbeidsforholdWrapper> arbeidsforholdSet) {
-        return !arbeidsforholdSet.isEmpty() && arbeidsforholdSet.stream().allMatch(a -> a.getKilde().equals(ArbeidsforholdKilde.INNTEKTSMELDING));
+        return !arbeidsforholdSet.isEmpty() && arbeidsforholdSet.stream().anyMatch(a -> a.getKilde().equals(ArbeidsforholdKilde.INNTEKTSMELDING));
     }
 
     private ArbeidsforholdDto mapArbeidsforhold(ArbeidsforholdWrapper wrapper) {
