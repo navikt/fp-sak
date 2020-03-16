@@ -1,0 +1,40 @@
+name: Oppdaterer deployment issue
+
+on:
+  repository_dispatch:
+    types: [update-issue-fpsak]
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deployer fpsak til t4
+        if: github.event.action == 'update-issue-fpsak' && github.event.client_payload.success == 'true' && github.event.client_payload.issue-number != null
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: $GITHUB_TOKEN
+          issue-number: ${{ github.event.client_payload.issue-number }}
+          body: |
+            Alle autotestene gikk grønt!
+            Deployer fpsak til t4!
+
+      - name: Trigg deploy til dev
+        if: success()
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: $GITHUB_TOKEN
+          issue-number: ${{ steps.createdeployissue.outputs.number }}
+          body: /promote dev-fss t4
+
+      - name: Deployer IKKE fpsak til t4
+        if: failure()
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: $GITHUB_TOKEN
+          issue-number: ${{ github.event.client_payload.issue-number }}
+          body: |
+            Noen av testene i fpsak-autotest feilet!
+            Deployer derfor IKKE fpsak til t4!
