@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import no.nav.folketrygdloven.kalkulator.modell.svp.PeriodeMedUtbetalingsgradDto;
-import no.nav.folketrygdloven.kalkulator.modell.svp.TilretteleggingArbeidsforholdDto;
-import no.nav.folketrygdloven.kalkulator.modell.svp.TilretteleggingMedUtbelingsgradDto;
+import no.nav.folketrygdloven.kalkulator.modell.svp.UtbetalingsgradArbeidsforholdDto;
+import no.nav.folketrygdloven.kalkulator.modell.svp.UtbetalingsgradPrAktivitetDto;
 import no.nav.folketrygdloven.kalkulator.modell.uttak.UttakArbeidType;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.foreldrepenger.domene.arbeidsforhold.svp.PeriodeMedUtbetalingsgrad;
@@ -17,14 +17,14 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class TilretteleggingMapperTilKalkulus {
 
-    public static List<TilretteleggingMedUtbelingsgradDto> mapTilretteleggingerMedUtbetalingsgrad(List<TilretteleggingMedUtbelingsgrad> tilretteleggingMedUtbelingsgrad) {
+    public static List<UtbetalingsgradPrAktivitetDto> mapTilretteleggingerMedUtbetalingsgrad(List<TilretteleggingMedUtbelingsgrad> tilretteleggingMedUtbelingsgrad) {
         return tilretteleggingMedUtbelingsgrad.stream().
             map(TilretteleggingMapperTilKalkulus::mapTilretteleggingMedUtbetalingsgrad)
             .collect(Collectors.toList());
     }
 
-    private static TilretteleggingMedUtbelingsgradDto mapTilretteleggingMedUtbetalingsgrad(TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad) {
-        return new TilretteleggingMedUtbelingsgradDto(
+    private static UtbetalingsgradPrAktivitetDto mapTilretteleggingMedUtbetalingsgrad(TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad) {
+        return new UtbetalingsgradPrAktivitetDto(
             mapTilretteleggingArbeidsforhold(tilretteleggingMedUtbelingsgrad.getTilretteleggingArbeidsforhold()),
             mapPerioderMedUtbetalingsgrad(tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad())
         );
@@ -44,8 +44,8 @@ public class TilretteleggingMapperTilKalkulus {
         return periode.getTomDato() == null ? Intervall.fraOgMed(periode.getFomDato()) : Intervall.fraOgMedTilOgMed(periode.getFomDato(), periode.getTomDato());
     }
 
-    private static TilretteleggingArbeidsforholdDto mapTilretteleggingArbeidsforhold(TilretteleggingArbeidsforhold tilretteleggingArbeidsforhold) {
-        return new TilretteleggingArbeidsforholdDto(
+    private static UtbetalingsgradArbeidsforholdDto mapTilretteleggingArbeidsforhold(TilretteleggingArbeidsforhold tilretteleggingArbeidsforhold) {
+        return new UtbetalingsgradArbeidsforholdDto(
             tilretteleggingArbeidsforhold.getArbeidsgiver().map(IAYMapperTilKalkulus::mapArbeidsgiver).orElse(null),
             mapArbeidsforholdRef(tilretteleggingArbeidsforhold.getInternArbeidsforholdRef()),
             mapUttakArbeidType(tilretteleggingArbeidsforhold.getUttakArbeidType())
