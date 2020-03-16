@@ -53,7 +53,7 @@ spec:
         kvPath: {{ldapserviceuser}}
       - mountPath: /var/run/secrets/nais.io/vault
         kvPath: /kv/{{cluster}}/fss/fpsak/{{namespace}}
-  sidecar: true 
+    sidecar: true
   env:
   {{#each env}}
    - name: {{@key}}
