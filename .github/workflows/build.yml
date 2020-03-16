@@ -86,20 +86,6 @@ jobs:
           docker push ${IMAGE_BASE}-test:latest
           docker push ${IMAGE_BASE}-test:${TAG}
 
-      - name: Trigger fpsak-autotest til å kjøre tester
-        if: success()
-        shell: bash
-        run: |
-          curl -XPOST -u "x-access-token:${{secrets.GITHUB_ACCESS_TOKEN}}" \
-          -H "Accept: application/vnd.github.everest-preview+json" \
-          -H "Content-Type: application/json" \
-          https://api.github.com/repos/navikt/fpsak-autotest/dispatches \
-          --data '{"event_type": "fpsak-autotest",
-                   "client_payload": {
-                      "trigger": "${{ github.repository }}",
-                      "version": "${{ env.TAG }}"
-                  }}'
-
       - name: Opprett deployment issue
         if: success()
         uses: maxkomarychev/oction-create-issue@v0.7.1
@@ -117,13 +103,11 @@ jobs:
             <tr><td>prod-fss</td><td>default</td></tr>
             </table>
 
-      - name: Trigg deploy til dev
+      - name: Trigger fpsak-autotest til å kjøre tester
         if: success()
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-          issue-number: ${{ steps.createdeployissue.outputs.number }}
-          body: |
-            Autotestene kjøres ikke via Github Action og GA kan dermed ikke automatisk promotere fpsak til t4.
-            Jenkins vil deploye fpsak automatisk til T4, gitt at alle autotestene går grønt.
-            Videre promotering til q0, q1 og prod kan gjøres her med promote kommando.
+          repository: navikt/fpsak-autotest
+          event-type: fpsak-autotest
+          client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
