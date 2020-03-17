@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.util.LRUCache;
 
@@ -79,17 +78,6 @@ public class ArbeidsgiverTjenesteImpl implements ArbeidsgiverTjeneste {
     @Override
     public Virksomhet hentVirksomhet(String orgNummer) {
         return virksomhetTjeneste.hentVirksomhet(orgNummer).orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + orgNummer));
-    }
-
-    @Override
-    public Arbeidsgiver hentArbeidsgiver(String orgnr, String arbeidsgiverIdentifikator) {
-        if (orgnr != null) {
-            return Arbeidsgiver.fra(hentVirksomhet(orgnr));
-        }
-        if (arbeidsgiverIdentifikator != null) {
-            return Arbeidsgiver.fra(new AktørId(arbeidsgiverIdentifikator));
-        }
-        return null;
     }
 
     private Optional<Personinfo> hentInformasjonFraTps(Arbeidsgiver arbeidsgiver) {

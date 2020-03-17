@@ -45,7 +45,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.medlem.api.EndringsresultatPersonopplysningerForMedlemskap;
 import no.nav.foreldrepenger.domene.medlem.api.VurderMedlemskap;
 import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -136,68 +135,6 @@ public class MedlemDtoTjeneste {
             return lagPrivatpersontekst(arbeidsgiver);
         } else {
             return arbeidsgiver.getIdentifikator();
-        }
-    }
-
-    public Optional<MedlemDto> lagMedlemDto(Long behandlingId) {
-        Optional<MedlemskapAggregat> medlemskapOpt = medlemskapRepository.hentMedlemskap(behandlingId);
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-        Optional<PersonopplysningerAggregat> aggregatOptional = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref);
-
-        MedlemDto dto = new MedlemDto();
-        inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId).ifPresent(aggregat -> dto.setInntekt(lagInntektDto(aggregat, aggregatOptional.orElse(null), ref)));
-        settFelterFraMedlemskap(dto, medlemskapOpt, ref);
-        settFelterFraPersonopplysninger(dto, aggregatOptional, behandling);
-
-        return Optional.of(dto);
-    }
-
-    private void settFelterFraMedlemskap(MedlemDto dto, Optional<MedlemskapAggregat> medlemskapOpt, BehandlingReferanse ref) {
-        if (medlemskapOpt.isPresent()) {
-            MedlemskapAggregat aggregat = medlemskapOpt.get();
-            dto.setMedlemskapPerioder(lagMedlemskapPerioderDto(aggregat.getRegistrertMedlemskapPerioder()));
-            Optional<VurdertMedlemskap> vurdertMedlemskapOpt = aggregat.getVurdertMedlemskap();
-
-            if (vurdertMedlemskapOpt.isPresent()) {
-                VurdertMedlemskap vurdertMedlemskap = vurdertMedlemskapOpt.get();
-                dto.setOppholdsrettVurdering(vurdertMedlemskap.getOppholdsrettVurdering());
-                dto.setLovligOppholdVurdering(vurdertMedlemskap.getLovligOppholdVurdering());
-                dto.setBosattVurdering(vurdertMedlemskap.getBosattVurdering());
-                dto.setMedlemskapManuellVurderingType(vurdertMedlemskap.getMedlemsperiodeManuellVurdering());
-                dto.setErEosBorger(vurdertMedlemskap.getErEøsBorger());
-
-                LocalDate stp = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet().orElse(null);
-                dto.setFom(stp);
-            }
-        }
-    }
-
-    private void settFelterFraPersonopplysninger(MedlemDto dto, Optional<PersonopplysningerAggregat> aggregatOptional, Behandling behandling) {
-        // TODO Diamant (Denne gjelder kun revurdering og foreldrepenger, bør skilles ut som egen DTO for FP+BT-004)
-        if (aggregatOptional.isPresent()) {
-            EndringsresultatPersonopplysningerForMedlemskap endringerIPersonopplysninger = medlemTjeneste.søkerHarEndringerIPersonopplysninger(behandling);
-            List<EndringsresultatPersonopplysningerForMedlemskap.Endring> endredeAttributter = endringerIPersonopplysninger.getEndredeAttributter();
-            if (!endredeAttributter.isEmpty()) {
-                if (!Optional.ofNullable(dto.getFom()).isPresent()) {
-                    dto.setFom(endringerIPersonopplysninger.getGjeldendeFra().get());
-                }
-                List<EndringIPersonopplysningDto> endringer = new ArrayList<>();
-                endredeAttributter.forEach(e -> {
-                    endringer.add(new EndringIPersonopplysningDto(e));
-                });
-                dto.setEndringer(endringer);
-            } else {
-                /**
-                 * Ingen endringer i personopplysninger (siden siste vedtatte medlemskapsperiode), så vi setter
-                 * gjeldende f.o.m fra nyeste endring i personstatus. Denne vises b.a. ifm. aksjonspunkt 5022
-                 */
-                if (dto.getFom() != null && aggregatOptional.get().getPersonstatusFor(behandling.getAktørId()) != null) {
-                    if (dto.getFom().isBefore(aggregatOptional.get().getPersonstatusFor(behandling.getAktørId()).getPeriode().getFomDato())) {
-                        dto.setFom(aggregatOptional.get().getPersonstatusFor(behandling.getAktørId()).getPeriode().getFomDato());
-                    }
-                }
-            }
         }
     }
 

@@ -321,11 +321,7 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_PATH, "familiehendelse", uuidDto));
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.PERSONOPPLYSNINGER_PATH, "soeker-personopplysninger", uuidDto));
-
-
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V2_PATH, "soeker-medlemskap-v2", uuidDto));
-        //TODO (TOR) Legg til else her når frontend ikkje lenger feilaktig brukar både ny og gammal versjon
-        dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_PATH, "soeker-medlemskap", uuidDto));
 
         if (behandlingHarVergeAksjonspunkt(behandling)) {
             dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "soeker-verge", uuidDto));
