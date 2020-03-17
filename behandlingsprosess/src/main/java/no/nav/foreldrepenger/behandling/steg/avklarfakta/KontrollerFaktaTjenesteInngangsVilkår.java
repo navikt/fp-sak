@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.KontrollerFaktaInngangsVilkårUtleder;
@@ -47,6 +48,13 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
     }
 
     @Override
+    public List<AksjonspunktResultat> utledAksjonspunkterFomSteg(BehandlingReferanse ref, BehandlingStegType steg) {
+        return utledAksjonspunkter(ref).stream()
+            .filter(ap -> skalBeholdeAksjonspunkt(ref, steg, ap.getAksjonspunktDefinisjon()))
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public boolean skalOverstyringLøsesTilHøyreForStartpunkt(BehandlingReferanse ref, StartpunktType startpunktType, AksjonspunktDefinisjon apDef) {
         return behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(
             ref.getFagsakYtelseType(), ref.getBehandlingType(), startpunktType.getBehandlingSteg(), apDef);
@@ -56,16 +64,16 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
                                                                                     StartpunktType startpunkt) {
         // Fjerner aksjonspunkter som ikke skal løses i eller etter steget som følger av startpunktet:
         return aksjonspunktResultat.stream()
-            .filter(ap -> skalBeholdeAksjonspunkt(referanse, startpunkt, ap.getAksjonspunktDefinisjon()))
+            .filter(ap -> skalBeholdeAksjonspunkt(referanse, startpunkt.getBehandlingSteg(), ap.getAksjonspunktDefinisjon()))
             .collect(Collectors.toList());
     }
 
-    private boolean skalBeholdeAksjonspunkt(BehandlingReferanse ref, StartpunktType startpunkt, AksjonspunktDefinisjon apDef) {
+    private boolean skalBeholdeAksjonspunkt(BehandlingReferanse ref, BehandlingStegType steg, AksjonspunktDefinisjon apDef) {
         boolean skalBeholde = behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(
-            ref.getFagsakYtelseType(), ref.getBehandlingType(), startpunkt.getBehandlingSteg(), apDef);
+            ref.getFagsakYtelseType(), ref.getBehandlingType(), steg, apDef);
         if (!skalBeholde) {
             logger.debug("Fjerner aksjonspunkt {} da det skal løses før startsteg {}.",
-                apDef.getKode(), startpunkt.getBehandlingSteg().getKode()); // NOSONAR
+                apDef.getKode(), steg.getKode()); // NOSONAR
         }
         return skalBeholde;
     }

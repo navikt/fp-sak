@@ -107,7 +107,7 @@ public class Endringskontroller {
 
         // Gjør aksjonspunktutledning utenom steg kun for startpunkt inne i inngangsvilkårene
         if (harUtførtKontrollerFakta(behandling) && STARTPUNKT_INNGANG_VILKÅR.contains(startpunktType)) {
-            utledAksjonspunkterTilHøyreForStartpunkt(kontekst, startpunktType, ref, behandling);
+            utledAksjonspunkterTilHøyreForStartpunkt(kontekst, startpunktType, ref, behandling, tilbakeføres);
         }
 
         if (tilbakeføres) {
@@ -159,16 +159,19 @@ public class Endringskontroller {
     }
 
     // Orkestrerer aksjonspunktene for kontroll av fakta som utføres ifm tilbakehopp til et sted innen inngangsvilkår
-    private void utledAksjonspunkterTilHøyreForStartpunkt(BehandlingskontrollKontekst kontekst, StartpunktType startpunkt, BehandlingReferanse ref, Behandling behandling) {
+    private void utledAksjonspunkterTilHøyreForStartpunkt(BehandlingskontrollKontekst kontekst, StartpunktType startpunkt, BehandlingReferanse ref, Behandling behandling, boolean tilbakeføres) {
+        var tidligsteSteg = tilbakeføres ? startpunkt.getBehandlingSteg() : behandling.getAktivtBehandlingSteg();
         var resultater = FagsakYtelseTypeRef.Lookup.find(KontrollerFaktaInngangsVilkårUtleder.class, kontrollerFaktaTjenester, ref.getFagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.getFagsakYtelseType().getKode()))
-            .utledAksjonspunkterTilHøyreForStartpunkt(ref, startpunkt);
+            .utledAksjonspunkterFomSteg(ref, tidligsteSteg);
         List<Aksjonspunkt> avbrytes = behandling.getÅpneAksjonspunkter().stream()
             .filter(ap -> !ap.erManueltOpprettet() && !ap.erAutopunkt())
             .filter(ap -> resultater.stream().noneMatch(ar -> ap.getAksjonspunktDefinisjon().equals(ar.getAksjonspunktDefinisjon())))
+            .filter(ap -> behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(ref.getFagsakYtelseType(), ref.getBehandlingType(), tidligsteSteg, ap.getAksjonspunktDefinisjon()))
             .collect(Collectors.toList());
         var opprettes = resultater.stream()
-            .filter(ar -> !AksjonspunktStatus.UTFØRT.equals(behandling.getAksjonspunktMedDefinisjonOptional(ar.getAksjonspunktDefinisjon()).map(Aksjonspunkt::getStatus).orElse(AksjonspunktStatus.OPPRETTET)))
+            .filter(ar -> !AksjonspunktStatus.UTFØRT.equals(behandling.getAksjonspunktMedDefinisjonOptional(ar.getAksjonspunktDefinisjon())
+                .map(Aksjonspunkt::getStatus).orElse(AksjonspunktStatus.OPPRETTET)))
             .collect(Collectors.toList());
         if (!avbrytes.isEmpty()) {
             behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), avbrytes);
