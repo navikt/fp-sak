@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.domene.vedtak;
 
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,10 +28,13 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdPSGrunnlag;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdSPGrunnlag;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
-import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Tema;
-import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Vedtak;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.TemaKode;
 import no.nav.vedtak.konfig.Tid;
 /*
 Når Foreldrepenger-sak, enten førstegang eller revurdering, innvilges sjekker vi for overlapp med pleiepenger eller sykepenger i Infortrygd på personen.
@@ -69,9 +73,8 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
     public void vurderOglagreEventueltOverlapp(Behandling behandling) {
         try {
             List<BehandlingOverlappInfotrygd> listeMedOverlapp = this.vurderOmOverlappInfotrygd(behandling);
-                listeMedOverlapp.forEach(behandlingOverlappInfotrygd -> overlappRepository.lagre(behandlingOverlappInfotrygd));
-        }
-        catch (Exception e) {
+            listeMedOverlapp.forEach(behandlingOverlappInfotrygd -> overlappRepository.lagre(behandlingOverlappInfotrygd));
+        } catch (Exception e) {
             log.info("Identifisering av overlapp i Infotrygd feilet ", e);
         }
     }
@@ -79,64 +82,59 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
     public List<BehandlingOverlappInfotrygd> vurderOmOverlappInfotrygd(Behandling behandling) {
         LocalDate førsteUttaksDatoFP = finnFørsteUttaksDato(behandling.getId());
         //Henter alle utbetalingsperioder på behandling som er iverksatt
-        List<ÅpenDatoIntervallEntitet> perioderFp = hentPerioderFp(behandling.getId());
+        LocalDateTimeline<Boolean> perioderFp = hentPerioderFp(behandling.getId());
         //sjekker om noen av vedtaksperiodene i Infotrygd på sykepenger eller pleiepenger overlapper med perioderFp
-        List<BehandlingOverlappInfotrygd> overlapperIT  = harFPYtelserSomOverlapperIT (behandling, førsteUttaksDatoFP, perioderFp);
-
-        return overlapperIT;
+        return harFPYtelserSomOverlapperIT(behandling, førsteUttaksDatoFP, perioderFp);
     }
 
-    public List<BehandlingOverlappInfotrygd> harFPYtelserSomOverlapperIT (Behandling behandling, LocalDate førsteUttaksdatoFp, List<ÅpenDatoIntervallEntitet> perioderFP) {
-
-        List<Grunnlag> infotrygdGrunnlaglist = hentPSogSPGrunnlag(behandling.getAktørId(), førsteUttaksdatoFp);
-
-        if (infotrygdGrunnlaglist.isEmpty()) {
-            return Collections.emptyList();
-        }
-
+    public List<BehandlingOverlappInfotrygd> harFPYtelserSomOverlapperIT(Behandling behandling, LocalDate førsteUttaksdatoFp, LocalDateTimeline<Boolean> perioderFP) {
         List<BehandlingOverlappInfotrygd> overlappene = new ArrayList<>();
-        infotrygdGrunnlaglist.forEach( grunnlag -> {
-            grunnlag.getVedtak().stream()
-                .forEach(vedtak -> {
-                    perioderFP.stream()
-                        .filter(p -> p.overlapper(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(vedtak.getPeriode().getFom(), vedtak.getPeriode().getTom())))
-                        .map(p -> opprettOverlappIT (behandling, grunnlag.getTema(), vedtak, p))
-                        .forEach(behandlingOverlappInfotrygd -> overlappene.add(behandlingOverlappInfotrygd));
-                });
-        });
-        return overlappene;
-    }
-
-    private List<Grunnlag> hentPSogSPGrunnlag (AktørId aktørId, LocalDate førsteUttaksdatoFp) {
-        var ident = getFnrFraAktørId(aktørId);
+        var ident = getFnrFraAktørId(behandling.getAktørId());
 
         List<Grunnlag> infotrygdPSGrunnlag = infotrygdPSGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksdatoFp.minusWeeks(1), førsteUttaksdatoFp.plusYears(3));
         List<Grunnlag> infotrygdSPGrunnlag = infotrygdSPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksdatoFp.minusWeeks(1), førsteUttaksdatoFp.plusYears(3));
 
-        List<Grunnlag> infotrygdGrunnlag = merge(infotrygdPSGrunnlag, infotrygdSPGrunnlag);
+        finnOverlappene(behandling, perioderFP, TemaKode.SP.name(), infotrygdSPGrunnlag, overlappene);
+        finnOverlappene(behandling, perioderFP, TemaKode.BS.name(), infotrygdPSGrunnlag, overlappene);
 
-        return infotrygdGrunnlag;
+        return overlappene;
     }
 
-    // Generisk funksjon for å legge sammen 2 lister
-    private static<T> List<T> merge(List<T> list1, List<T> list2)
-    {
-        return Stream.of(list1, list2)
-            .flatMap(x -> x.stream())
-            .collect(Collectors.toList());
+    private void finnOverlappene(Behandling behandling, LocalDateTimeline<Boolean> perioderFP, String tema,
+                                 List<Grunnlag> infotrygdGrunnlaglist, List<BehandlingOverlappInfotrygd> overlappene) {
+        LocalDateTimeline<Boolean> tlGrunnlag = finnTidslinjeFraGrunnlagene(infotrygdGrunnlaglist);
+
+        tlGrunnlag.getDatoIntervaller()
+            .forEach(grunnlagPeriode -> perioderFP.getDatoIntervaller().stream()
+                .filter(grunnlagPeriode::overlaps)
+                .map(vlPeriode -> opprettOverlappIT(behandling, tema, grunnlagPeriode, vlPeriode))
+                .forEach(overlappene::add)
+        );
     }
 
     private PersonIdent getFnrFraAktørId(AktørId aktørId) {
         return aktørConsumer.hentPersonIdentForAktørId(aktørId.getId()).map(PersonIdent::new).orElseThrow();
     }
 
-    private List<ÅpenDatoIntervallEntitet> hentPerioderFp(Long behandlingId) {
+    private LocalDateTimeline<Boolean> hentPerioderFp(Long behandlingId) {
         Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
 
-         return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+        var segments = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
-            .map(p-> ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom()))
-             .collect(Collectors.toList());
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), Boolean.TRUE))
+            .collect(Collectors.toList());
+
+        return helgeJusterTidslinje(new LocalDateTimeline<>(segments, StandardCombinators::alwaysTrueForMatch).compress());
+    }
+
+    private LocalDateTimeline<Boolean> finnTidslinjeFraGrunnlagene(List<Grunnlag> grunnlag) {
+        List<LocalDateSegment<Boolean>> segmenter = grunnlag.stream()
+            .map(Grunnlag::getVedtak)
+            .flatMap(Collection::stream)
+            .map(p-> new LocalDateSegment<>(p.getPeriode().getFom(), tomSøndag(p.getPeriode().getTom()), Boolean.TRUE))
+            .collect(Collectors.toList());
+
+        return helgeJusterTidslinje(new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress());
     }
 
     private LocalDate finnFørsteUttaksDato(Long behandlingId) {
@@ -148,15 +146,48 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
         return minFom.orElse(Tid.TIDENES_ENDE);
     }
 
-    private BehandlingOverlappInfotrygd opprettOverlappIT(Behandling behandling, Tema tema, Vedtak vedtak, ÅpenDatoIntervallEntitet periode) {
-        ÅpenDatoIntervallEntitet periodeInfotrygd = ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(vedtak.getPeriode().getFom(), vedtak.getPeriode().getTom());
-        BehandlingOverlappInfotrygd behandlingOverlappInfotrygd = BehandlingOverlappInfotrygd.builder()
+    private BehandlingOverlappInfotrygd opprettOverlappIT(Behandling behandling, String tema, LocalDateInterval periodeInfotrygd, LocalDateInterval periodeVL) {
+        return BehandlingOverlappInfotrygd.builder()
             .medSaksnummer(behandling.getFagsak().getSaksnummer())
             .medBehandlingId(behandling.getId())
-            .medPeriodeInfotrygd(periodeInfotrygd)
-            .medPeriodeVL(periode)
-            .medYtelseInfotrygd(tema.getKode().name())
+            .medPeriodeInfotrygd(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(periodeInfotrygd.getFomDato(), periodeInfotrygd.getTomDato()))
+            .medPeriodeVL(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(periodeVL.getFomDato(), periodeVL.getTomDato()))
+            .medYtelseInfotrygd(tema)
             .build();
-        return behandlingOverlappInfotrygd;
+    }
+
+    private LocalDateTimeline<Boolean> helgeJusterTidslinje(LocalDateTimeline<Boolean> tidslinje) {
+        var segments = tidslinje.getDatoIntervaller().stream()
+            .map(p -> new LocalDateSegment<>(fomMandag(p.getFomDato()), tomFredag(p.getTomDato()), Boolean.TRUE))
+            .collect(Collectors.toList());
+        return new LocalDateTimeline<>(segments, StandardCombinators::alwaysTrueForMatch).compress();
+    }
+
+    private LocalDate fomMandag(LocalDate fom) {
+        DayOfWeek ukedag = DayOfWeek.from(fom);
+        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(1);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(2);
+        return fom;
+    }
+
+    private LocalDate tomFredag(LocalDate tom) {
+        DayOfWeek ukedag = DayOfWeek.from(tom);
+        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
+            return tom.minusDays(2);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return tom.minusDays(1);
+        return tom;
+    }
+
+    // Utvidelser for å koble p1.tom/fredag og p2.fom/mandag
+    private LocalDate tomSøndag(LocalDate fom) {
+        DayOfWeek ukedag = DayOfWeek.from(fom);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(1);
+        if (DayOfWeek.FRIDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(2);
+        return fom;
     }
 }
