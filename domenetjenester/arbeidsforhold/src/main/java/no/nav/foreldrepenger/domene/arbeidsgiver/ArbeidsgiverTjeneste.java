@@ -9,6 +9,4 @@ public interface ArbeidsgiverTjeneste {
     ArbeidsgiverOpplysninger hent(Arbeidsgiver arbeidsgiver);
 
     Virksomhet hentVirksomhet(String orgnr);
-
-    Arbeidsgiver hentArbeidsgiver(String orgnr, String arbeidsgiverIdentifikator);
 }

@@ -18,9 +18,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.MedlemDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.MedlemDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.MedlemV2Dto;
 import no.nav.vedtak.felles.jpa.Transaction;
@@ -49,14 +45,10 @@ public class PersonRestTjeneste {
     static final String BASE_PATH = "/behandling";
     private static final String VERGE_PART_PATH = "/person/verge";
     public static final String VERGE_PATH = BASE_PATH + VERGE_PART_PATH; //NOSONAR TFP-2234
-    private static final String MEDLEMSKAP_PART_PATH = "/person/medlemskap";
-    public static final String MEDLEMSKAP_PATH = BASE_PATH + MEDLEMSKAP_PART_PATH; //NOSONAR TFP-2234
     private static final String MEDLEMSKAP_V2_PART_PATH = "/person/medlemskap-v2";
     public static final String MEDLEMSKAP_V2_PATH = BASE_PATH + MEDLEMSKAP_V2_PART_PATH; //NOSONAR TFP-2234
     private static final String PERSONOPPLYSNINGER_PART_PATH = "/person/personopplysninger";
     public static final String PERSONOPPLYSNINGER_PATH = BASE_PATH + PERSONOPPLYSNINGER_PART_PATH; //NOSONAR TFP-2234
-
-    private static final Logger LOG = LoggerFactory.getLogger(PersonRestTjeneste.class);
 
     private VergeRepository vergeRepository;
     private VergeDtoTjeneste vergeDtoTjenesteImpl;
@@ -132,31 +124,6 @@ public class PersonRestTjeneste {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path(MEDLEMSKAP_PART_PATH)
-    @Operation(description = "Hent informasjon om medlemskap i Folketrygden for søker i behandling",
-        tags = "behandling - person",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Returnerer Medlemskap, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = MedlemDto.class)
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public MedlemDto getMedlemskap(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = getBehandlingsId(behandlingIdDto);
-        LOG.info("MedlemDto v1 hentes behandlingId {}", behandlingId);
-        Optional<MedlemDto> medlemDto = medlemDtoTjeneste.lagMedlemDto(behandlingId);
-        return medlemDto.orElse(null);
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
     @Path(MEDLEMSKAP_V2_PART_PATH)
     @Operation(description = "Hent informasjon om medlemskap i Folketrygden for søker i behandling",
         tags = "behandling - person",
@@ -227,26 +194,6 @@ public class PersonRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public PersonopplysningDto getPersonopplysninger(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getPersonopplysninger(new BehandlingIdDto(uuidDto));
-    }
-
-    @GET
-    @Path(MEDLEMSKAP_PART_PATH)
-    @Operation(description = "Hent informasjon om medlemskap i Folketrygden for søker i behandling",
-        tags = "behandling - person",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Returnerer Medlemskap, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = MedlemDto.class)
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public MedlemDto getMedlemskap(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return getMedlemskap(new BehandlingIdDto(uuidDto));
     }
 
     @GET
