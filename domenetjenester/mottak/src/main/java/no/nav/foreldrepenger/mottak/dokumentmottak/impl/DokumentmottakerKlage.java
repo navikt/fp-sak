@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import static no.nav.vedtak.feil.LogLevel.WARN;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,7 +27,6 @@ import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef
@@ -86,7 +86,7 @@ class DokumentmottakerKlage implements Dokumentmottaker {
         BehandlingType behandlingTypeKlage = BehandlingType.KLAGE;
         return Optional.ofNullable(behandlingskontrollTjeneste.opprettNyBehandling(fagsak, behandlingTypeKlage,
             (beh) -> {
-                beh.setBehandlingstidFrist(FPDateUtil.iDag().plusWeeks(behandlingTypeKlage.getBehandlingstidFristUker()));
+                beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingTypeKlage.getBehandlingstidFristUker()));
                 beh.setBehandlendeEnhet(dokumentmottakerFelles.utledEnhetFraTidligereBehandling(behandlingKlagenGjelder));
             }));
     }

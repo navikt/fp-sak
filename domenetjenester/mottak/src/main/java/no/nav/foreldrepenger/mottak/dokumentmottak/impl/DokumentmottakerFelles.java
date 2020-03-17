@@ -129,13 +129,13 @@ public class DokumentmottakerFelles {
     }
 
     private String finnEnhetFraFagsak(Fagsak sak) {
-        OrganisasjonsEnhet organisasjonsEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFraSøker(sak);
+        OrganisasjonsEnhet organisasjonsEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(sak);
         return organisasjonsEnhet.getEnhetId();
     }
 
     OrganisasjonsEnhet utledEnhetFraTidligereBehandling(Behandling tidligereBehandling) {
         // Utleder basert på regler rundt sakskompleks og diskresjonskoder. Vil bruke forrige enhet med mindre noen tilsier Kode6 eller opphør av enhet
-        return behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(tidligereBehandling).orElse(tidligereBehandling.getBehandlendeOrganisasjonsEnhet());
+        return behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(tidligereBehandling.getFagsak());
     }
 
     void opprettHistorikkinnslagForBehandlingOppdatertMedNyeOpplysninger(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {

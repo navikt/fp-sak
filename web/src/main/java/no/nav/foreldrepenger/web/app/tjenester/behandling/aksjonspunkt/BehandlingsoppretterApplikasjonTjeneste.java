@@ -134,7 +134,7 @@ public class BehandlingsoppretterApplikasjonTjeneste {
             throw BehandlingsoppretterApplikasjonTjenesteFeil.FACTORY.kanIkkeOppretteRevurdering(fagsak.getSaksnummer()).toException();
         }
 
-        Optional<OrganisasjonsEnhet> enhet = behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(fagsak);
+        OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
         return revurderingTjeneste.opprettManuellRevurdering(fagsak, behandlingÅrsakType, enhet);
     }
 

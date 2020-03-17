@@ -21,7 +21,7 @@ public class OrganisasjonsEnhet {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OrganisasjonsEnhet that = (OrganisasjonsEnhet) o;
-        return enhetId.equals(that.enhetId);
+        return Objects.equals(enhetId, that.enhetId);
     }
 
     @Override

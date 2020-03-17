@@ -42,7 +42,7 @@ public class BerørtBehandlingForvaltningTjeneste {
         }
 
         Behandling nyBehandling = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.BERØRT_BEHANDLING,
-            behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(fagsak));
+            behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
         berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(nyBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING,
             null, HistorikkinnslagType.REVURD_OPPR);
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(nyBehandling);

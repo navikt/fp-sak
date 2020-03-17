@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -64,7 +65,7 @@ public class InnsynTjenesteImplTest {
     @Before
     public void oppsett() {
         initMocks(this);
-        when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFraSøker(any(Behandling.class))).thenReturn(new OrganisasjonsEnhet("1234", ""));
+        when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", ""));
 
         innsynTjeneste = new InnsynTjeneste(behandlingKontrollTjeneste, innsynHistorikkTjeneste,
             fagsakRepository,behandlingRepository, behandlingsresultatRepository, innsynRepository, behandlendeEnhetTjeneste);

@@ -3,7 +3,9 @@ package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -65,67 +67,36 @@ public class EnhetsTjeneste {
         return alleBehandlendeEnheter;
     }
 
-    OrganisasjonsEnhet hentEnhetSjekkRegistrerteRelasjoner(AktørId aktørId, BehandlingTema behandlingTema) {
+    OrganisasjonsEnhet hentEnhetSjekkKunAktør(AktørId aktørId, BehandlingTema behandlingTema) {
         oppdaterEnhetCache();
         PersonIdent fnr = tpsTjeneste.hentFnrForAktør(aktørId);
 
         GeografiskTilknytning geografiskTilknytning = tpsTjeneste.hentGeografiskTilknytning(fnr);
-        String aktivDiskresjonskode = geografiskTilknytning.getDiskresjonskode();
-        if (!DISKRESJON_K6.equals(aktivDiskresjonskode)) {
-            boolean relasjonMedK6 = tpsTjeneste.hentDiskresjonskoderForFamilierelasjoner(fnr).stream()
-                .anyMatch(geo -> DISKRESJON_K6.equals(geo.getDiskresjonskode()));
-            if (relasjonMedK6) {
-                aktivDiskresjonskode = DISKRESJON_K6;
-            }
-        }
 
-        return hentEnheterFor(geografiskTilknytning.getTilknytning(), aktivDiskresjonskode, behandlingTema).get(0);
+        return hentEnheterFor(geografiskTilknytning.getTilknytning(), geografiskTilknytning.getDiskresjonskode(), behandlingTema).get(0);
     }
 
-    Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgitte(String enhetId, List<AktørId> relaterteAktører) {
+    Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgittePersoner(String enhetId, BehandlingTema behandlingTema, AktørId hovedAktør, Set<AktørId> alleAktører) {
         oppdaterEnhetCache();
         if (enhetKode6.getEnhetId().equals(enhetId) || NK_ENHET_ID.equals(enhetId)) {
             return Optional.empty();
         }
-
-        return sjekkSpesifiserteRelaterte(relaterteAktører);
-    }
-
-    Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkRegistrerteRelasjoner(String enhetId, BehandlingTema behandlingTema, AktørId aktørId, Optional<AktørId> kobletAktørId, List<AktørId> relaterteAktører) {
-        oppdaterEnhetCache();
-        if (enhetKode6.getEnhetId().equals(enhetId) || NK_ENHET_ID.equals(enhetId)) {
-            return Optional.empty();
-        }
-
-        OrganisasjonsEnhet enhet = hentEnhetSjekkRegistrerteRelasjoner(aktørId, behandlingTema);
-        if (enhetKode6.getEnhetId().equals(enhet.getEnhetId())) {
+        if (harNoenDiskresjonskode6(alleAktører)) {
             return Optional.of(enhetKode6);
         }
-        if (kobletAktørId.isPresent()) {
-            OrganisasjonsEnhet enhetKoblet = hentEnhetSjekkRegistrerteRelasjoner(kobletAktørId.get(), behandlingTema);
-            if (enhetKode6.getEnhetId().equals(enhetKoblet.getEnhetId())) {
-                return Optional.of(enhetKode6);
-            }
+        if (finnOrganisasjonsEnhet(enhetId).isEmpty()) {
+            return Optional.of(hentEnhetSjekkKunAktør(hovedAktør, behandlingTema));
         }
-        if (sjekkSpesifiserteRelaterte(relaterteAktører).isPresent()) {
-            return Optional.of(enhetKode6);
-        }
-        if (!gyldigEnhetId(enhetId)) {
-            return Optional.of(enhet);
-        }
-
         return Optional.empty();
     }
 
-    private Optional<OrganisasjonsEnhet> sjekkSpesifiserteRelaterte(List<AktørId> relaterteAktører) {
-        for (AktørId relatert : relaterteAktører) {
-            PersonIdent personIdent = tpsTjeneste.hentFnrForAktør(relatert);
-            GeografiskTilknytning geo = tpsTjeneste.hentGeografiskTilknytning(personIdent);
-            if (DISKRESJON_K6.equals(geo.getDiskresjonskode())) {
-                return Optional.of(enhetKode6);
-            }
-        }
-        return Optional.empty();
+    private boolean harNoenDiskresjonskode6(Set<AktørId> aktører) {
+        return aktører.stream()
+            .map(tpsTjeneste::hentFnrForAktør)
+            .map(tpsTjeneste::hentGeografiskTilknytning)
+            .map(GeografiskTilknytning::getDiskresjonskode)
+            .filter(Objects::nonNull)
+            .anyMatch(DISKRESJON_K6::equalsIgnoreCase);
     }
 
     private void oppdaterEnhetCache() {
@@ -138,20 +109,13 @@ public class EnhetsTjeneste {
         }
     }
 
-    private boolean gyldigEnhetId(String enhetId) {
-        return finnOrganisasjonsEnhet(enhetId).isPresent();
-    }
-
     Optional<OrganisasjonsEnhet> finnOrganisasjonsEnhet(String enhetId) {
         oppdaterEnhetCache();
         return alleBehandlendeEnheter.stream().filter(e -> enhetId.equals(e.getEnhetId())).findFirst();
     }
 
-    OrganisasjonsEnhet enhetsPresedens(OrganisasjonsEnhet enhetSak1, OrganisasjonsEnhet enhetSak2, boolean arverKlage) {
+    OrganisasjonsEnhet enhetsPresedens(OrganisasjonsEnhet enhetSak1, OrganisasjonsEnhet enhetSak2) {
         oppdaterEnhetCache();
-        if (arverKlage && NK_ENHET_ID.equals(enhetSak1.getEnhetId())) {
-            return enhetSak1;
-        }
         if (enhetKode6.getEnhetId().equals(enhetSak1.getEnhetId()) || enhetKode6.getEnhetId().equals(enhetSak2.getEnhetId())) {
             return enhetKode6;
         }

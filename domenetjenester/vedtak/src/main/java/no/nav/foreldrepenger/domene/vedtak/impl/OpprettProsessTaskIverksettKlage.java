@@ -7,7 +7,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
@@ -77,8 +76,7 @@ public class OpprettProsessTaskIverksettKlage implements OpprettProsessTaskIverk
             KlageVurdering vurdering = vurderingsresultat.get().getKlageVurdering();
             if (KlageVurdering.MEDHOLD_I_KLAGE.equals(vurdering) || KlageVurdering.OPPHEVE_YTELSESVEDTAK.equals(vurdering)
                 || KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE.equals(vurdering)) {
-                Behandling sisteFørstegangsbehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(),
-                    BehandlingType.FØRSTEGANGSSØKNAD).orElse(behandling);
+                Behandling sisteFørstegangsbehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId()).orElse(behandling);
                 ProsessTaskData opprettOppgave = new ProsessTaskData(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
                 opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, sisteFørstegangsbehandling.getBehandlendeEnhet());
                 opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, BESKRIVELSESTEKST);

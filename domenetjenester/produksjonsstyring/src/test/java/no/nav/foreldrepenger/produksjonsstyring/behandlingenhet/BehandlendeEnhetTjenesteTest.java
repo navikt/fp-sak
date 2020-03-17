@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -83,7 +82,7 @@ public class BehandlendeEnhetTjenesteTest {
         tpsTjeneste = mock(TpsTjeneste.class);
         enhetsTjeneste = mock(EnhetsTjeneste.class);
         eventPubliserer = mock(BehandlingEnhetEventPubliserer.class);
-        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(tpsTjeneste, enhetsTjeneste, eventPubliserer, repositoryProvider);
+        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider);
     }
 
     @Test
@@ -92,9 +91,9 @@ public class BehandlendeEnhetTjenesteTest {
         settOppTpsStrukturer(false);
 
         Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
-        when(enhetsTjeneste.hentEnhetSjekkRegistrerteRelasjoner(any(), any())).thenReturn(enhetNormal);
+        when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(enhetNormal);
 
-        OrganisasjonsEnhet morEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFraSøker(behandlingMor);
+        OrganisasjonsEnhet morEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandlingMor.getFagsak());
 
         assertThat(morEnhet.getEnhetId()).isEqualTo(enhetNormal.getEnhetId());
     }
@@ -103,16 +102,16 @@ public class BehandlendeEnhetTjenesteTest {
     public void finn_mors_enhet_annenpart_kode6() {
         // Oppsett
         settOppTpsStrukturer(false);
-        when(enhetsTjeneste.hentEnhetSjekkRegistrerteRelasjoner(any(), any())).thenReturn(enhetNormal);
-        when(enhetsTjeneste.oppdaterEnhetSjekkOppgitte(any(), any())).thenReturn(Optional.empty());
+        when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(enhetNormal);
+        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.empty());
 
         Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
 
-        OrganisasjonsEnhet morEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFraSøker(behandlingMor);
+        OrganisasjonsEnhet morEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandlingMor.getFagsak());
 
         when(tpsTjeneste.hentGeografiskTilknytning(FAR_IDENT)).thenReturn(tilknytningKode6);
-        when(enhetsTjeneste.oppdaterEnhetSjekkOppgitte(any(), any())).thenReturn(Optional.of(enhetKode6));
-        Optional<OrganisasjonsEnhet> nyEnhet = behandlendeEnhetTjeneste.endretBehandlendeEnhetFraOppgittAnnenPart(behandlingMor);
+        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.of(enhetKode6));
+        Optional<OrganisasjonsEnhet> nyEnhet = behandlendeEnhetTjeneste.sjekkEnhetEtterEndring(behandlingMor);
 
         assertThat(morEnhet.getEnhetId()).isEqualTo(enhetNormal.getEnhetId());
         assertThat(nyEnhet).hasValueSatisfying(enhet -> assertThat(enhet.getEnhetId()).isEqualTo(enhetKode6.getEnhetId()));
@@ -122,8 +121,8 @@ public class BehandlendeEnhetTjenesteTest {
     public void finn_enhet_etter_kobling_far_relasjon_kode6() {
         // Oppsett
         settOppTpsStrukturer(false);
-        when(enhetsTjeneste.hentEnhetSjekkRegistrerteRelasjoner(any(), any())).thenReturn(enhetNormal);
-        when(enhetsTjeneste.oppdaterEnhetSjekkOppgitte(any(), any())).thenReturn(Optional.empty());
+        when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(enhetNormal);
+        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.empty());
 
         Behandling behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(LocalDate.now(),1,  FAR_AKTØR_ID);
         Behandling behandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate.now(), 1, MOR_AKTØR_ID);
@@ -133,8 +132,8 @@ public class BehandlendeEnhetTjenesteTest {
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak(), behandlingMor);
 
         when(tpsTjeneste.hentGeografiskTilknytning(ELDRE_BARN_IDENT)).thenReturn(tilknytningKode6);
-        when(enhetsTjeneste.oppdaterEnhetSjekkRegistrerteRelasjoner(any(), any(), any(), any(), any())).thenReturn(Optional.of(enhetKode6));
-        when(enhetsTjeneste.enhetsPresedens(any(), any(), anyBoolean())).thenReturn(enhetKode6);
+        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.of(enhetKode6));
+        when(enhetsTjeneste.enhetsPresedens(any(), any())).thenReturn(enhetKode6);
 
         Optional<OrganisasjonsEnhet> oppdatertEnhet = behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandlingMor, repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandlingMor.getFagsak()));
 

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.es;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -61,7 +60,7 @@ public class RevurderingTjenesteImplTest {
     public void skal_opprette_automatisk_revurdering_basert_på_siste_innvilgede_behandling() {
         final BehandlingskontrollTjenesteImpl behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
         revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, behandlingskontrollTjeneste, revurderingEndringES, revurderingTjenesteFelles, vergeRepository);
-        final Behandling revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(), BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN, Optional.empty());
+        final Behandling revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(), BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN, new OrganisasjonsEnhet("1234", "Test"));
 
         assertThat(revurdering.getFagsak()).isEqualTo(behandlingSomSkalRevurderes.getFagsak());
         assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType()).isEqualTo(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
@@ -72,7 +71,7 @@ public class RevurderingTjenesteImplTest {
         OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("4806", "Nye Nav FP");
         final BehandlingskontrollTjenesteImpl behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
         revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, behandlingskontrollTjeneste, revurderingEndringES, revurderingTjenesteFelles, vergeRepository);
-        final Behandling revurdering = revurderingTjeneste.opprettManuellRevurdering(behandlingSomSkalRevurderes.getFagsak(), BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE, Optional.of(enhet));
+        final Behandling revurdering = revurderingTjeneste.opprettManuellRevurdering(behandlingSomSkalRevurderes.getFagsak(), BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE, enhet);
 
         assertThat(revurdering.getFagsak()).isEqualTo(behandlingSomSkalRevurderes.getFagsak());
         assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType()).isEqualTo(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE);

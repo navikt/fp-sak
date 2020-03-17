@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak;
 
 import static java.util.stream.Collectors.toList;
 
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +39,6 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.DokumentPersistererTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.vedtak.util.FPDateUtil;
 
 @Dependent
 public class Behandlingsoppretter {
@@ -93,9 +93,8 @@ public class Behandlingsoppretter {
             if (!BehandlingÅrsakType.UDEFINERT.equals(behandlingÅrsakType)) {
                 BehandlingÅrsak.builder(behandlingÅrsakType).buildFor(beh);
             }
-            beh.setBehandlingstidFrist(FPDateUtil.iDag().plusWeeks(behandlingType.getBehandlingstidFristUker()));
-            OrganisasjonsEnhet enhet = tidligereBehandling.map(b -> utledEnhetFraTidligereBehandling(b).orElse(b.getBehandlendeOrganisasjonsEnhet()))
-                .orElse(finnBehandlendeEnhet(beh));
+            beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()));
+            OrganisasjonsEnhet enhet = finnBehandlendeEnhet(fagsak);
             beh.setBehandlendeEnhet(enhet);
         }); // NOSONAR
     }
@@ -111,14 +110,12 @@ public class Behandlingsoppretter {
 
     public Behandling opprettRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak) {
         RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
-        Behandling revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, revurderingsÅrsak, behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(fagsak));
-        return revurdering;
+        return revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, revurderingsÅrsak, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
     }
 
     public Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak) {
         RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
-        Behandling revurdering = revurderingTjeneste.opprettManuellRevurdering(fagsak, revurderingsÅrsak, behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(fagsak));
-        return revurdering;
+        return revurderingTjeneste.opprettManuellRevurdering(fagsak, revurderingsÅrsak, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
     }
 
     public Behandling oppdaterBehandlingViaHenleggelse(Behandling sisteYtelseBehandling, BehandlingÅrsakType revurderingsÅrsak) {
@@ -210,13 +207,8 @@ public class Behandlingsoppretter {
     }
 
 
-    private OrganisasjonsEnhet finnBehandlendeEnhet(Behandling behandling) {
-        return behandlendeEnhetTjeneste.finnBehandlendeEnhetFraSøker(behandling);
-    }
-
-    private Optional<OrganisasjonsEnhet> utledEnhetFraTidligereBehandling(Behandling tidligereBehandling) {
-        // Utleder basert på regler rundt sakskompleks og diskresjonskoder. Vil bruke forrige enhet med mindre noen tilsier Kode6 eller enhet opphørt
-        return behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(tidligereBehandling);
+    private OrganisasjonsEnhet finnBehandlendeEnhet(Fagsak fagsak) {
+        return behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
     }
 
     public void settSomKøet(Behandling nyKøetBehandling) {

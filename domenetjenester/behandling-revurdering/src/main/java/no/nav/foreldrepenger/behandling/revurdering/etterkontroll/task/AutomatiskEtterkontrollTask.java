@@ -206,7 +206,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 
     private Behandling opprettRevurdering(Behandling behandlingForRevurdering, RevurderingTjeneste revurderingTjeneste, BehandlingÅrsakType behandlingÅrsakType) {
         Behandling revurdering;
-        Optional<OrganisasjonsEnhet> enhet = behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(behandlingForRevurdering.getFagsak());
+        OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandlingForRevurdering.getFagsak());
 
         revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(behandlingForRevurdering.getFagsak(), behandlingÅrsakType, enhet);
 

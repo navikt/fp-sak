@@ -113,7 +113,7 @@ public class OverstyrDekningsgradTjeneste {
             return ytelseBehandlingOpt.get();
         }
         return revurderingTjeneste.opprettManuellRevurdering(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER,
-            behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(fagsak)
+            behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak)
         );
     }
 

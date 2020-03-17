@@ -62,7 +62,7 @@ public class InnsynTjeneste {
 
         BehandlingType behandlingType = BehandlingType.INNSYN;
         Behandling nyBehandling = Behandling.nyBehandlingFor(fagsak, behandlingType).build();
-        nyBehandling.setBehandlendeEnhet(behandlendeEnhetTjeneste.finnBehandlendeEnhetFraSøker(nyBehandling));
+        nyBehandling.setBehandlendeEnhet(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
 
         innsynHistorikkTjeneste.opprettHistorikkinnslag(nyBehandling, SAKSBEHANDLER);
 
