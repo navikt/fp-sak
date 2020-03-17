@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,6 +18,7 @@ import org.junit.runner.RunWith;
 
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -32,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.Whitebox;
@@ -58,11 +63,14 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
 
+    private BehandlendeEnhetTjeneste enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
+
 
     @Test
     public void skal_opprette_revurderingsbehandling_med_årsak_når_avsluttet_behandling() {
 
         Behandling behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
+        when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
@@ -89,13 +97,14 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     }
 
     private void createTask() {
-        task = new AutomatiskGrunnbelopReguleringTask(repositoryProvider, prosessTaskRepositoryMock);
+        task = new AutomatiskGrunnbelopReguleringTask(repositoryProvider, prosessTaskRepositoryMock, enhetsTjeneste);
 
     }
 
     @Test
     public void skal_ikke_opprette_revurdering_dersom_åpen_behandling_på_fagsak() {
         Behandling behandling = opprettRevurderingsKandidat(BehandlingStatus.UTREDES);
+        when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());

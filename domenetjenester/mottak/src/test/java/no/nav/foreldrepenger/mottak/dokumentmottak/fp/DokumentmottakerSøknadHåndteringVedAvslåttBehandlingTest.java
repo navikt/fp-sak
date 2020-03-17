@@ -57,8 +57,7 @@ public class DokumentmottakerSøknadHåndteringVedAvslåttBehandlingTest extends
         HistorikkinnslagTjeneste mockHist = Mockito.mock(HistorikkinnslagTjeneste.class);
         BehandlendeEnhetTjeneste enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
         OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
-        when(enhetsTjeneste.finnBehandlendeEnhetFraSøker(any(Fagsak.class))).thenReturn(enhet);
-        when(enhetsTjeneste.finnBehandlendeEnhetFraSøker(any(Behandling.class))).thenReturn(enhet);
+        when(enhetsTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
         ProsessTaskRepository taskrepo = mock(ProsessTaskRepository.class);
         DokumentmottakerFelles felles = new DokumentmottakerFelles(repositoryProvider,
             taskrepo,

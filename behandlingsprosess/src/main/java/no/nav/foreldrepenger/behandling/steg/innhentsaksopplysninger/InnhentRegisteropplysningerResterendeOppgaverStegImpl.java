@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
@@ -34,6 +35,7 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetModell;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.util.FPDateUtil;
 
@@ -50,6 +52,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private KompletthetModell kompletthetModell;
+    private BehandlendeEnhetTjeneste enhetTjeneste;
 
     InnhentRegisteropplysningerResterendeOppgaverStegImpl() {
         // for CDI proxy
@@ -60,6 +63,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
                                                                    FagsakTjeneste fagsakTjeneste,
                                                                    PersonopplysningTjeneste personopplysningTjeneste,
                                                                    FamilieHendelseTjeneste familieHendelseTjeneste,
+                                                                   BehandlendeEnhetTjeneste enhetTjeneste,
                                                                    KompletthetModell kompletthetModell,
                                                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
 
@@ -69,6 +73,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.kompletthetModell = kompletthetModell;
+        this.enhetTjeneste = enhetTjeneste;
     }
 
     @Override
@@ -90,6 +95,9 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         PersonopplysningerAggregat personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
 
         fagsakTjeneste.oppdaterFagsak(behandling, personopplysninger, barnSøktStønadFor);
+
+        enhetTjeneste.sjekkEnhetEtterEndring(behandling)
+            .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
 
         return BehandleStegResultat.utførtMedAksjonspunkter(sjekkPersonstatus(ref));
 

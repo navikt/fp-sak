@@ -19,11 +19,11 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshåndterer;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 public class GjenopptaBehandlingTaskTest {
@@ -55,7 +55,7 @@ public class GjenopptaBehandlingTaskTest {
         Behandling behandling = scenario.lagMocked();
         behandling.setBehandlendeEnhet(organisasjonsEnhet);
         when(mockBehandlingRepository.hentBehandling(any(Long.class))).thenReturn(behandling);
-        when(mockEnhetsTjeneste.sjekkEnhetVedGjenopptak(any())).thenReturn(Optional.empty());
+        when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.empty());
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(0L, behandlingId, AktørId.dummy().getId());
@@ -82,7 +82,7 @@ public class GjenopptaBehandlingTaskTest {
         when(mockBehandlingRepository.lagre(any(Behandling.class), any())).thenReturn(0L);
         when(mockBehandlingskontrollTjeneste.initBehandlingskontroll(Mockito.anyLong())).thenReturn(kontekst);
         when(kontekst.getSkriveLås()).thenReturn(lås);
-        when(mockEnhetsTjeneste.sjekkEnhetVedGjenopptak(any())).thenReturn(Optional.of(enhet));
+        when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.of(enhet));
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(0L, behandlingId, "0");

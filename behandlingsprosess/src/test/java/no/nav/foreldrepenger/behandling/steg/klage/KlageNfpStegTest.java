@@ -7,8 +7,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -36,7 +35,7 @@ public class KlageNfpStegTest {
     public void setUp() {
         behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
         BehandlingRepository behandlingRepositoryMock = mock(BehandlingRepository.class);
-        when(behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(any(Behandling.class))).thenReturn(Optional.of(enhet));
+        when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
 
         steg = new KlageNfpSteg(behandlingRepositoryMock, null, behandlendeEnhetTjeneste);
     }

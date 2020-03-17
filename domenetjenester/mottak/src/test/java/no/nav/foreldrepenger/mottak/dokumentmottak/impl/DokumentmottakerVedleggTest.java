@@ -40,9 +40,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerFelles;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerVedlegg;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.Kompletthetskontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -60,10 +57,10 @@ public class DokumentmottakerVedleggTest {
 
     @Inject
     private Behandlingsoppretter behandlingsoppretter;
-    
+
     @Inject
     private KlageRepository klageRepository;
-    
+
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
     @Mock
@@ -82,8 +79,7 @@ public class DokumentmottakerVedleggTest {
         MockitoAnnotations.initMocks(this);
 
         OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
-        when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFraSøker(any(Fagsak.class))).thenReturn(enhet);
-        when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFraSøker(any(Behandling.class))).thenReturn(enhet);
+        when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository, behandlendeEnhetTjeneste,
             historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);

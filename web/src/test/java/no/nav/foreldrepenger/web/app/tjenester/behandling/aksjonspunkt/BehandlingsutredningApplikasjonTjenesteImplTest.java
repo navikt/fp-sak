@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -87,7 +86,7 @@ public class BehandlingsutredningApplikasjonTjenesteImplTest {
 
         BehandlingskontrollTjenesteImpl behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(behandlingskontrollServiceProvider);
 
-        when(behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(any(Fagsak.class))).thenReturn(Optional.empty());
+        when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
 
         behandlingsutredningApplikasjonTjeneste = new BehandlingsutredningApplikasjonTjeneste(
             Period.parse("P4W"),

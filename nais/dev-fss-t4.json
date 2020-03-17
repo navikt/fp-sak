@@ -6,8 +6,8 @@
   "fpsakserviceuser": "serviceuser/data/test/srvengangsstonad",
   "ldapserviceuser": "serviceuser/data/test/srvssolinux",
   "namespace": "t4",
-  "minReplicas": "4",
-  "maxReplicas": "6",
+  "minReplicas": "1",
+  "maxReplicas": "2",
   "ingresses": [
     "https://fpsak-t4.nais.preprod.local/"
   ],

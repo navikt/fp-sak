@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.revurdering;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -53,7 +52,7 @@ public class RevurderingTjenesteFelles {
     }
 
     public Behandling opprettRevurderingsbehandling(BehandlingÅrsakType revurderingÅrsakType, Behandling opprinneligBehandling, boolean manueltOpprettet,
-                                                    Optional<OrganisasjonsEnhet> enhet) {
+                                                    OrganisasjonsEnhet enhet) {
         BehandlingType behandlingType = BehandlingType.REVURDERING;
         BehandlingÅrsak.Builder revurderingÅrsak = BehandlingÅrsak.builder(revurderingÅrsakType)
             .medOriginalBehandling(opprinneligBehandling)
@@ -63,9 +62,9 @@ public class RevurderingTjenesteFelles {
                 .orElseThrow(() -> new IllegalStateException("Berørt behandling må ha en tilhørende avlsuttet behandling for medforelder - skal ikke skje")); // NOSONAR
         }
         Behandling revurdering = Behandling.fraTidligereBehandling(opprinneligBehandling, behandlingType)
+            .medBehandlendeEnhet(enhet)
             .medBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()))
             .medBehandlingÅrsak(revurderingÅrsak).build();
-        enhet.ifPresent(revurdering::setBehandlendeEnhet);
         revurderingHistorikk.opprettHistorikkinnslagOmRevurdering(revurdering, revurderingÅrsakType, manueltOpprettet);
         return revurdering;
     }

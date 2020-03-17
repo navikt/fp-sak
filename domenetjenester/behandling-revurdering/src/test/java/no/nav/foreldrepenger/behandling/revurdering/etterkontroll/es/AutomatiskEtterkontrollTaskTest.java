@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -88,7 +89,7 @@ public class AutomatiskEtterkontrollTaskTest {
         tpsFamilieTjenesteMock = mock(TpsFamilieTjeneste.class);
         behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
         var bkTjeneste = mock(BehandlingskontrollTjeneste.class);
-        when(behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(any(Fagsak.class))).thenReturn(Optional.empty());
+        when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
         etterkontrollTjeneste = new EtterkontrollTjeneste(repositoryProvider,prosessTaskRepositoryMock, bkTjeneste);
         this.historikkRepository = mock(HistorikkRepository.class);
 
