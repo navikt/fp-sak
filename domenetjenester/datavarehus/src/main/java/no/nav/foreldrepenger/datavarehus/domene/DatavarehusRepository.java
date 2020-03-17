@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.datavarehus.domene;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -114,7 +115,6 @@ public class DatavarehusRepository {
     public long lagre(KlageVurderingResultatDvh klageVurderingResultat) {
         entityManager.persist(klageVurderingResultat);
         return klageVurderingResultat.getId();
-
     }
 
     public long lagre(AnkeVurderingResultatDvh ankeVurderingResultat) {
@@ -127,6 +127,17 @@ public class DatavarehusRepository {
         entityManager.persist(fagsakRelasjonDvh);
         entityManager.flush();
         return fagsakRelasjonDvh.getId();
+    }
+
+    public Map<String, AksjonspunktDefDvh> hentAksjonspunktDefinisjoner() {
+        TypedQuery<AksjonspunktDefDvh> query = entityManager.createQuery("from AksjonspunktDefDvh", AksjonspunktDefDvh.class);
+
+        return query.getResultList().stream().collect(Collectors.toMap(AksjonspunktDefDvh::getAksjonspunktDef, a -> a));
+    }
+
+    public void lagre( AksjonspunktDefDvh aksjonspunktDefDvh ) {
+        entityManager.persist(aksjonspunktDefDvh);
+        entityManager.flush();
     }
 
 }

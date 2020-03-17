@@ -12,8 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
-import no.nav.vedtak.util.FPDateUtil;
-
 @Entity(name = "VedtakUtbetalingDvh")
 @Table(name = "VEDTAK_UTBETALING_DVH")
 public class VedtakUtbetalingDvh extends DvhBaseEntitet {
@@ -72,7 +70,7 @@ public class VedtakUtbetalingDvh extends DvhBaseEntitet {
     }
 
     public void setTransTid(){
-        setTransTid( FPDateUtil.nå());
+        setTransTid( LocalDateTime.now());
     }
     public Long getFagsakId() {
         return fagsakId;
