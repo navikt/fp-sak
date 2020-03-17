@@ -196,7 +196,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.abakus</groupId>
                 <artifactId>abakus-kontrakt</artifactId>
-                <version>1.1-20200213081209-2b01231</version>
+                <version>1.1-20200315122951-5b3f05a</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>

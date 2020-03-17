@@ -61,11 +61,11 @@ public class IAYRegisterdataCallbackRestTjeneste {
     public Response callback(@Parameter(description = "callbackDto") @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) CallbackDto dto) {
         if (Objects.equals(IAY, dto.getGrunnlagType())) {
             // Ta lås
-            BehandlingLås behandlingLås = låsRepository.taLås(UUID.fromString(dto.getAvsenderRef().getReferanse()));
+            BehandlingLås behandlingLås = låsRepository.taLås(dto.getAvsenderRef().getReferanse());
             // Oppdaterer grunnlag med ny referanse
             RegisterdataCallback registerdataCallback = new RegisterdataCallback(behandlingLås.getBehandlingId(),
-                dto.getOpprinneligGrunnlagRef() != null ? UUID.fromString(dto.getOpprinneligGrunnlagRef().getReferanse()) : null,
-                UUID.fromString(dto.getOppdatertGrunnlagRef().getReferanse()),
+                dto.getOpprinneligGrunnlagRef() != null ? dto.getOpprinneligGrunnlagRef().getReferanse() : null,
+                dto.getOppdatertGrunnlagRef().getReferanse(),
                 dto.getOpprettetTidspunkt());
 
             iayTjeneste.håndterCallback(registerdataCallback);
