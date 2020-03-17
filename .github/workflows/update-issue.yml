@@ -2,7 +2,7 @@ name: Oppdaterer deployment issue
 
 on:
   repository_dispatch:
-    types: [update-issue-fpsak]
+    types: [update-issue]
 
 jobs:
   promote:
