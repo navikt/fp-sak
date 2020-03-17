@@ -94,7 +94,7 @@ public class Behandlingsoppretter {
                 BehandlingÅrsak.builder(behandlingÅrsakType).buildFor(beh);
             }
             beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()));
-            OrganisasjonsEnhet enhet = finnBehandlendeEnhet(fagsak);
+            OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
             beh.setBehandlendeEnhet(enhet);
         }); // NOSONAR
     }
@@ -206,10 +206,6 @@ public class Behandlingsoppretter {
             .collect(toList());
     }
 
-
-    private OrganisasjonsEnhet finnBehandlendeEnhet(Fagsak fagsak) {
-        return behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
-    }
 
     public void settSomKøet(Behandling nyKøetBehandling) {
         behandlingskontrollTjeneste.settBehandlingPåVent(nyKøetBehandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING);

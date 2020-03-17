@@ -77,17 +77,15 @@ class DokumentmottakerKlage implements Dokumentmottaker {
     }
 
     private Optional<Behandling> opprettKlagebehandling(Fagsak fagsak) {
-        Optional<Behandling> forrigeOpt = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
-        if (!forrigeOpt.isPresent()) { //#K2
+        if (behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).isEmpty()) { //#K2
             Feilene.FACTORY.finnerIkkeEksisterendeBehandling(fagsak.getSaksnummer().toString()).log(logger);
             return Optional.empty();
         }
-        Behandling behandlingKlagenGjelder = forrigeOpt.get();
         BehandlingType behandlingTypeKlage = BehandlingType.KLAGE;
         return Optional.ofNullable(behandlingskontrollTjeneste.opprettNyBehandling(fagsak, behandlingTypeKlage,
             (beh) -> {
                 beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingTypeKlage.getBehandlingstidFristUker()));
-                beh.setBehandlendeEnhet(dokumentmottakerFelles.utledEnhetFraTidligereBehandling(behandlingKlagenGjelder));
+                beh.setBehandlendeEnhet(dokumentmottakerFelles.finnEnhetFraFagsak(fagsak));
             }));
     }
 
