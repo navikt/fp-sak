@@ -46,9 +46,7 @@ public class InfotrygdPSGrunnlag {
                 .addParameter("fnr", fnr)
                 .addParameter("fom", konverter(fom))
                 .addParameter("tom", konverter(tom)).build();
-            LOG.trace("Slår opp grunnlag PS fra {}", request);
             var grunnlag = restClient.get(request, Grunnlag[].class);
-            LOG.info("fpsak infotrygd REST {} fikk grunnlag {}", uriString, Arrays.toString(grunnlag));
             return Arrays.asList(grunnlag);
         } catch (Exception e) {
             LOG.info("FPSAK Infotrygd PS Grunnlag - Feil ved oppslag mot {}, returnerer ingen grunnlag", uriString, e);

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -81,7 +82,8 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         infotrygdPSGrTjenesteMock = mock(InfotrygdPSGrunnlag.class);
         infotrygdSPGrTjenesteMock = mock(InfotrygdSPGrunnlag.class);
         overlappendeInfotrygdYtelseTjeneste = new IdentifiserOverlappendeInfotrygdYtelseTjeneste(beregningsresultatRepository, aktørConsumerMock,infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock , overlappRepository);
-        this.førsteUttaksdatoFp = LocalDate.now().plusMonths(1);
+        førsteUttaksdatoFp = LocalDate.now().minusMonths(4).minusWeeks(2);
+        førsteUttaksdatoFp = førsteUttaksdatoFp.plusDays(1L + DayOfWeek.SUNDAY.getValue() - DayOfWeek.from(førsteUttaksdatoFp).getValue());
 
         ScenarioMorSøkerForeldrepenger scenarioAvsluttetBehMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioAvsluttetBehMor.medSøknadHendelse().medFødselsDato(førsteUttaksdatoFp);
@@ -100,14 +102,11 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
     public void overlapp_når_Fp_starter_samme_dag_som_IT_opphører() {
         // Arrange
         List<Vedtak> vedtakPeriode = new ArrayList<>();
-        Vedtak vedtak = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp, 100);
-        vedtakPeriode.add(vedtak);
+        vedtakPeriode.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp, 100));
         Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp, vedtakPeriode);
 
-        List<Grunnlag> infotrygdPSGrList = new ArrayList<>();
-        infotrygdPSGrList.add(infotrygPSGrunnlag);
 
-        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(infotrygdPSGrList);
+        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag));
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
 
         BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
@@ -123,31 +122,24 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
 
     @Test
     public void flereOverlappIlisten() {
-
         // Arrange
         List<Vedtak> vedtakPerioder = new ArrayList<>();
-        Vedtak vedtak1 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(5), 100);
-        vedtakPerioder.add(vedtak1);
-        Vedtak vedtak2 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(4), førsteUttaksdatoFp.plusDays(20), 100);
-        vedtakPerioder.add(vedtak2);
+        vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp.minusWeeks(3), 100));
+        vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp.minusWeeks(2), 100));
+        vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp.minusWeeks(2), 100));
+        vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(1), førsteUttaksdatoFp, 100));
 
-        Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp, førsteUttaksdatoFp.plusDays(30), vedtakPerioder);
+        Grunnlag infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp, vedtakPerioder);
 
-        List<Vedtak> vedtakPerioderSP = new ArrayList<>();
-        Vedtak vedtakSP1 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(10), førsteUttaksdatoFp, 100);
-        vedtakPerioderSP.add(vedtakSP1);
+        List<Vedtak> vedtakPerioderPS = new ArrayList<>();
+        vedtakPerioderPS.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(10), førsteUttaksdatoFp, 100));
 
-        Grunnlag infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusDays(20),førsteUttaksdatoFp, vedtakPerioderSP);
+        Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(20),førsteUttaksdatoFp.plusWeeks(4), vedtakPerioderPS);
 
-        List<Grunnlag> infotrygdPSGrList = new ArrayList<>();
-        infotrygdPSGrList.add(infotrygPSGrunnlag);
-        List<Grunnlag> infotrygdSPGrList = new ArrayList<>();
-        infotrygdSPGrList.add(infotrygSPGrunnlag);
+        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag));
+        when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygSPGrunnlag));
 
-        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(infotrygdPSGrList);
-        when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(infotrygdSPGrList);
-
-        BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
+        BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusMonths(5));
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
@@ -161,10 +153,8 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
 
         // Arrange
         List<Vedtak> vedtakPerioder = new ArrayList<>();
-        Vedtak vedtak1 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(5), 100);
-        vedtakPerioder.add(vedtak1);
-        Vedtak vedtak2 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(4), førsteUttaksdatoFp.plusDays(20), 100);
-        vedtakPerioder.add(vedtak2);
+        vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(5), 100));
+        vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(4), førsteUttaksdatoFp.plusWeeks(3), 100));
 
         Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp, førsteUttaksdatoFp.plusDays(30), vedtakPerioder);
 
@@ -174,13 +164,8 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
 
         Grunnlag infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusDays(20),førsteUttaksdatoFp, vedtakPerioderSP);
 
-        List<Grunnlag> infotrygdPSGrList = new ArrayList<>();
-        infotrygdPSGrList.add(infotrygPSGrunnlag);
-        List<Grunnlag> infotrygdSPGrList = new ArrayList<>();
-        infotrygdSPGrList.add(infotrygSPGrunnlag);
-
-        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(infotrygdPSGrList);
-        when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(infotrygdSPGrList);
+        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag));
+        when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygSPGrunnlag));
 
         BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
         beregningsresultatRepository.lagre(behandlingFP, berFp);
@@ -190,20 +175,17 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
 
         // Assert
         assertThat(flereSomOverlapper).hasSize(1);
-        assertThat(flereSomOverlapper.get(0).getPeriodeInfotrygd().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusDays(20));
+        assertThat(flereSomOverlapper.get(0).getPeriodeInfotrygd().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(3));
     }
+
     @Test
     public void ingenOverlapp() {
         // Arrange
         List<Vedtak> vedtakPeriode = new ArrayList<>();
-        Vedtak vedtak = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(1), 100);
-        vedtakPeriode.add(vedtak);
+        vedtakPeriode.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(1), 100));
         Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(1), vedtakPeriode);
 
-        List<Grunnlag> infotrygdPSGrList = new ArrayList<>();
-        infotrygdPSGrList.add(infotrygPSGrunnlag);
-
-        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(infotrygdPSGrList);
+        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag));
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
 
         BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
