@@ -469,23 +469,6 @@ public class BeregningsgrunnlagRepositoryImplTest {
         assertThat(beregningsgrunnlagOpt).hasValueSatisfying(bg -> assertThat(bg).isSameAs(beregningsgrunnlag2));
     }
 
-    @Test
-    public void settBeregningsgrunnlagIkkeAktiv() {
-        // Arrange
-        BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
-        beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, STEG_OPPRETTET);
-
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
-        assertThat(entitetOpt).isPresent();
-
-        // Act
-        beregningsgrunnlagRepository.deaktiverBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
-
-        //Assert
-        assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet ->
-            assertThat(entitet.erAktivt()).as("entitet.aktiv").isFalse());
-    }
-
     private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
         BGAndelArbeidsforhold.Builder bga = BGAndelArbeidsforhold
             .builder()
