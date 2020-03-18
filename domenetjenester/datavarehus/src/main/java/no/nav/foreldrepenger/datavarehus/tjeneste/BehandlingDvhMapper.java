@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class BehandlingDvhMapper {
 
@@ -45,7 +44,7 @@ public class BehandlingDvhMapper {
             .behandlingType(behandling.getType().getKode())
             .endretAv(CommonDvhMapper.finnEndretAvEllerOpprettetAv(behandling))
             .fagsakId(behandling.getFagsakId())
-            .funksjonellTid(FPDateUtil.nå())
+            .funksjonellTid(LocalDateTime.now())
             .opprettetDato(behandling.getOpprettetDato().toLocalDate())
             .utlandstilsnitt(mapUtlandstilsnitt(behandling))
             .toTrinnsBehandling(behandling.isToTrinnsBehandling())

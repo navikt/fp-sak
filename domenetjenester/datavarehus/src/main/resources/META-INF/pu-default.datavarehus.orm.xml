@@ -25,6 +25,7 @@
     <entity class="no.nav.foreldrepenger.datavarehus.domene.BehandlingStegDvh"/>
     <entity class="no.nav.foreldrepenger.datavarehus.domene.BehandlingVedtakDvh"/>
     <entity class="no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh"/>
+    <entity class="no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDefDvh"/>
     <entity class="no.nav.foreldrepenger.datavarehus.domene.KontrollDvh"/>
     <entity class="no.nav.foreldrepenger.datavarehus.domene.VedtakUtbetalingDvh"/>
     <entity class="no.nav.foreldrepenger.datavarehus.domene.KlageFormkravDvh"/>

@@ -8,8 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 
-import no.nav.vedtak.util.FPDateUtil;
-
 @MappedSuperclass
 public class DvhBaseEntitet implements Serializable {
 
@@ -24,9 +22,9 @@ public class DvhBaseEntitet implements Serializable {
 
     @PrePersist
     protected void onCreate() {
-        this.transTid = FPDateUtil.nå();
+        this.transTid = LocalDateTime.now();
         if (this.funksjonellTid == null) {
-            this.funksjonellTid = FPDateUtil.nå();
+            this.funksjonellTid = LocalDateTime.now();
         }
     }
 
