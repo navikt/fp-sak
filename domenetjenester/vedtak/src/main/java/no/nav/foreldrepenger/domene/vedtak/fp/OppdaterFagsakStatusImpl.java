@@ -103,10 +103,10 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
         if (oppdaterFagsakStatusFelles.ingenLøpendeYtelsesvedtak(behandling)) {
             return true;
         }
-        Optional<Behandling> sisteInnvilgedeBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
+        Optional<Behandling> sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
 
-        if (sisteInnvilgedeBehandling.isPresent()) {
-            var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId());
+        if (sisteYtelsesvedtak.isPresent()) {
+            var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(sisteYtelsesvedtak.get().getId());
             if (familieHendelseGrunnlag.isPresent()) {
                 Optional<LocalDate> fødselsdato = familieHendelseGrunnlag
                     .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
@@ -115,7 +115,7 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
                     .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
                     .flatMap(FamilieHendelseEntitet::getAdopsjon)
                     .map(AdopsjonEntitet::getOmsorgsovertakelseDato);
-                var uttakInput = uttakInputTjeneste.lagInput(behandling);
+                var uttakInput = uttakInputTjeneste.lagInput(sisteYtelsesvedtak.get());
                 var maksDatoUttak = maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
 
                 return erDatoUtløpt(maksDatoUttak, LocalDate.now())
