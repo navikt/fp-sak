@@ -315,7 +315,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
             return false;
         }
         var startdato = yrkesaktiviteter.finnStartdato(aktivitet.getUttakAktivitet().getArbeidsgiver().get(),
-            aktivitet.getUttakAktivitet().getArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef())).orElse(LocalDate.MIN);
+            aktivitet.getUttakAktivitet().getArbeidsforholdRef()).orElse(LocalDate.MIN);
         return startdato.isAfter(dato);
     }
 
@@ -364,7 +364,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         }
         Optional<InternArbeidsforholdRef> arbeidsforholdRef = status.getArbeidsforholdRef();
         return Objects.equals(a.getArbeidsgiver().get().getIdentifikator(), arbeidsgiver.get().getIdentifikator()) &&
-            Objects.equals(a.getArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()), arbeidsforholdRef.orElse(InternArbeidsforholdRef.nullRef()));
+            Objects.equals(a.getArbeidsforholdRef(), arbeidsforholdRef.orElse(InternArbeidsforholdRef.nullRef()));
     }
 
     private EndringsdatoType finnEndringsdatoTypeVedAdopsjon(ForeldrepengerGrunnlag fpGrunnlag) {

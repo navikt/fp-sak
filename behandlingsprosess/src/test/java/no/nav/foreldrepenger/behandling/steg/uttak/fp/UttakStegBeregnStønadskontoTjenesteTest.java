@@ -102,7 +102,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest {
         var uttak = avslåttUttak();
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(uttak.getPerioder().get(0).getFom().minusWeeks(1),
             uttak.getPerioder().get(0).getFom().minusDays(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
@@ -205,7 +205,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest {
         var uttak = new UttakResultatPerioderEntitet();
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(),
             LocalDate.now().plusWeeks(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
@@ -220,7 +220,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest {
     private UttakResultatPerioderEntitet avslåttUttak() {
         var uttak = new UttakResultatPerioderEntitet();
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(1))
-            .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.BARNET_ER_DØD)
+            .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.BARNET_ER_DØD)
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FELLESPERIODE)

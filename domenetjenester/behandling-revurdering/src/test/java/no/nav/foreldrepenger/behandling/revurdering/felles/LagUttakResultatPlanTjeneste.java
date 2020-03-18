@@ -101,7 +101,7 @@ public class LagUttakResultatPlanTjeneste {
     private static UttakResultatPeriodeEntitet byggPeriode(LocalDate fom, LocalDate tom, boolean samtidigUttak, PeriodeResultatType periodeResultatType, PeriodeResultatÅrsak periodeResultatÅrsak, boolean graderingInnvilget) {
         return new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medSamtidigUttak(samtidigUttak)
-            .medPeriodeResultat(periodeResultatType, periodeResultatÅrsak)
+            .medResultatType(periodeResultatType, periodeResultatÅrsak)
             .medGraderingInnvilget(graderingInnvilget)
             .build();
     }

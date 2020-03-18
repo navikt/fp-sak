@@ -16,11 +16,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPerioder;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FastsetteUttakDto;
@@ -32,7 +30,7 @@ public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<Fastsette
 
     private HistorikkTjenesteAdapter historikkAdapter;
     private FastsettePerioderTjeneste tjeneste;
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
 
     FastsettUttakOppdaterer() {
@@ -40,13 +38,13 @@ public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<Fastsette
     }
 
     @Inject
-    public FastsettUttakOppdaterer(BehandlingRepositoryProvider repositoryProverider,
-                                   HistorikkTjenesteAdapter historikkAdapter,
+    public FastsettUttakOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
                                    FastsettePerioderTjeneste tjeneste,
+                                   ForeldrepengerUttakTjeneste uttakTjeneste,
                                    UttakInputTjeneste uttakInputTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.tjeneste = tjeneste;
-        this.uttakRepository = repositoryProverider.getUttakRepository();
+        this.uttakTjeneste = uttakTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
     }
 
@@ -55,24 +53,24 @@ public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<Fastsette
         Behandling behandling = param.getBehandling();
         OppdateringResultat.Builder resultatBuilder = OppdateringResultat.utenTransisjon();
         avbrytOverflødigOverstyrAksjonpunkt(behandling)
-        .ifPresent(ap -> resultatBuilder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
+            .ifPresent(ap -> resultatBuilder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
 
         var input = uttakInputTjeneste.lagInput(behandling);
-        UttakResultatEntitet forrigeResultat = håndterOverstyring(dto, input);
+        var forrigeResultat = håndterOverstyring(dto, input);
         lagHistorikkInnslag(behandling, dto, forrigeResultat);
 
         return resultatBuilder.build();
     }
 
-    private UttakResultatEntitet håndterOverstyring(FastsetteUttakDto dto, UttakInput uttakInput) {
+    private ForeldrepengerUttak håndterOverstyring(FastsetteUttakDto dto, UttakInput uttakInput) {
         var behandlingId = uttakInput.getBehandlingReferanse().getBehandlingId();
-        UttakResultatEntitet forrigeResultat = uttakRepository.hentUttakResultat(behandlingId);
-        UttakResultatPerioder perioder = UttakPerioderMapper.map(dto.getPerioder(), forrigeResultat.getGjeldendePerioder());
+        var forrigeResultat = uttakTjeneste.hentUttak(behandlingId);
+        var perioder = UttakPerioderMapper.map(dto.getPerioder(), forrigeResultat.getGjeldendePerioder());
         tjeneste.manueltFastsettePerioder(uttakInput, perioder);
         return forrigeResultat;
     }
 
-    private void lagHistorikkInnslag(Behandling behandling, FastsetteUttakDto dto, UttakResultatEntitet forrigeResultat) {
+    private void lagHistorikkInnslag(Behandling behandling, FastsetteUttakDto dto, ForeldrepengerUttak forrigeResultat) {
         List<Historikkinnslag> historikkinnslag = UttakHistorikkUtil.forFastsetting().lagHistorikkinnslag(
             behandling, dto.getPerioder(), forrigeResultat.getGjeldendePerioder());
         historikkinnslag.forEach(innslag -> historikkAdapter.lagInnslag(innslag));

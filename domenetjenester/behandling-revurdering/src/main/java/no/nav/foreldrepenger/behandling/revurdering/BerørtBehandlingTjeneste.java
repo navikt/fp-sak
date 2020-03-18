@@ -20,9 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
@@ -33,7 +32,7 @@ public class BerørtBehandlingTjeneste {
 
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private HistorikkRepository historikkRepository;
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
 
     BerørtBehandlingTjeneste() {
@@ -43,10 +42,11 @@ public class BerørtBehandlingTjeneste {
     @Inject
     public BerørtBehandlingTjeneste(StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
                                     BehandlingRepositoryProvider repositoryProvider,
-                                    UttakInputTjeneste uttakInputTjeneste) {
+                                    UttakInputTjeneste uttakInputTjeneste,
+                                    ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.uttakTjeneste = uttakTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
     }
 
@@ -59,8 +59,8 @@ public class BerørtBehandlingTjeneste {
      * @return true dersom berørt behandling skal opprettes, ellers false.
      */
     public boolean skalBerørtBehandlingOpprettes(Optional<Behandlingsresultat> optionalBehandlingsresultat,
-                                                 Optional<UttakResultatPerioderEntitet> brukersUttaksPerioder,
-                                                 Optional<UttakResultatPerioderEntitet> medforeldersUttaksPerioder) {
+                                                 Optional<ForeldrepengerUttak> brukersUttaksPerioder,
+                                                 Optional<ForeldrepengerUttak> medforeldersUttaksPerioder) {
         if (optionalBehandlingsresultat.isEmpty()) {
             return false;
         }
@@ -88,20 +88,19 @@ public class BerørtBehandlingTjeneste {
         if (foreldrepengerGrunnlag == null || foreldrepengerGrunnlag.isTapendeBehandling()) {
             return false;
         }
-        Optional<UttakResultatPerioderEntitet> brukersUttaksPerioder = finnGjeldendeUttaksPerioder(behandlingId);
-        Optional<UttakResultatPerioderEntitet> medforeldersUttaksPerioder = finnGjeldendeUttaksPerioder(behandlingIdAnnenPart);
+        var brukersUttaksPerioder = finnGjeldendeUttaksPerioder(behandlingId);
+        var medforeldersUttaksPerioder = finnGjeldendeUttaksPerioder(behandlingIdAnnenPart);
 
         return skalBerørtBehandlingOpprettes(brukersGjeldendeBehandlingsresultat, brukersUttaksPerioder, medforeldersUttaksPerioder);
     }
 
-    private Optional<UttakResultatPerioderEntitet> finnGjeldendeUttaksPerioder(Long behandling) {
-        var uttaksplan = uttakRepository.hentUttakResultatHvisEksisterer(behandling);
-        return uttaksplan.map(UttakResultatEntitet::getGjeldendePerioder);
+    private Optional<ForeldrepengerUttak> finnGjeldendeUttaksPerioder(Long behandling) {
+        return uttakTjeneste.hentUttakHvisEksisterer(behandling);
     }
 
     private boolean skalRevurderingFøreTilBerørtBehandling(Behandlingsresultat behandlingsresultat,
-                                                           Optional<UttakResultatPerioderEntitet> brukersUttaksPerioder,
-                                                           Optional<UttakResultatPerioderEntitet> medforeldersUttaksPerioder,
+                                                           Optional<ForeldrepengerUttak> brukersUttaksPerioder,
+                                                           Optional<ForeldrepengerUttak> medforeldersUttaksPerioder,
                                                            UttakInput uttakInput) {
         if (behandlingsresultat.isBehandlingsresultatOpphørt() && harMedforelderPerioderEtterBrukersOpphør(brukersUttaksPerioder, medforeldersUttaksPerioder)) {
             return harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER);
@@ -122,7 +121,7 @@ public class BerørtBehandlingTjeneste {
         return false;
     }
 
-    private boolean harMedforelderPerioderEtterBrukersOpphør(Optional<UttakResultatPerioderEntitet> brukersUttaksplan, Optional<UttakResultatPerioderEntitet> motpartsUttaksplan) {
+    private boolean harMedforelderPerioderEtterBrukersOpphør(Optional<ForeldrepengerUttak> brukersUttaksplan, Optional<ForeldrepengerUttak> motpartsUttaksplan) {
         if (brukersUttaksplan.isPresent() && motpartsUttaksplan.isPresent()) {
             if (harBrukerFørsteUttak(brukersUttaksplan.get(), motpartsUttaksplan.get())) {
                 return true;
@@ -137,12 +136,12 @@ public class BerørtBehandlingTjeneste {
         return false;
     }
 
-    private boolean harBrukerFørsteUttak(UttakResultatPerioderEntitet brukersUttaksplan, UttakResultatPerioderEntitet motpartsUttaksplan) {
-        return brukersUttaksplan.getPerioder().stream().map(p -> p.getTidsperiode().getFomDato()).min(LocalDate::compareTo).get()
-            .isBefore(motpartsUttaksplan.getPerioder().stream().map(p -> p.getTidsperiode().getFomDato()).min(LocalDate::compareTo).get());
+    private boolean harBrukerFørsteUttak(ForeldrepengerUttak brukersUttaksplan, ForeldrepengerUttak motpartsUttaksplan) {
+        return brukersUttaksplan.getGjeldendePerioder().stream().map(p -> p.getFom()).min(LocalDate::compareTo).get()
+            .isBefore(motpartsUttaksplan.getGjeldendePerioder().stream().map(p -> p.getFom()).min(LocalDate::compareTo).get());
     }
 
-    private boolean harOverlappendePerioder(Optional<UttakResultatPerioderEntitet> brukersUttaksplan, Optional<UttakResultatPerioderEntitet> motpartsUttaksplan) {
+    private boolean harOverlappendePerioder(Optional<ForeldrepengerUttak> brukersUttaksplan, Optional<ForeldrepengerUttak> motpartsUttaksplan) {
         if (brukersUttaksplan.isPresent() && motpartsUttaksplan.isPresent()) {
             LocalDate førsteForeldrersSisteDag = førsteForeldrersSisteDag(brukersUttaksplan.get(), motpartsUttaksplan.get());
             LocalDate andreForeldrersFørsteDag = andreForeldrersFørsteDag(brukersUttaksplan.get(), motpartsUttaksplan.get());
@@ -153,26 +152,26 @@ public class BerørtBehandlingTjeneste {
         return false;
     }
 
-    private LocalDate førsteForeldrersSisteDag(UttakResultatPerioderEntitet brukersUttaksplan, UttakResultatPerioderEntitet motpartsUttaksplan) {
-        Optional<LocalDate> førsteForeldrersSisteDag = brukersUttaksplan.finnFørsteUttaksdato().get().isAfter(motpartsUttaksplan.finnFørsteUttaksdato().get())
+    private LocalDate førsteForeldrersSisteDag(ForeldrepengerUttak brukersUttaksplan, ForeldrepengerUttak motpartsUttaksplan) {
+        Optional<LocalDate> førsteForeldrersSisteDag = brukersUttaksplan.finnFørsteUttaksdato().isAfter(motpartsUttaksplan.finnFørsteUttaksdato())
             ? sisteUttaksdatoUtenAvslåttePerioder(motpartsUttaksplan) : sisteUttaksdatoUtenAvslåttePerioder(brukersUttaksplan);
         return førsteForeldrersSisteDag.orElse(null);
     }
 
-    private LocalDate andreForeldrersFørsteDag(UttakResultatPerioderEntitet brukersUttaksplan, UttakResultatPerioderEntitet motpartsUttaksplan) {
-        Optional<LocalDate> andreForeldrersFørsteDag = brukersUttaksplan.finnFørsteUttaksdato().get().isAfter(motpartsUttaksplan.finnFørsteUttaksdato().get())
+    private LocalDate andreForeldrersFørsteDag(ForeldrepengerUttak brukersUttaksplan, ForeldrepengerUttak motpartsUttaksplan) {
+        Optional<LocalDate> andreForeldrersFørsteDag = brukersUttaksplan.finnFørsteUttaksdato().isAfter(motpartsUttaksplan.finnFørsteUttaksdato())
             ? førsteUttaksdatoUtenAvslåttePerioder(brukersUttaksplan) : førsteUttaksdatoUtenAvslåttePerioder(motpartsUttaksplan);
         return andreForeldrersFørsteDag.orElse(null);
     }
 
-    private Optional<LocalDate> førsteUttaksdatoUtenAvslåttePerioder(UttakResultatPerioderEntitet uttaksplan) {
-        return uttaksplan.getPerioder().stream()
-            .filter(u -> !PeriodeResultatType.AVSLÅTT.equals(u.getPeriodeResultatType())).map(p -> p.getTidsperiode().getFomDato()).min(LocalDate::compareTo);
+    private Optional<LocalDate> førsteUttaksdatoUtenAvslåttePerioder(ForeldrepengerUttak uttaksplan) {
+        return uttaksplan.getGjeldendePerioder().stream()
+            .filter(u -> !PeriodeResultatType.AVSLÅTT.equals(u.getResultatType())).map(p -> p.getFom()).min(LocalDate::compareTo);
     }
 
-    private Optional<LocalDate> sisteUttaksdatoUtenAvslåttePerioder(UttakResultatPerioderEntitet uttaksplan) {
-        return uttaksplan.getPerioder().stream()
-            .filter(u -> !PeriodeResultatType.AVSLÅTT.equals(u.getPeriodeResultatType())).map(p -> p.getTidsperiode().getTomDato()).max(LocalDate::compareTo);
+    private Optional<LocalDate> sisteUttaksdatoUtenAvslåttePerioder(ForeldrepengerUttak uttaksplan) {
+        return uttaksplan.getGjeldendePerioder().stream()
+            .filter(u -> !PeriodeResultatType.AVSLÅTT.equals(u.getResultatType())).map(p -> p.getTidsperiode().getTomDato()).max(LocalDate::compareTo);
     }
 
     public boolean harKonsekvens(Behandlingsresultat behandlingsresultat, KonsekvensForYtelsen konsekvens) {

@@ -5,6 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -27,11 +29,11 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
@@ -65,7 +67,8 @@ public class BerørtBehandlingTjenesteImplTest {
         var førsteBehandling = Behandling.forFørstegangssøknad(fagsak).build();
         revurdering = Behandling.fraTidligereBehandling(førsteBehandling, BehandlingType.REVURDERING).build();
         revurdering.getOriginalBehandling();
-        berørtBehandlingTjeneste = new BerørtBehandlingTjeneste(stønadskontoSaldoTjeneste, repositoryProvider, uttakInputTjeneste);
+        berørtBehandlingTjeneste = new BerørtBehandlingTjeneste(stønadskontoSaldoTjeneste, repositoryProvider, uttakInputTjeneste,
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()));
     }
 
     //Scenarie 1 - Opphør
@@ -184,24 +187,27 @@ public class BerørtBehandlingTjenesteImplTest {
             .buildFor(revurdering));
     }
 
-    private Optional<UttakResultatPerioderEntitet> lagUttakResultatPerioder(LocalDate fom, LocalDate tom, boolean medPeriodeForan, boolean medAvslåttPeriode) {
-        UttakResultatPerioderEntitet uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
+    private Optional<ForeldrepengerUttak> lagUttakResultatPerioder(LocalDate fom, LocalDate tom, boolean medPeriodeForan, boolean medAvslåttPeriode) {
+        List<ForeldrepengerUttakPeriode> perioder = new ArrayList<>();
         if (medPeriodeForan) {
-            UttakResultatPeriodeEntitet uttakResultatPeriodeEntitet1 = new UttakResultatPeriodeEntitet.Builder(fom.minusWeeks(3), fom.minusDays(1))
-                .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            var periode = new ForeldrepengerUttakPeriode.Builder()
+                .medTidsperiode(fom.minusWeeks(3), fom.minusDays(1))
+                .medResultatType(PeriodeResultatType.INNVILGET)
                 .build();
-            uttakResultatPerioderEntitet.leggTilPeriode(uttakResultatPeriodeEntitet1);
+            perioder.add(periode);
         }
-        UttakResultatPeriodeEntitet uttakResultatPeriodeEntitet2 = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+        var periode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(fom, tom)
+            .medResultatType(PeriodeResultatType.INNVILGET)
             .build();
-        uttakResultatPerioderEntitet.leggTilPeriode(uttakResultatPeriodeEntitet2);
+        perioder.add(periode);
         if (medAvslåttPeriode) {
-            UttakResultatPeriodeEntitet uttakResultatPeriodeEntitet3 = new UttakResultatPeriodeEntitet.Builder(tom.plusDays(1), tom.plusDays(7))
-                .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT)
+            var avslåttPeriode = new ForeldrepengerUttakPeriode.Builder()
+                .medTidsperiode(tom.plusDays(1), tom.plusDays(7))
+                .medResultatType(PeriodeResultatType.AVSLÅTT)
                 .build();
-            uttakResultatPerioderEntitet.leggTilPeriode(uttakResultatPeriodeEntitet3);
+            perioder.add(avslåttPeriode);
         }
-        return Optional.of(uttakResultatPerioderEntitet);
+        return Optional.of(new ForeldrepengerUttak(perioder, List.of()));
     }
 }

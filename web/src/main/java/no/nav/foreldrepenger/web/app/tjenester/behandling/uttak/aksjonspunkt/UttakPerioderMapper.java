@@ -2,20 +2,17 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakUtsettelseType;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.KodeMapper;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPeriode;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPeriodeAktivitet;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPerioder;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.EndreUttakUtil;
@@ -26,55 +23,42 @@ public final class UttakPerioderMapper {
     private UttakPerioderMapper() {
     }
 
-    public static UttakResultatPerioder map(List<UttakResultatPeriodeLagreDto> dtoPerioder, UttakResultatPerioderEntitet gjeldeneperioder) {
-        List<UttakResultatPeriode> perioder = new ArrayList<>();
-        for (UttakResultatPeriodeLagreDto dtoPeriode : dtoPerioder) {
-            perioder.add(map(dtoPeriode, gjeldeneperioder));
-        }
-        return new UttakResultatPerioder(perioder);
+    public static List<ForeldrepengerUttakPeriode> map(List<UttakResultatPeriodeLagreDto> dtoPerioder, List<ForeldrepengerUttakPeriode> gjeldenePerioder) {
+        return dtoPerioder.stream().map(p -> map(p, gjeldenePerioder)).collect(Collectors.toList());
     }
 
-    private static UttakResultatPeriode map(UttakResultatPeriodeLagreDto dtoPeriode,
-                                            UttakResultatPerioderEntitet gjeldeneperioder) {
+    private static ForeldrepengerUttakPeriode map(UttakResultatPeriodeLagreDto dtoPeriode,
+                                                  List<ForeldrepengerUttakPeriode> gjeldenePerioder) {
         LocalDateInterval periodeInterval = new LocalDateInterval(dtoPeriode.getFom(), dtoPeriode.getTom());
-        List<UttakResultatPeriodeAktivitet> aktiviteter = new ArrayList<>();
+        List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter = new ArrayList<>();
         for (UttakResultatPeriodeAktivitetLagreDto nyAktivitet : dtoPeriode.getAktiviteter()) {
-            UttakResultatPeriodeAktivitetEntitet matchendeGjeldendeAktivitet = EndreUttakUtil.finnGjeldendeAktivitetFor(gjeldeneperioder,
-                periodeInterval, nyAktivitet.getArbeidsforholdId(), identifikator(nyAktivitet.getArbeidsgiver()), nyAktivitet.getUttakArbeidType());
+            var matchendeGjeldendeAktivitet = EndreUttakUtil.finnGjeldendeAktivitetFor(gjeldenePerioder,
+                periodeInterval, nyAktivitet.getArbeidsgiver().orElse(null), nyAktivitet.getArbeidsforholdRef(), nyAktivitet.getUttakArbeidType());
             aktiviteter.add(map(nyAktivitet, matchendeGjeldendeAktivitet));
 
         }
 
-        return new UttakResultatPeriode.Builder()
+        var gjeldendePeriode = EndreUttakUtil.finnGjeldendePeriodeFor(gjeldenePerioder, new LocalDateInterval(dtoPeriode.getFom(), dtoPeriode.getTom()));
+        return new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(new LocalDateInterval(dtoPeriode.getFom(), dtoPeriode.getTom()))
-            .medType(dtoPeriode.getPeriodeResultatType())
-            .medÅrsak(mapInnvilgetÅrsak(EndreUttakUtil.finnGjeldendePeriodeFor(gjeldeneperioder, new LocalDateInterval(dtoPeriode.getFom(), dtoPeriode.getTom())), dtoPeriode))
+            .medResultatType(dtoPeriode.getPeriodeResultatType())
+            .medResultatÅrsak(mapInnvilgetÅrsak(gjeldendePeriode, dtoPeriode))
             .medBegrunnelse(dtoPeriode.getBegrunnelse())
             .medSamtidigUttak(dtoPeriode.isSamtidigUttak())
             .medSamtidigUttaksprosent(dtoPeriode.getSamtidigUttaksprosent())
             .medFlerbarnsdager(dtoPeriode.isFlerbarnsdager())
             .medGraderingInnvilget(dtoPeriode.isGraderingInnvilget())
-            .medGraderingAvslåttÅrsak(dtoPeriode.getGraderingAvslagÅrsak())
-            .medUtsettelseType(EndreUttakUtil.finnGjeldendePeriodeFor(gjeldeneperioder, new LocalDateInterval(dtoPeriode.getFom(), dtoPeriode.getTom())).getUtsettelseType())
+            .medGraderingAvslagÅrsak(dtoPeriode.getGraderingAvslagÅrsak())
+            .medUtsettelseType(gjeldendePeriode.getUtsettelseType())
             .medOppholdÅrsak(dtoPeriode.getOppholdÅrsak())
             .medAktiviteter(aktiviteter)
             .build();
     }
 
-    private static String identifikator(ArbeidsgiverLagreDto arbeidsgiver) {
-        if (arbeidsgiver == null) {
-            return null;
-        }
-        if (arbeidsgiver.erVirksomhet()) {
-            return arbeidsgiver.getIdentifikator();
-        }
-        return arbeidsgiver.getAktørId().getId();
-    }
-
-    private static PeriodeResultatÅrsak mapInnvilgetÅrsak(UttakResultatPeriodeEntitet periodeEntitet, UttakResultatPeriodeLagreDto nyPeriode) {
+    private static PeriodeResultatÅrsak mapInnvilgetÅrsak(ForeldrepengerUttakPeriode periode, UttakResultatPeriodeLagreDto nyPeriode) {
         if (PeriodeResultatÅrsak.UKJENT.equals(nyPeriode.getPeriodeResultatÅrsak())) {
             if (!erOppholdsPeriode(nyPeriode) && PeriodeResultatType.INNVILGET.equals(nyPeriode.getPeriodeResultatType())) {
-                return toUtsettelseårsaktype(periodeEntitet.getUtsettelseType());
+                return toUtsettelseårsaktype(periode.getUtsettelseType());
             }
         }
         return nyPeriode.getPeriodeResultatÅrsak();
@@ -96,15 +80,15 @@ public final class UttakPerioderMapper {
             .build();
     }
 
-    private static UttakResultatPeriodeAktivitet map(UttakResultatPeriodeAktivitetLagreDto dto,
-                                                     UttakResultatPeriodeAktivitetEntitet matchendeGjeldendeAktivitet) {
-        return new UttakResultatPeriodeAktivitet.Builder()
+    private static ForeldrepengerUttakPeriodeAktivitet map(UttakResultatPeriodeAktivitetLagreDto dto,
+                                                           ForeldrepengerUttakPeriodeAktivitet matchendeGjeldendeAktivitet) {
+        return new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medUtbetalingsgrad(dto.getUtbetalingsgrad())
             .medArbeidsprosent(matchendeGjeldendeAktivitet.getArbeidsprosent())
             .medTrekkonto(dto.getStønadskontoType())
-            .medArbeidsforholdId(matchendeGjeldendeAktivitet.getArbeidsforholdId())
-            .medArbeidsgiver(matchendeGjeldendeAktivitet.getUttakAktivitet().getArbeidsgiver().orElse(null))
-            .medUttakArbeidType(matchendeGjeldendeAktivitet.getUttakArbeidType())
+            .medAktivitet(new ForeldrepengerUttakAktivitet(matchendeGjeldendeAktivitet.getUttakArbeidType(),
+                matchendeGjeldendeAktivitet.getArbeidsgiver().orElse(null),
+                matchendeGjeldendeAktivitet.getArbeidsforholdRef()))
             .medTrekkdager(dto.getTrekkdagerDesimaler())
             .build();
     }

@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Collections;
 
+import javax.inject.Inject;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -31,6 +34,9 @@ public class RettOgOmsorgGrunnlagByggerTest {
 
     @Rule
     public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
+
+    @Inject
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
 
     private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repositoryRule.getEntityManager());
 
@@ -136,7 +142,7 @@ public class RettOgOmsorgGrunnlagByggerTest {
     }
 
     private RettOgOmsorgGrunnlagBygger grunnlagBygger() {
-        return new RettOgOmsorgGrunnlagBygger(repositoryProvider);
+        return new RettOgOmsorgGrunnlagBygger(repositoryProvider, uttakTjeneste);
     }
 
     private Behandling morMedRett(boolean søkerHarRett, boolean annenForelderHarRett) {

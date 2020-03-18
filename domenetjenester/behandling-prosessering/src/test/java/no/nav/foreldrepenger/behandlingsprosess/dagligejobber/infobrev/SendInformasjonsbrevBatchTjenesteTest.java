@@ -139,7 +139,7 @@ public class SendInformasjonsbrevBatchTjenesteTest {
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
 
         UttakResultatPeriodeEntitet uttakFFF = new UttakResultatPeriodeEntitet.Builder(uttakFom, terminDato.minusDays(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
 
         UttakAktivitetEntitet arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
@@ -156,7 +156,7 @@ public class SendInformasjonsbrevBatchTjenesteTest {
 
         // Uttak periode 2
         UttakResultatPeriodeEntitet uttakMødre = new UttakResultatPeriodeEntitet.Builder(terminDato, terminDato.plusWeeks(6).minusDays(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødre, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(42))
@@ -166,14 +166,14 @@ public class SendInformasjonsbrevBatchTjenesteTest {
 
         if (medOpphold) {
             UttakResultatPeriodeEntitet uttakFelles = new UttakResultatPeriodeEntitet.Builder(terminDato.plusWeeks(6), terminDato.plusWeeks(6).plusDays(8))
-                .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).medOppholdÅrsak(OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER)
+                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).medOppholdÅrsak(OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER)
                 .build();
             perioder.leggTilPeriode(uttakFelles);
             scenario.medUttak(perioder);
         }
         else{
             UttakResultatPeriodeEntitet uttakFelles = new UttakResultatPeriodeEntitet.Builder(terminDato.plusWeeks(6), terminDato.plusWeeks(6).plusDays(8))
-                .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
                 .build();
             UttakResultatPeriodeAktivitetEntitet.builder(uttakFelles, arbeidsforhold1)
                 .medTrekkdager(new Trekkdager(7))

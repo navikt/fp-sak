@@ -85,7 +85,7 @@ public class UttakRepositoryImplTest {
 
         assertThat(resultat.get(0).getFom()).isEqualTo(fom);
         assertThat(resultat.get(0).getTom()).isEqualTo(tom);
-        assertThat(resultat.get(0).getPeriodeResultatType()).isEqualTo(resultatType);
+        assertThat(resultat.get(0).getResultatType()).isEqualTo(resultatType);
         assertThat(resultat.get(0).getAktiviteter().get(0).getTrekkonto()).isEqualTo(stønadskontoType);
         assertThat(resultat.get(0).getDokRegel()).isNotNull();
         assertThat(resultat.get(0).getPeriodeSøknad()).isNotNull();
@@ -142,7 +142,7 @@ public class UttakRepositoryImplTest {
 
         assertThat(resultat.get(0).getFom()).isEqualTo(overstyrtFom);
         assertThat(resultat.get(0).getTom()).isEqualTo(overstyrtTom);
-        assertThat(resultat.get(0).getPeriodeResultatType()).isEqualTo(overstyrtResultatType);
+        assertThat(resultat.get(0).getResultatType()).isEqualTo(overstyrtResultatType);
         assertThat(resultat.get(0).getAktiviteter().get(0).getTrekkonto()).isEqualTo(overstyrtKonto);
     }
 
@@ -220,7 +220,7 @@ public class UttakRepositoryImplTest {
     private void assertHarResultatType(PeriodeResultatType type, UttakResultatPerioderEntitet perioderEntitet) {
         List<UttakResultatPeriodeEntitet> perioder = perioderEntitet.getPerioder();
         assertThat(perioder).hasSize(1);
-        assertThat(perioder.get(0).getPeriodeResultatType()).isEqualTo(type);
+        assertThat(perioder.get(0).getResultatType()).isEqualTo(type);
     }
 
     private UttakResultatPerioderEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,
@@ -262,7 +262,7 @@ public class UttakRepositoryImplTest {
             .build();
         UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medDokRegel(dokRegel)
-            .medPeriodeResultat(resultat, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(periodeSøknad)
             .build();
 

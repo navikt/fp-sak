@@ -43,7 +43,8 @@ public class YtelseMaksdatoTjeneste {
     }
 
     @Inject
-    public YtelseMaksdatoTjeneste(BehandlingRepositoryProvider repositoryProvider, RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
+    public YtelseMaksdatoTjeneste(BehandlingRepositoryProvider repositoryProvider,
+                                  RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
     }
@@ -52,7 +53,8 @@ public class YtelseMaksdatoTjeneste {
         if (RelasjonsRolleType.MORA.equals(rolleType)) {
             return Optional.empty();
         }
-        Optional<UttakResultatEntitet> uttakResultat = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattUttaksplan(saksnummer);
+
+        Optional<UttakResultatEntitet> uttakResultat = annenpartsUttak(saksnummer);
         if (uttakResultat.isPresent()) {
             UttakResultatPerioderEntitet gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
 
@@ -61,7 +63,7 @@ public class YtelseMaksdatoTjeneste {
             for (Map.Entry<UttakAktivitetEntitet, List<UttakResultatPeriodeAktivitetEntitet>> entry : perArbeidsforhold.entrySet()) {
                 List<UttakResultatPeriodeAktivitetEntitet> perioder = entry.getValue();
                 Optional<LocalDate> sisteUttaksdag = finnMorsSisteUttaksdag(perioder);
-                if (!sisteUttaksdag.isPresent()) {
+                if (sisteUttaksdag.isEmpty()) {
                     return Optional.empty();
                 }
                 int tilgjengeligeStønadsdager = beregnTilgjengeligeStønadsdager(perioder, saksnummer);
@@ -75,10 +77,19 @@ public class YtelseMaksdatoTjeneste {
         return Optional.empty();
     }
 
+    private Optional<UttakResultatEntitet> annenpartsUttak(Saksnummer saksnummer) {
+        var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(saksnummer);
+        if (annenPartsGjeldendeVedtattBehandling.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return repositoryProvider.getUttakRepository().hentUttakResultatHvisEksisterer(annenPartsGjeldendeVedtattBehandling.get().getId());
+    }
+
     // TODO PK-48734 Her trengs det litt refaktorering
     public Optional<LocalDate> beregnMaksdatoForeldrepenger(BehandlingReferanse ref) {
         Behandling behandling = repositoryProvider.getBehandlingRepository().hentBehandling(ref.getBehandlingId());
-        Optional<UttakResultatEntitet> uttakResultat = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattUttaksplan(ref.getSaksnummer());
+        Optional<UttakResultatEntitet> uttakResultat = annenpartsUttak(ref.getSaksnummer());
         if (uttakResultat.isPresent()) {
             UttakResultatPerioderEntitet gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
 

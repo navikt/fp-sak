@@ -44,6 +44,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingTy
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPerioderDto;
 
 public class UttakPerioderDtoTjenesteTest {
@@ -53,6 +54,7 @@ public class UttakPerioderDtoTjenesteTest {
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
 
     private final String orgnr = UUID.randomUUID().toString();
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private AbakusInMemoryInntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
@@ -61,6 +63,7 @@ public class UttakPerioderDtoTjenesteTest {
         arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
         when(arbeidsgiverTjeneste.hentVirksomhet(orgnr)).thenReturn(new VirksomhetEntitet.Builder().medOrgnr(orgnr).medNavn("navn").build());
         inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository());
     }
 
     @Test
@@ -82,7 +85,7 @@ public class UttakPerioderDtoTjenesteTest {
             .medGraderingInnvilget(true)
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(BigDecimal.TEN)
-            .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(periodeSøknad)
             .build();
         UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
@@ -110,7 +113,7 @@ public class UttakPerioderDtoTjenesteTest {
         assertThat(result.get().getPerioderSøker().get(0).getFom()).isEqualTo(periode.getFom());
         assertThat(result.get().getPerioderSøker().get(0).getTom()).isEqualTo(periode.getTom());
         assertThat(result.get().getPerioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
-        assertThat(result.get().getPerioderSøker().get(0).getPeriodeResultatType()).isEqualTo(periode.getPeriodeResultatType());
+        assertThat(result.get().getPerioderSøker().get(0).getPeriodeResultatType()).isEqualTo(periode.getResultatType());
         assertThat(result.get().getPerioderSøker().get(0).getBegrunnelse()).isEqualTo(periode.getBegrunnelse());
         assertThat(result.get().getPerioderSøker().get(0).getGradertAktivitet().getArbeidsforholdId()).isEqualTo(internArbeidsforholdId.getReferanse());
         assertThat(result.get().getPerioderSøker().get(0).getGradertAktivitet().getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
@@ -118,9 +121,9 @@ public class UttakPerioderDtoTjenesteTest {
         assertThat(result.get().getPerioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
         assertThat(result.get().getPerioderSøker().get(0).getPeriodeType()).isEqualTo(periodeType);
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter()).hasSize(1);
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getArbeidsforholdId()).isEqualTo(periodeAktivitet.getArbeidsforholdId());
+        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getArbeidsforholdId()).isEqualTo(periodeAktivitet.getArbeidsforholdRef().getReferanse());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(periodeAktivitet.getArbeidsgiverIdentifikator());
+        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(periodeAktivitet.getArbeidsgiver().getIdentifikator());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getStønadskontoType()).isEqualTo(periodeAktivitet.getTrekkonto());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getTrekkdager()).isEqualTo(periodeAktivitet.getTrekkdager().decimalValue());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getProsentArbeid()).isEqualTo(periodeAktivitet.getArbeidsprosent());
@@ -155,7 +158,7 @@ public class UttakPerioderDtoTjenesteTest {
     }
 
     private UttakPerioderDtoTjeneste tjeneste() {
-        return new UttakPerioderDtoTjeneste(repositoryProvider.getUttakRepository(), new RelatertBehandlingTjeneste(repositoryProvider),
+        return new UttakPerioderDtoTjeneste(uttakTjeneste, new RelatertBehandlingTjeneste(repositoryProvider),
             repositoryProvider.getYtelsesFordelingRepository(), new ArbeidsgiverDtoTjeneste(arbeidsgiverTjeneste),
             repositoryProvider.getBehandlingsresultatRepository(), inntektArbeidYtelseTjeneste);
     }
@@ -417,6 +420,6 @@ public class UttakPerioderDtoTjenesteTest {
 
     private UttakResultatPeriodeEntitet.Builder periodeBuilder(LocalDate fom, LocalDate tom) {
         return new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT);
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT);
     }
 }
