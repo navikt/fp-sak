@@ -19,7 +19,6 @@ public class BeregningsgrunnlagGrunnlagBuilder {
         return new BeregningsgrunnlagGrunnlagBuilder(new BeregningsgrunnlagGrunnlagEntitet(kladd));
     }
 
-
     public static BeregningsgrunnlagGrunnlagBuilder oppdatere(Optional<BeregningsgrunnlagGrunnlagEntitet> kladd) {
         return kladd.map(BeregningsgrunnlagGrunnlagBuilder::oppdatere).orElseGet(BeregningsgrunnlagGrunnlagBuilder::nytt);
     }

@@ -243,13 +243,10 @@ public class BeregningsgrunnlagRepository {
 
     @Deprecated
     // KUN FOR MIGRERING
-    public BeregningsgrunnlagGrunnlagEntitet lagreForMigrering(Long behandlingId, BeregningsgrunnlagEntitet beregningsgrunnlag, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+    public BeregningsgrunnlagGrunnlagEntitet lagreForMigrering(Long behandlingId, BeregningsgrunnlagGrunnlagBuilder builder, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
-        Objects.requireNonNull(beregningsgrunnlag, BEREGNING_AKTIVITET_AGGREGAT);
+        Objects.requireNonNull(builder, BUILDER);
         Objects.requireNonNull(beregningsgrunnlagTilstand, BEREGNINGSGRUNNLAG_TILSTAND);
-
-        BeregningsgrunnlagGrunnlagBuilder builder = opprettGrunnlagBuilderForEndring(behandlingId);
-        builder.medBeregningsgrunnlag(beregningsgrunnlag);
         BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = builder.build(behandlingId, beregningsgrunnlagTilstand);
         lagreOgFlushUtenAktivt(grunnlagEntitet);
         return grunnlagEntitet;
