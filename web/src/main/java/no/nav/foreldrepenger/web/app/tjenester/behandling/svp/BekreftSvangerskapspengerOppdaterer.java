@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Tilrett
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftSvangerskapspengerDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -39,16 +40,19 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private HistorikkTjenesteAdapter historikkAdapter;
     private BehandlingRepositoryProvider repositoryProvider;
     private FamilieHendelseRepository familieHendelseRepository;
+    private TilgangerTjeneste tilgangerTjeneste;
 
     @Inject
     public BekreftSvangerskapspengerOppdaterer(SvangerskapspengerRepository svangerskapspengerRepository,
                                                HistorikkTjenesteAdapter historikkAdapter,
                                                BehandlingRepositoryProvider repositoryProvider,
-                                               FamilieHendelseRepository familieHendelseRepository) {
+                                               FamilieHendelseRepository familieHendelseRepository,
+                                               TilgangerTjeneste tilgangerTjeneste) {
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.historikkAdapter = historikkAdapter;
         this.repositoryProvider = repositoryProvider;
         this.familieHendelseRepository = familieHendelseRepository;
+        this.tilgangerTjeneste = tilgangerTjeneste;
     }
 
     @Override
@@ -143,10 +147,15 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             if (datoDto.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING) && datoDto.getStillingsprosent() == null) {
                 throw SvangerskapsTjenesteFeil.FACTORY.manglerStillingsprosentForDelvisTilrettelegging().toException();
             }
+            //Sjekk om overstyring av utbetalingsgrad er lovlig
+            if (datoDto.getOverstyrtUtbetalingsgrad() != null && !sjekkOmOverstyringErLovlig()) {
+                throw SvangerskapsTjenesteFeil.FACTORY.ingenTilgangTilOverstyringAvUtbetalingsgrad().toException();
+            }
             var tilretteleggingFOM = new TilretteleggingFOM.Builder()
                 .medTilretteleggingType(datoDto.getType())
                 .medFomDato(datoDto.getFom())
                 .medStillingsprosent(datoDto.getStillingsprosent())
+                .medOverstyrtUtbetalingsgrad(datoDto.getOverstyrtUtbetalingsgrad())
                 .build();
             nyTilretteleggingEntitetBuilder.medTilretteleggingFom(tilretteleggingFOM);
         }
@@ -164,6 +173,12 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
         return erEndret;
     }
+
+    private boolean sjekkOmOverstyringErLovlig() {
+        var innloggetBruker = tilgangerTjeneste.innloggetBruker();
+        return innloggetBruker.getKanOverstyre();
+    }
+
 
     private boolean oppdaterVedEndretTilretteleggingFOM(SvpTilretteleggingEntitet eksisterendeTilrettelegging,
                                                         SvpTilretteleggingEntitet overstyrtTilrettelegging) {
@@ -194,6 +209,9 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         StringBuilder historikk = new StringBuilder().append(fom.getType().getNavn()).append(" fom: ").append(fom.getFomDato());
         if (TilretteleggingType.DELVIS_TILRETTELEGGING.equals(fom.getType())) {
             historikk.append(", Stillingsprosent: ").append(fom.getStillingsprosent());
+        }
+        if (fom.getOverstyrtUtbetalingsgrad() != null) {
+            historikk.append(", Overstyrt utbetalingsgrad: ").append(fom.getOverstyrtUtbetalingsgrad());
         }
         return historikk.toString();
     }

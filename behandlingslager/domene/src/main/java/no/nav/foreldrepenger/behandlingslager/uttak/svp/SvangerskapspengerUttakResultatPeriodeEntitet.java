@@ -112,9 +112,9 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
             return false;
         SvangerskapspengerUttakResultatPeriodeEntitet that = (SvangerskapspengerUttakResultatPeriodeEntitet) o;
         return Objects.equals(tidsperiode, that.tidsperiode) &&
-            Objects.equals(utbetalingsgrad, this.utbetalingsgrad) &&
-            Objects.equals(periodeResultatType, this.periodeResultatType) &&
-            Objects.equals(periodeIkkeOppfyltÅrsak, this.periodeIkkeOppfyltÅrsak);
+            Objects.equals(utbetalingsgrad, that.utbetalingsgrad) &&
+            Objects.equals(periodeResultatType, that.periodeResultatType) &&
+            Objects.equals(periodeIkkeOppfyltÅrsak, that.periodeIkkeOppfyltÅrsak);
     }
 
     @Override
