@@ -46,6 +46,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.person.tps.TpsFamilieTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -80,7 +81,10 @@ public class AutomatiskEtterkontrollTaskTest {
     @Inject
     private EtterkontrollRepository etterkontrollRepository;
 
-    EtterkontrollTjeneste  etterkontrollTjeneste;
+    @Inject
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
+
+    EtterkontrollTjeneste etterkontrollTjeneste;
 
     private HistorikkRepository historikkRepository;
 
@@ -90,7 +94,7 @@ public class AutomatiskEtterkontrollTaskTest {
         behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
         var bkTjeneste = mock(BehandlingskontrollTjeneste.class);
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
-        etterkontrollTjeneste = new EtterkontrollTjeneste(repositoryProvider,prosessTaskRepositoryMock, bkTjeneste);
+        etterkontrollTjeneste = new EtterkontrollTjeneste(repositoryProvider,prosessTaskRepositoryMock, bkTjeneste, foreldrepengerUttakTjeneste);
         this.historikkRepository = mock(HistorikkRepository.class);
 
     }
@@ -112,7 +116,7 @@ public class AutomatiskEtterkontrollTaskTest {
     }
 
     private void assertRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        Optional< Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
+        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Ingen revurdering").isPresent();
         List<BehandlingÅrsak> behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
         assertThat(behandlingÅrsaker).isNotEmpty();
@@ -121,7 +125,7 @@ public class AutomatiskEtterkontrollTaskTest {
     }
 
     private void assertIngenRevurdering(Behandling behandling) {
-        Optional< Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
+        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Har revurdering: " + behandling).isNotPresent();
     }
 

@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPerioder;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 import no.nav.vedtak.feil.FeilFactory;
@@ -26,7 +28,7 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
     }
 
     @Override
-    public void utfør(UttakResultatPerioder nyePerioder) {
+    public void utfør(List<ForeldrepengerUttakPeriode> nyePerioder) {
         for (var stønadskontoType : saldoUtregning.stønadskontoer()) {
             var valideringResultat = valider(stønadskontoType);
             if (!valideringResultat.isGyldig()) {

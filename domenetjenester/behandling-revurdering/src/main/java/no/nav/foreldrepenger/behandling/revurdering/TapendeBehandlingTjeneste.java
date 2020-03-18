@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
 @ApplicationScoped
 public class TapendeBehandlingTjeneste {
@@ -20,15 +20,15 @@ public class TapendeBehandlingTjeneste {
 
     private SøknadRepository søknadRepository;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
     @Inject
     public TapendeBehandlingTjeneste(SøknadRepository søknadRepository,
                                      RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-                                     UttakRepository uttakRepository) {
+                                     ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
         this.søknadRepository = søknadRepository;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
-        this.uttakRepository = uttakRepository;
+        this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
     }
 
     TapendeBehandlingTjeneste() {
@@ -50,7 +50,7 @@ public class TapendeBehandlingTjeneste {
     }
 
     private boolean harUttak(Behandling annenpartBehandling) {
-        return uttakRepository.hentUttakResultatHvisEksisterer(annenpartBehandling.getId()).isPresent();
+        return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(annenpartBehandling.getId()).isPresent();
     }
 
     private boolean annenpartSøknadMottattEtterSøkersSøknad(Behandling søkersBehandling, Behandling annenpartBehandling) {

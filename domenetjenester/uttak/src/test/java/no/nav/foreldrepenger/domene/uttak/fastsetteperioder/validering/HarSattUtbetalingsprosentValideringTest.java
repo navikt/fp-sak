@@ -4,16 +4,15 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPeriode;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPeriodeAktivitet;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPerioder;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -21,8 +20,8 @@ public class HarSattUtbetalingsprosentValideringTest {
 
     @Test
     public void ok_når_utbetalingsprosent_er_satt_og_opprinnelig_periode_er_manuell() {
-        UttakResultatPerioder opprinnelig = perioder(PeriodeResultatType.MANUELL_BEHANDLING, null);
-        UttakResultatPerioder nye = perioder(PeriodeResultatType.INNVILGET, BigDecimal.valueOf(50));
+        var opprinnelig = perioder(PeriodeResultatType.MANUELL_BEHANDLING, null);
+        var nye = perioder(PeriodeResultatType.INNVILGET, BigDecimal.valueOf(50));
 
         HarSattUtbetalingsprosentValidering validator = new HarSattUtbetalingsprosentValidering(opprinnelig);
         assertThatCode(() -> validator.utfør(nye)).doesNotThrowAnyException();
@@ -30,8 +29,8 @@ public class HarSattUtbetalingsprosentValideringTest {
 
     @Test
     public void ok_når_utbetalignsprosent_er_satt_og_opprinnelig_periode_er_ikke_manuell() {
-        UttakResultatPerioder opprinnelig = perioder(PeriodeResultatType.INNVILGET, null);
-        UttakResultatPerioder nye = perioder(PeriodeResultatType.INNVILGET, null);
+        var opprinnelig = perioder(PeriodeResultatType.INNVILGET, null);
+        var nye = perioder(PeriodeResultatType.INNVILGET, null);
 
         HarSattUtbetalingsprosentValidering validator = new HarSattUtbetalingsprosentValidering(opprinnelig);
         assertThatCode(() -> validator.utfør(nye)).doesNotThrowAnyException();
@@ -39,29 +38,28 @@ public class HarSattUtbetalingsprosentValideringTest {
 
     @Test
     public void ikke_ok_når_utbetalingsprosent_mangler_og_opprinnelig_periode_er_manuell() {
-        UttakResultatPerioder opprinnelig = perioder(PeriodeResultatType.MANUELL_BEHANDLING, null);
-        UttakResultatPerioder nye = perioder(PeriodeResultatType.INNVILGET, null);
+        var opprinnelig = perioder(PeriodeResultatType.MANUELL_BEHANDLING, null);
+        var nye = perioder(PeriodeResultatType.INNVILGET, null);
 
         HarSattUtbetalingsprosentValidering validator = new HarSattUtbetalingsprosentValidering(opprinnelig);
         assertThatCode(() -> validator.utfør(nye)).isInstanceOf(TekniskException.class);
     }
 
-    private UttakResultatPerioder perioder(PeriodeResultatType resultat, BigDecimal utbetalingsprosent) {
-        List<UttakResultatPeriode> opprinneligeGrupper = Collections.singletonList(periodeGruppe(resultat, utbetalingsprosent));
-        return new UttakResultatPerioder(opprinneligeGrupper);
+    private List<ForeldrepengerUttakPeriode> perioder(PeriodeResultatType resultat, BigDecimal utbetalingsprosent) {
+        return List.of(periode(resultat, utbetalingsprosent));
     }
 
-    private UttakResultatPeriode periodeGruppe(PeriodeResultatType resultatType, BigDecimal utbetalingsprosent) {
-        List<UttakResultatPeriodeAktivitet> aktiviteter = Collections.singletonList(
-            new UttakResultatPeriodeAktivitet.Builder()
+    private ForeldrepengerUttakPeriode periode(PeriodeResultatType resultatType, BigDecimal utbetalingsprosent) {
+        List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter = List.of(
+            new ForeldrepengerUttakPeriodeAktivitet.Builder()
                 .medArbeidsprosent(BigDecimal.ZERO)
-                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+                .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, null, null))
                 .medUtbetalingsgrad(utbetalingsprosent).build()
         );
-        return new UttakResultatPeriode.Builder()
+        return new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(new LocalDateInterval(LocalDate.now(), LocalDate.now().plusDays(1)))
             .medAktiviteter(aktiviteter)
-            .medType(resultatType)
+            .medResultatType(resultatType)
             .build();
     }
 }

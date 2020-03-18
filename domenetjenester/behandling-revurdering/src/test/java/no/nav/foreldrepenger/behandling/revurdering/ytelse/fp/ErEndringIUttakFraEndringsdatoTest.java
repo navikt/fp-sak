@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
+import static no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste.map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -130,7 +131,8 @@ public class ErEndringIUttakFraEndringsdatoTest {
         UttakResultatEntitet uttakResultat = uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder).build();
         uttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), uttakResultat.getGjeldendePerioder());
 
-        List<UttakResultatPeriodeEntitet> uttaksperioder = UttakResultatHolderImpl.finnUttaksperioderEtterEndringsdato(endringsdato,new UttakResultatHolderImpl( Optional.of(uttakResultat)));
+        var holder = new UttakResultatHolderImpl(Optional.of(map(uttakResultat)), null);
+        var uttaksperioder = UttakResultatHolderImpl.finnUttaksperioderEtterEndringsdato(endringsdato, holder);
 
         // Assert
         assertThat(uttaksperioder).hasSize(1);
@@ -158,7 +160,8 @@ public class ErEndringIUttakFraEndringsdatoTest {
         UttakResultatEntitet uttakResultat = uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder).build();
         uttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), uttakResultat.getGjeldendePerioder());
 
-        List<UttakResultatPeriodeEntitet> uttaksperioder = UttakResultatHolderImpl.finnUttaksperioderEtterEndringsdato(endringsdato, new UttakResultatHolderImpl(Optional.of(uttakResultat)));
+        var holder = new UttakResultatHolderImpl(Optional.of(map(uttakResultat)), null);
+        var uttaksperioder = UttakResultatHolderImpl.finnUttaksperioderEtterEndringsdato(endringsdato, holder);
 
         // Assert
         assertThat(uttaksperioder).hasSize(2);
@@ -179,7 +182,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
                 new LocalDateInterval(endringsdato.plusDays(11), endringsdato.plusDays(20))), StønadskontoType.FEDREKVOTE);
 
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl( Optional.of(uttakResultatRevurdering)), new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder,  originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -200,7 +205,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), Collections.nCopies(2, 100), Collections.nCopies(2, 100), List.of(new Trekkdager(2), new Trekkdager(10)), Collections.nCopies(2, StønadskontoType.FORELDREPENGER));
 
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl( Optional.of(uttakResultatRevurdering)), new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder,  originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -221,7 +228,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(10)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl( Optional.of(uttakResultatRevurdering)), new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder,  originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -242,7 +251,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(50), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl( Optional.of(uttakResultatRevurdering)),new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -263,7 +274,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(50), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, new UttakResultatHolderImpl(Optional.of(uttakResultatRevurdering)),new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -282,7 +295,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))), StønadskontoType.FEDREKVOTE);
 
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl( Optional.of(uttakResultatRevurdering)),new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -301,7 +316,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))), List.of(PeriodeResultatType.INNVILGET));
 
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl( Optional.of(uttakResultatRevurdering)),new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -324,7 +341,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             StønadskontoType.FORELDREPENGER);
 
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl( Optional.of(uttakResultatRevurdering)),new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -345,7 +364,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl(Optional.of(uttakResultatRevurdering)),new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -357,7 +378,7 @@ public class ErEndringIUttakFraEndringsdatoTest {
         LocalDate endringsdato = LocalDate.now();
 
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl( Optional.empty()),new UttakResultatHolderImpl( Optional.empty()));
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, new UttakResultatHolderImpl( Optional.empty(), null),new UttakResultatHolderImpl( Optional.empty(), null));
 
         // Assert
         assertThat(endringIUttak).isFalse();
@@ -378,7 +399,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             List.of(false), List.of(false),List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), Collections.nCopies(2, 100), Collections.nCopies(2, 100), List.of(new Trekkdager(2), new Trekkdager(10)), Collections.nCopies(2, StønadskontoType.FORELDREPENGER));
 
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl( Optional.of(uttakResultatRevurdering)),new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -398,7 +421,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FELLESPERIODE));
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl( Optional.of(uttakResultatRevurdering)),new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -418,7 +443,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             List.of(new LocalDateInterval(endringsdato.plusDays(1), endringsdato.plusDays(11))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FELLESPERIODE));
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl( Optional.of(uttakResultatRevurdering)),new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -438,7 +465,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl( Optional.of(uttakResultatRevurdering)),new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -460,7 +489,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato,new UttakResultatHolderImpl( Optional.of(uttakResultatRevurdering)),new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isFalse();
@@ -534,7 +565,7 @@ public class ErEndringIUttakFraEndringsdatoTest {
     private UttakResultatPeriodeEntitet byggPeriode(LocalDate fom, LocalDate tom, boolean samtidigUttak, PeriodeResultatType periodeResultatType, PeriodeResultatÅrsak periodeResultatÅrsak, boolean graderingInnvilget, boolean erFlerbarnsdager) {
         return new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medSamtidigUttak(samtidigUttak)
-            .medPeriodeResultat(periodeResultatType, periodeResultatÅrsak)
+            .medResultatType(periodeResultatType, periodeResultatÅrsak)
             .medGraderingInnvilget(graderingInnvilget)
             .medFlerbarnsdager(erFlerbarnsdager)
             .build();

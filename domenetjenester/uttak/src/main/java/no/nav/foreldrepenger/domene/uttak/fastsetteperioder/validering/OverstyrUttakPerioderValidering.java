@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPerioder;
+import java.util.List;
+
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 
 interface OverstyrUttakPerioderValidering {
 
-    void utfør(UttakResultatPerioder nyePerioder);
+    void utfør(List<ForeldrepengerUttakPeriode> nyePerioder);
 }

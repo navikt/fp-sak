@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.vedtak.util.FPDateUtil;
 
@@ -56,11 +55,11 @@ public class HarEtablertYtelseImpl implements HarEtablertYtelse {
 
     private boolean erSisteVedtakAvslagEllerOpphør(UttakResultatHolder fraOrginalBehandling,
                                                    VurderOpphørDagensDato opphørFørEllerEtterDagensDato) {
-        BehandlingVedtak vedtak = fraOrginalBehandling.getBehandlingVedtak();
-        if (vedtak == null) {
+        var vedtak = fraOrginalBehandling.getBehandlingVedtak();
+        if (vedtak.isEmpty()) {
             return false;
         }
-        Behandlingsresultat behandlingsresultat = vedtak.getBehandlingsresultat();
+        Behandlingsresultat behandlingsresultat = vedtak.get().getBehandlingsresultat();
         BehandlingResultatType resultatType = behandlingsresultat.getBehandlingResultatType();
         boolean erOpphørTilbakeITid = opphørFørEllerEtterDagensDato.test(behandlingsresultat);
 

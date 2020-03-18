@@ -139,7 +139,7 @@ public class StønadskontoSaldoTjeneste {
             .medOppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
             .medSamtidigUttak(periode.isSamtidigUttak())
             .medFlerbarnsdager(periode.isFlerbarnsdager())
-            .medPeriodeResultatType(UttakEnumMapper.map(periode.getPeriodeResultatType()))
+            .medPeriodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
             .build();
     }
 

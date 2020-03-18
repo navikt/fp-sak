@@ -72,7 +72,7 @@ public class YtelseMaksdatoTjenesteImplTest {
 
         // Uttak periode 1
         UttakResultatPeriodeEntitet uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(start, start.plusWeeks(6).minusDays(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
 
         Arbeidsgiver arbeidsgiver = arbeidsgiver("1111");
@@ -91,7 +91,7 @@ public class YtelseMaksdatoTjenesteImplTest {
 
         // Uttak periode 2
         UttakResultatPeriodeEntitet uttakFellesperiode = new UttakResultatPeriodeEntitet.Builder(start.plusWeeks(6), start.plusWeeks(10).minusDays(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
 
         UttakResultatPeriodeAktivitetEntitet.builder(uttakFellesperiode, arbeidsforhold1)
@@ -139,7 +139,7 @@ public class YtelseMaksdatoTjenesteImplTest {
 
         // Uttak periode 1
         UttakResultatPeriodeEntitet uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(start, start.plusWeeks(6).minusDays(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
 
         Arbeidsgiver arbeidsgiver1 = arbeidsgiver("1111");
@@ -201,7 +201,7 @@ public class YtelseMaksdatoTjenesteImplTest {
 
         // Uttak periode 1
         UttakResultatPeriodeEntitet uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(start, start.plusWeeks(6).minusDays(1))
-            .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.BARNET_ER_DØD)
+            .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.BARNET_ER_DØD)
             .build();
 
         Arbeidsgiver arbeidsgiver = arbeidsgiver("1111");

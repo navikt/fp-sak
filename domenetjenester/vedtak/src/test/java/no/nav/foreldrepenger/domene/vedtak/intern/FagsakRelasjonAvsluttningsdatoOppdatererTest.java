@@ -223,7 +223,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         UttakResultatEntitet uttakResultatEntitet = new UttakResultatEntitet();
         UttakResultatPerioderEntitet uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         UttakResultatPeriodeEntitet uttakResultatPeriodeEntitet2 = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         uttakResultatPerioderEntitet.leggTilPeriode(uttakResultatPeriodeEntitet2);
         uttakResultatEntitet.setOpprinneligPerioder(uttakResultatPerioderEntitet);

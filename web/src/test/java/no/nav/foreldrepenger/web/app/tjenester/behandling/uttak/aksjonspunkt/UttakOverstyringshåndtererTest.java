@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -36,6 +37,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
@@ -59,12 +61,15 @@ public class UttakOverstyringshåndtererTest {
     private FastsettePerioderTjeneste fastettePerioderTjeneste;
     @Inject
     private UttakInputTjeneste uttakInputTjeneste;
+    @Inject
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
 
     private UttakOverstyringshåndterer oppdaterer;
 
     @Before
     public void setup() {
-        oppdaterer = new UttakOverstyringshåndterer(repositoryProvider, mock(HistorikkTjenesteAdapter.class), fastettePerioderTjeneste, uttakInputTjeneste);
+        oppdaterer = new UttakOverstyringshåndterer(mock(HistorikkTjenesteAdapter.class),
+            fastettePerioderTjeneste, uttakTjeneste, uttakInputTjeneste);
     }
 
     @Test
@@ -101,6 +106,7 @@ public class UttakOverstyringshåndtererTest {
             .medDefaultOppgittFordeling(fom)
             .medDefaultSøknadTerminbekreftelse()
             .medDefaultBekreftetTerminbekreftelse()
+            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(fom).build())
             .lagre(repositoryProvider);
         repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligPerioder);
 
@@ -113,8 +119,8 @@ public class UttakOverstyringshåndtererTest {
         assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getTidsperiode().getTomDato()).isEqualTo(tom);
         assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getBegrunnelse()).isEqualTo(begrunnelse);
         assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getAktiviteter()).hasSize(aktiviteter.size());
-        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getPeriodeResultatType()).isEqualTo(periodeResultatType);
-        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getPeriodeResultatÅrsak()).isEqualTo(periodeResultatÅrsak);
+        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getResultatType()).isEqualTo(periodeResultatType);
+        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getResultatÅrsak()).isEqualTo(periodeResultatÅrsak);
         assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getAktiviteter()).hasSize(1);
         assertThat(result.getOverhoppKontroll()).isEqualTo(OverhoppKontroll.UTEN_OVERHOPP);
     }
@@ -129,7 +135,7 @@ public class UttakOverstyringshåndtererTest {
                                                                      LocalDate tom,
                                                                      StønadskontoType stønadskontoType) {
         UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(resultat, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
             .build();
 
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
