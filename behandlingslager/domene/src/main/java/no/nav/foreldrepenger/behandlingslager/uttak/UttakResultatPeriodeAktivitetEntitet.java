@@ -17,6 +17,8 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity
@@ -121,12 +123,12 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
         return periode.isGraderingInnvilget() && isSøktGradering();
     }
 
-    public String getArbeidsforholdId() {
-        return uttakAktivitet.getArbeidsforholdRef().isPresent() ? uttakAktivitet.getArbeidsforholdRef().get().getReferanse() : null;
+    public InternArbeidsforholdRef getArbeidsforholdRef() {
+        return uttakAktivitet.getArbeidsforholdRef();
     }
 
-    public String getArbeidsgiverIdentifikator() {
-        return uttakAktivitet.getArbeidsgiver().isPresent() ? uttakAktivitet.getArbeidsgiver().get().getIdentifikator() : null;
+    public Arbeidsgiver getArbeidsgiver() {
+        return uttakAktivitet.getArbeidsgiver().isPresent() ? uttakAktivitet.getArbeidsgiver().get() : null;
     }
 
     public UttakArbeidType getUttakArbeidType() {

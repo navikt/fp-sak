@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
+import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.mapArbeidsgiver;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -74,10 +76,10 @@ public class ArbeidGrunnlagBygger {
 
         var arbeidsforhold = new Arbeidsforhold(identifikator, startdatoer.get(statusPeriode.toUttakAktivitetIdentifikator()));
 
-        var endringerIStilling = finnEndringerIStilling(identifikator, ytelseFordelingAggregat, uttakYrkesaktiviteter)
-            .stream().sorted(Comparator.comparing(EndringAvStilling::getDato))
-            .collect(Collectors.toList());
         if (arbeidsforhold.getIdentifikator().getAktivitetType().equals(AktivitetType.ARBEID)) {
+            var endringerIStilling = finnEndringerIStilling(identifikator, ytelseFordelingAggregat, uttakYrkesaktiviteter)
+                .stream().sorted(Comparator.comparing(EndringAvStilling::getDato))
+                .collect(Collectors.toList());
             for (EndringAvStilling endringAvStilling : endringerIStilling) {
                 arbeidsforhold.leggTilEndringIStilling(endringAvStilling);
             }
@@ -118,7 +120,8 @@ public class ArbeidGrunnlagBygger {
     }
 
     private BigDecimal finnStillingsprosent(AktivitetIdentifikator aktivitetIdentifikator, UttakYrkesaktiviteter uttakYrkesaktiviteter, LocalDate dato) {
-        return uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(aktivitetIdentifikator.getArbeidsgiverIdentifikator(),
-            InternArbeidsforholdRef.ref(aktivitetIdentifikator.getArbeidsforholdId()), dato);
+        var arbeidsgiver = mapArbeidsgiver(aktivitetIdentifikator);
+        var ref = InternArbeidsforholdRef.ref(aktivitetIdentifikator.getArbeidsforholdId());
+        return uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, ref, dato);
     }
 }

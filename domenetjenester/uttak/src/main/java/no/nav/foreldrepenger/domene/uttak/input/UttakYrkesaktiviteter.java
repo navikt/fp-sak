@@ -88,26 +88,26 @@ public class UttakYrkesaktiviteter {
             && arbeidsforhold.gjelderFor(arbeidsforhold2);
     }
 
-    public BigDecimal finnStillingsprosentOrdinærtArbeid(String arbeidsgiverIdentifikator,
-                                                         InternArbeidsforholdRef arbeidsforholdId,
+    public BigDecimal finnStillingsprosentOrdinærtArbeid(Arbeidsgiver arbeidsgiver,
+                                                         InternArbeidsforholdRef arbeidsforholdRef,
                                                          LocalDate dato) {
         List<Yrkesaktivitet> yrkesAktiviteter = hentYrkesAktiviteterOrdinærtArbeidsforhold(input);
         var ref = input.getBehandlingReferanse();
-        return finnStillingsprosentOrdinærtArbeid(arbeidsgiverIdentifikator, arbeidsforholdId, yrkesAktiviteter, dato, ref.getSkjæringstidspunkt());
+        return finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbeidsforholdRef, yrkesAktiviteter, dato, ref.getSkjæringstidspunkt());
     }
 
     public Set<AktivitetIdentifikator> tilAktivitetIdentifikatorer() {
         return input.getBeregningsgrunnlagStatuser().stream().map(statusPeriode -> statusPeriode.toUttakAktivitetIdentifikator()).collect(Collectors.toSet());
     }
 
-    private BigDecimal finnStillingsprosentOrdinærtArbeid(String arbeidsgiverIdentifikator,
-                                                          InternArbeidsforholdRef arbeidsforholdId,
+    private BigDecimal finnStillingsprosentOrdinærtArbeid(Arbeidsgiver arbeidsgiver,
+                                                          InternArbeidsforholdRef ref,
                                                           List<Yrkesaktivitet> yrkesaktivitetList,
                                                           LocalDate dato,
                                                           Skjæringstidspunkt skjæringstidspunkt) {
 
         var filter0 = new YrkesaktivitetFilter(null, yrkesaktivitetList);
-        List<Yrkesaktivitet> yaMedAnsettelsesperiodePåDato = yaMedAnsettelsesperiodePåDato(filter0, arbeidsgiverIdentifikator, arbeidsforholdId,
+        List<Yrkesaktivitet> yaMedAnsettelsesperiodePåDato = yaMedAnsettelsesperiodePåDato(filter0, arbeidsgiver, ref,
             yrkesaktivitetList, dato);
 
         var filter = new YrkesaktivitetFilter(null, yaMedAnsettelsesperiodePåDato).etter(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
@@ -129,15 +129,15 @@ public class UttakYrkesaktiviteter {
     }
 
     private List<Yrkesaktivitet> yaMedAnsettelsesperiodePåDato(YrkesaktivitetFilter filter,
-                                                               String arbeidsgiverIdentifikator,
-                                                               InternArbeidsforholdRef arbeidsforholdId,
+                                                               Arbeidsgiver arbeidsgiver,
+                                                               InternArbeidsforholdRef ref,
                                                                List<Yrkesaktivitet> yrkesaktivitetList,
                                                                LocalDate dato) {
         return yrkesaktivitetList.stream()
             .filter(Yrkesaktivitet::erArbeidsforhold)
             .filter(ya -> riktigDato(dato, ansettelsePeriodeForYrkesaktivitet(filter, ya)))
-            .filter(ya -> Objects.equals(ya.getArbeidsgiver().getIdentifikator(), arbeidsgiverIdentifikator))
-            .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(arbeidsforholdId == null ? InternArbeidsforholdRef.nullRef() : arbeidsforholdId))
+            .filter(ya -> Objects.equals(ya.getArbeidsgiver(), arbeidsgiver))
+            .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(ref == null ? InternArbeidsforholdRef.nullRef() : ref))
             .collect(Collectors.toList());
     }
 

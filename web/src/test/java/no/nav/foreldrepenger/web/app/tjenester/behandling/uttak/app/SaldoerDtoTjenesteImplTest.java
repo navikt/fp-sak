@@ -52,6 +52,7 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.TapteDagerFpffTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.StønadskontoRegelAdapter;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
@@ -96,6 +97,9 @@ public class SaldoerDtoTjenesteImplTest {
     @Inject
     private TapteDagerFpffTjeneste tapteDagerFpffTjeneste;
 
+    @Inject
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
+
     private SaldoerDtoTjeneste tjeneste;
 
     private static Stønadskonto lagStønadskonto(StønadskontoType fellesperiode, int maxDager) {
@@ -114,7 +118,7 @@ public class SaldoerDtoTjenesteImplTest {
     @Before
     public void setUp() {
         tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste, maksDatoUttakTjeneste,
-            mock(ArbeidsgiverDtoTjeneste.class), stønadskontoRegelAdapter, repositoryProvider, tapteDagerFpffTjeneste);
+            mock(ArbeidsgiverDtoTjeneste.class), stønadskontoRegelAdapter, repositoryProvider, uttakTjeneste, tapteDagerFpffTjeneste);
     }
 
     @Test
@@ -454,7 +458,9 @@ public class SaldoerDtoTjenesteImplTest {
             new MaksDatoUttakTjeneste(repositoryProvider.getUttakRepository(), stønadskontoSaldoTjeneste),
             new ArbeidsgiverDtoTjeneste(arbeidsgiverTjeneste),
             stønadskontoRegelAdapter,
-            repositoryProvider, tapteDagerFpffTjeneste);
+            repositoryProvider,
+            uttakTjeneste,
+            tapteDagerFpffTjeneste);
         SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(input(behandlingMor, fødseldato));
 
         // Assert
@@ -710,7 +716,7 @@ public class SaldoerDtoTjenesteImplTest {
             AktivitetIdentifikatorDto aktId = as.getAktivitetIdentifikator();
             return aktId.getUttakArbeidType().equals(aktivitetEntitet.getUttakArbeidType()) &&
                 aktId.getArbeidsgiver().getIdentifikator().equals(aktivitetEntitet.getArbeidsgiver().isPresent() ? aktivitetEntitet.getArbeidsgiver().get().getIdentifikator() : null) &&
-                aktId.getArbeidsforholdId().equals(aktivitetEntitet.getArbeidsforholdRef().isPresent() ? aktivitetEntitet.getArbeidsforholdRef().get().getReferanse() : null);
+                aktId.getArbeidsforholdId().equals(aktivitetEntitet.getArbeidsforholdRef().getReferanse());
         }).findFirst();
     }
 
@@ -749,7 +755,7 @@ public class SaldoerDtoTjenesteImplTest {
                             Tuple<UttakAktivitetEntitet, Optional<Trekkdager>>... aktiviteter) {
 
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medSamtidigUttak(samtidigUttak)
             .medFlerbarnsdager(flerbarnsdager)
             .build();

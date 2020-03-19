@@ -17,13 +17,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import no.nav.folketrygdloven.kalkulator.gradering.AndelGradering;
-import no.nav.folketrygdloven.kalkulator.modell.virksomhet.Arbeidsgiver;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.AktivitetStatus;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -35,22 +33,22 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.uttak.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
 public class AndelGraderingTjenesteImplTest {
 
-    private UttakRepository uttakRepository = Mockito.mock(UttakRepository.class);
+    private ForeldrepengerUttakTjeneste uttakTjeneste = Mockito.mock(ForeldrepengerUttakTjeneste.class);
     private YtelsesFordelingRepository ytelsesRepo = Mockito.mock(YtelsesFordelingRepository.class);
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste = Mockito.mock(HentOgLagreBeregningsgrunnlagTjeneste.class);
 
-    private AndelGraderingTjeneste tjeneste = new AndelGraderingTjeneste(uttakRepository, ytelsesRepo, beregningsgrunnlagTjeneste);
+    private AndelGraderingTjeneste tjeneste = new AndelGraderingTjeneste(uttakTjeneste, ytelsesRepo, beregningsgrunnlagTjeneste);
 
     private ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
@@ -108,7 +106,7 @@ public class AndelGraderingTjenesteImplTest {
         assertThat(graderingerArbeidsgiver1).anySatisfy(gradering -> {
             assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering2.getFom(), gradering2.getTom()));
         });
-        assertThat(andelGraderingArbeidsgiver1.get(0).getArbeidsgiver()).isEqualTo(arbeidsgiver1);
+        assertThat(andelGraderingArbeidsgiver1.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver1.getIdentifikator());
         assertThat(graderingerArbeidsgiver1.get(0).getArbeidstidProsent()).isIn(gradering1.getArbeidsprosent(), gradering2.getArbeidsprosent());
         assertThat(graderingerArbeidsgiver1.get(1).getArbeidstidProsent()).isIn(gradering1.getArbeidsprosent(), gradering2.getArbeidsprosent());
 
@@ -117,7 +115,7 @@ public class AndelGraderingTjenesteImplTest {
         List<AndelGradering.Gradering> graderingerArbeidsgiver2 = andelGraderingArbeidsgiver2.get(0).getGraderinger();
         assertThat(graderingerArbeidsgiver2).hasSize(1);
         assertThat(graderingerArbeidsgiver2.get(0).getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering3.getFom(), gradering3.getTom()));
-        assertThat(andelGraderingArbeidsgiver2.get(0).getArbeidsgiver()).isEqualTo(arbeidsgiver2);
+        assertThat(andelGraderingArbeidsgiver2.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver2.getIdentifikator());
         assertThat(graderingerArbeidsgiver2.get(0).getArbeidstidProsent()).isEqualTo(gradering3.getArbeidsprosent());
         List<AndelGradering> andelGraderingFrilans = forArbeidsgiver(andelGraderingList, null, AktivitetStatus.FRILANSER);
         assertThat(andelGraderingFrilans).hasSize(1);
@@ -140,16 +138,25 @@ public class AndelGraderingTjenesteImplTest {
         // Skal hente gradering fra uttak fram til der oppgittfordeling starter
         ScenarioMorSøkerForeldrepenger originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("123");
-        UttakResultatPeriodeEntitet uttaksperiodeUtenGradering = uttaksperiode(LocalDate.of(2019, 5, 1),
+        var uttaksperiodeUtenGradering = uttaksperiode(LocalDate.of(2019, 5, 1),
             LocalDate.of(2019, 5, 5));
-        UttakResultatPeriodeEntitet uttaksperiodeMedGradering = gradertUttaksperiode(arbeidsgiver,
-            UttakArbeidType.ORDINÆRT_ARBEID, LocalDate.of(2019, 5, 10), LocalDate.of(2019, 6, 20));
-        leggTilUgradertFrilans(uttaksperiodeMedGradering);
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
-        perioder.leggTilPeriode(uttaksperiodeMedGradering);
-        perioder.leggTilPeriode(uttaksperiodeUtenGradering);
+
+        var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
+            .medTrekkonto(StønadskontoType.MØDREKVOTE)
+            .medArbeidsprosent(BigDecimal.TEN)
+            .medSøktGraderingForAktivitetIPeriode(true)
+            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, arbeidsgiver, null))
+            .build();
+        var uttaksperiodeMedGradering =  new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(LocalDate.of(2019, 5, 10), LocalDate.of(2019, 6, 20))
+            .medGraderingInnvilget(true)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medResultatÅrsak(InnvilgetÅrsak.UTTAK_OPPFYLT)
+            .medAktiviteter(List.of(aktivitet, ugradertFrilansAktivitet()))
+            .build();
+
         Behandling originalBehandling = originalScenario.lagMocked();
-        medUttak(originalBehandling, perioder);
+        medUttak(originalBehandling, List.of(uttaksperiodeMedGradering, uttaksperiodeUtenGradering));
 
         scenario.medBehandlingType(BehandlingType.REVURDERING);
         scenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
@@ -187,28 +194,35 @@ public class AndelGraderingTjenesteImplTest {
             assertThat(gradering.getPeriode())
                 .isEqualTo(Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom()));
         });
-        assertThat(andelGraderingArbeidsgiver.get(0).getArbeidsgiver()).isEqualTo(arbeidsgiver);
+        assertThat(andelGraderingArbeidsgiver.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver.getIdentifikator());
     }
 
-    private void medUttak(Behandling behandling, UttakResultatPerioderEntitet perioder) {
-        var uttak = new UttakResultatEntitet.Builder(Mockito.mock(Behandlingsresultat.class))
-            .medOpprinneligPerioder(perioder).build();
-        when(uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(uttak));
+    private void medUttak(Behandling behandling, List<ForeldrepengerUttakPeriode> perioder) {
+        var uttak = new ForeldrepengerUttak(perioder);
+        when(uttakTjeneste.hentUttakHvisEksisterer(behandling.getId())).thenReturn(Optional.of(uttak));
     }
 
     @Test
     public void hente_gradering_fra_uttaksresultat_uten_oppgittfordeling() {
         ScenarioMorSøkerForeldrepenger originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("123");
-        UttakResultatPeriodeEntitet gradering = gradertUttaksperiode(arbeidsgiver, UttakArbeidType.ORDINÆRT_ARBEID, LocalDate.of(2019, 5, 27),
-            LocalDate.of(2019, 5, 31));
-        leggTilUgradertFrilans(gradering);
-        UttakResultatPeriodeEntitet periodeUtenGradering = uttaksperiode(LocalDate.of(2019, 6, 1), LocalDate.of(2019, 6, 1));
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
-        perioder.leggTilPeriode(gradering);
-        perioder.leggTilPeriode(periodeUtenGradering);
+        var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
+            .medTrekkonto(StønadskontoType.MØDREKVOTE)
+            .medArbeidsprosent(BigDecimal.TEN)
+            .medSøktGraderingForAktivitetIPeriode(true)
+            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, arbeidsgiver, null))
+            .build();
+        var gradering = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(LocalDate.of(2019, 5, 27), LocalDate.of(2019, 5, 31))
+            .medGraderingInnvilget(true)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medResultatÅrsak(InnvilgetÅrsak.UTTAK_OPPFYLT)
+            .medAktiviteter(List.of(aktivitet, ugradertFrilansAktivitet()))
+            .build();
+        var periodeUtenGradering = uttaksperiode(LocalDate.of(2019, 6, 1), LocalDate.of(2019, 6, 1));
+
         Behandling originalBehandling = originalScenario.lagMocked();
-        medUttak(originalBehandling, perioder);
+        medUttak(originalBehandling, List.of(gradering, periodeUtenGradering));
 
         scenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
         scenario.medBehandlingType(BehandlingType.REVURDERING);
@@ -224,20 +238,17 @@ public class AndelGraderingTjenesteImplTest {
         assertThat(graderinger).hasSize(1);
         assertThat(graderinger.get(0).getPeriode().getFomDato()).isEqualTo(gradering.getFom());
         assertThat(graderinger.get(0).getPeriode().getTomDato()).isEqualTo(gradering.getTom());
-        assertThat(graderingArbeidsgiver.get(0).getArbeidsgiver()).isEqualTo(arbeidsgiver);
+        assertThat(graderingArbeidsgiver.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver.getIdentifikator());
     }
 
     @Test
     public void hente_gradering_fra_oppgittfordeling_med_uttaksresultat_fra_original_behandling_frilans() {
         // Skal hente gradering fra uttak fram til der oppgittfordeling starter
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("123");
         ScenarioMorSøkerForeldrepenger originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        UttakResultatPeriodeEntitet uttaksperiodeMedGradering = gradertUttaksperiode(null,
+        var uttaksperiodeMedGradering = gradertUttaksperiode(null,
             UttakArbeidType.FRILANS, LocalDate.of(2019, 5, 15), LocalDate.of(2019, 5, 20));
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
-        perioder.leggTilPeriode(uttaksperiodeMedGradering);
         Behandling originalBehandling = originalScenario.lagMocked();
-        medUttak(originalBehandling, perioder);
+        medUttak(originalBehandling, List.of(uttaksperiodeMedGradering));
 
         scenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
         scenario.medBehandlingType(BehandlingType.REVURDERING);
@@ -276,12 +287,10 @@ public class AndelGraderingTjenesteImplTest {
         // Skal hente gradering fra uttak fram til der oppgittfordeling starter
         ScenarioMorSøkerForeldrepenger originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("123");
-        UttakResultatPeriodeEntitet uttaksperiodeMedGradering = gradertUttaksperiode(null,
+        var uttaksperiodeMedGradering = gradertUttaksperiode(null,
             UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE, LocalDate.of(2019, 5, 15), LocalDate.of(2019, 5, 20));
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
-        perioder.leggTilPeriode(uttaksperiodeMedGradering);
         Behandling originalBehandling = originalScenario.lagMocked();
-        medUttak(originalBehandling, perioder);
+        medUttak(originalBehandling, List.of(uttaksperiodeMedGradering));
 
         scenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
         scenario.medBehandlingType(BehandlingType.REVURDERING);
@@ -316,54 +325,55 @@ public class AndelGraderingTjenesteImplTest {
     }
 
 
-    private UttakResultatPeriodeEntitet gradertUttaksperiode(Arbeidsgiver arbeidsgiver, UttakArbeidType uttakArbeidType, LocalDate fom, LocalDate tom) {
-        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medGraderingInnvilget(true)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
-            .build();
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(uttakArbeidType)
-            .medArbeidsforhold(no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver.virksomhet("123"), null)
-            .build();
-        new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
+    private ForeldrepengerUttakPeriode gradertUttaksperiode(Arbeidsgiver arbeidsgiver, UttakArbeidType uttakArbeidType, LocalDate fom, LocalDate tom) {
+        var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medTrekkonto(StønadskontoType.MØDREKVOTE)
             .medArbeidsprosent(BigDecimal.TEN)
-            .medErSøktGradering(true)
+            .medSøktGraderingForAktivitetIPeriode(true)
+            .medAktivitet(new ForeldrepengerUttakAktivitet(uttakArbeidType, arbeidsgiver, null))
             .build();
-        return periode;
+        return new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(fom, tom)
+            .medGraderingInnvilget(true)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medResultatÅrsak(InnvilgetÅrsak.UTTAK_OPPFYLT)
+            .medAktiviteter(List.of(aktivitet))
+            .build();
     }
 
-    private void leggTilUgradertFrilans(UttakResultatPeriodeEntitet periode) {
-        UttakAktivitetEntitet frilans = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.FRILANS)
-            .build();
-        new UttakResultatPeriodeAktivitetEntitet.Builder(periode, frilans)
+    private ForeldrepengerUttakPeriodeAktivitet ugradertFrilansAktivitet() {
+        return new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medTrekkonto(StønadskontoType.MØDREKVOTE)
             .medArbeidsprosent(BigDecimal.ZERO)
-            .medErSøktGradering(false)
+            .medSøktGraderingForAktivitetIPeriode(false)
+            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
             .build();
     }
 
-    private UttakResultatPeriodeEntitet uttaksperiode(LocalDate fom, LocalDate tom) {
-        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medGraderingInnvilget(true)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
-            .build();
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE)
-            .build();
-        new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
+    private ForeldrepengerUttakPeriode uttaksperiode(LocalDate fom, LocalDate tom) {
+        var sn = new ForeldrepengerUttakPeriodeAktivitet.Builder()
+            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE, null, null))
             .medTrekkonto(StønadskontoType.MØDREKVOTE)
             .medArbeidsprosent(BigDecimal.TEN)
-            .medErSøktGradering(false)
+            .medSøktGraderingForAktivitetIPeriode(false)
             .build();
-        leggTilUgradertFrilans(periode);
-        return periode;
+        var frilans = ugradertFrilansAktivitet();
+        return new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(fom, tom)
+            .medGraderingInnvilget(true)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medResultatÅrsak(InnvilgetÅrsak.UTTAK_OPPFYLT)
+            .medAktiviteter(List.of(sn, frilans))
+            .build();
     }
 
     private List<AndelGradering> forArbeidsgiver(Collection<AndelGradering> andelGraderingList, Arbeidsgiver arbeidsgiver, AktivitetStatus status) {
         return andelGraderingList.stream()
-            .filter(ag -> Objects.equals(arbeidsgiver, ag.getArbeidsgiver()) && ag.getAktivitetStatus().equals(status))
+            .filter(ag -> {
+                var arbeidsgier1 = arbeidsgiver == null ? null : arbeidsgiver.getIdentifikator();
+                var arbeidsgiver2 = ag.getArbeidsgiver() == null ? null : ag.getArbeidsgiver().getIdentifikator();
+                return ag.getAktivitetStatus().equals(status) && Objects.equals(arbeidsgier1, arbeidsgiver2);
+            })
             .collect(Collectors.toList());
     }
 

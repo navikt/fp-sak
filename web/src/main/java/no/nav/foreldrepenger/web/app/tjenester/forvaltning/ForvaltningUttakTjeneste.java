@@ -81,7 +81,7 @@ public class ForvaltningUttakTjeneste {
 
     private UttakResultatPeriodeEntitet opphørPeriode(Behandling behandling, UttakResultatPeriodeEntitet periode) {
         UttakResultatPeriodeEntitet.Builder builder = new UttakResultatPeriodeEntitet.Builder(periode.getFom(), periode.getTom())
-            .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, opphørAvslagsårsak(behandling))
+            .medResultatType(PeriodeResultatType.AVSLÅTT, opphørAvslagsårsak(behandling))
             .medUtsettelseType(periode.getUtsettelseType())
             .medOppholdÅrsak(periode.getOppholdÅrsak())
             .medOverføringÅrsak(periode.getOverføringÅrsak())

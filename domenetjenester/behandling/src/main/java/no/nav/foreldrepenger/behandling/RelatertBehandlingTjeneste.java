@@ -17,8 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -28,7 +26,6 @@ public class RelatertBehandlingTjeneste {
     private FagsakRepository fagsakRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private BehandlingRepository behandlingRepository;
-    private UttakRepository uttakRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
     RelatertBehandlingTjeneste() {
@@ -40,7 +37,6 @@ public class RelatertBehandlingTjeneste {
         this.fagsakRepository = behandlingRepositoryProvider.getFagsakRepository();
         this.fagsakRelasjonRepository = behandlingRepositoryProvider.getFagsakRelasjonRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
-        this.uttakRepository = behandlingRepositoryProvider.getUttakRepository();
         this.behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
     }
 
@@ -52,22 +48,6 @@ public class RelatertBehandlingTjeneste {
             if (vedtakAnnenpart.isPresent()) {
                 return Optional.ofNullable(vedtakAnnenpart.get().getBehandlingsresultat().getBehandling());
             }
-        }
-        return Optional.empty();
-    }
-
-    public Optional<UttakResultatEntitet> hentAnnenPartsGjeldendeUttaksplanPåVedtakstidspunkt(Behandling behandling) {
-        Optional<Behandling> annenPartsBehandling = hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(behandling);
-        if(annenPartsBehandling.isPresent()) {
-            return uttakRepository.hentUttakResultatHvisEksisterer(annenPartsBehandling.get().getId());
-        }
-        return Optional.empty();
-    }
-
-    public Optional<UttakResultatEntitet> hentAnnenPartsGjeldendeVedtattUttaksplan(Saksnummer saksnummer) {
-        Optional<Behandling> annenPartsBehandling = hentAnnenPartsGjeldendeVedtattBehandling(saksnummer);
-        if(annenPartsBehandling.isPresent()) {
-            return uttakRepository.hentUttakResultatHvisEksisterer(annenPartsBehandling.get().getId());
         }
         return Optional.empty();
     }

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
+package no.nav.foreldrepenger.domene.uttak;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -8,18 +8,18 @@ import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class UttakResultatPeriodeAktivitet {
+public class ForeldrepengerUttakPeriodeAktivitet {
 
-    private StønadskontoType trekkonto;
-    private Trekkdager trekkdager;
+    private ForeldrepengerUttakAktivitet aktivitet;
+    private StønadskontoType trekkonto = StønadskontoType.UDEFINERT;
+    private Trekkdager trekkdager = Trekkdager.ZERO;
     private BigDecimal arbeidsprosent;
     private BigDecimal utbetalingsgrad;
-    private String arbeidsforholdId;
-    private UttakArbeidType uttakArbeidType;
-    private Arbeidsgiver arbeidsgiver;
+    private boolean søktGraderingForAktivitetIPeriode;
 
-    private UttakResultatPeriodeAktivitet() {
+    private ForeldrepengerUttakPeriodeAktivitet() {
     }
 
     public StønadskontoType getTrekkonto() {
@@ -34,24 +34,32 @@ public class UttakResultatPeriodeAktivitet {
         return arbeidsprosent;
     }
 
-    public String getArbeidsforholdId() {
-        return arbeidsforholdId;
-    }
-
     public BigDecimal getUtbetalingsgrad() {
         return utbetalingsgrad;
     }
 
-    public UttakArbeidType getUttakArbeidType() {
-        return uttakArbeidType;
+    public boolean isSøktGraderingForAktivitetIPeriode() {
+        return søktGraderingForAktivitetIPeriode;
+    }
+
+    public ForeldrepengerUttakAktivitet getUttakAktivitet() {
+        return aktivitet;
     }
 
     public Optional<Arbeidsgiver> getArbeidsgiver() {
-        return Optional.ofNullable(arbeidsgiver);
+        return getUttakAktivitet().getArbeidsgiver();
+    }
+
+    public UttakArbeidType getUttakArbeidType() {
+        return getUttakAktivitet().getUttakArbeidType();
+    }
+
+    public InternArbeidsforholdRef getArbeidsforholdRef() {
+        return getUttakAktivitet().getArbeidsforholdRef();
     }
 
     public static class Builder {
-        private UttakResultatPeriodeAktivitet kladd = new UttakResultatPeriodeAktivitet();
+        private ForeldrepengerUttakPeriodeAktivitet kladd = new ForeldrepengerUttakPeriodeAktivitet();
 
         public Builder medTrekkonto(StønadskontoType stønadskontoType) {
             kladd.trekkonto = stønadskontoType;
@@ -68,8 +76,8 @@ public class UttakResultatPeriodeAktivitet {
             return this;
         }
 
-        public Builder medArbeidsforholdId(String arbeidsforholdId) {
-            kladd.arbeidsforholdId = arbeidsforholdId;
+        public Builder medAktivitet(ForeldrepengerUttakAktivitet aktivitet) {
+            kladd.aktivitet = aktivitet;
             return this;
         }
 
@@ -78,19 +86,14 @@ public class UttakResultatPeriodeAktivitet {
             return this;
         }
 
-        public Builder medUttakArbeidType(UttakArbeidType uttakArbeidType) {
-            kladd.uttakArbeidType = uttakArbeidType;
+        public Builder medSøktGraderingForAktivitetIPeriode(boolean søktGradering) {
+            kladd.søktGraderingForAktivitetIPeriode = søktGradering;
             return this;
         }
 
-        public Builder medArbeidsgiver(Arbeidsgiver arbeidsgiver) {
-            kladd.arbeidsgiver = arbeidsgiver;
-            return this;
-        }
-
-        public UttakResultatPeriodeAktivitet build() {
+        public ForeldrepengerUttakPeriodeAktivitet build() {
             Objects.requireNonNull(kladd.arbeidsprosent, "arbeidsprosent");
-            Objects.requireNonNull(kladd.uttakArbeidType, "uttakArbeidType");
+            Objects.requireNonNull(kladd.aktivitet, "aktivitet");
             return kladd;
         }
     }
@@ -103,23 +106,20 @@ public class UttakResultatPeriodeAktivitet {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        UttakResultatPeriodeAktivitet that = (UttakResultatPeriodeAktivitet) o;
+        ForeldrepengerUttakPeriodeAktivitet that = (ForeldrepengerUttakPeriodeAktivitet) o;
         return trekkdager == that.trekkdager &&
             likBortsettFraTrekkdager(that);
     }
 
-    public boolean likBortsettFraTrekkdager(UttakResultatPeriodeAktivitet that) {
+    public boolean likBortsettFraTrekkdager(ForeldrepengerUttakPeriodeAktivitet that) {
         return Objects.equals(trekkonto, that.trekkonto) &&
             Objects.equals(arbeidsprosent, that.arbeidsprosent) &&
             Objects.equals(utbetalingsgrad, that.utbetalingsgrad) &&
-            Objects.equals(arbeidsforholdId, that.arbeidsforholdId) &&
-            Objects.equals(arbeidsgiver, that.arbeidsgiver);
+            Objects.equals(aktivitet, that.aktivitet);
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(trekkonto, trekkdager, arbeidsprosent,
-            utbetalingsgrad, arbeidsforholdId, arbeidsgiver);
+        return Objects.hash(trekkonto, trekkdager, arbeidsprosent, utbetalingsgrad, aktivitet);
     }
 }

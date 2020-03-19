@@ -127,7 +127,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     public void skal_utlede_at_endringsdatoen_er_første_uttaksdato_til_startdato_for_uttak_når_dekningsgrad_er_endret() {
         UttakResultatPeriodeEntitet opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1),
             MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         List<UttakResultatPeriodeEntitet> opprinneligUttak = Collections.singletonList(opprinneligPeriode);
         OppgittDekningsgradEntitet oppgittDekningsgrad = OppgittDekningsgradEntitet.bruk80();
@@ -154,7 +154,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     public void skal_utlede_at_endringsdatoen_er_første_uttaksdato_til_startdato_for_uttak_når_dekningsgrad_er_endret_hvis_endringssøknad() {
         UttakResultatPeriodeEntitet opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1),
             MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         List<UttakResultatPeriodeEntitet> opprinneligUttak = Collections.singletonList(opprinneligPeriode);
         List<OppgittPeriodeEntitet> fordeling = Collections.singletonList(OppgittPeriodeBuilder.ny()
@@ -248,7 +248,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
 
         UttakResultatPerioderEntitet originaltUttak = new UttakResultatPerioderEntitet();
         originaltUttak.leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(1).minusDays(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build());
         repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(originalBehandling.getId(), originaltUttak);
 
@@ -289,7 +289,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
 
         UttakResultatPerioderEntitet originaltUttak = new UttakResultatPerioderEntitet();
         originaltUttak.leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(1).minusDays(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build());
         repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(originalBehandling.getId(), originaltUttak);
 
@@ -548,7 +548,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     public void skal_utlede_at_endringsdato_er_første_dato_i_vedtak_hvis_endringssøknad_men_beregningsandel_er_fjernet() {
         LocalDate fomOpprinneligUttak = FØDSELSDATO;
         UttakResultatPeriodeEntitet opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fomOpprinneligUttak, fomOpprinneligUttak.plusWeeks(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
+            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
             .build();
         UttakAktivitetEntitet uttakAktivitet1 = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)
@@ -583,7 +583,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     public void skal_utlede_at_endringsdato_er_første_dato_i_vedtak_hvis_endringssøknad_men_beregningsandel_er_lagt_til() {
         LocalDate fomOpprinneligUttak = FØDSELSDATO;
         UttakResultatPeriodeEntitet opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fomOpprinneligUttak, fomOpprinneligUttak.plusWeeks(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
+            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
             .build();
         UttakAktivitetEntitet uttakAktivitet1 = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)
@@ -613,7 +613,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     public void arbeidsforholdref_null_object_skal_ikke_sette_endringsdato_første_dag_uttak() {
         LocalDate fomOpprinneligUttak = FØDSELSDATO;
         UttakResultatPeriodeEntitet opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fomOpprinneligUttak, fomOpprinneligUttak.plusWeeks(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
+            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
             .build();
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("123");
         UttakAktivitetEntitet uttakAktivitet1 = new UttakAktivitetEntitet.Builder()
@@ -649,7 +649,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         LocalDate morFom = FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK;
         LocalDate morTom = morFom.plusDays(10);
         UttakResultatPeriodeEntitet morPeriode = new UttakResultatPeriodeEntitet.Builder(morFom, morTom)
-            .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK)
+            .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK)
             .build();
         morUttak.leggTilPeriode(morPeriode);
         morScenario.medUttak(morUttak);
@@ -673,7 +673,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var morFom = FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK;
         var morTom = morFom.plusDays(10);
         var morPeriode = new UttakResultatPeriodeEntitet.Builder(morFom, morTom)
-            .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK)
+            .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK)
             .build();
         var arbeidsgiver1 = Arbeidsgiver.virksomhet("123");
         var aktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(morPeriode,

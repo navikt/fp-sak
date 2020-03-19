@@ -85,8 +85,9 @@ public class RegelmodellSøknaderMapper {
 
     private BigDecimal finnStillingsprosent(UttakInput input, SvpTilretteleggingEntitet svpTilrettelegging, Arbeidsforhold arbeidsforhold) {
         if (svpTilrettelegging.getArbeidType().equals(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD) && svpTilrettelegging.getArbeidsgiver().isPresent()) {
+            var arbeidsgiver = arbeidsforhold.getArbeidsgiverVirksomhetId() == null ? null : Arbeidsgiver.virksomhet(arbeidsforhold.getArbeidsgiverVirksomhetId());
             return input.getYrkesaktiviteter().finnStillingsprosentOrdinærtArbeid(
-                arbeidsforhold.getArbeidsgiverVirksomhetId(),
+                arbeidsgiver,
                 InternArbeidsforholdRef.ref(arbeidsforhold.getArbeidsforholdId().orElse(null)),
                 svpTilrettelegging.getBehovForTilretteleggingFom() //TODO SVP Er dette riktig? Kanskje vi bør beregne start på perioder.
             );
