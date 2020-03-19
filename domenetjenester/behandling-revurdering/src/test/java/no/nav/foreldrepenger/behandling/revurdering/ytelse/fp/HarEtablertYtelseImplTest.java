@@ -36,10 +36,10 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
@@ -66,6 +66,7 @@ public class HarEtablertYtelseImplTest {
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
 
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private UttakRepository uttakRepository;
 
     private Behandling behandlingSomSkalRevurderes;
     private HarEtablertYtelseImpl harEtablertYtelse;
@@ -74,6 +75,7 @@ public class HarEtablertYtelseImplTest {
 
     @Before
     public void setUp() {
+        uttakRepository = repositoryProvider.getUttakRepository();
         var fødselsdato = LocalDate.of(2017, 10, 10);
         var førstegangsScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100())
@@ -88,8 +90,7 @@ public class HarEtablertYtelseImplTest {
         var virksomhet = new VirksomhetEntitet.Builder().medOrgnr(KUNSTIG_ORG).medNavn("Virksomheten").oppdatertOpplysningerNå().build();
         repositoryProvider.getVirksomhetRepository().lagre(virksomhet);
         stønadskontoSaldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
-        harEtablertYtelse = new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()), repositoryProvider.getBehandlingVedtakRepository());
+        harEtablertYtelse = new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste);
     }
 
     @Test
@@ -121,14 +122,13 @@ public class HarEtablertYtelseImplTest {
                 .lagre(repositoryProvider);
             repositoryProvider.getFagsakRepository().oppdaterFagsakStatus(behandlingAnnenpart.getFagsakId(), FagsakStatus.LØPENDE);
             repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(originalBehandling.getFagsak(), behandlingAnnenpart.getFagsak(), originalBehandling);
-            repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(behandlingAnnenpart.getId(), uttakAnnenpart.get().getOpprinneligPerioder());
+            uttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingAnnenpart.getId(), uttakAnnenpart.get().getOpprinneligPerioder());
             behandlingAnnenpart.avsluttBehandling();
             repositoryProvider.getBehandlingRepository().lagre(behandlingAnnenpart, repositoryProvider.getBehandlingLåsRepository().taLås(behandlingAnnenpart.getId()));
         });
 
         return harEtablertYtelse.vurder(behandlingSomSkalRevurderes, finnesInnvilgetIkkeOpphørtVedtak, br -> false,
-            new UttakResultatHolderImpl(Optional.of(ForeldrepengerUttakTjeneste.map(uttakResultatOriginal)),
-                uttakResultatOriginal.getBehandlingsresultat().getBehandlingVedtak()));
+            new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)));
     }
 
     @Test
@@ -246,7 +246,7 @@ public class HarEtablertYtelseImplTest {
                                                                    List<Boolean> graderingInnvilget, List<Integer> andelIArbeid,
                                                                    List<Integer> utbetalingsgrad, List<Trekkdager> trekkdager, List<StønadskontoType> stønadskontoTyper) {
         UttakResultatEntitet uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanTjeneste(behandling, perioder, samtidigUttak, periodeResultatTyper, periodeResultatÅrsak, graderingInnvilget, andelIArbeid, utbetalingsgrad, trekkdager, stønadskontoTyper);
-        repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakresultat.getGjeldendePerioder());
+        uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakresultat.getGjeldendePerioder());
         return uttakresultat;
 
     }

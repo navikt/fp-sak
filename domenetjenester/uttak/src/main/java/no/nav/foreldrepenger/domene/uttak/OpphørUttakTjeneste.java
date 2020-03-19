@@ -55,7 +55,7 @@ public class OpphørUttakTjeneste {
         // Finn fom-dato i første periode av de siste sammenhengende periodene med opphørårsaker
         LocalDate fom = null;
         for (UttakResultatPeriodeEntitet periode : perioder) {
-            if (opphørsårsaker.contains(periode.getResultatÅrsak())) {
+            if (opphørsårsaker.contains(periode.getPeriodeResultatÅrsak())) {
                 fom = periode.getFom();
             } else if (fom != null && periode.isInnvilget()) {
                 return fom;

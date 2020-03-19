@@ -11,27 +11,27 @@ import java.util.List;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.GraderingAvslagÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPerioder;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeLagreDto;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public class UttakPerioderMapperTest {
 
     private static final String ORGNR = OrgNummer.KUNSTIG_ORG;
-    private static final InternArbeidsforholdRef ARBEIDSFORHOLD_REF = InternArbeidsforholdRef.nyRef();
+    private static final String ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.nyRef().getReferanse();
 
     @Test
     public void skalBrukeProsentArbeidFraTidligere() {
@@ -43,20 +43,22 @@ public class UttakPerioderMapperTest {
             .medPeriodeResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
             .build();
         OverstyringUttakDto dto = new OverstyringUttakDto(Collections.singletonList(periode));
-        var periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
+        UttakResultatPeriodeEntitet opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .build();
+        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
+            .medArbeidsforhold(Arbeidsgiver.virksomhet(ORGNR), InternArbeidsforholdRef.ref(ARBEIDSFORHOLD_ID))
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .build();
+        UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(opprinneligPeriode, uttakAktivitet)
             .medArbeidsprosent(BigDecimal.valueOf(77))
-            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, Arbeidsgiver.virksomhet(ORGNR), ARBEIDSFORHOLD_REF))
             .build();
-        var opprinneligPeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(new LocalDateInterval(fom, tom))
-            .medResultatType(PeriodeResultatType.INNVILGET)
-            .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
-            .medAktiviteter(List.of(periodeAktivitet))
-            .build();
-        List<ForeldrepengerUttakPeriode> gjeldendePerioder = List.of(opprinneligPeriode);
-        var mapped = UttakPerioderMapper.map(dto.getPerioder(), gjeldendePerioder);
+        opprinneligPeriode.leggTilAktivitet(periodeAktivitet);
+        UttakResultatPerioderEntitet uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
+        uttakResultatPerioderEntitet.leggTilPeriode(opprinneligPeriode);
+        UttakResultatPerioder mapped = UttakPerioderMapper.map(dto.getPerioder(), uttakResultatPerioderEntitet);
 
-        assertThat(mapped.get(0).getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(periodeAktivitet.getArbeidsprosent());
+        assertThat(mapped.getPerioder().get(0).getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(periodeAktivitet.getArbeidsprosent());
     }
 
     @Test
@@ -81,26 +83,31 @@ public class UttakPerioderMapperTest {
             .medAktiviteter(List.of(frilans, annet))
             .build();
         OverstyringUttakDto dto = new OverstyringUttakDto(Collections.singletonList(periode));
-        var periodeAktivitet1 = new ForeldrepengerUttakPeriodeAktivitet.Builder()
+        UttakResultatPeriodeEntitet opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .build();
+        UttakAktivitetEntitet opprinneligFrilans = new UttakAktivitetEntitet.Builder()
+            .medUttakArbeidType(UttakArbeidType.FRILANS)
+            .build();
+        UttakAktivitetEntitet opprinneligAnnet = new UttakAktivitetEntitet.Builder()
+            .medUttakArbeidType(UttakArbeidType.ANNET)
+            .build();
+        UttakResultatPeriodeAktivitetEntitet periodeAktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(opprinneligPeriode, opprinneligFrilans)
             .medArbeidsprosent(BigDecimal.valueOf(77))
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
-            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
             .build();
-        var periodeAktivitet2 = new ForeldrepengerUttakPeriodeAktivitet.Builder()
+        UttakResultatPeriodeAktivitetEntitet periodeAktivitet2 = new UttakResultatPeriodeAktivitetEntitet.Builder(opprinneligPeriode, opprinneligAnnet)
             .medArbeidsprosent(BigDecimal.valueOf(77))
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
-            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ANNET))
             .build();
-        var opprinneligPeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(fom, tom)
-            .medResultatType(PeriodeResultatType.INNVILGET)
-            .medResultatÅrsak(InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .medAktiviteter(List.of(periodeAktivitet1, periodeAktivitet2))
-            .build();
-        var mapped = UttakPerioderMapper.map(dto.getPerioder(), List.of(opprinneligPeriode));
+        opprinneligPeriode.leggTilAktivitet(periodeAktivitet1);
+        opprinneligPeriode.leggTilAktivitet(periodeAktivitet2);
+        UttakResultatPerioderEntitet uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
+        uttakResultatPerioderEntitet.leggTilPeriode(opprinneligPeriode);
+        UttakResultatPerioder mapped = UttakPerioderMapper.map(dto.getPerioder(), uttakResultatPerioderEntitet);
 
-        assertThat(mapped.get(0).getAktiviteter().get(0).getUttakArbeidType()).isIn(UttakArbeidType.FRILANS, UttakArbeidType.ANNET);
-        assertThat(mapped.get(0).getAktiviteter().get(1).getUttakArbeidType()).isIn(UttakArbeidType.FRILANS, UttakArbeidType.ANNET);
+        assertThat(mapped.getPerioder().get(0).getAktiviteter().get(0).getUttakArbeidType()).isIn(UttakArbeidType.FRILANS, UttakArbeidType.ANNET);
+        assertThat(mapped.getPerioder().get(0).getAktiviteter().get(1).getUttakArbeidType()).isIn(UttakArbeidType.FRILANS, UttakArbeidType.ANNET);
     }
 
     @Test
@@ -120,29 +127,32 @@ public class UttakPerioderMapperTest {
             .medAktiviteter(Collections.singletonList(aktivitetDto))
             .build();
         OverstyringUttakDto dto = new OverstyringUttakDto(Collections.singletonList(periode));
-        var periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
-            .medArbeidsprosent(BigDecimal.valueOf(77))
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
-            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
-            .medSøktGraderingForAktivitetIPeriode(true)
-            .build();
-        var opprinneligPeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(new LocalDateInterval(fom, tom))
-            .medResultatType(PeriodeResultatType.INNVILGET)
+        UttakResultatPeriodeEntitet opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medGraderingInnvilget(false)
             .medGraderingAvslagÅrsak(GraderingAvslagÅrsak.GRADERING_FØR_UKE_7)
-            .medAktiviteter(List.of(periodeAktivitet))
             .build();
-        var mapped = UttakPerioderMapper.map(dto.getPerioder(), List.of(opprinneligPeriode));
+        UttakAktivitetEntitet opprinneligFrilans = new UttakAktivitetEntitet.Builder()
+            .medUttakArbeidType(UttakArbeidType.FRILANS)
+            .build();
+        UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(opprinneligPeriode, opprinneligFrilans)
+            .medArbeidsprosent(BigDecimal.valueOf(77))
+            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medErSøktGradering(true)
+            .build();
+        opprinneligPeriode.leggTilAktivitet(periodeAktivitet);
+        UttakResultatPerioderEntitet uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
+        uttakResultatPerioderEntitet.leggTilPeriode(opprinneligPeriode);
+        UttakResultatPerioder mapped = UttakPerioderMapper.map(dto.getPerioder(), uttakResultatPerioderEntitet);
 
-        assertThat(mapped.get(0).isGraderingInnvilget()).isTrue();
-        assertThat(mapped.get(0).getGraderingAvslagÅrsak()).isEqualTo(GraderingAvslagÅrsak.UKJENT);
+        assertThat(mapped.getPerioder().get(0).isGraderingInnvilget()).isTrue();
+        assertThat(mapped.getPerioder().get(0).getGraderingAvslagÅrsak()).isEqualTo(GraderingAvslagÅrsak.UKJENT);
     }
 
     private UttakResultatPeriodeAktivitetLagreDto.Builder minimal() {
         return new UttakResultatPeriodeAktivitetLagreDto.Builder()
             .medArbeidsgiver(new ArbeidsgiverLagreDto(ORGNR))
-            .medArbeidsforholdId(ARBEIDSFORHOLD_REF)
+            .medArbeidsforholdId(ARBEIDSFORHOLD_ID)
             .medStønadskontoType(StønadskontoType.FELLESPERIODE)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medUtbetalingsgrad(BigDecimal.ZERO)

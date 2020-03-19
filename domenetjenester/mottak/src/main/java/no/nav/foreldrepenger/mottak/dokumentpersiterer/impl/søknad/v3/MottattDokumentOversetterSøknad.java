@@ -150,8 +150,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
                                            VirksomhetTjeneste virksomhetTjeneste,
                                            InntektArbeidYtelseTjeneste iayTjeneste,
                                            TpsTjeneste tpsTjeneste,
-                                           DatavarehusTjeneste datavarehusTjeneste,
-                                           SvangerskapspengerRepository svangerskapspengerRepository) {
+                                           DatavarehusTjeneste datavarehusTjeneste, SvangerskapspengerRepository svangerskapspengerRepository) {
         this.iayTjeneste = iayTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();

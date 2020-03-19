@@ -15,9 +15,11 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPerioder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt.UttakPerioderMapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringUttakDto;
@@ -28,30 +30,29 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringU
 public class UttakOverstyringshåndterer extends AbstractOverstyringshåndterer<OverstyringUttakDto> {
 
     private FastsettePerioderTjeneste tjeneste;
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
+    private UttakRepository uttakRepository;
+    private UttakResultatEntitet forrigeResultat;
     private UttakInputTjeneste uttakInputTjeneste;
-
-    private ForeldrepengerUttak forrigeUttak;
 
     UttakOverstyringshåndterer() {
         // for CDI proxy
     }
 
     @Inject
-    public UttakOverstyringshåndterer(HistorikkTjenesteAdapter historikkTjenesteAdapter,
+    public UttakOverstyringshåndterer(BehandlingRepositoryProvider repositoryProvider,
+                                      HistorikkTjenesteAdapter historikkTjenesteAdapter,
                                       FastsettePerioderTjeneste tjeneste,
-                                      ForeldrepengerUttakTjeneste uttakTjeneste,
                                       UttakInputTjeneste uttakInputTjeneste) {
         super(historikkTjenesteAdapter, OVERSTYRING_AV_UTTAKPERIODER);
         this.tjeneste = tjeneste;
-        this.uttakTjeneste = uttakTjeneste;
+        this.uttakRepository = repositoryProvider.getUttakRepository();
         this.uttakInputTjeneste = uttakInputTjeneste;
     }
 
     @Override
     public OppdateringResultat håndterOverstyring(OverstyringUttakDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        this.forrigeUttak = uttakTjeneste.hentUttak(kontekst.getBehandlingId());
-        var perioder = UttakPerioderMapper.map(dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
+        this.forrigeResultat = uttakRepository.hentUttakResultat(kontekst.getBehandlingId());
+        UttakResultatPerioder perioder = UttakPerioderMapper.map(dto.getPerioder(), forrigeResultat.getGjeldendePerioder());
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         tjeneste.manueltFastsettePerioder(uttakInput, perioder);
         return OppdateringResultat.utenOveropp();
@@ -60,7 +61,7 @@ public class UttakOverstyringshåndterer extends AbstractOverstyringshåndterer<
     @Override
     protected void lagHistorikkInnslag(Behandling behandling, OverstyringUttakDto dto) {
         List<Historikkinnslag> historikkinnslag = UttakHistorikkUtil.forOverstyring().lagHistorikkinnslag(
-            behandling, dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
+            behandling, dto.getPerioder(), forrigeResultat.getGjeldendePerioder());
         historikkinnslag.forEach(innslag -> getHistorikkAdapter().lagInnslag(innslag));
     }
 }

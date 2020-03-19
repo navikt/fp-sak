@@ -81,12 +81,12 @@ public class BeregningsresultatMedUttaksplanMapper {
             .collect(Collectors.toList());
         // Sjekker om siste periode er avslått med en opphørsårsak
         UttakResultatPeriodeEntitet sistePeriode = perioder.remove(0);
-        if (!opphørsAvslagÅrsaker.contains(sistePeriode.getResultatÅrsak())) {
+        if (!opphørsAvslagÅrsaker.contains(sistePeriode.getPeriodeResultatÅrsak())) {
             return Optional.empty();
         }
         LocalDate opphørsdato = sistePeriode.getFom();
         for (UttakResultatPeriodeEntitet periode : perioder) {
-            if (opphørsAvslagÅrsaker.contains(periode.getResultatÅrsak()) && periode.getFom().isBefore(opphørsdato)) {
+            if (opphørsAvslagÅrsaker.contains(periode.getPeriodeResultatÅrsak()) && periode.getFom().isBefore(opphørsdato)) {
                 opphørsdato = periode.getFom();
             } else {
                 return Optional.ofNullable(opphørsdato);
@@ -227,7 +227,7 @@ public class BeregningsresultatMedUttaksplanMapper {
         UttakResultatPeriodeAktivitetEntitet korrektUttakAndel = finnKorrektUttaksAndel(brukersAndel, aktiviteter);
         return UttakDto.build()
             .medStønadskontoType(korrektUttakAndel.getTrekkonto())
-            .medPeriodeResultatType(uttakResultatPeriode.getResultatType())
+            .medPeriodeResultatType(uttakResultatPeriode.getPeriodeResultatType())
             .medGradering(korrektUttakAndel.isGraderingInnvilget())
             .create();
     }
@@ -263,8 +263,11 @@ public class BeregningsresultatMedUttaksplanMapper {
 
     private List<UttakResultatPeriodeAktivitetEntitet> finnKorrekteAktiviteter(BeregningsresultatAndel brukersAndel, List<UttakResultatPeriodeAktivitetEntitet> aktiviteter) {
         return aktiviteter.stream()
-            .filter(aktivitet -> Objects.equals(brukersAndel.getArbeidsgiver().orElse(null), aktivitet.getArbeidsgiver()))
-            .filter(aktivitet -> Objects.equals(brukersAndel.getArbeidsforholdRef(), aktivitet.getArbeidsforholdRef()))
+            .filter(aktivitet -> Objects.equals(brukersAndel.getArbeidsforholdIdentifikator(), aktivitet.getArbeidsgiverIdentifikator()))
+            .filter(aktivitet -> {
+                String referanse = brukersAndel.getArbeidsforholdRef() == null ? null : brukersAndel.getArbeidsforholdRef().getReferanse();
+                return Objects.equals(referanse, aktivitet.getArbeidsforholdId());
+            })
             .filter(aktivitet -> Objects.equals(UttakArbeidType.ORDINÆRT_ARBEID, aktivitet.getUttakArbeidType()))
             .collect(Collectors.toList());
     }

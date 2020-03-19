@@ -98,7 +98,7 @@ import no.nav.vedtak.felles.testutilities.db.Repository;
 @RunWith(CdiRunner.class)
 public class UttakStegImplTest {
 
-    private static final String ORGNR = "123";
+    private static final String ORGNR = "21542512";
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.nyRef();
     private static final AktørId AKTØRID = AktørId.dummy();
 

@@ -124,6 +124,6 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
     boolean harAvslåttPeriode(Behandling avsluttetBehandling) {
         final Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(avsluttetBehandling.getId());
         return uttakResultat.map(uttakResultatEntitet -> uttakResultatEntitet.getGjeldendePerioder().getPerioder().stream()
-            .anyMatch(periode -> PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()))).orElse(false);
+            .anyMatch(periode -> PeriodeResultatType.AVSLÅTT.equals(periode.getPeriodeResultatType()))).orElse(false);
     }
 }

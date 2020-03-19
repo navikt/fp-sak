@@ -13,7 +13,7 @@ public class ErEndringIUttakFraEndringsdatoImpl implements ErEndringIUttakFraEnd
 
     @Override
     public boolean vurder(LocalDate endringsdato, UttakResultatHolder uttakresultatRevurdering, UttakResultatHolder uttakresultatOriginal) {
-        return uttakresultatOriginal.vurderOmErEndringIUttakFraEndringsdato(endringsdato, uttakresultatRevurdering);
+        return uttakresultatOriginal.vurderOmErEndringIUttakFraEndringsdato(endringsdato,uttakresultatRevurdering);
     }
 
 }

@@ -199,7 +199,7 @@ public class BeregneYtelseStegImplTest {
 
     private void byggUttakPlanResultat(Behandling behandling) {
         var periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusDays(3), LocalDate.now().minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
 
         var uttakAktivitet = new UttakAktivitetEntitet.Builder()

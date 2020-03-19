@@ -44,21 +44,23 @@ public class UttakStillingsprosentTjenesteTest {
 
         BigDecimal stillingsprosent = BigDecimal.valueOf(77);
 
-        var arbeidsgiver = Arbeidsgiver.virksomhet("123");
+        String orgnr = "123";
         var arbId = InternArbeidsforholdRef.nyRef();
         LocalDate fom = LocalDate.now();
         LocalDate tom = fom.plusWeeks(2);
-        YrkesaktivitetBuilder yrkesAktivitet = arbeidAktivitet(arbeidsgiver, arbId, fom, tom, stillingsprosent);
+        YrkesaktivitetBuilder yrkesAktivitet = arbeidAktivitet(orgnr, arbId, fom, tom, stillingsprosent);
 
         List<YrkesaktivitetBuilder> yrkesaktivitetBuilder = Collections.singletonList(yrkesAktivitet);
         final InntektArbeidYtelseGrunnlag grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
         List<Yrkesaktivitet> yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, fom)).isEqualTo(stillingsprosent);
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, tom)).isEqualTo(stillingsprosent);
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, tom.plusDays(1))).isZero();
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, fom.minusDays(1))).isZero();
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId, fom))
+            .isEqualTo(stillingsprosent);
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId, tom))
+            .isEqualTo(stillingsprosent);
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId, tom.plusDays(1))).isZero();
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId, fom.minusDays(1))).isZero();
         assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(null, arbId, fom)).isZero();
     }
 
@@ -69,22 +71,22 @@ public class UttakStillingsprosentTjenesteTest {
         BigDecimal stillingsprosent1 = BigDecimal.valueOf(77);
         BigDecimal stillingsprosent2 = BigDecimal.valueOf(50);
 
-        var arbeidsgiver = Arbeidsgiver.virksomhet("123");
+        String orgnr = "123";
         var arbId1 = InternArbeidsforholdRef.nyRef();
         var arbId2 = InternArbeidsforholdRef.nyRef();
         LocalDate fom = LocalDate.now();
         LocalDate tom = fom.plusWeeks(2);
-        YrkesaktivitetBuilder yrkesAktivitet1 = arbeidAktivitet(arbeidsgiver, arbId1, fom, tom, stillingsprosent1);
-        YrkesaktivitetBuilder yrkesAktivitet2 = arbeidAktivitet(arbeidsgiver, arbId2, fom, tom, stillingsprosent2);
+        YrkesaktivitetBuilder yrkesAktivitet1 = arbeidAktivitet(orgnr, arbId1, fom, tom, stillingsprosent1);
+        YrkesaktivitetBuilder yrkesAktivitet2 = arbeidAktivitet(orgnr, arbId2, fom, tom, stillingsprosent2);
         List<YrkesaktivitetBuilder> yrkesAktivitetBuilder = List.of(yrkesAktivitet1, yrkesAktivitet2);
         List<Yrkesaktivitet> yrkesaktiviteter = List.of(yrkesAktivitet1.build(), yrkesAktivitet2.build());
 
         final InntektArbeidYtelseGrunnlag grunnlag = opprettGrunnlag(yrkesAktivitetBuilder, behandling.getAktørId()).build();
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId1, fom))
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId1, fom))
             .isEqualTo(stillingsprosent1);
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId2, fom))
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId2, fom))
             .isEqualTo(stillingsprosent2);
     }
 
@@ -95,27 +97,27 @@ public class UttakStillingsprosentTjenesteTest {
         BigDecimal stillingsprosent1 = BigDecimal.valueOf(77);
         BigDecimal stillingsprosent2 = BigDecimal.valueOf(50);
 
-        var arbeidsgiver = Arbeidsgiver.virksomhet("123");
+        String orgnr = "123";
         var arbId1 = InternArbeidsforholdRef.nyRef();
         var arbId2 = InternArbeidsforholdRef.nyRef();
         LocalDate fom1 = LocalDate.now();
         LocalDate tom1 = fom1.plusWeeks(2);
         LocalDate fom2 = tom1.plusDays(1);
         LocalDate tom2 = fom2.plusWeeks(2);
-        YrkesaktivitetBuilder yrkesAktivitet1 = arbeidAktivitet(arbeidsgiver, arbId1, fom1, tom1, stillingsprosent1);
-        YrkesaktivitetBuilder yrkesAktivitet2 = arbeidAktivitet(arbeidsgiver, arbId2, fom2, tom2, stillingsprosent2);
+        YrkesaktivitetBuilder yrkesAktivitet1 = arbeidAktivitet(orgnr, arbId1, fom1, tom1, stillingsprosent1);
+        YrkesaktivitetBuilder yrkesAktivitet2 = arbeidAktivitet(orgnr, arbId2, fom2, tom2, stillingsprosent2);
         List<YrkesaktivitetBuilder> yrkesaktivitetBuilder = List.of(yrkesAktivitet1, yrkesAktivitet2);
         List<Yrkesaktivitet> yrkesaktiviteter = List.of(yrkesAktivitet1.build(), yrkesAktivitet2.build());
 
         final InntektArbeidYtelseGrunnlag grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId1, fom1))
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId1, fom1))
             .isEqualTo(stillingsprosent1);
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId2, fom2))
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId2, fom2))
             .isEqualTo(stillingsprosent2);
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId1, fom2)).isZero();
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId2, fom1)).isZero();
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId1, fom2)).isZero();
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId2, fom1)).isZero();
     }
 
     @Test
@@ -124,18 +126,18 @@ public class UttakStillingsprosentTjenesteTest {
 
         BigDecimal stillingsprosent = BigDecimal.valueOf(77);
 
-        var arbeidsgiver = Arbeidsgiver.virksomhet("123");
+        String orgnr = "123";
         var arbId = InternArbeidsforholdRef.nyRef();
         LocalDate fom = LocalDate.now();
         LocalDate tom = fom.plusWeeks(2);
-        YrkesaktivitetBuilder yrkesAktivitet = arbeidAktivitet(arbeidsgiver, arbId, fom, tom, stillingsprosent);
+        YrkesaktivitetBuilder yrkesAktivitet = arbeidAktivitet(orgnr, arbId, fom, tom, stillingsprosent);
 
         List<YrkesaktivitetBuilder> yrkesAktivitetBuilder = Collections.singletonList(yrkesAktivitet);
         final InntektArbeidYtelseGrunnlag grunnlag = opprettGrunnlag(yrkesAktivitetBuilder, behandling.getAktørId()).build();
         List<Yrkesaktivitet> yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, fom)).isEqualTo(stillingsprosent);
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, null, fom)).isEqualTo(stillingsprosent);
     }
 
     @Test
@@ -144,7 +146,7 @@ public class UttakStillingsprosentTjenesteTest {
 
         BigDecimal stillingsprosentFørsteAktivitetsavtale = BigDecimal.valueOf(55);
 
-        var arbeidsgiver = Arbeidsgiver.virksomhet("123");
+        String orgnr = "123";
         LocalDate fom = LocalDate.now();
         LocalDate tom = fom.plusWeeks(2);
         AktivitetsAvtaleBuilder førsteAktivitetsavtale = AktivitetsAvtaleBuilder.ny()
@@ -162,14 +164,14 @@ public class UttakStillingsprosentTjenesteTest {
             .leggTilAktivitetsAvtale(sisteAktivitetsavtale)
             .leggTilAktivitetsAvtale(ansettelsesperiode)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(arbeidsgiver);
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr));
 
         List<YrkesaktivitetBuilder> yrkesaktivitetBuilder = Collections.singletonList(yrkesAktivitet);
         final InntektArbeidYtelseGrunnlag grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
         List<Yrkesaktivitet> yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, fom.plusDays(2)))
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, null, fom.plusDays(2)))
             .isEqualTo(stillingsprosentFørsteAktivitetsavtale);
     }
 
@@ -179,7 +181,7 @@ public class UttakStillingsprosentTjenesteTest {
 
         BigDecimal stillingsprosentSisteAktivitetsavtale = BigDecimal.valueOf(55);
 
-        var arbeidsgiver = Arbeidsgiver.virksomhet("123");
+        String orgnr = "123";
         LocalDate fom = LocalDate.now();
         LocalDate tom = fom.plusWeeks(2);
         AktivitetsAvtaleBuilder førsteAktivitetsavtale = AktivitetsAvtaleBuilder.ny()
@@ -197,14 +199,14 @@ public class UttakStillingsprosentTjenesteTest {
             .leggTilAktivitetsAvtale(sisteAktivitetsavtale)
             .leggTilAktivitetsAvtale(ansettelsesperiode)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(arbeidsgiver);
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr));
 
         List<YrkesaktivitetBuilder> yrkesaktivitetBuilder = Collections.singletonList(yrkesAktivitet);
         final InntektArbeidYtelseGrunnlag grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
         List<Yrkesaktivitet> yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, tom.minusDays(2)))
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, null, tom.minusDays(2)))
             .isEqualTo(stillingsprosentSisteAktivitetsavtale);
     }
 
@@ -215,7 +217,7 @@ public class UttakStillingsprosentTjenesteTest {
         BigDecimal stillingsprosent1 = BigDecimal.valueOf(40);
         BigDecimal stillingsprosent2 = BigDecimal.valueOf(50);
 
-        var arbeidsgiver = Arbeidsgiver.virksomhet("123");
+        String orgnr = "123";
         var arbId1 = InternArbeidsforholdRef.nyRef();
         var arbId2 = InternArbeidsforholdRef.nyRef();
         LocalDate fom = LocalDate.now();
@@ -230,7 +232,7 @@ public class UttakStillingsprosentTjenesteTest {
             .leggTilAktivitetsAvtale(aktivitetAvtale1)
             .leggTilAktivitetsAvtale(ansettelsesperiode1)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(arbeidsgiver)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
             .medArbeidsforholdId(arbId1);
 
         AktivitetsAvtaleBuilder aktivitetAvtale2 = AktivitetsAvtaleBuilder.ny()
@@ -243,7 +245,7 @@ public class UttakStillingsprosentTjenesteTest {
             .leggTilAktivitetsAvtale(aktivitetAvtale2)
             .leggTilAktivitetsAvtale(ansettelsesperiode2)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(arbeidsgiver)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
             .medArbeidsforholdId(arbId2);
 
         List<YrkesaktivitetBuilder> yrkesAktivitetBuilder = List.of(yrkesAktivitet1, yrkesAktivitet2);
@@ -252,7 +254,7 @@ public class UttakStillingsprosentTjenesteTest {
         final InntektArbeidYtelseGrunnlag grunnlag = opprettGrunnlag(yrkesAktivitetBuilder, behandling.getAktørId()).build();
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, fom))
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, null, fom))
             .isEqualTo(stillingsprosent1);
     }
 
@@ -262,20 +264,20 @@ public class UttakStillingsprosentTjenesteTest {
 
         BigDecimal stillingsprosent = BigDecimal.valueOf(500);
 
-        var arbeidsgiver = Arbeidsgiver.virksomhet("123");
+        String orgnr = "123";
         var arbId = InternArbeidsforholdRef.nyRef();
         LocalDate fom = LocalDate.now();
         LocalDate tom = fom.plusWeeks(2);
-        YrkesaktivitetBuilder yrkesAktivitet = arbeidAktivitet(arbeidsgiver, arbId, fom, tom, stillingsprosent);
+        YrkesaktivitetBuilder yrkesAktivitet = arbeidAktivitet(orgnr, arbId, fom, tom, stillingsprosent);
 
         List<YrkesaktivitetBuilder> yrkesaktivitetBuilder = Collections.singletonList(yrkesAktivitet);
         final InntektArbeidYtelseGrunnlag grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
         List<Yrkesaktivitet> yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, fom))
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId, fom))
             .isEqualTo(stillingsprosent);
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, tom))
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId, tom))
             .isEqualTo(stillingsprosent);
     }
 
@@ -285,20 +287,20 @@ public class UttakStillingsprosentTjenesteTest {
 
         BigDecimal stillingsprosent = BigDecimal.valueOf(-100);
 
-        var arbeidsgiver = Arbeidsgiver.virksomhet("123");
+        String orgnr = "123";
         var arbId = InternArbeidsforholdRef.nyRef();
         LocalDate fom = LocalDate.now();
         LocalDate tom = fom.plusWeeks(2);
-        YrkesaktivitetBuilder yrkesAktivitet = arbeidAktivitet(arbeidsgiver, arbId, fom, tom, stillingsprosent);
+        YrkesaktivitetBuilder yrkesAktivitet = arbeidAktivitet(orgnr, arbId, fom, tom, stillingsprosent);
 
         List<YrkesaktivitetBuilder> yrkesaktivitetBuilder = Collections.singletonList(yrkesAktivitet);
         final InntektArbeidYtelseGrunnlag grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
         List<Yrkesaktivitet> yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, fom))
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId, fom))
             .isEqualTo(stillingsprosent.abs());
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, tom))
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(orgnr, arbId, tom))
             .isEqualTo(stillingsprosent.abs());
     }
 
@@ -314,7 +316,7 @@ public class UttakStillingsprosentTjenesteTest {
         return input.medBeregningsgrunnlagStatuser(bgStatuser).getYrkesaktiviteter();
     }
 
-    private YrkesaktivitetBuilder arbeidAktivitet(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbId, LocalDate fom, LocalDate tom, BigDecimal stillingsprosent) {
+    private YrkesaktivitetBuilder arbeidAktivitet(String orgnr, InternArbeidsforholdRef arbId, LocalDate fom, LocalDate tom, BigDecimal stillingsprosent) {
 
         AktivitetsAvtaleBuilder aktivitetAvtale = AktivitetsAvtaleBuilder.ny()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
@@ -327,7 +329,7 @@ public class UttakStillingsprosentTjenesteTest {
             .leggTilAktivitetsAvtale(aktivitetAvtale)
             .leggTilAktivitetsAvtale(ansettelsesperiode)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(arbeidsgiver)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
             .medArbeidsforholdId(arbId);
     }
 

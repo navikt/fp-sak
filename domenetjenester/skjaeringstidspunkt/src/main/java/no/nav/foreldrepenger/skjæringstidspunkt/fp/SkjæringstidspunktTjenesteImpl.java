@@ -190,14 +190,14 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         }
         return uttakResultatPerioder
             .stream()
-            .filter(it -> it.isInnvilget() || SØKNADSFRIST.equals(it.getResultatÅrsak()))
+            .filter(it -> it.isInnvilget() || SØKNADSFRIST.equals(it.getPeriodeResultatÅrsak()))
             .sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getFom))
             .map(UttakResultatPeriodeEntitet::getFom)
             .findFirst();
     }
 
     private boolean erAllePerioderAvslåttOgIngenAvslagPgaSøknadsfrist(List<UttakResultatPeriodeEntitet> uttakResultatPerioder) {
-        return uttakResultatPerioder.stream().allMatch(ut -> PeriodeResultatType.AVSLÅTT.equals(ut.getResultatType())
-            && !SØKNADSFRIST.equals(ut.getResultatÅrsak()));
+        return uttakResultatPerioder.stream().allMatch(ut -> PeriodeResultatType.AVSLÅTT.equals(ut.getPeriodeResultatType())
+            && !SØKNADSFRIST.equals(ut.getPeriodeResultatÅrsak()));
     }
 }

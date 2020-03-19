@@ -49,8 +49,8 @@ public class UttakAktivitetEntitet extends BaseEntitet {
         return Optional.ofNullable(arbeidsgiver);
     }
 
-    public InternArbeidsforholdRef getArbeidsforholdRef() {
-        return arbeidsforholdRef == null ? InternArbeidsforholdRef.nullRef() : arbeidsforholdRef;
+    public Optional<InternArbeidsforholdRef> getArbeidsforholdRef() {
+        return Optional.ofNullable(arbeidsforholdRef);
     }
 
     public UttakArbeidType getUttakArbeidType() {
@@ -76,14 +76,14 @@ public class UttakAktivitetEntitet extends BaseEntitet {
         }
 
         UttakAktivitetEntitet uttakAktivitet = (UttakAktivitetEntitet) annen;
-        return Objects.equals(this.getArbeidsforholdRef(), uttakAktivitet.getArbeidsforholdRef()) &&
+        return Objects.equals(this.getArbeidsforholdRef().orElse(null), uttakAktivitet.getArbeidsforholdRef().orElse(null)) &&
             Objects.equals(this.getArbeidsgiver(), uttakAktivitet.getArbeidsgiver()) &&
             Objects.equals(this.getUttakArbeidType(), uttakAktivitet.getUttakArbeidType());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getArbeidsforholdRef(), getArbeidsgiver(), getUttakArbeidType());
+        return Objects.hash(getArbeidsforholdRef().orElse(null), getArbeidsgiver(), getUttakArbeidType());
     }
 
     public static class Builder {

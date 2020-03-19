@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring;
 
-import java.util.List;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.feil.FeilFactory;
 
@@ -16,9 +14,9 @@ public class EndreUttakUtil {
     private EndreUttakUtil() {
     }
 
-    public static ForeldrepengerUttakPeriode finnGjeldendePeriodeFor(List<ForeldrepengerUttakPeriode> gjeldende,
-                                                                     LocalDateInterval nyPeriode) {
-        for (var gjeldendePeriode : gjeldende) {
+    public static UttakResultatPeriodeEntitet finnGjeldendePeriodeFor(UttakResultatPerioderEntitet gjeldende,
+                                                               LocalDateInterval nyPeriode) {
+        for (UttakResultatPeriodeEntitet gjeldendePeriode : gjeldende.getPerioder()) {
             if (new LocalDateInterval(gjeldendePeriode.getFom(), gjeldendePeriode.getTom()).contains(nyPeriode)) {
                 return gjeldendePeriode;
             }
@@ -27,28 +25,27 @@ public class EndreUttakUtil {
             nyPeriode.getTomDato()).toException();
     }
 
-    public static ForeldrepengerUttakPeriodeAktivitet finnGjeldendeAktivitetFor(ForeldrepengerUttakPeriode gjeldendePeriode,
-                                                                                Arbeidsgiver arbeidsgiver,
-                                                                                InternArbeidsforholdRef arbeidsforholdRef,
-                                                                                UttakArbeidType uttakArbeidType) {
+    public static UttakResultatPeriodeAktivitetEntitet finnGjeldendeAktivitetFor(UttakResultatPeriodeEntitet gjeldendePeriode,
+                                                                                 String arbeidsforholdId,
+                                                                                 String arbeidsgiverIdentifikator,
+                                                                                 UttakArbeidType uttakArbeidType) {
 
-        for (var aktivitet : gjeldendePeriode.getAktiviteter()) {
-            if (Objects.equals(aktivitet.getArbeidsforholdRef(), arbeidsforholdRef) &&
-                Objects.equals(arbeidsgiver, aktivitet.getArbeidsgiver().orElse(null)) &&
+        for (UttakResultatPeriodeAktivitetEntitet aktivitet : gjeldendePeriode.getAktiviteter()) {
+            if (Objects.equals(aktivitet.getArbeidsforholdId(), arbeidsforholdId) &&
+                Objects.equals(aktivitet.getArbeidsgiverIdentifikator(), arbeidsgiverIdentifikator) &&
                 Objects.equals(aktivitet.getUttakArbeidType(), uttakArbeidType)) {
                 return aktivitet;
             }
         }
         throw FeilFactory.create(EndreUttakFeil.class).fantIkkeMatchendeGjeldendePeriodeAktivitet(gjeldendePeriode.getFom(),
-            gjeldendePeriode.getTom(), arbeidsforholdRef, arbeidsgiver, uttakArbeidType).toException();
+            gjeldendePeriode.getTom(), arbeidsforholdId, arbeidsgiverIdentifikator, uttakArbeidType).toException();
     }
 
-    public static ForeldrepengerUttakPeriodeAktivitet finnGjeldendeAktivitetFor(List<ForeldrepengerUttakPeriode> gjeldeneperioder,
-                                                                                LocalDateInterval periodeInterval,
-                                                                                Arbeidsgiver arbeidsgiver,
-                                                                                InternArbeidsforholdRef arbeidsforholdRef,
-                                                                                UttakArbeidType uttakArbeidType) {
-        return finnGjeldendeAktivitetFor(finnGjeldendePeriodeFor(gjeldeneperioder, periodeInterval), arbeidsgiver, arbeidsforholdRef,
-            uttakArbeidType);
+    public static UttakResultatPeriodeAktivitetEntitet finnGjeldendeAktivitetFor(UttakResultatPerioderEntitet gjeldeneperioder,
+                                                                                 LocalDateInterval periodeInterval,
+                                                                                 String arbeidsforholdId,
+                                                                                 String arbeidsgiverIdentifikator,
+                                                                                 UttakArbeidType uttakArbeidType) {
+        return finnGjeldendeAktivitetFor(finnGjeldendePeriodeFor(gjeldeneperioder, periodeInterval), arbeidsforholdId, arbeidsgiverIdentifikator, uttakArbeidType);
     }
 }

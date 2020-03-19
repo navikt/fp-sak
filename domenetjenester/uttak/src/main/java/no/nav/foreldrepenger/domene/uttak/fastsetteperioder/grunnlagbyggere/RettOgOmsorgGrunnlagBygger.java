@@ -10,8 +10,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RettOgOmsorg
 public class RettOgOmsorgGrunnlagBygger {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
+    private UttakRepository uttakRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
     RettOgOmsorgGrunnlagBygger() {
@@ -30,16 +30,16 @@ public class RettOgOmsorgGrunnlagBygger {
     }
 
     @Inject
-    public RettOgOmsorgGrunnlagBygger(UttakRepositoryProvider uttakRepositoryProvider, ForeldrepengerUttakTjeneste uttakTjeneste) {
+    public RettOgOmsorgGrunnlagBygger(UttakRepositoryProvider uttakRepositoryProvider) {
         this.ytelsesFordelingRepository = uttakRepositoryProvider.getYtelsesFordelingRepository();
-        this.uttakTjeneste = uttakTjeneste;
+        this.uttakRepository = uttakRepositoryProvider.getUttakRepository();
         this.behandlingsresultatRepository = uttakRepositoryProvider.getBehandlingsresultatRepository();
     }
 
     public RettOgOmsorg.Builder byggGrunnlag(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
-        var annenpartsUttaksplan = hentAnnenpartsUttak(uttakInput);
+        YtelseFordelingAggregat ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
+        Optional<UttakResultatEntitet> annenpartsUttaksplan = hentAnnenpartsUttak(uttakInput);
         return new RettOgOmsorg.Builder()
                 .medAleneomsorg(aleneomsorg(ytelseFordelingAggregat))
                 .medFarHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
@@ -47,20 +47,20 @@ public class RettOgOmsorgGrunnlagBygger {
                 .medSamtykke(samtykke(ytelseFordelingAggregat));
     }
 
-    private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(UttakInput uttakInput) {
+    private Optional<UttakResultatEntitet> hentAnnenpartsUttak(UttakInput uttakInput) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var annenpart = fpGrunnlag.getAnnenpart();
         if (annenpart.isEmpty()) {
             return Optional.empty();
         }
-        return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
+        return uttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
     }
 
     private boolean aleneomsorg(YtelseFordelingAggregat ytelseFordelingAggregat) {
         return UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat);
     }
 
-    private boolean farHarRett(BehandlingReferanse ref, YtelseFordelingAggregat ytelseFordelingAggregat, Optional<ForeldrepengerUttak> annenpartsUttaksplan) {
+    private boolean farHarRett(BehandlingReferanse ref, YtelseFordelingAggregat ytelseFordelingAggregat, Optional<UttakResultatEntitet> annenpartsUttaksplan) {
         var relasjonsRolleType = ref.getRelasjonsRolleType();
         if (RelasjonsRolleType.erMor(relasjonsRolleType)) {
             return UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartsUttaksplan);
@@ -71,7 +71,7 @@ public class RettOgOmsorgGrunnlagBygger {
         throw new IllegalStateException("Uventet foreldrerolletype " + relasjonsRolleType);
     }
 
-    private boolean morHarRett(BehandlingReferanse ref, YtelseFordelingAggregat ytelseFordelingAggregat, Optional<ForeldrepengerUttak> annenpartsUttaksplan) {
+    private boolean morHarRett(BehandlingReferanse ref, YtelseFordelingAggregat ytelseFordelingAggregat, Optional<UttakResultatEntitet> annenpartsUttaksplan) {
         var relasjonsRolleType = ref.getRelasjonsRolleType();
         if (RelasjonsRolleType.erMor(relasjonsRolleType)) {
             return harSøkerRett(ref);

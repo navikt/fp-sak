@@ -180,7 +180,7 @@ public class ToForeldreBarnDødTjenesteTest {
     }
 
     private UttakResultatPeriodeEntitet lagPeriodeMedUtbetalingsProsent(LocalDate fom, LocalDate tom, Long utbetalingsprosent) {
-        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
+        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(fom, tom).medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         UttakAktivitetEntitet uttakAktivitetEntitet = mock(UttakAktivitetEntitet.class);
         UttakResultatPeriodeAktivitetEntitet aktivitetEntitet = UttakResultatPeriodeAktivitetEntitet.builder(periode, uttakAktivitetEntitet)
             .medArbeidsprosent(BigDecimal.valueOf(100))

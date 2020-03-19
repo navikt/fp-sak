@@ -53,7 +53,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.fp.EndringsdatoRevurderingUtlederImpl;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
@@ -117,8 +116,7 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
 
             // Act
 
-            var holder = new UttakResultatHolderImpl(Optional.of(ForeldrepengerUttakTjeneste.map(uttakresultatRevurdering)), null);
-            boolean harOpphørsårsak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl().vurder(holder, true);
+            boolean harOpphørsårsak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl().vurder(new UttakResultatHolderImpl(Optional.of(uttakresultatRevurdering)), true);
 
             // Assert
             assertThat(harOpphørsårsak).isTrue();
@@ -131,8 +129,7 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
         UttakResultatEntitet uttakresultatRevurdering = lagUttaksplanMedIkkeOppfyltÅrsak(IkkeOppfyltÅrsak.SØKER_ER_DØD);
 
         // Act
-        var holder = new UttakResultatHolderImpl(Optional.of(ForeldrepengerUttakTjeneste.map(uttakresultatRevurdering)), null);
-        boolean harOpphørsårsak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl().vurder(holder, false);
+        boolean harOpphørsårsak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl().vurder(new UttakResultatHolderImpl(Optional.of(uttakresultatRevurdering)), false);
 
         // Assert
         assertThat(harOpphørsårsak).isFalse();
@@ -144,8 +141,7 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
         UttakResultatEntitet uttakresultatRevurdering = lagUttaksplanMedIkkeOppfyltÅrsak(IkkeOppfyltÅrsak.UTSETTELSE_SØKERS_INNLEGGELSE_IKKE_DOKUMENTERT);
 
         // Act
-        var holder = new UttakResultatHolderImpl(Optional.of(ForeldrepengerUttakTjeneste.map(uttakresultatRevurdering)), null);
-        boolean harOpphørsårsak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl().vurder(holder, true);
+        boolean harOpphørsårsak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl().vurder(new UttakResultatHolderImpl(Optional.of(uttakresultatRevurdering)), true);
 
         // Assert
         assertThat(harOpphørsårsak).isFalse();
@@ -213,7 +209,7 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
     private UttakResultatPeriodeEntitet byggPeriode(LocalDate fom, LocalDate tom, boolean samtidigUttak, PeriodeResultatType periodeResultatType, PeriodeResultatÅrsak periodeResultatÅrsak, boolean graderingInnvilget) {
         return new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medSamtidigUttak(samtidigUttak)
-            .medResultatType(periodeResultatType, periodeResultatÅrsak)
+            .medPeriodeResultat(periodeResultatType, periodeResultatÅrsak)
             .medGraderingInnvilget(graderingInnvilget)
             .build();
     }

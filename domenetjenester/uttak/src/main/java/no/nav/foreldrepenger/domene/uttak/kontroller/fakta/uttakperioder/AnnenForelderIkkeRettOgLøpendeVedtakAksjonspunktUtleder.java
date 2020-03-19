@@ -12,8 +12,8 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -24,12 +24,12 @@ import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.FaktaUttakAksjonspunk
 public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder implements FaktaUttakAksjonspunktUtleder {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
+    private UttakRepository uttakRepository;
 
     @Inject
-    public AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder(UttakRepositoryProvider provider, ForeldrepengerUttakTjeneste uttakTjeneste) {
+    public AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder(UttakRepositoryProvider provider) {
         this.ytelsesFordelingRepository = provider.getYtelsesFordelingRepository();
-        this.uttakTjeneste = uttakTjeneste;
+        this.uttakRepository = provider.getUttakRepository();
     }
 
     AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder() {
@@ -56,10 +56,10 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder implements
         return false;
     }
 
-    private Optional<ForeldrepengerUttak> hentAnnenpartsGjeldendeUttak(ForeldrepengerGrunnlag fpGrunnlag) {
+    private Optional<UttakResultatEntitet> hentAnnenpartsGjeldendeUttak(ForeldrepengerGrunnlag fpGrunnlag) {
         if (fpGrunnlag.getAnnenpart().isPresent()) {
             var gjeldendeVedtakBehandlingId = fpGrunnlag.getAnnenpart().get().getGjeldendeVedtakBehandlingId();
-            return uttakTjeneste.hentUttakHvisEksisterer(gjeldendeVedtakBehandlingId);
+            return uttakRepository.hentUttakResultatHvisEksisterer(gjeldendeVedtakBehandlingId);
         }
         return Optional.empty();
     }

@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPeriodeAktivitet;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPerioder;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
@@ -31,20 +30,17 @@ public class OverstyrUttakResultatValidator {
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
     }
 
-    public void valider(UttakInput uttakInput,
-                        List<ForeldrepengerUttakPeriode> opprinnelig,
-                        List<ForeldrepengerUttakPeriode> perioder,
-                        LocalDate endringsdato) {
+    public void valider(UttakInput uttakInput, UttakResultatPerioder opprinnelig, UttakResultatPerioder perioder) {
         new PerioderHarFastsattResultatValidering().utfør(perioder);
         new BareSplittetPerioderValidering(opprinnelig).utfør(perioder);
         new EndringerHarBegrunnelseValidering(opprinnelig).utfør(perioder);
         new HarSattUtbetalingsprosentValidering(opprinnelig).utfør(perioder);
-        new EndringerBareEtterEndringsdatoValidering(endringsdato).utfør(perioder);
+        new EndringerBareEtterEndringsdatoValidering().utfør(perioder);
         validerSaldo(perioder, uttakInput);
     }
 
-    private void validerSaldo(List<ForeldrepengerUttakPeriode> perioder, UttakInput uttakInput) {
-        SaldoUtregning saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput, map(perioder));
+    private void validerSaldo(UttakResultatPerioder perioder, UttakInput uttakInput) {
+        SaldoUtregning saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput, map(perioder.getPerioder()));
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         new SaldoValidering(saldoUtregning, harAnnenpart(fpGrunnlag), fpGrunnlag.isTapendeBehandling()).utfør(perioder);
     }
@@ -54,11 +50,11 @@ public class OverstyrUttakResultatValidator {
         return annenpart.isPresent();
     }
 
-    private List<FastsattUttakPeriode> map(List<ForeldrepengerUttakPeriode> perioder) {
+    private List<FastsattUttakPeriode> map(List<no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPeriode> perioder) {
         return perioder.stream().map(this::map).collect(Collectors.toList());
     }
 
-    private FastsattUttakPeriode map(ForeldrepengerUttakPeriode periode) {
+    private FastsattUttakPeriode map(no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPeriode periode) {
         return new FastsattUttakPeriode.Builder()
             .medOppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
             .medSamtidigUttak(periode.isSamtidigUttak())
@@ -69,12 +65,12 @@ public class OverstyrUttakResultatValidator {
             .build();
     }
 
-    private List<FastsattUttakPeriodeAktivitet> mapAktiviteter(List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
+    private List<FastsattUttakPeriodeAktivitet> mapAktiviteter(List<UttakResultatPeriodeAktivitet> aktiviteter) {
         return aktiviteter.stream().map(this::map).collect(Collectors.toList());
     }
 
-    private FastsattUttakPeriodeAktivitet map(ForeldrepengerUttakPeriodeAktivitet aktivitet) {
+    private FastsattUttakPeriodeAktivitet map(UttakResultatPeriodeAktivitet aktivitet) {
         return new FastsattUttakPeriodeAktivitet(UttakEnumMapper.map(aktivitet.getTrekkdager()), UttakEnumMapper.map(aktivitet.getTrekkonto()),
-            UttakEnumMapper.map(aktivitet.getUttakAktivitet().getUttakArbeidType(), aktivitet.getUttakAktivitet().getArbeidsgiver(), aktivitet.getUttakAktivitet().getArbeidsforholdRef()));
+            UttakEnumMapper.map(aktivitet.getUttakArbeidType(), aktivitet.getArbeidsgiver(), aktivitet.getArbeidsforholdId()));
     }
 }

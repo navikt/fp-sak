@@ -90,7 +90,7 @@ public class UttakRevurderingTestUtil {
     private List<UttakResultatPeriodeEntitet> defaultUttaksresultat() {
         return Collections
             .singletonList(new UttakResultatPeriodeEntitet.Builder(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK, FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10))
-                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+                .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
                 .build());
     }
 
@@ -262,7 +262,7 @@ public class UttakRevurderingTestUtil {
 
     public List<UttakResultatPeriodeEntitet> uttaksresultatBerørtSak(LocalDate fom) {
         return Collections.singletonList(new UttakResultatPeriodeEntitet.Builder(fom, fom.plusDays(10))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build());
     }
 

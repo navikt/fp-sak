@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -12,12 +11,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
@@ -64,19 +60,12 @@ public class UttakResultatPeriodeAktivitetLagreDto {
         return utbetalingsgrad;
     }
 
-    public Optional<Arbeidsgiver> getArbeidsgiver() {
-        if (arbeidsgiver == null) {
-            return Optional.empty();
-        }
-        if (arbeidsgiver.erVirksomhet()) {
-            return Optional.of(Arbeidsgiver.virksomhet(arbeidsgiver.getIdentifikator()));
-        }
-        return Optional.of(Arbeidsgiver.person(arbeidsgiver.getAktørId()));
+    public ArbeidsgiverLagreDto getArbeidsgiver() {
+        return arbeidsgiver;
     }
 
-    @JsonProperty("arbeidsforholdId")
-    public InternArbeidsforholdRef getArbeidsforholdRef() {
-        return arbeidsforholdId == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(arbeidsforholdId);
+    public String getArbeidsforholdId() {
+        return arbeidsforholdId;
     }
 
     public UttakArbeidType getUttakArbeidType() {

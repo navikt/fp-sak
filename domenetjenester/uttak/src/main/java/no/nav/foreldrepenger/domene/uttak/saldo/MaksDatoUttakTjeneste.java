@@ -73,7 +73,7 @@ public class MaksDatoUttakTjeneste {
         if (uttakResultat.isPresent()) {
             boolean erManuellBehandling = uttakResultat.get().getGjeldendePerioder().getPerioder()
                 .stream()
-                .anyMatch(UttakResultatPeriodeEntitet::opprinneligSendtTilManuellBehandling);
+                .anyMatch(UttakResultatPeriodeEntitet::opprinneligSendtTilManueltBehandling);
 
             if (erManuellBehandling) {
                 return Optional.empty();
@@ -92,7 +92,7 @@ public class MaksDatoUttakTjeneste {
     }
 
     private boolean erInnvilgetEllerAvslåttMedTrekkdager(UttakResultatPeriodeEntitet periode) {
-        var harTrekkdager = PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) && periode.getAktiviteter().stream()
+        var harTrekkdager = PeriodeResultatType.AVSLÅTT.equals(periode.getPeriodeResultatType()) && periode.getAktiviteter().stream()
             .anyMatch(aktivitet -> aktivitet.getTrekkdager().merEnn0());
         return periode.isInnvilget() || harTrekkdager;
 

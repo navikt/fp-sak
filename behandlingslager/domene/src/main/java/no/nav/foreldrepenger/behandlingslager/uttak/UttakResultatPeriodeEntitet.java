@@ -156,7 +156,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
         return oppholdÅrsak;
     }
 
-    public PeriodeResultatType getResultatType() {
+    public PeriodeResultatType getPeriodeResultatType() {
         return periodeResultatType;
     }
 
@@ -164,7 +164,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
         return begrunnelse;
     }
 
-    public PeriodeResultatÅrsak getResultatÅrsak() {
+    public PeriodeResultatÅrsak getPeriodeResultatÅrsak() {
         if (Objects.equals(klPeriodeResultatÅrsak, IkkeOppfyltÅrsak.KODEVERK)) {
             return IkkeOppfyltÅrsak.fraKode(periodeResultatÅrsak);
         } else if (Objects.equals(klPeriodeResultatÅrsak, InnvilgetÅrsak.KODEVERK)) {
@@ -224,7 +224,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
         return Optional.ofNullable(periodeSøknad);
     }
 
-    public boolean opprinneligSendtTilManuellBehandling() {
+    public boolean opprinneligSendtTilManueltBehandling() {
         return getDokRegel() != null && getDokRegel().isTilManuellBehandling();
     }
 
@@ -238,7 +238,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     }
 
     public boolean isInnvilget() {
-        return Objects.equals(getResultatType(), PeriodeResultatType.INNVILGET);
+        return Objects.equals(getPeriodeResultatType(), PeriodeResultatType.INNVILGET);
     }
 
     @Override
@@ -304,7 +304,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
             return this;
         }
 
-        public Builder medResultatType(PeriodeResultatType periodeResultatType, PeriodeResultatÅrsak periodeResultatÅrsak) {
+        public Builder medPeriodeResultat(PeriodeResultatType periodeResultatType, PeriodeResultatÅrsak periodeResultatÅrsak) {
             kladd.periodeResultatType = periodeResultatType;
             kladd.periodeResultatÅrsak = periodeResultatÅrsak.getKode();
             kladd.klPeriodeResultatÅrsak = periodeResultatÅrsak.getKodeverk();

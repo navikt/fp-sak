@@ -51,7 +51,7 @@ public class MaksDatoUttakTjenesteTest {
         //mandag
         LocalDate fødselsdato = LocalDate.of(2019, 2, 4);
         UttakResultatPeriodeEntitet fellesperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato, fødselsdato.plusDays(4))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
@@ -79,7 +79,7 @@ public class MaksDatoUttakTjenesteTest {
         //søndag
         UttakResultatPeriodeEntitet fellesperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 10, 10),
             LocalDate.of(2019, 10, 20))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
@@ -111,7 +111,7 @@ public class MaksDatoUttakTjenesteTest {
         //søndag
         UttakResultatPeriodeEntitet fellesperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 10, 10),
             LocalDate.of(2019, 10, 19))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
@@ -149,7 +149,7 @@ public class MaksDatoUttakTjenesteTest {
         //mandag
         LocalDate fødselsdato = LocalDate.of(2019, 2, 4);
         UttakResultatPeriodeEntitet fellesperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato, fødselsdato.plusDays(4))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FELLESPERIODE)

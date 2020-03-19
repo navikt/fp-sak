@@ -1,39 +1,39 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
 import java.time.LocalDate;
-import java.util.List;
 
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPeriode;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPerioder;
 import no.nav.vedtak.feil.FeilFactory;
 
 class BareSplittetPerioderValidering implements OverstyrUttakPerioderValidering {
 
-    private List<ForeldrepengerUttakPeriode> opprinnelig;
+    private UttakResultatPerioder opprinnelig;
 
-    BareSplittetPerioderValidering(List<ForeldrepengerUttakPeriode> opprinnelig) {
+    BareSplittetPerioderValidering(UttakResultatPerioder opprinnelig) {
         this.opprinnelig = opprinnelig;
     }
 
     @Override
-    public void utfør(List<ForeldrepengerUttakPeriode> nyePerioder) {
-        for (ForeldrepengerUttakPeriode nyPeriode : nyePerioder) {
+    public void utfør(UttakResultatPerioder nyePerioder) {
+        for (UttakResultatPeriode nyPeriode : nyePerioder.getPerioder()) {
             validerAtAlleDagerINyErIOpprinnelig(nyPeriode);
         }
 
-        for (ForeldrepengerUttakPeriode opprinneligPeriode : opprinnelig) {
+        for (UttakResultatPeriode opprinneligPeriode : opprinnelig.getPerioder()) {
             validerAtAlleDagerIOpprinneligErINy(opprinneligPeriode, nyePerioder);
         }
     }
 
-    private void validerAtAlleDagerIOpprinneligErINy(ForeldrepengerUttakPeriode opprinnelig, List<ForeldrepengerUttakPeriode> nyePerioder) {
+    private void validerAtAlleDagerIOpprinneligErINy(UttakResultatPeriode opprinnelig, UttakResultatPerioder nyePerioder) {
         validerAtAlleDagerIPeriodeFinnesIPerioder(opprinnelig, nyePerioder);
     }
 
-    private void validerAtAlleDagerINyErIOpprinnelig(ForeldrepengerUttakPeriode nyPeriode) {
+    private void validerAtAlleDagerINyErIOpprinnelig(UttakResultatPeriode nyPeriode) {
         validerAtAlleDagerIPeriodeFinnesIPerioder(nyPeriode, opprinnelig);
     }
 
-    private void validerAtAlleDagerIPeriodeFinnesIPerioder(ForeldrepengerUttakPeriode periode, List<ForeldrepengerUttakPeriode> perioder) {
+    private void validerAtAlleDagerIPeriodeFinnesIPerioder(UttakResultatPeriode periode, UttakResultatPerioder perioder) {
         LocalDate dato = periode.getTidsperiode().getFomDato();
         while (dato.isBefore(periode.getTidsperiode().getTomDato()) || dato.isEqual(periode.getTidsperiode().getTomDato())) {
             if (!datoFinnesBareEnGangIPerioder(dato, perioder)) {
@@ -43,10 +43,10 @@ class BareSplittetPerioderValidering implements OverstyrUttakPerioderValidering 
         }
     }
 
-    private boolean datoFinnesBareEnGangIPerioder(LocalDate dato, List<ForeldrepengerUttakPeriode> perioder) {
+    private boolean datoFinnesBareEnGangIPerioder(LocalDate dato, UttakResultatPerioder perioder) {
         int antallFunnet = 0;
-        for (ForeldrepengerUttakPeriode periode : perioder) {
-            if (periode.getTidsperiode().encloses(dato)) {
+        for (UttakResultatPeriode periode : perioder.getPerioder()) {
+            if (periode.harDatoIPerioden(dato)) {
                 antallFunnet++;
             }
         }

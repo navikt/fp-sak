@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderEndringTjeneste;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.UttakPeriodeEndringDto;
 
 public class FastsettePerioderEndringTjenesteTest {
@@ -63,10 +64,10 @@ public class FastsettePerioderEndringTjenesteTest {
         opprinneligPerioder.leggTilPeriode(opprinneligPeriode);
         UttakResultatPerioderEntitet overstyrtPerioder = new UttakResultatPerioderEntitet();
         UttakResultatPeriodeEntitet overstyrtPeriode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusMonths(1), LocalDate.now().minusWeeks(2))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         UttakResultatPeriodeEntitet overstyrtPeriode2 = new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusWeeks(2).plusDays(1), LocalDate.now())
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         overstyrtPerioder.leggTilPeriode(overstyrtPeriode1);
         overstyrtPerioder.leggTilPeriode(overstyrtPeriode2);
@@ -180,7 +181,7 @@ public class FastsettePerioderEndringTjenesteTest {
 
     private UttakResultatPeriodeEntitet.Builder minimumPeriode() {
         return new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusMonths(1), LocalDate.now())
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT);
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT);
     }
 
     private FastsettePerioderEndringTjeneste tjeneste(UttakResultatEntitet uttakResultat) {

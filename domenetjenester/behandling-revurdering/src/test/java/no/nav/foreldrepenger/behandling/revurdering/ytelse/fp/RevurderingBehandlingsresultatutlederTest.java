@@ -79,7 +79,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -121,9 +120,6 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Inject
     private UttakInputTjeneste uttakInputTjeneste;
 
-    @Inject
-    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
-
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
     private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -157,8 +153,7 @@ public class RevurderingBehandlingsresultatutlederTest {
             false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
-        HarEtablertYtelse harEtablertYtelse = new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
-            foreldrepengerUttakTjeneste, repositoryProvider.getBehandlingVedtakRepository());
+        HarEtablertYtelse harEtablertYtelse = new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste);
         ErEndringIUttakFraEndringsdato erEndringIUttakFraEndringsdato = new ErEndringIUttakFraEndringsdatoImpl();
         ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl();
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
@@ -168,8 +163,7 @@ public class RevurderingBehandlingsresultatutlederTest {
             erEndringIUttakFraEndringsdato,
             erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
             skjæringstidspunktTjeneste,
-            medlemTjeneste,
-            foreldrepengerUttakTjeneste);
+            medlemTjeneste);
         BehandlingskontrollTjenesteImpl behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider
         );
         RevurderingTjenesteFelles revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);

@@ -50,7 +50,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
     private Optional<AksjonspunktResultat> utledAksjonspunktForManuellBehandlingFraRegler(Long behandlingId) {
         UttakResultatEntitet uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandlingId).orElseThrow();
         for (UttakResultatPeriodeEntitet periode : uttakResultat.getGjeldendePerioder().getPerioder()) {
-            if (periode.getResultatType().equals(PeriodeResultatType.MANUELL_BEHANDLING)){
+            if (periode.getPeriodeResultatType().equals(PeriodeResultatType.MANUELL_BEHANDLING)){
                 return Optional.of(fastsettUttakAksjonspunkt());
             }
         }

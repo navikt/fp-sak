@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning.svp;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -110,14 +111,14 @@ public class MapUttakResultatFraVLTilRegel {
     }
 
     protected BigDecimal finnStillingsprosent(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold) {
-        var identifikator = arbeidsforhold.getArbeidsgiver();
+        var identifikator = arbeidsforhold.getArbeidsgiver().getIdentifikator();
         var referanse = arbeidsforhold.getArbeidsforholdRef();
-        var fom = arbeidsforhold.getPerioder().get(0).getFom();
+        LocalDate fom = arbeidsforhold.getPerioder().get(0).getFom();
         return input.getYrkesaktiviteter().finnStillingsprosentOrdinærtArbeid(identifikator, referanse, fom);
     }
 
     private Arbeidsforhold mapArbeidsforhold(SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakArbeidsforhold) {
         return ArbeidsforholdMapper.mapArbeidsforholdFraUttakAktivitet(Optional.ofNullable(uttakArbeidsforhold.getArbeidsgiver()),
-            uttakArbeidsforhold.getArbeidsforholdRef(), uttakArbeidsforhold.getUttakArbeidType());
+            Optional.ofNullable(uttakArbeidsforhold.getArbeidsforholdRef()), uttakArbeidsforhold.getUttakArbeidType());
     }
 }

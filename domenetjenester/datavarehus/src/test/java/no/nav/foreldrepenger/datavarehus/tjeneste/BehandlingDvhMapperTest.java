@@ -366,7 +366,7 @@ public class BehandlingDvhMapperTest {
             .build();
         UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medDokRegel(dokRegel)
-            .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(resultat, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(periodeSøknad)
             .build();
 

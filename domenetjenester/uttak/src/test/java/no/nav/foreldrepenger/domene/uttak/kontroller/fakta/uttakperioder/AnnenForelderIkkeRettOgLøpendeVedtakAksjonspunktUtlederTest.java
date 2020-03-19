@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import org.junit.Rule;
@@ -31,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivite
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -47,9 +45,6 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtlederTest {
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private EntityManager entityManager = repoRule.getEntityManager();
     private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(entityManager);
-
-    @Inject
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
 
     @Test
     public void ingen_aksjonspunkt_hvis_uten_ytelsefordeling() {
@@ -117,7 +112,7 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtlederTest {
         UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
         UttakResultatPeriodeEntitet morUttakPeriode =
             new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 3, 28), LocalDate.of(2019, 3, 28))
-                .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
+                .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
                 .build();
         UttakResultatPeriodeAktivitetEntitet morUttakAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(morUttakPeriode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
@@ -139,6 +134,6 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtlederTest {
     }
 
     private AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder utleder() {
-        return new AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder(repositoryProvider, uttakTjeneste);
+        return new AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder(repositoryProvider);
     }
 }

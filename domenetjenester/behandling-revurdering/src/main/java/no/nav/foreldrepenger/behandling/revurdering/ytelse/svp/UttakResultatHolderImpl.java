@@ -11,13 +11,14 @@ import java.util.Set;
 import org.jboss.weld.exceptions.UnsupportedOperationException;
 
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.ArbeidsforholdIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 
 
 class UttakResultatHolderImpl implements UttakResultatHolder {
@@ -30,8 +31,8 @@ class UttakResultatHolderImpl implements UttakResultatHolder {
     }
 
     @Override
-    public Object getUttakResultat(){
-        return uttakresultat.orElse(null);
+    public BaseEntitet getUttakResultat(){
+        return  uttakresultat.orElse(null);
     }
 
     @Override
@@ -51,11 +52,10 @@ class UttakResultatHolderImpl implements UttakResultatHolder {
     }
 
     @Override
-    public Optional<BehandlingVedtak> getBehandlingVedtak() {
+    public BehandlingVedtak getBehandlingVedtak() {
         if (uttakresultat.isPresent()) {
-            return Optional.ofNullable(uttakresultat.get().getBehandlingsresultat().getBehandlingVedtak());
-        }
-        return Optional.empty();
+            return uttakresultat.get().getBehandlingsresultat().getBehandlingVedtak();
+        } else return null;
     }
 
     @Override
@@ -64,7 +64,7 @@ class UttakResultatHolderImpl implements UttakResultatHolder {
     }
 
     @Override
-    public List<ForeldrepengerUttakPeriode> getGjeldendePerioder() {
+    public UttakResultatPerioderEntitet getGjeldendePerioder() {
         throw new UnsupportedOperationException("Not implemented");
     }
 
@@ -87,7 +87,7 @@ class UttakResultatHolderImpl implements UttakResultatHolder {
     }
 
     @Override
-    public boolean vurderOmErEndringIUttakFraEndringsdato(LocalDate endringsdato, UttakResultatHolder uttakresultatSammenligneMed){
+    public boolean vurderOmErEndringIUttakFraEndringsdato(LocalDate endringsdato,UttakResultatHolder uttakresultatSammenligneMed){
 
         if(uttakresultatSammenligneMed.eksistererUttakResultat() != this.eksistererUttakResultat() ){
             return true;

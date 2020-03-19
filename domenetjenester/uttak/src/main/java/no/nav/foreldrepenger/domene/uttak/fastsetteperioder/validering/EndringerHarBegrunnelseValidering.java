@@ -1,22 +1,22 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import java.util.List;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPeriode;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPerioder;
 import no.nav.vedtak.feil.FeilFactory;
 
 class EndringerHarBegrunnelseValidering implements OverstyrUttakPerioderValidering {
 
-    private List<ForeldrepengerUttakPeriode> opprinnelig;
+    private UttakResultatPerioder opprinnelig;
 
-    EndringerHarBegrunnelseValidering(List<ForeldrepengerUttakPeriode> opprinnelig) {
+    EndringerHarBegrunnelseValidering(UttakResultatPerioder opprinnelig) {
         this.opprinnelig = opprinnelig;
     }
 
     @Override
-    public void utfør(List<ForeldrepengerUttakPeriode> nyePerioder) {
-        for (ForeldrepengerUttakPeriode periode : nyePerioder) {
+    public void utfør(UttakResultatPerioder nyePerioder) {
+        for (UttakResultatPeriode periode : nyePerioder.getPerioder()) {
             if (nullOrEmpty(periode.getBegrunnelse()) && harEndring(periode)) {
                 throw FeilFactory.create(OverstyrUttakValideringFeil.class).periodeManglerBegrunnelse().toException();
             }
@@ -27,8 +27,8 @@ class EndringerHarBegrunnelseValidering implements OverstyrUttakPerioderValideri
         return Objects.isNull(begrunnelse) || Objects.equals(begrunnelse, "");
     }
 
-    private boolean harEndring(ForeldrepengerUttakPeriode periode) {
-        for (ForeldrepengerUttakPeriode opprinneligPeriode : opprinnelig) {
+    private boolean harEndring(UttakResultatPeriode periode) {
+        for (UttakResultatPeriode opprinneligPeriode : opprinnelig.getPerioder()) {
             if (periode.erLik(opprinneligPeriode)) {
                 return false;
             }
