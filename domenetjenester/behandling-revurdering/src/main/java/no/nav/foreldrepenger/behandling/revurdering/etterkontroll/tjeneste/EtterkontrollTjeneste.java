@@ -22,9 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTaskProperties;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -35,7 +34,7 @@ public class EtterkontrollTjeneste {
     private BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private RevurderingHistorikk revurderingHistorikk;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
@@ -46,13 +45,14 @@ public class EtterkontrollTjeneste {
     @Inject
     public EtterkontrollTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                  ProsessTaskRepository prosessTaskRepository,
-                                 BehandlingskontrollTjeneste behandlingskontrollTjeneste
+                                 BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste
     ) {
 
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.prosessTaskRepository = prosessTaskRepository;
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkRepository());
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
@@ -65,11 +65,11 @@ public class EtterkontrollTjeneste {
                 // TODO (PJV): Skal man revurdere medforelder dersom siste behandling har gitt AVSLAG eller OPPHØR??
                 // hvem av behandlingForRevurdering  og berørtBehandling  starter uttak  sist ? Den skal køes
                 log.info("Etterkontroll har funnet fagsak (id={}) på medforelder for fagsak med fagsakId={}", behandlingMedforelder.get().getFagsakId(), opprettetRevurdering.getFagsakId());
-                Boolean berørtBehandlingStarterUttakSist = false;
+                boolean berørtBehandlingStarterUttakSist = false;
                 Optional<LocalDate> førsteUttaksdato = finnFørsteUttaksdato(behandlingForRevurdering.getId());
                 Optional<LocalDate> førsteUttaksdatoMedforelder = finnFørsteUttaksdato(behandlingMedforelder.get().getId());
                 if ((førsteUttaksdatoMedforelder.isPresent() && førsteUttaksdato.isPresent() && førsteUttaksdatoMedforelder.get().isAfter(førsteUttaksdato.get()))
-                    || (førsteUttaksdatoMedforelder.isPresent() && !førsteUttaksdato.isPresent())) {
+                    || (førsteUttaksdatoMedforelder.isPresent() && førsteUttaksdato.isEmpty())) {
                     berørtBehandlingStarterUttakSist = true;
                 }
 
@@ -85,9 +85,9 @@ public class EtterkontrollTjeneste {
           }
 
     private Optional<LocalDate> finnFørsteUttaksdato(Long behandling) {
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling);
+        var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling);
         if (uttakResultat.isPresent()) {
-            return uttakResultat.get().getGjeldendePerioder().finnFørsteUttaksdato();
+            return Optional.of(uttakResultat.get().finnFørsteUttaksdato());
         }
         return Optional.empty();
     }

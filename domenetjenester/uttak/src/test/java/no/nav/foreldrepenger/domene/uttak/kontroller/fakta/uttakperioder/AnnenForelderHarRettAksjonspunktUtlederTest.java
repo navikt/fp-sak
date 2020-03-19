@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
@@ -47,11 +48,14 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
     @Inject
     private PersonopplysningTjeneste personopplysningTjeneste;
 
+    @Inject
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
+
     private AnnenForelderHarRettAksjonspunktUtleder aksjonspunktUtleder;
 
     @Before
     public void before() {
-        aksjonspunktUtleder = new AnnenForelderHarRettAksjonspunktUtleder(repositoryProvider, personopplysningTjeneste);
+        aksjonspunktUtleder = new AnnenForelderHarRettAksjonspunktUtleder(repositoryProvider, personopplysningTjeneste, uttakTjeneste);
     }
 
     @Test

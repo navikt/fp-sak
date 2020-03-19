@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.beregnkontoer.StønadskontoRegelOrkestrering;
@@ -41,7 +41,7 @@ public class StønadskontoRegelAdapter {
     public Stønadskontoberegning beregnKontoer(BehandlingReferanse ref,
                                                YtelseFordelingAggregat ytelseFordelingAggregat,
                                                FagsakRelasjon fagsakRelasjon,
-                                               Optional<UttakResultatEntitet> annenpartsGjeldendeUttaksplan,
+                                               Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
         var resultat = beregnKontoerMedResultat(ref, ytelseFordelingAggregat, fagsakRelasjon, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag);
         return konverterTilStønadskontoberegning(resultat);
@@ -50,7 +50,7 @@ public class StønadskontoRegelAdapter {
     public StønadskontoResultat beregnKontoerMedResultat(BehandlingReferanse ref,
                                                          YtelseFordelingAggregat ytelseFordelingAggregat,
                                                          FagsakRelasjon fagsakRelasjon,
-                                                         Optional<UttakResultatEntitet> annenpartsGjeldendeUttaksplan,
+                                                         Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                          ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
         boolean harSøkerRett = !behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId()).orElseThrow().isVilkårAvslått();
 

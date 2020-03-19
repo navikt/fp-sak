@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -14,6 +15,7 @@ import javax.validation.constraints.Size;
 import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
@@ -60,12 +62,18 @@ public class UttakResultatPeriodeAktivitetLagreDto {
         return utbetalingsgrad;
     }
 
-    public ArbeidsgiverLagreDto getArbeidsgiver() {
-        return arbeidsgiver;
+    public Optional<Arbeidsgiver> getArbeidsgiver() {
+        if (arbeidsgiver == null) {
+            return Optional.empty();
+        }
+        if (arbeidsgiver.erVirksomhet()) {
+            return Optional.of(Arbeidsgiver.virksomhet(arbeidsgiver.getIdentifikator()));
+        }
+        return Optional.of(Arbeidsgiver.person(arbeidsgiver.getAktørId()));
     }
 
-    public String getArbeidsforholdId() {
-        return arbeidsforholdId;
+    public InternArbeidsforholdRef getArbeidsforholdId() {
+        return arbeidsforholdId == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(arbeidsforholdId);
     }
 
     public UttakArbeidType getUttakArbeidType() {

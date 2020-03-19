@@ -57,6 +57,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
@@ -87,18 +88,22 @@ public class ForeslåBehandlingsresultatTjenesteTest {
         AvslagsårsakTjeneste avslagsårsakTjeneste = new AvslagsårsakTjeneste();
         when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new Tuple<>(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
         StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(new UttakRepositoryProvider(repoRule.getEntityManager()));
-        AndelGraderingTjeneste andelGraderingTjeneste = new AndelGraderingTjeneste(repositoryProvider.getUttakRepository(), repositoryProvider.getYtelsesFordelingRepository(),
+        var uttakTjeneste = new ForeldrepengerUttakTjeneste(uttakRepository);
+        AndelGraderingTjeneste andelGraderingTjeneste = new AndelGraderingTjeneste(uttakTjeneste,
+            repositoryProvider.getYtelsesFordelingRepository(),
             beregningsgrunnlagTjeneste);
         UttakInputTjeneste uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, new AbakusInMemoryInntektArbeidYtelseTjeneste(),
             skjæringstidspunktTjeneste, medlemTjeneste, andelGraderingTjeneste);
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
             beregningsgrunnlagTjeneste,
             opphørUttakTjeneste,
-            new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste),
+            new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
+                uttakTjeneste, repositoryProvider.getBehandlingVedtakRepository()),
             new ErEndringIUttakFraEndringsdatoImpl(),
             new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl(),
             skjæringstidspunktTjeneste,
-            medlemTjeneste));
+            medlemTjeneste,
+            uttakTjeneste));
         tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,
             avslagsårsakTjeneste,
             dokumentBehandlingTjeneste,
@@ -278,7 +283,7 @@ public class ForeslåBehandlingsresultatTjenesteTest {
     private void lagreUttak(Behandling behandling) {
         UttakResultatPerioderEntitet uttakResultatPerioder = new UttakResultatPerioderEntitet();
         UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(6))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         uttakResultatPerioder.leggTilPeriode(uttakResultatPeriode);
         uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder);

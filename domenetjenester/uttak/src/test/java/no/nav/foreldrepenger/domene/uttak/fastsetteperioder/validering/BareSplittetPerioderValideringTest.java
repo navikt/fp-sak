@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -14,9 +12,9 @@ import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPeriode;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPeriodeAktivitet;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.UttakResultatPerioder;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -28,9 +26,8 @@ public class BareSplittetPerioderValideringTest {
         LocalDate opprinneligTom = LocalDate.now().plusWeeks(3);
         LocalDate førsteTom = opprinneligFom.plusWeeks(2);
         LocalDate sisteFom = førsteTom.plusDays(1);
-        UttakResultatPerioder opprinnelig = new UttakResultatPerioder(singletonList(gruppeMedDato(opprinneligFom, opprinneligTom)));
-        List<UttakResultatPeriode> nyeGrupper = asList(gruppeMedDato(opprinneligFom, førsteTom), gruppeMedDato(sisteFom, opprinneligTom));
-        UttakResultatPerioder nyePerioder = new UttakResultatPerioder(nyeGrupper);
+        var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
+        var nyePerioder = List.of(periodeMedDato(opprinneligFom, førsteTom), periodeMedDato(sisteFom, opprinneligTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
         assertThatCode(() -> validering.utfør(nyePerioder)).doesNotThrowAnyException();
@@ -43,9 +40,8 @@ public class BareSplittetPerioderValideringTest {
         LocalDate førsteFom = opprinneligFom.minusDays(1);
         LocalDate førsteTom = opprinneligFom.plusWeeks(2);
         LocalDate sisteFom = førsteTom.plusDays(1);
-        UttakResultatPerioder opprinnelig = new UttakResultatPerioder(singletonList(gruppeMedDato(opprinneligFom, opprinneligTom)));
-        List<UttakResultatPeriode> nyeGrupper = asList(gruppeMedDato(førsteFom, førsteTom), gruppeMedDato(sisteFom, opprinneligTom));
-        UttakResultatPerioder nyePerioder = new UttakResultatPerioder(nyeGrupper);
+        var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
+        var nyePerioder = List.of(periodeMedDato(førsteFom, førsteTom), periodeMedDato(sisteFom, opprinneligTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
         assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
@@ -58,9 +54,8 @@ public class BareSplittetPerioderValideringTest {
         LocalDate førsteTom = opprinneligFom.plusWeeks(2);
         LocalDate førsteFom = opprinneligFom.plusDays(1);
         LocalDate sisteFom = førsteTom.plusDays(1);
-        UttakResultatPerioder opprinnelig = new UttakResultatPerioder(singletonList(gruppeMedDato(opprinneligFom, opprinneligTom)));
-        List<UttakResultatPeriode> nyeGrupper = asList(gruppeMedDato(førsteFom, førsteTom), gruppeMedDato(sisteFom, opprinneligTom));
-        UttakResultatPerioder nyePerioder = new UttakResultatPerioder(nyeGrupper);
+        var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
+        var nyePerioder = List.of(periodeMedDato(førsteFom, førsteTom), periodeMedDato(sisteFom, opprinneligTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
         assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
@@ -73,9 +68,8 @@ public class BareSplittetPerioderValideringTest {
         LocalDate førsteTom = opprinneligFom.plusWeeks(2);
         LocalDate sisteFom = førsteTom.plusDays(1);
         LocalDate sisteTom = opprinneligTom.minusDays(1);
-        UttakResultatPerioder opprinnelig = new UttakResultatPerioder(singletonList(gruppeMedDato(opprinneligFom, opprinneligTom)));
-        List<UttakResultatPeriode> nyeGrupper = asList(gruppeMedDato(opprinneligFom, førsteTom), gruppeMedDato(sisteFom, sisteTom));
-        UttakResultatPerioder nyePerioder = new UttakResultatPerioder(nyeGrupper);
+        var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
+        var nyePerioder = List.of(periodeMedDato(opprinneligFom, førsteTom), periodeMedDato(sisteFom, sisteTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
         assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
@@ -89,11 +83,10 @@ public class BareSplittetPerioderValideringTest {
         LocalDate andreFom = førsteTom.plusDays(1);
         LocalDate andreTom = andreFom.plusWeeks(2);
         LocalDate tredjeFom = andreTom.plusDays(1);
-        UttakResultatPerioder opprinnelig = new UttakResultatPerioder(singletonList(gruppeMedDato(opprinneligFom, opprinneligTom)));
-        List<UttakResultatPeriode> nyeGrupper = asList(gruppeMedDato(opprinneligFom, førsteTom),
-            gruppeMedDato(andreFom, andreTom),
-            gruppeMedDato(tredjeFom, opprinneligTom));
-        UttakResultatPerioder nyePerioder = new UttakResultatPerioder(nyeGrupper);
+        var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
+        var nyePerioder = List.of(periodeMedDato(opprinneligFom, førsteTom),
+            periodeMedDato(andreFom, andreTom),
+            periodeMedDato(tredjeFom, opprinneligTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
         assertThatCode(() -> validering.utfør(nyePerioder)).doesNotThrowAnyException();
@@ -103,9 +96,8 @@ public class BareSplittetPerioderValideringTest {
     public void enPeriodeKanIkkeSplittesIToLikePerioder() {
         LocalDate opprinneligFom = LocalDate.now();
         LocalDate opprinneligTom = LocalDate.now().plusWeeks(3);
-        UttakResultatPerioder opprinnelig = new UttakResultatPerioder(singletonList(gruppeMedDato(opprinneligFom, opprinneligTom)));
-        List<UttakResultatPeriode> nyeGrupper = asList(gruppeMedDato(opprinneligFom, opprinneligTom), gruppeMedDato(opprinneligFom, opprinneligTom));
-        UttakResultatPerioder nyePerioder = new UttakResultatPerioder(nyeGrupper);
+        var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
+        var nyePerioder = List.of(periodeMedDato(opprinneligFom, opprinneligTom), periodeMedDato(opprinneligFom, opprinneligTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
         assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
@@ -116,28 +108,27 @@ public class BareSplittetPerioderValideringTest {
         LocalDate førsteFom = LocalDate.now();
         LocalDate førsteTom = LocalDate.now().plusDays(5);
         LocalDate andreTom = førsteTom.plusDays(10);
-        UttakResultatPerioder opprinnelig = new UttakResultatPerioder(singletonList(gruppeMedDato(førsteFom, andreTom)));
-        List<UttakResultatPeriode> nyeGrupper = asList(gruppeMedDato(førsteFom, førsteFom), gruppeMedDato(førsteTom, andreTom));
-        UttakResultatPerioder nyePerioder = new UttakResultatPerioder(nyeGrupper);
+        var opprinnelig = List.of(periodeMedDato(førsteFom, andreTom));
+        var nyePerioder = List.of(periodeMedDato(førsteFom, førsteFom), periodeMedDato(førsteTom, andreTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
         assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
     }
 
-    private UttakResultatPeriodeAktivitet aktivitet() {
-        return new UttakResultatPeriodeAktivitet.Builder()
+    private ForeldrepengerUttakPeriodeAktivitet aktivitet() {
+        return new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medArbeidsprosent(BigDecimal.TEN)
             .medUtbetalingsgrad(BigDecimal.ZERO)
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, null, null))
             .build();
     }
 
-    private UttakResultatPeriode gruppeMedDato(LocalDate fom, LocalDate tom) {
-        UttakResultatPeriodeAktivitet aktivitet = aktivitet();
-        return new UttakResultatPeriode.Builder()
+    private ForeldrepengerUttakPeriode periodeMedDato(LocalDate fom, LocalDate tom) {
+        var aktivitet = aktivitet();
+        return new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(new LocalDateInterval(fom, tom))
             .medAktiviteter(Collections.singletonList(aktivitet))
-            .medType(PeriodeResultatType.INNVILGET)
+            .medResultatType(PeriodeResultatType.INNVILGET)
             .build();
     }
 }

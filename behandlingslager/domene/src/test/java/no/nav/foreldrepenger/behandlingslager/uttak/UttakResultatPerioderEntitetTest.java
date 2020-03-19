@@ -66,7 +66,7 @@ public class UttakResultatPerioderEntitetTest {
     }
 
     private UttakResultatPeriodeEntitet lagPeriode(LocalDate fom, LocalDate tom) {
-        return new UttakResultatPeriodeEntitet.Builder(fom, tom).medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
+        return new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
     }
 
 }

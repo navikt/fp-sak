@@ -156,7 +156,7 @@ public class OpphørUttakTjenesteTest {
 
         private void leggTilPeriode(int varighetDager, PeriodeResultatType resultatType, PeriodeResultatÅrsak årsak) {
             UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(fom, fom.plusDays(varighetDager))
-                .medPeriodeResultat(resultatType, årsak).build();
+                .medResultatType(resultatType, årsak).build();
             uttakResultatPerioder.leggTilPeriode(periode);
         }
     }

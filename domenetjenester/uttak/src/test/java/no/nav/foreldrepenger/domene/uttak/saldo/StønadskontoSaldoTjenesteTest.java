@@ -58,7 +58,7 @@ public class StønadskontoSaldoTjenesteTest {
 
         var uttak = new UttakResultatPerioderEntitet();
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now())
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         var aktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode, new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)
@@ -101,7 +101,7 @@ public class StønadskontoSaldoTjenesteTest {
 
         var uttak = new UttakResultatPerioderEntitet();
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now())
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode, new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
@@ -137,7 +137,7 @@ public class StønadskontoSaldoTjenesteTest {
         //Periode med bare frilans
         var uttak = new UttakResultatPerioderEntitet();
         var uttaksperiode1 = new UttakResultatPeriodeEntitet.Builder(enOnsdag, enOnsdag)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         var uttakFrilansAktivitet = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)
@@ -152,7 +152,7 @@ public class StønadskontoSaldoTjenesteTest {
 
         //Periode med arbeidsgiver + frilans
         var uttaksperiode2 = new UttakResultatPeriodeEntitet.Builder(enOnsdag.plusDays(1), enOnsdag.plusDays(1))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         var uttakAktivitetArbeidsgiver1 = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
@@ -174,7 +174,7 @@ public class StønadskontoSaldoTjenesteTest {
 
         //Periode med arbeidsgiver med 2 arbeidsforhold + frilans
         var uttaksperiode3 = new UttakResultatPeriodeEntitet.Builder(enOnsdag.plusDays(2), enOnsdag.plusDays(2))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         var uttakAktivitetArbeidsgiver2 = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
@@ -204,8 +204,10 @@ public class StønadskontoSaldoTjenesteTest {
 
         var saldoUtregning = tjeneste.finnSaldoUtregning(input(behandling));
 
-        var aktivitet1 = AktivitetIdentifikator.forArbeid(uttakAktivitetArbeidsgiver1.getArbeidsgiver().get().getIdentifikator(), uttakAktivitetArbeidsgiver1.getArbeidsforholdRef().get().getReferanse());
-        var aktivitet2 = AktivitetIdentifikator.forArbeid(uttakAktivitetArbeidsgiver2.getArbeidsgiver().get().getIdentifikator(), uttakAktivitetArbeidsgiver2.getArbeidsforholdRef().get().getReferanse());
+        var aktivitet1 = AktivitetIdentifikator.forArbeid(uttakAktivitetArbeidsgiver1.getArbeidsgiver().get().getIdentifikator(),
+            uttakAktivitetArbeidsgiver1.getArbeidsforholdRef().getReferanse());
+        var aktivitet2 = AktivitetIdentifikator.forArbeid(uttakAktivitetArbeidsgiver2.getArbeidsgiver().get().getIdentifikator(),
+            uttakAktivitetArbeidsgiver2.getArbeidsforholdRef().getReferanse());
 
         assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE, AktivitetIdentifikator.forFrilans())).isEqualTo(6);
         assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE, aktivitet1)).isEqualTo(6);
@@ -226,7 +228,7 @@ public class StønadskontoSaldoTjenesteTest {
 
         var uttak = new UttakResultatPerioderEntitet();
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now())
-            .medPeriodeResultat(PeriodeResultatType.MANUELL_BEHANDLING, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.MANUELL_BEHANDLING, PeriodeResultatÅrsak.UKJENT)
             .build();
         var aktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode, new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)

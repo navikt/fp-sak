@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.ytelse.beregning.fp.MapUttakResultatFraVLTilRegel;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultatPeriode;
@@ -149,7 +148,7 @@ public class MapUttakResultatFraVLTilRegelTest {
     private UttakResultatEntitet lagUttaksPeriode(BigDecimal prosentArbeid, BigDecimal prosentUtbetaling) {
         LocalDate idag = LocalDate.now();
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(idag, idag.plusDays(6))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medGraderingInnvilget(true)
             .build();
         UttakAktivitetEntitet uttakAktivtet = new UttakAktivitetEntitet.Builder()
@@ -179,7 +178,7 @@ public class MapUttakResultatFraVLTilRegelTest {
             .medMottattDato(LocalDate.now())
             .build();
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(periodeResultatType, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(periodeResultatType, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(søknadPeriode)
             .build();
         UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)

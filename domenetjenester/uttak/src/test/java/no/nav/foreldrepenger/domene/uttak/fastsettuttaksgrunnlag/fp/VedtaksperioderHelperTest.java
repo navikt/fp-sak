@@ -290,7 +290,7 @@ public class VedtaksperioderHelperTest {
             .medUttakPeriodeType(toUttakPeriodeType(StønadskontoType.FELLESPERIODE))
             .build();
         UttakResultatPeriodeEntitet avlått = new UttakResultatPeriodeEntitet.Builder(fødselsdato.plusWeeks(12), fødselsdato.plusWeeks(16).minusDays(1))
-            .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK)
+            .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK)
             .medPeriodeSoknad(periodeSøknad)
             .build();
 
@@ -333,7 +333,7 @@ public class VedtaksperioderHelperTest {
             .medUttakPeriodeType(toUttakPeriodeType(StønadskontoType.FELLESPERIODE))
             .build();
         UttakResultatPeriodeEntitet avlått = new UttakResultatPeriodeEntitet.Builder(fødselsdato.plusWeeks(12), fødselsdato.plusWeeks(16).minusDays(1))
-            .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_HAR_OVERLAPPENDE_UTTAKSPERIODER_SOM_ER_INNVILGET_UTSETTELSE)
+            .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_HAR_OVERLAPPENDE_UTTAKSPERIODER_SOM_ER_INNVILGET_UTSETTELSE)
             .medPeriodeSoknad(periodeSøknad)
             .build();
 
@@ -370,7 +370,7 @@ public class VedtaksperioderHelperTest {
         LocalDate tom = fom.plusWeeks(1).minusDays(1);
         UttakResultatPeriodeEntitet periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medUtsettelseType(UttakUtsettelseType.FERIE)
-            .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT)
             .build();
 
         periodeEntitet.leggTilAktivitet(UttakResultatPeriodeAktivitetEntitet
@@ -392,7 +392,7 @@ public class VedtaksperioderHelperTest {
         LocalDate tom = fom.plusWeeks(1).minusDays(1);
         UttakResultatPeriodeEntitet periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medUtsettelseType(UttakUtsettelseType.FERIE)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
 
         periodeEntitet.leggTilAktivitet(UttakResultatPeriodeAktivitetEntitet
@@ -415,7 +415,7 @@ public class VedtaksperioderHelperTest {
 
         BigDecimal arbeidstidsprosent = BigDecimal.valueOf(50);
         UttakResultatPeriodeEntitet periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medGraderingInnvilget(true)
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
                 .medGraderingArbeidsprosent(arbeidstidsprosent)
@@ -455,7 +455,7 @@ public class VedtaksperioderHelperTest {
 
         var arbeidstidsprosent = BigDecimal.valueOf(50);
         var periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medGraderingInnvilget(false)
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
                 .medGraderingArbeidsprosent(arbeidstidsprosent)
@@ -495,7 +495,7 @@ public class VedtaksperioderHelperTest {
 
         BigDecimal arbeidstidsprosent = BigDecimal.valueOf(50);
         UttakResultatPeriodeEntitet periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medGraderingInnvilget(true)
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
                 .medGraderingArbeidsprosent(arbeidstidsprosent)
@@ -540,7 +540,7 @@ public class VedtaksperioderHelperTest {
             .build();
 
         UttakResultatPeriodeEntitet periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medSamtidigUttak(true)
             .medFlerbarnsdager(true)
             .medGraderingInnvilget(true)
@@ -568,7 +568,7 @@ public class VedtaksperioderHelperTest {
         LocalDate tom = fom.plusWeeks(1).minusDays(1);
 
         UttakResultatPeriodeEntitet periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
                 .medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER)
                 .medGraderingArbeidsprosent(BigDecimal.valueOf(50))
@@ -670,7 +670,7 @@ public class VedtaksperioderHelperTest {
             .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build();
         UttakResultatPeriodeEntitet periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(periodeSøknad)
             .medSamtidigUttak(true)
             .build();
@@ -696,7 +696,7 @@ public class VedtaksperioderHelperTest {
             .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build();
         UttakResultatPeriodeEntitet periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(periodeSøknad)
             .build();
         periodeEntitet.leggTilAktivitet(UttakResultatPeriodeAktivitetEntitet
@@ -715,7 +715,7 @@ public class VedtaksperioderHelperTest {
     public void skalKonvertereOverføringÅrsak() {
         UttakResultatPeriodeEntitet uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, Month.JULY, 3),
             LocalDate.of(2018, Month.JULY, 10))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medOverføringÅrsak(OverføringÅrsak.SYKDOM_ANNEN_FORELDER)
             .build();
         uttaksperiode.leggTilAktivitet(UttakResultatPeriodeAktivitetEntitet
@@ -766,7 +766,7 @@ public class VedtaksperioderHelperTest {
         UttakResultatPeriodeEntitet.Builder uttakResultatPeriodeBuilder = new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medDokRegel(dokRegel)
             .medSamtidigUttak(true)
-            .medPeriodeResultat(resultat, PeriodeResultatÅrsak.UKJENT);
+            .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT);
         if (knyttTilSøknadsperiode) {
             UttakResultatPeriodeSøknadEntitet periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
                 .medMottattDato(LocalDate.now())

@@ -82,8 +82,8 @@ public class VedtaksperioderHelper {
     }
 
     public static boolean avslåttPgaAvTaptPeriodeTilAnnenpart(UttakResultatPeriodeEntitet periode) {
-        return IkkeOppfyltÅrsak.årsakerTilAvslagPgaAnnenpart().contains(periode.getPeriodeResultatÅrsak()) &&
-            PeriodeResultatType.AVSLÅTT.equals(periode.getPeriodeResultatType()) &&
+        return IkkeOppfyltÅrsak.årsakerTilAvslagPgaAnnenpart().contains(periode.getResultatÅrsak()) &&
+            PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) &&
             periode.getAktiviteter().stream().allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
     }
 
