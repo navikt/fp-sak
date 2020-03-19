@@ -25,19 +25,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
 @ApplicationScoped
 public class AndelGraderingTjeneste {
 
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
+    private UttakRepository uttakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
 
@@ -46,10 +48,10 @@ public class AndelGraderingTjeneste {
     }
 
     @Inject
-    public AndelGraderingTjeneste(ForeldrepengerUttakTjeneste uttakTjeneste,
-                                  YtelsesFordelingRepository ytelsesFordelingRepository,
-                                  HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste) {
-        this.uttakTjeneste = uttakTjeneste;
+    public AndelGraderingTjeneste(UttakRepository uttakRepository,
+                                      YtelsesFordelingRepository ytelsesFordelingRepository,
+                                      HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste) {
+        this.uttakRepository = uttakRepository;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
     }
@@ -139,12 +141,12 @@ public class AndelGraderingTjeneste {
     }
 
     private List<PeriodeMedGradering> fraVedtak(Optional<LocalDate> førsteDatoSøknad, Long originalBehandling) {
-        var uttak = uttakTjeneste.hentUttakHvisEksisterer(originalBehandling);
+        Optional<UttakResultatEntitet> uttak = uttakRepository.hentUttakResultatHvisEksisterer(originalBehandling);
         if (uttak.isEmpty()) {
             return List.of();
         }
 
-        return uttak.get().getGjeldendePerioder().stream()
+        return uttak.get().getGjeldendePerioder().getPerioder().stream()
             .filter(periode -> førsteDatoSøknad.isEmpty() || periode.getFom().isBefore(førsteDatoSøknad.get()))
             .filter(periode -> gradertAktivitet(periode).isPresent())
             .map(periode -> map(periode, gradertAktivitet(periode).orElseThrow(), førsteDatoSøknad))
@@ -152,12 +154,12 @@ public class AndelGraderingTjeneste {
 
     }
 
-    private Optional<ForeldrepengerUttakPeriodeAktivitet> gradertAktivitet(ForeldrepengerUttakPeriode periode) {
-        return periode.getAktiviteter().stream().filter(ForeldrepengerUttakPeriodeAktivitet::isSøktGraderingForAktivitetIPeriode).findFirst();
+    private Optional<UttakResultatPeriodeAktivitetEntitet> gradertAktivitet(UttakResultatPeriodeEntitet periode) {
+        return periode.getAktiviteter().stream().filter(UttakResultatPeriodeAktivitetEntitet::isSøktGradering).findFirst();
     }
 
-    private PeriodeMedGradering map(ForeldrepengerUttakPeriode gradertPeriode,
-                                    ForeldrepengerUttakPeriodeAktivitet gradertAktivitet,
+    private PeriodeMedGradering map(UttakResultatPeriodeEntitet gradertPeriode,
+                                    UttakResultatPeriodeAktivitetEntitet gradertAktivitet,
                                     Optional<LocalDate> førsteDatoSøknad) {
         final LocalDate tom;
         if (førsteDatoSøknad.isPresent()) {
@@ -165,11 +167,8 @@ public class AndelGraderingTjeneste {
         } else {
             tom = gradertPeriode.getTom();
         }
-        var arbeidsgiver = gradertAktivitet.getArbeidsgiver()
-            .map((no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver a) -> mapArbeidsgiver(a));
         return new PeriodeMedGradering(gradertPeriode.getFom(), tom, gradertAktivitet.getArbeidsprosent(),
-            mapAktivitetStatus(gradertAktivitet.getUttakArbeidType()),
-            arbeidsgiver.orElse(null));
+            mapAktivitetStatus(gradertAktivitet.getUttakArbeidType()), gradertAktivitet.getUttakAktivitet().getArbeidsgiver().map((no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver) -> IAYMapperTilKalkulus.mapArbeidsgiver(arbeidsgiver)).orElse(null));
     }
 
     private LocalDate førstAv(LocalDate dato1, LocalDate dato2) {

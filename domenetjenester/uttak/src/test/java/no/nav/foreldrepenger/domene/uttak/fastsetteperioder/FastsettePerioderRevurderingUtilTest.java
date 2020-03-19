@@ -36,11 +36,11 @@ public class FastsettePerioderRevurderingUtilTest {
 
         UttakResultatPeriodeEntitet periode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, 6, 6),
             LocalDate.of(2018, 6, 20))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         leggTilPeriodeAktivitet(uttakAktivitet, periode1, StønadskontoType.MØDREKVOTE, new Trekkdager(10));
         UttakResultatPeriodeEntitet periode2 = new UttakResultatPeriodeEntitet.Builder(periode1.getTom().plusDays(1), periode1.getTom().plusWeeks(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         leggTilPeriodeAktivitet(uttakAktivitet, periode2, StønadskontoType.FELLESPERIODE, new Trekkdager(10));
 
@@ -74,11 +74,11 @@ public class FastsettePerioderRevurderingUtilTest {
 
         UttakResultatPeriodeEntitet periode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, 6, 6),
             LocalDate.of(2018, 6, 20))
-            .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_HAR_OVERLAPPENDE_UTTAKSPERIODER_SOM_ER_INNVILGET_UTSETTELSE)
+            .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_HAR_OVERLAPPENDE_UTTAKSPERIODER_SOM_ER_INNVILGET_UTSETTELSE)
             .build();
         leggTilPeriodeAktivitet(uttakAktivitet, periode1, StønadskontoType.MØDREKVOTE, Trekkdager.ZERO, BigDecimal.ZERO);
         UttakResultatPeriodeEntitet periode2 = new UttakResultatPeriodeEntitet.Builder(periode1.getTom().plusDays(1), periode1.getTom().plusDays(10))
-            .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK)
+            .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK)
             .build();
         leggTilPeriodeAktivitet(uttakAktivitet, periode2, StønadskontoType.MØDREKVOTE, Trekkdager.ZERO, BigDecimal.ZERO);
 
@@ -106,7 +106,7 @@ public class FastsettePerioderRevurderingUtilTest {
             LocalDate.of(2019, 4, 26))
             .medSamtidigUttaksprosent(BigDecimal.ZERO)
             .medSamtidigUttak(false)
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         leggTilPeriodeAktivitet(uttakAktivitet, opprinneligPeriode, StønadskontoType.MØDREKVOTE, new Trekkdager(10));
 

@@ -10,6 +10,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 
 public final class UttakOmsorgUtil {
 
@@ -25,7 +28,7 @@ public final class UttakOmsorgUtil {
     }
 
     public static boolean harAnnenForelderRett(YtelseFordelingAggregat ytelseFordelingAggregat,
-                                               Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan) {
+                                               Optional<UttakResultatEntitet> annenpartsGjeldendeUttaksplan) {
         if (annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
             return true;
         }
@@ -38,19 +41,19 @@ public final class UttakOmsorgUtil {
         return oppgittRettighet.getHarAnnenForeldreRett() == null || oppgittRettighet.getHarAnnenForeldreRett();
     }
 
-    public static boolean annenForelderHarUttakMedUtbetaling(Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan) {
+    public static boolean annenForelderHarUttakMedUtbetaling(Optional<UttakResultatEntitet> annenpartsGjeldendeUttaksplan) {
         return annenpartsGjeldendeUttaksplan.isPresent() && harUtbetaling(annenpartsGjeldendeUttaksplan.get());
     }
 
-    private static boolean harUtbetaling(ForeldrepengerUttak resultat) {
-        return resultat.getGjeldendePerioder().stream().anyMatch(UttakOmsorgUtil::harUtbetaling);
+    private static boolean harUtbetaling(UttakResultatEntitet resultat) {
+        return resultat.getGjeldendePerioder().getPerioder().stream().anyMatch(UttakOmsorgUtil::harUtbetaling);
     }
 
-    private static boolean harUtbetaling(ForeldrepengerUttakPeriode periode) {
+    private static boolean harUtbetaling(UttakResultatPeriodeEntitet periode) {
         return periode.getAktiviteter().stream().anyMatch(UttakOmsorgUtil::harUtbetaling);
     }
 
-    private static boolean harUtbetaling(ForeldrepengerUttakPeriodeAktivitet aktivitet) {
-        return aktivitet.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) > 0;
+    private static boolean harUtbetaling(UttakResultatPeriodeAktivitetEntitet aktivitet) {
+        return aktivitet.getUtbetalingsprosent().compareTo(BigDecimal.ZERO) > 0;
     }
 }

@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
 public class TapendeBehandlingTjenesteTest {
 
@@ -235,7 +234,7 @@ public class TapendeBehandlingTjenesteTest {
 
     private Behandling avsluttMedUttak(Behandling behandling) {
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(6))
-            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         var uttak = new UttakResultatPerioderEntitet();
         repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
@@ -254,7 +253,6 @@ public class TapendeBehandlingTjenesteTest {
     }
 
     private TapendeBehandlingTjeneste tjeneste() {
-        return new TapendeBehandlingTjeneste(repositoryProvider.getSøknadRepository(), new RelatertBehandlingTjeneste(repositoryProvider),
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()));
+        return new TapendeBehandlingTjeneste(repositoryProvider.getSøknadRepository(), new RelatertBehandlingTjeneste(repositoryProvider), repositoryProvider.getUttakRepository());
     }
 }

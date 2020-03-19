@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,11 +16,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.vedtak.util.FPDateUtil;
 
@@ -32,20 +31,14 @@ public class HarEtablertYtelseImpl implements HarEtablertYtelse {
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
-    private BehandlingVedtakRepository behandlingVedtakRepository;
 
     @Inject
     public HarEtablertYtelseImpl(StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
                                  UttakInputTjeneste uttakInputTjeneste,
-                                 RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-                                 ForeldrepengerUttakTjeneste uttakTjeneste,
-                                 BehandlingVedtakRepository behandlingVedtakRepository) {
+                                 RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
-        this.uttakTjeneste = uttakTjeneste;
-        this.behandlingVedtakRepository = behandlingVedtakRepository;
     }
 
     HarEtablertYtelseImpl() {
@@ -76,16 +69,12 @@ public class HarEtablertYtelseImpl implements HarEtablertYtelse {
     }
 
     private UttakResultatHolder getAnnenPartUttak(Saksnummer saksnummer) {
-        var annenpartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(saksnummer);
-        if (annenpartBehandling.isPresent() && erTilknyttetLøpendeFagsak(annenpartBehandling.get())) {
-            var vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(annenpartBehandling.get().getId());
-            return new UttakResultatHolderImpl(uttakTjeneste.hentUttakHvisEksisterer(annenpartBehandling.get().getId()), vedtak.orElse(null));
-        }
-        return new UttakResultatHolderImpl(Optional.empty(), null);
+        return new UttakResultatHolderImpl(relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattUttaksplan(saksnummer)
+            .filter(this::erTilknyttetLøpendeFagsak));
     }
 
-    private boolean erTilknyttetLøpendeFagsak(Behandling behandling) {
-        return behandling.getFagsak().getStatus().equals(FagsakStatus.LØPENDE);
+    private boolean erTilknyttetLøpendeFagsak(UttakResultatEntitet uttakResultatEntitet) {
+        return uttakResultatEntitet.getBehandlingsresultat().getBehandling().getFagsak().getStatus().equals(FagsakStatus.LØPENDE);
     }
 
     @Override
@@ -99,13 +88,13 @@ public class HarEtablertYtelseImpl implements HarEtablertYtelse {
         return behandlingsresultatBuilder.buildFor(revurdering);
     }
 
-    private boolean erSisteVedtakAvslagEllerOpphør(UttakResultatHolder uttakResultatHolder,
+    private boolean erSisteVedtakAvslagEllerOpphør(UttakResultatHolder fraOrginalBehandling,
                                                    VurderOpphørDagensDato opphørFørEllerEtterDagensDato) {
-        var vedtak = uttakResultatHolder.getBehandlingVedtak();
-        if (vedtak.isEmpty()) {
+        BehandlingVedtak vedtak = fraOrginalBehandling.getBehandlingVedtak();
+        if (vedtak == null) {
             return false;
         }
-        Behandlingsresultat behandlingsresultat = vedtak.get().getBehandlingsresultat();
+        Behandlingsresultat behandlingsresultat = vedtak.getBehandlingsresultat();
         BehandlingResultatType resultatType = behandlingsresultat.getBehandlingResultatType();
         boolean erOpphørTilbakeITid = opphørFørEllerEtterDagensDato.test(behandlingsresultat);
 

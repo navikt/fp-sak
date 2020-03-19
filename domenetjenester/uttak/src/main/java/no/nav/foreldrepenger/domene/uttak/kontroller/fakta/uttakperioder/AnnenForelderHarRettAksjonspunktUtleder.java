@@ -19,10 +19,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -37,18 +37,18 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
-
-    @Inject
-    public AnnenForelderHarRettAksjonspunktUtleder(UttakRepositoryProvider repositoryProvider,
-                                                   PersonopplysningTjeneste personopplysningTjeneste, ForeldrepengerUttakTjeneste uttakTjeneste) {
-        this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        this.personopplysningTjeneste = personopplysningTjeneste;
-        this.uttakTjeneste = uttakTjeneste;
-    }
+    private UttakRepository uttakRepository;
 
     AnnenForelderHarRettAksjonspunktUtleder() {
         // For CDI
+    }
+
+    @Inject
+    public AnnenForelderHarRettAksjonspunktUtleder(UttakRepositoryProvider repositoryProvider,
+                                                   PersonopplysningTjeneste personopplysningTjeneste) {
+        this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.personopplysningTjeneste = personopplysningTjeneste;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
             return List.of();
         }
 
-        var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(input.getYtelsespesifiktGrunnlag());
+        Optional<UttakResultatEntitet> annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(input.getYtelsespesifiktGrunnlag());
 
         if (!oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) &&
             !oppgittAleneomsorg(ytelseFordelingAggregat) &&
@@ -88,10 +88,10 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
         return false;
     }
 
-    private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(ForeldrepengerGrunnlag fpGrunnlag) {
+    private Optional<UttakResultatEntitet> hentAnnenpartsUttak(ForeldrepengerGrunnlag fpGrunnlag) {
         var annenpart = fpGrunnlag.getAnnenpart();
         if (annenpart.isPresent()) {
-            return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
+            return uttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
         }
         return Optional.empty();
     }

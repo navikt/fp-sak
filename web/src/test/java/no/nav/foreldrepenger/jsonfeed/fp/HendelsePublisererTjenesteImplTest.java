@@ -380,7 +380,7 @@ public class HendelsePublisererTjenesteImplTest {
                                                                     LocalDate tom) {
 
         UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(resultat, PeriodeResultatÅrsak.UKJENT)
             .build();
 
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()

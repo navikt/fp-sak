@@ -62,7 +62,7 @@ public class AnnenPartGrunnlagBygger {
         var builder = utledBuilder(periode)
             .medSamtidigUttak(periode.isSamtidigUttak())
             .medFlerbarnsdager(periode.isFlerbarnsdager())
-            .medInnvilget(PeriodeResultatType.INNVILGET.equals(periode.getResultatType()));
+            .medInnvilget(PeriodeResultatType.INNVILGET.equals(periode.getPeriodeResultatType()));
 
         for (UttakResultatPeriodeAktivitetEntitet aktivitet : periode.getAktiviteter()) {
             var mapped = new AnnenpartUttakPeriodeAktivitet(UttakEnumMapper.map(aktivitet.getUttakAktivitet()),

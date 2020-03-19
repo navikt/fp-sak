@@ -14,9 +14,7 @@ public final class ArbeidsforholdMapper {
 
     private ArbeidsforholdMapper() {}
 
-    public static Arbeidsforhold mapArbeidsforholdFraUttakAktivitet(Optional<Arbeidsgiver> arbeidsgiver,
-                                                                    InternArbeidsforholdRef arbeidsforholdRef,
-                                                                    UttakArbeidType uttakArbeidType) {
+    public static Arbeidsforhold mapArbeidsforholdFraUttakAktivitet(Optional<Arbeidsgiver> arbeidsgiver, Optional<InternArbeidsforholdRef> arbeidsforholdRef, UttakArbeidType uttakArbeidType) {
         if (UttakArbeidType.FRILANS.equals(uttakArbeidType)) {
             return Arbeidsforhold.frilansArbeidsforhold();
         }
@@ -29,10 +27,10 @@ public final class ArbeidsforholdMapper {
         }
         Optional<Arbeidsgiver> arbeidsgiver = andel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver);
         Optional<InternArbeidsforholdRef> arbeidsforholdRef = andel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef);
-        return lagArbeidsforhold(arbeidsgiver, arbeidsforholdRef.orElse(InternArbeidsforholdRef.nullRef()));
+        return lagArbeidsforhold(arbeidsgiver, arbeidsforholdRef);
     }
 
-    private static Arbeidsforhold lagArbeidsforhold(Optional<Arbeidsgiver> arbeidsgiverOpt, InternArbeidsforholdRef arbeidsforholdRef) {
+    private static Arbeidsforhold lagArbeidsforhold(Optional<Arbeidsgiver> arbeidsgiverOpt, Optional<InternArbeidsforholdRef> arbeidsforholdRef) {
         if (arbeidsgiverOpt.isPresent()) {
             Arbeidsgiver arbeidsgiver = arbeidsgiverOpt.get();
             if (arbeidsgiver.getErVirksomhet()) {
@@ -47,12 +45,16 @@ public final class ArbeidsforholdMapper {
         return null;
     }
 
-    private static Arbeidsforhold lagArbeidsforholdHosVirksomhet(Arbeidsgiver arbgiver, InternArbeidsforholdRef arbeidsforholdRef) {
-        return Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(arbgiver.getIdentifikator(), arbeidsforholdRef.getReferanse());
+    private static Arbeidsforhold lagArbeidsforholdHosVirksomhet(Arbeidsgiver arbgiver, Optional<InternArbeidsforholdRef> arbeidsforholdRef) {
+        return arbeidsforholdRef.isPresent()
+            ? Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(arbgiver.getIdentifikator(), arbeidsforholdRef.get().getReferanse())
+            : Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(arbgiver.getIdentifikator());
     }
 
-    private static Arbeidsforhold lagArbeidsforholdHosPrivatperson(Arbeidsgiver arbgiver, InternArbeidsforholdRef arbeidsforholdRef) {
-        return Arbeidsforhold.nyttArbeidsforholdHosPrivatperson(arbgiver.getIdentifikator(), arbeidsforholdRef.getReferanse());
+    private static Arbeidsforhold lagArbeidsforholdHosPrivatperson(Arbeidsgiver arbgiver, Optional<InternArbeidsforholdRef> arbeidsforholdRef) {
+        return arbeidsforholdRef.isPresent()
+            ? Arbeidsforhold.nyttArbeidsforholdHosPrivatperson(arbgiver.getIdentifikator(), arbeidsforholdRef.get().getReferanse())
+            : Arbeidsforhold.nyttArbeidsforholdHosPrivatperson(arbgiver.getIdentifikator());
     }
 
 }

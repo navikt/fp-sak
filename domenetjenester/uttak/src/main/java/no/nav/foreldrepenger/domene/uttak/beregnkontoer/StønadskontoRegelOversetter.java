@@ -7,7 +7,7 @@ import java.util.Optional;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -19,7 +19,7 @@ public class StønadskontoRegelOversetter {
                                                 YtelseFordelingAggregat ytelseFordelingAggregat,
                                                 boolean harSøkerRett,
                                                 FagsakRelasjon fagsakRelasjon,
-                                                Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
+                                                Optional<UttakResultatEntitet> annenpartsGjeldendeUttaksplan,
                                                 ForeldrepengerGrunnlag fpGrunnlag) {
 
         FamilieHendelse familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();

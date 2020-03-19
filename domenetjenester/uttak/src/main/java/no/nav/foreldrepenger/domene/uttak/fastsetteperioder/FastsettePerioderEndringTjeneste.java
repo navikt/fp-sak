@@ -106,7 +106,7 @@ public class FastsettePerioderEndringTjeneste {
     private boolean erLik(UttakResultatPeriodeEntitet periode1, UttakResultatPeriodeEntitet periode2) {
         if (!Objects.equals(periode1.getFom(), periode2.getFom()) ||
             !Objects.equals(periode1.getTom(), periode2.getTom()) ||
-            !Objects.equals(periode1.getResultatType(), periode2.getResultatType()) ||
+            !Objects.equals(periode1.getPeriodeResultatType(), periode2.getPeriodeResultatType()) ||
             !Objects.equals(periode1.getBegrunnelse(), periode2.getBegrunnelse())) {
             return false;
         }

@@ -76,7 +76,7 @@ public class RevurderingGrunnlagBygger {
             .medSamtidigUttak(periode.isSamtidigUttak())
             .medTidsperiode(periode.getFom(), periode.getTom())
             .medOppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
-            .medPeriodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
+            .medPeriodeResultatType(UttakEnumMapper.map(periode.getPeriodeResultatType()))
             .build();
     }
 

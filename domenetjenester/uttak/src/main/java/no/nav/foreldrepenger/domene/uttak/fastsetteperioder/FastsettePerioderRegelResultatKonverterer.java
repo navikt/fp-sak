@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 
-import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.mapArbeidsgiver;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -128,8 +126,9 @@ public class FastsettePerioderRegelResultatKonverterer {
                                                        Set<UttakAktivitetEntitet> uttakAktiviteter) {
         return uttakAktiviteter.stream()
             .filter(uttakAktivitet -> Objects.equals(lagArbeidType(aktivitet), uttakAktivitet.getUttakArbeidType()) &&
-                Objects.equals(aktivitet.getArbeidsforholdId(), uttakAktivitet.getArbeidsforholdRef().getReferanse())
-                && Objects.equals(aktivitet.getArbeidsgiverIdentifikator(), uttakAktivitet.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null)))
+                Objects.equals(aktivitet.getArbeidsforholdId(), uttakAktivitet.getArbeidsforholdRef().map(InternArbeidsforholdRef::getReferanse).orElse(null))
+                &&
+                Objects.equals(aktivitet.getArbeidsgiverIdentifikator(), uttakAktivitet.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null)))
             .findFirst().orElse(null);
     }
 
@@ -182,16 +181,11 @@ public class FastsettePerioderRegelResultatKonverterer {
         if (aktivitet.isSøktGradering()) {
             return uttakPeriode.getArbeidsprosent();
         }
-        if (erUtsettelsePgaArbeid(uttakPeriode) && erArbeidMedArbeidsgiver(aktivitet)) {
-            return uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(mapArbeidsgiver(aktivitet.getIdentifikator()),
+        if (erUtsettelsePgaArbeid(uttakPeriode) && aktivitet.getIdentifikator().getAktivitetType().equals(AktivitetType.ARBEID) && aktivitet.getIdentifikator().getArbeidsgiverIdentifikator() != null) {
+            return uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(aktivitet.getIdentifikator().getArbeidsgiverIdentifikator(),
                 InternArbeidsforholdRef.ref(aktivitet.getIdentifikator().getArbeidsforholdId()), uttakPeriode.getFom());
         }
         return BigDecimal.ZERO;
-    }
-
-    private boolean erArbeidMedArbeidsgiver(UttakPeriodeAktivitet aktivitet) {
-        return aktivitet.getIdentifikator().getAktivitetType().equals(AktivitetType.ARBEID) &&
-            aktivitet.getIdentifikator().getArbeidsgiverIdentifikator() != null;
     }
 
     private boolean erUtsettelsePgaArbeid(UttakPeriode uttakPeriode) {
@@ -264,7 +258,7 @@ public class FastsettePerioderRegelResultatKonverterer {
                                                    UttakResultatPeriodeSøknadEntitet periodeSøknad) {
         PeriodeResultatType periodeResultatType = UttakEnumMapper.map(uttakPeriode.getPerioderesultattype());
         return new UttakResultatPeriodeEntitet.Builder(uttakPeriode.getFom(), uttakPeriode.getTom())
-            .medResultatType(periodeResultatType, UttakEnumMapper.map(periodeResultatType, uttakPeriode.getPeriodeResultatÅrsak()))
+            .medPeriodeResultat(periodeResultatType, UttakEnumMapper.map(periodeResultatType, uttakPeriode.getPeriodeResultatÅrsak()))
             .medDokRegel(dokRegel)
             .medGraderingInnvilget(uttakPeriode.erGraderingInnvilget())
             .medUtsettelseType(toUtsettelseType(uttakPeriode))

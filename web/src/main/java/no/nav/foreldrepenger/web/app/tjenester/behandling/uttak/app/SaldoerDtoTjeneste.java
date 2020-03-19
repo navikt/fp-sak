@@ -16,11 +16,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.TapteDagerFpffTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.StønadskontoRegelAdapter;
@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetIdentifikatorDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetSaldoDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontoUtvidelser;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.StønadskontoDto;
@@ -52,7 +53,7 @@ public class SaldoerDtoTjeneste {
     private StønadskontoRegelAdapter stønadskontoRegelAdapter;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
+    private UttakRepository uttakRepository;
     private TapteDagerFpffTjeneste tapteDagerFpffTjeneste;
 
     public SaldoerDtoTjeneste() {
@@ -65,7 +66,6 @@ public class SaldoerDtoTjeneste {
                               ArbeidsgiverDtoTjeneste arbeidsgiverDtoTjeneste,
                               StønadskontoRegelAdapter stønadskontoRegelAdapter,
                               BehandlingRepositoryProvider repositoryProvider,
-                              ForeldrepengerUttakTjeneste uttakTjeneste,
                               TapteDagerFpffTjeneste tapteDagerFpffTjeneste) {
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
         this.maksDatoUttakTjeneste = maksDatoUttakTjeneste;
@@ -73,7 +73,7 @@ public class SaldoerDtoTjeneste {
         this.stønadskontoRegelAdapter = stønadskontoRegelAdapter;
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
-        this.uttakTjeneste = uttakTjeneste;
+        this.uttakRepository = repositoryProvider.getUttakRepository();
         this.tapteDagerFpffTjeneste = tapteDagerFpffTjeneste;
     }
 
@@ -118,17 +118,17 @@ public class SaldoerDtoTjeneste {
         return tapteDagerFpffTjeneste.antallTapteDagerFpff(input);
     }
 
-    private Optional<ForeldrepengerUttak> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
+    private Optional<UttakResultatEntitet> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         var annenpart = foreldrepengerGrunnlag.getAnnenpart();
         if (annenpart.isPresent()) {
-            return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
+            return uttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
         }
         return Optional.empty();
     }
 
     private Optional<KontoUtvidelser> finnKontoUtvidelser(BehandlingReferanse ref,
                                                           Stønadskontotype stønadskonto,
-                                                          Optional<ForeldrepengerUttak> annenpart,
+                                                          Optional<UttakResultatEntitet> annenpart,
                                                           ForeldrepengerGrunnlag fpGrunnlag) {
         if (!Stønadskontotype.FELLESPERIODE.equals(stønadskonto) && !Stønadskontotype.FORELDREPENGER.equals(stønadskonto)) {
             return Optional.empty();
@@ -162,7 +162,18 @@ public class SaldoerDtoTjeneste {
 
     private FastsattUttakPeriodeAktivitet map(UttakResultatPeriodeAktivitetLagreDto dto) {
         return new FastsattUttakPeriodeAktivitet(UttakEnumMapper.map(dto.getTrekkdagerDesimaler()), UttakEnumMapper.map(dto.getStønadskontoType()),
-            UttakEnumMapper.map(dto.getUttakArbeidType(), dto.getArbeidsgiver(), dto.getArbeidsforholdRef()));
+            UttakEnumMapper.map(dto.getUttakArbeidType(), map(dto.getArbeidsgiver()), dto.getArbeidsforholdId()));
+    }
+
+    private Optional<Arbeidsgiver> map(ArbeidsgiverLagreDto arbeidsgiver) {
+        if (arbeidsgiver == null) {
+            return Optional.empty();
+        }
+        if (!arbeidsgiver.erVirksomhet()) {
+            return Optional.of(Arbeidsgiver.person(arbeidsgiver.getAktørId()));
+        }
+        String orgnr = arbeidsgiver.getIdentifikator();
+        return Optional.of(Arbeidsgiver.virksomhet(orgnr));
     }
 
     private AktivitetIdentifikatorDto mapToDto(AktivitetIdentifikator aktivitet, List<ArbeidsforholdOverstyring> overstyringer) {

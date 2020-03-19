@@ -175,17 +175,17 @@ public class FastsettePerioderRegelAdapterTest {
             fødselsdato.plusWeeks(6).minusDays(1));
 
         // manglene søkt periode
-        assertThat(fpffPeriode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(fpffPeriode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
         assertThat(fpffPeriode.getAktiviteter()).hasSize(1);
         assertThat(fpffPeriode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         assertThat(fpffPeriode.getAktiviteter().get(0).getTrekkdager()).isEqualTo(new Trekkdager(15));
         // mødrekvote innvilget
-        assertThat(mkPeriode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(mkPeriode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
         assertThat(mkPeriode.getAktiviteter()).hasSize(1);
         assertThat(mkPeriode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.MØDREKVOTE);
         assertThat(mkPeriode.getAktiviteter().get(0).getTrekkdager()).isEqualTo(new Trekkdager(new IntervalUtils(fødselsdato, fødselsdato.plusWeeks(5)).antallArbeidsdager()));
         // manglene søkt periode.. automatisk avslag og trekk dager
-        assertThat(manglendeSøktPeriode.getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
+        assertThat(manglendeSøktPeriode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
         assertThat(manglendeSøktPeriode.getAktiviteter()).hasSize(1);
         assertThat(manglendeSøktPeriode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.MØDREKVOTE);
         assertThat(manglendeSøktPeriode.getAktiviteter().get(0).getTrekkdager()).isEqualTo(new Trekkdager(new IntervalUtils(fødselsdato.plusWeeks(5).plusDays(1),
@@ -295,13 +295,13 @@ public class FastsettePerioderRegelAdapterTest {
         UttakResultatPeriodeEntitet periode1 = uttakResultatPerioder.get(0);
         assertThat(periode1.getFom()).isEqualTo(startDato);
         assertThat(periode1.getTom()).isEqualTo(forventetKnekk.minusDays(1));
-        assertThat(periode1.getResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
+        assertThat(periode1.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
         assertThat(periode1.getManuellBehandlingÅrsak().getKode()).isEqualTo(String.valueOf(Manuellbehandlingårsak.UGYLDIG_STØNADSKONTO.getId()));
 
         UttakResultatPeriodeEntitet periode2 = uttakResultatPerioder.get(1);
         assertThat(periode2.getFom()).isEqualTo(forventetKnekk);
         assertThat(periode2.getTom()).isEqualTo(sluttDato);
-        assertThat(periode2.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(periode2.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
     }
 
     @Test
@@ -332,7 +332,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         Stream<UttakResultatPeriodeEntitet> manuelleFellesPerioderStream = uttakResultatPerioder.stream().filter(
             uttakResultatPeriode -> uttakResultatPeriode.getAktiviteter().get(0).getTrekkonto().getKode().equals(UttakPeriodeType.FELLESPERIODE.getKode()) &&
-                uttakResultatPeriode.getResultatType().equals(PeriodeResultatType.MANUELL_BEHANDLING));
+                uttakResultatPeriode.getPeriodeResultatType().equals(PeriodeResultatType.MANUELL_BEHANDLING));
         List<UttakResultatPeriodeEntitet> manuelleFellesPerioder = manuelleFellesPerioderStream.collect(Collectors.toList());
         assertThat(manuelleFellesPerioder).hasSize(1);
 
@@ -374,11 +374,11 @@ public class FastsettePerioderRegelAdapterTest {
         UttakResultatPeriodeEntitet manglendeSøktPeriodeMK = finnPeriode(uttakResultatPerioder, fødselsdato, fødselsdato.plusWeeks(6).minusDays(1));
 
         assertThat(tidligUttakFP.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FELLESPERIODE);
-        assertThat(tidligUttakFP.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(tidligUttakFP.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
         assertThat(manglendeSøktPeriodeFP.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FELLESPERIODE);
         assertThat(manglendeSøktPeriodeFPFF.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         assertThat(manglendeSøktPeriodeMK.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.MØDREKVOTE);
-        assertThat(manglendeSøktPeriodeMK.getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
+        assertThat(manglendeSøktPeriodeMK.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
     }
 
     @Test
@@ -427,17 +427,17 @@ public class FastsettePerioderRegelAdapterTest {
         UttakResultatPeriodeEntitet manglendeSøktPeriodeMK = finnPeriode(uttakResultatPerioder, fødselsdato, fødselsdato.plusWeeks(6).minusDays(1));
 
         assertThat(tidligUttakFP1.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FELLESPERIODE);
-        assertThat(tidligUttakFP1.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(tidligUttakFP1.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
 
         assertThat(manglendeSøktPeriodeFP.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FELLESPERIODE);
-        assertThat(manglendeSøktPeriodeFP.getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
+        assertThat(manglendeSøktPeriodeFP.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
 
         assertThat(tidligUttakFP2.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FELLESPERIODE);
-        assertThat(tidligUttakFP2.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(tidligUttakFP2.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
         assertThat(manglendeSøktPeriodeFPFF.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
-        assertThat(manglendeSøktPeriodeFPFF.getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
+        assertThat(manglendeSøktPeriodeFPFF.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
         assertThat(manglendeSøktPeriodeMK.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.MØDREKVOTE);
-        assertThat(manglendeSøktPeriodeMK.getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
+        assertThat(manglendeSøktPeriodeMK.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
     }
 
     @Test
@@ -494,15 +494,15 @@ public class FastsettePerioderRegelAdapterTest {
 
         UttakResultatPeriodeEntitet periode = uttakResultatPerioder.get(0);
         assertThat(periode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
-        assertThat(periode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(periode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
 
         periode = uttakResultatPerioder.get(1);
         assertThat(periode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.MØDREKVOTE);
-        assertThat(periode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(periode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
 
         // Oppholdsperioder for annen forelder skal returneres som en uttakResultatPeriode uten aktivitet
         periode = uttakResultatPerioder.get(2);
-        assertThat(periode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(periode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
         assertThat(periode.getOppholdÅrsak()).isEqualTo(KVOTE_FELLESPERIODE_ANNEN_FORELDER);
         assertThat(periode.getFom()).isEqualTo(startDatoOpphold);
         assertThat(periode.getTom()).isEqualTo(sluttDatoOpphold);
@@ -510,13 +510,13 @@ public class FastsettePerioderRegelAdapterTest {
         // Periode knukket pga ikke nok dager igjen på konto.
         periode = uttakResultatPerioder.get(3);
         assertThat(periode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FELLESPERIODE);
-        assertThat(periode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(periode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
         assertThat(periode.getFom()).isEqualTo(fellesperiode.getFom());
         assertThat(periode.getTom()).isEqualTo(sluttDatoMødrekvote.plusWeeks(16));
 
         periode = uttakResultatPerioder.get(4);
         assertThat(periode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FELLESPERIODE);
-        assertThat(periode.getResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
+        assertThat(periode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
         assertThat(periode.getFom()).isEqualTo(sluttDatoMødrekvote.plusWeeks(16).plusDays(1));
         assertThat(periode.getTom()).isEqualTo(fellesperiode.getTom());
 
@@ -569,23 +569,23 @@ public class FastsettePerioderRegelAdapterTest {
 
         UttakResultatPeriodeEntitet periode = uttakResultatPerioder.get(0);
         assertThat(periode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
-        assertThat(periode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(periode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
 
         periode = uttakResultatPerioder.get(1);
         assertThat(periode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.MØDREKVOTE);
-        assertThat(periode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(periode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
 
         // Oppholdsperioder for annen forelder skal returneres som en uttakResultatPeriode uten aktivitet
         periode = uttakResultatPerioder.get(2);
-        assertThat(periode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
-        assertThat(periode.getResultatÅrsak()).isEqualTo(PeriodeResultatÅrsak.UKJENT);
+        assertThat(periode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(periode.getPeriodeResultatÅrsak()).isEqualTo(PeriodeResultatÅrsak.UKJENT);
         assertThat(periode.getOppholdÅrsak()).isEqualTo(FEDREKVOTE_ANNEN_FORELDER);
         assertThat(periode.getFom()).isEqualTo(startDatoOpphold);
         assertThat(periode.getTom()).isEqualTo(sluttDatoMødrekvote.plusWeeks(15));
 
         // Periode knukket pga ikke nok dager igjen på konto.
         periode = uttakResultatPerioder.get(3);
-        assertThat(periode.getResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
+        assertThat(periode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
         assertThat(periode.getFom()).isEqualTo(sluttDatoMødrekvote.plusWeeks(15).plusDays(1));
         assertThat(periode.getTom()).isEqualTo(sluttDatoOpphold);
     }
@@ -633,8 +633,8 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(fedrekvotePerioder.get(0).getFom()).isEqualTo(startDatoFedrekvote);
         assertThat(fedrekvotePerioder.get(0).getTom()).isEqualTo(sluttDatoFedrekvote);
 
-        assertThat(fedrekvotePerioder.get(0).getResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
-        assertThat(fedrekvotePerioder.get(0).getResultatÅrsak().getKode()).isEqualTo("4007");
+        assertThat(fedrekvotePerioder.get(0).getPeriodeResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
+        assertThat(fedrekvotePerioder.get(0).getPeriodeResultatÅrsak().getKode()).isEqualTo("4007");
         assertThat(fedrekvotePerioder.get(0).getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FEDREKVOTE);
 
         List<UttakResultatPeriodeEntitet> mødrekvotePerioder = uttakResultatPerioder.stream()
@@ -643,8 +643,8 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(mødrekvotePerioder).hasSize(1);
         assertThat(mødrekvotePerioder.get(0).getFom()).isEqualTo(startDatoMødrekvote);
         assertThat(mødrekvotePerioder.get(0).getTom()).isEqualTo(sluttDatoMødrekvote);
-        assertThat(mødrekvotePerioder.get(0).getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
-        assertThat(mødrekvotePerioder.get(0).getResultatÅrsak().getKode()).isEqualTo("2003");
+        assertThat(mødrekvotePerioder.get(0).getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(mødrekvotePerioder.get(0).getPeriodeResultatÅrsak().getKode()).isEqualTo("2003");
         assertThat(mødrekvotePerioder.get(0).getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.MØDREKVOTE);
     }
 
@@ -679,7 +679,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         UttakResultatPerioderEntitet farUttakresultat = new UttakResultatPerioderEntitet();
         UttakResultatPeriodeEntitet farPeriode = new UttakResultatPeriodeEntitet.Builder(morUtsettelseFørstegangs.getFom(), morUtsettelseFørstegangs.getTom())
-            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(farPeriode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FEDREKVOTE)
@@ -741,7 +741,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         assertThat(resultat.getPerioder()).hasSize(1);
         assertThat(resultat.getPerioder().get(0).getUtsettelseType()).isEqualTo(UttakUtsettelseType.SYKDOM_SKADE);
-        assertThat(resultat.getPerioder().get(0).getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
+        assertThat(resultat.getPerioder().get(0).getPeriodeResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
         assertThat(resultat.getPerioder().get(0).getAktiviteter().get(0).getTrekkdager().decimalValue()).isZero();
 
     }
@@ -774,7 +774,7 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(uttakResultatPerioder).hasSize(1);
 
         UttakResultatPeriodeEntitet periode = uttakResultatPerioder.iterator().next();
-        assertThat(periode.getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
+        assertThat(periode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
         assertThat(periode.getAktiviteter()).hasSize(1);
         var aktivitet = periode.getAktiviteter().get(0);
         assertThat(aktivitet.getTrekkdager()).isEqualTo(new Trekkdager(5 * 5));
@@ -905,7 +905,7 @@ public class FastsettePerioderRegelAdapterTest {
         UttakResultatPeriodeAktivitetEntitet aktivitetMørdrekvoteVirksomhet1 = aktivitetForArbeidsgiver(mødrekvote.getAktiviteter(),
             virksomhetSomGradereresHos);
         UttakResultatPeriodeAktivitetEntitet aktivitetMørdrekvoteVirksomhet2 = aktivitetForArbeidsgiver(mødrekvote.getAktiviteter(), annenVirksomhet);
-        assertThat(mødrekvote.getResultatÅrsak()).isInstanceOf(InnvilgetÅrsak.class);
+        assertThat(mødrekvote.getPeriodeResultatÅrsak()).isInstanceOf(InnvilgetÅrsak.class);
         assertThat(mødrekvote.isGraderingInnvilget()).isFalse();
         assertThat(mødrekvote.getGraderingAvslagÅrsak()).isEqualTo(GraderingAvslagÅrsak.UKJENT);
         assertThat(aktivitetMørdrekvoteVirksomhet1.getTrekkdager()).isEqualTo(new Trekkdager(5 * 6));
@@ -921,7 +921,7 @@ public class FastsettePerioderRegelAdapterTest {
             virksomhetSomGradereresHos);
         UttakResultatPeriodeAktivitetEntitet aktivitetGradertMørdrekvoteVirksomhet2 = aktivitetForArbeidsgiver(gradertMødrekvote.getAktiviteter(),
             annenVirksomhet);
-        assertThat(gradertMødrekvote.getResultatÅrsak()).isInstanceOf(InnvilgetÅrsak.class);
+        assertThat(gradertMødrekvote.getPeriodeResultatÅrsak()).isInstanceOf(InnvilgetÅrsak.class);
         assertThat(gradertMødrekvote.isGraderingInnvilget()).isTrue();
         assertThat(gradertMødrekvote.getGraderingAvslagÅrsak()).isEqualTo(GraderingAvslagÅrsak.UKJENT);
         assertThat(aktivitetGradertMørdrekvoteVirksomhet1.getTrekkdager()).isEqualTo(new Trekkdager(new BigDecimal(5.5)));
@@ -1172,10 +1172,10 @@ public class FastsettePerioderRegelAdapterTest {
             .filter(p -> p.getAktiviteter().get(0).getTrekkonto().equals(StønadskontoType.MØDREKVOTE)).findFirst().get();
 
         // Innvilget FPFF
-        assertThat(fpffPeriode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(fpffPeriode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
         assertThat(fpffPeriode.getAktiviteter().get(0).getTrekkdager()).isEqualTo(new Trekkdager(15));
         // Innvilget mødrekvote, men avslag på gradering.
-        assertThat(mkPeriode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(mkPeriode.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
         assertThat(mkPeriode.getGraderingAvslagÅrsak()).isEqualTo(GraderingAvslagÅrsak.GRADERING_FØR_UKE_7);
         assertThat(mkPeriode.getAktiviteter().get(0).getTrekkdager()).isEqualTo(new Trekkdager(new IntervalUtils(fødselsdato,
             fødselsdato.plusWeeks(6).minusDays(1)).antallArbeidsdager()));
@@ -1187,7 +1187,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         UttakRevurderingTestUtil uttakRevurderingTestUtil = new UttakRevurderingTestUtil(repositoryProvider, iayTjeneste);
         UttakResultatPeriodeEntitet opprinneligFpff = new UttakResultatPeriodeEntitet.Builder(fødselsdato.minusWeeks(3).minusDays(1), fødselsdato.minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build();
         UttakResultatPeriodeAktivitetEntitet aktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(opprinneligFpff, uttakAktivitet)
@@ -1198,7 +1198,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medUtbetalingsprosent(BigDecimal.TEN)
             .build();
         UttakResultatPeriodeEntitet opprinneligMødrekvote = new UttakResultatPeriodeEntitet.Builder(fødselsdato, fødselsdato.plusWeeks(8))
-            .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.UKJENT)
             .build();
         UttakResultatPeriodeAktivitetEntitet aktivitet2 = new UttakResultatPeriodeAktivitetEntitet.Builder(opprinneligMødrekvote, uttakAktivitet)
             .medTrekkonto(StønadskontoType.MØDREKVOTE)
@@ -1453,7 +1453,7 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(aktivitetForArbeidsgiver(mødrekvoteArbeidsgiver1TomForDager.getAktiviteter(), arbeidsgiver3).getTrekkdager()).isEqualTo(new Trekkdager(10));
 
         assertThat(mødrekvoteAlleTomForDager.isInnvilget()).isFalse();
-        assertThat(mødrekvoteAlleTomForDager.getResultatÅrsak()).isEqualTo(IkkeOppfyltÅrsak.IKKE_STØNADSDAGER_IGJEN);
+        assertThat(mødrekvoteAlleTomForDager.getPeriodeResultatÅrsak()).isEqualTo(IkkeOppfyltÅrsak.IKKE_STØNADSDAGER_IGJEN);
     }
 
     private YrkesaktivitetBuilder lagYrkesaktivitet(Arbeidsgiver arbeidsgiver, LocalDate fom) {

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class UttakResultatPeriodeAktivitetDto {
 
@@ -85,8 +84,8 @@ public class UttakResultatPeriodeAktivitetDto {
             return this;
         }
 
-        public Builder medArbeidsforhold(InternArbeidsforholdRef ref, String eksternArbeidsforholdId, ArbeidsgiverDto arbeidsgiver) {
-            kladd.arbeidsforholdId = ref == null ? null : ref.getReferanse();
+        public Builder medArbeidsforhold(String internArbeidsforholdId, String eksternArbeidsforholdId, ArbeidsgiverDto arbeidsgiver) {
+            kladd.arbeidsforholdId = internArbeidsforholdId;
             kladd.eksternArbeidsforholdId = eksternArbeidsforholdId;
             kladd.arbeidsgiver = arbeidsgiver;
             return this;

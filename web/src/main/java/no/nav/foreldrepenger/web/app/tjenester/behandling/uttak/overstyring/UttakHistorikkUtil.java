@@ -21,9 +21,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.KodeMapper;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeLagreDto;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -46,8 +49,8 @@ public final class UttakHistorikkUtil {
 
     public List<Historikkinnslag> lagHistorikkinnslag(Behandling behandling,
                                                       List<UttakResultatPeriodeLagreDto> uttakResultat,
-                                                      List<ForeldrepengerUttakPeriode> gjeldende) {
-        List<Historikkinnslag> historikkinnslag = new ArrayList<>();
+                                                      UttakResultatPerioderEntitet gjeldende) {
+        ArrayList<Historikkinnslag> historikkinnslag = new ArrayList<>();
         historikkinnslag.addAll(lagHistorikkinnslagFraSplitting(behandling, uttakResultat, gjeldende));
         historikkinnslag.addAll(lagHistorikkinnslagFraPeriodeEndringer(behandling, uttakResultat, gjeldende));
         return historikkinnslag;
@@ -55,7 +58,7 @@ public final class UttakHistorikkUtil {
 
     private List<Historikkinnslag> lagHistorikkinnslagFraPeriodeEndringer(Behandling behandling,
                                                                           List<UttakResultatPeriodeLagreDto> grupper,
-                                                                          List<ForeldrepengerUttakPeriode> gjeldende) {
+                                                                          UttakResultatPerioderEntitet gjeldende) {
         return grupper
             .stream()
             .map(gruppe -> lagHistorikkinnslagForPeriode(behandling, gruppe, gjeldende))
@@ -64,12 +67,12 @@ public final class UttakHistorikkUtil {
     }
 
     private List<Historikkinnslag> lagHistorikkinnslagFraSplitting(Behandling behandling,
-                                                                   List<UttakResultatPeriodeLagreDto> nyePerioder,
-                                                                   List<ForeldrepengerUttakPeriode> gjeldende) {
-        if (nyePerioder.size() == gjeldende.size()) {
+                                                                   List<UttakResultatPeriodeLagreDto> grupper,
+                                                                   UttakResultatPerioderEntitet gjeldende) {
+        if (grupper.size() == gjeldende.getPerioder().size()) {
             return Collections.emptyList();
         }
-        List<UttakOverstyringsPeriodeSplitt> splittet = finnSplittet(nyePerioder, gjeldende);
+        List<UttakOverstyringsPeriodeSplitt> splittet = finnSplittet(grupper, gjeldende);
         return splittet.stream().map(split -> lagHistorikkinnslag(behandling, split)).collect(Collectors.toList());
     }
 
@@ -94,12 +97,12 @@ public final class UttakHistorikkUtil {
     }
 
     private List<UttakOverstyringsPeriodeSplitt> finnSplittet(List<UttakResultatPeriodeLagreDto> perioder,
-                                                              List<ForeldrepengerUttakPeriode> gjeldende) {
+                                                              UttakResultatPerioderEntitet gjeldende) {
 
-        Map<ForeldrepengerUttakPeriode, UttakOverstyringsPeriodeSplitt.Builder> map = new HashMap<>();
+        Map<UttakResultatPeriodeEntitet, UttakOverstyringsPeriodeSplitt.Builder> map = new HashMap<>();
         for (UttakResultatPeriodeLagreDto periode : perioder) {
             LocalDateInterval periodeInterval = new LocalDateInterval(periode.getFom(), periode.getTom());
-            var matchendeGjeldendePeriode = EndreUttakUtil.finnGjeldendePeriodeFor(gjeldende, periodeInterval);
+            UttakResultatPeriodeEntitet matchendeGjeldendePeriode = EndreUttakUtil.finnGjeldendePeriodeFor(gjeldende, periodeInterval);
             if (!likeTidsperioder(periode, matchendeGjeldendePeriode)) {
                 map.computeIfAbsent(matchendeGjeldendePeriode, m -> new UttakOverstyringsPeriodeSplitt.Builder()
                     .medOpprinnelig(new LocalDateInterval(m.getFom(), m.getTom())));
@@ -110,14 +113,14 @@ public final class UttakHistorikkUtil {
         return map.values().stream().map(UttakOverstyringsPeriodeSplitt.Builder::build).collect(Collectors.toList());
     }
 
-    private boolean likeTidsperioder(UttakResultatPeriodeLagreDto periode, ForeldrepengerUttakPeriode matchendeGjeldendePeriode) {
+    private boolean likeTidsperioder(UttakResultatPeriodeLagreDto periode, UttakResultatPeriodeEntitet matchendeGjeldendePeriode) {
         return matchendeGjeldendePeriode.getFom().isEqual(periode.getFom()) &&
             matchendeGjeldendePeriode.getTom().isEqual(periode.getTom());
     }
 
     private List<Historikkinnslag> lagHistorikkinnslagForPeriode(Behandling behandling,
                                                                  UttakResultatPeriodeLagreDto periode,
-                                                                 List<ForeldrepengerUttakPeriode> gjeldende) {
+                                                                 UttakResultatPerioderEntitet gjeldende) {
         List<Historikkinnslag> list = new ArrayList<>();
         if (erOppholdsPeriode(periode)) {
             if (periodeHarEndringer(gjeldende, periode)) {
@@ -133,7 +136,7 @@ public final class UttakHistorikkUtil {
     }
 
     private Historikkinnslag lagHistorikkinnslag(Behandling behandling,
-                                                 List<ForeldrepengerUttakPeriode> gjeldende,
+                                                 UttakResultatPerioderEntitet gjeldende,
                                                  UttakResultatPeriodeLagreDto nyGruppe,
                                                  UttakResultatPeriodeAktivitetLagreDto nyPeriode) {
         Historikkinnslag historikkinnslag = new Historikkinnslag.Builder()
@@ -148,7 +151,7 @@ public final class UttakHistorikkUtil {
     }
 
     private Historikkinnslag lagHistorikkinnslagForOppholdsperiode(Behandling behandling,
-                                                                   List<ForeldrepengerUttakPeriode> gjeldende,
+                                                                   UttakResultatPerioderEntitet gjeldende,
                                                                    UttakResultatPeriodeLagreDto nyGruppe) {
         Historikkinnslag historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
@@ -161,7 +164,7 @@ public final class UttakHistorikkUtil {
         return historikkinnslag;
     }
 
-    private boolean aktivitetHarEndringer(List<ForeldrepengerUttakPeriode> gjeldende,
+    private boolean aktivitetHarEndringer(UttakResultatPerioderEntitet gjeldende,
                                           UttakResultatPeriodeLagreDto nyPeriode,
                                           UttakResultatPeriodeAktivitetLagreDto nyAktivitet) {
         if (nyPeriode.getBegrunnelse() == null || nyPeriode.getBegrunnelse().isEmpty()) {
@@ -170,19 +173,18 @@ public final class UttakHistorikkUtil {
         return lagHistorikkinnslagTekst(gjeldende, nyPeriode, nyAktivitet).antallEndredeFelter() != 0;
     }
 
-    private boolean periodeHarEndringer(List<ForeldrepengerUttakPeriode> gjeldende,
+    private boolean periodeHarEndringer(UttakResultatPerioderEntitet gjeldende,
                                         UttakResultatPeriodeLagreDto nyGruppe) {
         return lagHistorikkinnslagTekstForOppholdsperiode(gjeldende, nyGruppe).antallEndredeFelter() != 0;
     }
 
-    private HistorikkInnslagTekstBuilder lagHistorikkinnslagTekst(List<ForeldrepengerUttakPeriode> gjeldende,
+    private HistorikkInnslagTekstBuilder lagHistorikkinnslagTekst(UttakResultatPerioderEntitet gjeldende,
                                                                   UttakResultatPeriodeLagreDto nyPeriode,
                                                                   UttakResultatPeriodeAktivitetLagreDto nyAktivitet) {
-        var gjeldendePeriode = EndreUttakUtil.finnGjeldendePeriodeFor(gjeldende,
+        UttakResultatPeriodeEntitet gjeldendePeriode = EndreUttakUtil.finnGjeldendePeriodeFor(gjeldende,
             new LocalDateInterval(nyPeriode.getFom(), nyPeriode.getTom()));
-        var gjeldendeAktivitet = EndreUttakUtil.finnGjeldendeAktivitetFor(gjeldendePeriode, nyAktivitet.getArbeidsgiver().orElse(null),
-            nyAktivitet.getArbeidsforholdRef(),
-            nyAktivitet.getUttakArbeidType());
+        UttakResultatPeriodeAktivitetEntitet gjeldendeAktivitet = EndreUttakUtil.finnGjeldendeAktivitetFor(gjeldendePeriode, nyAktivitet.getArbeidsforholdId(),
+            identifikator(nyAktivitet.getArbeidsgiver()), nyAktivitet.getUttakArbeidType());
         HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
             .medSkjermlenke(SkjermlenkeType.UTTAK)
             .medHendelse(historikkinnslagTypeEndring)
@@ -198,10 +200,10 @@ public final class UttakHistorikkUtil {
             HistorikkInnslagTekstBuilder.formatString(nyAktivitetTrekkdager));
 
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_STØNADSKONTOTYPE, gjeldendeAktivitet.getTrekkonto(), nyAktivitet.getStønadskontoType());
-        builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_TYPE, gjeldendePeriode.getResultatType(),
+        builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_TYPE, gjeldendePeriode.getPeriodeResultatType(),
             nyPeriode.getPeriodeResultatType());
-        builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_PROSENT_UTBETALING, gjeldendeAktivitet.getUtbetalingsgrad(), nyAktivitet.getUtbetalingsgrad());
-        builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_ÅRSAK, gjeldendePeriode.getResultatÅrsak(),
+        builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_PROSENT_UTBETALING, gjeldendeAktivitet.getUtbetalingsprosent(), nyAktivitet.getUtbetalingsgrad());
+        builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_ÅRSAK, gjeldendePeriode.getPeriodeResultatÅrsak(),
             nyPeriode.getPeriodeResultatÅrsak());
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_TREKKDAGER_FLERBARN_KVOTE, gjeldendePeriode.isFlerbarnsdager(), nyPeriode.isFlerbarnsdager());
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_SAMTIDIG_UTTAK, gjeldendePeriode.isSamtidigUttak(), nyPeriode.isSamtidigUttak());
@@ -214,9 +216,20 @@ public final class UttakHistorikkUtil {
         return builder;
     }
 
-    private HistorikkInnslagTekstBuilder lagHistorikkinnslagTekstForOppholdsperiode(List<ForeldrepengerUttakPeriode> gjeldende,
+    private String identifikator(ArbeidsgiverLagreDto arbeidsgiver) {
+        if (arbeidsgiver == null) {
+            return null;
+        }
+        if (arbeidsgiver.erVirksomhet()) {
+            return arbeidsgiver.getIdentifikator();
+        }
+        return arbeidsgiver.getAktørId().getId();
+    }
+
+    private HistorikkInnslagTekstBuilder lagHistorikkinnslagTekstForOppholdsperiode(UttakResultatPerioderEntitet gjeldende,
                                                                                     UttakResultatPeriodeLagreDto nyPeriode) {
-        var gjeldendePeriode = EndreUttakUtil.finnGjeldendePeriodeFor(gjeldende, new LocalDateInterval(nyPeriode.getFom(), nyPeriode.getTom()));
+        UttakResultatPeriodeEntitet gjeldendePeriode = EndreUttakUtil.finnGjeldendePeriodeFor(gjeldende,
+            new LocalDateInterval(nyPeriode.getFom(), nyPeriode.getTom()));
         HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
             .medSkjermlenke(SkjermlenkeType.UTTAK)
             .medHendelse(historikkinnslagTypeEndring)

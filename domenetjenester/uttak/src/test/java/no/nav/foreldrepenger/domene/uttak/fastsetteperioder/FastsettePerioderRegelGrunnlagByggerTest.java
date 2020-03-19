@@ -269,7 +269,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
         // Uttak periode 1
         UttakResultatPeriodeEntitet uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(fødselsdato, fødselsdato.plusWeeks(6).minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
 
         Arbeidsgiver morsArbeidsgiver = lagVirksomhetArbeidsgiver("3333");
@@ -287,7 +287,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
         // Uttak periode 2
         UttakResultatPeriodeEntitet uttakFellesperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(10).minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
 
         UttakResultatPeriodeAktivitetEntitet.builder(uttakFellesperiode, arbeidsforhold1)
@@ -300,7 +300,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
         //Utsettelse
         UttakResultatPeriodeEntitet utsettelse = new UttakResultatPeriodeEntitet.Builder(fødselsdato.plusWeeks(10), fødselsdato.plusWeeks(11).minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
 
         UttakResultatPeriodeAktivitetEntitet.builder(utsettelse, arbeidsforhold1)
@@ -358,7 +358,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
         // Assert
         AktivitetIdentifikator forventetAktivitetIdentifikator = AktivitetIdentifikator.forArbeid(arbeidsforhold1.getArbeidsgiver().get().getIdentifikator(),
-            arbeidsforhold1.getArbeidsforholdRef().getReferanse());
+            arbeidsforhold1.getArbeidsforholdRef().get().getReferanse());
 
         List<AnnenpartUttakPeriode> uttakPerioderAnnenPart = grunnlag.getAnnenPart().getUttaksperioder();
         assertThat(uttakPerioderAnnenPart).hasSize(3);

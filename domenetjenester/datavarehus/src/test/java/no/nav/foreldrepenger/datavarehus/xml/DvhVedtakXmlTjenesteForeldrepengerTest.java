@@ -290,7 +290,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         repositoryProvider.getUttakRepository().lagreUttaksperiodegrense(behandling.getId(), uttaksperiodegrense);
 
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusDays(11))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         UttakResultatPerioderEntitet uttakResultatPerioder1 = new UttakResultatPerioderEntitet();
         uttakResultatPerioder1.leggTilPeriode(periode);
@@ -327,7 +327,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         UttakResultatEntitet.Builder uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(behandling.getBehandlingsresultat());
 
         UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(innvilget ? PeriodeResultatType.INNVILGET : PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(innvilget ? PeriodeResultatType.INNVILGET : PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT)
             .build();
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())

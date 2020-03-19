@@ -109,8 +109,8 @@ public class UttakXmlTjenesteImpl {
         UttaksresultatPeriode kontrakt = new UttaksresultatPeriode();
 
         kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periodeDomene.getFom(), periodeDomene.getTom()));
-        kontrakt.setPeriodeResultatType(VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getResultatType()));
-        kontrakt.setPerioderesultataarsak(VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getResultatÅrsak()));
+        kontrakt.setPeriodeResultatType(VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getPeriodeResultatType()));
+        kontrakt.setPerioderesultataarsak(VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getPeriodeResultatÅrsak()));
         Optional.ofNullable(periodeDomene.getManuellBehandlingÅrsak()).ifPresent(aarsak -> kontrakt.setManuellbehandlingaarsak(VedtakXmlUtil.lagKodeverksOpplysning(aarsak)));
         kontrakt.setBegrunnelse(VedtakXmlUtil.lagStringOpplysning(periodeDomene.getBegrunnelse()));
         setUttaksresultatPeriodeAktiviteter(kontrakt, periodeDomene.getAktiviteter());
@@ -132,10 +132,8 @@ public class UttakXmlTjenesteImpl {
         UttaksresultatPeriodeAktivitet kontrakt = new UttaksresultatPeriodeAktivitet();
         kontrakt.setTrekkkonto(VedtakXmlUtil.lagKodeverksOpplysning(periodeAktivitet.getTrekkonto()));
         kontrakt.setTrekkdager(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getTrekkdager().decimalValue()));
-        if (periodeAktivitet.getArbeidsgiver() != null) {
-            kontrakt.setVirksomhet(VedtakXmlUtil.lagStringOpplysning(periodeAktivitet.getArbeidsgiver().getIdentifikator()));
-            kontrakt.setArbeidsforholdid(VedtakXmlUtil.lagStringOpplysning(periodeAktivitet.getArbeidsforholdRef().getReferanse()));
-        }
+        kontrakt.setVirksomhet(VedtakXmlUtil.lagStringOpplysning(periodeAktivitet.getArbeidsgiverIdentifikator()));
+        kontrakt.setArbeidsforholdid(VedtakXmlUtil.lagStringOpplysning(periodeAktivitet.getArbeidsforholdId()));
         kontrakt.setArbeidstidsprosent(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getArbeidsprosent()));
         if(periodeAktivitet.getUtbetalingsprosent()!=null) {
             kontrakt.setUtbetalingsprosent(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getUtbetalingsprosent()));

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
@@ -65,15 +64,12 @@ public class FastsettUttakOppdatererTest {
     private FastsettePerioderTjeneste fastettePerioderTjeneste;
     @Inject
     private UttakInputTjeneste uttakInputTjeneste;
-    @Inject
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
 
     private FastsettUttakOppdaterer oppdaterer;
 
     @Before
     public void setup() {
-        oppdaterer = new FastsettUttakOppdaterer(mock(HistorikkTjenesteAdapter.class), fastettePerioderTjeneste,
-            uttakTjeneste, uttakInputTjeneste);
+        oppdaterer = new FastsettUttakOppdaterer(repositoryProvider, mock(HistorikkTjenesteAdapter.class), fastettePerioderTjeneste, uttakInputTjeneste);
     }
 
     @Test
@@ -86,7 +82,7 @@ public class FastsettUttakOppdatererTest {
             .medArbeidsgiver(new ArbeidsgiverLagreDto(ORGNR, null))
             .medTrekkdager(BigDecimal.ZERO)
             .build();
-        List<UttakResultatPeriodeAktivitetLagreDto> aktiviteter = List.of(aktivitetLagreDto);
+        List<UttakResultatPeriodeAktivitetLagreDto> aktiviteter = Collections.singletonList(aktivitetLagreDto);
         PeriodeResultatType periodeResultatType = PeriodeResultatType.INNVILGET;
         PeriodeResultatÅrsak periodeResultatÅrsak = InnvilgetÅrsak.UTTAK_OPPFYLT;
         StønadskontoType stønadskontoType = StønadskontoType.FORELDREPENGER;
@@ -100,7 +96,7 @@ public class FastsettUttakOppdatererTest {
             .medFlerbarnsdager(false)
             .medSamtidigUttak(false)
             .build();
-        List<UttakResultatPeriodeLagreDto> perioder = List.of(periode1);
+        List<UttakResultatPeriodeLagreDto> perioder = Collections.singletonList(periode1);
         FastsetteUttakDto dto = new FastsetteUttakDto.FastsetteUttakPerioderDto(perioder);
 
         //arrange
@@ -110,10 +106,6 @@ public class FastsettUttakOppdatererTest {
             .medDefaultSøknadTerminbekreftelse()
             .lagre(repositoryProvider);
         repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligPerioder);
-        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
-            .medOpprinneligEndringsdato(fom)
-            .build();
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), avklarteUttakDatoer);
 
         OppdateringResultat result = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
 
@@ -124,19 +116,17 @@ public class FastsettUttakOppdatererTest {
         assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getTidsperiode().getTomDato()).isEqualTo(tom);
         assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getBegrunnelse()).isEqualTo(begrunnelse);
         assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getAktiviteter()).hasSize(aktiviteter.size());
-        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getResultatType()).isEqualTo(periodeResultatType);
-        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getResultatÅrsak()).isEqualTo(periodeResultatÅrsak);
+        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getPeriodeResultatType()).isEqualTo(periodeResultatType);
+        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getPeriodeResultatÅrsak()).isEqualTo(periodeResultatÅrsak);
         assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getAktiviteter()).hasSize(1);
         assertThat(result.getOverhoppKontroll()).isEqualTo(OverhoppKontroll.UTEN_OVERHOPP);
     }
 
     @Test
     public void skalAvbryteOverstyringAksjonspunktHvisDetEksisterer() {
-        var fom = LocalDate.of(2019, 1, 1);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medDefaultSøknadTerminbekreftelse()
-            .medDefaultOppgittFordeling(fom)
-            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(fom).build());
+            .medDefaultOppgittFordeling(LocalDate.of(2019, 1, 1));
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER, BehandlingStegType.VURDER_UTTAK);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER, BehandlingStegType.VURDER_UTTAK);
         scenario.medBehandlingVedtak()
@@ -145,16 +135,10 @@ public class FastsettUttakOppdatererTest {
             .medVedtakstidspunkt(LocalDateTime.now());
         Behandling behandling = scenario.lagre(repositoryProvider);
 
-        UttakResultatPerioderEntitet opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, fom, fom.plusMonths(1),
-            StønadskontoType.MØDREKVOTE);
+        UttakResultatPerioderEntitet opprinnelig = new UttakResultatPerioderEntitet();
         repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinnelig);
 
-        var dtoPeriode = new UttakResultatPeriodeLagreDto.Builder()
-            .medTidsperiode(fom, fom.plusMonths(1))
-            .medBegrunnelse(" ")
-            .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
-            .build();;
-        FastsetteUttakDto dto = new FastsetteUttakDto.FastsetteUttakPerioderDto(List.of(dtoPeriode));
+        FastsetteUttakDto dto = new FastsetteUttakDto.FastsetteUttakPerioderDto(Collections.emptyList());
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
@@ -169,7 +153,7 @@ public class FastsettUttakOppdatererTest {
                                                                      LocalDate tom,
                                                                      StønadskontoType stønadskontoType) {
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeResultat(resultat, PeriodeResultatÅrsak.UKJENT)
             .build();
 
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()

@@ -14,13 +14,12 @@ import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -29,10 +28,9 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @BehandlingTypeRef("BT-004")
 public class RevurderingBehandlingsresultatutleder extends RevurderingBehandlingsresultatutlederFellesImpl {
 
-    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
+    private UttakRepository uttakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private HarEtablertYtelse harEtablertYtelse;
-    private BehandlingVedtakRepository behandlingVedtakRepository;
 
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider,  // NOSONAR
@@ -42,8 +40,7 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
                                                  @FagsakYtelseTypeRef("FP") ErEndringIUttakFraEndringsdato erEndringIUttakFraEndringsdato,
                                                  @FagsakYtelseTypeRef("FP") ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
                                                  @FagsakYtelseTypeRef("FP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                                 MedlemTjeneste medlemTjeneste,
-                                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
+                                                 MedlemTjeneste medlemTjeneste) {
         super(repositoryProvider,
             beregningsgrunnlagTjeneste,
             medlemTjeneste,
@@ -52,16 +49,14 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
             erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
             skjæringstidspunktTjeneste
         );
-        this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
+        this.uttakRepository = repositoryProvider.getUttakRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.harEtablertYtelse = harEtablertYtelse;
-        this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }
 
     @Override
     protected UttakResultatHolder getUttakResultat(Long behandlingId) {
-        var vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandlingId);
-        return new UttakResultatHolderImpl(foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId), vedtak.orElse(null));
+        return new UttakResultatHolderImpl(uttakRepository.hentUttakResultatHvisEksisterer(behandlingId));
     }
 
     @Override
