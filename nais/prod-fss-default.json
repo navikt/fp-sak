@@ -6,8 +6,8 @@
   "fpsakserviceuser": "serviceuser/data/prod/srvengangsstonad",
   "ldapserviceuser": "serviceuser/data/prod/srvssolinux",
   "namespace": "default",
-  "minReplicas": "4",
-  "maxReplicas": "6",
+  "minReplicas": "3",
+  "maxReplicas": "10",
   "ingresses": [
     "https://fpsak.nais.adeo.no"
   ],
