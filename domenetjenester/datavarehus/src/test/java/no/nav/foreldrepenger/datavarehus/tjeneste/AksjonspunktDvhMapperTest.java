@@ -25,8 +25,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @SuppressWarnings("deprecation")
@@ -89,6 +90,8 @@ public class AksjonspunktDvhMapperTest {
 
         Whitebox.setInternalState(behandling.getAksjonspunktMedDefinisjonOptional(AKSJONSPUNKT_DEF).get(), OPPRETTET_AV, OPPRETTET_AV);
         Whitebox.setInternalState(behandling.getAksjonspunktMedDefinisjonOptional(AKSJONSPUNKT_DEF).get(), "opprettetTidspunkt", OPPRETTET_TID);
+        Whitebox.setInternalState(behandling.getAksjonspunktMedDefinisjonOptional(AKSJONSPUNKT_DEF).get(), "fristTid", OPPRETTET_TID.plusWeeks(3));
+        Whitebox.setInternalState(behandling.getAksjonspunktMedDefinisjonOptional(AKSJONSPUNKT_DEF).get(), "venteårsak", Venteårsak.UDEFINERT);
         Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(AKSJONSPUNKT_DEF).get();
 
         AksjonspunktDvh dvh = mapper.map(aksjonspunkt, behandling, Optional.empty(), true);
@@ -96,6 +99,8 @@ public class AksjonspunktDvhMapperTest {
         assertThat(dvh).isNotNull();
 
         assertThat(dvh.getBehandlingStegId()).isNull();
+        assertThat(dvh.getVenteårsak()).isNull();
+        assertThat(dvh.getFristTid()).isEqualTo(OPPRETTET_TID.plusWeeks(3));
     }
 
     private Optional<BehandlingStegTilstand> byggBehandlingStegTilstand(Behandling behandling) {

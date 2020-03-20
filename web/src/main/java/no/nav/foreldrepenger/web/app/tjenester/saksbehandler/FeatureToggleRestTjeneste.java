@@ -61,28 +61,4 @@ public class FeatureToggleRestTjeneste {
         return new FeatureToggleDto(values);
     }
 
-    /**
-     * Henter opp alle toggles og sjekker de som starter med FP.
-     * Skal fjernes da de ødelegger metrikkene for togglene......
-     *
-     * @return toggles og oversikt
-     */
-    @Deprecated(forRemoval = true)
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Svarer på om feature-toggles er skrudd på", tags = "feature-toggle")
-    @BeskyttetRessurs(action = READ, ressurs = APPLIKASJON, sporingslogg = false)
-    public FeatureToggleDto featureToggles() {
-        String ident = SubjectHandler.getSubjectHandler().getUid();
-        UnleashContext unleashContext = UnleashContext.builder()
-            .addProperty(ByAnsvarligSaksbehandlerStrategy.SAKSBEHANDLER_IDENT, ident)
-            .build();
-        Map<String, Boolean> values = new HashMap<>();
-        unleash.getFeatureToggleNames()
-            .stream()
-            .filter(it -> it.toLowerCase().startsWith("fp"))
-            .forEach(toggle -> values.put(toggle, unleash.isEnabled(toggle, unleashContext)));
-        return new FeatureToggleDto(values);
-    }
-
 }

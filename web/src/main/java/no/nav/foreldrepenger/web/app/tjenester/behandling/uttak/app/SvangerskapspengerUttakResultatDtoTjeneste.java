@@ -79,7 +79,8 @@ public class SvangerskapspengerUttakResultatDtoTjeneste {
     }
 
     private SvangerskapspengerUttakResultatArbeidsforholdDto mapSvpUttakResultatArbeidsforholdDto(SvangerskapspengerUttakResultatArbeidsforholdEntitet perArbeidsforhold,
-                                                                                                  List<SvangerskapspengerUttakResultatPeriodeDto> periodeDtoer, List<ArbeidsforholdOverstyring> overstyringer) {
+                                                                                                  List<SvangerskapspengerUttakResultatPeriodeDto> periodeDtoer,
+                                                                                                  List<ArbeidsforholdOverstyring> overstyringer) {
         return SvangerskapspengerUttakResultatArbeidsforholdDto.builder()
             .medArbeidsforholdIkkeOppfyltÅrsak(perArbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak())
             .medArbeidsgiver(arbeidsgiverDtoTjeneste.mapFra(perArbeidsforhold.getArbeidsgiver(), overstyringer))

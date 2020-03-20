@@ -128,8 +128,14 @@ public class RegisterdataEndringshåndterer {
             }
             // Sikre håndtering av manglende fødsel
             endringskontroller.spolTilStartpunkt(behandling, endringsresultat,
-                gåttOverTerminDatoOgIngenFødselsdato ? StartpunktType.SØKERS_RELASJON_TIL_BARNET : StartpunktType.UDEFINERT);
+                senesteStartpunkt(behandling, gåttOverTerminDatoOgIngenFødselsdato));
         }
+    }
+
+    private StartpunktType senesteStartpunkt(Behandling behandling, boolean gåttOverTerminDatoOgIngenFødselsdato) {
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()))
+            return StartpunktType.UDEFINERT;
+        return gåttOverTerminDatoOgIngenFødselsdato ? StartpunktType.SØKERS_RELASJON_TIL_BARNET : StartpunktType.UDEFINERT;
     }
 
     public void oppdaterRegisteropplysningerOgReposisjonerBehandlingVedEndringer(Behandling behandling) {

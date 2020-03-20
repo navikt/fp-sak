@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -76,6 +77,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
@@ -113,6 +115,9 @@ public class AutomatiskEtterkontrollTaskTest {
     @Inject
     private EtterkontrollRepository etterkontrollRepository;
 
+    @Inject
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
+
     private AutomatiskEtterkontrollTask task;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
@@ -125,9 +130,10 @@ public class AutomatiskEtterkontrollTaskTest {
         behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
         familieHendelseRepositoryMock =  mock(FamilieHendelseRepository.class);
         var bkTjeneste = mock(BehandlingskontrollTjeneste.class);
-        when(behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(any(Fagsak.class))).thenReturn(Optional.empty());
+        when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
 
-        etterkontrollTjeneste = new EtterkontrollTjeneste( repositoryProvider,prosessTaskRepositoryMock, bkTjeneste);
+        etterkontrollTjeneste = new EtterkontrollTjeneste(repositoryProvider,prosessTaskRepositoryMock, bkTjeneste,
+            foreldrepengerUttakTjeneste);
         this.historikkRepository = mock(HistorikkRepository.class);
     }
 
@@ -190,7 +196,7 @@ public class AutomatiskEtterkontrollTaskTest {
                             Tuple<UttakAktivitetEntitet, Optional<Trekkdager>>... aktiviteter) {
 
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medSamtidigUttak(samtidigUttak)
             .medFlerbarnsdager(flerbarnsdager)
             .build();

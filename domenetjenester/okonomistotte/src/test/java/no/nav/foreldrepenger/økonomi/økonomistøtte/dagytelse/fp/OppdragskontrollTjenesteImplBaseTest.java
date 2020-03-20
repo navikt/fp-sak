@@ -708,7 +708,7 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
         UttakResultatPerioderEntitet opprinneligPerioder = new UttakResultatPerioderEntitet();
 
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(DAGENS_DATO.minusMonths(1), DAGENS_DATO)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medArbeidsforhold(Arbeidsgiver.virksomhet(virksomhet), InternArbeidsforholdRef.nyRef())
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)

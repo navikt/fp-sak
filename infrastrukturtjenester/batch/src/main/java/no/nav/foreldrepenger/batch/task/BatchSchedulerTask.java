@@ -18,7 +18,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * Enkel scheduler for dagens situasjon der man kjører batcher mandag-fredag og det er noe variasjon i parametere.
@@ -54,7 +53,8 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
         new BatchConfig(6, 59, "BVL005", null), // Kodeverk
         new BatchConfig(7, 0, "BVL004", null), // Gjenoppta
         new BatchConfig(7, 4, "BVL002", null), // Etterkontroll
-        new BatchConfig(7, 6, "BVL003", null)  // Forlengelsesbrev må kjøre noe etter Gjenoppta
+        new BatchConfig(7, 6, "BVL003", null),  // Forlengelsesbrev må kjøre noe etter Gjenoppta
+        new BatchConfig(2, 1, "BVL010", null)  //Oppdatering DVH. Bør kjøre før kl 03-04.
     );
 
     private final Set<MonthDay> fasteStengteDager = Set.of(
@@ -63,7 +63,6 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
         MonthDay.of(5, 17),
         MonthDay.of(12, 25),
         MonthDay.of(12, 26),
-        MonthDay.of(12, 30), // TODO midlertidig pga KOR 2020
         MonthDay.of(12, 31)
     );
 
@@ -82,7 +81,7 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
         DayOfWeek dagensUkedag = DayOfWeek.from(dagensDato);
 
         // Lagre neste instans av daglig scheduler straks over midnatt

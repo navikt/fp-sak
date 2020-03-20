@@ -53,7 +53,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
     }
 
     private void oppdaterEnhetMedAnnenPart(Behandling behandling) {
-        behandlendeEnhetTjeneste.endretBehandlendeEnhetFraOppgittAnnenPart(behandling).ifPresent(organisasjonsEnhet ->
-            behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, organisasjonsEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, "Annen part"));
+        behandlendeEnhetTjeneste.sjekkEnhetEtterEndring(behandling)
+            .ifPresent(enhet -> behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, enhet, HistorikkAktør.VEDTAKSLØSNINGEN, "Annen part"));
     }
 }

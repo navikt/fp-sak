@@ -61,7 +61,7 @@ public class SendBrevForAutopunktEventObserverTest {
         AksjonspunktDefinisjon autopunktDefinisjonOpptjening = AksjonspunktDefinisjon.AUTO_VENT_PÅ_OPPTJENINGSOPPLYSNINGER;
         AksjonspunktDefinisjon autopunktDefinisjonEtterkontroll = AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING;
 
-        AksjonspunktDefinisjon manuellpunktDefinisjon = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_MEDLEMSKAP;
+        AksjonspunktDefinisjon manuellpunktDefinisjon = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET;
 
         when(manuellpunkt.getAksjonspunktDefinisjon()).thenReturn(manuellpunktDefinisjon);
 

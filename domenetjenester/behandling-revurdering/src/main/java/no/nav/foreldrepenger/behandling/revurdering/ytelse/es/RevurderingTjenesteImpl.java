@@ -64,16 +64,16 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     }
 
     @Override
-    public Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, Optional<OrganisasjonsEnhet> enhet) {
+    public Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet) {
         return opprettRevurdering(fagsak, revurderingsÅrsak, true, enhet);
     }
 
     @Override
-    public Behandling opprettAutomatiskRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, Optional<OrganisasjonsEnhet> enhet) {
+    public Behandling opprettAutomatiskRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet) {
         return opprettRevurdering(fagsak, revurderingsÅrsak, false, enhet);
     }
 
-    private Behandling opprettRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingÅrsakType, boolean manueltOpprettet, Optional<OrganisasjonsEnhet> enhet) {
+    private Behandling opprettRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingÅrsakType, boolean manueltOpprettet, OrganisasjonsEnhet enhet) {
         Optional<Behandling> opprinneligBehandlingOptional = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
         if (!opprinneligBehandlingOptional.isPresent()) {
             throw RevurderingFeil.FACTORY.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()).toException();

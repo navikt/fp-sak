@@ -118,24 +118,18 @@ public class DokumentmottakerFelles {
             return dokument.getJournalEnhet().get();
         }
         if (behandling == null) {
-            return finnEnhetFraFagsak(sak);
+            return finnEnhetFraFagsak(sak).getEnhetId();
         }
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsak().getId())
                 .map(Behandling::getBehandlendeEnhet)
-                .orElse(finnEnhetFraFagsak(sak));
+                .orElse(finnEnhetFraFagsak(sak).getEnhetId());
         }
         return behandling.getBehandlendeEnhet();
     }
 
-    private String finnEnhetFraFagsak(Fagsak sak) {
-        OrganisasjonsEnhet organisasjonsEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFraSøker(sak);
-        return organisasjonsEnhet.getEnhetId();
-    }
-
-    OrganisasjonsEnhet utledEnhetFraTidligereBehandling(Behandling tidligereBehandling) {
-        // Utleder basert på regler rundt sakskompleks og diskresjonskoder. Vil bruke forrige enhet med mindre noen tilsier Kode6 eller opphør av enhet
-        return behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(tidligereBehandling).orElse(tidligereBehandling.getBehandlendeOrganisasjonsEnhet());
+    OrganisasjonsEnhet finnEnhetFraFagsak(Fagsak sak) {
+        return behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(sak);
     }
 
     void opprettHistorikkinnslagForBehandlingOppdatertMedNyeOpplysninger(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {

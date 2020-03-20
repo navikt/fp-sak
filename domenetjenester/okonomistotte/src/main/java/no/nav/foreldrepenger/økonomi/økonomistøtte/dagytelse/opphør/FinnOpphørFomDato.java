@@ -3,7 +3,11 @@ package no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.Oppdragsmottaker;
@@ -15,7 +19,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.Tilkjent
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.TilkjentYtelsePeriode;
 
 class FinnOpphørFomDato {
-
+    private static final Logger logger = LoggerFactory.getLogger(FinnOpphørFomDato.class);
     private FinnOpphørFomDato() {
     }
 
@@ -73,7 +77,12 @@ class FinnOpphørFomDato {
         if (mottaker.erBruker()) {
             return getFørstePeriodeMedBrukersandel(forrigeTilkjentYtelseAndelListe, kodeKlassifik);
         }
-        return getFørstePeriodeMedArbeidsgiversandel(mottaker, forrigeTilkjentYtelseAndelListe);
+        Optional<TilkjentYtelsePeriode> tilkjentYtelsePeriode = getFørstePeriodeMedArbeidsgiversandel(mottaker, forrigeTilkjentYtelseAndelListe);
+        if(tilkjentYtelsePeriode.isEmpty()){
+            logger.info("mottaker = {}, tilkjentytelseandelListe = {} ", mottaker, forrigeTilkjentYtelseAndelListe);
+            throw new IllegalStateException("Utvikler feil: Mangler beregningsresultat periode for arbeidsgiver andel");
+        }
+        return tilkjentYtelsePeriode.get();
     }
 
     private static TilkjentYtelsePeriode getFørstePeriodeMedBrukersandel(List<TilkjentYtelseAndel> andelListe, String kodeKlassifik) {
@@ -85,12 +94,11 @@ class FinnOpphørFomDato {
             .orElseThrow(() -> new IllegalStateException("Utvikler feil: Mangler beregningsresultat periode for bruker andel og inntektskategori: " + kodeKlassifik));
     }
 
-    private static TilkjentYtelsePeriode getFørstePeriodeMedArbeidsgiversandel(Oppdragsmottaker mottaker, List<TilkjentYtelseAndel> andelListe) {
+    private static Optional<TilkjentYtelsePeriode> getFørstePeriodeMedArbeidsgiversandel(Oppdragsmottaker mottaker, List<TilkjentYtelseAndel> andelListe) {
         return andelListe.stream()
             .filter(andel -> andel.getArbeidsforholdOrgnr().equals(mottaker.getId()))
             .sorted(Comparator.comparing(andel -> andel.getTilkjentYtelsePeriode().getFom()))
             .map(TilkjentYtelseAndel::getTilkjentYtelsePeriode)
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Utvikler feil: Mangler beregningsresultat periode for arbeidsgiver andel"));
+            .findFirst();
     }
 }

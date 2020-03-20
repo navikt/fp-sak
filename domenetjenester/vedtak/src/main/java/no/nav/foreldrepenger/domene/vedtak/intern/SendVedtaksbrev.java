@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -36,8 +35,6 @@ public class SendVedtaksbrev {
     private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private AnkeRepository ankeRepository;
-    private static final String toggle = "fpsak.ankebrev.sendebrev";
-    private Unleash unleash;
 
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
@@ -51,14 +48,13 @@ public class SendVedtaksbrev {
                            AnkeRepository ankeRepository,
                            DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste,
                            DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
-                           KlageRepository klageRepository, Unleash unleash) {
+                           KlageRepository klageRepository) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
         this.dokumentBestillerApplikasjonTjeneste = dokumentBestillerApplikasjonTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.klageRepository = klageRepository;
         this.ankeRepository = ankeRepository;
-        this.unleash = unleash;
     }
 
     void sendVedtaksbrev(Long behandlingId) {
@@ -77,7 +73,7 @@ public class SendVedtaksbrev {
         }
 
         if (BehandlingType.KLAGE.equals(behandling.getType()) && !skalSendeVedtaksbrevIKlagebehandling(behandling)) {
-            log.info("Sender ikke vedtaksbrev fra klagebehandlingen i behandlingen etter, eller når KlageVurderingResultat = null.", behandlingId); //$NON-NLS-1$
+            log.info("Sender ikke vedtaksbrev fra klagebehandlingen i behandlingen etter, eller når KlageVurderingResultat = null. For behandlingId {}", behandlingId); //$NON-NLS-1$
             return;
         }
 
@@ -124,21 +120,14 @@ public class SendVedtaksbrev {
             return true;
         }
         AnkeVurderingResultatEntitet vurdering = ankeRepository.hentAnkeVurderingResultat(anke.getId()).orElse(null);
-
-        if(unleash.isEnabled(toggle)) {
-            // henlagt eller ikke avsluttet
-            if (vurdering == null) {
-                return false;
-            }
-
-            AnkeVurdering ankeVurdering = vurdering.getAnkeVurdering();
-            //utvider med flere ankebrev etterhvert som de kommer på plass
-            return AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(ankeVurdering) || AnkeVurdering.ANKE_OMGJOER.equals(ankeVurdering);
+        // henlagt eller ikke avsluttet
+        if (vurdering == null) {
+            return false;
         }
-        else {
-            // henlagt eller ikke avsluttet
-            return vurdering == null;
-        }
+
+        AnkeVurdering ankeVurdering = vurdering.getAnkeVurdering();
+        //utvider med flere ankebrev etterhvert som de kommer på plass
+        return AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(ankeVurdering) || AnkeVurdering.ANKE_OMGJOER.equals(ankeVurdering);
     }
 
     private boolean skalSendeVedtaksbrevEtterKlage(Behandling behandling) {

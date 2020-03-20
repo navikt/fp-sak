@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class AksjonspunktDvhMapper {
 
@@ -21,9 +22,11 @@ public class AksjonspunktDvhMapper {
             .behandlingId(behandling.getId())
             .behandlingStegId(behandlingStegTilstand.map(BehandlingStegTilstand::getId).orElse(null))
             .endretAv(CommonDvhMapper.finnEndretAvEllerOpprettetAv(aksjonspunkt))
-            .funksjonellTid(FPDateUtil.nå())
+            .funksjonellTid(LocalDateTime.now())
             .toTrinnsBehandling(aksjonspunkt.isToTrinnsBehandling())
             .toTrinnsBehandlingGodkjent(aksjonspunktGodkjennt)
+            .fristTid(aksjonspunkt.getFristTid())
+            .venteårsak(Venteårsak.UDEFINERT.equals(aksjonspunkt.getVenteårsak()) ? null : aksjonspunkt.getVenteårsak().getKode())
             .build();
     }
 

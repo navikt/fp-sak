@@ -69,6 +69,19 @@ public class TilkjentYtelseAndel {
         return arbeidsgiver;
     }
 
+    @Override
+    public String toString() {
+        return "TilkjentYtelseAndel{" +
+            "tilkjentYtelsePeriodeFom=" + tilkjentYtelsePeriode.getFom() +
+            ", brukerErMottaker=" + brukerErMottaker +
+            ", familieYtelseType=" + familieYtelseType +
+            ", dagsats=" + dagsats +
+            ", utbetalingsgrad=" + utbetalingsgrad +
+            ", inntektskategori=" + inntektskategori +
+            ", arbeidsgiver=" + arbeidsgiver +
+            '}';
+    }
+
     public static Builder builder() {
         return new Builder();
     }

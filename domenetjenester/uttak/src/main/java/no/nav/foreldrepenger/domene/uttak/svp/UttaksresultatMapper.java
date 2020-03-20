@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.uttak.svp;
 import java.math.BigDecimal;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -24,55 +23,6 @@ import no.nav.svangerskapspenger.domene.resultat.Uttaksperioder;
 
 @ApplicationScoped
 class UttaksresultatMapper {
-
-    @Inject
-    UttaksresultatMapper() {
-    }
-
-    Uttaksperioder tilRegelmodell(SvangerskapspengerUttakResultatEntitet svangerskapspengerUttakResultatEntitet) {
-        var uttaksperioder = new Uttaksperioder();
-
-        svangerskapspengerUttakResultatEntitet.getUttaksResultatArbeidsforhold().forEach(urArbeidsforhold -> {
-
-            urArbeidsforhold.getPerioder().forEach(urPeriode -> {
-                var periode = new Uttaksperiode(urPeriode.getFom(), urPeriode.getTom(), urPeriode.getUtbetalingsgrad());
-                Arbeidsforhold arbeidsforhold;
-                if (urArbeidsforhold.getArbeidsgiver().erAktørId()) {
-                    arbeidsforhold = Arbeidsforhold.aktør(mapTilAktivitetType(urArbeidsforhold.getUttakArbeidType()), urArbeidsforhold.getArbeidsgiver().getAktørId().getId(),
-                        urArbeidsforhold.getArbeidsforholdRef() != null ? urArbeidsforhold.getArbeidsforholdRef().getReferanse() : null);
-                } else {
-                    arbeidsforhold = Arbeidsforhold.virksomhet(mapTilAktivitetType(urArbeidsforhold.getUttakArbeidType()), urArbeidsforhold.getArbeidsgiver().getOrgnr(), urArbeidsforhold.getArbeidsforholdRef().getReferanse());
-                }
-                uttaksperioder.leggTilPerioder(arbeidsforhold, periode);
-            });
-
-        });
-        return uttaksperioder;
-    }
-
-    private AktivitetType mapTilAktivitetType(UttakArbeidType uttakArbeidType) {
-        if (UttakArbeidType.ORDINÆRT_ARBEID.equals(uttakArbeidType)) {
-            return AktivitetType.ARBEID;
-        } else if(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(uttakArbeidType)) {
-            return AktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE;
-        } else if(UttakArbeidType.FRILANS.equals(uttakArbeidType)) {
-            return AktivitetType.FRILANS;
-        }
-        return AktivitetType.ANNET;
-    }
-
-    private UttakArbeidType mapTilUttakArbeidType(AktivitetType aktivitetType) {
-        switch(aktivitetType) {
-            case ARBEID:
-                return UttakArbeidType.ORDINÆRT_ARBEID;
-            case SELVSTENDIG_NÆRINGSDRIVENDE:
-                return UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE;
-            case FRILANS:
-                return UttakArbeidType.FRILANS;
-            default:
-                return UttakArbeidType.ANNET;
-        }
-    }
 
     SvangerskapspengerUttakResultatEntitet tilEntiteter(Behandlingsresultat behandlingsresultat, Uttaksperioder uttaksperioder) {
         var resultatBuilder = new SvangerskapspengerUttakResultatEntitet.Builder(behandlingsresultat);
@@ -102,6 +52,19 @@ class UttaksresultatMapper {
             uttaksperioderPerArbeidsforhold.getUttaksperioder().forEach(periode -> arbeidsforholdBuilder.medPeriode(konverterPeriode(periode).build()));
         }
         return arbeidsforholdBuilder;
+    }
+
+    private UttakArbeidType mapTilUttakArbeidType(AktivitetType aktivitetType) {
+        switch(aktivitetType) {
+            case ARBEID:
+                return UttakArbeidType.ORDINÆRT_ARBEID;
+            case SELVSTENDIG_NÆRINGSDRIVENDE:
+                return UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE;
+            case FRILANS:
+                return UttakArbeidType.FRILANS;
+            default:
+                return UttakArbeidType.ANNET;
+        }
     }
 
     private SvangerskapspengerUttakResultatPeriodeEntitet.Builder konverterPeriode(Uttaksperiode periode) {

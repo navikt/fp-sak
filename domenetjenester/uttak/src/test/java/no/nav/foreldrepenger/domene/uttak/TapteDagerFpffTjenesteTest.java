@@ -183,7 +183,7 @@ public class TapteDagerFpffTjenesteTest {
         opprettFagsakRelasjon(førstegangsBehandling, 15);
 
         var uttakPeriode = new UttakResultatPeriodeEntitet.Builder(søktFpff.getFom(), søktFpff.getTom())
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakPeriode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)

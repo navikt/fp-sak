@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggE
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -151,7 +150,8 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
                                            VirksomhetTjeneste virksomhetTjeneste,
                                            InntektArbeidYtelseTjeneste iayTjeneste,
                                            TpsTjeneste tpsTjeneste,
-                                           DatavarehusTjeneste datavarehusTjeneste, SvangerskapspengerRepository svangerskapspengerRepository) {
+                                           DatavarehusTjeneste datavarehusTjeneste,
+                                           SvangerskapspengerRepository svangerskapspengerRepository) {
         this.iayTjeneste = iayTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
@@ -190,7 +190,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             Long behandlingId = behandling.getId();
             Long originalBehandlingId = originalBehandling.get().getId();
             SøknadEntitet originalSøknad = søknadRepository.hentSøknad(originalBehandlingId);
-            søknadBuilder = new SøknadEntitet.Builder(originalSøknad);
+            søknadBuilder = new SøknadEntitet.Builder(originalSøknad, false);
 
             personopplysningRepository.hentPersonopplysningerHvisEksisterer(originalBehandlingId).flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart)
                 .ifPresent(oap -> {

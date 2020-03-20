@@ -211,7 +211,7 @@ public class VurderOpphørAvYtelser  {
 
     private Behandling opprettRevurdering(Fagsak sakRevurdering, BehandlingÅrsakType behandlingÅrsakType) {
         Behandling revurdering;
-        Optional<OrganisasjonsEnhet> enhet = behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(sakRevurdering);
+        OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(sakRevurdering);
 
         revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(sakRevurdering, behandlingÅrsakType, enhet);
 

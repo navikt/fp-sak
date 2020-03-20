@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -45,6 +46,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.person.tps.TpsFamilieTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -79,7 +81,10 @@ public class AutomatiskEtterkontrollTaskTest {
     @Inject
     private EtterkontrollRepository etterkontrollRepository;
 
-    EtterkontrollTjeneste  etterkontrollTjeneste;
+    @Inject
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
+
+    EtterkontrollTjeneste etterkontrollTjeneste;
 
     private HistorikkRepository historikkRepository;
 
@@ -88,8 +93,8 @@ public class AutomatiskEtterkontrollTaskTest {
         tpsFamilieTjenesteMock = mock(TpsFamilieTjeneste.class);
         behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
         var bkTjeneste = mock(BehandlingskontrollTjeneste.class);
-        when(behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(any(Fagsak.class))).thenReturn(Optional.empty());
-        etterkontrollTjeneste = new EtterkontrollTjeneste(repositoryProvider,prosessTaskRepositoryMock, bkTjeneste);
+        when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
+        etterkontrollTjeneste = new EtterkontrollTjeneste(repositoryProvider,prosessTaskRepositoryMock, bkTjeneste, foreldrepengerUttakTjeneste);
         this.historikkRepository = mock(HistorikkRepository.class);
 
     }
@@ -111,7 +116,7 @@ public class AutomatiskEtterkontrollTaskTest {
     }
 
     private void assertRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        Optional< Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
+        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Ingen revurdering").isPresent();
         List<BehandlingÅrsak> behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
         assertThat(behandlingÅrsaker).isNotEmpty();
@@ -120,7 +125,7 @@ public class AutomatiskEtterkontrollTaskTest {
     }
 
     private void assertIngenRevurdering(Behandling behandling) {
-        Optional< Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
+        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Har revurdering: " + behandling).isNotPresent();
     }
 

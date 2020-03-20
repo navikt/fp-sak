@@ -62,8 +62,8 @@
 
         <fp-uttak.version>3.0-20200219155057-a303797</fp-uttak.version>
 
-        <svp-uttak.version>2.1-20200130175841-176ecdd</svp-uttak.version>
-        <!-- <felles.version>1.4.2-20191218110056-fa5b90a</felles.version> -->
+        <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
+
         <felles.version>1.6-20200309160245-03ff62e</felles.version>
         <prosesstask.version>2.0.0-20200118083448-d87fd6d</prosesstask.version>
 
@@ -71,7 +71,7 @@
 
         <fp-kontrakter.version>5.1-20200224152726-2b69c0e</fp-kontrakter.version>
 
-        <kalkulus.version>1.0-2020.03.09.132639-0a98dc7</kalkulus.version>
+        <kalkulus.version>1.0-2020.03.20.105019-44c5c9d</kalkulus.version>
     </properties>
 
     <prerequisites>
@@ -196,7 +196,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.abakus</groupId>
                 <artifactId>abakus-kontrakt</artifactId>
-                <version>1.1-20200213081209-2b01231</version>
+                <version>1.1-20200315122951-5b3f05a</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>

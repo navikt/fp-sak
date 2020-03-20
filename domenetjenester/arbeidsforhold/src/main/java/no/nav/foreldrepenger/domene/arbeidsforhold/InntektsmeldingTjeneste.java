@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -238,6 +239,8 @@ public class InntektsmeldingTjeneste {
         List<Inntektsmelding> fjernes = new ArrayList<>();
 
         kladd.forEach(im -> {
+            boolean arbeidsgiverHarVærtRegistrertIOpplysningsperioden = yrkesaktiviteter.stream()
+                .anyMatch(y -> y.gjelderFor(im.getArbeidsgiver(), InternArbeidsforholdRef.nullRef()));
             boolean skalFjernes = yrkesaktiviteter.stream()
                 .noneMatch(y -> {
                     boolean gjelderFor = y.gjelderFor(im.getArbeidsgiver(), im.getArbeidsforholdRef());
@@ -245,7 +248,7 @@ public class InntektsmeldingTjeneste {
                     return gjelderFor && ansettelsesPerioder.stream()
                         .anyMatch(ap -> ap.getPeriode().inkluderer(skjæringstidspunktet) || ap.getPeriode().getTomDato().isAfter(skjæringstidspunktet));
                 });
-            if (skalFjernes && !erAmbasade(im)) {
+            if (skalFjernes && !erAmbasade(im) && arbeidsgiverHarVærtRegistrertIOpplysningsperioden) {
                 fjernes.add(im);
             }
         });

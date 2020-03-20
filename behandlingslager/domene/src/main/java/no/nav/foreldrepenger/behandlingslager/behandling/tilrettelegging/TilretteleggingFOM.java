@@ -33,6 +33,9 @@ public class TilretteleggingFOM extends BaseEntitet implements IndexKey {
     @Column(name = "STILLINGSPROSENT")
     private BigDecimal stillingsprosent;
 
+    @Column(name = "OVERSTYRT_UTBETALINGSGRAD")
+    private BigDecimal overstyrtUtbetalingsgrad;
+
     public Long getId() {
         return id;
     }
@@ -49,6 +52,10 @@ public class TilretteleggingFOM extends BaseEntitet implements IndexKey {
         return stillingsprosent;
     }
 
+    public BigDecimal getOverstyrtUtbetalingsgrad() {
+        return overstyrtUtbetalingsgrad;
+    }
+
     @Override
     public String getIndexKey() {
         return IndexKey.createKey(id);
@@ -63,6 +70,7 @@ public class TilretteleggingFOM extends BaseEntitet implements IndexKey {
             mal.type = tilretteleggingFOM.getType();
             mal.fomDato = tilretteleggingFOM.getFomDato();
             mal.stillingsprosent = tilretteleggingFOM.getStillingsprosent();
+            mal.overstyrtUtbetalingsgrad = tilretteleggingFOM.getOverstyrtUtbetalingsgrad();
         }
 
         public Builder() {
@@ -81,6 +89,11 @@ public class TilretteleggingFOM extends BaseEntitet implements IndexKey {
 
         public Builder medStillingsprosent(BigDecimal stillingsprosent) {
             mal.stillingsprosent = stillingsprosent;
+            return this;
+        }
+
+        public Builder medOverstyrtUtbetalingsgrad(BigDecimal overstyrtUtbetalingsgrad) {
+            mal.overstyrtUtbetalingsgrad = overstyrtUtbetalingsgrad;
             return this;
         }
 

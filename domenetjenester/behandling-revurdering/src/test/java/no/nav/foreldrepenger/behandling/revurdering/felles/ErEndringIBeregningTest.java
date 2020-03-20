@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingTjenest
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
+import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -92,7 +93,7 @@ public class ErEndringIBeregningTest {
         RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, behandlingskontrollTjeneste,
             iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         revurdering = revurderingTjeneste
-            .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(), BehandlingÅrsakType.RE_HENDELSE_FØDSEL, Optional.empty());
+            .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(), BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
         VirksomhetEntitet virksomhet = new VirksomhetEntitet.Builder().medOrgnr(KUNSTIG_ORG).medNavn("Virksomheten").oppdatertOpplysningerNå().build();
         repositoryProvider.getVirksomhetRepository().lagre(virksomhet);
         LocalDate endringsdato = LocalDate.now().minusMonths(3);

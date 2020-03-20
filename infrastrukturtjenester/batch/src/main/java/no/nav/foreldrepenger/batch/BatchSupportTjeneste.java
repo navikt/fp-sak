@@ -16,7 +16,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTypeInfo;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class BatchSupportTjeneste {
@@ -73,7 +72,7 @@ public class BatchSupportTjeneste {
         if (ptdList.isEmpty()) {
             return;
         }
-        LocalDateTime nå = FPDateUtil.nå();
+        LocalDateTime nå = LocalDateTime.now();
         Map<String, Integer> taskTypesMaxForsøk = new HashMap<>();
         ptdList.stream().map(ProsessTaskData::getTaskType).forEach(tasktype -> {
             if (taskTypesMaxForsøk.get(tasktype) == null) {

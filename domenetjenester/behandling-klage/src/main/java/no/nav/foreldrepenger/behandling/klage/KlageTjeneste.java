@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.klage;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,7 +17,6 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlin
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class KlageTjeneste {
@@ -50,16 +50,15 @@ public class KlageTjeneste {
     public Optional<Behandling> opprettKlageBehandling(Fagsak fagsak) {
         Optional<Behandling> behandlingKlagenGjelder = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
 
-        if (!behandlingKlagenGjelder.isPresent()) {
+        if (behandlingKlagenGjelder.isEmpty()) {
             return Optional.empty();
         }
         BehandlingType behandlingTypeKlage = BehandlingType.KLAGE;
-        OrganisasjonsEnhet enhetKlage = behandlendeEnhetTjeneste.sjekkEnhetVedNyAvledetBehandling(
-            behandlingKlagenGjelder.get()).orElse(behandlingKlagenGjelder.get().getBehandlendeOrganisasjonsEnhet());
+        OrganisasjonsEnhet enhetKlage = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
 
         Behandling klageBehandling = behandlingskontrollTjeneste.opprettNyBehandling(fagsak, behandlingTypeKlage,
             (beh) -> {
-                beh.setBehandlingstidFrist(FPDateUtil.iDag().plusWeeks(behandlingTypeKlage.getBehandlingstidFristUker()));
+                beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingTypeKlage.getBehandlingstidFristUker()));
                 beh.setBehandlendeEnhet(enhetKlage);
             });
 

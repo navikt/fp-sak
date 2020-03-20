@@ -56,7 +56,7 @@ public final class FastsettePerioderRevurderingUtil {
 
     private static UttakResultatPeriodeEntitet kopierPeriode(UttakResultatPeriodeEntitet periode, LocalDate nyTom) {
         UttakResultatPeriodeEntitet.Builder builder = new UttakResultatPeriodeEntitet.Builder(periode.getFom(), nyTom)
-            .medPeriodeResultat(periode.getPeriodeResultatType(), periode.getPeriodeResultatÅrsak())
+            .medResultatType(periode.getResultatType(), periode.getResultatÅrsak())
             .medGraderingInnvilget(periode.isGraderingInnvilget())
             .medUtsettelseType(periode.getUtsettelseType())
             .medOppholdÅrsak(periode.getOppholdÅrsak())

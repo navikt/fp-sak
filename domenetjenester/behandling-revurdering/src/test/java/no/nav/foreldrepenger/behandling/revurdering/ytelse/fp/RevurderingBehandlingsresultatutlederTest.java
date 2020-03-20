@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -39,6 +38,7 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
+import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -79,6 +79,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -120,6 +121,9 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Inject
     private UttakInputTjeneste uttakInputTjeneste;
 
+    @Inject
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
+
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
     private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -153,7 +157,8 @@ public class RevurderingBehandlingsresultatutlederTest {
             false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
-        HarEtablertYtelse harEtablertYtelse = new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste);
+        HarEtablertYtelse harEtablertYtelse = new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
+            foreldrepengerUttakTjeneste, repositoryProvider.getBehandlingVedtakRepository());
         ErEndringIUttakFraEndringsdato erEndringIUttakFraEndringsdato = new ErEndringIUttakFraEndringsdatoImpl();
         ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl();
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
@@ -163,14 +168,15 @@ public class RevurderingBehandlingsresultatutlederTest {
             erEndringIUttakFraEndringsdato,
             erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
             skjæringstidspunktTjeneste,
-            medlemTjeneste);
+            medlemTjeneste,
+            foreldrepengerUttakTjeneste);
         BehandlingskontrollTjenesteImpl behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider
         );
         RevurderingTjenesteFelles revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
         revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, behandlingskontrollTjeneste,
             iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         revurdering = revurderingTjeneste
-            .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(), BehandlingÅrsakType.RE_HENDELSE_FØDSEL, Optional.empty());
+            .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(), BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
     }
 
     // Case 1
@@ -1164,7 +1170,7 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         // Arrange revurdering 2
         Behandling revurdering2 = revurderingTjeneste
-            .opprettAutomatiskRevurdering(revurdering.getFagsak(), BehandlingÅrsakType.RE_HENDELSE_FØDSEL, Optional.empty());
+            .opprettAutomatiskRevurdering(revurdering.getFagsak(), BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
         BehandlingLås låsRevurdering2 = behandlingRepository.taSkriveLås(revurdering2);
         VilkårResultat vilkårResultatRevurdering2 = VilkårResultat.builder()
             .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)

@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.ArbeidsforholdMapper;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapUttakArbeidTypeTilAktivitetStatus;
@@ -75,8 +74,8 @@ public class MapUttakResultatFraVLTilRegel {
     }
 
     protected BigDecimal finnStillingsprosent(UttakInput input, UttakResultatPeriodeAktivitetEntitet uttakAktivitet) {
-        InternArbeidsforholdRef iaRef = InternArbeidsforholdRef.ref(uttakAktivitet.getArbeidsforholdId());
-        return input.getYrkesaktiviteter().finnStillingsprosentOrdinærtArbeid(uttakAktivitet.getArbeidsgiverIdentifikator(), iaRef, uttakAktivitet.getFom());
+        var iaRef = uttakAktivitet.getArbeidsforholdRef();
+        return input.getYrkesaktiviteter().finnStillingsprosentOrdinærtArbeid(uttakAktivitet.getArbeidsgiver(), iaRef, uttakAktivitet.getFom());
     }
 
     private boolean erOppholdsPeriode(UttakResultatPeriodeEntitet periode) {

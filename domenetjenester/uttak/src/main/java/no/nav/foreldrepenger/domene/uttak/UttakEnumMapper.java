@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.regler.uttak.beregnkontoer.grunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
@@ -64,13 +65,13 @@ public final class UttakEnumMapper {
     }
 
     public static AktivitetIdentifikator map(UttakAktivitetEntitet aktivitet) {
-        var ref = aktivitet.getArbeidsforholdRef().map(InternArbeidsforholdRef::getReferanse).orElse(null);
+        var ref = aktivitet.getArbeidsforholdRef();
         var arbeidsgiver = aktivitet.getArbeidsgiver();
         var uttakArbeidType = aktivitet.getUttakArbeidType();
         return map(uttakArbeidType, arbeidsgiver, ref);
     }
 
-    public static AktivitetIdentifikator map(UttakArbeidType uttakArbeidType, Optional<Arbeidsgiver> arbeidsgiver, String ref) {
+    public static AktivitetIdentifikator map(UttakArbeidType uttakArbeidType, Optional<Arbeidsgiver> arbeidsgiver, InternArbeidsforholdRef ref) {
         if (uttakArbeidType.equals(UttakArbeidType.FRILANS)) {
             return AktivitetIdentifikator.forFrilans();
         }
@@ -87,7 +88,7 @@ public final class UttakEnumMapper {
                 }
                 return AktivitetIdentifikator.ArbeidsgiverType.PERSON;
             }).orElse(null);
-            return AktivitetIdentifikator.forArbeid(arbeidsgiver.map(Arbeidsgiver::getIdentifikator).orElse(null), ref, arbeidsgiverType);
+            return AktivitetIdentifikator.forArbeid(arbeidsgiver.map(Arbeidsgiver::getIdentifikator).orElse(null), ref.getReferanse(), arbeidsgiverType);
         }
         throw new IllegalStateException("Ukjent uttakarbeidtype " + uttakArbeidType);
     }
@@ -301,5 +302,17 @@ public final class UttakEnumMapper {
             return UttakArbeidType.ANNET;
         }
         throw new IllegalStateException("Ukjent aktivitetstype " + aktivitetType);
+    }
+
+    public static Arbeidsgiver mapArbeidsgiver(AktivitetIdentifikator aktivitetIdentifikator) {
+        if (aktivitetIdentifikator == null || aktivitetIdentifikator.getArbeidsgiverIdentifikator() == null) {
+            throw new IllegalArgumentException("Arbeidsgiver ident kan ikke være null");
+        }
+        return erVirksomhet(aktivitetIdentifikator) ? Arbeidsgiver.virksomhet(aktivitetIdentifikator.getArbeidsgiverIdentifikator())
+            : Arbeidsgiver.person(new AktørId(aktivitetIdentifikator.getArbeidsgiverIdentifikator()));
+    }
+
+    private static boolean erVirksomhet(AktivitetIdentifikator aktivitetIdentifikator) {
+        return aktivitetIdentifikator.getArbeidsgiverType().equals(AktivitetIdentifikator.ArbeidsgiverType.VIRKSOMHET);
     }
 }

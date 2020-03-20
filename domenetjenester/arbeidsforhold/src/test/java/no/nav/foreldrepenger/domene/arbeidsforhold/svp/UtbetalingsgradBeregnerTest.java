@@ -1,5 +1,15 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.svp;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.junit.Test;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
@@ -10,15 +20,6 @@ import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import org.junit.Test;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class UtbetalingsgradBeregnerTest {
 
@@ -809,6 +810,43 @@ public class UtbetalingsgradBeregnerTest {
         assertThat(resultat.size()).isEqualTo(1);
         assertThat(resultat.get(førstePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
 
+    }
+
+    @Test
+    public void skal_bruke_overstyrt_utbetalingsgrad_i_delvis_tilrettelegging() {
+        //Arrange
+        LocalDate terminDato = LocalDate.of(2019, 7, 1);
+        LocalDate jordmorsdato = LocalDate.of(2019, 5, 28);
+        LocalDate delvisTilretteleggingFom = jordmorsdato;
+        Arbeidsgiver test123 = Arbeidsgiver.virksomhet("Test123");
+
+        var overstyrtUtbetalingsgrad = BigDecimal.valueOf(10);
+        SvpTilretteleggingEntitet svpTilrettelegging = new SvpTilretteleggingEntitet.Builder()
+            .medBehovForTilretteleggingFom(jordmorsdato)
+            .medTilretteleggingFom(new TilretteleggingFOM.Builder()
+                .medStillingsprosent(BigDecimal.valueOf(60))
+                .medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
+                .medFomDato(delvisTilretteleggingFom)
+                .medOverstyrtUtbetalingsgrad(overstyrtUtbetalingsgrad)
+                .build())
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
+
+        AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
+        aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilretteleggingFom, delvisTilretteleggingFom));
+        aktivitetsAvtaleBuilder.medProsentsats(BigDecimal.valueOf(100));
+        AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
+        // Act
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+
+        Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+
+        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilretteleggingFom, terminDato.minusWeeks(3).minusDays(1));
+
+        // Assert
+        assertThat(resultat.get(periode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(overstyrtUtbetalingsgrad);
     }
 
     private AktivitetsAvtale lagAktivitetsAvtale(LocalDate jordmorsdato, LocalDate terminDato, BigDecimal prosentsats) {

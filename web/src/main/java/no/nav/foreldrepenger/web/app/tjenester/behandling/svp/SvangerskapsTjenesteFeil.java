@@ -10,7 +10,7 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
 public interface SvangerskapsTjenesteFeil extends DeklarerteFeil {
     SvangerskapsTjenesteFeil FACTORY = FeilFactory.create(SvangerskapsTjenesteFeil.class);
-    
+
     @TekniskFeil(feilkode = "FP-598421",
         feilmelding = "Finner ikke terminbekreftelse på svangerskapspengerssøknad med behandling: %s", logLevel = WARN)
     Feil kanIkkeFinneTerminbekreftelsePåSvangerskapspengerSøknad(Long behandlingId);
@@ -33,4 +33,7 @@ public interface SvangerskapsTjenesteFeil extends DeklarerteFeil {
 
     @FunksjonellFeil(feilkode = "FP-682318", feilmelding = "Forskjellige tilretteleggingstyper i ett arbeidsforhold kan ikke løpe fra samme dato", løsningsforslag = "Avklar riktige FOM datoer for alle tilrettelegginger", logLevel = WARN)
     Feil kanIkkeHaLikeDatoerPåEttArbeidsforhold();
+
+    @FunksjonellFeil(feilkode = "FP-682319", feilmelding = "Ansatt har ikke tilgang til å overstyre utbetalingsgrad.", løsningsforslag = "Ansatt med overstyring rolle må utføre denne endringen.", logLevel = WARN)
+    Feil ingenTilgangTilOverstyringAvUtbetalingsgrad();
 }

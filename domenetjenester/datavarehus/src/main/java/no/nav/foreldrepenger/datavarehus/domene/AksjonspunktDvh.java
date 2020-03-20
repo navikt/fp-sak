@@ -54,6 +54,12 @@ public class AksjonspunktDvh extends DvhBaseEntitet {
     @Column(name = "TOTRINN_BEHANDLING_GODKJENT")
     private Boolean toTrinnsBehandlingGodkjent;
 
+    @Column(name = "frist_tid")
+    private LocalDateTime fristTid;
+
+    @Column(name="vent_aarsak")
+    private String venteårsak;
+
     AksjonspunktDvh() {
         // Hibernate
     }
@@ -102,6 +108,14 @@ public class AksjonspunktDvh extends DvhBaseEntitet {
         return toTrinnsBehandlingGodkjent;
     }
 
+    public LocalDateTime getFristTid() {
+        return fristTid;
+    }
+
+    public String getVenteårsak() {
+        return venteårsak;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -135,94 +149,80 @@ public class AksjonspunktDvh extends DvhBaseEntitet {
     }
 
     public static class Builder {
-        private Long behandlingStegId;
-        private Long aksjonspunktId;
-        private Long behandlingId;
-        private String behandlendeEnhetKode;
-        private String ansvarligBeslutter;
-        private String ansvarligSaksbehandler;
-        private String aksjonspunktDef;
-        private String aksjonspunktStatus;
-        private LocalDateTime funksjonellTid;
-        private String endretAv;
-        private boolean toTrinnsBehandling;
-        private Boolean toTrinnsBehandlingGodkjent;
+        AksjonspunktDvh kladd = new AksjonspunktDvh();
 
         public Builder behandlingStegId(Long behandlingStegId) {
-            this.behandlingStegId = behandlingStegId;
+            this.kladd.behandlingStegId = behandlingStegId;
             return this;
         }
 
         public Builder aksjonspunktId(Long aksjonspunktId) {
-            this.aksjonspunktId = aksjonspunktId;
+            this.kladd.aksjonspunktId = aksjonspunktId;
             return this;
         }
 
         public Builder behandlingId(Long behandlingId) {
-            this.behandlingId = behandlingId;
+            this.kladd.behandlingId = behandlingId;
             return this;
         }
 
         public Builder behandlendeEnhetKode(String behandlendeEnhetKode) {
-            this.behandlendeEnhetKode = behandlendeEnhetKode;
+            this.kladd.behandlendeEnhetKode = behandlendeEnhetKode;
             return this;
         }
 
         public Builder ansvarligBeslutter(String ansvarligBeslutter) {
-            this.ansvarligBeslutter = ansvarligBeslutter;
+            this.kladd.ansvarligBeslutter = ansvarligBeslutter;
             return this;
         }
 
         public Builder ansvarligSaksbehandler(String ansvarligSaksbehandler) {
-            this.ansvarligSaksbehandler = ansvarligSaksbehandler;
+            this.kladd.ansvarligSaksbehandler = ansvarligSaksbehandler;
             return this;
         }
 
         public Builder aksjonspunktDef(String aksjonspunktDef) {
-            this.aksjonspunktDef = aksjonspunktDef;
+            this.kladd.aksjonspunktDef = aksjonspunktDef;
             return this;
         }
 
         public Builder aksjonspunktStatus(String aksjonspunktStatus) {
-            this.aksjonspunktStatus = aksjonspunktStatus;
+            this.kladd.aksjonspunktStatus = aksjonspunktStatus;
             return this;
         }
 
         public Builder funksjonellTid(LocalDateTime funksjonellTid) {
-            this.funksjonellTid = funksjonellTid;
+            this.kladd.setFunksjonellTid(funksjonellTid);
             return this;
         }
 
         public Builder endretAv(String endretAv) {
-            this.endretAv = endretAv;
+            this.kladd.setEndretAv(endretAv);
             return this;
         }
 
         public Builder toTrinnsBehandling(boolean toTrinnsBehandling) {
-            this.toTrinnsBehandling = toTrinnsBehandling;
+            this.kladd.toTrinnsBehandling = toTrinnsBehandling;
             return this;
         }
 
         public Builder toTrinnsBehandlingGodkjent(Boolean toTrinnsBehandlingGodkjent) {
-            this.toTrinnsBehandlingGodkjent = toTrinnsBehandlingGodkjent;
+            this.kladd.toTrinnsBehandlingGodkjent = toTrinnsBehandlingGodkjent;
+            return this;
+        }
+
+        public Builder fristTid(LocalDateTime fristTid) {
+            this.kladd.fristTid = fristTid;
+            return this;
+        }
+
+        public Builder venteårsak(String venteårsak) {
+            this.kladd.venteårsak = venteårsak;
             return this;
         }
 
         public AksjonspunktDvh build() {
-            AksjonspunktDvh aksjonspunktDvh = new AksjonspunktDvh();
-            aksjonspunktDvh.behandlingStegId = behandlingStegId;
-            aksjonspunktDvh.aksjonspunktId = aksjonspunktId;
-            aksjonspunktDvh.behandlingId = behandlingId;
-            aksjonspunktDvh.behandlendeEnhetKode = behandlendeEnhetKode;
-            aksjonspunktDvh.ansvarligBeslutter = ansvarligBeslutter;
-            aksjonspunktDvh.ansvarligSaksbehandler = ansvarligSaksbehandler;
-            aksjonspunktDvh.aksjonspunktDef = aksjonspunktDef;
-            aksjonspunktDvh.aksjonspunktStatus = aksjonspunktStatus;
-            aksjonspunktDvh.toTrinnsBehandling = toTrinnsBehandling;
-            aksjonspunktDvh.toTrinnsBehandlingGodkjent = toTrinnsBehandlingGodkjent;
-            aksjonspunktDvh.setFunksjonellTid(funksjonellTid);
-            aksjonspunktDvh.setEndretAv(endretAv);
-            return aksjonspunktDvh;
+            return kladd;
         }
     }
 }

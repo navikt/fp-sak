@@ -324,7 +324,7 @@ public class UttakPeriodeEndringDtoTjenesteTest {
             .build();
         UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medDokRegel(dokRegel)
-            .medPeriodeResultat(resultat, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(periodeSøknad)
             .build();
         UttakResultatPeriodeAktivitetEntitet periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode,

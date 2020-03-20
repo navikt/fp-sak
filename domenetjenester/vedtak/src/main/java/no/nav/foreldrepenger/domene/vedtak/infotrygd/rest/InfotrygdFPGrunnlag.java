@@ -10,7 +10,6 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,19 +41,13 @@ public class InfotrygdFPGrunnlag  {
     }
 
 
-    public List<Grunnlag> hentGrunnlag(String fnr, LocalDate fom) {
-        return hentGrunnlag(fnr, fom, LocalDate.now());
-    }
-
     public List<Grunnlag> hentGrunnlag(String fnr, LocalDate fom, LocalDate tom) {
         try {
             var request = new URIBuilder(uri)
                 .addParameter("fnr", fnr)
                 .addParameter("fom", konverter(fom))
                 .addParameter("tom", konverter(tom)).build();
-            LOG.trace("Slår opp grunnlag FP fra {}", request);
             var grunnlag = restClient.get(request, Grunnlag[].class);
-            LOG.info("fpsak infotrygd REST {} fikk grunnlag {}", uriString, Arrays.toString(grunnlag));
             return Arrays.asList(grunnlag);
         } catch (Exception e) {
             LOG.info("FPSAK Infotrygd Grunnlag - Feil ved oppslag mot {}, returnerer ingen grunnlag", uriString, e);

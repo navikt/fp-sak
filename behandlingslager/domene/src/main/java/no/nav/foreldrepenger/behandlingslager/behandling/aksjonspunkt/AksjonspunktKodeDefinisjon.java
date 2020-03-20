@@ -58,7 +58,6 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD_KODE = "5013";
     public static final String MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD_KODE = "5014";
-    public static final String MANUELL_VURDERING_AV_MEDLEMSKAP_KODE = "5010";
     public static final String MANUELL_VURDERING_AV_OMSORGSVILKÅRET_KODE = "5011";
     public static final String MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET_KODE = "5007";
 
@@ -141,7 +140,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT_KODE = "5086";
 
     public static final String KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE = "5073";
-    public static final String KONTROLLER_OPPLYSNINGER_OM_MEDLEMSKAP_KODE = "5074";
     public static final String KONTROLLER_OPPLYSNINGER_OM_FORDELING_AV_STØNADSPERIODEN_KODE = "5075";
     public static final String KONTROLLER_OPPLYSNINGER_OM_DØD_KODE = "5076";
     public static final String KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST_KODE = "5077";

@@ -190,7 +190,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
 
         BehandlingBeregningsresultatEntitet beregningsresultat = lagBeregningsresultatAggregatFP(behandling); // Beregingsresultat
         BeregningsresultatPeriode beregningsresultatPeriode = lagP1(beregningsresultat.getBgBeregningsresultatFP()); // Periode uten andeler
-        InternArbeidsforholdRef arbeidsforholdId = arbeidsforholdId(uttakAktivitet1);
+        InternArbeidsforholdRef arbeidsforholdId = uttakAktivitet1.getArbeidsforholdRef();
         lagAndelTilSøker(beregningsresultatPeriode, 100, uttakAktivitet1.getArbeidsgiver().get(),
             arbeidsforholdId); // Legg til en andel til søker
 
@@ -207,10 +207,6 @@ public class BeregningsresultatMedUttaksplanMapperTest {
         assertAndelArbeidsgiver(andeler, virksomhet.getIdentifikator(), 100);
     }
 
-    private InternArbeidsforholdRef arbeidsforholdId(UttakAktivitetEntitet uttakAktivitet1) {
-        return uttakAktivitet1.getArbeidsforholdRef().orElse(null);
-    }
-
     @Test
     public void skalLageAndelerPerPeriodeToArbeidsforhold() {
         Arbeidsgiver virksomhet1 = arbeidsgiver("1234");
@@ -224,10 +220,10 @@ public class BeregningsresultatMedUttaksplanMapperTest {
 
         BehandlingBeregningsresultatEntitet beregningsresultat = lagBeregningsresultatAggregatFP(behandling); // Beregingsresultat
         BeregningsresultatPeriode beregningsresultatPeriode = lagP1(beregningsresultat.getBgBeregningsresultatFP()); // Periode uten andeler
-        lagAndelTilSøker(beregningsresultatPeriode, 100, uttakAktivitet1.getArbeidsgiver().get(), arbeidsforholdId(uttakAktivitet1)); // Legg til en andel til søker
-        lagAndelTilSøker(beregningsresultatPeriode, 200, uttakAktivitet2.getArbeidsgiver().get(), arbeidsforholdId(uttakAktivitet2)); // Legg til en andel til søker
-        lagAndelTilArbeidsgiver(beregningsresultatPeriode, virksomhet1, 200, arbeidsforholdId(uttakAktivitet1));
-        lagAndelTilArbeidsgiver(beregningsresultatPeriode, virksomhet2, 100, arbeidsforholdId(uttakAktivitet2));
+        lagAndelTilSøker(beregningsresultatPeriode, 100, uttakAktivitet1.getArbeidsgiver().get(), uttakAktivitet1.getArbeidsforholdRef()); // Legg til en andel til søker
+        lagAndelTilSøker(beregningsresultatPeriode, 200, uttakAktivitet2.getArbeidsgiver().get(), uttakAktivitet2.getArbeidsforholdRef()); // Legg til en andel til søker
+        lagAndelTilArbeidsgiver(beregningsresultatPeriode, virksomhet1, 200, uttakAktivitet1.getArbeidsforholdRef());
+        lagAndelTilArbeidsgiver(beregningsresultatPeriode, virksomhet2, 100, uttakAktivitet2.getArbeidsforholdRef());
 
         List<BeregningsresultatPeriodeAndelDto> andeler = beregningsresultatMedUttaksplanMapper.lagAndeler(beregningsresultatPeriode, uttakResultat, Collections.emptyMap(), Optional.empty());
 
@@ -279,10 +275,10 @@ public class BeregningsresultatMedUttaksplanMapperTest {
         ArrayList<BeregningsresultatPeriode> beregningsresultatPerioder = new ArrayList<>();
         beregningsresultatPerioder.add(beregningsresultatPeriode);
 
-        lagAndelTilSøker(beregningsresultatPeriode, 500, virksomhet, arbeidsforholdId(uttakAktivitet));
-        lagAndelTilSøker(beregningsresultatPeriode, 1000, virksomhet, arbeidsforholdId(uttakAktivitet));
-        lagAndelTilArbeidsgiver(beregningsresultatPeriode, virksomhet, 250, arbeidsforholdId(uttakAktivitet));
-        lagAndelTilArbeidsgiver(beregningsresultatPeriode, virksomhet, 500, arbeidsforholdId(uttakAktivitet));
+        lagAndelTilSøker(beregningsresultatPeriode, 500, virksomhet, uttakAktivitet.getArbeidsforholdRef());
+        lagAndelTilSøker(beregningsresultatPeriode, 1000, virksomhet, uttakAktivitet.getArbeidsforholdRef());
+        lagAndelTilArbeidsgiver(beregningsresultatPeriode, virksomhet, 250, uttakAktivitet.getArbeidsforholdRef());
+        lagAndelTilArbeidsgiver(beregningsresultatPeriode, virksomhet, 500, uttakAktivitet.getArbeidsforholdRef());
 
         List<BeregningsresultatPeriodeAndelDto> andeler = beregningsresultatMedUttaksplanMapper.lagAndeler(beregningsresultatPeriode, uttakResultat, Collections.emptyMap(), Optional.empty());
 
@@ -308,15 +304,15 @@ public class BeregningsresultatMedUttaksplanMapperTest {
         BeregningsresultatPeriode beregningsresultatPeriode2 = lagP2(beregningsresultat.getBgBeregningsresultatFP());
         BeregningsresultatPeriode beregningsresultatPeriode3 = lagP3(beregningsresultat.getBgBeregningsresultatFP());
 
-        lagAndelTilSøker(beregningsresultatPeriode, 500, uttakAktivitet1.getArbeidsgiver().get(), arbeidsforholdId(uttakAktivitet1));
-        lagAndelTilSøker(beregningsresultatPeriode, 1000, uttakAktivitet2.getArbeidsgiver().get(), arbeidsforholdId(uttakAktivitet2));
-        lagAndelTilSøker(beregningsresultatPeriode2, 0, uttakAktivitet1.getArbeidsgiver().get(), arbeidsforholdId(uttakAktivitet1));
-        lagAndelTilSøker(beregningsresultatPeriode2, 1000, uttakAktivitet2.getArbeidsgiver().get(), arbeidsforholdId(uttakAktivitet2));
-        lagAndelTilSøker(beregningsresultatPeriode, 300, uttakAktivitet3.getArbeidsgiver().get(), arbeidsforholdId(uttakAktivitet3));
-        lagAndelTilArbeidsgiver(beregningsresultatPeriode, uttakAktivitet3.getArbeidsgiver().get(), 250, arbeidsforholdId(uttakAktivitet3));
-        lagAndelTilSøker(beregningsresultatPeriode2, 0, uttakAktivitet3.getArbeidsgiver().get(), arbeidsforholdId(uttakAktivitet3));
-        lagAndelTilArbeidsgiver(beregningsresultatPeriode2, uttakAktivitet3.getArbeidsgiver().get(), 250, arbeidsforholdId(uttakAktivitet3));
-        lagAndelTilSøker(beregningsresultatPeriode3, 0, uttakAktivitet3.getArbeidsgiver().get(), arbeidsforholdId(uttakAktivitet3));
+        lagAndelTilSøker(beregningsresultatPeriode, 500, uttakAktivitet1.getArbeidsgiver().get(), uttakAktivitet1.getArbeidsforholdRef());
+        lagAndelTilSøker(beregningsresultatPeriode, 1000, uttakAktivitet2.getArbeidsgiver().get(), uttakAktivitet2.getArbeidsforholdRef());
+        lagAndelTilSøker(beregningsresultatPeriode2, 0, uttakAktivitet1.getArbeidsgiver().get(), uttakAktivitet1.getArbeidsforholdRef());
+        lagAndelTilSøker(beregningsresultatPeriode2, 1000, uttakAktivitet2.getArbeidsgiver().get(), uttakAktivitet2.getArbeidsforholdRef());
+        lagAndelTilSøker(beregningsresultatPeriode, 300, uttakAktivitet3.getArbeidsgiver().get(), uttakAktivitet3.getArbeidsforholdRef());
+        lagAndelTilArbeidsgiver(beregningsresultatPeriode, uttakAktivitet3.getArbeidsgiver().get(), 250, uttakAktivitet3.getArbeidsforholdRef());
+        lagAndelTilSøker(beregningsresultatPeriode2, 0, uttakAktivitet3.getArbeidsgiver().get(), uttakAktivitet3.getArbeidsforholdRef());
+        lagAndelTilArbeidsgiver(beregningsresultatPeriode2, uttakAktivitet3.getArbeidsgiver().get(), 250, uttakAktivitet3.getArbeidsforholdRef());
+        lagAndelTilSøker(beregningsresultatPeriode3, 0, uttakAktivitet3.getArbeidsgiver().get(), uttakAktivitet3.getArbeidsforholdRef());
 
         //Act
         List<BeregningsresultatPeriodeDto> andeler = beregningsresultatMedUttaksplanMapper.lagPerioder(behandling.getId(), beregningsresultat.getBgBeregningsresultatFP(), Optional.of(uttakResultat));
@@ -370,7 +366,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
 
     private static UttakResultatEntitet lagUttakResultatPeriodeMedEnPeriode(LocalDate p1Fom, LocalDate p1Tom, List<UttakAktivitetEntitet> uttakAktiviteter) {
         UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(p1Fom, p1Tom)
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         for (UttakAktivitetEntitet uttakAktivitet : uttakAktiviteter) {
             UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakResultatPeriode, uttakAktivitet)
@@ -420,7 +416,10 @@ public class BeregningsresultatMedUttaksplanMapperTest {
         return lagAndelTilArbeidsgiver(periode, arbeidsgiver, refusjon, null);
     }
 
-    private static BeregningsresultatAndel lagAndelTilArbeidsgiver(BeregningsresultatPeriode periode, Arbeidsgiver arbeidsgiver, int refusjon, InternArbeidsforholdRef arbeidsforholdId) {
+    private static BeregningsresultatAndel lagAndelTilArbeidsgiver(BeregningsresultatPeriode periode,
+                                                                   Arbeidsgiver arbeidsgiver,
+                                                                   int refusjon,
+                                                                   InternArbeidsforholdRef arbeidsforholdId) {
         return BeregningsresultatAndel.builder()
             .medArbeidsgiver(arbeidsgiver)
             .medDagsats(refusjon)

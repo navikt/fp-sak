@@ -204,7 +204,7 @@ public class VurderLøpendeMedlemskapStegTest {
     private UttakResultatPerioderEntitet lagUttaksPeriode() {
         LocalDate idag = LocalDate.now();
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(idag, idag.plusDays(6))
-            .medPeriodeResultat(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         UttakAktivitetEntitet uttakAktivtet = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)

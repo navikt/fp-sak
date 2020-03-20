@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,6 +18,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import org.hibernate.jpa.QueryHints;
 
 import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
@@ -142,20 +144,59 @@ public class BeregningsgrunnlagRepository {
     }
 
     /**
-     * For analysering av SVP feil og opprydning av denne
+     * FORVALTNINGSTJENESTE: Henter grunnlag uten grunnbeløp
+     * @return List med grunnlag uten grunnbeløp
      */
-    public List<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagForPotensielleFeilSVP() {
+    public List<Long> hentBehandlingIdForGrunnlagUtenGrunnbeløp() {
+        TypedQuery<Long> query = entityManager.createQuery(
+            "select distinct behandlingId from BeregningsgrunnlagGrunnlagEntitet " +
+                "where beregningsgrunnlag.grunnbeløp is null " +
+                "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand", Long.class); //$NON-NLS-1$
+        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, BeregningsgrunnlagTilstand.OPPRETTET); //$NON-NLS-1$
+        return query.getResultList();
+    }
+
+    /**
+     * FORVALTNINGSTJENESTE: Henter grunnlag uten grunnbeløp
+     * @return List med grunnlag uten grunnbeløp
+     */
+    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagUtenGrunnbeløp(Long behandlingId) {
         TypedQuery<BeregningsgrunnlagGrunnlagEntitet> query = entityManager.createQuery(
             "from BeregningsgrunnlagGrunnlagEntitet " +
-                "where beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
-                "and opprettetTidspunkt > :opprettetFom " +
-                "and opprettetTidspunkt < :opprettetTom and aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
+                "where behandlingId=:behandlingId " +
+                "and beregningsgrunnlag.grunnbeløp is null " +
+                "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
+                "order by opprettetTidspunkt desc, id desc", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
+        query.setParameter(BEHANDLING_ID, behandlingId); //$NON-NLS-1$
+        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, BeregningsgrunnlagTilstand.OPPRETTET); //$NON-NLS-1$
+        query.setMaxResults(1);
+        return query.getResultStream().findFirst();
+    }
+
+
+    /**
+     *
+     * For analysering av meldekortfeil og opprydning av disse
+     */
+    public List<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagForPotensielleFeilMeldekort() {
+        TypedQuery<BeregningsgrunnlagGrunnlagEntitet> query = entityManager.createQuery(
+            "select gr from BeregningsgrunnlagGrunnlagEntitet gr " +
+                "INNER JOIN Beregningsgrunnlag bg ON gr.beregningsgrunnlag = bg " +
+                "INNER JOIN BeregningsgrunnlagAktivitetStatus aks ON aks.beregningsgrunnlag = bg " +
+                "where gr.opprettetTidspunkt > :opprettetFom " +
+                "and gr.opprettetTidspunkt < :opprettetTom " +
+                "and gr.beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
+                "and (aks.aktivitetStatus = :status1 OR aks.aktivitetStatus = :status2) " +
+                "and gr.aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
+
         BeregningsgrunnlagTilstand beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.FASTSATT;
         LocalDateTime opprettetFom = LocalDateTime.of(LocalDate.of(2020, 2, 10), LocalTime.NOON);
-        LocalDateTime opprettetTom = LocalDateTime.of(LocalDate.of(2020, 2, 14), LocalTime.NOON);
+        LocalDateTime opprettetTom = LocalDateTime.of(LocalDate.of(2020, 3, 10), LocalTime.NOON);
         query.setParameter("opprettetFom", opprettetFom); //$NON-NLS-1$
         query.setParameter("opprettetTom", opprettetTom); //$NON-NLS-1$
         query.setParameter("aktivt", true); //$NON-NLS-1$
+        query.setParameter("status1", no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.ARBEIDSAVKLARINGSPENGER); //$NON-NLS-1$
+        query.setParameter("status2", no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus.DAGPENGER); //$NON-NLS-1$
         query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand); //$NON-NLS-1$
         return query.getResultList();
     }
@@ -207,6 +248,17 @@ public class BeregningsgrunnlagRepository {
         builder.medBeregningsgrunnlag(beregningsgrunnlag);
         BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = builder.build(behandlingId, beregningsgrunnlagTilstand);
         lagreOgFlush(behandlingId, grunnlagEntitet);
+        return grunnlagEntitet;
+    }
+
+    @Deprecated
+    // KUN FOR MIGRERING
+    public BeregningsgrunnlagGrunnlagEntitet lagreForMigrering(Long behandlingId, BeregningsgrunnlagGrunnlagBuilder builder, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+        Objects.requireNonNull(behandlingId, BEHANDLING_ID);
+        Objects.requireNonNull(builder, BUILDER);
+        Objects.requireNonNull(beregningsgrunnlagTilstand, BEREGNINGSGRUNNLAG_TILSTAND);
+        BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = builder.build(behandlingId, beregningsgrunnlagTilstand);
+        lagreOgFlushUtenAktivt(grunnlagEntitet);
         return grunnlagEntitet;
     }
 
@@ -341,6 +393,13 @@ public class BeregningsgrunnlagRepository {
         return BeregningsgrunnlagGrunnlagBuilder.oppdatere(grunnlag);
     }
 
+    private BeregningsgrunnlagGrunnlagBuilder opprettGrunnlagBuilderForEndring(Long behandlingId) {
+        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
+        Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlag = entitetOpt.isPresent() ? Optional.of(entitetOpt.get()) : Optional.empty();
+        return BeregningsgrunnlagGrunnlagBuilder.endre(grunnlag);
+    }
+
+
     public void deaktiverBeregningsgrunnlagGrunnlagEntitet(Long behandlingId) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
         entitetOpt.ifPresent(this::deaktiverBeregningsgrunnlagGrunnlagEntitet);
@@ -409,3 +468,4 @@ public class BeregningsgrunnlagRepository {
         return grunnlagMedForrigeTiltandOpt;
     }
 }
+

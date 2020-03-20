@@ -43,9 +43,8 @@ public class SvpArbeidsforholdDto {
         return tilretteleggingDatoer;
     }
 
-    public SvpArbeidsforholdDto setTilretteleggingDatoer(List<SvpTilretteleggingDatoDto> tilretteleggingDatoer) {
+    public void setTilretteleggingDatoer(List<SvpTilretteleggingDatoDto> tilretteleggingDatoer) {
         this.tilretteleggingDatoer = tilretteleggingDatoer;
-        return this;
     }
 
     public String getArbeidsgiverNavn() {
@@ -68,27 +67,24 @@ public class SvpArbeidsforholdDto {
         return tilretteleggingId;
     }
 
-    public SvpArbeidsforholdDto setTilretteleggingId(Long tilretteleggingId) {
+    public void setTilretteleggingId(Long tilretteleggingId) {
         this.tilretteleggingId = tilretteleggingId;
-        return this;
     }
 
     public String getOpplysningerOmRisiko() {
         return opplysningerOmRisiko;
     }
 
-    public SvpArbeidsforholdDto setOpplysningerOmRisiko(String opplysningerOmRisiko) {
+    public void setOpplysningerOmRisiko(String opplysningerOmRisiko) {
         this.opplysningerOmRisiko = opplysningerOmRisiko;
-        return this;
     }
 
     public String getOpplysningerOmTilrettelegging() {
         return opplysningerOmTilrettelegging;
     }
 
-    public SvpArbeidsforholdDto setOpplysningerOmTilrettelegging(String opplysningerOmTilrettelegging) {
+    public void setOpplysningerOmTilrettelegging(String opplysningerOmTilrettelegging) {
         this.opplysningerOmTilrettelegging = opplysningerOmTilrettelegging;
-        return this;
     }
 
     public String getBegrunnelse() {
