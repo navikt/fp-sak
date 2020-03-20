@@ -39,7 +39,9 @@ public class OverstyrUttakResultatValidator {
         new BareSplittetPerioderValidering(opprinnelig).utfør(perioder);
         new EndringerHarBegrunnelseValidering(opprinnelig).utfør(perioder);
         new HarSattUtbetalingsprosentValidering(opprinnelig).utfør(perioder);
-        new EndringerBareEtterEndringsdatoValidering(opprinnelig, endringsdato).utfør(perioder);
+        if (uttakInput.getBehandlingReferanse().erRevurdering()) {
+            new EndringerBareEtterEndringsdatoValidering(opprinnelig, endringsdato).utfør(perioder);
+        }
         validerSaldo(perioder, uttakInput);
     }
 
