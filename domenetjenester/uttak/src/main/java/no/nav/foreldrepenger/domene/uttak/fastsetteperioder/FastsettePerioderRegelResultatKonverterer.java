@@ -170,20 +170,34 @@ public class FastsettePerioderRegelResultatKonverterer {
             .medTrekkonto(UttakEnumMapper.map(uttakPeriode.getStønadskontotype()))
             .medTrekkdager(map(aktivitet))
             .medUtbetalingsprosent(aktivitet.getUtbetalingsprosent())
-            .medArbeidsprosent(finnArbeidsprosent(uttakPeriode, aktivitet, uttakYrkesaktiviteter))
+            .medArbeidsprosent(finnArbeidsprosent(uttakPeriode, aktivitet, uttakYrkesaktiviteter, uttakAktiviteter))
             .medErSøktGradering(aktivitet.isSøktGradering())
             .build();
     }
 
     private BigDecimal finnArbeidsprosent(UttakPeriode uttakPeriode,
                                           UttakPeriodeAktivitet aktivitet,
-                                          UttakYrkesaktiviteter uttakYrkesaktiviteter) {
+                                          UttakYrkesaktiviteter uttakYrkesaktiviteter,
+                                          Set<UttakAktivitetEntitet> uttakAktiviteter) {
+        BigDecimal stillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(aktivitet.getIdentifikator().getArbeidsgiverIdentifikator(),
+            InternArbeidsforholdRef.ref(aktivitet.getIdentifikator().getArbeidsforholdId()), uttakPeriode.getFom());
+        BigDecimal totalStillingsprosent = BigDecimal.ZERO;
+
+        for(UttakAktivitetEntitet uttakAktivitet: uttakAktiviteter) {
+            if(uttakAktivitet.getArbeidsforholdRef().isPresent()) {
+                BigDecimal aktivitetStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(aktivitet.getIdentifikator().getArbeidsgiverIdentifikator(),
+                    uttakAktivitet.getArbeidsforholdRef().get(), uttakPeriode.getFom());
+                totalStillingsprosent = totalStillingsprosent.add(aktivitetStillingsprosent);
+            }
+        }
+
+        BigDecimal arbeidsprosentandel = (totalStillingsprosent.compareTo(BigDecimal.ZERO)>0)? stillingsprosent.divide(totalStillingsprosent): BigDecimal.ONE;
         if (aktivitet.isSøktGradering()) {
-            return uttakPeriode.getArbeidsprosent();
+            return uttakPeriode.getArbeidsprosent().multiply(arbeidsprosentandel);
         }
         if (erUtsettelsePgaArbeid(uttakPeriode) && aktivitet.getIdentifikator().getAktivitetType().equals(AktivitetType.ARBEID) && aktivitet.getIdentifikator().getArbeidsgiverIdentifikator() != null) {
-            return uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(aktivitet.getIdentifikator().getArbeidsgiverIdentifikator(),
-                InternArbeidsforholdRef.ref(aktivitet.getIdentifikator().getArbeidsforholdId()), uttakPeriode.getFom());
+
+            return stillingsprosent.multiply(arbeidsprosentandel);
         }
         return BigDecimal.ZERO;
     }

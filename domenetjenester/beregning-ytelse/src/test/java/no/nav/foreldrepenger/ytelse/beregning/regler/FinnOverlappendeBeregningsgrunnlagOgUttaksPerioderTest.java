@@ -39,6 +39,20 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
      */
 
     @Test
+    public void finn_permisjonsprosent() {
+        UttakAktivitet uttakAktivitet = new UttakAktivitet(BigDecimal.valueOf(100),BigDecimal.valueOf(0),BigDecimal.valueOf(1),null,null,true);
+        BigDecimal permisjonsprosent = FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder.finnPermisjonsprosent(uttakAktivitet);
+        assertThat(permisjonsprosent).isEqualTo(BigDecimal.valueOf(1).setScale(10, RoundingMode.HALF_UP));
+    }
+
+    @Test
+    public void finn_permisjonsprosent_2() {
+        UttakAktivitet uttakAktivitet = new UttakAktivitet(BigDecimal.valueOf(50),BigDecimal.valueOf(30),null,null,null,true);
+        BigDecimal permisjonsprosent = FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder.finnPermisjonsprosent(uttakAktivitet);
+        assertThat(permisjonsprosent).isEqualTo(BigDecimal.valueOf(0.4).setScale(10, RoundingMode.HALF_UP));
+    }
+
+    @Test
     public void skal_gradere_deltiddstilling_eksempel_1() {
         // Arrange
         int redBrukersAndelPrÅr = 0;
@@ -519,12 +533,12 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
 
-    private BeregningsresultatRegelmodellMellomregning lagMellomregning(AktivitetStatus aktivitetStatus, BigDecimal stillingsgrad, BigDecimal utbetalingsgrad, BigDecimal redusertBrukersAndel, boolean erGradering) {
+    private BeregningsresultatRegelmodellMellomregning lagMellomregning(AktivitetStatus aktivitetStatus, BigDecimal stillingsgrad, BigDecimal arbeidstidsprosent, BigDecimal utbetalingsgrad, BigDecimal redusertBrukersAndel, boolean erGradering) {
         LocalDate fom = LocalDate.now();
         LocalDate tom = LocalDate.now().plusDays(14);
 
         Beregningsgrunnlag grunnlag = lagBeregningsgrunnlag(fom, tom, aktivitetStatus, redusertBrukersAndel);
-        UttakResultat uttakResultat = new UttakResultat(lagUttakResultatPeriode(fom, tom, stillingsgrad, utbetalingsgrad, aktivitetStatus, erGradering));
+        UttakResultat uttakResultat = new UttakResultat(lagUttakResultatPeriode(fom, tom, stillingsgrad, arbeidstidsprosent, utbetalingsgrad, aktivitetStatus, erGradering));
         BeregningsresultatRegelmodell input = new BeregningsresultatRegelmodell(grunnlag, uttakResultat);
         Beregningsresultat output = new Beregningsresultat();
         return new BeregningsresultatRegelmodellMellomregning(input, output);
@@ -541,9 +555,9 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         return new BeregningsresultatRegelmodellMellomregning(input, output);
     }
 
-    private List<UttakResultatPeriode> lagUttakResultatPeriode(LocalDate fom, LocalDate tom, BigDecimal stillingsgrad, BigDecimal utbetalingsgrad, AktivitetStatus aktivitetStatus, boolean erGradering) {
+    private List<UttakResultatPeriode> lagUttakResultatPeriode(LocalDate fom, LocalDate tom, BigDecimal stillingsgrad, BigDecimal arbeidstidsprosent, BigDecimal utbetalingsgrad, AktivitetStatus aktivitetStatus, boolean erGradering) {
 
-        List<UttakAktivitet> uttakAktiviter = Collections.singletonList(new UttakAktivitet(stillingsgrad, utbetalingsgrad, arbeidsforhold, aktivitetStatus, erGradering));
+        List<UttakAktivitet> uttakAktiviter = Collections.singletonList(new UttakAktivitet(stillingsgrad, arbeidstidsprosent, utbetalingsgrad, arbeidsforhold, aktivitetStatus, erGradering));
         UttakResultatPeriode periode = new UttakResultatPeriode(fom, tom, uttakAktiviter, false);
         return List.of(periode);
     }
@@ -589,7 +603,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
             .medDagsatsArbeidsgiver(dagsatsArbeidsgiver)
             .build();
         BigDecimal utbetalingsgrad = BigDecimal.valueOf(100).subtract(BigDecimal.valueOf(nyArbeidstidProsent));
-        return lagMellomregning(AktivitetStatus.ATFL, stillingsgrad, utbetalingsgrad,
+        return lagMellomregning(AktivitetStatus.ATFL, stillingsgrad, new BigDecimal(nyArbeidstidProsent), utbetalingsgrad,
             BigDecimal.valueOf(redBrukersAndelPrÅr), erGradering);
     }
 
@@ -604,7 +618,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
 
     private BeregningsresultatRegelmodellMellomregning settOppGraderingScenarioForAndreStatuser(BigDecimal redusertBrukersAndel, BigDecimal stillingsgrad, int utbetalingsgrad,
                                                                                                 AktivitetStatus aktivitetStatus, boolean erGradering) {
-        return lagMellomregning(aktivitetStatus, stillingsgrad, BigDecimal.valueOf(utbetalingsgrad), redusertBrukersAndel, erGradering);
+        return lagMellomregning(aktivitetStatus, stillingsgrad, BigDecimal.ZERO, BigDecimal.valueOf(utbetalingsgrad), redusertBrukersAndel, erGradering);
     }
 
     private BeregningsresultatRegelmodellMellomregning settOppScenarioMedOppholdsperiodeForSN(BigDecimal redusertBrukersAndel) {

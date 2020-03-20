@@ -47,10 +47,12 @@ public class MapUttakResultatFraVLTilRegel {
     private UttakAktivitet mapAktivitet(UttakInput input, UttakResultatPeriodeAktivitetEntitet uttakResultatPeriodeAktivitet) {
         BigDecimal utbetalingsgrad = uttakResultatPeriodeAktivitet.getUtbetalingsprosent();
         BigDecimal stillingsprosent = mapStillingsprosent(input, uttakResultatPeriodeAktivitet);
+        BigDecimal arbeidstidsprosent = uttakResultatPeriodeAktivitet.getArbeidsprosent();
+
         Arbeidsforhold arbeidsforhold = mapArbeidsforhold(uttakResultatPeriodeAktivitet.getUttakAktivitet());
         AktivitetStatus aktivitetStatus = MapUttakArbeidTypeTilAktivitetStatus.map(uttakResultatPeriodeAktivitet.getUttakArbeidType());
 
-        return new UttakAktivitet(stillingsprosent, utbetalingsgrad, arbeidsforhold, aktivitetStatus, uttakResultatPeriodeAktivitet.isGraderingInnvilget());
+        return new UttakAktivitet(stillingsprosent, arbeidstidsprosent, utbetalingsgrad, arbeidsforhold, aktivitetStatus, uttakResultatPeriodeAktivitet.isGraderingInnvilget());
     }
 
     private Arbeidsforhold mapArbeidsforhold(UttakAktivitetEntitet uttakAktivitet) {
