@@ -85,7 +85,7 @@ public enum IkkeOppfyltÅrsak implements PeriodeResultatÅrsak {
     SYKDOM_SKADE_INNLEGGELSE_IKKE_DOKUMENTERT("4074", "§14-12 tredje ledd, jf §21-3: Avslag overføring kvote pga. sykdom/skade/innleggelse ikke dokumentert", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-12,21-3\"}}}", Set.of(UTTAK), Set.of(MØDREKVOTE, FEDREKVOTE)),
     FAR_IKKE_RETT_PÅ_FELLESPERIODE_FORDI_MOR_IKKE_RETT("4075", "§14-9 første ledd: Ikke rett til fellesperiode fordi mor ikke har rett til foreldrepenger", "", Set.of(UTTAK), Set.of(FELLESPERIODE)),
     ANNEN_FORELDER_HAR_RETT("4076", "§14-9 femte ledd: Avslag overføring - annen forelder har rett til foreldrepenger", "", Set.of(UTTAK), Set.of(MØDREKVOTE, FEDREKVOTE)),
-    FRATREKK_PLEIEPENGER("4077", "§14-10 a: Innvilget prematuruker, med fratrekk pleiepenger", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10 a\"}}}", Set.of(UTTAK)),
+    FRATREKK_PLEIEPENGER("4077", "§14-10 a: Innvilget prematuruker, med fratrekk pleiepenger", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10 a\"}}}", Set.of(UTSETTELSE)),
     AVSLAG_GRADERING_PÅ_GRUNN_AV_FOR_SEN_SØKNAD("4080", "§14-16: Ikke gradering pga. for sen søknad", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-16\"}}}", Set.of(UTTAK), LocalDate.of(2001,1,1)),
     AVSLAG_UTSETTELSE_PGA_FERIE_TILBAKE_I_TID("4081", "§14-11 første ledd bokstav a: Avslag utsettelse pga ferie tilbake i tid", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}", Set.of(UTSETTELSE)),
     AVSLAG_UTSETTELSE_PGA_ARBEID_TILBAKE_I_TID("4082", "§14-11 første ledd bokstav b: Avslag utsettelse pga arbeid tilbake i tid", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}", Set.of(UTSETTELSE)),
