@@ -50,7 +50,7 @@ public class InfotrygdFPGrunnlag  {
             var grunnlag = restClient.get(request, Grunnlag[].class);
             return Arrays.asList(grunnlag);
         } catch (Exception e) {
-            LOG.info("FPSAK Infotrygd Grunnlag - Feil ved oppslag mot {}, returnerer ingen grunnlag", uriString, e);
+            LOG.info("FPSAK Infotrygd Grunnlag FP - Feil ved oppslag mot {}, returnerer ingen grunnlag", uriString, e);
             //throw InfotrygdRestFeil.FACTORY.feilfratjeneste(uriString).toException();
             return Collections.emptyList();
         }

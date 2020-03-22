@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.geografisk;
 
+import java.util.Map;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
@@ -19,6 +21,12 @@ public class Språkkode extends Kodeliste {
 
     private Språkkode(String kode) {
         super(kode, DISCRIMINATOR);
+    }
+
+    private static final Map<String, Språkkode> VERDIER = Map.of(nb.getKode(), nb, nn.getKode(), nn, en.getKode(), en);
+
+    public static final Språkkode defaultNorsk(String kode) {
+        return VERDIER.getOrDefault(kode, Språkkode.nb);
     }
 
 }
