@@ -49,7 +49,7 @@ public class InfotrygdSPGrunnlag {
             var grunnlag = restClient.get(request, Grunnlag[].class);
             return Arrays.asList(grunnlag);
         } catch (Exception e) {
-            LOG.info("FPSAK Infotrygd SP Grunnlag - Feil ved oppslag mot {}, returnerer ingen grunnlag", uriString, e);
+            LOG.info("FPSAK Infotrygd Grunnlag SP - Feil ved oppslag mot {}, returnerer ingen grunnlag", uriString, e);
             return Collections.emptyList();
         }
     }

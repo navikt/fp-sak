@@ -16,9 +16,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
@@ -30,11 +27,10 @@ import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.PersonstatusPeriode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingsgrunnlagKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingsgrunnlagKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.behandlingslager.geografisk.SpråkKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Aktoer;
@@ -51,15 +47,11 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Spraak;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Statsborgerskap;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonhistorikkResponse;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
-import no.nav.vedtak.log.util.LoggerUtils;
 
 @ApplicationScoped
 public class TpsOversetter {
 
-    private static final Logger log = LoggerFactory.getLogger(TpsOversetter.class);
-
     private BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository;
-    private SpråkKodeverkRepository språkKodeverkRepository;
     private TpsAdresseOversetter tpsAdresseOversetter;
 
     TpsOversetter() {
@@ -68,11 +60,9 @@ public class TpsOversetter {
 
     @Inject
     public TpsOversetter(BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository,
-                         SpråkKodeverkRepository språkKodeverkRepository,
                          TpsAdresseOversetter tpsAdresseOversetter) {
 
         this.behandlingsgrunnlagKodeverkRepository = behandlingsgrunnlagKodeverkRepository;
-        this.språkKodeverkRepository = språkKodeverkRepository;
         this.tpsAdresseOversetter = tpsAdresseOversetter;
     }
 
@@ -210,14 +200,7 @@ public class TpsOversetter {
         if (språk == null || "NO".equals(språk.getValue())) {
             return defaultSpråk;
         }
-        Optional<Språkkode> kode = språkKodeverkRepository.finnSpråkMedKodeverkEiersKode(språk.getValue());
-        if (kode.isPresent()) {
-            return kode.get();
-        }
-        if (log.isInfoEnabled()) {
-            log.info("Mottok ukjent språkkode: '{}'. Defaulter til '{}'", LoggerUtils.removeLineBreaks(språk.getValue()), defaultSpråk.getKode()); //NOSONAR
-        }
-        return defaultSpråk;
+        return Språkkode.defaultNorsk(språk.getValue());
     }
 
     GeografiskTilknytning tilGeografiskTilknytning(no.nav.tjeneste.virksomhet.person.v3.informasjon.GeografiskTilknytning geografiskTilknytning,

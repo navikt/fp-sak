@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.mottak.vedtak;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Oppgit
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -119,11 +122,9 @@ public class VurderOpphørAvYtelser  {
         //Sjekker om det finnes overlapp i fpsak
         aktørIdList.forEach(aktørId -> {
             List<Fagsak> sakerSomSkalOpphøre = løpendeSakerSomOverlapperUttakPåNySak(aktørId, gjeldendeFagsak.getSaksnummer(), startDatoIVB);
-            if (!sakerSomSkalOpphøre.isEmpty()) {
-                for (Fagsak sakOpphør : sakerSomSkalOpphøre) {
-                    //For hver sak skal det opprettes en "vurder konsekvens for ytelse" oppgave, og en revurdering med egen årsak. Finnes det en åpen revurdering skal den oppdateres med årsak.
-                    håndtereOpphør(sakOpphør);
-                }
+            for (Fagsak sakOpphør : sakerSomSkalOpphøre) {
+                //For hver sak skal det opprettes en "vurder konsekvens for ytelse" oppgave, og en revurdering med egen årsak. Finnes det en åpen revurdering skal den oppdateres med årsak.
+                håndtereOpphør(sakOpphør);
             }
         });
     }
@@ -140,19 +141,22 @@ public class VurderOpphørAvYtelser  {
     private void håndtereOpphør(Fagsak sakOpphør) {
         Optional<Behandling> sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(sakOpphør.getId());
         if (sisteBehandling.isPresent() && !sisteBehandling.get().harBehandlingÅrsak(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN)) {
+            var behandlingId = sisteBehandling.get().getId();
+            var lås = behandlingRepository.taSkriveLås(behandlingId);
+            var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-            opprettTaskForÅVurdereKonsekvens(sakOpphør.getId(), sisteBehandling.get().getBehandlendeEnhet(),
+            opprettTaskForÅVurdereKonsekvens(sakOpphør.getId(), behandling.getBehandlendeEnhet(),
                 "Nytt barn: Vurder om ytelse skal opphøre", Optional.empty());
 
-            if (sisteBehandling.get().erAvsluttet()) {
+            if (behandling.erAvsluttet()) {
                 Behandling revurderingOpphør = opprettRevurdering(sakOpphør, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
                 if (revurderingOpphør != null) {
-                    log.info("Overlapp FPSAK: Vurder opphør av ytelse har opprettet revurdering med behandlingId {} på sak med saksnummer {} pga behandlingId {}", revurderingOpphør.getId(), sakOpphør.getSaksnummer(), sisteBehandling.get().getId());
+                    log.info("Overlapp FPSAK: Vurder opphør av ytelse har opprettet revurdering med behandlingId {} på sak med saksnummer {} pga behandlingId {}", revurderingOpphør.getId(), sakOpphør.getSaksnummer(), behandlingId);
                 } else {
-                    log.info("Overlapp FPSAK: Vurder opphør av ytelse kunne ikke opprette revurdering på sak med saksnummer {} pga behandlingId {}", sakOpphør.getSaksnummer(), sisteBehandling.get().getId());
+                    log.info("Overlapp FPSAK: Vurder opphør av ytelse kunne ikke opprette revurdering på sak med saksnummer {} pga behandlingId {}", sakOpphør.getSaksnummer(), behandlingId);
                 }
             } else {
-                oppdatereBehMedÅrsak(sisteBehandling.get());
+                oppdatereBehMedÅrsak(behandling, lås);
             }
         }
     }
@@ -160,29 +164,41 @@ public class VurderOpphørAvYtelser  {
     private List<Fagsak> løpendeSakerSomOverlapperUttakPåNySak(AktørId aktørId, Saksnummer saksnummer, LocalDate startDato) {
         return fagsakRepository.hentForBruker(aktørId).stream()
             .filter(Fagsak::erÅpen)
-            .filter(f -> FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType()))
             .filter(f -> !saksnummer.equals(f.getSaksnummer()))
-            .filter(f -> erMaxDatoPåLøpendeSakEtterStartDatoNysak(f.getId(), startDato))
+            .filter(f -> erMaxDatoPåLøpendeSakEtterStartDatoNysak(f, startDato))
             .collect(Collectors.toList());
     }
 
-    private boolean erMaxDatoPåLøpendeSakEtterStartDatoNysak(long fagsakId, LocalDate startDato) {
-        var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
+    private boolean erMaxDatoPåLøpendeSakEtterStartDatoNysak(Fagsak fagsak, LocalDate startDato) {
+        var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
         behandling.ifPresent(behandling1 -> {
             var maxDato= finnMaxDato(behandling1);
             if(!maxDato.isBefore(startDato)) {
-                log.info("Oppdaget overlapp. Mulig Avslått periode for fagsak {} med maxDato {} ", fagsakId, maxDato );
+                log.info("Oppdaget overlapp. Mulig Avslått periode for fagsak {} med maxDato {} ", fagsak.getId(), maxDato );
             }
         });
         return behandling.
-            map(behandling1 -> !finnMaxDatoUtenAvslåtte(behandling1).isBefore(startDato)).orElse(Boolean.FALSE);
+            map(behandling1 -> evaluerHarSakOverlapp(fagsak, behandling1, startDato)).orElse(Boolean.FALSE);
+    }
+
+    private boolean evaluerHarSakOverlapp(Fagsak fagsak, Behandling behandling, LocalDate startDato) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()))
+            return !finnMaxDatoUtenAvslåtte(behandling).isBefore(startDato); // true hvis lik el senere
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsak.getYtelseType())) {
+            var maxdato = finnMaxDatoUtenAvslåtte(behandling);
+            var brukMaxDato = DayOfWeek.FRIDAY.getValue() == DayOfWeek.from(maxdato).getValue() ? maxdato.plusDays(2) : maxdato;
+            long inBetweenDays = ChronoUnit.DAYS.between(brukMaxDato, startDato); // For å detektere gap > 1 virkedag
+            return inBetweenDays != 1 && inBetweenDays < 21; // pos max før start, zero - samme dag, ned - max etter. Dekker gap 2-21 dager + overlapp
+        }
+        return false;
     }
 
     private LocalDate finnMinDato(Long behandlingId) {
         Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
         Optional<LocalDate> minFom = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
-            .min(Comparator.naturalOrder());
+            .min(Comparator.naturalOrder())
+            .map(this::fomMandag);
         return minFom.orElse(Tid.TIDENES_ENDE);
     }
 
@@ -190,7 +206,8 @@ public class VurderOpphørAvYtelser  {
         Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
         Optional<LocalDate> maxTom = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
-            .max(Comparator.naturalOrder());
+            .max(Comparator.naturalOrder())
+            .map(this::tomFredag);
         return maxTom.orElse(Tid.TIDENES_BEGYNNELSE);
     }
 
@@ -199,7 +216,8 @@ public class VurderOpphørAvYtelser  {
         Optional<LocalDate> maxTom = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
-            .max(Comparator.naturalOrder());
+            .max(Comparator.naturalOrder())
+            .map(this::tomFredag);
         return maxTom.orElse(Tid.TIDENES_BEGYNNELSE);
     }
 
@@ -224,17 +242,34 @@ public class VurderOpphørAvYtelser  {
         ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, behandlendeEnhetsId);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, oppgaveBeskrivelse);
-        gjeldendeAktørId.ifPresent(a-> {
-            prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_GJELDENDE_AKTØR_ID, a);
-        });
+        gjeldendeAktørId.ifPresent(a-> prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_GJELDENDE_AKTØR_ID, a));
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
         prosessTaskData.setFagsakId(fagsakId);
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);
     }
 
-    private void oppdatereBehMedÅrsak(Behandling behandling) {
+    private void oppdatereBehMedÅrsak(Behandling behandling, BehandlingLås lås) {
         BehandlingÅrsak.builder(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN).buildFor(behandling);
-        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+        behandlingRepository.lagre(behandling, lås);
     }
+
+    private LocalDate fomMandag(LocalDate fom) {
+        DayOfWeek ukedag = DayOfWeek.from(fom);
+        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(1);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(2);
+        return fom;
+    }
+
+    private LocalDate tomFredag(LocalDate tom) {
+        DayOfWeek ukedag = DayOfWeek.from(tom);
+        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
+            return tom.minusDays(2);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return tom.minusDays(1);
+        return tom;
+    }
+
 }

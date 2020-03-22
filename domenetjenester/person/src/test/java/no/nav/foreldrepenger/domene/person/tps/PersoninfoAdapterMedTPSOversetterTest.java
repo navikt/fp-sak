@@ -29,13 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
-import no.nav.foreldrepenger.domene.person.tps.TpsAdapterImpl;
-import no.nav.foreldrepenger.domene.person.tps.TpsAdresseOversetter;
-import no.nav.foreldrepenger.domene.person.tps.TpsFamilieTjeneste;
-import no.nav.foreldrepenger.domene.person.tps.TpsOversetter;
-import no.nav.foreldrepenger.domene.person.tps.TpsUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.tjeneste.virksomhet.aktoer.v2.binding.HentAktoerIdForIdentPersonIkkeFunnet;
@@ -125,7 +118,7 @@ public class PersoninfoAdapterMedTPSOversetterTest {
         when(mockPersoninfo.getFødselsdato()).thenReturn(LocalDate.now()); // trenger bare en verdi
         when(tpsOversetter.tilBrukerInfo(Mockito.any(AktørId.class), any(Bruker.class))).thenReturn(mockPersoninfo);
         tpsAdresseOversetter = new TpsAdresseOversetter(poststedKodeverkRepository);
-        tpsOversetter = new TpsOversetter(null, null, tpsAdresseOversetter);
+        tpsOversetter = new TpsOversetter(null, tpsAdresseOversetter);
         tpsAdapter = new TpsAdapterImpl(aktørConsumer, personConsumer, tpsOversetter);
         adapterMedVanligOversetter = new PersoninfoAdapter(tpsAdapter, tpsFamilieTjeneste);
     }
