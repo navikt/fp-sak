@@ -185,9 +185,9 @@ public class FastsettePerioderRegelResultatKonverterer {
         BigDecimal totalStillingsprosent = BigDecimal.ZERO;
 
         for(UttakAktivitetEntitet uttakAktivitet: uttakAktiviteter) {
-            if(uttakAktivitet.getArbeidsforholdRef().isPresent()) {
-                BigDecimal aktivitetStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(aktivitet.getIdentifikator().getArbeidsgiverIdentifikator(),
-                    uttakAktivitet.getArbeidsforholdRef().get(), uttakPeriode.getFom());
+            if(uttakAktivitet.getArbeidsforholdRef() != null) {
+                BigDecimal aktivitetStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(mapArbeidsgiver(aktivitet.getIdentifikator()),
+                    uttakAktivitet.getArbeidsforholdRef(), uttakPeriode.getFom());
                 totalStillingsprosent = totalStillingsprosent.add(aktivitetStillingsprosent);
             }
         }
