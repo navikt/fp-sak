@@ -73,8 +73,7 @@ public class BehandlendeEnhetTjeneste {
     private OrganisasjonsEnhet finnEnhetFor(Fagsak fagsak) {
         Optional<OrganisasjonsEnhet> forrigeEnhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
             .filter(b -> gyldigEnhetNfpNk(b.getBehandlendeEnhet()))
-            .map(b -> getOrganisasjonsEnhetEtterEndring(b.getFagsak(), b.getBehandlendeOrganisasjonsEnhet(), b.getAktørId(), new HashSet<>())
-                .orElse(b.getBehandlendeOrganisasjonsEnhet()));
+            .map(Behandling::getBehandlendeOrganisasjonsEnhet);
         return forrigeEnhet.orElse(enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), BehandlingTema.fraFagsak(fagsak, null)));
     }
 
@@ -159,7 +158,7 @@ public class BehandlendeEnhetTjeneste {
         if (enhet.getEnhetId().equals(behandling.getBehandlendeEnhet())) {
             return Optional.empty();
         }
-        return Optional.of(getOrganisasjonsEnhetEtterEndring(behandling, enhet).orElse(enhet));
+        return Optional.of(getOrganisasjonsEnhetEtterEndring(behandling.getFagsak(), enhet, behandling.getAktørId(), new HashSet<>()).orElse(enhet));
     }
 
     // Returnerer enhetsnummer for NAV Klageinstans
