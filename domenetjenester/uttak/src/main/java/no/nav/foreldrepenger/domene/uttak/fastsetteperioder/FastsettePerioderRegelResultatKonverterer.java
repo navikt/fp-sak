@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.mapArbeidsgiver;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -171,34 +172,32 @@ public class FastsettePerioderRegelResultatKonverterer {
             .medTrekkonto(UttakEnumMapper.map(uttakPeriode.getStønadskontotype()))
             .medTrekkdager(map(aktivitet))
             .medUtbetalingsprosent(aktivitet.getUtbetalingsprosent())
-            .medArbeidsprosent(finnArbeidsprosent(uttakPeriode, aktivitet, uttakYrkesaktiviteter, uttakAktiviteter))
+            .medArbeidsprosent(finnArbeidsprosent(uttakPeriode, aktivitet, uttakYrkesaktiviteter))
             .medErSøktGradering(aktivitet.isSøktGradering())
             .build();
     }
 
     private BigDecimal finnArbeidsprosent(UttakPeriode uttakPeriode,
                                           UttakPeriodeAktivitet aktivitet,
-                                          UttakYrkesaktiviteter uttakYrkesaktiviteter,
-                                          Set<UttakAktivitetEntitet> uttakAktiviteter) {
-        BigDecimal stillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(mapArbeidsgiver(aktivitet.getIdentifikator()),
-            InternArbeidsforholdRef.ref(aktivitet.getIdentifikator().getArbeidsforholdId()), uttakPeriode.getFom());
-        BigDecimal totalStillingsprosent = BigDecimal.ZERO;
+                                          UttakYrkesaktiviteter uttakYrkesaktiviteter) {
+        BigDecimal arbeidsprosentandel = BigDecimal.ONE;
+        BigDecimal stillingsprosent = BigDecimal.ONE;
+        if(erArbeidMedArbeidsgiver(aktivitet)) {
+            stillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(mapArbeidsgiver(aktivitet.getIdentifikator()),
+                InternArbeidsforholdRef.ref(aktivitet.getIdentifikator().getArbeidsforholdId()), uttakPeriode.getFom());
+            BigDecimal totalStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(mapArbeidsgiver(aktivitet.getIdentifikator()),
+                null, uttakPeriode.getFom());
 
-        for(UttakAktivitetEntitet uttakAktivitet: uttakAktiviteter) {
-            if(uttakAktivitet.getArbeidsforholdRef() != null) {
-                BigDecimal aktivitetStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(mapArbeidsgiver(aktivitet.getIdentifikator()),
-                    uttakAktivitet.getArbeidsforholdRef(), uttakPeriode.getFom());
-                totalStillingsprosent = totalStillingsprosent.add(aktivitetStillingsprosent);
+            if (stillingsprosent.compareTo(BigDecimal.ZERO) > 0) {
+                arbeidsprosentandel = (totalStillingsprosent.compareTo(BigDecimal.ZERO) > 0) ? stillingsprosent.divide(totalStillingsprosent).setScale(2, RoundingMode.HALF_UP) : BigDecimal.ONE;
             }
         }
-
-        BigDecimal arbeidsprosentandel = (totalStillingsprosent.compareTo(BigDecimal.ZERO)>0)? stillingsprosent.divide(totalStillingsprosent): BigDecimal.ONE;
         if (aktivitet.isSøktGradering()) {
-            return uttakPeriode.getArbeidsprosent().multiply(arbeidsprosentandel);
+            return uttakPeriode.getArbeidsprosent().multiply(arbeidsprosentandel).setScale(2);
         }
 
         if (erUtsettelsePgaArbeid(uttakPeriode) && erArbeidMedArbeidsgiver(aktivitet)) {
-            return stillingsprosent.multiply(arbeidsprosentandel);
+            return stillingsprosent.multiply(arbeidsprosentandel).setScale(2);
         }
         return BigDecimal.ZERO;
     }

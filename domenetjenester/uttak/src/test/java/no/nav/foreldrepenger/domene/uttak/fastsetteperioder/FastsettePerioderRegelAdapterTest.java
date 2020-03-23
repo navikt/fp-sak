@@ -787,7 +787,7 @@ public class FastsettePerioderRegelAdapterTest {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         LocalDate start = fødselsdato.plusWeeks(20);
         LocalDate slutt = fødselsdato.plusWeeks(25).minusDays(1);
-        BigDecimal arbeidsprosent = BigDecimal.valueOf(60);
+        BigDecimal arbeidsprosent = BigDecimal.valueOf(60).setScale(2);
         Arbeidsgiver virksomhet = virksomhet();
         OppgittPeriodeEntitet oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medArbeidsgiver(virksomhet)
@@ -838,7 +838,7 @@ public class FastsettePerioderRegelAdapterTest {
 
     @Test
     public void graderingSkalSettesRiktigEtterKjøringAvRegler() {
-        BigDecimal arbeidsprosent = BigDecimal.valueOf(50);
+        BigDecimal arbeidsprosent = BigDecimal.valueOf(50).setScale(2);
         Arbeidsgiver virksomhetSomGradereresHos = virksomhet("orgnr1");
         Arbeidsgiver annenVirksomhet = virksomhet("orgnr2");
         LocalDate fødselsdato = LocalDate.of(2018, 10, 1);
@@ -997,7 +997,7 @@ public class FastsettePerioderRegelAdapterTest {
     @Test
     public void graderingSkalSettesRiktigVedAvslagAvGraderingEtterKjøringAvRegler() {
         // Søker gradert fpff slik at gradering avslås
-        BigDecimal arbeidsprosent = BigDecimal.valueOf(50);
+        BigDecimal arbeidsprosent = BigDecimal.valueOf(50).setScale(2);
         Arbeidsgiver virksomhet = virksomhet();
         var fødselsdato = LocalDate.of(2018, 6, 22);
         OppgittPeriodeEntitet oppgittGradertFPFF = OppgittPeriodeBuilder.ny()
@@ -1044,7 +1044,7 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(start.getDayOfWeek()).isEqualTo(DayOfWeek.MONDAY);
         assertThat(slutt.getDayOfWeek()).isEqualTo(DayOfWeek.SUNDAY);
 
-        BigDecimal arbeidsprosent = BigDecimal.valueOf(60);
+        BigDecimal arbeidsprosent = BigDecimal.valueOf(60).setScale(2);
         Arbeidsgiver virksomhet = virksomhet();
         OppgittPeriodeEntitet oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
@@ -1378,7 +1378,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         assertThat(utsettelseResultat.getUtsettelseType()).isEqualTo(UttakUtsettelseType.ARBEID);
         assertThat(utsettelseResultat.getManuellBehandlingÅrsak()).isEqualTo(ManuellBehandlingÅrsak.IKKE_HELTIDSARBEID);
-        assertThat(utsettelseResultat.getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(BigDecimal.valueOf(50));
+        assertThat(utsettelseResultat.getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(BigDecimal.valueOf(50).setScale(2));
     }
 
     @Test
