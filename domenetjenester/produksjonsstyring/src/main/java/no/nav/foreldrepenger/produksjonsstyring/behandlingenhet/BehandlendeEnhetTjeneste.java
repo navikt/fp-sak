@@ -73,7 +73,8 @@ public class BehandlendeEnhetTjeneste {
     private OrganisasjonsEnhet finnEnhetFor(Fagsak fagsak) {
         Optional<OrganisasjonsEnhet> forrigeEnhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
             .filter(b -> gyldigEnhetNfpNk(b.getBehandlendeEnhet()))
-            .map(b -> getOrganisasjonsEnhetEtterEndring(b, b.getBehandlendeOrganisasjonsEnhet()).orElse(b.getBehandlendeOrganisasjonsEnhet()));
+            .map(b -> getOrganisasjonsEnhetEtterEndring(b.getFagsak(), b.getBehandlendeOrganisasjonsEnhet(), b.getAktørId(), new HashSet<>())
+                .orElse(b.getBehandlendeOrganisasjonsEnhet()));
         return forrigeEnhet.orElse(enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), BehandlingTema.fraFagsak(fagsak, null)));
     }
 
