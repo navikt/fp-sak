@@ -1294,6 +1294,27 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(fkPeriode.getOverføringÅrsak()).isEqualTo(fedrekvote.getÅrsak());
     }
 
+    @Test
+    public void arbeidstaker_uten_arbeidsgiver_skal_fastsettes() {
+        var fødselsdato = LocalDate.of(2019, 10, 10);
+        var mødrekvote = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(fødselsdato, fødselsdato.plusWeeks(6).minusDays(1))
+            .build();
+        var behandling = setupMor(mødrekvote, null, fødselsdato.minusYears(1), fødselsdato.plusYears(2));
+        var beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
+        beregningsandelTjeneste.leggTilOrdinærtArbeid(null, null);
+
+        var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
+        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+
+        var uttakResultatPerioder = resultat.getPerioder();
+
+        var resultatPeriode = finnPeriode(uttakResultatPerioder, mødrekvote.getFom(), mødrekvote.getTom());
+
+        assertThat(resultatPeriode.isInnvilget()).isTrue();
+    }
+
     /**
      * Ligger søknader fra tidligere i prod med samtidig uttak og 0%
      */
