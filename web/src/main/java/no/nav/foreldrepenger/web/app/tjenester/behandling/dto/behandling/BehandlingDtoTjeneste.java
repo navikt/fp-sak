@@ -16,6 +16,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.BehandlingIdVersjonDto;
+import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -104,6 +105,7 @@ public class BehandlingDtoTjeneste {
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste;
     private BehandlingDokumentRepository behandlingDokumentRepository;
+    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
 
     BehandlingDtoTjeneste() {
         // for CDI proxy
@@ -115,7 +117,8 @@ public class BehandlingDtoTjeneste {
                                  TilbakekrevingRepository tilbakekrevingRepository,
                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                  OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste,
-                                 BehandlingDokumentRepository behandlingDokumentRepository) {
+                                 BehandlingDokumentRepository behandlingDokumentRepository,
+                                 RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
 
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.uttakRepository = repositoryProvider.getUttakRepository();
@@ -128,6 +131,7 @@ public class BehandlingDtoTjeneste {
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.opptjeningIUtlandDokStatusTjeneste = opptjeningIUtlandDokStatusTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
+        this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
     }
 
     private static BehandlingDto lagBehandlingDto(Behandling behandling,
@@ -368,12 +372,17 @@ public class BehandlingDtoTjeneste {
                 }
             } else {
                 Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+                Optional<UttakResultatEntitet> uttakResultatAnnenPart = hentUttaksresultatAnnenpartHvisEksisterer(behandling);
                 Optional<Stønadskontoberegning> stønadskontoberegning = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
                     .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning);
                 if (stønadskontoberegning.isPresent() && uttakResultat.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.STONADSKONTOER_PATH, "uttak-stonadskontoer", uuidDto));
                 }
 
+                if (uttakResultat.isPresent() || uttakResultatAnnenPart.isPresent()) {
+                    // Fpformidling trenger også å få fatt på uttaksresultatet når bare annen part har det
+                    dto.leggTil(get(UttakRestTjeneste.RESULTAT_PERIODER_PATH, "uttaksresultat-perioder-formidling", uuidDto));
+                }
                 if (uttakResultat.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.RESULTAT_PERIODER_PATH, "uttaksresultat-perioder", uuidDto));
                     // FIXME: Bør ikke ha ytelsesspesifikk url her. Bør kun være beregningsresultat
@@ -405,6 +414,11 @@ public class BehandlingDtoTjeneste {
         });
 
         return dto;
+    }
+
+    private Optional<UttakResultatEntitet> hentUttaksresultatAnnenpartHvisEksisterer(Behandling søkersBehandling) {
+        Optional<Behandling> annenpartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(søkersBehandling.getFagsak().getSaksnummer());
+        return annenpartBehandling.flatMap(ab -> uttakRepository.hentUttakResultatHvisEksisterer(ab.getId()));
     }
 
     private Optional<BehandlingsresultatDto> lagBehandlingsresultatDto(Behandling behandling) {

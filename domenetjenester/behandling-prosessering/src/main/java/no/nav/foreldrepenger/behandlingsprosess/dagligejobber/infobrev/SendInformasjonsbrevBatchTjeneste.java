@@ -16,11 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
-/**
- * Produserer en avstemmingsfil på XML-format som skal brukes i eksisterende grensesnitt for avstemmingskomponent i økonomisystemet.
- * Informasjonen i avstemmingsmelding hentes ut fra økonomilageret.
- */
-
 @ApplicationScoped
 public class SendInformasjonsbrevBatchTjeneste implements BatchTjeneste {
 
@@ -54,6 +49,7 @@ public class SendInformasjonsbrevBatchTjeneste implements BatchTjeneste {
             data.setProperty(OpprettInformasjonsFagsakTask.BEH_ENHET_ID_KEY, sak.getEnhet());
             data.setProperty(OpprettInformasjonsFagsakTask.BEH_ENHET_NAVN_KEY, sak.getEnhetNavn());
             data.setProperty(OpprettInformasjonsFagsakTask.BEHANDLING_AARSAK, BehandlingÅrsakType.INFOBREV_BEHANDLING.getKode());
+            data.setProperty(OpprettInformasjonsFagsakTask.FAGSAK_ID_MOR_KEY, sak.getKildeFagsakId().toString());
             prosessTaskRepository.lagre(data);
         });
         return BATCHNAVN + "-" + saker.size();
