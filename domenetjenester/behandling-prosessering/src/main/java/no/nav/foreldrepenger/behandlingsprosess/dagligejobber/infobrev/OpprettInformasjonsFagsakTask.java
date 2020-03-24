@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
@@ -28,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
@@ -53,6 +53,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     public static final String BEH_ENHET_ID_KEY = "enhetId";
     public static final String BEH_ENHET_NAVN_KEY = "enhetNavn";
     public static final String BEHANDLING_AARSAK = "behandlingAarsak";
+    public static final String FAGSAK_ID_MOR_KEY = "fagsakIdMor";
 
     private static final Logger log = LoggerFactory.getLogger(OpprettInformasjonsFagsakTask.class);
     private static final Period FH_DIFF_PERIODE = Period.parse("P4W");
@@ -63,7 +64,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     private BrukerTjeneste brukerTjeneste;
     private OpprettGSakTjeneste opprettGSakTjeneste;
     private FagsakRepository fagsakRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
@@ -79,14 +80,15 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
                                          TpsTjeneste tpsTjeneste,
                                          BrukerTjeneste brukerTjeneste,
                                          FagsakTjeneste fagsakTjeneste,
-                                         OpprettGSakTjeneste opprettGSakTjeneste) {
+                                         OpprettGSakTjeneste opprettGSakTjeneste,
+                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.tpsTjeneste = tpsTjeneste;
         this.brukerTjeneste = brukerTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.opprettGSakTjeneste = opprettGSakTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.prosessTaskRepository = prosessTaskRepository;
@@ -112,6 +114,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         }
 
         Fagsak fagsak = opprettNyFagsak(bruker);
+        kobleNyFagsakTilMors(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_MOR_KEY)), fagsak);
         Behandling behandling = opprettFørstegangsbehandlingInformasjonssak(fagsak, enhet, behandlingÅrsakType);
         opprettTaskForÅStarteBehandling(behandling);
         log.info("Opprettet fagsak/informasjon {} med behandling {}", fagsak.getSaksnummer().getVerdi(), behandling.getId()); //NOSONAR
@@ -125,6 +128,13 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         Saksnummer saksnummer = opprettGSakTjeneste.opprettEllerFinnGsak(fagsak.getId(), bruker);
         fagsakTjeneste.oppdaterFagsakMedGsakSaksnummer(fagsak.getId(), saksnummer);
         return fagsakTjeneste.finnEksaktFagsak(fagsak.getId());
+    }
+
+    private void kobleNyFagsakTilMors(Long fagsakIdMor, Fagsak fagsak) {
+        // Fagsakene må kobles da infobrevet på ny fagsak trenger informasjon fra uttaket på eksisterende fagsak
+        Fagsak fagsakMor = fagsakRepository.finnEksaktFagsak(fagsakIdMor);
+        Optional<Behandling> vedtakMor = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakIdMor);
+        vedtakMor.ifPresent(behandling -> fagsakRelasjonTjeneste.kobleFagsaker(fagsakMor, fagsak, behandling));
     }
 
     private Behandling opprettFørstegangsbehandlingInformasjonssak(Fagsak fagsak, OrganisasjonsEnhet enhet, BehandlingÅrsakType behandlingÅrsakType) {
@@ -161,7 +171,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     }
 
     private boolean erUkoblet(Fagsak fagsak) {
-        Optional<FagsakRelasjon> relasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak);
+        Optional<FagsakRelasjon> relasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
         return !relasjon.isPresent() || (relasjon.get().getFagsakNrEn().equals(fagsak) && !relasjon.get().getFagsakNrTo().isPresent());
     }
 
