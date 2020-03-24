@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.mottak.vedtak;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -64,7 +66,8 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
 
     private void loggOverlapp(LocalDate fom, LocalDate tom) {
         var saker = informasjonssakRepository.finnSakerMedSisteVedtakOpprettetInnenIntervall(fom, tom);
-        saker.forEach(this::vurderOverlapp);
+        var funnetoverlapp = saker.stream().map(this::vurderOverlapp).filter(Objects::nonNull).collect(Collectors.toList());
+        LOG.info("FPSAK DETEKTOR ALLE {}", funnetoverlapp);
     }
 
     public static class OverlappendeSak {
@@ -77,7 +80,7 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
         }
     }
 
-    private void vurderOverlapp(OverlappData data) {
+    private OverlappendeSak vurderOverlapp(OverlappData data) {
         boolean match = false;
         LocalDate startdato = fomMandag(data.getMinUtbetalingDato());
         var resultat = new OverlappendeSak();
@@ -97,11 +100,12 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
             builder.append(" AnnenPart ");
         }
         if (!match)
-            return;
+            return null;
         resultat.overlappene = builder.toString();
 
         // TODO(jol) enten slett kode eller logg til OVERLAPP-fil
         LOG.info("FPSAK DETEKTOR {}", resultat);
+        return resultat;
     }
 
     private LocalDate fomMandag(LocalDate fom) {
