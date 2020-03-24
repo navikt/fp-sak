@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.OverlappData;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.LoggHistoriskOverlappFPInfotrygdVLTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.SjekkOverlappForeldrepengerInfotrygdTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -35,6 +36,7 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
 
     private InformasjonssakRepository informasjonssakRepository;
     private SjekkOverlappForeldrepengerInfotrygdTjeneste overlapper;
+    private LoggHistoriskOverlappFPInfotrygdVLTjeneste loggertjeneste;
 
 
 
@@ -47,10 +49,12 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
     @Inject
     public VurderOpphørAvYtelserTask(VurderOpphørAvYtelser tjeneste,
                                      InformasjonssakRepository informasjonssakRepository,
+                                     LoggHistoriskOverlappFPInfotrygdVLTjeneste loggertjeneste,
                                      SjekkOverlappForeldrepengerInfotrygdTjeneste overlapper) {
         this.tjeneste = tjeneste;
         this.informasjonssakRepository = informasjonssakRepository;
         this.overlapper = overlapper;
+        this.loggertjeneste = loggertjeneste;
     }
 
     @Override
@@ -67,16 +71,21 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
     private void loggOverlapp(LocalDate fom, LocalDate tom) {
         var saker = informasjonssakRepository.finnSakerMedSisteVedtakOpprettetInnenIntervall(fom, tom);
         var funnetoverlapp = saker.stream().map(this::vurderOverlapp).filter(Objects::nonNull).collect(Collectors.toList());
-        LOG.info("FPSAK DETEKTOR ALLE {}", funnetoverlapp);
+        funnetoverlapp.forEach(o -> loggertjeneste.vurderOglagreEventueltOverlapp(o.data.getBehandlingId(), o.data.getAnnenPartAktørId(), o.olFPBR, o.olFPAP, o.olSVP));
     }
 
     public static class OverlappendeSak {
+        public OverlappData data; // NOSONAR
         public String saksnummer;  // NOSONAR
         public String overlappene ; // NOSONAR
+        public boolean olFPBR = false; // NOSONAR
+        public boolean olFPAP = false; // NOSONAR
+        public boolean olSVP = false; // NOSONAR
+
 
         @Override
         public String toString() {
-            return "OverlappendeSak[ " + saksnummer + " overlappes " + overlappene + " ]";
+            return "[ " + saksnummer + " overlappes " + overlappene + " ]";
         }
     }
 
@@ -88,20 +97,24 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
         resultat.saksnummer = data.getSaksnummer().getVerdi();
         if (overlapper.harForeldrepengerInfotrygdSomOverlapper(data.getAktørId(), startdato)) {
             match = true;
+            resultat.olFPBR = true;
             builder.append(" Foreldrepenger ");
         }
         if (RelasjonsRolleType.erMor(data.getRolle()) && overlapper.harSvangerskapspengerInfotrygdSomOverlapper(data.getAktørId(), startdato)) {
             match = true;
+            resultat.olSVP = true;
             builder.append(" Svangerskap ");
         }
         if (RelasjonsRolleType.erMor(data.getRolle()) && data.getAnnenPartAktørId() != null && FagsakYtelseType.FORELDREPENGER.equals(data.getYtelseType()) &&
             overlapper.harForeldrepengerInfotrygdSomOverlapper(data.getAnnenPartAktørId(), startdato)) {
             match = true;
+            resultat.olFPAP = true;
             builder.append(" AnnenPart ");
         }
         if (!match)
             return null;
         resultat.overlappene = builder.toString();
+        resultat.data = data;
 
         // TODO(jol) enten slett kode eller logg til OVERLAPP-fil
         LOG.info("FPSAK DETEKTOR {}", resultat);
