@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
-import javax.validation.constraints.Null;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class InformasjonssakData {

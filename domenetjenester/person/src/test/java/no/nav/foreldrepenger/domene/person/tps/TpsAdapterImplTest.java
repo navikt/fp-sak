@@ -25,8 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingsgrunnlagKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.behandlingslager.geografisk.SpråkKodeverkRepository;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -61,7 +59,7 @@ public class TpsAdapterImplTest {
     public void setup() {
         TpsAdresseOversetter tpsAdresseOversetter = new TpsAdresseOversetter(null);
         TpsOversetter tpsOversetter = new TpsOversetter(
-            lagMockBehandlingsgrunnlagKodeverkRepository(), lagMockSpråkKodeverkRepository(), tpsAdresseOversetter);
+            lagMockBehandlingsgrunnlagKodeverkRepository(), tpsAdresseOversetter);
         tpsAdapterImpl = new TpsAdapterImpl(aktørConsumerMock, personProxyServiceMock, tpsOversetter);
     }
 
@@ -69,13 +67,6 @@ public class TpsAdapterImplTest {
         BehandlingsgrunnlagKodeverkRepository mockBehandlingsgrunnlagKodeverkRepository = mock(BehandlingsgrunnlagKodeverkRepository.class);
         when(mockBehandlingsgrunnlagKodeverkRepository.finnHøyestRangertRegion(Collections.singletonList(anyString()))).thenReturn(Region.NORDEN);
         return mockBehandlingsgrunnlagKodeverkRepository;
-    }
-
-    private SpråkKodeverkRepository lagMockSpråkKodeverkRepository() {
-        SpråkKodeverkRepository språkRepo = Mockito.mock(SpråkKodeverkRepository.class);
-        when(språkRepo.finnSpråkMedKodeverkEiersKode("NN")).thenReturn(Optional.of(Språkkode.nn));
-        when(språkRepo.finnSpråkMedKodeverkEiersKode("NB")).thenReturn(Optional.of(Språkkode.nb));
-        return språkRepo;
     }
 
     @Test

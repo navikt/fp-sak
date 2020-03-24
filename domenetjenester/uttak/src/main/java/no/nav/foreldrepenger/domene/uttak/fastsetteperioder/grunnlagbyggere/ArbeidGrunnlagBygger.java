@@ -76,9 +76,9 @@ public class ArbeidGrunnlagBygger {
 
         var arbeidsforhold = new Arbeidsforhold(identifikator, startdatoer.get(statusPeriode.toUttakAktivitetIdentifikator()));
 
-        if (arbeidsforhold.getIdentifikator().getAktivitetType().equals(AktivitetType.ARBEID)) {
-            var endringerIStilling = finnEndringerIStilling(identifikator, ytelseFordelingAggregat, uttakYrkesaktiviteter)
-                .stream().sorted(Comparator.comparing(EndringAvStilling::getDato))
+        if (erArbeidstakerMedArbeidsgiver(arbeidsforhold)) {
+            var endringerIStilling = finnEndringerIStilling(identifikator, ytelseFordelingAggregat, uttakYrkesaktiviteter).stream()
+                .sorted(Comparator.comparing(EndringAvStilling::getDato))
                 .collect(Collectors.toList());
             for (EndringAvStilling endringAvStilling : endringerIStilling) {
                 arbeidsforhold.leggTilEndringIStilling(endringAvStilling);
@@ -86,6 +86,11 @@ public class ArbeidGrunnlagBygger {
         }
 
         return arbeidsforhold;
+    }
+
+    private boolean erArbeidstakerMedArbeidsgiver(Arbeidsforhold arbeidsforhold) {
+        return arbeidsforhold.getIdentifikator().getAktivitetType().equals(AktivitetType.ARBEID) &&
+            arbeidsforhold.getIdentifikator().getArbeidsgiverIdentifikator() != null;
     }
 
     private Map<AktivitetIdentifikator, LocalDate> finnStartdatoer(Collection<BeregningsgrunnlagStatus> statuser,

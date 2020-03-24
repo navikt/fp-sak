@@ -48,7 +48,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatDokRegelEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeSøknadEntitet;
@@ -59,6 +58,7 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
@@ -84,6 +84,7 @@ public class BehandlingDvhMapperTest {
 
     private final Repository repository = repoRule.getRepository();
     private final UttakRepository uttakRepository = new UttakRepository(repoRule.getEntityManager());
+    private final ForeldrepengerUttakTjeneste uttakTjeneste = new ForeldrepengerUttakTjeneste(uttakRepository);
 
     private Behandling behandling;
 
@@ -132,6 +133,7 @@ public class BehandlingDvhMapperTest {
         assertThat(dvh.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);
         assertThat(dvh.getBehandlendeEnhet()).isEqualTo(BEHANDLENDE_ENHET);
         assertThat(dvh.getBehandlingId()).isEqualTo(behandling.getId());
+        assertThat(dvh.getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(dvh.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.IKKE_FASTSATT.getKode());
         assertThat(dvh.getBehandlingStatus()).isEqualTo(BehandlingStatus.OPPRETTET.getKode());
         assertThat(dvh.getBehandlingType()).isEqualTo(BehandlingType.FØRSTEGANGSSØKNAD.getKode());
@@ -151,14 +153,16 @@ public class BehandlingDvhMapperTest {
 
         UttakResultatPerioderEntitet opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET,LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
         uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinnelig);
-        Optional<UttakResultatEntitet> hentetUttakResultatOpt = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
-        BehandlingDvh dvh = mapper.map(behandling, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),hentetUttakResultatOpt,Optional.empty());
+        var hentetUttakResultatOpt = uttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
+        BehandlingDvh dvh = mapper.map(behandling, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
+            hentetUttakResultatOpt, Optional.empty());
         assertThat(dvh.getFoersteStoenadsdag()).isEqualTo(LocalDate.now());
 
         UttakResultatPerioderEntitet uttakResultat = opprettUttakResultatPeriode(PeriodeResultatType.AVSLÅTT, LocalDate.now().plusDays(1), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
         uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultat);
-        hentetUttakResultatOpt = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
-        dvh = mapper.map(behandling, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),hentetUttakResultatOpt,Optional.empty());
+        hentetUttakResultatOpt = uttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
+        dvh = mapper.map(behandling, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
+            hentetUttakResultatOpt, Optional.empty());
         assertThat(dvh.getFoersteStoenadsdag()).isEqualTo(LocalDate.now().plusDays(1));
 
     }

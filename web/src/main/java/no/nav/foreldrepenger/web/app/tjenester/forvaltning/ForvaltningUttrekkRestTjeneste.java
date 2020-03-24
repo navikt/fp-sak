@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
+import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRIFT;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.sql.Timestamp;
@@ -12,6 +13,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -32,29 +34,35 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.mottak.vedtak.VurderOpphørAvYtelserTask;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
-import no.nav.vedtak.felles.jpa.Transaction;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.EnkelPeriodeDto;
 import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @Path("/forvaltningUttrekk")
 @ApplicationScoped
-@Transaction
+@Transactional
 public class ForvaltningUttrekkRestTjeneste {
 
     private EntityManager entityManager;
     private FagsakRepository fagsakRepository;
+    private ProsessTaskRepository prosessTaskRepository;
 
     public ForvaltningUttrekkRestTjeneste() {
         // For CDI
     }
 
     @Inject
-    public ForvaltningUttrekkRestTjeneste(@VLPersistenceUnit EntityManager entityManager, BehandlingRepositoryProvider repositoryProvider) {
+    public ForvaltningUttrekkRestTjeneste(@VLPersistenceUnit EntityManager entityManager, BehandlingRepositoryProvider repositoryProvider,
+                                          ProsessTaskRepository prosessTaskRepository) {
         this.entityManager = entityManager;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
+        this.prosessTaskRepository = prosessTaskRepository;
     }
 
     @POST
@@ -118,4 +126,21 @@ public class ForvaltningUttrekkRestTjeneste {
         return fagsakRepository.hentÅpneFagsakerUtenBehandling().stream().map(SaksnummerDto::new).collect(Collectors.toList());
     }
 
+    @POST
+    @Path("/listFagsakMedoverlappTrex")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(action = READ, ressurs = DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response listFagsakerMedOverlapp(@Parameter(description = "Periode") @BeanParam @Valid EnkelPeriodeDto dto) {
+        ProsessTaskData prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
+        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_KEY_KEY, VurderOpphørAvYtelserTask.HIJACK_KEY_KEY);
+        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_FOM_KEY, dto.getFom().toString());
+        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_TOM_KEY, dto.getTom().toString());
+        prosessTaskData.setCallIdFraEksisterende();
+
+        prosessTaskRepository.lagre(prosessTaskData);
+        return Response.ok().build();
+    }
 }

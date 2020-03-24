@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.domene.vedtak.infotrygd.rest;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,7 +18,9 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.StatusKode;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Vedtak;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
@@ -26,6 +30,7 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
 
 
     private InfotrygdFPGrunnlag tjeneste ;
+    private InfotrygdSVPGrunnlag svp;
     private AktørConsumer aktørConsumer;
 
     SjekkOverlappForeldrepengerInfotrygdTjeneste() {
@@ -33,8 +38,9 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
     }
 
     @Inject
-    public SjekkOverlappForeldrepengerInfotrygdTjeneste(InfotrygdFPGrunnlag tjeneste, AktørConsumer aktørConsumer) {
+    public SjekkOverlappForeldrepengerInfotrygdTjeneste(InfotrygdFPGrunnlag tjeneste, InfotrygdSVPGrunnlag svp, AktørConsumer aktørConsumer) {
         this.tjeneste = tjeneste;
+        this.svp = svp;
         this.aktørConsumer = aktørConsumer;
     }
 
@@ -49,8 +55,19 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
         return !mappedGrunnlag.isEmpty();
     }
 
+    public boolean harSvangerskapspengerInfotrygdSomOverlapper(AktørId aktørId, LocalDate vedtakDato) {
+        var ident = getFnrFraAktørId(aktørId);
+        List<Grunnlag> rest = svp.hentGrunnlag(ident.getIdent(), vedtakDato.minusWeeks(1), vedtakDato.plusYears(3));
+
+        var mappedGrunnlag = rest.stream()
+            .filter(g -> overlapper(g, vedtakDato))
+            .collect(Collectors.toList());
+
+        return !mappedGrunnlag.isEmpty();
+    }
+
     private boolean overlapper(Grunnlag grunnlag, LocalDate vedtakDato) {
-        LocalDate maxDato = finnMaxDato(grunnlag, vedtakDato);
+        LocalDate maxDato = tomFredag(finnMaxDatoUtbetaling(grunnlag).orElse(finnMaxDato(grunnlag)));
         if (!maxDato.isBefore(vedtakDato)) {
             LOG.info("Overlapp INFOTRYGD: fødselsdato barn: {} opphørsdato fra INFOTRYGD: {} Startdato ny sak: {}", grunnlag.getFødselsdatoBarn(), maxDato, vedtakDato);
         } else {
@@ -59,7 +76,11 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
         return !maxDato.isBefore(vedtakDato);
     }
 
-    private LocalDate finnMaxDato(Grunnlag grunnlag, LocalDate vedtakDato) {
+    private Optional<LocalDate> finnMaxDatoUtbetaling(Grunnlag grunnlag) {
+        return grunnlag.getVedtak().stream().map(Vedtak::getPeriode).map(Periode::getTom).max(Comparator.naturalOrder()).map(this::tomFredag);
+    }
+
+    private LocalDate finnMaxDato(Grunnlag grunnlag) {
         if (grunnlag.getOpphørFom() != null) {
             return localDateMinus1Virkedag(grunnlag.getOpphørFom());
         }
@@ -87,6 +108,15 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
             dato = opphoerFomDato.minusDays(1L + dato.getDayOfWeek().getValue() - DayOfWeek.FRIDAY.getValue());
         }
         return dato;
+    }
+
+    private LocalDate tomFredag(LocalDate tom) {
+        DayOfWeek ukedag = DayOfWeek.from(tom);
+        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
+            return tom.minusDays(2);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return tom.minusDays(1);
+        return tom;
     }
 
 }

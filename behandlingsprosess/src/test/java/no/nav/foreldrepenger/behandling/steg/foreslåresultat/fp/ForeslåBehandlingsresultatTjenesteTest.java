@@ -105,6 +105,7 @@ public class ForeslåBehandlingsresultatTjenesteTest {
             medlemTjeneste,
             uttakTjeneste));
         tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()),
             avslagsårsakTjeneste,
             dokumentBehandlingTjeneste,
             revurderingBehandlingsresultatutleder);

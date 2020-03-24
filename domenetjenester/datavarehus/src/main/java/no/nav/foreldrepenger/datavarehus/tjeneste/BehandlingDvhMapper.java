@@ -17,8 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 
 public class BehandlingDvhMapper {
 
@@ -32,13 +32,20 @@ public class BehandlingDvhMapper {
         AVBRUTT_BEHANDLINGSRESULTAT.add(BehandlingResultatType.HENLAGT_SØKNAD_MANGLER);
     }
 
-    public BehandlingDvh map(Behandling behandling, LocalDateTime mottattTidspunkt, Optional<BehandlingVedtak> vedtak, Optional<FamilieHendelseGrunnlagEntitet> fh, Optional<KlageVurderingResultat> klageVurderingResultat, Optional<UttakResultatEntitet> uttakResultat, Optional<LocalDate> skjæringstidspunkt) {
+    public BehandlingDvh map(Behandling behandling,
+                             LocalDateTime mottattTidspunkt,
+                             Optional<BehandlingVedtak> vedtak,
+                             Optional<FamilieHendelseGrunnlagEntitet> fh,
+                             Optional<KlageVurderingResultat> klageVurderingResultat,
+                             Optional<ForeldrepengerUttak> uttak,
+                             Optional<LocalDate> skjæringstidspunkt) {
 
         return BehandlingDvh.builder()
             .ansvarligBeslutter(behandling.getAnsvarligBeslutter())
             .ansvarligSaksbehandler(behandling.getAnsvarligSaksbehandler())
             .behandlendeEnhet(behandling.getBehandlendeEnhet())
             .behandlingId(behandling.getId())
+            .behandlingUuid(behandling.getUuid())
             .behandlingResultatType(finnBehandlingResultatType(behandling))
             .behandlingStatus(behandling.getStatus().getKode())
             .behandlingType(behandling.getType().getKode())
@@ -57,7 +64,7 @@ public class BehandlingDvhMapper {
             .bekreftetFamilieHendelse(mapbekreftetFamilieHendelse(fh))
             .overstyrtFamilieHendelse(mapoverstyrtFamilieHendelse(fh))
             .medMottattTidspunkt(mottattTidspunkt)
-            .medFoersteStoenadsdag(CommonDvhMapper.foersteStoenadsdag(uttakResultat, skjæringstidspunkt))
+            .medFoersteStoenadsdag(CommonDvhMapper.foersteStoenadsdag(uttak, skjæringstidspunkt))
             .build();
     }
 

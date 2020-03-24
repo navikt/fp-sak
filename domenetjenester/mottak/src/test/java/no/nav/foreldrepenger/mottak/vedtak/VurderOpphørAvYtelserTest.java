@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -57,13 +58,13 @@ import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
 public class VurderOpphørAvYtelserTest {
 
-    private static final LocalDate FØDSELS_DATO_1 = LocalDate.now().minusMonths(2);
+    private static final LocalDate FØDSELS_DATO_1 = fomMandag(LocalDate.now().minusMonths(2));
     private static final LocalDate SISTE_DAG_MOR = FØDSELS_DATO_1.plusWeeks(6);
 
-    private static final LocalDate SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1 = LocalDate.now().minusMonths(1);
+    private static final LocalDate SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1 = fomMandag(LocalDate.now().minusMonths(1));
     private static final LocalDate SISTE_DAG_PER_OVERLAPP = SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1.plusWeeks(6);
 
-    private static final LocalDate SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1 = LocalDate.now().plusMonths(1);
+    private static final LocalDate SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1 = fomMandag(LocalDate.now().plusMonths(1));
     private static final LocalDate SISTE_DAG_IKKE_OVERLAPP = SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1.plusWeeks(6);
 
     private static final int DAGSATS = 123;
@@ -331,5 +332,14 @@ public class VurderOpphørAvYtelserTest {
                     .medOriginalBehandling(originalBehandling))
             .build();
         repositoryProvider.getBehandlingRepository().lagre(revurdering, repositoryProvider.getBehandlingRepository().taSkriveLås(revurdering));
+    }
+
+    private static LocalDate fomMandag(LocalDate fom) {
+        DayOfWeek ukedag = DayOfWeek.from(fom);
+        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(1);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(2);
+        return fom;
     }
 }
