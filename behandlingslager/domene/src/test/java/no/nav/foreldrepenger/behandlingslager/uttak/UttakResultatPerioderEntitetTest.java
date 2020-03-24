@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.uttak;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,24 +18,6 @@ public class UttakResultatPerioderEntitetTest {
         perioder = new UttakResultatPerioderEntitet();
         perioder.leggTilPeriode(lagPeriode(start, start.plusWeeks(6).minusDays(1)));
         perioder.leggTilPeriode(lagPeriode(start.plusWeeks(6), start.plusWeeks(16).minusDays(1)));
-    }
-
-    @Test
-    public void skal_finne_første_uttaksdato_blandt_perioder() {
-        assertThat(perioder.finnFørsteUttaksdato().get()).isEqualTo(start);
-    }
-
-    @Test
-    public void skal_finne_siste_uttaksdato_blandt_perioder() {
-        assertThat(perioder.finnSisteUttaksdato().get()).isEqualTo(start.plusWeeks(16).minusDays(1));
-    }
-
-    @Test
-    public void skal_takle_at_det_er_ingen_perioder_når_første_og_siste_periode_skal_finnes() {
-        perioder = new UttakResultatPerioderEntitet();
-
-        assertThat(perioder.finnFørsteUttaksdato()).isEqualTo(Optional.empty());
-        assertThat(perioder.finnSisteUttaksdato()).isEqualTo(Optional.empty());
     }
 
     @Test

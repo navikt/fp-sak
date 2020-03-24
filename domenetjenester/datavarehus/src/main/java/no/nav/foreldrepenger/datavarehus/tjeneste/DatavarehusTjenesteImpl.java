@@ -41,8 +41,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh;
 import no.nav.foreldrepenger.datavarehus.domene.AnkeVurderingResultatDvh;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
@@ -56,6 +54,7 @@ import no.nav.foreldrepenger.datavarehus.domene.KlageVurderingResultatDvh;
 import no.nav.foreldrepenger.datavarehus.domene.VedtakUtbetalingDvh;
 import no.nav.foreldrepenger.datavarehus.xml.DvhVedtakXmlTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnRepository;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -74,7 +73,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     private MottatteDokumentRepository mottatteDokumentRepository;
     private AnkeRepository ankeRepository;
     private DvhVedtakXmlTjeneste dvhVedtakXmlTjeneste;
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     public DatavarehusTjenesteImpl() {
@@ -92,7 +91,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
                                    MottatteDokumentRepository mottatteDokumentRepository,
                                    BehandlingVedtakRepository behandlingVedtakRepository,
                                    DvhVedtakXmlTjeneste dvhVedtakXmlTjeneste,
-                                   UttakRepository uttakRepository,
+                                   ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.datavarehusRepository = datavarehusRepository;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
@@ -105,7 +104,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.ankeRepository = ankeRepository;
         this.dvhVedtakXmlTjeneste = dvhVedtakXmlTjeneste;
-        this.uttakRepository = uttakRepository;
+        this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
@@ -164,13 +163,14 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     private void lagreNedBehandling(Behandling behandling, Optional<BehandlingVedtak> vedtak) {
         Optional<FamilieHendelseGrunnlagEntitet> fh = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId());
         Optional<KlageVurderingResultat> gjeldendeKlagevurderingresultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
-        Optional<UttakResultatEntitet> ur = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        var uttak = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
         Optional<LocalDate> skjæringstidspunkt  = Optional.empty();
-        if(!ur.isPresent() && !FamilieHendelseType.UDEFINERT.equals(fh.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT))){
+        if(uttak.isEmpty() && !FamilieHendelseType.UDEFINERT.equals(fh.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT))){
             skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getSkjæringstidspunktHvisUtledet();
         }
         LocalDateTime mottattTidspunkt = finnMottattTidspunkt(behandling);
-        BehandlingDvh behandlingDvh = new BehandlingDvhMapper().map(behandling, mottattTidspunkt, vedtak, fh, gjeldendeKlagevurderingresultat,ur,skjæringstidspunkt);
+        BehandlingDvh behandlingDvh = new BehandlingDvhMapper().map(behandling, mottattTidspunkt, vedtak, fh, gjeldendeKlagevurderingresultat,
+            uttak, skjæringstidspunkt);
         datavarehusRepository.lagre(behandlingDvh);
     }
 

@@ -66,7 +66,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingStegDvh;
@@ -78,6 +77,7 @@ import no.nav.foreldrepenger.datavarehus.domene.KlageVurderingResultatDvh;
 import no.nav.foreldrepenger.datavarehus.domene.VedtakUtbetalingDvh;
 import no.nav.foreldrepenger.datavarehus.xml.DvhVedtakXmlTjeneste;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnRepository;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
@@ -102,7 +102,7 @@ public class DatavarehusTjenesteImplTest {
     private PersonopplysningRepository personopplysningRepository = mock(PersonopplysningRepository.class);
     private MottatteDokumentRepository mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
     private BehandlingVedtakRepository behandlingVedtakRepository = mock(BehandlingVedtakRepository.class);
-    private UttakRepository uttakRepository = mock(UttakRepository.class);
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste = mock(ForeldrepengerUttakTjeneste.class);
 
     private MottattDokument mottattDokument;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -145,7 +145,7 @@ public class DatavarehusTjenesteImplTest {
             mottatteDokumentRepository,
             behandlingVedtakRepository,
             dvhVedtakTjenesteEngangsstønad,
-            uttakRepository,
+            foreldrepengerUttakTjeneste,
             skjæringstidspunktTjeneste);
     }
 

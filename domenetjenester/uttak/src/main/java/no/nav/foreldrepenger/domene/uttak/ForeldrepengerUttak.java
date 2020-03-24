@@ -38,10 +38,6 @@ public class ForeldrepengerUttak {
         return sortByFom(perioder);
     }
 
-    public LocalDate finnSisteUttaksdato() {
-        return getGjeldendePerioder().stream().map(p -> p.getTidsperiode().getTomDato()).max(LocalDate::compareTo).orElseThrow();
-    }
-
     public LocalDate finnFørsteUttaksdato() {
         return getGjeldendePerioder().stream().map(p -> p.getTidsperiode().getFomDato()).min(LocalDate::compareTo).orElseThrow();
     }
