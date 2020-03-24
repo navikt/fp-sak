@@ -133,6 +133,7 @@ public class BehandlingDvhMapperTest {
         assertThat(dvh.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);
         assertThat(dvh.getBehandlendeEnhet()).isEqualTo(BEHANDLENDE_ENHET);
         assertThat(dvh.getBehandlingId()).isEqualTo(behandling.getId());
+        assertThat(dvh.getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(dvh.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.IKKE_FASTSATT.getKode());
         assertThat(dvh.getBehandlingStatus()).isEqualTo(BehandlingStatus.OPPRETTET.getKode());
         assertThat(dvh.getBehandlingType()).isEqualTo(BehandlingType.FØRSTEGANGSSØKNAD.getKode());

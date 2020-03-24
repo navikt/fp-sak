@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
-
 public class BehandlingDvhEntityTest {
 
     @Test
@@ -16,6 +14,7 @@ public class BehandlingDvhEntityTest {
         assertThat(behandlingDvh.getAnsvarligSaksbehandler()).isEqualTo(DatavarehusTestUtils.ANSVARLIG_SAKSBEHANDLER);
         assertThat(behandlingDvh.getBehandlendeEnhet()).isEqualTo(DatavarehusTestUtils.BEHANDLENDE_ENHET);
         assertThat(behandlingDvh.getBehandlingId()).isEqualTo(DatavarehusTestUtils.BEHANDLING_ID);
+        assertThat(behandlingDvh.getBehandlingUuid()).isEqualTo(DatavarehusTestUtils.BEHANDLING_UUID);
         assertThat(behandlingDvh.getBehandlingResultatType()).isEqualTo(DatavarehusTestUtils.BEHANDLING_RESULTAT_TYPE);
         assertThat(behandlingDvh.getBehandlingStatus()).isEqualTo(DatavarehusTestUtils.BEHANDLING_STATUS);
         assertThat(behandlingDvh.getBehandlingType()).isEqualTo(DatavarehusTestUtils.BEHANDLING_TYPE);

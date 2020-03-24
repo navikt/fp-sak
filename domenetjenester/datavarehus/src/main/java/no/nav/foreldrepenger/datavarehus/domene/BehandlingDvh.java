@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.datavarehus.domene;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -11,6 +12,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.NaturalId;
 
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
@@ -75,20 +78,24 @@ public class BehandlingDvh extends DvhBaseEntitet {  // NOSONAR
     @Column(name = "AVBRUTT")
     private boolean avbrutt;
 
-    @Column(name = "SOEKNAD_FAMILIE_HENDELSE", nullable = true)
+    @Column(name = "SOEKNAD_FAMILIE_HENDELSE")
     private String soeknadFamilieHendelse;
 
-    @Column(name = "BEKREFTET_FAMILIE_HENDELSE", nullable = true)
+    @Column(name = "BEKREFTET_FAMILIE_HENDELSE")
     private String bekreftetFamilieHendelse;
 
-    @Column(name = "OVERSTYRT_FAMILIE_HENDELSE", nullable = true)
+    @Column(name = "OVERSTYRT_FAMILIE_HENDELSE")
     private String overstyrtFamilieHendelse;
 
     @Column(name = "MOTTATT_TIDSPUNKT")
     private LocalDateTime mottattTidspunkt;
 
-    @Column(name = "FOERSTE_STOENADSDAG", nullable = true)
+    @Column(name = "FOERSTE_STOENADSDAG")
     private LocalDate foersteStoenadsdag;
+
+    @NaturalId
+    @Column(name = "uuid")
+    private UUID uuid;
 
     BehandlingDvh() {
         // Hibernate
@@ -101,6 +108,8 @@ public class BehandlingDvh extends DvhBaseEntitet {  // NOSONAR
     public Long getBehandlingId() {
         return behandlingId;
     }
+
+    public UUID getBehandlingUuid() { return uuid; }
 
     public Long getFagsakId() {
         return fagsakId;
@@ -213,7 +222,8 @@ public class BehandlingDvh extends DvhBaseEntitet {  // NOSONAR
                 && Objects.equals(bekreftetFamilieHendelse, other.bekreftetFamilieHendelse)
                 && Objects.equals(overstyrtFamilieHendelse, other.overstyrtFamilieHendelse)
                 && Objects.equals(mottattTidspunkt, other.mottattTidspunkt)
-                && Objects.equals(foersteStoenadsdag, other.foersteStoenadsdag);
+                && Objects.equals(foersteStoenadsdag, other.foersteStoenadsdag)
+                && Objects.equals(uuid, other.uuid);
     }
 
     @Override
@@ -250,9 +260,16 @@ public class BehandlingDvh extends DvhBaseEntitet {  // NOSONAR
         private String overstyrtFamilieHendelse;
         private LocalDateTime mottattTidspunkt;
         private LocalDate foersteStoenadsdag;
+        private UUID uuid;
 
         public Builder behandlingId(Long behandlingId) {
             this.behandlingId = behandlingId;
+            return this;
+        }
+
+
+        public Builder behandlingUuid(UUID uuid) {
+            this.uuid = uuid;
             return this;
         }
 
@@ -391,6 +408,7 @@ public class BehandlingDvh extends DvhBaseEntitet {  // NOSONAR
             behandlingDvh.overstyrtFamilieHendelse = overstyrtFamilieHendelse;
             behandlingDvh.mottattTidspunkt = mottattTidspunkt;
             behandlingDvh.foersteStoenadsdag = foersteStoenadsdag;
+            behandlingDvh.uuid = uuid;
             return behandlingDvh;
         }
     }

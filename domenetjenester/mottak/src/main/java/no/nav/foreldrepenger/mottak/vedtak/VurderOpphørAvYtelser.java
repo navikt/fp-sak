@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.vedtak;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -182,16 +181,10 @@ public class VurderOpphørAvYtelser  {
     }
 
     private boolean evaluerHarSakOverlapp(Fagsak fagsak, Behandling behandling, LocalDate startDato) {
-        if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()))
-            return !finnMaxDatoUtenAvslåtte(behandling).isBefore(startDato); // true hvis lik el senere
-        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsak.getYtelseType())) {
-            var maxdato = finnMaxDatoUtenAvslåtte(behandling);
-            var brukMaxDato = DayOfWeek.FRIDAY.getValue() == DayOfWeek.from(maxdato).getValue() ? maxdato.plusDays(2) : maxdato;
-            long inBetweenDays = ChronoUnit.DAYS.between(brukMaxDato, startDato); // For å detektere gap > 1 virkedag
-            return inBetweenDays < 1; // Overlapp 0 eller mindre
-            // return inBetweenDays != 1 && inBetweenDays < 21; // pos max før start, zero - samme dag, ned - max etter. Dekker gap 2-21 dager + overlapp
-        }
-        return false;
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()))
+            return false;
+
+        return !finnMaxDatoUtenAvslåtte(behandling).isBefore(startDato); // true hvis lik el senere
     }
 
     private LocalDate finnMinDato(Long behandlingId) {

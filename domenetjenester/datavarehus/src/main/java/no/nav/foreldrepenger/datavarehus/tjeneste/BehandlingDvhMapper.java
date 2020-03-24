@@ -45,6 +45,7 @@ public class BehandlingDvhMapper {
             .ansvarligSaksbehandler(behandling.getAnsvarligSaksbehandler())
             .behandlendeEnhet(behandling.getBehandlendeEnhet())
             .behandlingId(behandling.getId())
+            .behandlingUuid(behandling.getUuid())
             .behandlingResultatType(finnBehandlingResultatType(behandling))
             .behandlingStatus(behandling.getStatus().getKode())
             .behandlingType(behandling.getType().getKode())
