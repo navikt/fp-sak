@@ -1,10 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.uttak;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.Entity;
@@ -46,14 +44,4 @@ public class UttakResultatPerioderEntitet extends BaseEntitet {
     public List<UttakResultatPeriodeEntitet> getPerioder() {
         return perioder.stream().sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getFom)).collect(Collectors.toList());
     }
-
-
-    public Optional<LocalDate> finnSisteUttaksdato() {
-        return perioder.stream().map(p -> p.getTidsperiode().getTomDato()).max(LocalDate::compareTo);
-    }
-
-    public Optional<LocalDate> finnFørsteUttaksdato() {
-        return perioder.stream().map(p -> p.getTidsperiode().getFomDato()).min(LocalDate::compareTo);
-    }
-
 }

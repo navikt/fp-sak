@@ -8,8 +8,8 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -23,15 +23,16 @@ public class UttakStegBeregnStønadskontoTjeneste {
     private BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
 
     @Inject
     public UttakStegBeregnStønadskontoTjeneste(UttakRepositoryProvider repositoryProvider,
                                                BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste,
-                                               DekningsgradTjeneste dekningsgradTjeneste) {
+                                               DekningsgradTjeneste dekningsgradTjeneste,
+                                               ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.beregnStønadskontoerTjeneste = beregnStønadskontoerTjeneste;
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.uttakTjeneste = uttakTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
@@ -79,19 +80,19 @@ public class UttakStegBeregnStønadskontoTjeneste {
     }
 
     private boolean erLøpendeInnvilgetFP(Long behandlingId) {
-        var uttak = uttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
+        var uttak = uttakTjeneste.hentUttakHvisEksisterer(behandlingId);
         if (uttak.isEmpty()) {
             return false;
         }
-        return uttak.get().getGjeldendePerioder().getPerioder()
+        return uttak.get().getGjeldendePerioder()
             .stream()
             .anyMatch(this::harTrekkdagerEllerUtbetaling);
     }
 
-    private boolean harTrekkdagerEllerUtbetaling(UttakResultatPeriodeEntitet periode) {
+    private boolean harTrekkdagerEllerUtbetaling(ForeldrepengerUttakPeriode periode) {
         return periode.getAktiviteter()
             .stream()
-            .anyMatch(aktivitet -> aktivitet.getTrekkdager().merEnn0() || aktivitet.getUtbetalingsprosent().compareTo(BigDecimal.ZERO) > 0);
+            .anyMatch(aktivitet -> aktivitet.getTrekkdager().merEnn0() || aktivitet.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) > 0);
     }
 
     enum  BeregningingAvStønadskontoResultat {

@@ -17,17 +17,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")
 class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.behandling.steg.foreslåresultat.ForeslåBehandlingsresultatTjeneste {
 
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
 
     private AvslagsårsakTjeneste avslagsårsakTjeneste;
 
@@ -43,21 +42,22 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
 
     @Inject
     ForeslåBehandlingsresultatTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                         AvslagsårsakTjeneste avslagsårsakTjeneste,
-                                         DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
-                                         @FagsakYtelseTypeRef("FP") RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutlederFelles) {
-        this.uttakRepository =repositoryProvider.getUttakRepository();
+                                           ForeldrepengerUttakTjeneste uttakTjeneste,
+                                           AvslagsårsakTjeneste avslagsårsakTjeneste,
+                                           DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
+                                           @FagsakYtelseTypeRef("FP") RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutlederFelles) {
+        this.uttakTjeneste = uttakTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
-        this.avslagsårsakTjeneste =avslagsårsakTjeneste;
-        this.revurderingBehandlingsresultatutlederFelles =revurderingBehandlingsresultatutlederFelles;
-        this.dokumentBehandlingTjeneste =dokumentBehandlingTjeneste;
-        this.behandlingsresultatRepository =repositoryProvider.getBehandlingsresultatRepository();
+        this.avslagsårsakTjeneste = avslagsårsakTjeneste;
+        this.revurderingBehandlingsresultatutlederFelles = revurderingBehandlingsresultatutlederFelles;
+        this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     }
 
 
     protected boolean minstEnGyldigUttaksPeriode(Behandlingsresultat behandlingsresultat) {
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandlingsresultat.getBehandlingId());
-        return uttakResultat.isPresent() && uttakResultat.get().getGjeldendePerioder().getPerioder().stream().anyMatch(UttakResultatPeriodeEntitet::isInnvilget);
+        var uttak = uttakTjeneste.hentUttakHvisEksisterer(behandlingsresultat.getBehandlingId());
+        return uttak.isPresent() && uttak.get().getGjeldendePerioder().stream().anyMatch(ForeldrepengerUttakPeriode::isInnvilget);
     }
 
     @Override
