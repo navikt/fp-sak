@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -65,6 +66,8 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
 
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
-        uttakRepository.ryddUttaksperiodegrense(kontekst.getBehandlingId());
+        if (!Objects.equals(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER, førsteSteg)) {
+            uttakRepository.ryddUttaksperiodegrense(kontekst.getBehandlingId());
+        }
     }
 }
