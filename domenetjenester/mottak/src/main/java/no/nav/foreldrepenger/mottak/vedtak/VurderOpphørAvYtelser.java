@@ -188,7 +188,8 @@ public class VurderOpphørAvYtelser  {
             var maxdato = finnMaxDatoUtenAvslåtte(behandling);
             var brukMaxDato = DayOfWeek.FRIDAY.getValue() == DayOfWeek.from(maxdato).getValue() ? maxdato.plusDays(2) : maxdato;
             long inBetweenDays = ChronoUnit.DAYS.between(brukMaxDato, startDato); // For å detektere gap > 1 virkedag
-            return inBetweenDays != 1 && inBetweenDays < 21; // pos max før start, zero - samme dag, ned - max etter. Dekker gap 2-21 dager + overlapp
+            return inBetweenDays < 1; // Overlapp 0 eller mindre
+            // return inBetweenDays != 1 && inBetweenDays < 21; // pos max før start, zero - samme dag, ned - max etter. Dekker gap 2-21 dager + overlapp
         }
         return false;
     }
