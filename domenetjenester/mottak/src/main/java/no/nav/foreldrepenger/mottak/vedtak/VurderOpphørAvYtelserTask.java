@@ -94,7 +94,7 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
         if (RelasjonsRolleType.erMor(data.getRolle()) && data.getAnnenPartAktørId() != null && FagsakYtelseType.FORELDREPENGER.equals(data.getYtelseType()) &&
             overlapper.harForeldrepengerInfotrygdSomOverlapper(data.getAnnenPartAktørId(), startdato)) {
             match = true;
-            resultat.overlappene += " AnnenPart ";
+            builder.append(" AnnenPart ");
         }
         if (!match)
             return;
