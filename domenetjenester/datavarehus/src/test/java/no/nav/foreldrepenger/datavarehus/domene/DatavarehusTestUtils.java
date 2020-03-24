@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.datavarehus.domene;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 
@@ -50,6 +51,7 @@ public class DatavarehusTestUtils {
     protected static final String SOEKNAD_TYPE = "TERM";
     protected static final String VEDTAK_XML = "<personOpplysninger> </personOpplysninger>";
     protected static final LocalDate AVSLUTTNINGS_DATO = LocalDate.now().plusDays(100);
+    protected static final UUID BEHANDLING_UUID = UUID.randomUUID();
 
 
 
@@ -77,6 +79,7 @@ public class DatavarehusTestUtils {
                 .behandlendeEnhet(BEHANDLENDE_ENHET)
                 .behandlingResultatType(BEHANDLING_RESULTAT_TYPE)
                 .behandlingId(BEHANDLING_ID)
+                .behandlingUuid(BEHANDLING_UUID)
                 .behandlingStatus(BEHANDLING_STATUS)
                 .behandlingType(BEHANDLING_TYPE)
                 .endretAv(ENDRET_AV)
