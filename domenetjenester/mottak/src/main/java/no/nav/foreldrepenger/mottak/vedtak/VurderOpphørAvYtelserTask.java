@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.mottak.vedtak;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -69,9 +67,10 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
     }
 
     private void loggOverlapp(LocalDate fom, LocalDate tom) {
+        LOG.info("FPSAK DETEKTOR PERIODE {} til {}", fom, tom);
         var saker = informasjonssakRepository.finnSakerMedSisteVedtakOpprettetInnenIntervall(fom, tom);
-        var funnetoverlapp = saker.stream().map(this::vurderOverlapp).filter(Objects::nonNull).collect(Collectors.toList());
-        funnetoverlapp.forEach(o -> loggertjeneste.vurderOglagreEventueltOverlapp(o.data.getBehandlingId(), o.data.getAnnenPartAktørId(), o.olFPBR, o.olFPAP, o.olSVP));
+        saker.forEach(this::vurderOverlapp);
+        saker.forEach(o -> loggertjeneste.vurderOglagreEventueltOverlapp(o.getBehandlingId(), o.getAnnenPartAktørId(), o.getMinUtbetalingDato()));
     }
 
     public static class OverlappendeSak {

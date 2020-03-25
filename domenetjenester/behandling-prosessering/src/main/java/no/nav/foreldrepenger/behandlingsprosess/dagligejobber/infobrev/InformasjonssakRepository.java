@@ -211,9 +211,10 @@ public class InformasjonssakRepository {
                 " left outer join gr_personopplysning grpo on (beh.id=grpo.behandling_id and grpo.aktiv='J') " +
                 " left outer join so_annen_part anpa on (grpo.so_annen_part_id=anpa.id and anpa.aktoer_id is not null) " +
                 " left outer join br_resultat_behandling brr on (brr.behandling_id=beh.id and brr.aktiv='J') " +
-                " left outer join (select BEREGNINGSRESULTAT_FP_ID brpid, min(BR_PERIODE_FOM) minbrfom " +
-                "         from br_periode brp left join br_andel ba on ba.br_periode_id = brp.id " +
-                "         where ( dagsats > 0 OR dagsats_fra_bg > 0 ) group by BEREGNINGSRESULTAT_FP_ID " +
+                " left outer join (select BEREGNINGSRESULTAT_FP_ID brpid, min(BR_PERIODE_FOM) minbrfom from br_periode brp " +
+                //"         left join br_andel ba on ba.br_periode_id = brp.id " +
+                //"         where ba.dagsats > 0  " +
+                "         group by BEREGNINGSRESULTAT_FP_ID " +
                 "      ) on brpid=nvl(brr.UTBET_BEREGNINGSRESULTAT_FP_ID, brr.BG_BEREGNINGSRESULTAT_FP_ID) " +
                 " where beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper) " +
                 " and fs.ytelse_type in (:foreldrepenger) and minbrfom is not null " +
