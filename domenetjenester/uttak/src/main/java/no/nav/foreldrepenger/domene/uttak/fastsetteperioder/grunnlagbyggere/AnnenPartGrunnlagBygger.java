@@ -68,7 +68,7 @@ public class AnnenPartGrunnlagBygger {
             var mapped = new AnnenpartUttakPeriodeAktivitet(UttakEnumMapper.map(aktivitet.getUttakAktivitet()),
                 UttakEnumMapper.map(aktivitet.getTrekkonto()),
                 new Trekkdager(aktivitet.getTrekkdager().decimalValue()),
-                aktivitet.getUtbetalingsprosent());
+                aktivitet.getUtbetalingsgrad());
             builder.medUttakPeriodeAktivitet(mapped);
         }
         return builder.build();

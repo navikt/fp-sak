@@ -92,7 +92,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
     private boolean harTrekkdagerEllerUtbetaling(ForeldrepengerUttakPeriode periode) {
         return periode.getAktiviteter()
             .stream()
-            .anyMatch(aktivitet -> aktivitet.getTrekkdager().merEnn0() || aktivitet.getUtbetalingsprosent().compareTo(BigDecimal.ZERO) > 0);
+            .anyMatch(aktivitet -> aktivitet.getTrekkdager().merEnn0() || aktivitet.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) > 0);
     }
 
     enum  BeregningingAvStønadskontoResultat {

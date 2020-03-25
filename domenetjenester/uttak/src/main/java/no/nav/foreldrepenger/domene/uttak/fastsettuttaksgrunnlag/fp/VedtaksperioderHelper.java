@@ -211,7 +211,7 @@ public class VedtaksperioderHelper {
         UttakUtsettelseType utsettelseType = uttakResultatPeriode.getUtsettelseType();
         if (utsettelseType != null && !UttakUtsettelseType.UDEFINERT.equals(utsettelseType)) {
             return uttakResultatPeriode.getAktiviteter().stream()
-                .noneMatch(a -> a.getUtbetalingsprosent() != null && a.getUtbetalingsprosent().compareTo(BigDecimal.ZERO) > 0);
+                .noneMatch(a -> a.getUtbetalingsgrad() != null && a.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) > 0);
         }
         return false;
     }

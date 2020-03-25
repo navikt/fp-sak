@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.vedtak.observer;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -82,7 +81,7 @@ public class VedtattYtelseTjeneste {
         p.setTom(periode.getBeregningsresultatPeriodeTom());
         anvisning.setPeriode(p);
         anvisning.setDagsats(new Desimaltall(new BigDecimal(periode.getDagsatsFraBg())));
-        anvisning.setUtbetalingsgrad(periode.getMinsteUtbetalingsprosent().map(Desimaltall::new).orElse(null));
+        anvisning.setUtbetalingsgrad(periode.getLavestUtbetalingsgrad().map(Desimaltall::new).orElse(null));
         return anvisning;
     }
 

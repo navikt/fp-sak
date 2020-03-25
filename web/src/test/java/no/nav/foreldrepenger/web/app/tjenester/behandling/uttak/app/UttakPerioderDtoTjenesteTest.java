@@ -92,7 +92,7 @@ public class UttakPerioderDtoTjenesteTest {
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.TEN)
             .medErSøktGradering(true)
-            .medUtbetalingsprosent(BigDecimal.ONE)
+            .medUtbetalingsgrad(BigDecimal.ONE)
             .build();
         perioder.leggTilPeriode(periode);
         UttakResultatEntitet uttakResultat = new UttakResultatEntitet();
@@ -127,7 +127,7 @@ public class UttakPerioderDtoTjenesteTest {
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getStønadskontoType()).isEqualTo(periodeAktivitet.getTrekkonto());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getTrekkdager()).isEqualTo(periodeAktivitet.getTrekkdager().decimalValue());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getProsentArbeid()).isEqualTo(periodeAktivitet.getArbeidsprosent());
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(periodeAktivitet.getUtbetalingsprosent());
+        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(periodeAktivitet.getUtbetalingsgrad());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getUttakArbeidType()).isEqualTo(periodeAktivitet.getUttakArbeidType());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getUttakArbeidType()).isEqualTo(periodeAktivitet.getUttakArbeidType());
     }
@@ -207,7 +207,7 @@ public class UttakPerioderDtoTjenesteTest {
             .build();
         return new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
             .medArbeidsprosent(BigDecimal.ZERO)
-            .medUtbetalingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .build();
     }
 

@@ -211,7 +211,7 @@ public class VurderLøpendeMedlemskapStegTest {
             .medArbeidsforhold(Arbeidsgiver.virksomhet("123"), InternArbeidsforholdRef.nyRef())
             .build();
         UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivtet)
-            .medUtbetalingsprosent(BigDecimal.valueOf(100L))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100L))
             .medArbeidsprosent(BigDecimal.valueOf(100L))
             .medErSøktGradering(true)
             .medTrekkonto(StønadskontoType.MØDREKVOTE)

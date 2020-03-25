@@ -97,7 +97,7 @@ public class BeregningsresultatPeriode extends BaseEntitet {
             .sum();
     }
 
-    public Optional<BigDecimal> getMinsteUtbetalingsprosent() {
+    public Optional<BigDecimal> getLavestUtbetalingsgrad() {
         return getBeregningsresultatAndelList().stream()
             .filter(a -> a.getDagsats() > 0)
             .map(BeregningsresultatAndel::getUtbetalingsgrad)

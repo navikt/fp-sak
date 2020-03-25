@@ -11,10 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
-import no.nav.foreldrepenger.tilganger.InnloggetNavAnsattDto;
-import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,6 +25,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
@@ -37,6 +35,8 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
+import no.nav.foreldrepenger.tilganger.InnloggetNavAnsattDto;
+import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.util.FPDateUtil;
 
@@ -97,7 +97,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     @Test
-    public void skal_kunne_overstyre_utbetalingsprosent_dersom_ansatt_har_rolle_overstyrer() {
+    public void skal_kunne_overstyre_utbetalinsgrad_dersom_ansatt_har_rolle_overstyrer() {
         settOppTilgangTilOverstyring(true);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING, BehandlingStegType.VURDER_TILRETTELEGGING);
@@ -126,7 +126,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     @Test
-    public void skal_ikke_kunne_overstyre_utbetalingsprosent_dersom_ansatt_ikke_har_rolle_overstyrer() {
+    public void skal_ikke_kunne_overstyre_utbetalinsgrad_dersom_ansatt_ikke_har_rolle_overstyrer() {
         settOppTilgangTilOverstyring(false);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING, BehandlingStegType.VURDER_TILRETTELEGGING);

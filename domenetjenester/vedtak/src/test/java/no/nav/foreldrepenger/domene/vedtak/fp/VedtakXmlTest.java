@@ -248,7 +248,7 @@ public class VedtakXmlTest {
             .medTrekkonto(StønadskontoType.FORELDREPENGER)
             .medTrekkdager(new Trekkdager(10))
             .medArbeidsprosent(BigDecimal.valueOf(100))
-            .medUtbetalingsprosent(null) // PFP-4396 tester at Utbetalingsprosent kan være null
+            .medUtbetalingsgrad(null) // PFP-4396 tester at utbetalingsgrad kan være null
             .build();
 
         periode.leggTilAktivitet(periodeAktivitet);

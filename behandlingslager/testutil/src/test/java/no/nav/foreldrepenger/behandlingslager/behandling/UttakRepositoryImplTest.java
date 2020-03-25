@@ -163,7 +163,7 @@ public class UttakRepositoryImplTest {
     }
 
     @Test
-    public void utbetalingsprosentOgArbeidstidsprosentSkalHa2Desimaler() {
+    public void utbetalingsgradOgArbeidstidsprosentSkalHa2Desimaler() {
         //Arrange
         UttakResultatPerioderEntitet opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET,
             LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER,
@@ -174,7 +174,7 @@ public class UttakRepositoryImplTest {
         Optional<UttakResultatEntitet> hentetUttakResultatOpt = uttakRepository.hentUttakResultatHvisEksisterer(behandlingsresultat.getBehandlingId());
 
         UttakResultatPeriodeAktivitetEntitet aktivitet = hentetUttakResultatOpt.get().getGjeldendePerioder().getPerioder().get(0).getAktiviteter().get(0);
-        assertThat(aktivitet.getUtbetalingsprosent()).isEqualTo(new BigDecimal("20.57"));
+        assertThat(aktivitet.getUtbetalingsgrad()).isEqualTo(new BigDecimal("20.57"));
         assertThat(aktivitet.getArbeidsprosent()).isEqualTo(new BigDecimal("10.55"));
     }
 
@@ -243,7 +243,7 @@ public class UttakRepositoryImplTest {
                                                                      LocalDate tom,
                                                                      StønadskontoType stønadskontoType,
                                                                      BigDecimal graderingArbeidsprosent,
-                                                                     BigDecimal utbetalingsprosent) {
+                                                                     BigDecimal utbetalingsgrad) {
 
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
@@ -271,7 +271,7 @@ public class UttakRepositoryImplTest {
             .medTrekkonto(stønadskontoType)
             .medTrekkdager(new Trekkdager(BigDecimal.TEN))
             .medArbeidsprosent(graderingArbeidsprosent)
-            .medUtbetalingsprosent(utbetalingsprosent)
+            .medUtbetalingsgrad(utbetalingsgrad)
             .build();
 
         uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);

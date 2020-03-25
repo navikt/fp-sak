@@ -280,7 +280,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødrekvote, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(30))
             .medTrekkonto(StønadskontoType.MØDREKVOTE)
-            .medUtbetalingsprosent(BigDecimal.TEN)
+            .medUtbetalingsgrad(BigDecimal.TEN)
             .medArbeidsprosent(BigDecimal.ZERO).build();
 
         perioder.leggTilPeriode(uttakMødrekvote);
@@ -293,7 +293,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakFellesperiode, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(20))
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
-            .medUtbetalingsprosent(BigDecimal.TEN)
+            .medUtbetalingsgrad(BigDecimal.TEN)
             .medArbeidsprosent(BigDecimal.valueOf(10)).build();
 
         perioder.leggTilPeriode(uttakFellesperiode);
@@ -306,7 +306,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         UttakResultatPeriodeAktivitetEntitet.builder(utsettelse, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(20))
             .medTrekkonto(StønadskontoType.UDEFINERT)
-            .medUtbetalingsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(BigDecimal.ZERO)
             .medArbeidsprosent(BigDecimal.ZERO).build();
 
         perioder.leggTilPeriode(utsettelse);

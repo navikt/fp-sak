@@ -152,7 +152,7 @@ public class UttakPerioderDtoTjeneste {
             .medUttakArbeidType(aktivitet.getUttakArbeidType());
         mapArbeidsforhold(aktivitet, builder, inntektArbeidYtelseGrunnlag);
         if (!opprinneligSendtTilManuellBehandling) {
-            builder.medUtbetalingsgrad(aktivitet.getUtbetalingsprosent());
+            builder.medUtbetalingsgrad(aktivitet.getUtbetalingsgrad());
         }
         return builder.build();
     }

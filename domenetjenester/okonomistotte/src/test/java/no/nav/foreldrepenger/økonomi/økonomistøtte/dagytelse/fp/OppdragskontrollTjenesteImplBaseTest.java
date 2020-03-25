@@ -717,7 +717,7 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
             .medTrekkonto(StønadskontoType.FORELDREPENGER)
             .medArbeidsprosent(BigDecimal.ZERO)
             .medTrekkdager(new Trekkdager(1))
-            .medUtbetalingsprosent(BigDecimal.TEN)
+            .medUtbetalingsgrad(BigDecimal.TEN)
             .build();
         periode.leggTilAktivitet(periodeAktivitet);
         opprinneligPerioder.leggTilPeriode(periode);

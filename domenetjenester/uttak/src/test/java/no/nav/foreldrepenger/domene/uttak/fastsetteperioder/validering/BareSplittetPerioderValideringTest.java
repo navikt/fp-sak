@@ -118,7 +118,7 @@ public class BareSplittetPerioderValideringTest {
     private ForeldrepengerUttakPeriodeAktivitet aktivitet() {
         return new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medArbeidsprosent(BigDecimal.TEN)
-            .medUtbetalingsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(BigDecimal.ZERO)
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, null, null))
             .build();
     }

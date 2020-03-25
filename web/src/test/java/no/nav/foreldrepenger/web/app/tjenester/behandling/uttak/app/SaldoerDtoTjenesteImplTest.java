@@ -777,7 +777,7 @@ public class SaldoerDtoTjenesteImplTest {
                 .medTrekkdager(trekkdager)
                 .medTrekkonto(stønadskontoType)
                 .medArbeidsprosent(BigDecimal.ZERO)
-                .medUtbetalingsprosent(BigDecimal.valueOf(100))
+                .medUtbetalingsgrad(BigDecimal.valueOf(100))
                 .build();
             periode.leggTilAktivitet(aktivitet);
 

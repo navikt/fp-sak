@@ -123,7 +123,7 @@ public class ForvaltningUttakTjeneste {
             .medTrekkonto(aktivitet.getTrekkonto())
             .medTrekkdager(Trekkdager.ZERO)
             .medArbeidsprosent(aktivitet.getArbeidsprosent())
-            .medUtbetalingsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(BigDecimal.ZERO)
             .medErSøktGradering(aktivitet.isSøktGradering())
             .build();
     }

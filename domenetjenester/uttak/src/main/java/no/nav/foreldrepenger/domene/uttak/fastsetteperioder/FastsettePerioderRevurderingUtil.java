@@ -97,7 +97,7 @@ public final class FastsettePerioderRevurderingUtil {
             .medTrekkdager(nyeTrekkdager)
             .medTrekkonto(aktivitet.getTrekkonto())
             .medErSøktGradering(aktivitet.isSøktGradering())
-            .medUtbetalingsprosent(aktivitet.getUtbetalingsprosent())
+            .medUtbetalingsgrad(aktivitet.getUtbetalingsgrad())
             .build();
     }
 

@@ -135,7 +135,7 @@ public class FastsettePerioderEndringTjeneste {
             Objects.equals(aktivitet1.getTrekkonto(), aktivitet2.getTrekkonto()) &&
             Objects.equals(aktivitet1.getTrekkdager(), aktivitet2.getTrekkdager()) &&
             Objects.equals(aktivitet1.getArbeidsprosent(), aktivitet2.getArbeidsprosent()) &&
-            Objects.equals(aktivitet1.getUtbetalingsprosent(), aktivitet2.getUtbetalingsprosent());
+            Objects.equals(aktivitet1.getUtbetalingsgrad(), aktivitet2.getUtbetalingsgrad());
     }
 
 

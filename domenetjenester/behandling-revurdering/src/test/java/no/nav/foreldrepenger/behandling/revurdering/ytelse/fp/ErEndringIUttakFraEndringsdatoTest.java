@@ -521,7 +521,7 @@ public class ErEndringIUttakFraEndringsdatoTest {
             .medTrekkonto(stønadskontoType)
             .medTrekkdager(trekkdager)
             .medArbeidsprosent(BigDecimal.valueOf(andelIArbeid))
-            .medUtbetalingsprosent(new BigDecimal(utbetalingsgrad))
+            .medUtbetalingsgrad(new BigDecimal(utbetalingsgrad))
             .build();
     }
 

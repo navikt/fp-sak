@@ -52,7 +52,7 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
     private BigDecimal arbeidsprosent;
 
     @Column(name = "utbetalingsprosent")
-    private BigDecimal utbetalingsprosent;
+    private BigDecimal utbetalingsgrad;
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "gradering", updatable = false, nullable = false)
@@ -65,7 +65,7 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
             ", trekkonto=" + trekkonto +
             ", trekkdagerDesimal='" + trekkdagerDesimal + '\'' +
             ", arbeidsprosent=" + arbeidsprosent +
-            ", utbetalingsprosent=" + utbetalingsprosent +
+            ", utbetalingsgrad=" + utbetalingsgrad +
             ", uttakAktivitet=" + uttakAktivitet +
             ", gradering=" + gradering +
             '}';
@@ -87,8 +87,8 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
         return arbeidsprosent;
     }
 
-    public BigDecimal getUtbetalingsprosent() {
-        return utbetalingsprosent;
+    public BigDecimal getUtbetalingsgrad() {
+        return utbetalingsgrad;
     }
 
     public UttakResultatPeriodeEntitet getPeriode() {
@@ -180,8 +180,8 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
             return this;
         }
 
-        public UttakResultatPeriodeAktivitetEntitet.Builder medUtbetalingsprosent(BigDecimal utbetalingsprosent) {
-            kladd.utbetalingsprosent = utbetalingsprosent;
+        public UttakResultatPeriodeAktivitetEntitet.Builder medUtbetalingsgrad(BigDecimal utbetalingsgrad) {
+            kladd.utbetalingsgrad = utbetalingsgrad;
             return this;
         }
 
