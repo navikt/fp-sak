@@ -2,11 +2,11 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.svp;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import org.jboss.weld.exceptions.UnsupportedOperationException;
 
@@ -68,10 +68,9 @@ class UttakResultatHolderImpl implements UttakResultatHolder {
         throw new UnsupportedOperationException("Not implemented");
     }
 
-
     @Override
     public boolean kontrollerErSisteUttakAvslåttMedÅrsak() {
-        if (!uttakresultat.isPresent()) {
+        if (uttakresultat.isEmpty()) {
             return false;
         }
         var antallAvslåtteArbeidsforhold = uttakresultat.get().getUttaksResultatArbeidsforhold().stream()
@@ -79,11 +78,15 @@ class UttakResultatHolderImpl implements UttakResultatHolder {
                 arbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak() != null &&
                 !arbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak().equals(ArbeidsforholdIkkeOppfyltÅrsak.INGEN))
             .count();
-        if (antallAvslåtteArbeidsforhold > 0){
+        if (antallAvslåtteArbeidsforhold == uttakresultat.get().getUttaksResultatArbeidsforhold().size()) {
             return true;
         }
-        Set<PeriodeIkkeOppfyltÅrsak> opphørsAvslagÅrsaker = PeriodeIkkeOppfyltÅrsak.opphørsAvslagÅrsaker();
-        return opphørsAvslagÅrsaker.contains(finnSisteUttaksperiode().getPeriodeIkkeOppfyltÅrsak());
+        for (SvangerskapspengerUttakResultatPeriodeEntitet periode : finnSisteUttaksperiodePrArbeidsforhold()) {
+            if (PeriodeIkkeOppfyltÅrsak.opphørsAvslagÅrsaker().contains(periode.getPeriodeIkkeOppfyltÅrsak())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -181,19 +184,19 @@ class UttakResultatHolderImpl implements UttakResultatHolder {
         return true;
     }
 
-
-    private SvangerskapspengerUttakResultatPeriodeEntitet finnSisteUttaksperiode() {
+    private List<SvangerskapspengerUttakResultatPeriodeEntitet> finnSisteUttaksperiodePrArbeidsforhold() {
         if (uttakresultat.isPresent()) {
-            List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> uttaksResultatArbeidsforholdListe = uttakresultat.get().getUttaksResultatArbeidsforhold();
-            List<SvangerskapspengerUttakResultatPeriodeEntitet> perioder = new ArrayList<>();
-            for(SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakResultatArbeidsforhold  :uttaksResultatArbeidsforholdListe ){
-                perioder.addAll( uttakResultatArbeidsforhold.getPerioder());
+            List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> arbeidsforholdListe = uttakresultat.get().getUttaksResultatArbeidsforhold();
+            List<SvangerskapspengerUttakResultatPeriodeEntitet> sistePerioder = new ArrayList<>();
+            for (SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold : arbeidsforholdListe) {
+                List<SvangerskapspengerUttakResultatPeriodeEntitet> perioder = arbeidsforhold.getPerioder();
+                if (perioder.size() > 0) {
+                    perioder.sort(Comparator.comparing(SvangerskapspengerUttakResultatPeriodeEntitet::getTom).reversed());
+                    sistePerioder.add(perioder.get(0));
+                }
             }
-            perioder.sort(Comparator.comparing(SvangerskapspengerUttakResultatPeriodeEntitet::getTom).reversed());
-            if (perioder.size() > 0) {
-                return perioder.get(0);
-            }
+            return sistePerioder;
         }
-        return null;
+        return Collections.emptyList();
     }
 }
