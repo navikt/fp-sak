@@ -64,7 +64,7 @@ public class EndringerHarBegrunnelseValideringTest {
         var periode = new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medTrekkdager(trekkdager)
             .medArbeidsprosent(BigDecimal.TEN)
-            .medUtbetalingsgrad(BigDecimal.TEN)
+            .medUtbetalingsprosent(BigDecimal.TEN)
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, null, null))
             .build();
         var aktiviteter = List.of(periode);

@@ -15,8 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerFelles;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerInntektsmelding;
 
 public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest extends DokumentmottakerTestsupport {
 
@@ -34,7 +32,8 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
             mottatteDokumentTjeneste,
             behandlingsoppretterSpied,
             kompletthetskontroller,
-            repositoryProvider);
+            repositoryProvider,
+            fpUttakTjeneste);
     }
 
     @Test

@@ -34,7 +34,7 @@ public class ForeldrepengerUttakPeriodeAktivitet {
         return arbeidsprosent;
     }
 
-    public BigDecimal getUtbetalingsgrad() {
+    public BigDecimal getUtbetalingsprosent() {
         return utbetalingsgrad;
     }
 
@@ -81,7 +81,7 @@ public class ForeldrepengerUttakPeriodeAktivitet {
             return this;
         }
 
-        public Builder medUtbetalingsgrad(BigDecimal utbetalingsgrad) {
+        public Builder medUtbetalingsprosent(BigDecimal utbetalingsgrad) {
             kladd.utbetalingsgrad = utbetalingsgrad;
             return this;
         }

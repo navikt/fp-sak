@@ -134,8 +134,8 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
                 return false;
             }
             // Sjekk på Utbetalingsgrad
-            if ((aktivitet1.getUtbetalingsgrad()
-                .compareTo(aktivitet2.getUtbetalingsgrad())) != 0) {
+            if ((aktivitet1.getUtbetalingsprosent()
+                .compareTo(aktivitet2.getUtbetalingsprosent())) != 0) {
                 return false;
             }
         }

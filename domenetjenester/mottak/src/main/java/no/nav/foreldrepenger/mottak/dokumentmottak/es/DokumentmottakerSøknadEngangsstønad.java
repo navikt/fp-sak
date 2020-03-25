@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentGruppeRef;
@@ -24,17 +25,19 @@ public class DokumentmottakerSøknadEngangsstønad extends DokumentmottakerSøkn
 
     @Inject
     public DokumentmottakerSøknadEngangsstønad(BehandlingRepositoryProvider repositoryProvider,
-                                    DokumentmottakerFelles dokumentmottakerFelles,
-                                    MottatteDokumentTjeneste mottatteDokumentTjeneste,
-                                    Behandlingsoppretter behandlingsoppretter,
-                                    Kompletthetskontroller kompletthetskontroller,
-                                    KøKontroller køKontroller) {
+                                               DokumentmottakerFelles dokumentmottakerFelles,
+                                               MottatteDokumentTjeneste mottatteDokumentTjeneste,
+                                               Behandlingsoppretter behandlingsoppretter,
+                                               Kompletthetskontroller kompletthetskontroller,
+                                               KøKontroller køKontroller,
+                                               ForeldrepengerUttakTjeneste fpUttakTjeneste) {
         super(repositoryProvider,
             dokumentmottakerFelles,
             mottatteDokumentTjeneste,
             behandlingsoppretter,
             kompletthetskontroller,
-            køKontroller);
+            køKontroller,
+            fpUttakTjeneste);
     }
 
     @Override
