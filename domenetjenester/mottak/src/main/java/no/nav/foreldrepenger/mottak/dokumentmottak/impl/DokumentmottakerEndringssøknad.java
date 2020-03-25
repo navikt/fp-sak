@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 
@@ -30,11 +31,13 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
                                           MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                           Behandlingsoppretter behandlingsoppretter,
                                           Kompletthetskontroller kompletthetskontroller,
-                                          KøKontroller køKontroller) {
+                                          KøKontroller køKontroller,
+                                          ForeldrepengerUttakTjeneste fpUttakTjeneste) {
         super(dokumentmottakerFelles,
             mottatteDokumentTjeneste,
             behandlingsoppretter,
             kompletthetskontroller,
+            fpUttakTjeneste,
             repositoryProvider);
         this.køKontroller = køKontroller;
     }

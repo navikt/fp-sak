@@ -51,6 +51,6 @@ public final class UttakOmsorgUtil {
     }
 
     private static boolean harUtbetaling(ForeldrepengerUttakPeriodeAktivitet aktivitet) {
-        return aktivitet.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) > 0;
+        return aktivitet.getUtbetalingsprosent().compareTo(BigDecimal.ZERO) > 0;
     }
 }

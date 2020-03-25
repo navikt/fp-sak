@@ -14,18 +14,19 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
 /**
- *   Denne klassen brukes til å finne ut hvilken forelder som skal få opprettet en revurdering først dersom barnet dør,
+ *   Denne klassen brukes til å finne ut hvilken forelder som skal få opprettet
+ *   en revurdering først dersom barnet dør,
  *   og begge foreldre har avsluttet behandling. Dette er for å hindre feilutbetaling.
  *   Dette gjøres ved å finne ut hvem som har nærmest uttak.
  */
 @ApplicationScoped
 public class ToForeldreBarnDødTjeneste {
 
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
     private static final int ANTALL_DAGER_I_ET_ÅR = 365;
     // Dette bufferet brukes til å prioritere uttak som ligger fremover i tid
     // Et uttak som ligger f.eks 10 dager frem i tid regnes som "nærmere" enn ett uttak som ligger 1 dag tilbake i tid
@@ -36,16 +37,16 @@ public class ToForeldreBarnDødTjeneste {
     }
 
     @Inject
-    public ToForeldreBarnDødTjeneste(UttakRepository uttakRepository){
-        this.uttakRepository = uttakRepository;
+    public ToForeldreBarnDødTjeneste(ForeldrepengerUttakTjeneste uttakTjeneste){
+        this.uttakTjeneste = uttakTjeneste;
     }
 
     public Behandling finnBehandlingSomSkalRevurderes(Behandling behandlingF1, Behandling behandlingF2) {
-        List<UttakResultatPeriodeEntitet> uttaksPerioderF1 = finnPerioderMedUtbetalingsProsentUlik0(behandlingF1);
+        var uttaksPerioderF1 = finnPerioderMedUtbetalingsProsentUlik0(behandlingF1);
         if (hentAktivPeriodeHvisFinnes(uttaksPerioderF1).isPresent()) {
             return behandlingF1;
         }
-        List<UttakResultatPeriodeEntitet> uttaksPerioderF2 = finnPerioderMedUtbetalingsProsentUlik0(behandlingF2);
+        var uttaksPerioderF2 = finnPerioderMedUtbetalingsProsentUlik0(behandlingF2);
         if (hentAktivPeriodeHvisFinnes(uttaksPerioderF2).isPresent()) {
             return behandlingF2;
         }
@@ -57,30 +58,29 @@ public class ToForeldreBarnDødTjeneste {
         return finnBehandlingMedNærmesteUttak(behandlingF1, uttaksPerioderF1, behandlingF2, uttaksPerioderF2);
     }
 
-    private List<UttakResultatPeriodeEntitet> finnPerioderMedUtbetalingsProsentUlik0(Behandling behandling) {
-        return uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())
+    private List<ForeldrepengerUttakPeriode> finnPerioderMedUtbetalingsProsentUlik0(Behandling behandling) {
+        return uttakTjeneste.hentUttakHvisEksisterer(behandling.getId())
             .map(uttakResultat -> uttakResultat
-                .getGjeldendePerioder()
-                .getPerioder().stream().filter(this::uttakPeriodeHarUtbetalingsprosentStørreEnn0)
+                .getGjeldendePerioder().stream().filter(this::uttakPeriodeHarUtbetalingsprosentStørreEnn0)
                 .collect(Collectors.toList()))
             .orElse(Collections.emptyList());
     }
 
-    private boolean uttakPeriodeHarUtbetalingsprosentStørreEnn0(UttakResultatPeriodeEntitet periode) {
+    private boolean uttakPeriodeHarUtbetalingsprosentStørreEnn0(ForeldrepengerUttakPeriode periode) {
         return periode.getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getUtbetalingsprosent().compareTo(BigDecimal.ZERO) > 0);
     }
 
-    private Optional<UttakResultatPeriodeEntitet> hentAktivPeriodeHvisFinnes(List<UttakResultatPeriodeEntitet> perioder) {
+    private Optional<ForeldrepengerUttakPeriode> hentAktivPeriodeHvisFinnes(List<ForeldrepengerUttakPeriode> perioder) {
         return perioder.stream().filter(this::erAktivNå).findFirst();
     }
 
-    private boolean erAktivNå(UttakResultatPeriodeEntitet periode) {
+    private boolean erAktivNå(ForeldrepengerUttakPeriode periode) {
         LocalDate iDag = iDag();
         return periode.getFom().isBefore(iDag) && periode.getTom().isAfter(iDag);
     }
 
-    private Behandling finnBehandlingMedNærmesteUttak(Behandling behandlingF1, List<UttakResultatPeriodeEntitet> uttaksPerioderF1,
-                                                      Behandling behandlingF2, List<UttakResultatPeriodeEntitet> uttaksPerioderF2) {
+    private Behandling finnBehandlingMedNærmesteUttak(Behandling behandlingF1, List<ForeldrepengerUttakPeriode> uttaksPerioderF1,
+                                                      Behandling behandlingF2, List<ForeldrepengerUttakPeriode> uttaksPerioderF2) {
         List<LocalDate> uttaksGrenserF1 = finnUttaksGrenser(uttaksPerioderF1);
         List<LocalDate> uttaksGrenserF2 = finnUttaksGrenser(uttaksPerioderF2);
         List<Integer> avstanderF1 = uttaksGrenserF1.stream().map(this::avstandTilNåMedBuffer).collect(Collectors.toList());
@@ -90,9 +90,9 @@ public class ToForeldreBarnDødTjeneste {
         return minValueF1 < minValueF2 ? behandlingF1 : behandlingF2;
     }
 
-    private List<LocalDate> finnUttaksGrenser(List<UttakResultatPeriodeEntitet> uttaksPerioder) {
+    private List<LocalDate> finnUttaksGrenser(List<ForeldrepengerUttakPeriode> uttaksPerioder) {
         List<LocalDate> uttaksGrenser = new ArrayList<>();
-        for (UttakResultatPeriodeEntitet periode : uttaksPerioder) {
+        for (ForeldrepengerUttakPeriode periode : uttaksPerioder) {
             uttaksGrenser.add(periode.getFom());
             uttaksGrenser.add(periode.getTom());
         }

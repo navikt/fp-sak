@@ -25,7 +25,7 @@ class HarSattUtbetalingsprosentValidering implements OverstyrUttakPerioderValide
     }
 
     private boolean manglerUtbetalingsprosent(ForeldrepengerUttakPeriode periode) {
-        return periode.getAktiviteter().stream().anyMatch(p -> p.getUtbetalingsgrad() == null);
+        return periode.getAktiviteter().stream().anyMatch(p -> p.getUtbetalingsprosent() == null);
     }
 
     private boolean opprinneligErManuell(ForeldrepengerUttakPeriode periode) {

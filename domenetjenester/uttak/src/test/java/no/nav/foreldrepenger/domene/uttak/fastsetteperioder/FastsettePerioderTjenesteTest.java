@@ -682,7 +682,7 @@ public class FastsettePerioderTjenesteTest {
         return new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medTrekkonto(fellesperiode)
             .medArbeidsprosent(BigDecimal.TEN)
-            .medUtbetalingsgrad(BigDecimal.ZERO)
+            .medUtbetalingsprosent(BigDecimal.ZERO)
             .medTrekkdager(new Trekkdager(2))
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, virksomhet(), null))
             .build();

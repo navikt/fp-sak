@@ -200,7 +200,7 @@ public final class UttakHistorikkUtil {
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_STØNADSKONTOTYPE, gjeldendeAktivitet.getTrekkonto(), nyAktivitet.getStønadskontoType());
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_TYPE, gjeldendePeriode.getResultatType(),
             nyPeriode.getPeriodeResultatType());
-        builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_PROSENT_UTBETALING, gjeldendeAktivitet.getUtbetalingsgrad(), nyAktivitet.getUtbetalingsgrad());
+        builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_PROSENT_UTBETALING, gjeldendeAktivitet.getUtbetalingsprosent(), nyAktivitet.getUtbetalingsgrad());
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_ÅRSAK, gjeldendePeriode.getResultatÅrsak(),
             nyPeriode.getPeriodeResultatÅrsak());
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_TREKKDAGER_FLERBARN_KVOTE, gjeldendePeriode.isFlerbarnsdager(), nyPeriode.isFlerbarnsdager());

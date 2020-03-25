@@ -51,7 +51,7 @@ public class DokmentmottakerSøknadHåndterÅpenFørstegang extends Dokumentmott
             mottatteDokumentTjeneste,
             behandlingsoppretterSpied,
             kompletthetskontroller,
-            køKontroller);
+            køKontroller, fpUttakTjeneste);
     }
 
     @Test
@@ -75,7 +75,7 @@ public class DokmentmottakerSøknadHåndterÅpenFørstegang extends Dokumentmott
             mockMD,
             behandlingsoppretterSpied,
             kompletthetskontroller,
-            køKontroller);
+            køKontroller, fpUttakTjeneste);
         Behandling nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
         Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).oppdaterBehandlingViaHenleggelse(Mockito.any(),  Mockito.any());
         doNothing().when(mockMD).persisterDokumentinnhold(any(), any(), any());

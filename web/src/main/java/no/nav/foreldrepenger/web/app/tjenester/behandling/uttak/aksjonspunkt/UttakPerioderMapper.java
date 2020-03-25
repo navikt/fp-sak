@@ -83,7 +83,7 @@ public final class UttakPerioderMapper {
     private static ForeldrepengerUttakPeriodeAktivitet map(UttakResultatPeriodeAktivitetLagreDto dto,
                                                            ForeldrepengerUttakPeriodeAktivitet matchendeGjeldendeAktivitet) {
         return new ForeldrepengerUttakPeriodeAktivitet.Builder()
-            .medUtbetalingsgrad(dto.getUtbetalingsgrad())
+            .medUtbetalingsprosent(dto.getUtbetalingsgrad())
             .medArbeidsprosent(matchendeGjeldendeAktivitet.getArbeidsprosent())
             .medTrekkonto(dto.getStønadskontoType())
             .medAktivitet(new ForeldrepengerUttakAktivitet(matchendeGjeldendeAktivitet.getUttakArbeidType(),

@@ -18,8 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 
@@ -35,7 +34,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
     Kompletthetskontroller kompletthetskontroller;
     BehandlingRevurderingRepository revurderingRepository;
     protected BehandlingRepository behandlingRepository;
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste fpUttakTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
     protected DokumentmottakerYtelsesesrelatertDokument() {
@@ -47,6 +46,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
                                                      MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                                      Behandlingsoppretter behandlingsoppretter,
                                                      Kompletthetskontroller kompletthetskontroller,
+                                                     ForeldrepengerUttakTjeneste fpUttakTjeneste,
                                                      BehandlingRepositoryProvider repositoryProvider) {
         this.dokumentmottakerFelles = dokumentmottakerFelles;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
@@ -54,7 +54,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
         this.kompletthetskontroller = kompletthetskontroller;
         this.revurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.fpUttakTjeneste = fpUttakTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     }
 
@@ -122,8 +122,8 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
     }
 
     boolean harAvslåttPeriode(Behandling avsluttetBehandling) {
-        final Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(avsluttetBehandling.getId());
-        return uttakResultat.map(uttakResultatEntitet -> uttakResultatEntitet.getGjeldendePerioder().getPerioder().stream()
+        final var uttakResultat = fpUttakTjeneste.hentUttakHvisEksisterer(avsluttetBehandling.getId());
+        return uttakResultat.map(uttakResultatEntitet -> uttakResultatEntitet.getGjeldendePerioder().stream()
             .anyMatch(periode -> PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()))).orElse(false);
     }
 }

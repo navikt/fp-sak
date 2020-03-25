@@ -48,6 +48,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
@@ -67,6 +68,8 @@ public class DokumentmottakerEndringssøknadTest {
     private BehandlingRepository behandlingRepository;
     @Inject
     private FagsakRepository fagsakRepository;
+    @Inject
+    private ForeldrepengerUttakTjeneste fpUttakTjeneste;
 
     private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
     @Inject
@@ -103,7 +106,7 @@ public class DokumentmottakerEndringssøknadTest {
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
         dokumentmottaker = new DokumentmottakerEndringssøknad(repositoryProvider, dokumentmottakerFelles,
-            mottatteDokumentTjeneste, behandlingsoppretter, kompletthetskontroller, køKontroller);
+            mottatteDokumentTjeneste, behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
     }
 
