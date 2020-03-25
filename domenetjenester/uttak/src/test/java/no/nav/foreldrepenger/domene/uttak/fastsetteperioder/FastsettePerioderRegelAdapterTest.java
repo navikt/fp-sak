@@ -684,7 +684,7 @@ public class FastsettePerioderRegelAdapterTest {
         new UttakResultatPeriodeAktivitetEntitet.Builder(farPeriode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FEDREKVOTE)
             .medTrekkdager(new Trekkdager(BigDecimal.TEN))
-            .medUtbetalingsprosent(BigDecimal.TEN)
+            .medUtbetalingsgrad(BigDecimal.TEN)
             .medArbeidsprosent(BigDecimal.TEN)
             .build();
         farUttakresultat.leggTilPeriode(farPeriode);
@@ -779,7 +779,7 @@ public class FastsettePerioderRegelAdapterTest {
         var aktivitet = periode.getAktiviteter().get(0);
         assertThat(aktivitet.getTrekkdager()).isEqualTo(new Trekkdager(5 * 5));
         assertThat(aktivitet.getTrekkonto()).isEqualTo(StønadskontoType.FEDREKVOTE);
-        assertThat(aktivitet.getUtbetalingsprosent()).isEqualTo(BigDecimal.ZERO);
+        assertThat(aktivitet.getUtbetalingsgrad()).isEqualTo(BigDecimal.ZERO);
     }
 
     @Test
@@ -981,7 +981,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         UttakResultatPeriodeEntitet mødrekvote = finnPeriode(uttakResultatPerioder, oppgittMødrekvote.getFom(), oppgittMødrekvote.getTom());
         UttakResultatPeriodeAktivitetEntitet aktivitetMørdrekvoteVirksomhet = aktivitetForArbeidsgiver(mødrekvote.getAktiviteter(), virksomhet);
-        assertThat(aktivitetMørdrekvoteVirksomhet.getUtbetalingsprosent()).isEqualTo(new BigDecimal("100.00"));
+        assertThat(aktivitetMørdrekvoteVirksomhet.getUtbetalingsgrad()).isEqualTo(new BigDecimal("100.00"));
     }
 
     private UttakResultatPeriodeAktivitetEntitet aktivitetForArbeidsgiver(List<UttakResultatPeriodeAktivitetEntitet> aktiviteter, Arbeidsgiver arbeidsgiver) {
@@ -1072,7 +1072,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void utbetalingsprosentSkalHa2Desimaler() {
+    public void utbetalingsgradSkalHa2Desimaler() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         LocalDate start = mandag(fødselsdato.plusWeeks(20));
         LocalDate slutt = start.plusWeeks(5).minusDays(1);
@@ -1102,7 +1102,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         UttakResultatPeriodeEntitet fkPeriode = finnPeriode(uttakResultatPerioder, start, slutt);
         // Utbetalingsgrad (i %) = (stillingsprosent – arbeidsprosent) x 100 / stillingsprosent
-        assertThat(fkPeriode.getAktiviteter().get(0).getUtbetalingsprosent()).isEqualTo(new BigDecimal("47.00"));
+        assertThat(fkPeriode.getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(new BigDecimal("47.00"));
     }
 
     @Test
@@ -1195,7 +1195,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medErSøktGradering(false)
             .medArbeidsprosent(BigDecimal.TEN)
             .medTrekkdager(new Trekkdager(new IntervalUtils(opprinneligFpff.getFom(), opprinneligFpff.getTom()).antallArbeidsdager()))
-            .medUtbetalingsprosent(BigDecimal.TEN)
+            .medUtbetalingsgrad(BigDecimal.TEN)
             .build();
         UttakResultatPeriodeEntitet opprinneligMødrekvote = new UttakResultatPeriodeEntitet.Builder(fødselsdato, fødselsdato.plusWeeks(8))
             .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.UKJENT)
@@ -1205,7 +1205,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medErSøktGradering(false)
             .medArbeidsprosent(BigDecimal.TEN)
             .medTrekkdager(new Trekkdager(new IntervalUtils(opprinneligMødrekvote.getFom(), opprinneligMødrekvote.getTom()).antallArbeidsdager()))
-            .medUtbetalingsprosent(BigDecimal.TEN)
+            .medUtbetalingsgrad(BigDecimal.TEN)
             .build();
         opprinneligFpff.leggTilAktivitet(aktivitet1);
         opprinneligMødrekvote.leggTilAktivitet(aktivitet2);
@@ -1345,7 +1345,7 @@ public class FastsettePerioderRegelAdapterTest {
         UttakResultatPeriodeEntitet fkPeriode = finnPeriode(uttakResultatPerioder, periodeMedSamtidigUttak.getFom(), periodeMedSamtidigUttak.getTom());
 
         assertThat(fkPeriode.getSamtidigUttaksprosent()).isEqualByComparingTo(BigDecimal.valueOf(100));
-        assertThat(fkPeriode.getAktiviteter().get(0).getUtbetalingsprosent()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(fkPeriode.getAktiviteter().get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
         assertThat(fkPeriode.getAktiviteter().get(0).getTrekkdager()).isEqualTo(new Trekkdager(5));
     }
 
@@ -1548,7 +1548,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         UttakResultatPeriodeEntitet mødrekvote = finnPeriode(uttakResultatPerioder, oppgittPeriode2.getFom(), oppgittPeriode2.getTom());
         assertThat(mødrekvote.getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(BigDecimal.ZERO);
-        assertThat(mødrekvote.getAktiviteter().get(0).getUtbetalingsprosent()).isEqualTo(new BigDecimal("100.00"));
+        assertThat(mødrekvote.getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(new BigDecimal("100.00"));
     }
 
     @Test
@@ -1607,7 +1607,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         UttakResultatPeriodeEntitet mødrekvote = finnPeriode(uttakResultatPerioder, oppgittPeriode2.getFom(), oppgittPeriode2.getTom());
         assertThat(mødrekvote.getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(BigDecimal.ZERO);
-        assertThat(mødrekvote.getAktiviteter().get(0).getUtbetalingsprosent()).isEqualTo(new BigDecimal("100.00"));
+        assertThat(mødrekvote.getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(new BigDecimal("100.00"));
     }
 
     private LocalDate mandag(LocalDate dato) {

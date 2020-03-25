@@ -156,7 +156,7 @@ public class MapUttakResultatFraVLTilRegelTest {
             .medArbeidsforhold(Arbeidsgiver.virksomhet(ARBEIDSFORHOLD_ORGNR), ARBEIDSFORHOLD_ID)
             .build();
         UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivtet)
-            .medUtbetalingsprosent(prosentUtbetaling)
+            .medUtbetalingsgrad(prosentUtbetaling)
             .medArbeidsprosent(prosentArbeid)
             .medErSøktGradering(true)
             .build();
@@ -183,7 +183,7 @@ public class MapUttakResultatFraVLTilRegelTest {
             .build();
         UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
             .medArbeidsprosent(BigDecimal.ZERO)
-            .medUtbetalingsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(BigDecimal.ZERO)
             .medErSøktGradering(true)
             .build();
         periode.leggTilAktivitet(periodeAktivitet);

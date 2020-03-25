@@ -210,7 +210,7 @@ public class BeregneYtelseStegImplTest {
             .medTrekkonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
             .medTrekkdager(new Trekkdager(15))
             .medArbeidsprosent(BigDecimal.ZERO)
-            .medUtbetalingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .build();
 
         periode.leggTilAktivitet(periodeAktivitet);

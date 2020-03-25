@@ -122,7 +122,7 @@ public class FastsettePerioderTjeneste {
                 .medTrekkonto(nyAktivitet.getTrekkonto())
                 .medTrekkdager(nyAktivitet.getTrekkdager())
                 .medArbeidsprosent(nyAktivitet.getArbeidsprosent())
-                .medUtbetalingsprosent(nyAktivitet.getUtbetalingsprosent())
+                .medUtbetalingsgrad(nyAktivitet.getUtbetalingsgrad())
                 .medErSøktGradering(matchendeOpprinneligAktivitet.isSøktGradering())
                 .build();
             periodeEntitet.leggTilAktivitet(periodeAktivitet);

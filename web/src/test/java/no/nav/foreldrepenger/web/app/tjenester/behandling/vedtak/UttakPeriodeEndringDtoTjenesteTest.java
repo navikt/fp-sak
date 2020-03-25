@@ -306,7 +306,12 @@ public class UttakPeriodeEndringDtoTjenesteTest {
 
     }
 
-    private UttakResultatPeriodeEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat, LocalDate fom, LocalDate tom, StønadskontoType stønadskontoType, BigDecimal graderingArbeidsprosent, BigDecimal utbetalingsprosent) {
+    private UttakResultatPeriodeEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,
+                                                                    LocalDate fom,
+                                                                    LocalDate tom,
+                                                                    StønadskontoType stønadskontoType,
+                                                                    BigDecimal graderingArbeidsprosent,
+                                                                    BigDecimal ubetalingsgrad) {
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medArbeidsforhold(Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG), InternArbeidsforholdRef.nyRef())
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
@@ -332,7 +337,7 @@ public class UttakPeriodeEndringDtoTjenesteTest {
             .medTrekkonto(stønadskontoType)
             .medTrekkdager(new Trekkdager(10))
             .medArbeidsprosent(graderingArbeidsprosent)
-            .medUtbetalingsprosent(utbetalingsprosent)
+            .medUtbetalingsgrad(ubetalingsgrad)
             .build();
         uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);
         return uttakResultatPeriode;

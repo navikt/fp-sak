@@ -165,7 +165,7 @@ public class FastsettePerioderEndringTjenesteTest {
         UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
             .medArbeidsprosent(BigDecimal.ZERO)
             .medTrekkdager(trekkdager)
-            .medUtbetalingsprosent(utbetalingsgrad)
+            .medUtbetalingsgrad(utbetalingsgrad)
             .build();
         periode.leggTilAktivitet(periodeAktivitet);
         return periode;

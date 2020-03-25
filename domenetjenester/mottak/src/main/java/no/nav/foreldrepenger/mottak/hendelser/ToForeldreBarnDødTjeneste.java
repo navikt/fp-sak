@@ -42,11 +42,11 @@ public class ToForeldreBarnDødTjeneste {
     }
 
     public Behandling finnBehandlingSomSkalRevurderes(Behandling behandlingF1, Behandling behandlingF2) {
-        var uttaksPerioderF1 = finnPerioderMedUtbetalingsProsentUlik0(behandlingF1);
+        var uttaksPerioderF1 = finnPerioderMedUtbetaling(behandlingF1);
         if (hentAktivPeriodeHvisFinnes(uttaksPerioderF1).isPresent()) {
             return behandlingF1;
         }
-        var uttaksPerioderF2 = finnPerioderMedUtbetalingsProsentUlik0(behandlingF2);
+        var uttaksPerioderF2 = finnPerioderMedUtbetaling(behandlingF2);
         if (hentAktivPeriodeHvisFinnes(uttaksPerioderF2).isPresent()) {
             return behandlingF2;
         }
@@ -58,16 +58,16 @@ public class ToForeldreBarnDødTjeneste {
         return finnBehandlingMedNærmesteUttak(behandlingF1, uttaksPerioderF1, behandlingF2, uttaksPerioderF2);
     }
 
-    private List<ForeldrepengerUttakPeriode> finnPerioderMedUtbetalingsProsentUlik0(Behandling behandling) {
+    private List<ForeldrepengerUttakPeriode> finnPerioderMedUtbetaling(Behandling behandling) {
         return uttakTjeneste.hentUttakHvisEksisterer(behandling.getId())
             .map(uttakResultat -> uttakResultat
-                .getGjeldendePerioder().stream().filter(this::uttakPeriodeHarUtbetalingsprosentStørreEnn0)
+                .getGjeldendePerioder().stream().filter(this::uttakPeriodeHarUtbetaling)
                 .collect(Collectors.toList()))
             .orElse(Collections.emptyList());
     }
 
-    private boolean uttakPeriodeHarUtbetalingsprosentStørreEnn0(ForeldrepengerUttakPeriode periode) {
-        return periode.getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getUtbetalingsprosent().compareTo(BigDecimal.ZERO) > 0);
+    private boolean uttakPeriodeHarUtbetaling(ForeldrepengerUttakPeriode periode) {
+        return periode.getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) > 0);
     }
 
     private Optional<ForeldrepengerUttakPeriode> hentAktivPeriodeHvisFinnes(List<ForeldrepengerUttakPeriode> perioder) {

@@ -159,22 +159,22 @@ public class ToForeldreBarnDødTjenesteTest {
 
     private List<ForeldrepengerUttakPeriode> lagPerioderDerAndrePeriodeHarUtbetalingLik0(LocalDate midtDato) {
         return List.of(
-            lagPeriodeMedUtbetalingsProsent(midtDato.minusWeeks(3), midtDato.minusWeeks(1), 100L),
-            lagPeriodeMedUtbetalingsProsent(midtDato.plusWeeks(2), midtDato.plusWeeks(6), 0L)
+            lagPeriodeMedUtbetalingsgrad(midtDato.minusWeeks(3), midtDato.minusWeeks(1), 100L),
+            lagPeriodeMedUtbetalingsgrad(midtDato.plusWeeks(2), midtDato.plusWeeks(6), 0L)
         );
     }
 
     private List<ForeldrepengerUttakPeriode> lagPerioderMedFullUtbetaling(LocalDate midtDato) {
         return List.of(
-            lagPeriodeMedUtbetalingsProsent(midtDato.minusWeeks(3), midtDato.minusWeeks(1), 100L),
-            lagPeriodeMedUtbetalingsProsent(midtDato.plusWeeks(2), midtDato.plusWeeks(6), 100L)
+            lagPeriodeMedUtbetalingsgrad(midtDato.minusWeeks(3), midtDato.minusWeeks(1), 100L),
+            lagPeriodeMedUtbetalingsgrad(midtDato.plusWeeks(2), midtDato.plusWeeks(6), 100L)
         );
     }
 
-    private ForeldrepengerUttakPeriode lagPeriodeMedUtbetalingsProsent(LocalDate fom, LocalDate tom, Long utbetalingsprosent) {
+    private ForeldrepengerUttakPeriode lagPeriodeMedUtbetalingsgrad(LocalDate fom, LocalDate tom, Long utbetalingsgrad) {
         var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medArbeidsprosent(BigDecimal.valueOf(100))
-            .medUtbetalingsprosent(BigDecimal.valueOf(utbetalingsprosent))
+            .medUtbetalingsgrad(BigDecimal.valueOf(utbetalingsgrad))
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
             .build();
         return new ForeldrepengerUttakPeriode.Builder()

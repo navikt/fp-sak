@@ -7,25 +7,25 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.feil.FeilFactory;
 
-class HarSattUtbetalingsprosentValidering implements OverstyrUttakPerioderValidering {
+class HarSattUtbetalingsgradValidering implements OverstyrUttakPerioderValidering {
 
     private List<ForeldrepengerUttakPeriode> opprinnelig;
 
-    HarSattUtbetalingsprosentValidering(List<ForeldrepengerUttakPeriode> opprinnelig) {
+    HarSattUtbetalingsgradValidering(List<ForeldrepengerUttakPeriode> opprinnelig) {
         this.opprinnelig = opprinnelig;
     }
 
     @Override
     public void utfør(List<ForeldrepengerUttakPeriode> nyePerioder) {
         for (ForeldrepengerUttakPeriode periode : nyePerioder) {
-            if (manglerUtbetalingsprosent(periode) && opprinneligErManuell(periode)) {
-                throw FeilFactory.create(OverstyrUttakValideringFeil.class).manglerUtbetalingsprosent(periode.getTidsperiode()).toException();
+            if (manglerUtbetalingsgrad(periode) && opprinneligErManuell(periode)) {
+                throw FeilFactory.create(OverstyrUttakValideringFeil.class).manglerUtbetalingsgrad(periode.getTidsperiode()).toException();
             }
         }
     }
 
-    private boolean manglerUtbetalingsprosent(ForeldrepengerUttakPeriode periode) {
-        return periode.getAktiviteter().stream().anyMatch(p -> p.getUtbetalingsprosent() == null);
+    private boolean manglerUtbetalingsgrad(ForeldrepengerUttakPeriode periode) {
+        return periode.getAktiviteter().stream().anyMatch(p -> p.getUtbetalingsgrad() == null);
     }
 
     private boolean opprinneligErManuell(ForeldrepengerUttakPeriode periode) {

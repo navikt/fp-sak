@@ -180,7 +180,7 @@ public class FastsettUttakOppdatererTest {
             .medTrekkonto(stønadskontoType)
             .medTrekkdager(new Trekkdager(10))
             .medArbeidsprosent(BigDecimal.ZERO)
-            .medUtbetalingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .build();
 
         periode.leggTilAktivitet(periodeAktivitet);

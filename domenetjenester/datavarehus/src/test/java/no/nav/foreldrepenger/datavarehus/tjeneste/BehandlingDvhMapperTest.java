@@ -351,7 +351,7 @@ public class BehandlingDvhMapperTest {
                                                                      LocalDate tom,
                                                                      StønadskontoType stønadskontoType,
                                                                      BigDecimal graderingArbeidsprosent,
-                                                                     BigDecimal utbetalingsprosent) {
+                                                                     BigDecimal utbetalingsgrad) {
 
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
@@ -379,7 +379,7 @@ public class BehandlingDvhMapperTest {
             .medTrekkonto(stønadskontoType)
             .medTrekkdager(new Trekkdager(BigDecimal.TEN))
             .medArbeidsprosent(graderingArbeidsprosent)
-            .medUtbetalingsprosent(utbetalingsprosent)
+            .medUtbetalingsgrad(utbetalingsgrad)
             .build();
 
         uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);

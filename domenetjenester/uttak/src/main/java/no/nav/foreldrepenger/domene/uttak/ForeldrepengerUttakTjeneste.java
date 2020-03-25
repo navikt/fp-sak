@@ -75,7 +75,7 @@ public class ForeldrepengerUttakTjeneste {
             .medArbeidsprosent(periodeAktivitet.getArbeidsprosent())
             .medTrekkonto(periodeAktivitet.getTrekkonto())
             .medTrekkdager(periodeAktivitet.getTrekkdager())
-            .medUtbetalingsprosent(periodeAktivitet.getUtbetalingsprosent())
+            .medUtbetalingsgrad(periodeAktivitet.getUtbetalingsgrad())
             .medAktivitet(uttakAktivitet)
             .medSøktGraderingForAktivitetIPeriode(periodeAktivitet.isSøktGradering())
             .build();

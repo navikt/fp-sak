@@ -121,7 +121,7 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtlederTest {
                 .build();
         UttakResultatPeriodeAktivitetEntitet morUttakAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(morUttakPeriode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
-            .medUtbetalingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medTrekkdager(new Trekkdager(10))
             .medArbeidsprosent(BigDecimal.valueOf(100))
             .medTrekkonto(StønadskontoType.MØDREKVOTE)

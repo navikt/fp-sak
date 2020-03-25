@@ -16,7 +16,7 @@ interface OverstyrUttakValideringFeil extends DeklarerteFeil {
     Feil periodeManglerResultat();
 
     @TekniskFeil(feilkode = "FP-138943", feilmelding = "Saksbehandler må sette utbetalingsgrad for alle arbeidsforhold for alle perioder som gikk til manuell behandling. Mangler for periode %s", logLevel = WARN)
-    Feil manglerUtbetalingsprosent(LocalDateInterval periode);
+    Feil manglerUtbetalingsgrad(LocalDateInterval periode);
 
     @TekniskFeil(feilkode = "FP-634871", feilmelding = "Ugyldig splitting av periode", logLevel = WARN)
     Feil ugyldigSplittingAvPeriode();

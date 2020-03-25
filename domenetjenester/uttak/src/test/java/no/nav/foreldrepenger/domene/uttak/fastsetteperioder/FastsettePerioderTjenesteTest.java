@@ -231,7 +231,7 @@ public class FastsettePerioderTjenesteTest {
     }
 
     @Test
-    public void arbeidstidsprosentOgUtbetalingsprosentSkalHa2Desimaler() {
+    public void arbeidstidsprosentOgUtbetalingsgradSkalHa2Desimaler() {
         // Setup
         LocalDate mottattDato = LocalDate.now().minusWeeks(1);
         LocalDate fødselsdato = LocalDate.now().minusWeeks(8);
@@ -280,7 +280,7 @@ public class FastsettePerioderTjenesteTest {
         assertThat(uttakResultat).isPresent();
         List<UttakResultatPeriodeEntitet> uttakResultatPerioder = uttakResultat.get().getOpprinneligPerioder().getPerioder();
         assertThat(uttakResultatPerioder.get(3).getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(arbeidsprosent);
-        assertThat(uttakResultatPerioder.get(3).getAktiviteter().get(0).getUtbetalingsprosent()).isEqualTo(new BigDecimal("49.45"));
+        assertThat(uttakResultatPerioder.get(3).getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(new BigDecimal("49.45"));
     }
 
     @Test
@@ -682,7 +682,7 @@ public class FastsettePerioderTjenesteTest {
         return new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medTrekkonto(fellesperiode)
             .medArbeidsprosent(BigDecimal.TEN)
-            .medUtbetalingsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(BigDecimal.ZERO)
             .medTrekkdager(new Trekkdager(2))
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, virksomhet(), null))
             .build();

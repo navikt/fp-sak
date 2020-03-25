@@ -298,7 +298,7 @@ public class VedtaksperioderHelperTest {
             .builder(avlått, opprettArbeidstakerUttakAktivitet("orgnr"))
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
             .medTrekkdager(Trekkdager.ZERO)
-            .medUtbetalingsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(BigDecimal.ZERO)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build());
 
@@ -341,7 +341,7 @@ public class VedtaksperioderHelperTest {
             .builder(avlått, opprettArbeidstakerUttakAktivitet("orgnr"))
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
             .medTrekkdager(Trekkdager.ZERO)
-            .medUtbetalingsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(BigDecimal.ZERO)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build());
 
@@ -377,7 +377,7 @@ public class VedtaksperioderHelperTest {
             .builder(periodeEntitet, opprettArbeidstakerUttakAktivitet("orgnr"))
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
             .medTrekkdager(new Trekkdager(5))
-            .medUtbetalingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medArbeidsprosent(BigDecimal.ZERO)
             .build());
 
@@ -399,7 +399,7 @@ public class VedtaksperioderHelperTest {
             .builder(periodeEntitet, opprettArbeidstakerUttakAktivitet("orgnr"))
             .medTrekkonto(StønadskontoType.MØDREKVOTE)
             .medTrekkdager(new Trekkdager(5))
-            .medUtbetalingsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(BigDecimal.ZERO)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build());
 
@@ -427,7 +427,7 @@ public class VedtaksperioderHelperTest {
             .builder(periodeEntitet, opprettArbeidstakerUttakAktivitet("orgnr1"))
             .medTrekkonto(StønadskontoType.FEDREKVOTE)
             .medTrekkdager(new Trekkdager(2))
-            .medUtbetalingsprosent(BigDecimal.valueOf(100).subtract(arbeidstidsprosent))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100).subtract(arbeidstidsprosent))
             .medArbeidsprosent(arbeidstidsprosent)
             .medErSøktGradering(true)
             .build());
@@ -436,7 +436,7 @@ public class VedtaksperioderHelperTest {
             .builder(periodeEntitet, opprettSelvNærUttakAktivitetet())
             .medTrekkonto(StønadskontoType.FEDREKVOTE)
             .medTrekkdager(new Trekkdager(5))
-            .medUtbetalingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medArbeidsprosent(BigDecimal.ZERO)
             .build());
 
@@ -467,7 +467,7 @@ public class VedtaksperioderHelperTest {
             .builder(periodeEntitet, opprettArbeidstakerUttakAktivitet("orgnr1"))
             .medTrekkonto(StønadskontoType.FEDREKVOTE)
             .medTrekkdager(new Trekkdager(2))
-            .medUtbetalingsprosent(BigDecimal.valueOf(100).subtract(arbeidstidsprosent))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100).subtract(arbeidstidsprosent))
             .medArbeidsprosent(arbeidstidsprosent)
             .medErSøktGradering(true)
             .build());
@@ -476,7 +476,7 @@ public class VedtaksperioderHelperTest {
             .builder(periodeEntitet, opprettSelvNærUttakAktivitetet())
             .medTrekkonto(StønadskontoType.FEDREKVOTE)
             .medTrekkdager(new Trekkdager(5))
-            .medUtbetalingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medArbeidsprosent(BigDecimal.ZERO)
             .build());
 
@@ -507,7 +507,7 @@ public class VedtaksperioderHelperTest {
             .builder(periodeEntitet, opprettArbeidstakerUttakAktivitet("orgnr1"))
             .medTrekkonto(StønadskontoType.FEDREKVOTE)
             .medTrekkdager(new Trekkdager(2))
-            .medUtbetalingsprosent(BigDecimal.valueOf(100).subtract(arbeidstidsprosent))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100).subtract(arbeidstidsprosent))
             .medArbeidsprosent(BigDecimal.ZERO)
             .medErSøktGradering(true)
             .build());
@@ -516,7 +516,7 @@ public class VedtaksperioderHelperTest {
             .builder(periodeEntitet, opprettSelvNærUttakAktivitetet())
             .medTrekkonto(StønadskontoType.FEDREKVOTE)
             .medTrekkdager(new Trekkdager(5))
-            .medUtbetalingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medArbeidsprosent(BigDecimal.ZERO)
             .build());
 
@@ -551,7 +551,7 @@ public class VedtaksperioderHelperTest {
             .builder(periodeEntitet, opprettSelvNærUttakAktivitetet())
             .medTrekkonto(StønadskontoType.FEDREKVOTE)
             .medTrekkdager(new Trekkdager(5))
-            .medUtbetalingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medArbeidsprosent(BigDecimal.ZERO)
             .build());
 
@@ -580,7 +580,7 @@ public class VedtaksperioderHelperTest {
             .builder(periodeEntitet, opprettSelvNærUttakAktivitetet())
             .medTrekkonto(StønadskontoType.FORELDREPENGER)
             .medTrekkdager(new Trekkdager(2))
-            .medUtbetalingsprosent(BigDecimal.valueOf(50))
+            .medUtbetalingsgrad(BigDecimal.valueOf(50))
             .medArbeidsprosent(BigDecimal.valueOf(50))
             .medErSøktGradering(true)
             .build());
@@ -589,7 +589,7 @@ public class VedtaksperioderHelperTest {
             .builder(periodeEntitet, opprettArbeidstakerUttakAktivitet("orgnr2"))
             .medTrekkonto(StønadskontoType.FORELDREPENGER)
             .medTrekkdager(new Trekkdager(5))
-            .medUtbetalingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medArbeidsprosent(BigDecimal.ZERO)
             .build());
 
