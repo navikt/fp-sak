@@ -212,12 +212,7 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
         return antallTimer != null || antallTimerFulltid != null || prosentsats != null || periode != null;
     }
 
-
     public boolean erAnsettelsesPeriode() {
-        return (antallTimer == null || antallTimer.getVerdi() == null)
-            && (antallTimerFulltid == null || antallTimerFulltid.getVerdi() == null)
-            && (prosentsats == null || prosentsats.erNulltall())
-            && sisteLønnsendringsdato == null;
+        return prosentsats == null || prosentsats.erNulltall();
     }
-
 }
