@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning.fp;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.domene.uttak.input.UttakYrkesaktiviteter;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriode;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriodeAktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.ArbeidsforholdMapper;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapUttakArbeidTypeTilAktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
@@ -46,12 +50,47 @@ public class MapUttakResultatFraVLTilRegel {
     private UttakAktivitet mapAktivitet(UttakInput input, UttakResultatPeriodeAktivitetEntitet uttakResultatPeriodeAktivitet) {
         BigDecimal utbetalingsgrad = uttakResultatPeriodeAktivitet.getUtbetalingsprosent();
         BigDecimal stillingsprosent = mapStillingsprosent(input, uttakResultatPeriodeAktivitet);
-        BigDecimal arbeidstidsprosent = uttakResultatPeriodeAktivitet.getArbeidsprosent();
+
+        UttakPeriode uttakPeriode;
+        UttakPeriodeAktivitet aktivitet;
+        UttakAktivitetEntitet aktivitetEntitet = uttakResultatPeriodeAktivitet.getUttakAktivitet();
+        UttakYrkesaktiviteter uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
+        BigDecimal arbeidstidsprosent = finnArbeidsprosent(uttakResultatPeriodeAktivitet, aktivitetEntitet, uttakYrkesaktiviteter);//uttakResultatPeriodeAktivitet.getArbeidsprosent();
 
         Arbeidsforhold arbeidsforhold = mapArbeidsforhold(uttakResultatPeriodeAktivitet.getUttakAktivitet());
         AktivitetStatus aktivitetStatus = MapUttakArbeidTypeTilAktivitetStatus.map(uttakResultatPeriodeAktivitet.getUttakArbeidType());
 
         return new UttakAktivitet(stillingsprosent, arbeidstidsprosent, utbetalingsgrad, arbeidsforhold, aktivitetStatus, uttakResultatPeriodeAktivitet.isGraderingInnvilget());
+    }
+
+    private BigDecimal finnArbeidsprosent(UttakResultatPeriodeAktivitetEntitet uttakResultatPeriodeAktivitet,
+                                        UttakAktivitetEntitet aktivitet,
+                                        UttakYrkesaktiviteter uttakYrkesaktiviteter) {
+        BigDecimal arbeidsprosentandel = BigDecimal.ONE;
+        BigDecimal stillingsprosent = BigDecimal.ONE;
+        if(erArbeidMedArbeidsgiver(aktivitet)) {
+            stillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(aktivitet.getArbeidsgiver().get(),
+                aktivitet.getArbeidsforholdRef(), uttakResultatPeriodeAktivitet.getFom());
+            BigDecimal totalStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(aktivitet.getArbeidsgiver().get(),
+                null, uttakResultatPeriodeAktivitet.getFom());
+
+            if (stillingsprosent.compareTo(BigDecimal.ZERO) > 0) {
+                arbeidsprosentandel = (totalStillingsprosent.compareTo(BigDecimal.ZERO) > 0) ? stillingsprosent.divide(totalStillingsprosent).setScale(2, RoundingMode.HALF_UP) : BigDecimal.ONE;
+            }
+        }
+
+        if (uttakResultatPeriodeAktivitet.isSøktGradering()) {
+            return uttakResultatPeriodeAktivitet.getArbeidsprosent().multiply(arbeidsprosentandel).setScale(2);
+        }
+
+        if (erArbeidMedArbeidsgiver(aktivitet)) {
+            return stillingsprosent.multiply(arbeidsprosentandel).setScale(2);
+        }
+        return BigDecimal.ZERO;
+    }
+
+    private boolean erArbeidMedArbeidsgiver(UttakAktivitetEntitet aktivitet) {
+        return aktivitet.getArbeidsgiver().isPresent();
     }
 
     private Arbeidsforhold mapArbeidsforhold(UttakAktivitetEntitet uttakAktivitet) {

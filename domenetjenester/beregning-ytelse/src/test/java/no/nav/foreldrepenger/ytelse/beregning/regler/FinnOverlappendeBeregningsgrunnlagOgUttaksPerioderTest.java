@@ -39,20 +39,6 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
      */
 
     @Test
-    public void finn_permisjonsprosent() {
-        UttakAktivitet uttakAktivitet = new UttakAktivitet(BigDecimal.valueOf(100),BigDecimal.valueOf(0),BigDecimal.valueOf(1),null,null,true);
-        BigDecimal permisjonsprosent = FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder.finnPermisjonsprosent(uttakAktivitet);
-        assertThat(permisjonsprosent).isEqualTo(BigDecimal.valueOf(1).setScale(10, RoundingMode.HALF_UP));
-    }
-
-    @Test
-    public void finn_permisjonsprosent_2() {
-        UttakAktivitet uttakAktivitet = new UttakAktivitet(BigDecimal.valueOf(50),BigDecimal.valueOf(30),null,null,null,true);
-        BigDecimal permisjonsprosent = FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder.finnPermisjonsprosent(uttakAktivitet);
-        assertThat(permisjonsprosent).isEqualTo(BigDecimal.valueOf(0.4).setScale(10, RoundingMode.HALF_UP));
-    }
-
-    @Test
     public void skal_gradere_deltiddstilling_eksempel_1() {
         // Arrange
         int redBrukersAndelPrÅr = 0;

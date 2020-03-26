@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.mapArbeidsgiver;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -180,24 +179,12 @@ public class FastsettePerioderRegelResultatKonverterer {
     private BigDecimal finnArbeidsprosent(UttakPeriode uttakPeriode,
                                           UttakPeriodeAktivitet aktivitet,
                                           UttakYrkesaktiviteter uttakYrkesaktiviteter) {
-        BigDecimal arbeidsprosentandel = BigDecimal.ONE;
-        BigDecimal stillingsprosent = BigDecimal.ONE;
-        if(erArbeidMedArbeidsgiver(aktivitet)) {
-            stillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(mapArbeidsgiver(aktivitet.getIdentifikator()),
-                InternArbeidsforholdRef.ref(aktivitet.getIdentifikator().getArbeidsforholdId()), uttakPeriode.getFom());
-            BigDecimal totalStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(mapArbeidsgiver(aktivitet.getIdentifikator()),
-                null, uttakPeriode.getFom());
-
-            if (stillingsprosent.compareTo(BigDecimal.ZERO) > 0) {
-                arbeidsprosentandel = (totalStillingsprosent.compareTo(BigDecimal.ZERO) > 0) ? stillingsprosent.divide(totalStillingsprosent).setScale(2, RoundingMode.HALF_UP) : BigDecimal.ONE;
-            }
-        }
         if (aktivitet.isSøktGradering()) {
-            return uttakPeriode.getArbeidsprosent().multiply(arbeidsprosentandel).setScale(2);
+            return uttakPeriode.getArbeidsprosent();
         }
-
         if (erUtsettelsePgaArbeid(uttakPeriode) && erArbeidMedArbeidsgiver(aktivitet)) {
-            return stillingsprosent.multiply(arbeidsprosentandel).setScale(2);
+            return uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(mapArbeidsgiver(aktivitet.getIdentifikator()),
+                InternArbeidsforholdRef.ref(aktivitet.getIdentifikator().getArbeidsforholdId()), uttakPeriode.getFom());
         }
         return BigDecimal.ZERO;
     }

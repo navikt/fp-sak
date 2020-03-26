@@ -1399,7 +1399,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         assertThat(utsettelseResultat.getUtsettelseType()).isEqualTo(UttakUtsettelseType.ARBEID);
         assertThat(utsettelseResultat.getManuellBehandlingÅrsak()).isEqualTo(ManuellBehandlingÅrsak.IKKE_HELTIDSARBEID);
-        assertThat(utsettelseResultat.getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(BigDecimal.valueOf(50).setScale(2));
+        assertThat(utsettelseResultat.getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(BigDecimal.valueOf(50));
     }
 
     @Test
