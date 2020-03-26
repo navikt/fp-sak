@@ -10,8 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBer
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatEngangsstønadDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatMedUttaksplanDto;
 
@@ -20,7 +19,7 @@ public class BeregningsresultatTjeneste {
 
     private LegacyESBeregningRepository beregningRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private BeregningsresultatMedUttaksplanMapper beregningsresultatMedUttaksplanMapper;
 
     public BeregningsresultatTjeneste() {
@@ -30,16 +29,16 @@ public class BeregningsresultatTjeneste {
     @Inject
     public BeregningsresultatTjeneste(LegacyESBeregningRepository beregningRepository,
                                       BeregningsresultatRepository beregningsresultatRepository,
-                                      UttakRepository uttakRepository,
+                                      ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                       BeregningsresultatMedUttaksplanMapper beregningsresultatMedUttaksplanMapper) {
         this.beregningRepository = beregningRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
-        this.uttakRepository = uttakRepository;
+        this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.beregningsresultatMedUttaksplanMapper = beregningsresultatMedUttaksplanMapper;
     }
 
     public Optional<BeregningsresultatMedUttaksplanDto> lagBeregningsresultatMedUttaksplan(Behandling behandling) {
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
         Optional<BehandlingBeregningsresultatEntitet> beregningsresultatFPAggregatEntitet = beregningsresultatRepository
             .hentBeregningsresultatAggregat(behandling.getId());
         return beregningsresultatFPAggregatEntitet
