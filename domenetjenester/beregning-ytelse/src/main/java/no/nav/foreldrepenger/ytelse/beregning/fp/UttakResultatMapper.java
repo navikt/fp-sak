@@ -4,9 +4,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.ytelse.beregning.UttakResultatRepoMapper;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
@@ -15,7 +14,7 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
 @ApplicationScoped
 public class UttakResultatMapper implements UttakResultatRepoMapper {
 
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
     private MapUttakResultatFraVLTilRegel mapper;
 
     UttakResultatMapper() {
@@ -23,15 +22,15 @@ public class UttakResultatMapper implements UttakResultatRepoMapper {
     }
 
     @Inject
-    public UttakResultatMapper(BehandlingRepositoryProvider repositoryProvider, MapUttakResultatFraVLTilRegel mapUttakResultatFraVLTilRegelFP) {
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+    public UttakResultatMapper(ForeldrepengerUttakTjeneste uttakTjeneste, MapUttakResultatFraVLTilRegel mapUttakResultatFraVLTilRegelFP) {
+        this.uttakTjeneste = uttakTjeneste;
         this.mapper = mapUttakResultatFraVLTilRegelFP;
     }
 
     @Override
     public UttakResultat hentOgMapUttakResultat(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        UttakResultatEntitet uttakResultat = uttakRepository.hentUttakResultat(ref.getBehandlingId());
+        ForeldrepengerUttak uttakResultat = uttakTjeneste.hentUttak(ref.getBehandlingId());
         return mapper.mapFra(uttakResultat, input);
     }
 }
