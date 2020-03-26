@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
 
     INGEN("-", "Ikke definert", null),
-    
+
     _4072("4072", "§14-9 sjuende ledd: Barnet er dødt", "{\"fagsakYtelseType\": {\"SVP\": {\"lovreferanse\": \"14-9\"}}}"),
     _4071("4071", "§14-10: Bruker er død", "{\"fagsakYtelseType\": {\"fagsakYtelseType\": SVP\": {\"lovreferanse\": \"14-10\"}}}"),
     _4087("4087", "§14-2: Opphør medlemskap", "{\"fagsakYtelseType\": {\"fagsakYtelseType\": SVP\": {\"lovreferanse\": \"14-2\"}}}"),
@@ -40,7 +40,7 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
     _8310("8310", "Perioden må slutte senest tre uker før termin", null),
     _8311("8311", "Perioden er samtidig som en ferie", null),
     _8313("8313", "Perioden er etter et opphold i ytelsen", null),
-    
+
     ;
 
     private static final Map<String, PeriodeIkkeOppfyltÅrsak> KODER = new LinkedHashMap<>();
@@ -59,7 +59,7 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
     private String navn;
 
     private String kode;
-    
+
     @JsonIgnore
     private String lovHjemmel;
 
@@ -134,14 +134,10 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
     }
 
     public static Set<PeriodeIkkeOppfyltÅrsak> opphørsAvslagÅrsaker() {
-        // TODO: Bygg et riktig set av avslagsårsaker her
         return new HashSet<>(Arrays.asList(
-            _4072,
-            _4071,
-            _4087,
-            _4098,
-            _4099,
-            _8308_SØKT_FOR_SENT,
-            _8311));
+            _8304,
+            _8305,
+            _8306,
+            _8309));
     }
 }
