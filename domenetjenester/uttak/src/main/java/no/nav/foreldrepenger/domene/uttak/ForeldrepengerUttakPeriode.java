@@ -31,6 +31,7 @@ public class ForeldrepengerUttakPeriode {
     private UttakPeriodeType søktKonto;
     private boolean opprinneligSendtTilManuellBehandling;
     private String begrunnelse;
+    private boolean manueltBehandlet;
 
     private ForeldrepengerUttakPeriode() {
 
@@ -82,20 +83,6 @@ public class ForeldrepengerUttakPeriode {
 
     public OppholdÅrsak getOppholdÅrsak() {
         return oppholdÅrsak == null ? OppholdÅrsak.UDEFINERT : oppholdÅrsak;
-    }
-
-    @Override
-    public String toString() {
-        return "UttakResultatPeriode{" +
-            "tidsperiode=" + tidsperiode +
-            ", type=" + resultatType +
-            ", årsak=" + resultatÅrsak +
-            ", samtidigUttak=" + samtidigUttak +
-            ", samtidigUttaksprosent=" + samtidigUttaksprosent +
-            ", flerbarnsdager=" + flerbarnsdager +
-            ", utsettelseType=" + utsettelseType +
-            ", oppholdÅrsak=" + oppholdÅrsak +
-            '}';
     }
 
     private boolean aktiviteterErLike(List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
@@ -152,8 +139,32 @@ public class ForeldrepengerUttakPeriode {
         return søktKonto;
     }
 
-    public boolean opprinneligSendtTilManuellBehandling() {
+    public boolean isOpprinneligSendtTilManuellBehandling() {
         return opprinneligSendtTilManuellBehandling;
+    }
+
+    public Boolean isManueltBehandlet() {
+        return manueltBehandlet;
+    }
+
+    @Override
+    public String toString() {
+        return "ForeldrepengerUttakPeriode{" +
+            "tidsperiode=" + tidsperiode +
+            ", samtidigUttak=" + samtidigUttak +
+            ", samtidigUttaksprosent=" + samtidigUttaksprosent +
+            ", flerbarnsdager=" + flerbarnsdager +
+            ", graderingInnvilget=" + graderingInnvilget +
+            ", utsettelseType=" + utsettelseType +
+            ", resultatType=" + resultatType +
+            ", resultatÅrsak=" + resultatÅrsak +
+            ", graderingAvslagÅrsak=" + graderingAvslagÅrsak +
+            ", manuellBehandlingÅrsak=" + manuellBehandlingÅrsak +
+            ", oppholdÅrsak=" + oppholdÅrsak +
+            ", søktKonto=" + søktKonto +
+            ", opprinneligSendtTilManuellBehandling=" + opprinneligSendtTilManuellBehandling +
+            ", manueltBehandlet=" + manueltBehandlet +
+            '}';
     }
 
     public static class Builder {
@@ -240,6 +251,11 @@ public class ForeldrepengerUttakPeriode {
 
         public Builder medOpprinneligSendtTilManuellBehandling(boolean opprinneligSendtTilManuellBehandling) {
             kladd.opprinneligSendtTilManuellBehandling = opprinneligSendtTilManuellBehandling;
+            return this;
+        }
+
+        public Builder medManueltBehandlet(boolean manueltBehandlet) {
+            kladd.manueltBehandlet = manueltBehandlet;
             return this;
         }
 

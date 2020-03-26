@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.vedtak.intern;
 
 import java.time.LocalDate;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -23,9 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 
 @ApplicationScoped
@@ -34,7 +32,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdaterer {
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste fpUttakTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
@@ -47,11 +45,12 @@ public class FagsakRelasjonAvsluttningsdatoOppdaterer {
     public FagsakRelasjonAvsluttningsdatoOppdaterer(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                                     StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
                                                     UttakInputTjeneste uttakInputTjeneste,
-                                                    FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                                                    FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                                    ForeldrepengerUttakTjeneste fpUttakTjeneste) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
-        this.uttakRepository = behandlingRepositoryProvider.getUttakRepository();
+        this.fpUttakTjeneste = fpUttakTjeneste;
         this.familieHendelseRepository = behandlingRepositoryProvider.getFamilieHendelseRepository();
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
@@ -96,12 +95,12 @@ public class FagsakRelasjonAvsluttningsdatoOppdaterer {
 
     private LocalDate avsluttningsdatoHvisDetIkkeErStønadsdagerIgjen(Behandling behandling,
                                                                      LocalDate avsluttningsdato) {
-        Optional<UttakResultatEntitet> uttakResultatEntitet = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        var uttakResultatEntitet = fpUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
         if (uttakResultatEntitet.isPresent()) {
-            List<UttakResultatPeriodeEntitet> uttakPerioder = uttakResultatEntitet.get().getGjeldendePerioder().getPerioder();
+            var uttakPerioder = uttakResultatEntitet.get().getGjeldendePerioder();
             Optional<LocalDate> sisteUttaksdato = uttakPerioder.stream()
-                .max(Comparator.comparing(UttakResultatPeriodeEntitet::getTom))
-                .map(UttakResultatPeriodeEntitet::getTom);
+                .max(Comparator.comparing(ForeldrepengerUttakPeriode::getTom))
+                .map(ForeldrepengerUttakPeriode::getTom);
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
             var sluttPåStønadsdager = stønadskontoSaldoTjeneste.erSluttPåStønadsdager(uttakInput);
             return sisteUttaksdato.isPresent() && sisteUttaksdato.get().isAfter(LocalDate.now()) && erAvsluttningsdatoSattEllerEtter(avsluttningsdato, sisteUttaksdato.get())

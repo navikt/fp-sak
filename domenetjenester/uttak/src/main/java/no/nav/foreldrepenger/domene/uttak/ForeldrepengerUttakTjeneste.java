@@ -64,7 +64,8 @@ public class ForeldrepengerUttakTjeneste {
             .medSamtidigUttaksprosent(entitet.getSamtidigUttaksprosent())
             .medManuellBehandlingÅrsak(entitet.getManuellBehandlingÅrsak())
             .medSøktKonto(entitet.getPeriodeSøknad().map(se -> se.getUttakPeriodeType()).orElse(null))
-            .medOpprinneligSendtTilManuellBehandling(entitet.opprinneligSendtTilManuellBehandling());
+            .medOpprinneligSendtTilManuellBehandling(entitet.opprinneligSendtTilManuellBehandling())
+            .medManueltBehandlet(entitet.isManueltBehandlet());
         return periodeBuilder.build();
     }
 
