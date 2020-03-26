@@ -46,6 +46,7 @@ import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.jsonfeed.HendelsePublisererTjeneste;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerEndret;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
@@ -85,7 +86,8 @@ public class HendelsePublisererTjenesteImplTest {
 
     @Before
     public void setUp() {
-        tjeneste = new HendelsePublisererTjenesteImpl(feedRepository, uttakRepository, repositoryProvider, behandlingsresultatRepository, etterkontrollRepository);
+        tjeneste = new HendelsePublisererTjenesteImpl(feedRepository, new ForeldrepengerUttakTjeneste(uttakRepository), repositoryProvider,
+            behandlingsresultatRepository, etterkontrollRepository);
         arbeidsgiver = Arbeidsgiver.virksomhet("orgnr");
     }
 
@@ -94,14 +96,16 @@ public class HendelsePublisererTjenesteImplTest {
         expectedException.expect(TekniskException.class);
         expectedException.expectMessage("FP-343184:Finner ikke noen relevant uttaksplan for vedtak");
 
-        BehandlingVedtak vedtak = byggBehandlingVedtak(false, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET, null, VedtakResultatType.INNVILGET, false);
+        BehandlingVedtak vedtak = byggBehandlingVedtak(false, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET,
+            null, VedtakResultatType.INNVILGET, false);
         tjeneste.lagreVedtak(vedtak);
     }
 
     @Test
     public void skal_sett_første_og_siste_stønadsdag_lik_fom_på_første_periode_hvis_ingen_perioder_er_innvilget(){
         UttakResultatPerioderEntitet uttaksPlan = lagUttaksPlan(AVSLÅTT_PERIODE_START, AVSLÅTT_PERIODE_SLUTT, true, false);
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.OPPHØR, uttaksPlan, VedtakResultatType.AVSLAG, false);
+        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.OPPHØR, uttaksPlan,
+            VedtakResultatType.AVSLAG, false);
         tjeneste.lagreVedtak(vedtak);
 
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
@@ -117,7 +121,8 @@ public class HendelsePublisererTjenesteImplTest {
 
     @Test
     public void skal_lagre_ned_førstegangssøknad() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET, null, VedtakResultatType.INNVILGET, false);
+        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET,
+            null, VedtakResultatType.INNVILGET, false);
         tjeneste.lagreVedtak(vedtak);
 
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
@@ -133,7 +138,8 @@ public class HendelsePublisererTjenesteImplTest {
 
     @Test
     public void skal_ikke_lagre_ned_vedtak_som_ikke_endrer_stønadsperiode() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.INNVILGET, opprettUttakResultatPerioder(), VedtakResultatType.INNVILGET, false);
+        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.INNVILGET,
+            opprettUttakResultatPerioder(), VedtakResultatType.INNVILGET, false);
         tjeneste.lagreVedtak(vedtak);
 
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
@@ -142,7 +148,8 @@ public class HendelsePublisererTjenesteImplTest {
 
     @Test
     public void skal_ikke_lagre_ned_avslag_på_avslag() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(false, BehandlingType.REVURDERING, BehandlingResultatType.INGEN_ENDRING, null, VedtakResultatType.AVSLAG, true);
+        BehandlingVedtak vedtak = byggBehandlingVedtak(false, BehandlingType.REVURDERING, BehandlingResultatType.INGEN_ENDRING,
+            null, VedtakResultatType.AVSLAG, true);
         tjeneste.lagreVedtak(vedtak);
 
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
@@ -151,7 +158,8 @@ public class HendelsePublisererTjenesteImplTest {
 
     @Test
     public void skal_lagre_ned_revurdering_innvilget() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.INNVILGET, opprettNyUttaksplan(), VedtakResultatType.INNVILGET, false);
+        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.INNVILGET,
+            opprettNyUttaksplan(), VedtakResultatType.INNVILGET, false);
         tjeneste.lagreVedtak(vedtak);
 
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
@@ -167,7 +175,8 @@ public class HendelsePublisererTjenesteImplTest {
 
     @Test
     public void skal_lagre_ned_revurdering_endret() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.FORELDREPENGER_ENDRET, opprettNyUttaksplan(), VedtakResultatType.INNVILGET, false);
+        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.FORELDREPENGER_ENDRET,
+            opprettNyUttaksplan(), VedtakResultatType.INNVILGET, false);
         tjeneste.lagreVedtak(vedtak);
 
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
@@ -183,7 +192,8 @@ public class HendelsePublisererTjenesteImplTest {
 
     @Test
     public void skal_lagre_ned_revurdering_opphørt() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.OPPHØR, opprettNyUttaksplan(), VedtakResultatType.AVSLAG, false);
+        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.OPPHØR,
+            opprettNyUttaksplan(), VedtakResultatType.AVSLAG, false);
         tjeneste.lagreVedtak(vedtak);
 
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
@@ -199,7 +209,8 @@ public class HendelsePublisererTjenesteImplTest {
 
     @Test
     public void skal_ikkje_lagre_ned_beslutningsvedtak() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.INGEN_ENDRING, opprettUttakResultatPerioder(), VedtakResultatType.INNVILGET, false);
+        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.INGEN_ENDRING,
+            opprettUttakResultatPerioder(), VedtakResultatType.INNVILGET, false);
         tjeneste.lagreVedtak(vedtak);
 
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
@@ -208,7 +219,8 @@ public class HendelsePublisererTjenesteImplTest {
 
     @Test
     public void skal_lagre_fagsak_avsluttet() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET, null, VedtakResultatType.INNVILGET, false);
+        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET,
+            null, VedtakResultatType.INNVILGET, false);
         AktørId aktørId = vedtak.getBehandlingsresultat().getBehandling().getAktørId();
         Long fagsakId = vedtak.getBehandlingsresultat().getBehandling().getFagsakId();
         FagsakStatusEvent event = new FagsakStatusEvent(fagsakId, aktørId, FagsakStatus.LØPENDE, FagsakStatus.AVSLUTTET);

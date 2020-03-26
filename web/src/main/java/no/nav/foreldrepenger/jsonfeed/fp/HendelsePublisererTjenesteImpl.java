@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.jsonfeed.fp;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -23,11 +22,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.jsonfeed.AbstractHendelsePublisererTjeneste;
 import no.nav.foreldrepenger.jsonfeed.HendelsePublisererFeil;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerEndret;
@@ -43,7 +42,7 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
     private static final Logger log = LoggerFactory.getLogger(HendelsePublisererTjenesteImpl.class);
 
     private FeedRepository feedRepository;
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
 
@@ -67,13 +66,13 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
 
     @Inject
     public HendelsePublisererTjenesteImpl(FeedRepository feedRepository,
-                                          UttakRepository uttakRepository,
+                                          ForeldrepengerUttakTjeneste uttakTjeneste,
                                           BehandlingRepositoryProvider repositoryProvider,
                                           BehandlingsresultatRepository behandlingsresultatRepository,
                                           EtterkontrollRepository etterkontrollRepository) {
         super(behandlingsresultatRepository, etterkontrollRepository);
         this.feedRepository = feedRepository;
-        this.uttakRepository = uttakRepository;
+        this.uttakTjeneste = uttakTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
     }
@@ -126,12 +125,12 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
 
     @Override
     protected boolean uttakFomEllerTomErEndret(Optional<Behandlingsresultat> gammeltResultat, Behandlingsresultat nyttResultat) {
-        Optional<UttakResultatEntitet> gammeltUttakResultat = gammeltResultat.isPresent()
-            ? uttakRepository.hentUttakResultatHvisEksisterer(gammeltResultat.get().getBehandling().getId())
+        Optional<ForeldrepengerUttak> gammeltUttakResultat = gammeltResultat.isPresent()
+            ? uttakTjeneste.hentUttakHvisEksisterer(gammeltResultat.get().getBehandling().getId())
             : Optional.empty();
-        Optional<UttakResultatEntitet> nyttUttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(nyttResultat.getBehandling().getId());
+        var nyttUttakResultat = uttakTjeneste.hentUttakHvisEksisterer(nyttResultat.getBehandling().getId());
 
-        if (!gammeltUttakResultat.isPresent() || !nyttUttakResultat.isPresent()) {
+        if (gammeltUttakResultat.isEmpty() || nyttUttakResultat.isEmpty()) {
             return true;
         }
         UttakFomTom gammelStønadsperiode = finnFørsteOgSisteStønadsdag(gammeltUttakResultat.get());
@@ -148,11 +147,11 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
         innhold.setAktoerId(event.getAktørId().getId());
 
         Optional<Behandling> behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(event.getFagsakId());
-        if (!behandling.isPresent()) {
+        if (behandling.isEmpty()) {
             throw HendelsePublisererFeil.FACTORY.finnerIkkeBehandlingForFagsak().toException();
         }
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.get().getId());
-        if (!uttakResultat.isPresent()) {
+        var uttakResultat = uttakTjeneste.hentUttakHvisEksisterer(behandling.get().getId());
+        if (uttakResultat.isEmpty()) {
             throw HendelsePublisererFeil.FACTORY.finnerIkkeRelevantUttaksplanForVedtak().toException();
         }
 
@@ -181,14 +180,14 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
             throw HendelsePublisererFeil.FACTORY.fantIngenEndringIUttakFomEllerTom().toException();
         }
 
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(vedtak.getBehandlingsresultat().getBehandling().getId());
+        var uttakResultat = uttakTjeneste.hentUttakHvisEksisterer(vedtak.getBehandlingsresultat().getBehandling().getId());
         UttakFomTom uttakFomTom;
         if (uttakResultat.isPresent()) {
             uttakFomTom = finnFørsteOgSisteStønadsdag(uttakResultat.get());
         } else if (originalBehandling.isPresent()) {
 
-            Optional<UttakResultatEntitet> origUttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(originalBehandling.get().getId());
-            if (!origUttakResultat.isPresent()) {
+            var origUttakResultat = uttakTjeneste.hentUttakHvisEksisterer(originalBehandling.get().getId());
+            if (origUttakResultat.isEmpty()) {
                 throw HendelsePublisererFeil.FACTORY.finnerIkkeRelevantUttaksplanForVedtak().toException();
             }
             uttakFomTom = finnOriginalStønadsOppstart(origUttakResultat.get());
@@ -204,16 +203,16 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
         return innhold;
     }
 
-    private UttakFomTom finnFørsteOgSisteStønadsdag(UttakResultatEntitet uttakResultat) {
+    private UttakFomTom finnFørsteOgSisteStønadsdag(ForeldrepengerUttak uttak) {
         UttakFomTom resultat = new UttakFomTom();
-        List<UttakResultatPeriodeEntitet> innvilgedePerioder = uttakResultat.getGjeldendePerioder().getPerioder().stream()
-            .filter(UttakResultatPeriodeEntitet::isInnvilget)
+        var innvilgedePerioder = uttak.getGjeldendePerioder().stream()
+            .filter(ForeldrepengerUttakPeriode::isInnvilget)
             .collect(Collectors.toList());
         if (!innvilgedePerioder.isEmpty()) {
-            resultat.førsteStønadsdag = innvilgedePerioder.stream().map(UttakResultatPeriodeEntitet::getFom).min(LocalDate::compareTo).get();
-            resultat.sisteStønadsdag = innvilgedePerioder.stream().map(UttakResultatPeriodeEntitet::getTom).max(LocalDate::compareTo).get();
+            resultat.førsteStønadsdag = innvilgedePerioder.stream().map(ForeldrepengerUttakPeriode::getFom).min(LocalDate::compareTo).get();
+            resultat.sisteStønadsdag = innvilgedePerioder.stream().map(ForeldrepengerUttakPeriode::getTom).max(LocalDate::compareTo).get();
         } else {
-            resultat.førsteStønadsdag = uttakResultat.getGjeldendePerioder().getPerioder().stream().map(UttakResultatPeriodeEntitet::getFom)
+            resultat.førsteStønadsdag = uttak.getGjeldendePerioder().stream().map(ForeldrepengerUttakPeriode::getFom)
                 .min(LocalDate::compareTo).get();
 
             // Hvis det ikke finnes noen innvilgede perioder etter revurdering så vil hendelsen være at ytelsen opphører samme dag som den opprinnelig
@@ -223,15 +222,15 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
         return resultat;
     }
 
-    private UttakFomTom finnOriginalStønadsOppstart(UttakResultatEntitet uttakResultat) {
+    private UttakFomTom finnOriginalStønadsOppstart(ForeldrepengerUttak uttak) {
         UttakFomTom resultat = new UttakFomTom();
-        List<UttakResultatPeriodeEntitet> perioder = uttakResultat.getGjeldendePerioder().getPerioder().stream()
-            .filter(UttakResultatPeriodeEntitet::isInnvilget)
+        var perioder = uttak.getGjeldendePerioder().stream()
+            .filter(ForeldrepengerUttakPeriode::isInnvilget)
             .collect(Collectors.toList());
         if (perioder.isEmpty()) {
-            perioder = uttakResultat.getGjeldendePerioder().getPerioder();
+            perioder = uttak.getGjeldendePerioder();
         }
-        resultat.førsteStønadsdag = perioder.stream().map(UttakResultatPeriodeEntitet::getFom).min(LocalDate::compareTo).get();
+        resultat.førsteStønadsdag = perioder.stream().map(ForeldrepengerUttakPeriode::getFom).min(LocalDate::compareTo).get();
         resultat.sisteStønadsdag = resultat.førsteStønadsdag;
 
         return resultat;
