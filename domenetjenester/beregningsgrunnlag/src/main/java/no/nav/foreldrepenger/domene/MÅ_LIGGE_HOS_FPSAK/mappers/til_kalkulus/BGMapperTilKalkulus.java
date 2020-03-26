@@ -148,7 +148,7 @@ public class BGMapperTilKalkulus {
             }
         }
         return  bgAndelArbeidsforholdOpt.map(BGAndelArbeidsforhold::getArbeidsforholdRef)
-            .map(IAYMapperTilKalkulus::mapArbeidsforholdRef).get().gjelderFor(arbeidsforholdRef);
+            .map(IAYMapperTilKalkulus::mapArbeidsforholdRef).get().equals(arbeidsforholdRef);
     }
 
 
