@@ -65,28 +65,34 @@ public class MapUttakResultatFraVLTilRegel {
     private BigDecimal finnArbeidsprosent(ForeldrepengerUttakPeriodeAktivitet uttakResultatPeriodeAktivitet,
                                         UttakYrkesaktiviteter uttakYrkesaktiviteter, LocalDate periodeFom) {
         ForeldrepengerUttakAktivitet aktivitet= uttakResultatPeriodeAktivitet.getUttakAktivitet();
-        BigDecimal arbeidsprosentandel = BigDecimal.ONE;
-        BigDecimal stillingsprosent = BigDecimal.ONE;
-        Optional<Arbeidsgiver> arbeidsgiver = aktivitet.getArbeidsgiver();
+        final Optional<Arbeidsgiver> arbeidsgiver = aktivitet.getArbeidsgiver();
         if(arbeidsgiver.isPresent()) {
-            stillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(),
+
+            final BigDecimal stillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(),
                 aktivitet.getArbeidsforholdRef(), periodeFom);
-            BigDecimal totalStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(),
+            final BigDecimal totalStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(),
                 null, periodeFom);
 
-            if (stillingsprosent.compareTo(BigDecimal.ZERO) > 0) {
-                arbeidsprosentandel = (totalStillingsprosent.compareTo(BigDecimal.ZERO) > 0) ? stillingsprosent.divide(totalStillingsprosent).setScale(2, RoundingMode.HALF_UP) : BigDecimal.ONE;
+            final BigDecimal arbeidsprosentandel = finnArbeidsprosentandel(stillingsprosent, totalStillingsprosent);
+
+            if (uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode()) {
+                return uttakResultatPeriodeAktivitet.getArbeidsprosent().multiply(arbeidsprosentandel).setScale(2);
+            } else {
+                return stillingsprosent.multiply(arbeidsprosentandel).setScale(2);
             }
+        } else if (uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode()) {
+            return uttakResultatPeriodeAktivitet.getArbeidsprosent().setScale(2);
         }
 
-        if (uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode()) {
-            return uttakResultatPeriodeAktivitet.getArbeidsprosent().multiply(arbeidsprosentandel).setScale(2);
-        }
-
-        if (arbeidsgiver.isPresent()) {
-            return stillingsprosent.multiply(arbeidsprosentandel).setScale(2);
-        }
         return BigDecimal.ZERO;
+    }
+
+    private BigDecimal finnArbeidsprosentandel(BigDecimal stillingsprosent, BigDecimal totalStillingsprosent) {
+        BigDecimal arbeidsprosentandel = BigDecimal.ONE;
+        if (stillingsprosent.compareTo(BigDecimal.ZERO) > 0 && totalStillingsprosent.compareTo(BigDecimal.ZERO) > 0) {
+            arbeidsprosentandel = stillingsprosent.divide(totalStillingsprosent).setScale(2, RoundingMode.HALF_UP);
+        }
+        return arbeidsprosentandel;
     }
 
     private Arbeidsforhold mapArbeidsforhold(ForeldrepengerUttakAktivitet uttakAktivitet) {
