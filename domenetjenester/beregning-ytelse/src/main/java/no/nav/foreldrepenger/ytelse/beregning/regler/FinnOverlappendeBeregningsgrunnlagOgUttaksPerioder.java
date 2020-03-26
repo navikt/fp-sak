@@ -260,7 +260,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         return uttakAktivitet.isErGradering();
     }
 
-    protected static BigDecimal finnPermisjonsprosent(UttakAktivitet uttakAktivitet) {
+    private static BigDecimal finnPermisjonsprosent(UttakAktivitet uttakAktivitet) {
         if (!uttakAktivitet.isErGradering()) {
             return BigDecimal.ONE;
         }
