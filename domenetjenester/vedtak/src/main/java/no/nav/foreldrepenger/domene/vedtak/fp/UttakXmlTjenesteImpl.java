@@ -18,10 +18,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlUtil;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.FordelingPeriode;
@@ -39,6 +39,7 @@ public class UttakXmlTjenesteImpl {
 
     private ObjectFactory uttakObjectFactory;
     private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
@@ -47,11 +48,12 @@ public class UttakXmlTjenesteImpl {
     }
 
     @Inject
-    public UttakXmlTjenesteImpl(BehandlingRepositoryProvider repositoryProvider) {
+    public UttakXmlTjenesteImpl(BehandlingRepositoryProvider repositoryProvider, ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.uttakObjectFactory = new ObjectFactory();
         this.uttakRepository = repositoryProvider.getUttakRepository();
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        this.uttakTjeneste = uttakTjeneste;
     }
 
     public void setUttak(Beregningsresultat beregningsresultat, Behandling behandling) {
@@ -71,9 +73,9 @@ public class UttakXmlTjenesteImpl {
     }
 
     private void setUttaksresultatPerioder(UttakForeldrepenger uttakForeldrepenger, Behandling behandling) {
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        var uttakResultat = uttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
         uttakResultat.ifPresent(uttakResultatEntitet ->
-            setUttakResultatPerioder(uttakForeldrepenger, uttakResultatEntitet.getGjeldendePerioder().getPerioder())
+            setUttakResultatPerioder(uttakForeldrepenger, uttakResultatEntitet.getGjeldendePerioder())
         );
     }
 
@@ -98,14 +100,14 @@ public class UttakXmlTjenesteImpl {
         return kontrakt;
     }
 
-    private void setUttakResultatPerioder(UttakForeldrepenger uttakForeldrepenger, List<UttakResultatPeriodeEntitet> perioderDomene) {
+    private void setUttakResultatPerioder(UttakForeldrepenger uttakForeldrepenger, List<ForeldrepengerUttakPeriode> perioderDomene) {
         List<UttaksresultatPeriode> kontrakt = perioderDomene
             .stream()
             .map(periode -> konverterFraDomene(periode)).collect(Collectors.toList());
         uttakForeldrepenger.getUttaksresultatPerioder().addAll(kontrakt);
     }
 
-    private UttaksresultatPeriode konverterFraDomene(UttakResultatPeriodeEntitet periodeDomene) {
+    private UttaksresultatPeriode konverterFraDomene(ForeldrepengerUttakPeriode periodeDomene) {
         UttaksresultatPeriode kontrakt = new UttaksresultatPeriode();
 
         kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periodeDomene.getFom(), periodeDomene.getTom()));
@@ -121,29 +123,31 @@ public class UttakXmlTjenesteImpl {
         return kontrakt;
     }
 
-    private void setUttaksresultatPeriodeAktiviteter(UttaksresultatPeriode uttaksresultatPeriodeKontrakt, List<UttakResultatPeriodeAktivitetEntitet> aktiviteterDomene) {
+    private void setUttaksresultatPeriodeAktiviteter(UttaksresultatPeriode uttaksresultatPeriodeKontrakt,
+                                                     List<ForeldrepengerUttakPeriodeAktivitet> aktiviteterDomene) {
+        var tidsperiode = uttaksresultatPeriodeKontrakt.getPeriode();
+        var antVirkedager = Virkedager.beregnAntallVirkedager(tidsperiode.getFom(), tidsperiode.getTom());
         List<UttaksresultatPeriodeAktivitet> resultat = aktiviteterDomene
             .stream()
-            .map(periode -> konverterFraDomene(periode)).collect(Collectors.toList());
+            .map(periode -> konverterFraDomene(periode, antVirkedager)).collect(Collectors.toList());
         uttaksresultatPeriodeKontrakt.getUttaksresultatPeriodeAktiviteter().addAll(resultat);
     }
 
-    private UttaksresultatPeriodeAktivitet konverterFraDomene(UttakResultatPeriodeAktivitetEntitet periodeAktivitet) {
+    private UttaksresultatPeriodeAktivitet konverterFraDomene(ForeldrepengerUttakPeriodeAktivitet periodeAktivitet, int antVirkedager) {
         UttaksresultatPeriodeAktivitet kontrakt = new UttaksresultatPeriodeAktivitet();
         kontrakt.setTrekkkonto(VedtakXmlUtil.lagKodeverksOpplysning(periodeAktivitet.getTrekkonto()));
         kontrakt.setTrekkdager(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getTrekkdager().decimalValue()));
-        if (periodeAktivitet.getArbeidsgiver() != null) {
-            kontrakt.setVirksomhet(VedtakXmlUtil.lagStringOpplysning(periodeAktivitet.getArbeidsgiver().getIdentifikator()));
+        if (periodeAktivitet.getArbeidsgiver().isPresent()) {
+            kontrakt.setVirksomhet(VedtakXmlUtil.lagStringOpplysning(periodeAktivitet.getArbeidsgiver().get().getIdentifikator()));
             kontrakt.setArbeidsforholdid(VedtakXmlUtil.lagStringOpplysning(periodeAktivitet.getArbeidsforholdRef().getReferanse()));
         }
         kontrakt.setArbeidstidsprosent(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getArbeidsprosent()));
-        if(periodeAktivitet.getUtbetalingsprosent()!=null) {
-            kontrakt.setUtbetalingsprosent(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getUtbetalingsprosent()));
+        if(periodeAktivitet.getUtbetalingsgrad() != null) {
+            kontrakt.setUtbetalingsprosent(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getUtbetalingsgrad()));
         }
         kontrakt.setUttakarbeidtype(VedtakXmlUtil.lagKodeverksOpplysning(periodeAktivitet.getUttakArbeidType()));
-        kontrakt.setGradering(VedtakXmlUtil.lagBooleanOpplysning(periodeAktivitet.isSøktGradering()));
-        int antVirkedager = Virkedager.beregnAntallVirkedager(periodeAktivitet.getFom(), periodeAktivitet.getTom());
-        if(periodeAktivitet.isSøktGradering()) {
+        kontrakt.setGradering(VedtakXmlUtil.lagBooleanOpplysning(periodeAktivitet.isSøktGraderingForAktivitetIPeriode()));
+        if(periodeAktivitet.isSøktGraderingForAktivitetIPeriode()) {
             kontrakt.setGraderingsdager(VedtakXmlUtil.lagIntOpplysning(antVirkedager));
         }
         return kontrakt;

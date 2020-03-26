@@ -201,7 +201,7 @@ public class InformasjonssakRepository {
          */
         List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
         Query query = entityManager.createNativeQuery(
-            " select distinct saksnummer, ytelse_type, bru.aktoer_id braid, bruker_rolle, anpa.aktoer_id, minbrfom " +
+            " select distinct saksnummer, ytelse_type, bru.aktoer_id braid, bruker_rolle, beh.id, anpa.aktoer_id, minbrfom " +
                 "from fagsak fs join bruker bru on fs.bruker_id = bru.id join behandling beh on fagsak_id=fs.id" +
                 " join behandling_resultat br on (br.behandling_id=beh.id and br.behandling_resultat_type in (:restyper)) " +
                 " join (select beh1.fagsak_id fsmax, max(br1.opprettet_tid) maxbr from behandling beh1 " +
@@ -239,8 +239,9 @@ public class InformasjonssakRepository {
                 .medYtelseType((String) resultat[1]) // NOSONAR
                 .medAktørId((String) resultat[2])  // NOSONAR
                 .medRolle((String) resultat[3])  // NOSONAR
-                .medAktørIdAnnenPart((String) resultat[4])  // NOSONAR
-                .medMinUtbetalingDato(((Timestamp) resultat[5]).toLocalDateTime().toLocalDate()); // NOSONAR
+                .medBehandlingId(((BigDecimal) resultat[4]).longValue()) // NOSONAR
+                .medAktørIdAnnenPart((String) resultat[5])  // NOSONAR
+                .medMinUtbetalingDato(((Timestamp) resultat[6]).toLocalDateTime().toLocalDate()); // NOSONAR
             returnList.add(builder.build());
         });
         return returnList;

@@ -339,7 +339,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
             .medTrekkonto(StønadskontoType.FORELDREPENGER)
             .medTrekkdager(new Trekkdager(10))
             .medArbeidsprosent(new BigDecimal(100))
-            .medUtbetalingsprosent(new BigDecimal(100))
+            .medUtbetalingsgrad(new BigDecimal(100))
             .medErSøktGradering(true)
             .build();
 

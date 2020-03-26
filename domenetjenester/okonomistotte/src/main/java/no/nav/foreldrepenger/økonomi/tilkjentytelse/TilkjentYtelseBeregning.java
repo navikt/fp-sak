@@ -13,9 +13,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelsePeriodeV1;
 
 @FagsakYtelseTypeRef
@@ -23,22 +22,22 @@ import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelsePeriodeV
 public class TilkjentYtelseBeregning implements YtelseTypeTilkjentYtelseTjeneste {
 
     private BeregningsresultatRepository beregningsresultatRepository;
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
 
     TilkjentYtelseBeregning() {
         //for CDI proxy
     }
 
     @Inject
-    public TilkjentYtelseBeregning(BeregningsresultatRepository beregningsresultatRepository, UttakRepository uttakRepository) {
+    public TilkjentYtelseBeregning(BeregningsresultatRepository beregningsresultatRepository, ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.beregningsresultatRepository = beregningsresultatRepository;
-        this.uttakRepository = uttakRepository;
+        this.uttakTjeneste = uttakTjeneste;
     }
 
     @Override
     public List<TilkjentYtelsePeriodeV1> hentTilkjentYtelsePerioder(Long behandlingId) {
         Optional<BeregningsresultatEntitet> resultatOpt = hentResultatFP(behandlingId);
-        if (!resultatOpt.isPresent()) {
+        if (resultatOpt.isEmpty()) {
             return Collections.emptyList();
         }
         BeregningsresultatEntitet resultat = resultatOpt.get();
@@ -56,10 +55,10 @@ public class TilkjentYtelseBeregning implements YtelseTypeTilkjentYtelseTjeneste
             return null; //ikke relevant //NOSONAR
         }
 
-        Optional<UttakResultatEntitet> uttak = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        var uttak = uttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
         return uttak.map(uttakResultatEntitet ->
-            uttakResultatEntitet.getGjeldendePerioder().getPerioder().stream()
-                .anyMatch(UttakResultatPeriodeEntitet::isInnvilget))
+            uttakResultatEntitet.getGjeldendePerioder().stream()
+                .anyMatch(ForeldrepengerUttakPeriode::isInnvilget))
             .orElse(false);
     }
 

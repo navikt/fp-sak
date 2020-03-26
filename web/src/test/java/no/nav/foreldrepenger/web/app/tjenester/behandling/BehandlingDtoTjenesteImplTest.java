@@ -18,6 +18,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -68,6 +69,9 @@ public class BehandlingDtoTjenesteImplTest {
     @Inject
     private BehandlingDokumentRepository behandlingDokumentRepository;
 
+    @Inject
+    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
+
     private BehandlingDtoTjeneste tjeneste;
 
     private LocalDate now = LocalDate.now();
@@ -78,7 +82,7 @@ public class BehandlingDtoTjenesteImplTest {
     public void setUp() {
         existingRoutes = RestUtils.getRoutes();
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
-            opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository);
+            opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste);
     }
 
     @Test

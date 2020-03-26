@@ -56,7 +56,8 @@ public class VurderOpphørAvYtelser  {
     private PersonopplysningRepository personopplysningRepository;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private RevurderingTjeneste revurderingTjeneste;
+    private RevurderingTjeneste revurderingTjenesteFP;
+    private RevurderingTjeneste revurderingTjenesteSVP;
     private ProsessTaskRepository prosessTaskRepository;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
@@ -69,7 +70,8 @@ public class VurderOpphørAvYtelser  {
 
     @Inject
     public VurderOpphørAvYtelser(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                 @FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjeneste,
+                                 @FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjenesteFP,
+                                 @FagsakYtelseTypeRef("SVP") RevurderingTjeneste revurderingTjenesteSVP,
                                  ProsessTaskRepository prosessTaskRepository,
                                  BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                  BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
@@ -82,7 +84,8 @@ public class VurderOpphørAvYtelser  {
         this.prosessTaskRepository = prosessTaskRepository;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
-        this.revurderingTjeneste = revurderingTjeneste;
+        this.revurderingTjenesteFP = revurderingTjenesteFP;
+        this.revurderingTjenesteSVP = revurderingTjenesteSVP;
         this.sjekkOverlappInfortrygd = sjekkOverlappInfortrygd;
     }
 
@@ -119,13 +122,9 @@ public class VurderOpphørAvYtelser  {
             }
         });
         //Sjekker om det finnes overlapp i fpsak
-        aktørIdList.forEach(aktørId -> {
-            List<Fagsak> sakerSomSkalOpphøre = løpendeSakerSomOverlapperUttakPåNySak(aktørId, gjeldendeFagsak.getSaksnummer(), startDatoIVB);
-            for (Fagsak sakOpphør : sakerSomSkalOpphøre) {
-                //For hver sak skal det opprettes en "vurder konsekvens for ytelse" oppgave, og en revurdering med egen årsak. Finnes det en åpen revurdering skal den oppdateres med årsak.
-                håndtereOpphør(sakOpphør);
-            }
-        });
+        aktørIdList
+            .forEach(aktørId -> løpendeSakerSomOverlapperUttakPåNySak(aktørId, gjeldendeFagsak.getSaksnummer(), startDatoIVB)
+                .forEach(this::håndtereOpphør));
     }
 
     private void håndtereOpphørInfotrygd(Long behandlingId, Fagsak gjeldendeFagsak, AktørId aktørId) {
@@ -222,14 +221,17 @@ public class VurderOpphørAvYtelser  {
     }
 
     private Behandling opprettRevurdering(Fagsak sakRevurdering, BehandlingÅrsakType behandlingÅrsakType) {
-        Behandling revurdering;
         OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(sakRevurdering);
 
-        revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(sakRevurdering, behandlingÅrsakType, enhet);
+        Behandling revurdering = getRevurderingTjeneste(sakRevurdering).opprettAutomatiskRevurdering(sakRevurdering, behandlingÅrsakType, enhet);
 
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
 
         return revurdering;
+    }
+
+    private RevurderingTjeneste getRevurderingTjeneste(Fagsak fagsak) {
+        return FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsak.getYtelseType()) ? revurderingTjenesteSVP : revurderingTjenesteFP;
     }
 
     void opprettTaskForÅVurdereKonsekvens(Long fagsakId, String behandlendeEnhetsId, String oppgaveBeskrivelse, Optional<String> gjeldendeAktørId) {

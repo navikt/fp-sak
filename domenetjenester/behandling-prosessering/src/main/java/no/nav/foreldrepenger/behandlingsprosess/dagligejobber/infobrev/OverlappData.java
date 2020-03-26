@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class OverlappData {
     private Saksnummer saksnummer;
+    private Long behandlingId;
     private FagsakYtelseType ytelseType;
     private RelasjonsRolleType rolle;
     private AktørId aktørId;
@@ -39,6 +40,10 @@ public class OverlappData {
         return minUtbetalingDato;
     }
 
+    public Long getBehandlingId() {
+        return behandlingId;
+    }
+
     public static class OverlappDataBuilder {
         private final OverlappData data;
 
@@ -52,6 +57,11 @@ public class OverlappData {
 
         public OverlappDataBuilder medSaksnummer(String saksnummer) {
             this.data.saksnummer = new Saksnummer(saksnummer);
+            return this;
+        }
+
+        public OverlappDataBuilder medBehandlingId(Long id) {
+            this.data.behandlingId = id;
             return this;
         }
 

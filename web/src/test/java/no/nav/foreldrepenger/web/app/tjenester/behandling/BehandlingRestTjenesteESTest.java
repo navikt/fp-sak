@@ -64,6 +64,7 @@ public class BehandlingRestTjenesteESTest {
     private OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste = mock(OpptjeningIUtlandDokStatusTjeneste.class);
     private TilbakekrevingRepository tilbakekrevingRepository = mock(TilbakekrevingRepository.class);
     private BehandlingDokumentRepository behandlingDokumentRepository = mock(BehandlingDokumentRepository.class);
+    private RelatertBehandlingTjeneste relatertBehandlingTjeneste = mock(RelatertBehandlingTjeneste.class);
 
     @Before
     public void setUp() {
@@ -73,7 +74,7 @@ public class BehandlingRestTjenesteESTest {
         var relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         BehandlingDtoTjeneste behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste,
-            tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository);
+            tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste);
 
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningApplikasjonTjeneste,
             behandlingsoppretterApplikasjonTjeneste,

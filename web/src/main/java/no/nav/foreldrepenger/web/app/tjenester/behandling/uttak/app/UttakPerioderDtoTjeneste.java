@@ -129,7 +129,7 @@ public class UttakPerioderDtoTjeneste {
             .build();
 
         for (var aktivitet : periode.getAktiviteter()) {
-            dto.leggTilAktivitet(map(aktivitet, inntektArbeidYtelseGrunnlag, periode.opprinneligSendtTilManuellBehandling()));
+            dto.leggTilAktivitet(map(aktivitet, inntektArbeidYtelseGrunnlag, periode.isOpprinneligSendtTilManuellBehandling()));
         }
         return dto;
     }

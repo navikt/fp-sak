@@ -48,7 +48,7 @@ public class MapUttakResultatFraVLTilRegel {
     }
 
     private UttakAktivitet mapAktivitet(UttakInput input, UttakResultatPeriodeAktivitetEntitet uttakResultatPeriodeAktivitet) {
-        BigDecimal utbetalingsgrad = uttakResultatPeriodeAktivitet.getUtbetalingsprosent();
+        BigDecimal utbetalingsgrad = uttakResultatPeriodeAktivitet.getUtbetalingsgrad();
         BigDecimal stillingsprosent = mapStillingsprosent(input, uttakResultatPeriodeAktivitet);
 
         UttakAktivitetEntitet aktivitetEntitet = uttakResultatPeriodeAktivitet.getUttakAktivitet();

@@ -107,7 +107,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest {
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
             .medTrekkdager(new Trekkdager(5))
-            .medUtbetalingsprosent(BigDecimal.TEN)
+            .medUtbetalingsgrad(BigDecimal.TEN)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         uttak.leggTilPeriode(periode);
@@ -210,7 +210,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest {
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
             .medTrekkdager(new Trekkdager(5))
-            .medUtbetalingsprosent(BigDecimal.TEN)
+            .medUtbetalingsgrad(BigDecimal.TEN)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         uttak.leggTilPeriode(periode);
@@ -225,7 +225,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest {
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
             .medTrekkdager(Trekkdager.ZERO)
-            .medUtbetalingsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(BigDecimal.ZERO)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         uttak.leggTilPeriode(periode);

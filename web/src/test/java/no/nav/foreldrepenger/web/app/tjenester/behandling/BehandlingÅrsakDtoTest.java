@@ -42,6 +42,7 @@ public class BehandlingÅrsakDtoTest {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private TilbakekrevingRepository tilbakekrevingRepository = new TilbakekrevingRepository(repoRule.getEntityManager());
     private BehandlingDokumentRepository behandlingDokumentRepository = new BehandlingDokumentRepository(repoRule.getEntityManager());
+    private RelatertBehandlingTjeneste relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
 
     @Before
     public void setup() {
@@ -52,7 +53,7 @@ public class BehandlingÅrsakDtoTest {
         var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(repoRule.getEntityManager());
         var opptjeningIUtlandDokStatusTjeneste = new OpptjeningIUtlandDokStatusTjeneste(new OpptjeningIUtlandDokStatusRepository(repoRule.getEntityManager()));
         behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository,
-            skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository);
+            skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste);
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());

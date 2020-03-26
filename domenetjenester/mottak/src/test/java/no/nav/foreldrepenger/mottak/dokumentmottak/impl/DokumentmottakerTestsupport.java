@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
@@ -53,6 +54,8 @@ public abstract class DokumentmottakerTestsupport {
     protected Kompletthetskontroller kompletthetskontroller;
     @Inject
     protected BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    protected ForeldrepengerUttakTjeneste fpUttakTjeneste;
 
     protected Behandling opprettNyBehandlingUtenVedtak(FagsakYtelseType fagsakYtelseType) {
         Behandling behandling = null;

@@ -58,6 +58,18 @@ public class ForeldrepengerUttakPeriodeAktivitet {
         return getUttakAktivitet().getArbeidsforholdRef();
     }
 
+    @Override
+    public String toString() {
+        return "ForeldrepengerUttakPeriodeAktivitet{" +
+            "aktivitet=" + aktivitet +
+            ", trekkonto=" + trekkonto +
+            ", trekkdager=" + trekkdager +
+            ", arbeidsprosent=" + arbeidsprosent +
+            ", utbetalingsgrad=" + utbetalingsgrad +
+            ", søktGraderingForAktivitetIPeriode=" + søktGraderingForAktivitetIPeriode +
+            '}';
+    }
+
     public static class Builder {
         private ForeldrepengerUttakPeriodeAktivitet kladd = new ForeldrepengerUttakPeriodeAktivitet();
 

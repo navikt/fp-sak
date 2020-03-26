@@ -45,7 +45,7 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
             mottatteDokumentTjeneste,
             behandlingsoppretterSpied,
             kompletthetskontroller,
-            køKontroller);
+            køKontroller, fpUttakTjeneste);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
             mockMD,
             behandlingsoppretterSpied,
             kompletthetskontroller,
-            køKontroller);
+            køKontroller, fpUttakTjeneste);
         Behandling nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.ENGANGSTØNAD);
         Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(),  Mockito.any());
         doNothing().when(mockMD).persisterDokumentinnhold(any(), any(), any());
@@ -111,7 +111,7 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
             mockMD,
             behandlingsoppretterSpied,
             kompletthetskontroller,
-            køKontroller);
+            køKontroller, fpUttakTjeneste);
         Behandling nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.ENGANGSTØNAD);
         Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).opprettNyFørstegangsbehandlingFraTidligereSøknad(Mockito.any(),  Mockito.any(), Mockito.any());
         doNothing().when(mockMD).persisterDokumentinnhold(any(), any(), any());

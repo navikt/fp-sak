@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 
@@ -29,11 +30,13 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
                                            MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                            Behandlingsoppretter behandlingsoppretter,
                                            Kompletthetskontroller kompletthetskontroller,
-                                           BehandlingRepositoryProvider repositoryProvider) {
+                                           BehandlingRepositoryProvider repositoryProvider,
+                                           ForeldrepengerUttakTjeneste fpUttakTjeneste) {
         super(dokumentmottakerFelles,
             mottatteDokumentTjeneste,
             behandlingsoppretter,
             kompletthetskontroller,
+            fpUttakTjeneste,
             repositoryProvider);
     }
 
