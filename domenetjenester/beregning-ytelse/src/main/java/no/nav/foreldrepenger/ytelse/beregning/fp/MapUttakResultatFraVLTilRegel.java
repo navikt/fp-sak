@@ -54,7 +54,7 @@ public class MapUttakResultatFraVLTilRegel {
 
         ForeldrepengerUttakAktivitet aktivitetEntitet = uttakResultatPeriodeAktivitet.getUttakAktivitet();
         UttakYrkesaktiviteter uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
-        BigDecimal arbeidstidsprosent = finnArbeidsprosent(uttakResultatPeriodeAktivitet, aktivitetEntitet, uttakYrkesaktiviteter, periodeFom);
+        BigDecimal arbeidstidsprosent = finnArbeidsprosent(uttakResultatPeriodeAktivitet, uttakYrkesaktiviteter, periodeFom);
 
         Arbeidsforhold arbeidsforhold = mapArbeidsforhold(uttakResultatPeriodeAktivitet.getUttakAktivitet());
         AktivitetStatus aktivitetStatus = MapUttakArbeidTypeTilAktivitetStatus.map(uttakResultatPeriodeAktivitet.getUttakArbeidType());
