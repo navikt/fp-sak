@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -37,11 +38,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
@@ -61,13 +60,13 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
     @Mock
     private BehandlingsresultatRepository behandlingsresultatRepository;
     @Mock
-    private UttakRepository uttakRepository;
-    @Mock
     private FamilieHendelseRepository familieHendelseRepository;
     @Mock
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     @Mock
     private UttakInputTjeneste uttakInputTjeneste;
+    @Mock
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
     private Fagsak fagsak;
     private Behandling behandling;
@@ -81,11 +80,11 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         FagsakLåsRepository fagsakLåsRepository = mock(FagsakLåsRepository.class);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
-        when(repositoryProvider.getUttakRepository()).thenReturn(uttakRepository);
         when(repositoryProvider.getFagsakLåsRepository()).thenReturn(fagsakLåsRepository);
         when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepository);
 
-        fagsakRelasjonAvsluttningsdatoOppdaterer = new FagsakRelasjonAvsluttningsdatoOppdaterer(repositoryProvider, stønadskontoSaldoTjeneste, uttakInputTjeneste,fagsakRelasjonTjeneste);
+        fagsakRelasjonAvsluttningsdatoOppdaterer = new FagsakRelasjonAvsluttningsdatoOppdaterer(repositoryProvider, stønadskontoSaldoTjeneste,
+            uttakInputTjeneste, fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste);
 
         behandling = lagBehandling();
         fagsak = behandling.getFagsak();
@@ -102,7 +101,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()))
             .thenReturn(lagBehandlingsresultat(behandling, BehandlingResultatType.AVSLÅTT, KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
-        when(uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)));
+        when(foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId())).thenReturn(lagUttak(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)));
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.empty());
 
         // Act
@@ -120,7 +119,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()))
             .thenReturn(lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT));
-        when(uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)));
+        when(foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId())).thenReturn(lagUttak(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)));
         when(stønadskontoSaldoTjeneste.erSluttPåStønadsdager(any(UttakInput.class))).thenReturn(true);
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.empty());
 
@@ -139,7 +138,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()))
             .thenReturn(lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT));
-        when(uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)));
+        when(foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId())).thenReturn(lagUttak(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)));
         when(stønadskontoSaldoTjeneste.erSluttPåStønadsdager(any(UttakInput.class))).thenReturn(false);
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
         FamilieHendelseEntitet familieHendelse = mock(FamilieHendelseEntitet.class);
@@ -162,7 +161,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()))
             .thenReturn(lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT));
-        when(uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)));
+        when(foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId())).thenReturn(lagUttak(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)));
         when(stønadskontoSaldoTjeneste.erSluttPåStønadsdager(any(UttakInput.class))).thenReturn(false);
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
         FamilieHendelseEntitet familieHendelse = mock(FamilieHendelseEntitet.class);
@@ -187,7 +186,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()))
             .thenReturn(lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT));
-        when(uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)));
+        when(foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId())).thenReturn(lagUttak(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)));
         when(stønadskontoSaldoTjeneste.erSluttPåStønadsdager(any(UttakInput.class))).thenReturn(false);
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
         FamilieHendelseEntitet familieHendelse = mock(FamilieHendelseEntitet.class);
@@ -219,14 +218,11 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
             .buildFor(behandling));
     }
 
-    private Optional<UttakResultatEntitet> lagUttakResultat(LocalDate fom, LocalDate tom) {
-        UttakResultatEntitet uttakResultatEntitet = new UttakResultatEntitet();
-        UttakResultatPerioderEntitet uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet uttakResultatPeriodeEntitet2 = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+    private Optional<ForeldrepengerUttak> lagUttak(LocalDate fom, LocalDate tom) {
+        var periode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(fom, tom)
+            .medResultatType(PeriodeResultatType.INNVILGET)
             .build();
-        uttakResultatPerioderEntitet.leggTilPeriode(uttakResultatPeriodeEntitet2);
-        uttakResultatEntitet.setOpprinneligPerioder(uttakResultatPerioderEntitet);
-        return Optional.of(uttakResultatEntitet);
+        return Optional.of(new ForeldrepengerUttak(List.of(periode)));
     }
 }
