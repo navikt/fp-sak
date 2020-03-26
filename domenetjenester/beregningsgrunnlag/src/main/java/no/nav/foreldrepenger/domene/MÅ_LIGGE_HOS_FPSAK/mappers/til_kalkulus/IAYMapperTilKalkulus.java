@@ -119,7 +119,7 @@ public class IAYMapperTilKalkulus {
             .stream()
             .filter(overstyring -> overstyring.getArbeidsgiverNavn() != null) // Vi er kun interessert i overstyringer der SBH har endret navn på arbeidsgiver
             .findFirst()
-            .ifPresent(arbeidsforhold -> arbeidsgiverOpplysningerDtos.add(new ArbeidsgiverOpplysningerDto(arbeidsforhold.getArbeidsgiver().getOrgnr(), arbeidsforhold.getArbeidsgiverNavn())));
+            .ifPresent(arbeidsforhold -> arbeidsgiverOpplysningerDtos.add(new ArbeidsgiverOpplysningerDto(arbeidsforhold.getArbeidsgiver().getIdentifikator(), arbeidsforhold.getArbeidsgiverNavn())));
         return arbeidsgiverOpplysningerDtos;
 
     }
