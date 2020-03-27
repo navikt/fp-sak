@@ -523,7 +523,7 @@ public class BeregningsgrunnlagRepositoryImplTest {
         return Sammenligningsgrunnlag.builder()
             .medSammenligningsperiode(LocalDate.now().minusDays(12), LocalDate.now().minusDays(6))
             .medRapportertPrÅr(BigDecimal.valueOf(323212.12))
-            .medAvvikPromilleNy(BigDecimal.valueOf(120))
+            .medAvvikPromille(BigDecimal.valueOf(120))
             .build(beregningsgrunnlag);
     }
 }

@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Sammenligningsgrun
 public class BGMapperTilKalkulus {
     public static SammenligningsgrunnlagDto mapSammenligningsgrunnlag(Sammenligningsgrunnlag fraFpsak) {
         SammenligningsgrunnlagDto.Builder builder = SammenligningsgrunnlagDto.builder();
-        builder.medAvvikPromilleNy(fraFpsak.getAvvikPromilleNy());
+        builder.medAvvikPromilleNy(fraFpsak.getAvvikPromille());
         builder.medRapportertPrÅr(fraFpsak.getRapportertPrÅr());
         builder.medSammenligningsperiode(fraFpsak.getSammenligningsperiodeFom(), fraFpsak.getSammenligningsperiodeFom());
         return builder.build();
@@ -70,7 +70,7 @@ public class BGMapperTilKalkulus {
 
     public static SammenligningsgrunnlagPrStatusDto.Builder mapSammenligningsgrunnlagMedStatus(SammenligningsgrunnlagPrStatus fraFpsak) {
         SammenligningsgrunnlagPrStatusDto.Builder builder = new SammenligningsgrunnlagPrStatusDto.Builder();
-        builder.medAvvikPromilleNy(fraFpsak.getAvvikPromilleNy());
+        builder.medAvvikPromilleNy(fraFpsak.getAvvikPromille());
         builder.medRapportertPrÅr(fraFpsak.getRapportertPrÅr());
         builder.medSammenligningsgrunnlagType(SammenligningsgrunnlagType.fraKode(fraFpsak.getSammenligningsgrunnlagType().getKode()));
         builder.medSammenligningsperiode(fraFpsak.getSammenligningsperiodeFom(), fraFpsak.getSammenligningsperiodeTom());
