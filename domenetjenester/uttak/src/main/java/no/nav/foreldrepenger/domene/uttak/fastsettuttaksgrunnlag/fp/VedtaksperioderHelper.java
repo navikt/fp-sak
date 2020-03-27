@@ -234,6 +234,7 @@ public class VedtaksperioderHelper {
             .medMapping(UttakUtsettelseType.SYKDOM_SKADE, UtsettelseÅrsak.SYKDOM)
             .medMapping(UttakUtsettelseType.SØKER_INNLAGT, UtsettelseÅrsak.INSTITUSJON_SØKER)
             .medMapping(UttakUtsettelseType.BARN_INNLAGT, UtsettelseÅrsak.INSTITUSJON_BARN)
+            .medMapping(UttakUtsettelseType.HV_OVELSE, UtsettelseÅrsak.HV_OVELSE)
             .build();
     }
 

@@ -4,9 +4,11 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.IKKE_RETT_ANNEN_FORELDER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.SYKDOM_ANNEN_FORELDER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.HV_OVELSE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.INSTITUSJON_BARN;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.INSTITUSJON_SØKER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.SYKDOM;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.NAV_TILTAK;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -183,6 +185,12 @@ public class KontrollerOppgittFordelingTjeneste {
             }
             if (INSTITUSJON_SØKER.getKode().equals(årsak.getKode())) {
                 return UttakDokumentasjonType.INNLAGT_SØKER;
+            }
+            if (HV_OVELSE.getKode().equals(årsak.getKode())) {
+                return UttakDokumentasjonType.HV_OVELSE;
+            }
+            if (NAV_TILTAK.getKode().equals(årsak.getKode())) {
+                return UttakDokumentasjonType.NAV_TILTAK;
             }
             if (INSTITUSJONSOPPHOLD_ANNEN_FORELDER.getKode().equals(årsak.getKode())) {
                 return UttakDokumentasjonType.INSTITUSJONSOPPHOLD_ANNEN_FORELDRE;

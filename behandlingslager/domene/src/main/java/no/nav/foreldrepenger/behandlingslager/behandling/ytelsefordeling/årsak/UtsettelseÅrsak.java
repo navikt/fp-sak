@@ -24,6 +24,8 @@ public enum UtsettelseÅrsak implements Årsak {
     SYKDOM("SYKDOM", "Avhengig av hjelp grunnet sykdom"),
     INSTITUSJON_SØKER("INSTITUSJONSOPPHOLD_SØKER", "Søker er innlagt i helseinstitusjon"),
     INSTITUSJON_BARN("INSTITUSJONSOPPHOLD_BARNET", "Barn er innlagt i helseinstitusjon"),
+    HV_OVELSE("HV_OVELSE", "Heimevernet"),
+    NAV_TILTAK("NAV_TILTAK", "Tiltak i regi av nav"),
     UDEFINERT("-", "Ikke satt eller valgt kode"),
     ;
     private static final Map<String, UtsettelseÅrsak> KODER = new LinkedHashMap<>();
