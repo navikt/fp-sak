@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.BekreftFaktaForOmsorgVurderingDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
@@ -54,7 +55,7 @@ public class YtelseFordelingDtoTjenesteImplTest {
     private FaktaUttakToTrinnsTjeneste faktaUttakToTrinnsTjeneste = new FaktaUttakToTrinnsTjeneste(ytelseFordelingTjeneste);
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste =  mock(ArbeidsgiverHistorikkinnslag.class);
     private FaktaUttakHistorikkTjeneste faktaUttakHistorikkTjeneste;
-    private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste = new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste, repositoryProvider.getUttakRepository());
+    private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste = new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste, new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()));
     private KontrollerOppgittFordelingTjeneste kontrollerOppgittFordelingTjeneste = new KontrollerOppgittFordelingTjeneste(ytelseFordelingTjeneste,
         repositoryProvider, førsteUttaksdatoTjeneste);
     private YtelsesFordelingRepository fordelingRepository = new YtelsesFordelingRepository(repoRule.getEntityManager());

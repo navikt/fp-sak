@@ -12,24 +12,23 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 @ApplicationScoped
 public class FørsteUttaksdatoTjenesteImpl implements FørsteUttaksdatoTjeneste {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
 
     FørsteUttaksdatoTjenesteImpl() {
         // CDI
     }
 
     @Inject
-    public FørsteUttaksdatoTjenesteImpl(YtelseFordelingTjeneste ytelseFordelingTjeneste, UttakRepository uttakRepository) {
+    public FørsteUttaksdatoTjenesteImpl(YtelseFordelingTjeneste ytelseFordelingTjeneste, ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.uttakRepository = uttakRepository;
+        this.uttakTjeneste = uttakTjeneste;
     }
 
     @Override
@@ -37,7 +36,7 @@ public class FørsteUttaksdatoTjenesteImpl implements FørsteUttaksdatoTjeneste 
         YtelseFordelingAggregat ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
         Optional<LocalDate> førsteUttaksdato;
         if (førsteUttaksdatoErAvklart(ytelseFordelingAggregat)) {
-            førsteUttaksdato = Optional.ofNullable(ytelseFordelingAggregat.getAvklarteDatoer().get().getFørsteUttaksdato());
+            førsteUttaksdato = Optional.ofNullable(ytelseFordelingAggregat.getAvklarteDatoer().orElseThrow().getFørsteUttaksdato());
         } else if (behandling.erRevurdering()) {
             førsteUttaksdato = finnFørsteUttaksdatoRevurdering(behandling);
         } else {
@@ -61,11 +60,11 @@ public class FørsteUttaksdatoTjenesteImpl implements FørsteUttaksdatoTjeneste 
     private Optional<LocalDate> finnFørsteUttaksdatoRevurdering(Behandling behandling) {
         Behandling revurdering = behandling.getOriginalBehandling()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
-        Optional<UttakResultatEntitet> uttak = uttakRepository.hentUttakResultatHvisEksisterer(revurdering.getId());
-        if (!uttak.isPresent()) {
+        var uttak = uttakTjeneste.hentUttakHvisEksisterer(revurdering.getId());
+        if (uttak.isEmpty()) {
             return finnFørsteUttaksdatoFørstegangsbehandling(behandling);
         }
-        return Optional.of(uttak.get().getGjeldendePerioder().getPerioder().get(0).getFom());
+        return Optional.of(uttak.get().getGjeldendePerioder().get(0).getFom());
     }
 
     private List<OppgittPeriodeEntitet> sortert(List<OppgittPeriodeEntitet> oppgittePerioder) {
