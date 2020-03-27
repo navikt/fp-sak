@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.*;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -164,11 +166,13 @@ public final class UttakEnumMapper {
 
     private static KodeMapper<UtsettelseÅrsak, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak> initUtsettelseÅrsakMapper() {
         return KodeMapper
-            .medMapping(UtsettelseÅrsak.FERIE, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.FERIE)
-            .medMapping(UtsettelseÅrsak.ARBEID, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.ARBEID)
-            .medMapping(UtsettelseÅrsak.SYKDOM, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.SYKDOM_SKADE)
-            .medMapping(UtsettelseÅrsak.INSTITUSJON_SØKER, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.INNLAGT_SØKER)
-            .medMapping(UtsettelseÅrsak.INSTITUSJON_BARN, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.INNLAGT_BARN)
+            .medMapping(FERIE, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.FERIE)
+            .medMapping(ARBEID, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.ARBEID)
+            .medMapping(SYKDOM, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.SYKDOM_SKADE)
+            .medMapping(INSTITUSJON_SØKER, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.INNLAGT_SØKER)
+            .medMapping(INSTITUSJON_BARN, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.INNLAGT_BARN)
+            .medMapping(HV_OVELSE, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.HV_OVELSE)
+            .medMapping(NAV_TILTAK, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.NAV_TILTAK)
             .build();
     }
 
@@ -223,6 +227,10 @@ public final class UttakEnumMapper {
                 return UttakUtsettelseType.SYKDOM_SKADE;
             case INNLAGT_SØKER:
                 return UttakUtsettelseType.SØKER_INNLAGT;
+            case HV_OVELSE:
+                return UttakUtsettelseType.HV_OVELSE;
+            case NAV_TILTAK:
+                return UttakUtsettelseType.NAV_TILTAK;
             default:
                 throw new IllegalArgumentException("Utvikler-feil: Kom ut av regel med perioderesultattype " + utsettelseårsaktype);
         }

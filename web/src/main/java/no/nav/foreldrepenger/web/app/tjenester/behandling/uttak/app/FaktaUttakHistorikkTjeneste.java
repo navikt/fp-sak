@@ -165,7 +165,7 @@ public class FaktaUttakHistorikkTjeneste {
     private void byggHistorikkinnslagForOverføring(Behandling behandling, BekreftetOppgittPeriodeDto dto, HistorikkInnslagTekstBuilder tekstBuilder) {
         HistorikkAvklartSoeknadsperiodeType historikkOverføringType = overføringÅrsakMapper.map(dto.getBekreftetPeriode().getOverføringÅrsak())
             .orElse(HistorikkAvklartSoeknadsperiodeType.UDEFINERT);
-        byggHistorikkinnslagForSykdomEllerInnleggelse(behandling, dto, historikkOverføringType, tekstBuilder);
+        byggHistorikkinnslagDokumentertPeriode(behandling, dto, historikkOverføringType, tekstBuilder);
     }
 
     private static KodeMapper<OverføringÅrsak, HistorikkAvklartSoeknadsperiodeType> initOverføringÅrsakMapper() {
@@ -184,11 +184,15 @@ public class FaktaUttakHistorikkTjeneste {
         } else if (UtsettelseÅrsak.ARBEID.equals(utsettelseÅrsak)) {
             byggHistorikkinnslagForFerieEllerArbeid(behandling, dto, HistorikkAvklartSoeknadsperiodeType.UTSETTELSE_ARBEID, false, tekstBuilder, overstyringer);
         } else if (UtsettelseÅrsak.SYKDOM.equals(utsettelseÅrsak)) {
-            byggHistorikkinnslagForSykdomEllerInnleggelse(behandling, dto, HistorikkAvklartSoeknadsperiodeType.UTSETTELSE_SKYDOM, tekstBuilder);
+            byggHistorikkinnslagDokumentertPeriode(behandling, dto, HistorikkAvklartSoeknadsperiodeType.UTSETTELSE_SKYDOM, tekstBuilder);
         } else if (UtsettelseÅrsak.INSTITUSJON_BARN.equals(utsettelseÅrsak)) {
-            byggHistorikkinnslagForSykdomEllerInnleggelse(behandling, dto, HistorikkAvklartSoeknadsperiodeType.UTSETTELSE_INSTITUSJON_BARN, tekstBuilder);
+            byggHistorikkinnslagDokumentertPeriode(behandling, dto, HistorikkAvklartSoeknadsperiodeType.UTSETTELSE_INSTITUSJON_BARN, tekstBuilder);
         } else if (UtsettelseÅrsak.INSTITUSJON_SØKER.equals(utsettelseÅrsak)) {
-            byggHistorikkinnslagForSykdomEllerInnleggelse(behandling, dto, HistorikkAvklartSoeknadsperiodeType.UTSETTELSE_INSTITUSJON_SØKER, tekstBuilder);
+            byggHistorikkinnslagDokumentertPeriode(behandling, dto, HistorikkAvklartSoeknadsperiodeType.UTSETTELSE_INSTITUSJON_SØKER, tekstBuilder);
+        } else if (UtsettelseÅrsak.HV_OVELSE.equals(utsettelseÅrsak)) {
+            byggHistorikkinnslagDokumentertPeriode(behandling, dto, HistorikkAvklartSoeknadsperiodeType.UTSETTELSE_HV, tekstBuilder);
+        } else if (UtsettelseÅrsak.NAV_TILTAK.equals(utsettelseÅrsak)) {
+            byggHistorikkinnslagDokumentertPeriode(behandling, dto, HistorikkAvklartSoeknadsperiodeType.UTSETTELSE_TILTAK_I_REGI_AV_NAV, tekstBuilder);
         }
     }
 
@@ -196,10 +200,10 @@ public class FaktaUttakHistorikkTjeneste {
         return dto.getBekreftetPeriode().getArbeidstidsprosent() != null && dto.getBekreftetPeriode().getArbeidstidsprosent().compareTo(BigDecimal.ZERO) > 0;
     }
 
-    private void byggHistorikkinnslagForSykdomEllerInnleggelse(Behandling behandling,
-                                                               BekreftetOppgittPeriodeDto dto,
-                                                               HistorikkAvklartSoeknadsperiodeType søknadsperiodeType,
-                                                               HistorikkInnslagTekstBuilder tekstBuilder) {
+    private void byggHistorikkinnslagDokumentertPeriode(Behandling behandling,
+                                                        BekreftetOppgittPeriodeDto dto,
+                                                        HistorikkAvklartSoeknadsperiodeType søknadsperiodeType,
+                                                        HistorikkInnslagTekstBuilder tekstBuilder) {
         if (erEndretBegrunnelse(dto) || erEndretResultat(dto)) {
             KontrollerFaktaPeriodeLagreDto bekreftetPeriode = dto.getBekreftetPeriode();
             List<UttakDokumentasjonDto> dokumentertePerioder = bekreftetPeriode.getDokumentertePerioder();
@@ -210,11 +214,11 @@ public class FaktaUttakHistorikkTjeneste {
 
             if (bekreftetPeriode.erAvklartDokumentert() && !dokumenterteDatoer.isEmpty()) {
                 tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FASTSETT_RESULTAT_PERIODEN, null,
-                    finnHistorikkFeltTypeForSykdomEllerInnleggelse(bekreftetPeriode, true));
+                    finnHistorikkFeltTypeForPeriodeSomKreverDokumentasjon(bekreftetPeriode, true));
                 tekstBuilder.medEndretFelt(HistorikkEndretFeltType.AVKLART_PERIODE, null, konvertPerioderTilString(dokumenterteDatoer));
             } else {
                 tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FASTSETT_RESULTAT_PERIODEN, null,
-                    finnHistorikkFeltTypeForSykdomEllerInnleggelse(bekreftetPeriode, false));
+                    finnHistorikkFeltTypeForPeriodeSomKreverDokumentasjon(bekreftetPeriode, false));
             }
             opprettHistorikkInnslag(behandling, tekstBuilder);
         }
@@ -385,14 +389,22 @@ public class FaktaUttakHistorikkTjeneste {
             : HistorikkEndretFeltVerdiType.FASTSETT_RESULTAT_ENDRE_SOEKNADSPERIODEN;
     }
 
-    private HistorikkEndretFeltVerdiType finnHistorikkFeltTypeForSykdomEllerInnleggelse(KontrollerFaktaPeriodeLagreDto bekreftetPeriode, boolean dokumentert) {
-        if (erUtsettelseSkydom(bekreftetPeriode) || erOverføringSkydom(bekreftetPeriode)) {
+    private HistorikkEndretFeltVerdiType finnHistorikkFeltTypeForPeriodeSomKreverDokumentasjon(KontrollerFaktaPeriodeLagreDto bekreftetPeriode, boolean dokumentert) {
+        if (erUtsettelseMedÅrsak(bekreftetPeriode, UtsettelseÅrsak.SYKDOM) || erOverføringSkydom(bekreftetPeriode)) {
             return dokumentert ? HistorikkEndretFeltVerdiType.FASTSETT_RESULTAT_PERIODEN_SYKDOM_DOKUMENTERT
                 : HistorikkEndretFeltVerdiType.FASTSETT_RESULTAT_PERIODEN_SYKDOM_DOKUMENTERT_IKKE;
         }
         if (erUtsettelseInnleggelse(bekreftetPeriode) || erOverføringInnleggelse(bekreftetPeriode)) {
             return dokumentert ? HistorikkEndretFeltVerdiType.FASTSETT_RESULTAT_PERIODEN_INNLEGGELSEN_DOKUMENTERT
                 : HistorikkEndretFeltVerdiType.FASTSETT_RESULTAT_PERIODEN_INNLEGGELSEN_DOKUMENTERT_IKKE;
+        }
+        if (erUtsettelseMedÅrsak(bekreftetPeriode, UtsettelseÅrsak.HV_OVELSE)) {
+            return dokumentert ? HistorikkEndretFeltVerdiType.FASTSETT_RESULTAT_PERIODEN_HV_DOKUMENTERT
+                : HistorikkEndretFeltVerdiType.FASTSETT_RESULTAT_PERIODEN_HV_DOKUMENTERT_IKKE;
+        }
+        if (erUtsettelseMedÅrsak(bekreftetPeriode, UtsettelseÅrsak.NAV_TILTAK)) {
+            return dokumentert ? HistorikkEndretFeltVerdiType.FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT
+                : HistorikkEndretFeltVerdiType.FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT_IKKE;
         }
         return null;
     }
@@ -410,8 +422,8 @@ public class FaktaUttakHistorikkTjeneste {
             && OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER.equals(bekreftetPeriode.getOverføringÅrsak());
     }
 
-    private boolean erUtsettelseSkydom(KontrollerFaktaPeriodeLagreDto bekreftetPeriode) {
-        return erUtsettelse(bekreftetPeriode) && UtsettelseÅrsak.SYKDOM.equals(bekreftetPeriode.getUtsettelseÅrsak());
+    private boolean erUtsettelseMedÅrsak(KontrollerFaktaPeriodeLagreDto bekreftetPeriode, UtsettelseÅrsak årsak) {
+        return erUtsettelse(bekreftetPeriode) && årsak.equals(bekreftetPeriode.getUtsettelseÅrsak());
     }
 
     private boolean erUtsettelse(KontrollerFaktaPeriodeLagreDto bekreftetPeriode) {
