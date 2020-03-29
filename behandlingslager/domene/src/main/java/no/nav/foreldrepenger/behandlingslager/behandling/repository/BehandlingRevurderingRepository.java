@@ -206,6 +206,7 @@ public class BehandlingRevurderingRepository {
          * - Saker som har en avsluttet behandling med gammel sats og er avkortet til 6G og har uttak etter gammel sats sin utløpsdato
          * - Saken har ikke noen avsluttet behandling med ny sats
          * - Saken har ikke noen åpne ytelsesbehandlinger
+         * OBS: Skal se etter første uttaksdato -> må ta med perioder uten utbetaling
          */
         List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
         List<String> ytelseBehandling = BehandlingType.getYtelseBehandlingTyper().stream().map(BehandlingType::getKode).collect(Collectors.toList());

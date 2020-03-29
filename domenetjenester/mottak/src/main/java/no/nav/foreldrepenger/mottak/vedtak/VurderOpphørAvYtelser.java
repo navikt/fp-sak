@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,6 +20,9 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -55,6 +59,7 @@ public class VurderOpphørAvYtelser  {
     private FagsakRepository fagsakRepository;
     private PersonopplysningRepository personopplysningRepository;
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private RevurderingTjeneste revurderingTjenesteFP;
     private RevurderingTjeneste revurderingTjenesteSVP;
@@ -80,6 +85,7 @@ public class VurderOpphørAvYtelser  {
         this.fagsakRepository = behandlingRepositoryProvider.getFagsakRepository();
         this.personopplysningRepository = behandlingRepositoryProvider.getPersonopplysningRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatRepository = behandlingRepositoryProvider.getBeregningsresultatRepository();
         this.prosessTaskRepository = prosessTaskRepository;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
@@ -97,6 +103,9 @@ public class VurderOpphørAvYtelser  {
         }
         // Finner første fradato i vedtatt uttaksperiode for iverksatt behandling
         LocalDate startDatoIVB = finnMinDato(behandlingId);
+        if (Tid.TIDENES_ENDE.equals(startDatoIVB)) {
+            return;
+        }
 
         List<AktørId> aktørIdList = new ArrayList<>();
 
@@ -116,7 +125,7 @@ public class VurderOpphørAvYtelser  {
         }
         //Sjekker om det finnes overlapp på far og medforelder i Infotrygd
         aktørIdListSjekkInfotrygd.forEach(aktørId -> {
-            Boolean overlappInfotrygd = sjekkOverlappInfortrygd.harForeldrepengerInfotrygdSomOverlapper(aktørId, startDatoIVB) ;
+            boolean overlappInfotrygd = sjekkOverlappInfortrygd.harForeldrepengerInfotrygdSomOverlapper(aktørId, startDatoIVB) ;
             if(overlappInfotrygd) {
                 håndtereOpphørInfotrygd(behandlingId, gjeldendeFagsak, aktørId);
             }
@@ -154,14 +163,14 @@ public class VurderOpphørAvYtelser  {
                     log.info("Overlapp FPSAK: Vurder opphør av ytelse kunne ikke opprette revurdering på sak med saksnummer {} pga behandlingId {}", sakOpphør.getSaksnummer(), behandlingId);
                 }
             } else {
-                oppdatereBehMedÅrsak(behandling, lås);
+                oppdatereBehMedÅrsak(behandlingId, lås);
             }
         }
     }
 
     private List<Fagsak> løpendeSakerSomOverlapperUttakPåNySak(AktørId aktørId, Saksnummer saksnummer, LocalDate startDato) {
         return fagsakRepository.hentForBruker(aktørId).stream()
-            .filter(Fagsak::erÅpen)
+            .filter(f -> !FagsakYtelseType.ENGANGSTØNAD.equals(f.getYtelseType()))
             .filter(f -> !saksnummer.equals(f.getSaksnummer()))
             .filter(f -> erMaxDatoPåLøpendeSakEtterStartDatoNysak(f, startDato))
             .collect(Collectors.toList());
@@ -169,24 +178,24 @@ public class VurderOpphørAvYtelser  {
 
     private boolean erMaxDatoPåLøpendeSakEtterStartDatoNysak(Fagsak fagsak, LocalDate startDato) {
         var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
+        // TODO (aga): Sjekke logger og vurder fjerning av denne loggingen.
         behandling.ifPresent(behandling1 -> {
-            var maxDato= finnMaxDato(behandling1);
+            var maxDato= finnMaxDato(behandling1.getId());
             if(!maxDato.isBefore(startDato)) {
                 log.info("Oppdaget overlapp. Mulig Avslått periode for fagsak {} med maxDato {} ", fagsak.getId(), maxDato );
             }
         });
-        return behandling.
-            map(behandling1 -> evaluerHarSakOverlapp(fagsak, behandling1, startDato)).orElse(Boolean.FALSE);
+        return behandling.map(behandling1 -> evaluerHarSakOverlapp(behandling1, startDato)).orElse(Boolean.FALSE);
     }
 
-    private boolean evaluerHarSakOverlapp(Fagsak fagsak, Behandling behandling, LocalDate startDato) {
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()))
-            return false;
-
-        return !finnMaxDatoUtenAvslåtte(behandling).isBefore(startDato); // true hvis lik el senere
+    private boolean evaluerHarSakOverlapp(Behandling behandling, LocalDate startDato) {
+        return !finnMaxDatoUtenAvslåtte(behandling.getId()).isBefore(startDato); // true hvis lik el senere
     }
 
     private LocalDate finnMinDato(Long behandlingId) {
+        if (henlagtEllerOpphørFomFørsteUttak(behandlingId))
+            return Tid.TIDENES_ENDE;
+
         Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
         Optional<LocalDate> minFom = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
@@ -195,8 +204,17 @@ public class VurderOpphørAvYtelser  {
         return minFom.orElse(Tid.TIDENES_ENDE);
     }
 
-    private LocalDate finnMaxDato(Behandling behandling) {
-        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
+    private boolean henlagtEllerOpphørFomFørsteUttak(Long behandlingId) {
+        var resultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId).map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.INNVILGET);
+        if (resultat.erHenlagt())
+            return true;
+        // Aktuelt for revurderinger med Opphør fom start. Enkelte har opphør fom senere dato.
+        return Set.of(BehandlingResultatType.OPPHØR, BehandlingResultatType.AVSLÅTT).contains(resultat)
+            && Tid.TIDENES_BEGYNNELSE.equals(finnMaxDatoUtenAvslåtte(behandlingId));
+    }
+
+    private LocalDate finnMaxDato(Long behandlingId) {
+        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
         Optional<LocalDate> maxTom = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
             .max(Comparator.naturalOrder())
@@ -204,8 +222,8 @@ public class VurderOpphørAvYtelser  {
         return maxTom.orElse(Tid.TIDENES_BEGYNNELSE);
     }
 
-    private LocalDate finnMaxDatoUtenAvslåtte(Behandling behandling) {
-        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
+    private LocalDate finnMaxDatoUtenAvslåtte(Long behandlingId) {
+        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
         Optional<LocalDate> maxTom = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
@@ -245,7 +263,9 @@ public class VurderOpphørAvYtelser  {
         prosessTaskRepository.lagre(prosessTaskData);
     }
 
-    private void oppdatereBehMedÅrsak(Behandling behandling, BehandlingLås lås) {
+    private void oppdatereBehMedÅrsak(Long behandlingId, BehandlingLås lås) {
+        behandlingRepository.verifiserBehandlingLås(lås);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         BehandlingÅrsak.builder(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN).buildFor(behandling);
         behandlingRepository.lagre(behandling, lås);
     }
