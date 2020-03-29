@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -48,22 +47,14 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
         var ident = getFnrFraAktørId(aktørId);
         List<Grunnlag> rest = tjeneste.hentGrunnlag(ident.getIdent(), vedtakDato.minusWeeks(1), vedtakDato.plusYears(3));
 
-        var mappedGrunnlag = rest.stream()
-            .filter(g -> overlapper(g, vedtakDato))
-            .collect(Collectors.toList());
-
-        return !mappedGrunnlag.isEmpty();
+        return rest.stream().anyMatch(g -> overlapper(g, vedtakDato));
     }
 
     public boolean harSvangerskapspengerInfotrygdSomOverlapper(AktørId aktørId, LocalDate vedtakDato) {
         var ident = getFnrFraAktørId(aktørId);
         List<Grunnlag> rest = svp.hentGrunnlag(ident.getIdent(), vedtakDato.minusWeeks(1), vedtakDato.plusYears(3));
 
-        var mappedGrunnlag = rest.stream()
-            .filter(g -> overlapper(g, vedtakDato))
-            .collect(Collectors.toList());
-
-        return !mappedGrunnlag.isEmpty();
+        return rest.stream().anyMatch(g -> overlapper(g, vedtakDato));
     }
 
     private boolean overlapper(Grunnlag grunnlag, LocalDate vedtakDato) {
@@ -77,7 +68,7 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
     }
 
     private Optional<LocalDate> finnMaxDatoUtbetaling(Grunnlag grunnlag) {
-        return grunnlag.getVedtak().stream().map(Vedtak::getPeriode).map(Periode::getTom).max(Comparator.naturalOrder()).map(this::tomFredag);
+        return grunnlag.getVedtak().stream().filter(this::harUtbetaling).map(Vedtak::getPeriode).map(Periode::getTom).max(Comparator.naturalOrder()).map(this::tomFredag);
     }
 
     private LocalDate finnMaxDato(Grunnlag grunnlag) {
@@ -100,6 +91,10 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
 
     private PersonIdent getFnrFraAktørId(AktørId aktørId) {
         return aktørConsumer.hentPersonIdentForAktørId(aktørId.getId()).map(PersonIdent::new).orElseThrow();
+    }
+
+    private boolean harUtbetaling(Vedtak v) {
+        return v.getUtbetalingsgrad() > 0;
     }
 
     private LocalDate localDateMinus1Virkedag(LocalDate opphoerFomDato) {

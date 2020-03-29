@@ -191,13 +191,12 @@ public class InformasjonssakRepository {
         return returnList;
     }
 
-    public List<OverlappData> finnSakerMedSisteVedtakOpprettetInnenIntervall(LocalDate fom, LocalDate tom) {
+    public List<OverlappData> finnSakerOpprettetInnenIntervallMedSisteVedtak(LocalDate fom, LocalDate tom) {
         /*
-         * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
-         *  - Saker (Foreldrepenger, Mors sak, Ikke Stengt) med avsluttet behandling som har max uttaksdato i gitt intervall
-         *  - Begrenset til ikke aleneomsorg
-         *  - Begrenset til levende barm
-         *  - Begrenset til at det er oppgitt annen part
+         * Plukker saksnummer, siste ytelsebehandling, annenpart og første uttaksdato:
+         *  - Saker der det finnes et beregnignsresultat/TY med utbetalt periode - inkusive noen få opphør fom etter tidligste periode
+         *  - Første uttaksdato = tidligste periode, inkusive innvilget utsettelse.
+         *  - Kan gi noen tilfelle med avslått første periode
          */
         List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
         Query query = entityManager.createNativeQuery(
@@ -212,21 +211,26 @@ public class InformasjonssakRepository {
                 " left outer join so_annen_part anpa on (grpo.so_annen_part_id=anpa.id and anpa.aktoer_id is not null) " +
                 " left outer join br_resultat_behandling brr on (brr.behandling_id=beh.id and brr.aktiv='J') " +
                 " left outer join (select BEREGNINGSRESULTAT_FP_ID brpid, min(BR_PERIODE_FOM) minbrfom from br_periode brp " +
-                //"         left join br_andel ba on ba.br_periode_id = brp.id " +
-                //"         where ba.dagsats > 0  " +
                 "         group by BEREGNINGSRESULTAT_FP_ID " +
-                "      ) on brpid=nvl(brr.UTBET_BEREGNINGSRESULTAT_FP_ID, brr.BG_BEREGNINGSRESULTAT_FP_ID) " +
+                "      ) on brpid = brr.BG_BEREGNINGSRESULTAT_FP_ID " +
+                " left outer join (select BEREGNINGSRESULTAT_FP_ID utbbrpid, min(BR_PERIODE_FOM) utbminbrfom from br_periode brp " +
+                "         left join br_andel ba on ba.br_periode_id = brp.id " +
+                "         where ba.dagsats > 0  " +
+                "         group by BEREGNINGSRESULTAT_FP_ID " +
+                "      ) on utbbrpid = brr.BG_BEREGNINGSRESULTAT_FP_ID " +
                 " where beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper) " +
                 " and fs.ytelse_type in (:foreldrepenger) and minbrfom is not null " +
+                " and ( br.behandling_resultat_type in (:innvilgetyper) or utbminbrfom is not null ) " +
                 " and fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato "
         ); //$NON-NLS-1$
         query.setParameter("fomdato", fom); //$NON-NLS-1$
-        query.setParameter("tomdato", tom.plusDays(1)); //$NON-NLS-1$7
+        query.setParameter("tomdato", tom.plusDays(1)); //$NON-NLS-1$
         query.setParameter("foreldrepenger", List.of(FagsakYtelseType.FORELDREPENGER.getKode(), FagsakYtelseType.SVANGERSKAPSPENGER.getKode())); //$NON-NLS-1$
         query.setParameter("restyper", List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.INGEN_ENDRING.getKode(),
             BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.AVSLÅTT.getKode(), BehandlingResultatType.OPPHØR.getKode())); //$NON-NLS-1$
+        query.setParameter("innvilgetyper", INNVILGET_TYPER); //$NON-NLS-1$
         query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
-        query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode()));
+        query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return toOverlappData(resultatList);
@@ -242,9 +246,48 @@ public class InformasjonssakRepository {
                 .medRolle((String) resultat[3])  // NOSONAR
                 .medBehandlingId(((BigDecimal) resultat[4]).longValue()) // NOSONAR
                 .medAktørIdAnnenPart((String) resultat[5])  // NOSONAR
-                .medMinUtbetalingDato(((Timestamp) resultat[6]).toLocalDateTime().toLocalDate()); // NOSONAR
+                .medTidligsteDato(((Timestamp) resultat[6]).toLocalDateTime().toLocalDate()); // NOSONAR
             returnList.add(builder.build());
         });
         return returnList;
     }
+
+    public List<OverlappData> finnSakerOpprettetInnenIntervallMedKunUtbetalte(LocalDate fom, LocalDate tom) {
+        /*
+         * Plukker saksnummer, siste ytelsebehandling, annenpart og første uttaksdato:
+         *  - Saker der det finnes et beregnignsresultat/TY med utbetalt periode - inkusive noen få opphør fom etter tidligste periode
+         *  - Første uttaksdato = tidligste periode, inkusive innvilget utsettelse.
+         *  - Kan gi noen tilfelle med avslått første periode
+         */
+        List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
+        Query query = entityManager.createNativeQuery(
+            " select distinct saksnummer, ytelse_type, bru.aktoer_id braid, bruker_rolle, beh.id, null, minbrfom " +
+                "from fagsak fs join bruker bru on fs.bruker_id = bru.id join behandling beh on fagsak_id=fs.id" +
+                " join behandling_resultat br on (br.behandling_id=beh.id and br.behandling_resultat_type in (:restyper)) " +
+                " join (select beh1.fagsak_id fsmax, max(br1.opprettet_tid) maxbr from behandling beh1 " +
+                "      join behandling_resultat br1 on (br1.behandling_id=beh1.id and br1.behandling_resultat_type in (:restyper)) " +
+                "      where beh1.behandling_type in (:behtyper) and beh1.behandling_status in (:avsluttet) group by beh1.fagsak_id ) " +
+                "    on (fsmax=beh.fagsak_id and br.opprettet_tid = maxbr) " +
+                " left outer join br_resultat_behandling brr on (brr.behandling_id=beh.id and brr.aktiv='J') " +
+                " left outer join (select BEREGNINGSRESULTAT_FP_ID utbbrpid, min(BR_PERIODE_FOM) minbrfom from br_periode brp " +
+                "         left join br_andel ba on ba.br_periode_id = brp.id " +
+                "         where ba.dagsats > 0  " +
+                "         group by BEREGNINGSRESULTAT_FP_ID " +
+                "      ) on utbbrpid = brr.BG_BEREGNINGSRESULTAT_FP_ID " +
+                " where beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper) " +
+                " and fs.ytelse_type in (:foreldrepenger) and minbrfom is not null " +
+                " and fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato "
+        ); //$NON-NLS-1$
+        query.setParameter("fomdato", fom); //$NON-NLS-1$
+        query.setParameter("tomdato", tom.plusDays(1)); //$NON-NLS-1$
+        query.setParameter("foreldrepenger", List.of(FagsakYtelseType.FORELDREPENGER.getKode(), FagsakYtelseType.SVANGERSKAPSPENGER.getKode())); //$NON-NLS-1$
+        query.setParameter("restyper", List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.INGEN_ENDRING.getKode(),
+            BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.AVSLÅTT.getKode(), BehandlingResultatType.OPPHØR.getKode())); //$NON-NLS-1$
+        query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
+        query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultatList = query.getResultList();
+        return toOverlappData(resultatList);
+    }
+
 }

@@ -19,11 +19,9 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygd;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygdRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -42,77 +40,61 @@ Det er manuell håndtering av funnene videre.
 Håndtering av overlapp av Foreldrepenger-foreldrepenger håndteres av klassen VurderOpphørAvYtelser som trigges av en prosesstask.
  */
 @ApplicationScoped
-public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
+public class LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste {
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingRepository behandlingRepository;
     private AktørConsumer aktørConsumer;
-    private InfotrygdSVPGrunnlag infotrygdSVPGrTjeneste;
-    private InfotrygdFPGrunnlag infotrygdFPGrTjeneste;
+    private InfotrygdPSGrunnlag infotrygdPSGrTjeneste;
+    private InfotrygdSPGrunnlag infotrygdSPGrTjeneste;
     private BehandlingOverlappInfotrygdRepository overlappRepository;
-    private static final Logger log = LoggerFactory.getLogger(LoggHistoriskOverlappFPInfotrygdVLTjeneste.class);
+    private static final Logger log = LoggerFactory.getLogger(LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste.class);
 
 
-    LoggHistoriskOverlappFPInfotrygdVLTjeneste() {
+    LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste() {
         // for CDI
     }
 
     @Inject
-    public LoggHistoriskOverlappFPInfotrygdVLTjeneste(BeregningsresultatRepository beregningsresultatRepository,
-                                                      BehandlingRepository behandlingRepository,
-                                                      AktørConsumer aktørConsumer,
-                                                      InfotrygdSVPGrunnlag infotrygdSVPGrTjeneste,
-                                                      InfotrygdFPGrunnlag infotrygdFPGrTjeneste,
-                                                      BehandlingOverlappInfotrygdRepository overlappRepository) {
+    public LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste(BeregningsresultatRepository beregningsresultatRepository,
+                                                          BehandlingRepository behandlingRepository,
+                                                          AktørConsumer aktørConsumer,
+                                                          InfotrygdPSGrunnlag infotrygdPSGrTjeneste,
+                                                          InfotrygdSPGrunnlag infotrygdSPGrTjeneste,
+                                                          BehandlingOverlappInfotrygdRepository overlappRepository) {
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.behandlingRepository = behandlingRepository;
         this.aktørConsumer = aktørConsumer;
-        this.infotrygdSVPGrTjeneste = infotrygdSVPGrTjeneste;
-        this.infotrygdFPGrTjeneste = infotrygdFPGrTjeneste;
+        this.infotrygdPSGrTjeneste = infotrygdPSGrTjeneste;
+        this.infotrygdSPGrTjeneste = infotrygdSPGrTjeneste;
         this.overlappRepository = overlappRepository;
     }
 
-    public void vurderOglagreEventueltOverlapp(Long behandlingId, AktørId annenPart, LocalDate minFraQuery) {
+    public void vurderOglagreEventueltOverlapp(Long behandlingId, LocalDate minFraQuery) {
         try {
             var behandling = behandlingRepository.hentBehandling(behandlingId);
             LocalDate førsteUttaksDatoFP = fomMandag(minFraQuery);
-            //Henter alle utbetalingsperioder på behandling som er iverksatt
-            LocalDateTimeline<Boolean> perioderFp = hentPerioderFp(behandling.getId(), førsteUttaksDatoFP);
-            harFPYtelserSomOverlapperIT(behandling, førsteUttaksDatoFP, perioderFp, behandling.getAktørId(), "FP")
-                .forEach(behandlingOverlappInfotrygd -> overlappRepository.lagre(behandlingOverlappInfotrygd));
-            if (RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType()) && annenPart != null && FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()))  {
-                harFPYtelserSomOverlapperIT(behandling, førsteUttaksDatoFP, perioderFp, annenPart, "FPA")
-                    .forEach(behandlingOverlappInfotrygd -> overlappRepository.lagre(behandlingOverlappInfotrygd));
-            }
-            if (RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType())) {
-                harSVPYtelserSomOverlapperIT(behandling, førsteUttaksDatoFP, perioderFp)
-                    .forEach(behandlingOverlappInfotrygd -> overlappRepository.lagre(behandlingOverlappInfotrygd));
-            }
+            vurderOmOverlappInfotrygd(behandling, førsteUttaksDatoFP).forEach(behandlingOverlappInfotrygd -> overlappRepository.lagre(behandlingOverlappInfotrygd));
         } catch (Exception e) {
             log.info("Identifisering av overlapp i Infotrygd feilet ", e);
         }
     }
 
-
-    private List<BehandlingOverlappInfotrygd> harFPYtelserSomOverlapperIT(Behandling behandling, LocalDate førsteUttaksdatoFp,
-                                                                          LocalDateTimeline<Boolean> perioderFP, AktørId finnForAktørId, String tema) {
-        List<BehandlingOverlappInfotrygd> overlappene = new ArrayList<>();
-        var ident = getFnrFraAktørId(finnForAktørId);
-
-        List<Grunnlag> infotrygdFPGrunnlag = infotrygdFPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp.plusYears(3));
-
-        finnOverlappene(behandling, perioderFP, tema, infotrygdFPGrunnlag, overlappene);
-
-        return overlappene;
+    public List<BehandlingOverlappInfotrygd> vurderOmOverlappInfotrygd(Behandling behandling, LocalDate førsteUttaksDatoFP) {
+        //Henter alle utbetalingsperioder på behandling som er iverksatt
+        LocalDateTimeline<Boolean> perioderFp = hentPerioderFp(behandling.getId());
+        //sjekker om noen av vedtaksperiodene i Infotrygd på sykepenger eller pleiepenger overlapper med perioderFp
+        return harFPYtelserSomOverlapperIT(behandling, førsteUttaksDatoFP, perioderFp);
     }
 
-    private List<BehandlingOverlappInfotrygd> harSVPYtelserSomOverlapperIT(Behandling behandling, LocalDate førsteUttaksdatoFp,
-                                                                           LocalDateTimeline<Boolean> perioderFP) {
+    public List<BehandlingOverlappInfotrygd> harFPYtelserSomOverlapperIT(Behandling behandling, LocalDate førsteUttaksdatoFp, LocalDateTimeline<Boolean> perioderFP) {
         List<BehandlingOverlappInfotrygd> overlappene = new ArrayList<>();
         var ident = getFnrFraAktørId(behandling.getAktørId());
 
-        List<Grunnlag> infotrygdSVPGrunnlag = infotrygdSVPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp.plusYears(3));
+        List<Grunnlag> infotrygdPSGrunnlag = infotrygdPSGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksdatoFp.minusWeeks(1), førsteUttaksdatoFp.plusYears(3));
+        List<Grunnlag> infotrygdSPGrunnlag = infotrygdSPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksdatoFp.minusWeeks(1), førsteUttaksdatoFp.plusYears(3));
 
-        finnOverlappene(behandling, perioderFP, "SVP", infotrygdSVPGrunnlag, overlappene);
+        finnOverlappene(behandling, perioderFP, "HistSP", infotrygdSPGrunnlag, overlappene);
+        finnOverlappene(behandling, perioderFP, "HistBS", infotrygdPSGrunnlag, overlappene);
 
         return overlappene;
     }
@@ -133,13 +115,13 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
         return aktørConsumer.hentPersonIdentForAktørId(aktørId.getId()).map(PersonIdent::new).orElseThrow();
     }
 
-    private LocalDateTimeline<Boolean> hentPerioderFp(Long behandlingId, LocalDate minUttakDato) {
+    private LocalDateTimeline<Boolean> hentPerioderFp(Long behandlingId) {
         Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
-        List<LocalDateSegment<Boolean>> segments = new ArrayList<>();
-        segments.add(new LocalDateSegment<>(minUttakDato, minUttakDato, Boolean.TRUE)); // Sikre en periode
-        berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+
+        var segments = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+            .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), tomSøndag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
-            .forEach(segments::add);
+            .collect(Collectors.toList());
 
         return helgeJusterTidslinje(new LocalDateTimeline<>(segments, StandardCombinators::alwaysTrueForMatch).compress());
     }

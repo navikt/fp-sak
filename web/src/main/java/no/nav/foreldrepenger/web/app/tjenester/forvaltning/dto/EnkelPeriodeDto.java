@@ -10,10 +10,17 @@ import javax.ws.rs.QueryParam;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
+import no.nav.vedtak.util.InputValideringRegex;
 
 public class EnkelPeriodeDto implements AbacDto {
 
     private static final String DATO_PATTERN = "(\\d{4}-\\d{2}-\\d{2})";
+
+    @NotNull
+    @Parameter(description = "key (secret)")
+    @QueryParam("key")
+    @Pattern(regexp = InputValideringRegex.FRITEKST)
+    private String key;
 
     @NotNull
     @Parameter(description = "fom (YYYY-MM-DD)")
@@ -27,7 +34,8 @@ public class EnkelPeriodeDto implements AbacDto {
     @Pattern(regexp = DATO_PATTERN)
     private String tom;
 
-    public EnkelPeriodeDto(@NotNull String fom, @NotNull String tom) {
+    public EnkelPeriodeDto(@NotNull String key, @NotNull String fom, @NotNull String tom) {
+        this.key = key;
         this.fom = fom;
         this.tom = tom;
     }
@@ -38,6 +46,10 @@ public class EnkelPeriodeDto implements AbacDto {
     @Override
     public AbacDataAttributter abacAttributter() {
         return AbacDataAttributter.opprett();
+    }
+
+    public String getKey() {
+        return key;
     }
 
     public LocalDate getFom() {
