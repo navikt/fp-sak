@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.ytelse.beregning.fp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,27 +62,19 @@ public class MapUttakResultatFraVLTilRegel {
 
     private BigDecimal finnArbeidsprosent(ForeldrepengerUttakPeriodeAktivitet uttakResultatPeriodeAktivitet,
                                         UttakYrkesaktiviteter uttakYrkesaktiviteter, LocalDate periodeFom) {
+        if (!uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode()) return BigDecimal.ZERO;
         ForeldrepengerUttakAktivitet aktivitet= uttakResultatPeriodeAktivitet.getUttakAktivitet();
         final Optional<Arbeidsgiver> arbeidsgiver = aktivitet.getArbeidsgiver();
-        if(arbeidsgiver.isPresent()) {
-
+        if (arbeidsgiver.isPresent()) {
             final BigDecimal stillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(),
                 aktivitet.getArbeidsforholdRef(), periodeFom);
             final BigDecimal totalStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(),
                 null, periodeFom);
-
             final BigDecimal arbeidsprosentandel = finnArbeidsprosentandel(stillingsprosent, totalStillingsprosent);
-
-            if (uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode()) {
-                return uttakResultatPeriodeAktivitet.getArbeidsprosent().multiply(arbeidsprosentandel);
-            } else {
-                return stillingsprosent.multiply(arbeidsprosentandel);
-            }
-        } else if (uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode()) {
+            return uttakResultatPeriodeAktivitet.getArbeidsprosent().multiply(arbeidsprosentandel);
+        } else {
             return uttakResultatPeriodeAktivitet.getArbeidsprosent();
         }
-
-        return BigDecimal.ZERO;
     }
 
     private BigDecimal finnArbeidsprosentandel(BigDecimal stillingsprosent, BigDecimal totalStillingsprosent) {
