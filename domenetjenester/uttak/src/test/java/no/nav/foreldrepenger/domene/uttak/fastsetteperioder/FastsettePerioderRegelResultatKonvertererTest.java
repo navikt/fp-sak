@@ -76,7 +76,7 @@ public class FastsettePerioderRegelResultatKonvertererTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true));
         var behandling = scenario.lagre(repositoryProvider);
-        var stillingsprosent = BigDecimal.valueOf(50).setScale(2);
+        var stillingsprosent = BigDecimal.valueOf(50);
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
 
         byggArbeidForBehandling(behandling, arbeidsgiver, stillingsprosent);
