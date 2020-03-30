@@ -52,7 +52,6 @@ public class MapUttakResultatFraVLTilRegel {
         BigDecimal utbetalingsgrad = uttakResultatPeriodeAktivitet.getUtbetalingsgrad();
         BigDecimal stillingsprosent = mapStillingsprosent(input, uttakResultatPeriodeAktivitet, periodeFom);
 
-        ForeldrepengerUttakAktivitet aktivitetEntitet = uttakResultatPeriodeAktivitet.getUttakAktivitet();
         UttakYrkesaktiviteter uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
         BigDecimal arbeidstidsprosent = finnArbeidsprosent(uttakResultatPeriodeAktivitet, uttakYrkesaktiviteter, periodeFom);
 
@@ -76,12 +75,12 @@ public class MapUttakResultatFraVLTilRegel {
             final BigDecimal arbeidsprosentandel = finnArbeidsprosentandel(stillingsprosent, totalStillingsprosent);
 
             if (uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode()) {
-                return uttakResultatPeriodeAktivitet.getArbeidsprosent().multiply(arbeidsprosentandel).setScale(2);
+                return uttakResultatPeriodeAktivitet.getArbeidsprosent().multiply(arbeidsprosentandel);
             } else {
-                return stillingsprosent.multiply(arbeidsprosentandel).setScale(2);
+                return stillingsprosent.multiply(arbeidsprosentandel);
             }
         } else if (uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode()) {
-            return uttakResultatPeriodeAktivitet.getArbeidsprosent().setScale(2);
+            return uttakResultatPeriodeAktivitet.getArbeidsprosent();
         }
 
         return BigDecimal.ZERO;
@@ -90,7 +89,7 @@ public class MapUttakResultatFraVLTilRegel {
     private BigDecimal finnArbeidsprosentandel(BigDecimal stillingsprosent, BigDecimal totalStillingsprosent) {
         BigDecimal arbeidsprosentandel = BigDecimal.ONE;
         if (stillingsprosent.compareTo(BigDecimal.ZERO) > 0 && totalStillingsprosent.compareTo(BigDecimal.ZERO) > 0) {
-            arbeidsprosentandel = stillingsprosent.divide(totalStillingsprosent).setScale(2, RoundingMode.HALF_UP);
+            arbeidsprosentandel = stillingsprosent.divide(totalStillingsprosent);
         }
         return arbeidsprosentandel;
     }
