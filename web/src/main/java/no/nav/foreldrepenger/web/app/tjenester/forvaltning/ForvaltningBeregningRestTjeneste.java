@@ -28,12 +28,15 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.folketrygdloven.kalkulator.felles.BeregningUtils;
+import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseFilterDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.AktørId;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FagsakYtelseType;
+import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
+import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task.OpprettGrunnbeløpTask;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task.TilbakerullingBeregningTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -65,20 +68,36 @@ public class ForvaltningBeregningRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
 
     @Inject
     public ForvaltningBeregningRestTjeneste(
         BeregningsgrunnlagRepository beregningsgrunnlagRepository, BehandlingRepository behandlingRepository,
-        ProsessTaskRepository prosessTaskRepository, InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+        ProsessTaskRepository prosessTaskRepository, InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste, BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.behandlingRepository = behandlingRepository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.beregningsgrunnlagInputProvider = beregningsgrunnlagInputProvider;
     }
 
     public ForvaltningBeregningRestTjeneste() {
         //CDI
     }
+
+
+    @POST
+    @Path("/hentBeregningsgrunnlagInput")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Henter input for beregning", tags = "FORVALTNING-beregning")
+    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    public Response hentBeregningsgrunnlagInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
+        BeregningsgrunnlagInputFelles inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
+        BeregningsgrunnlagInput beregningsgrunnlagInput = inputTjeneste.lagInput(behandling.getId());
+        return Response.ok(beregningsgrunnlagInput).build();
+    }
+
 
     /**
      *
