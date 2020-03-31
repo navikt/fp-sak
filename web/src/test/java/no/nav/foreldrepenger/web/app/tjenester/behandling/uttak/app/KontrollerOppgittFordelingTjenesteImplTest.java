@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
@@ -36,7 +37,7 @@ public class KontrollerOppgittFordelingTjenesteImplTest {
     @Rule
     public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
 
-    private BehandlingRepositoryProvider behandlingRepositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
     private YtelseFordelingTjeneste ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(repositoryRule.getEntityManager()));
 
     @Test
@@ -46,7 +47,7 @@ public class KontrollerOppgittFordelingTjenesteImplTest {
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER,
             BehandlingStegType.VURDER_UTTAK);
-        scenario.lagre(behandlingRepositoryProvider);
+        scenario.lagre(repositoryProvider);
         // Behandling
         Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
 
@@ -71,7 +72,7 @@ public class KontrollerOppgittFordelingTjenesteImplTest {
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING,
             BehandlingStegType.VURDER_UTTAK);
-        scenario.lagre(behandlingRepositoryProvider);
+        scenario.lagre(repositoryProvider);
         // Behandling
         Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
 
@@ -105,7 +106,7 @@ public class KontrollerOppgittFordelingTjenesteImplTest {
             .build();
         List<OppgittPeriodeEntitet> gjeldendePerioder = List.of(opprinneligPeriode);
         scenario.medFordeling(new OppgittFordelingEntitet(gjeldendePerioder, false));
-        scenario.lagre(behandlingRepositoryProvider);
+        scenario.lagre(repositoryProvider);
 
         Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
 
@@ -125,12 +126,11 @@ public class KontrollerOppgittFordelingTjenesteImplTest {
     }
 
     private KontrollerOppgittFordelingTjeneste tjeneste() {
-        return tjeneste(new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste, behandlingRepositoryProvider.getUttakRepository()));
+        return tjeneste(new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste, new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository())));
     }
 
     private KontrollerOppgittFordelingTjeneste tjeneste(FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste) {
-        return new KontrollerOppgittFordelingTjeneste(ytelseFordelingTjeneste, behandlingRepositoryProvider,
-            førsteUttaksdatoTjeneste);
+        return new KontrollerOppgittFordelingTjeneste(ytelseFordelingTjeneste, repositoryProvider, førsteUttaksdatoTjeneste);
     }
 
 }

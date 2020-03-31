@@ -37,6 +37,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
@@ -72,6 +73,9 @@ public class BehandlingDtoTjenesteImplTest {
     @Inject
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
 
+    @Inject
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
+
     private BehandlingDtoTjeneste tjeneste;
 
     private LocalDate now = LocalDate.now();
@@ -82,7 +86,7 @@ public class BehandlingDtoTjenesteImplTest {
     public void setUp() {
         existingRoutes = RestUtils.getRoutes();
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
-            opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste);
+            opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste, foreldrepengerUttakTjeneste);
     }
 
     @Test

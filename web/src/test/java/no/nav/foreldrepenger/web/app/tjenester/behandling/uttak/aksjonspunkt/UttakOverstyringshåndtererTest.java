@@ -112,16 +112,16 @@ public class UttakOverstyringshåndtererTest {
 
         OppdateringResultat result = oppdaterer.håndterOverstyring(dto, behandling, kontekst(behandling));
 
-        var lagretUttak = repositoryProvider.getUttakRepository().hentUttakResultat(behandling.getId());
+        var lagretUttak = uttakTjeneste.hentUttak(behandling.getId());
 
-        assertThat(lagretUttak.getGjeldendePerioder().getPerioder()).hasSize(1);
-        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getTidsperiode().getFomDato()).isEqualTo(fom);
-        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getTidsperiode().getTomDato()).isEqualTo(tom);
-        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getBegrunnelse()).isEqualTo(begrunnelse);
-        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getAktiviteter()).hasSize(aktiviteter.size());
-        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getResultatType()).isEqualTo(periodeResultatType);
-        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getResultatÅrsak()).isEqualTo(periodeResultatÅrsak);
-        assertThat(lagretUttak.getGjeldendePerioder().getPerioder().get(0).getAktiviteter()).hasSize(1);
+        assertThat(lagretUttak.getGjeldendePerioder()).hasSize(1);
+        assertThat(lagretUttak.getGjeldendePerioder().get(0).getTidsperiode().getFomDato()).isEqualTo(fom);
+        assertThat(lagretUttak.getGjeldendePerioder().get(0).getTidsperiode().getTomDato()).isEqualTo(tom);
+        assertThat(lagretUttak.getGjeldendePerioder().get(0).getBegrunnelse()).isEqualTo(begrunnelse);
+        assertThat(lagretUttak.getGjeldendePerioder().get(0).getAktiviteter()).hasSize(aktiviteter.size());
+        assertThat(lagretUttak.getGjeldendePerioder().get(0).getResultatType()).isEqualTo(periodeResultatType);
+        assertThat(lagretUttak.getGjeldendePerioder().get(0).getResultatÅrsak()).isEqualTo(periodeResultatÅrsak);
+        assertThat(lagretUttak.getGjeldendePerioder().get(0).getAktiviteter()).hasSize(1);
         assertThat(result.getOverhoppKontroll()).isEqualTo(OverhoppKontroll.UTEN_OVERHOPP);
     }
 
