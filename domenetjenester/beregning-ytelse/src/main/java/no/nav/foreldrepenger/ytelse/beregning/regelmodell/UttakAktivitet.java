@@ -7,13 +7,15 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arb
 
 public class UttakAktivitet {
     private BigDecimal stillingsgrad;
+    private BigDecimal arbeidstidsprosent;
     private BigDecimal utbetalingsgrad;
     private Arbeidsforhold arbeidsforhold;
     private AktivitetStatus aktivitetStatus;
     private boolean erGradering;
 
-    public UttakAktivitet(BigDecimal stillingsgrad, BigDecimal utbetalingsgrad, Arbeidsforhold arbeidsforhold, AktivitetStatus aktivitetStatus, boolean erGradering) {
+    public UttakAktivitet(BigDecimal stillingsgrad, BigDecimal arbeidstidsprosent, BigDecimal utbetalingsgrad, Arbeidsforhold arbeidsforhold, AktivitetStatus aktivitetStatus, boolean erGradering) {
         this.stillingsgrad = stillingsgrad;
+        this.arbeidstidsprosent = arbeidstidsprosent;
         this.utbetalingsgrad = utbetalingsgrad;
         this.arbeidsforhold = arbeidsforhold;
         this.aktivitetStatus = aktivitetStatus;
@@ -22,6 +24,10 @@ public class UttakAktivitet {
 
     public BigDecimal getStillingsgrad() {
         return stillingsgrad;
+    }
+
+    public BigDecimal getArbeidstidsprosent() {
+        return arbeidstidsprosent;
     }
 
     public BigDecimal getUtbetalingsgrad() {

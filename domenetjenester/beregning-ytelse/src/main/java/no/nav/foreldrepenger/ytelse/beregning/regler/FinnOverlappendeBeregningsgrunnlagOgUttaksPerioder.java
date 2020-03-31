@@ -228,7 +228,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         BigDecimal redusertAndelBruker = andelBruker.multiply(utbetalingsgrad);
 
         if (skalGjøreOverkompensasjon(uttakAktivitet)) {
-            BigDecimal permisjonsProsent = finnPermisjonsprosent(uttakAktivitet, utbetalingsgrad);
+            BigDecimal permisjonsProsent = finnPermisjonsprosent(uttakAktivitet);
             BigDecimal maksimalRefusjon = BigDecimal.ZERO.max(andelArbeidsgiver.multiply(permisjonsProsent));
             BigDecimal utbetalingBruker = redusertAndelArb.subtract(maksimalRefusjon).add(redusertAndelBruker);
 
@@ -260,16 +260,17 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         return uttakAktivitet.isErGradering();
     }
 
-    private static BigDecimal finnPermisjonsprosent(UttakAktivitet uttakAktivitet, BigDecimal utbetalingsgrad) {
+    private static BigDecimal finnPermisjonsprosent(UttakAktivitet uttakAktivitet) {
         if (!uttakAktivitet.isErGradering()) {
-            return utbetalingsgrad;
+            return BigDecimal.ONE;
         }
-        BigDecimal stillingsprosent = uttakAktivitet.getStillingsgrad().scaleByPowerOfTen(-2);
-        if (stillingsprosent.compareTo(BigDecimal.ZERO) <= 0) {
+        BigDecimal stillingsandel = uttakAktivitet.getStillingsgrad().scaleByPowerOfTen(-2);
+        BigDecimal arbeidstidsAndel = uttakAktivitet.getArbeidstidsprosent().scaleByPowerOfTen(-2);
+
+        if (stillingsandel.compareTo(BigDecimal.ZERO) <= 0) {
             return BigDecimal.ZERO;
         }
-        BigDecimal nyStillingsProsent = BigDecimal.ONE.subtract(utbetalingsgrad);
-        return BigDecimal.ONE.subtract(nyStillingsProsent.divide(stillingsprosent, 10, RoundingMode.HALF_UP));
+        return  BigDecimal.ONE.subtract(arbeidstidsAndel.divide(stillingsandel, 10, RoundingMode.HALF_UP));
     }
 
     private LocalDateTimeline<BeregningsgrunnlagPeriode> mapGrunnlagTimeline(Beregningsgrunnlag grunnlag) {

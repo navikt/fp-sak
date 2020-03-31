@@ -99,7 +99,7 @@ public class MapUttakResultatFraVLTilRegel {
         var arbeidsforhold = mapArbeidsforhold(uttakArbeidsforhold);
         var aktivitetStatus = MapUttakArbeidTypeTilAktivitetStatus.map(uttakArbeidsforhold.getUttakArbeidType());
 
-        return new UttakAktivitet(stillingsprosent, utbetalingsgrad, arbeidsforhold, aktivitetStatus, false);
+        return new UttakAktivitet(stillingsprosent, null, utbetalingsgrad, arbeidsforhold, aktivitetStatus, false);
     }
 
     private BigDecimal mapStillingsprosent(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold) {
