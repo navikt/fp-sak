@@ -7,7 +7,6 @@ import static no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.
 import static no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.UttakPeriodeEndringDto.TypeEndring.SLETTET;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +19,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
@@ -34,13 +32,13 @@ public class AvklarFaktaUttakPerioderTjeneste {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
-    AvklarFaktaUttakPerioderTjeneste() {
-        // For CDI
-    }
-
     @Inject
     public AvklarFaktaUttakPerioderTjeneste(YtelsesFordelingRepository ytelsesFordelingRepository) {
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
+    }
+
+    AvklarFaktaUttakPerioderTjeneste() {
+        // For CDI
     }
 
     public KontrollerFaktaData hentKontrollerFaktaPerioder(UttakInput input) {
@@ -48,39 +46,16 @@ public class AvklarFaktaUttakPerioderTjeneste {
         Long behandlingId = ref.getBehandlingId();
         Optional<YtelseFordelingAggregat> ytelseFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
 
-        // Må sjekke etter dette pga at frontend kan kalle på denne tjenesten før grunnlaget er bygget.
-        if (!harGrunnlagTilÅKontrollere(input, ytelseFordeling.orElse(null))) {
-            return utenGrunnlagResultat(ytelseFordeling);
+        if (ytelseFordeling.isEmpty()) {
+            return utenGrunnlagResultat();
         }
 
         LocalDate fødselsDatoTilTidligOppstart = utledDatoForTidligOppstart(input);
-        return SøknadsperiodeDokumentasjonKontrollerer.kontrollerPerioder(ytelseFordeling.get(),
-            fødselsDatoTilTidligOppstart, input.getBeregningsgrunnlagStatuser());
+        return SøknadsperiodeDokumentasjonKontrollerer.kontrollerPerioder(ytelseFordeling.get(), fødselsDatoTilTidligOppstart);
     }
 
-    private KontrollerFaktaData utenGrunnlagResultat(Optional<YtelseFordelingAggregat> ytelseFordeling) {
-        final List<KontrollerFaktaPeriode> perioder;
-        if (ytelseFordeling.isPresent()) {
-            perioder = fraSøknadsperioder(ytelseFordeling.get().getGjeldendeSøknadsperioder());
-        } else {
-            perioder = Collections.emptyList();
-        }
-        return new KontrollerFaktaData(perioder);
-    }
-
-    private List<KontrollerFaktaPeriode> fraSøknadsperioder(OppgittFordelingEntitet gjeldendeSøknadsperioder) {
-        return gjeldendeSøknadsperioder.getOppgittePerioder()
-            .stream()
-            .map(oppgittPeriode -> KontrollerFaktaPeriode.automatiskBekreftet(oppgittPeriode, UttakPeriodeVurderingType.PERIODE_OK))
-            .collect(Collectors.toList());
-    }
-
-    private boolean harGrunnlagTilÅKontrollere(UttakInput input, YtelseFordelingAggregat ytelseFordelingAggregat) {
-        if (ytelseFordelingAggregat == null) {
-            return false;
-        }
-
-        return input.harAktørArbeid() && !input.getBeregningsgrunnlagStatuser().isEmpty();
+    private KontrollerFaktaData utenGrunnlagResultat() {
+        return new KontrollerFaktaData(List.of());
     }
 
     private LocalDate utledDatoForTidligOppstart(UttakInput input) {

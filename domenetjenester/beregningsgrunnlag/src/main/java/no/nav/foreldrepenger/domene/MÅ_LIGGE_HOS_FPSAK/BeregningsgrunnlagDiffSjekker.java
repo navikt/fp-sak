@@ -68,7 +68,7 @@ class BeregningsgrunnlagDiffSjekker {
         if (aktivt == null || forrige == null) {
             return !Objects.equals(aktivt, forrige);
         }
-        if (!erLike(aktivt.getAvvikPromilleNy(), forrige.getAvvikPromilleNy())) {
+        if (!erLike(aktivt.getAvvikPromille(), forrige.getAvvikPromille())) {
             return true;
         }
         if (!erLike(aktivt.getRapportertPrÅr(), forrige.getRapportertPrÅr())) {

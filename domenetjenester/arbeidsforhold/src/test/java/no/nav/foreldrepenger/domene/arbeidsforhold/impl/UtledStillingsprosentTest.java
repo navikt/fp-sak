@@ -22,13 +22,13 @@ public class UtledStillingsprosentTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
     @Test
-    public void skal_utlede_stillingsprosent_lik_0_når_ingen_yrkesaktiviteter() {
+    public void skal_utlede_stillingsprosent_lik_100_når_ingen_yrkesaktiviteter() {
         // Arrange
         List<Yrkesaktivitet> yrkesaktiviteter = Collections.emptyList();
         // Act
         BigDecimal stillingsprosent = UtledStillingsprosent.utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
         // Assert
-        assertThat(stillingsprosent).isEqualTo(BigDecimal.valueOf(0));
+        assertThat(stillingsprosent).isEqualTo(BigDecimal.valueOf(100));
     }
 
     @Test

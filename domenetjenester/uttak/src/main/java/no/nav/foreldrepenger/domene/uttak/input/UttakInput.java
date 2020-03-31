@@ -109,10 +109,6 @@ public class UttakInput {
         return newInput;
     }
 
-    public boolean harAktørArbeid() {
-        return iayGrunnlag != null && iayGrunnlag.getAktørArbeidFraRegister(getAktørId()).isPresent();
-    }
-
     public UttakInput medSøknadMottattDato(LocalDate mottattDato) {
         var newInput = new UttakInput(this);
         newInput.søknadMottattDato = mottattDato;

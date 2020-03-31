@@ -24,7 +24,7 @@ public abstract class IverksetteVedtakStegTilgrensendeFelles extends IverksetteV
     }
 
     @Override
-    protected void førIverksetting(Behandling behandling, BehandlingVedtak behandlingVedtak) {
+    public void etterInngangFørIverksetting(Behandling behandling, BehandlingVedtak behandlingVedtak) {
         identifiserOverlappendeInfotrygdYtelse.vurderOglagreEventueltOverlapp(behandling);
     }
 }

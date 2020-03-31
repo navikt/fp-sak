@@ -7,9 +7,7 @@ import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.IverksetteVedtakSt
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 
@@ -28,10 +26,5 @@ public class IverksetteVedtakStegFørstegang extends IverksetteVedtakStegYtelseF
                                             @FagsakYtelseTypeRef("ES") OpprettProsessTaskIverksett opprettProsessTaskIverksett,
                                             VurderBehandlingerUnderIverksettelse tidligereBehandlingUnderIverksettelse) {
         super(repositoryProvider, opprettProsessTaskIverksett, tidligereBehandlingUnderIverksettelse);
-    }
-
-    @Override
-    protected void førIverksetting(Behandling behandling, BehandlingVedtak behandlingVedtak) {
-        return;
     }
 }

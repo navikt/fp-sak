@@ -11,7 +11,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.IntervalUtils;
-import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.KontrollerFaktaUttakFeil;
 import no.nav.vedtak.feil.FeilFactory;
 
@@ -40,8 +38,7 @@ final class SøknadsperiodeDokumentasjonKontrollerer {
     }
 
     static KontrollerFaktaData kontrollerPerioder(YtelseFordelingAggregat ytelseFordeling,
-                                                  LocalDate fødselsDatoTilTidligOppstart,
-                                                  Collection<BeregningsgrunnlagStatus> beregningsgrunnlagStatusPerioder) {
+                                                  LocalDate fødselsDatoTilTidligOppstart) {
         List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder = hentDokumentasjonPerioder(ytelseFordeling);
 
         SøknadsperiodeDokumentasjonKontrollerer kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(dokumentasjonPerioder,

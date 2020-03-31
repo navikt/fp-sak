@@ -39,8 +39,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
@@ -48,6 +46,8 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgru
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.FamiliehendelseRestTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
@@ -95,7 +95,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 public class BehandlingDtoTjeneste {
 
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
-    private UttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private TilbakekrevingRepository tilbakekrevingRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -118,10 +118,11 @@ public class BehandlingDtoTjeneste {
                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                  OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste,
                                  BehandlingDokumentRepository behandlingDokumentRepository,
-                                 RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
+                                 RelatertBehandlingTjeneste relatertBehandlingTjeneste,
+                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
 
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.tilbakekrevingRepository = tilbakekrevingRepository;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
@@ -371,14 +372,14 @@ public class BehandlingDtoTjeneste {
                     dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger", uuidDto));
                 }
             } else {
-                Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
-                Optional<UttakResultatEntitet> uttakResultatAnnenPart = hentUttaksresultatAnnenpartHvisEksisterer(behandling);
+                var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
                 Optional<Stønadskontoberegning> stønadskontoberegning = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
                     .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning);
                 if (stønadskontoberegning.isPresent() && uttakResultat.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.STONADSKONTOER_PATH, "uttak-stonadskontoer", uuidDto));
                 }
 
+                var uttakResultatAnnenPart = hentUttakAnnenpartHvisEksisterer(behandling);
                 if (uttakResultat.isPresent() || uttakResultatAnnenPart.isPresent()) {
                     // Fpformidling trenger også å få fatt på uttaksresultatet når bare annen part har det
                     dto.leggTil(get(UttakRestTjeneste.RESULTAT_PERIODER_PATH, "uttaksresultat-perioder-formidling", uuidDto));
@@ -403,22 +404,23 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_PATH, "familiehendelse-original-behandling", originalUuidDto));
             dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad-original-behandling", originalUuidDto));
 
-            Optional<UttakResultatEntitet> uttakResultatHvisEksisterer = uttakRepository.hentUttakResultatHvisEksisterer(originalBehandling.getId());
-
             // FIXME hvorfor ytelsspesifikke urler her?  Bør kun ha en beregningresultat
             if (FagsakYtelseType.ENGANGSTØNAD.equals(originalBehandling.getFagsakYtelseType())) {
                 dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad-original-behandling", originalUuidDto));
-            } else if (uttakResultatHvisEksisterer.isPresent()) {
-                dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger-original-behandling", originalUuidDto));
+            } else {
+                var uttak = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(originalBehandling.getId());
+                if (uttak.isPresent()) {
+                    dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger-original-behandling", originalUuidDto));
+                }
             }
         });
 
         return dto;
     }
 
-    private Optional<UttakResultatEntitet> hentUttaksresultatAnnenpartHvisEksisterer(Behandling søkersBehandling) {
+    private Optional<ForeldrepengerUttak> hentUttakAnnenpartHvisEksisterer(Behandling søkersBehandling) {
         Optional<Behandling> annenpartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(søkersBehandling.getFagsak().getSaksnummer());
-        return annenpartBehandling.flatMap(ab -> uttakRepository.hentUttakResultatHvisEksisterer(ab.getId()));
+        return annenpartBehandling.flatMap(ab -> foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(ab.getId()));
     }
 
     private Optional<BehandlingsresultatDto> lagBehandlingsresultatDto(Behandling behandling) {
