@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus;
 
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +9,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import no.nav.folketrygdloven.kalkulator.kontrakt.v1.ArbeidsgiverOpplysningerDto;
-import no.nav.folketrygdloven.kalkulator.modell.behandling.Fagsystem;
 import no.nav.folketrygdloven.kalkulator.modell.iay.AktivitetsAvtaleDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdInformasjonDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdInformasjonDtoBuilder;
@@ -35,10 +35,6 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.YrkesaktivitetDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseDtoBuilder;
-import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseGrunnlagDto;
-import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseGrunnlagDtoBuilder;
-import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseStørrelseDto;
-import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseStørrelseDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.typer.AktørId;
 import no.nav.folketrygdloven.kalkulator.modell.typer.EksternArbeidsforholdRef;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
@@ -48,10 +44,8 @@ import no.nav.folketrygdloven.kalkulator.modell.ytelse.TemaUnderkategori;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.ArbeidType;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.ArbeidsforholdHandlingType;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.Arbeidskategori;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BekreftetPermisjonStatus;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FagsakYtelseType;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.InntektPeriodeType;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.InntektsKilde;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.NæringsinntektType;
@@ -83,8 +77,8 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelse;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.YtelseType;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class IAYMapperTilKalkulus {
 
@@ -300,32 +294,11 @@ public class IAYMapperTilKalkulus {
     private static YtelseDtoBuilder mapYtelse(Ytelse ytelse) {
         YtelseDtoBuilder builder = YtelseDtoBuilder.oppdatere(Optional.empty());
         ytelse.getYtelseAnvist().forEach(ytelseAnvist -> builder.leggTilYtelseAnvist(mapYtelseAnvist(ytelseAnvist)));
-        ytelse.getYtelseGrunnlag().ifPresent(ytelseGrunnlag -> builder.medYtelseGrunnlag(mapYtelseGrunnlag(ytelseGrunnlag)));
+        ytelse.getYtelseGrunnlag().flatMap(YtelseGrunnlag::getVedtaksDagsats).map(Beløp::getVerdi).ifPresent(builder::medVedtaksDagsats);
         builder.medBehandlingsTema(TemaUnderkategori.fraKode(ytelse.getBehandlingsTema().getKode()));
-        builder.medKilde(Fagsystem.fraKode(ytelse.getKilde().getKode()));
         builder.medPeriode(mapDatoIntervall(ytelse.getPeriode()));
         builder.medYtelseType(FagsakYtelseType.fraKode(ytelse.getRelatertYtelseType().getKode()));
         return builder;
-    }
-
-    private static YtelseGrunnlagDto mapYtelseGrunnlag(YtelseGrunnlag ytelseGrunnlag) {
-        YtelseGrunnlagDtoBuilder builder = YtelseGrunnlagDtoBuilder.ny();
-        ytelseGrunnlag.getYtelseStørrelse().forEach(ytelseStørrelse -> builder.leggTilYtelseStørrelse(mapYtelseStørrelse(ytelseStørrelse)));
-        ytelseGrunnlag.getArbeidskategori().ifPresent(arbeidskategori -> builder.medArbeidskategori(Arbeidskategori.fraKode(arbeidskategori.getKode())));
-        ytelseGrunnlag.getDekningsgradProsent().ifPresent(stillingsprosent -> builder.medDekningsgradProsent(stillingsprosent.getVerdi()));
-        ytelseGrunnlag.getGraderingProsent().ifPresent(stillingsprosent -> builder.medGraderingProsent(stillingsprosent.getVerdi()));
-        ytelseGrunnlag.getOpprinneligIdentdato().ifPresent(builder::medOpprinneligIdentdato);
-        ytelseGrunnlag.getInntektsgrunnlagProsent().ifPresent(stillingsprosent -> builder.medInntektsgrunnlagProsent(stillingsprosent.getVerdi()));
-        ytelseGrunnlag.getVedtaksDagsats().ifPresent(beløp -> builder.medVedtaksDagsats(beløp.getVerdi()));
-        return builder.build();
-    }
-
-    private static YtelseStørrelseDto mapYtelseStørrelse(YtelseStørrelse ytelseStørrelse) {
-        YtelseStørrelseDtoBuilder builder = YtelseStørrelseDtoBuilder.ny();
-        builder.medBeløp(ytelseStørrelse.getBeløp().getVerdi());
-        builder.medHyppighet(InntektPeriodeType.fraKode(ytelseStørrelse.getHyppighet().getKode()));
-        ytelseStørrelse.getOrgnr().ifPresent(builder::medVirksomhet);
-        return builder.build();
     }
 
     private static YtelseAnvistDto mapYtelseAnvist(YtelseAnvist ytelseAnvist) {
