@@ -342,22 +342,22 @@ public class RegelFastsettBeregningsresultatTest {
     private UttakResultat opprettUttak(List<LocalDateInterval> perioder, AktivitetStatus aktivitetsStatus, List<Arbeidsforhold> arbeidsforhold) {
         List<UttakResultatPeriode> periodeListe = new ArrayList<>();
         for (LocalDateInterval periode : perioder) {
-            List<UttakAktivitet> uttakAktiviteter = lagUttakAktiviteter(BigDecimal.valueOf(100), BigDecimal.valueOf(100), aktivitetsStatus, arbeidsforhold);
+            List<UttakAktivitet> uttakAktiviteter = lagUttakAktiviteter(BigDecimal.valueOf(100), BigDecimal.valueOf(0), BigDecimal.valueOf(100), aktivitetsStatus, arbeidsforhold);
             periodeListe.add(new UttakResultatPeriode(periode.getFomDato(), periode.getTomDato(), uttakAktiviteter, false));
         }
         return new UttakResultat(periodeListe);
     }
 
-    private List<UttakAktivitet> lagUttakAktiviteter(BigDecimal stillingsgrad, BigDecimal utbetalingsgrad, AktivitetStatus aktivitetsStatus, List<Arbeidsforhold> arbeidsforholdList) {
+    private List<UttakAktivitet> lagUttakAktiviteter(BigDecimal stillingsgrad, BigDecimal arbeidstidsgrad, BigDecimal utbetalingsgrad, AktivitetStatus aktivitetsStatus, List<Arbeidsforhold> arbeidsforholdList) {
         boolean erGradering = false;
         if (arbeidsforholdList.isEmpty()) {
-            return Collections.singletonList(new UttakAktivitet(stillingsgrad, utbetalingsgrad, aktivitetsStatus.equals(AktivitetStatus.ATFL) ? ARBEIDSFORHOLD_1 : null, aktivitetsStatus, erGradering));
+            return Collections.singletonList(new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, aktivitetsStatus.equals(AktivitetStatus.ATFL) ? ARBEIDSFORHOLD_1 : null, aktivitetsStatus, erGradering));
         }
         return arbeidsforholdList.stream()
             .map(arb ->
             {
                 Arbeidsforhold arbeidsforhold = aktivitetsStatus.equals(AktivitetStatus.ATFL) ? arb : null;
-                return new UttakAktivitet(stillingsgrad, utbetalingsgrad, arbeidsforhold, aktivitetsStatus, erGradering);
+                return new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, arbeidsforhold, aktivitetsStatus, erGradering);
             }).collect(Collectors.toList());
     }
 }
