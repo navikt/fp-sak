@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -44,7 +45,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest {
     @Rule
     public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
 
-    private BehandlingRepositoryProvider behandlingRepositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
     private YtelseFordelingTjeneste ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(repositoryRule.getEntityManager()));
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste = mock(HistorikkTjenesteAdapter.class);
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
@@ -53,8 +54,8 @@ public class AvklarAnnenforelderHarRettOppdatererTest {
 
     private FaktaUttakHistorikkTjeneste faktaUttakHistorikkTjeneste;
     private FaktaUttakToTrinnsTjeneste faktaUttakToTrinnsTjeneste = new FaktaUttakToTrinnsTjeneste(ytelseFordelingTjeneste);
-    private KontrollerOppgittFordelingTjeneste kontrollerOppgittFordelingTjeneste =
-        new KontrollerOppgittFordelingTjeneste(ytelseFordelingTjeneste, behandlingRepositoryProvider,new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste, behandlingRepositoryProvider.getUttakRepository()));
+    private FørsteUttaksdatoTjenesteImpl førsteUttaksdatoTjeneste = new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste, new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()));
+    private KontrollerOppgittFordelingTjeneste kontrollerOppgittFordelingTjeneste = new KontrollerOppgittFordelingTjeneste(ytelseFordelingTjeneste, repositoryProvider, førsteUttaksdatoTjeneste);
 
     @Before
     public void setUp() {
@@ -68,7 +69,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest {
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AKSONSPUNKT_DEF,
             BehandlingStegType.VURDER_UTTAK);
-        scenario.lagre(behandlingRepositoryProvider);
+        scenario.lagre(repositoryProvider);
 
         var behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
         AvklarAnnenforelderHarRettDto dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
@@ -99,7 +100,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest {
         //Scenario med avklar fakta annen forelder har ikke rett
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AKSONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
-        scenario.lagre(behandlingRepositoryProvider);
+        scenario.lagre(repositoryProvider);
 
         var behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
         AvklarAnnenforelderHarRettDto dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();

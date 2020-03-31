@@ -31,7 +31,7 @@ public abstract class IverksetteVedtakStegYtelseFelles extends IverksetteVedtakS
     }
 
     @Override
-    protected Optional<Venteårsak> kanBegynneIverksetting(Behandling behandling) {
+    public Optional<Venteårsak> kanBegynneIverksetting(Behandling behandling) {
         if (tidligereBehandlingUnderIverksettelse.vurder(behandling)) {
             opprettHistorikkinnslagNårIverksettelsePåVent(behandling);
             return Optional.of(Venteårsak.VENT_TIDLIGERE_BEHANDLING);

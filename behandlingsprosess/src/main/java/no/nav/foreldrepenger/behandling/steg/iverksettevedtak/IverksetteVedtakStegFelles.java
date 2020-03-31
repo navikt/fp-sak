@@ -56,7 +56,7 @@ public abstract class IverksetteVedtakStegFelles implements IverksetteVedtakSteg
             // Behandlingsprosessen stopper og denne behandlingen blir plukket opp av avsluttBehandling.
             return BehandleStegResultat.startet();
         }
-        førIverksetting(behandling, vedtak);
+        etterInngangFørIverksetting(behandling, vedtak);
         log.info("Behandling {}: Iverksetter vedtak", behandlingId);
         opprettProsessTaskIverksett.opprettIverksettingstasker(behandling, getInitielleTasks());
         return BehandleStegResultat.settPåVent();
@@ -68,7 +68,4 @@ public abstract class IverksetteVedtakStegFelles implements IverksetteVedtakSteg
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
-    protected abstract Optional<Venteårsak> kanBegynneIverksetting(Behandling behandling);
-
-    protected abstract void førIverksetting(Behandling behandling, BehandlingVedtak behandlingVedtak);
 }

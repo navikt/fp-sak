@@ -80,7 +80,10 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
     }
 
     public List<BehandlingOverlappInfotrygd> vurderOmOverlappInfotrygd(Behandling behandling) {
-        LocalDate førsteUttaksDatoFP = finnFørsteUttaksDato(behandling.getId());
+        LocalDate førsteUttaksDatoFP = finnFørsteUttakUtbetaltDato(behandling.getId());
+        if (Tid.TIDENES_ENDE.equals(førsteUttaksDatoFP)) {
+            return Collections.emptyList();
+        }
         //Henter alle utbetalingsperioder på behandling som er iverksatt
         LocalDateTimeline<Boolean> perioderFp = hentPerioderFp(behandling.getId());
         //sjekker om noen av vedtaksperiodene i Infotrygd på sykepenger eller pleiepenger overlapper med perioderFp
@@ -121,7 +124,7 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
 
         var segments = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
-            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), Boolean.TRUE))
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), tomSøndag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
             .collect(Collectors.toList());
 
         return helgeJusterTidslinje(new LocalDateTimeline<>(segments, StandardCombinators::alwaysTrueForMatch).compress());
@@ -131,13 +134,14 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
         List<LocalDateSegment<Boolean>> segmenter = grunnlag.stream()
             .map(Grunnlag::getVedtak)
             .flatMap(Collection::stream)
+            .filter(v -> v.getUtbetalingsgrad() > 0)
             .map(p-> new LocalDateSegment<>(p.getPeriode().getFom(), tomSøndag(p.getPeriode().getTom()), Boolean.TRUE))
             .collect(Collectors.toList());
 
         return helgeJusterTidslinje(new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress());
     }
 
-    private LocalDate finnFørsteUttaksDato(Long behandlingId) {
+    private LocalDate finnFørsteUttakUtbetaltDato(Long behandlingId) {
         Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
         Optional<LocalDate> minFom = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)

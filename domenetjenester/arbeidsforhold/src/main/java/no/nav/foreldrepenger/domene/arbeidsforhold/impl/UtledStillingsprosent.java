@@ -7,6 +7,7 @@ import java.util.List;
 
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 final class UtledStillingsprosent {
 
@@ -20,13 +21,13 @@ final class UtledStillingsprosent {
 
     static BigDecimal utled(YrkesaktivitetFilter filter, List<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt){
         if (yrkesaktiviteter.isEmpty()) {
-            return BigDecimal.ZERO;
+            return Stillingsprosent.HUNDRED.getVerdi();
         }
         final List<Yrkesaktivitet> relevanteyrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent.utled(filter,
             yrkesaktiviteter, skjæringstidspunkt);
-        final LocalDate oppstartsdatoNærmestStp = UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteter.utled(filter, 
+        final LocalDate oppstartsdatoNærmestStp = UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteter.utled(filter,
             relevanteyrkesaktiviteter, skjæringstidspunkt);
-        return UtledStillingsprosentFraYrkesaktivitetMedOppstartsdatoNærmestStp.utled(filter, 
+        return UtledStillingsprosentFraYrkesaktivitetMedOppstartsdatoNærmestStp.utled(filter,
             relevanteyrkesaktiviteter, skjæringstidspunkt, oppstartsdatoNærmestStp);
     }
 

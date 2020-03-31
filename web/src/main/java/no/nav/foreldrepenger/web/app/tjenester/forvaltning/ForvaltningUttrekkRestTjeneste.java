@@ -135,7 +135,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response listFagsakerMedOverlapp(@Parameter(description = "Periode") @BeanParam @Valid EnkelPeriodeDto dto) {
         ProsessTaskData prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
-        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_KEY_KEY, VurderOpphørAvYtelserTask.HIJACK_KEY_KEY);
+        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_KEY_KEY, dto.getKey());
         prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_FOM_KEY, dto.getFom().toString());
         prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_TOM_KEY, dto.getTom().toString());
         prosessTaskData.setCallIdFraEksisterende();

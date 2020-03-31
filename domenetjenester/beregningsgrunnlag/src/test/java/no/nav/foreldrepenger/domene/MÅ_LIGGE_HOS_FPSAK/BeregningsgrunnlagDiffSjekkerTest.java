@@ -302,7 +302,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         LocalDate sgFom = LocalDate.now();
 
         Sammenligningsgrunnlag.builder()
-            .medAvvikPromilleNy(BigDecimal.valueOf(250.0124))
+            .medAvvikPromille(BigDecimal.valueOf(250.0124))
             .medSammenligningsperiode(sgFom, sgTom)
             .medRapportertPrÅr(BigDecimal.valueOf(300_000))
             .build(aktivt);
@@ -313,7 +313,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
             .build();
 
         Sammenligningsgrunnlag.builder()
-            .medAvvikPromilleNy(BigDecimal.valueOf(250.0123))
+            .medAvvikPromille(BigDecimal.valueOf(250.0123))
             .medSammenligningsperiode(sgFom, sgTom)
             .medRapportertPrÅr(BigDecimal.valueOf(300_000))
             .build(forrige);
@@ -337,7 +337,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         LocalDate sgFom = LocalDate.now();
 
         Sammenligningsgrunnlag.builder()
-            .medAvvikPromilleNy(BigDecimal.valueOf(250.654987))
+            .medAvvikPromille(BigDecimal.valueOf(250.654987))
             .medSammenligningsperiode(sgFom, sgTom)
             .medRapportertPrÅr(BigDecimal.valueOf(300_001))
             .build(aktivt);
@@ -348,7 +348,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
             .build();
 
         Sammenligningsgrunnlag.builder()
-            .medAvvikPromilleNy(BigDecimal.valueOf(250.654987))
+            .medAvvikPromille(BigDecimal.valueOf(250.654987))
             .medSammenligningsperiode(sgFom, sgTom)
             .medRapportertPrÅr(BigDecimal.valueOf(300_000))
             .build(forrige);

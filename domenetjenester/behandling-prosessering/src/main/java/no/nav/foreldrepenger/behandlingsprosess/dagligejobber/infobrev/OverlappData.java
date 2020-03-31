@@ -14,7 +14,7 @@ public class OverlappData {
     private RelasjonsRolleType rolle;
     private AktørId aktørId;
     private AktørId annenPartAktørId;
-    private LocalDate minUtbetalingDato;
+    private LocalDate tidligsteDato;
 
     public Saksnummer getSaksnummer() {
         return saksnummer;
@@ -36,8 +36,8 @@ public class OverlappData {
         return annenPartAktørId;
     }
 
-    public LocalDate getMinUtbetalingDato() {
-        return minUtbetalingDato;
+    public LocalDate getTidligsteDato() {
+        return tidligsteDato;
     }
 
     public Long getBehandlingId() {
@@ -80,8 +80,8 @@ public class OverlappData {
             return this;
         }
 
-        public OverlappDataBuilder medMinUtbetalingDato(LocalDate første) {
-            this.data.minUtbetalingDato = første;
+        public OverlappDataBuilder medTidligsteDato(LocalDate første) {
+            this.data.tidligsteDato = første;
             return this;
         }
 

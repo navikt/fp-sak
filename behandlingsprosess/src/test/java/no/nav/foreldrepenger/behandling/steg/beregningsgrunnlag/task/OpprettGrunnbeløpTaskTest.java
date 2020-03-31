@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,9 +14,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -32,9 +29,7 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Sammenligningsgrunnlag;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
 public class OpprettGrunnbeløpTaskTest {
@@ -162,7 +157,7 @@ public class OpprettGrunnbeløpTaskTest {
         return Sammenligningsgrunnlag.builder()
             .medSammenligningsperiode(LocalDate.now().minusDays(12), LocalDate.now().minusDays(6))
             .medRapportertPrÅr(BigDecimal.valueOf(323212.12))
-            .medAvvikPromilleNy(BigDecimal.valueOf(120))
+            .medAvvikPromille(BigDecimal.valueOf(120))
             .build(beregningsgrunnlag);
     }
 }
