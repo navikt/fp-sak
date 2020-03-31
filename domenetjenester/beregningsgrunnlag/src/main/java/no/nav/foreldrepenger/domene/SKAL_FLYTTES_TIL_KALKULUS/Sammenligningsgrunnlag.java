@@ -71,8 +71,8 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
         return rapportertPrÅr;
     }
 
-    public BigDecimal getAvvikPromilleNy() {
-        return avvikPromilleNy;
+    public BigDecimal getAvvikPromille() {
+        return avvikPromille;
     }
 
     public BeregningsgrunnlagEntitet getBeregningsgrunnlag() {
@@ -95,7 +95,7 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(beregningsgrunnlag, sammenligningsperiode, rapportertPrÅr, avvikPromilleNy);
+        return Objects.hash(beregningsgrunnlag, sammenligningsperiode, rapportertPrÅr, avvikPromille);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
                 + "sammenligningsperiodeFom=" + sammenligningsperiode.getFomDato() + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "sammenligningsperiodeTom=" + sammenligningsperiode.getTomDato() + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "rapportertPrÅr=" + rapportertPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "avvikPromille=" + avvikPromilleNy + ", " //$NON-NLS-1$ //$NON-NLS-2$
+                + "avvikPromille=" + avvikPromille + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + ">"; //$NON-NLS-1$
     }
 
@@ -135,7 +135,7 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
             return this;
         }
 
-        public Builder medAvvikPromilleNy(BigDecimal avvikPromille) {
+        public Builder medAvvikPromille(BigDecimal avvikPromille) {
             if(avvikPromille != null) {
                 sammenligningsgrunnlagMal.avvikPromille = avvikPromille;
                 sammenligningsgrunnlagMal.avvikPromilleNy = avvikPromille;
@@ -160,7 +160,7 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
             Objects.requireNonNull(sammenligningsgrunnlagMal.sammenligningsperiode.getFomDato(), "sammenligningsperiodeFom");
             Objects.requireNonNull(sammenligningsgrunnlagMal.sammenligningsperiode.getTomDato(), "sammenligningsperiodeTom");
             Objects.requireNonNull(sammenligningsgrunnlagMal.rapportertPrÅr, "rapportertPrÅr");
-            Objects.requireNonNull(sammenligningsgrunnlagMal.avvikPromilleNy, "avvikPromille");
+            Objects.requireNonNull(sammenligningsgrunnlagMal.avvikPromille, "avvikPromille");
         }
     }
 
