@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning.fp;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -80,7 +81,7 @@ public class MapUttakResultatFraVLTilRegel {
     private BigDecimal finnArbeidsprosentandel(BigDecimal stillingsprosent, BigDecimal totalStillingsprosent) {
         BigDecimal arbeidsprosentandel = BigDecimal.ONE;
         if (stillingsprosent.compareTo(BigDecimal.ZERO) > 0 && totalStillingsprosent.compareTo(BigDecimal.ZERO) > 0) {
-            arbeidsprosentandel = stillingsprosent.divide(totalStillingsprosent);
+            arbeidsprosentandel = stillingsprosent.divide(totalStillingsprosent,10, RoundingMode.HALF_UP);
         }
         return arbeidsprosentandel;
     }
