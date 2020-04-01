@@ -12,6 +12,8 @@ public class SvpTilretteleggingDto {
 
     private List<SvpArbeidsforholdDto> arbeidsforholdListe = new ArrayList<>();
 
+    private boolean saksbehandlet;
+
     public LocalDate getTermindato() {
         return termindato;
     }
@@ -34,5 +36,13 @@ public class SvpTilretteleggingDto {
 
     public void setArbeidsforholdListe(List<SvpArbeidsforholdDto> arbeidsforholdListe) {
         this.arbeidsforholdListe = arbeidsforholdListe;
+    }
+
+    public boolean isSaksbehandlet() {
+        return saksbehandlet;
+    }
+
+    public void setSaksbehandlet(boolean saksbehandlet) {
+        this.saksbehandlet = saksbehandlet;
     }
 }
