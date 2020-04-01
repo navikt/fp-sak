@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -45,7 +46,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.journal.JournalTjeneste;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -56,20 +56,18 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltningBehandling")
 @ApplicationScoped
-@Transaction
+@Transactional
 public class ForvaltningBehandlingRestTjeneste {
 
     private static final Logger logger = LoggerFactory.getLogger(ForvaltningBehandlingRestTjeneste.class);
 
     private BehandlingsoppretterApplikasjonTjeneste behandlingsoppretterApplikasjonTjeneste;
-    private JournalTjeneste journalTjeneste;
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
@@ -80,7 +78,6 @@ public class ForvaltningBehandlingRestTjeneste {
     @Inject
     public ForvaltningBehandlingRestTjeneste(BerørtBehandlingForvaltningTjeneste berørtBehandlingForvaltningTjeneste,
                                              BehandlingsoppretterApplikasjonTjeneste behandlingsoppretterApplikasjonTjeneste,
-                                             JournalTjeneste journalTjeneste,
                                              ProsessTaskRepository prosessTaskRepository,
                                              BehandlingRepositoryProvider repositoryProvider,
                                              HistorikkTjenesteAdapter historikkTjenesteAdapter) {
@@ -89,7 +86,6 @@ public class ForvaltningBehandlingRestTjeneste {
         this.mottatteDokumentRepository = repositoryProvider.getMottatteDokumentRepository();
         this.prosessTaskRepository = prosessTaskRepository;
         this.berørtBehandlingTjeneste = berørtBehandlingForvaltningTjeneste;
-        this.journalTjeneste = journalTjeneste;
         this.behandlingsoppretterApplikasjonTjeneste = behandlingsoppretterApplikasjonTjeneste;
         this.historikkTjenesteAdapter = historikkTjenesteAdapter;
     }
@@ -174,44 +170,6 @@ public class ForvaltningBehandlingRestTjeneste {
             }
             logger.warn("Fant ingen åpen førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); //NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-    }
-
-    @POST
-    @Path("/oppdaterInntektsmeldingMedAltinnReferanse")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Henter inn AR-referanse",
-        tags = "FORVALTNING-behandling",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Inntektsmeldinger er oppdatert.",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = String.class)
-                )
-            ),
-            @ApiResponse(responseCode = "400", description = "Oppgitt fagsak er ukjent, ikke under behandling, eller engangsstønad."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-        })
-    @BeskyttetRessurs(action = CREATE, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response oppdaterInntektsmeldingMedAltinnReferanse(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-        Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
-        if (fagsak == null || FagsakStatus.LØPENDE.equals(fagsak.getStatus()) || FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            logger.warn("Oppgitt fagsak {} er ukjent, ikke under behandling, eller engangsstønad", saksnummer.getVerdi()); //NOSONAR
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        } else {
-            List<MottattDokument> alleDokumentForFagsak = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsak.getId());
-            alleDokumentForFagsak.forEach(md -> {
-                if (DokumentTypeId.INNTEKTSMELDING.getKode().equals(md.getDokumentType().getKode()) && md.getJournalpostId() != null
-                    && md.getJournalpostId().getVerdi() != null && md.getKanalreferanse() == null) {
-                    logger.info("Henter kanalreferanse for journalpost: {}", md.getJournalpostId().getVerdi()); //NOSONAR
-                    ArkivJournalPost journalPost = journalTjeneste.hentInngåendeJournalpostHoveddokument(md.getJournalpostId());
-                    mottatteDokumentRepository.oppdaterMedKanalreferanse(md, journalPost.getKanalreferanse());
-                }
-            });
-            return Response.ok().build();
         }
     }
 
