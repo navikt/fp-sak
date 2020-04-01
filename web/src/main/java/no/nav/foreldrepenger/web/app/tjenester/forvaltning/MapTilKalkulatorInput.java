@@ -78,8 +78,8 @@ class MapTilKalkulatorInput {
         return kalkulatorInputDto;
     }
 
-    private static ForeldrepengerGrunnlag mapYtelsesSpesifiktGrunnlag(ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
-        return ytelsespesifiktGrunnlag == null ? null : new ForeldrepengerGrunnlag(ytelsespesifiktGrunnlag.getDekningsgrad(), ytelsespesifiktGrunnlag.getKvalifisererTilBesteberegning());
+    private static ForeldrepengerGrunnlag mapYtelsesSpesifiktGrunnlag(no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
+        return ytelsespesifiktGrunnlag == null ? null : new ForeldrepengerGrunnlag(BigDecimal.valueOf(ytelsespesifiktGrunnlag.getDekningsgrad()), ytelsespesifiktGrunnlag.isKvalifisererTilBesteberegning());
     }
 
     private static OpptjeningAktiviteterDto mapOpptjeningAktiviteter(Collection<no.nav.folketrygdloven.kalkulator.opptjening.OpptjeningAktiviteterDto.OpptjeningPeriodeDto> opptjeningAktiviteterForBeregning) {
