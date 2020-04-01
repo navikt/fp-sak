@@ -100,6 +100,10 @@ public class ForvaltningBeregningRestTjeneste {
         BeregningsgrunnlagInputFelles inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
         BeregningsgrunnlagInput beregningsgrunnlagInput = inputTjeneste.lagInput(behandling.getId());
         KalkulatorInputDto kalkulatorInputDto = MapTilKalkulatorInput.map(beregningsgrunnlagInput, behandling.getAktørId());
+        if (kalkulatorInputDto == null) {
+            return Response.noContent().build();
+
+        }
         return Response.ok(kalkulatorInputDto).build();
     }
 
