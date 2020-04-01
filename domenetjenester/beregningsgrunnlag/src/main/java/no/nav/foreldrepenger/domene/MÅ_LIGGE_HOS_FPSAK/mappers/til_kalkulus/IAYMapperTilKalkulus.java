@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus;
 
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +123,7 @@ public class IAYMapperTilKalkulus {
 
     private static OppgittOpptjeningDtoBuilder mapOppgittOpptjening(OppgittOpptjening oppgittOpptjening) {
         OppgittOpptjeningDtoBuilder builder = OppgittOpptjeningDtoBuilder.ny();
-        oppgittOpptjening.getFrilans().ifPresent(oppgittFrilans -> builder.leggTilFrilansOpplysninger(new OppgittFrilansDto(oppgittFrilans.getHarInntektFraFosterhjem(), oppgittFrilans.getErNyoppstartet(), oppgittFrilans.getHarNærRelasjon())));
+        oppgittOpptjening.getFrilans().ifPresent(oppgittFrilans -> builder.leggTilFrilansOpplysninger(new OppgittFrilansDto(oppgittFrilans.getErNyoppstartet())));
 
         oppgittOpptjening.getAnnenAktivitet().forEach(oppgittAnnenAktivitet -> builder.leggTilAnnenAktivitet(new OppgittAnnenAktivitetDto(mapDatoIntervall(oppgittAnnenAktivitet.getPeriode()), ArbeidType.fraKode(oppgittAnnenAktivitet.getArbeidType().getKode()))));
         oppgittOpptjening.getEgenNæring().forEach(oppgittEgenNæring -> builder.leggTilEgneNæring(mapEgenNæring(oppgittEgenNæring)));
@@ -224,7 +223,6 @@ public class IAYMapperTilKalkulus {
     private static AktivitetsAvtaleDtoBuilder mapAktivitetsAvtale(AktivitetsAvtale aktivitetsAvtale) {
         return AktivitetsAvtaleDtoBuilder.ny()
             .medPeriode(Intervall.fraOgMedTilOgMed(aktivitetsAvtale.getPeriode().getFomDato(), aktivitetsAvtale.getPeriode().getTomDato()))
-            .medProsentsats(aktivitetsAvtale.getProsentsats() == null ? null : aktivitetsAvtale.getProsentsats().getVerdi())
             .medSisteLønnsendringsdato(aktivitetsAvtale.getSisteLønnsendringsdato())
             .medErAnsettelsesPeriode(aktivitetsAvtale.erAnsettelsesPeriode());
     }
@@ -234,7 +232,6 @@ public class IAYMapperTilKalkulus {
         yrkesaktivitet.getAlleAktivitetsAvtaler().forEach(aktivitetsAvtale -> dtoBuilder.leggTilAktivitetsAvtale(mapAktivitetsAvtale(aktivitetsAvtale)));
         dtoBuilder.medArbeidsforholdId(mapArbeidsforholdRef(yrkesaktivitet.getArbeidsforholdRef()));
         dtoBuilder.medArbeidsgiver(yrkesaktivitet.getArbeidsgiver() == null ? null : mapArbeidsgiver(yrkesaktivitet.getArbeidsgiver()));
-        dtoBuilder.medArbeidsgiverNavn(yrkesaktivitet.getNavnArbeidsgiverUtland());
         dtoBuilder.medArbeidType(ArbeidType.fraKode(yrkesaktivitet.getArbeidType().getKode()));
         return dtoBuilder.build();
     }
