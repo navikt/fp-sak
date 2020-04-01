@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -122,10 +121,6 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         return revurderingRepository.finnÅpenBehandlingMedforelder(fagsak);
     }
 
-    private void oppdaterEnhetMedAnnenPart(Behandling behandling) {
-        behandlendeEnhetTjeneste.sjekkEnhetEtterEndring(behandling)
-            .ifPresent(enhet -> behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, enhet, HistorikkAktør.VEDTAKSLØSNINGEN, "Annen part"));
-    }
 
     private void kobleSakerOppdaterEnhetVedBehov(Behandling behandling) {
         FagsakRelasjon kobling = kobleSakTjeneste.finnFagsakRelasjonDersomOpprettet(behandling).orElse(null);
@@ -139,8 +134,6 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
         if (kobling == null || kobling.getFagsakNrTo().isEmpty()) {
             // Ingen kobling foretatt
-            if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()))
-                oppdaterEnhetMedAnnenPart(behandling);
             return;
         }
         behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandling, kobling).ifPresent(organisasjonsEnhet -> behandlendeEnhetTjeneste
