@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -136,9 +137,10 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         kobleSakTjeneste.kobleRelatertFagsakHvisDetFinnesEn(behandling);
         kobling = kobleSakTjeneste.finnFagsakRelasjonDersomOpprettet(behandling).orElse(null);
 
-        if (kobling == null || !kobling.getFagsakNrTo().isPresent()) {
+        if (kobling == null || kobling.getFagsakNrTo().isEmpty()) {
             // Ingen kobling foretatt
-            oppdaterEnhetMedAnnenPart(behandling);
+            if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()))
+                oppdaterEnhetMedAnnenPart(behandling);
             return;
         }
         behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandling, kobling).ifPresent(organisasjonsEnhet -> behandlendeEnhetTjeneste

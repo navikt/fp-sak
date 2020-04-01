@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -44,7 +45,8 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         avsluttTidligereRegistreringsoppgave(behandling);
-        oppdaterEnhetMedAnnenPart(behandling);
+        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()))
+            oppdaterEnhetMedAnnenPart(behandling);
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
