@@ -56,6 +56,8 @@ public class DokumentTypeId implements DokumentType {
     public static final DokumentTypeId BEKREFTELSE_VENTET_FØDSELSDATO = new DokumentTypeId("BEKREFTELSE_VENTET_FØDSELSDATO", "I000062");
     public static final DokumentTypeId FØDSELSATTEST = new DokumentTypeId("FØDSELSATTEST", "I000063");
     public static final DokumentTypeId DOK_INNLEGGELSE = new DokumentTypeId("DOK_INNLEGGELSE", "I000037");
+    public static final DokumentTypeId DOK_HV = new DokumentTypeId("DOK_HV", "I000116");
+    public static final DokumentTypeId DOK_NAV_TILTAK = new DokumentTypeId("DOK_NAV_TILTAK", "I000117");
     public static final DokumentTypeId DOK_MORS_UTDANNING_ARBEID_SYKDOM = new DokumentTypeId("DOK_MORS_UTDANNING_ARBEID_SYKDOM", "I000038");
     public static final DokumentTypeId LEGEERKLÆRING = new DokumentTypeId("LEGEERKLÆRING", "I000023");
     public static final DokumentTypeId KLAGE_DOKUMENT = new DokumentTypeId("KLAGE_DOKUMENT", "I000027");
@@ -65,7 +67,8 @@ public class DokumentTypeId implements DokumentType {
     public static final DokumentTypeId UDEFINERT = new DokumentTypeId("-", null);
 
     private static final Set<String> VEDLEGG_TYPER = Set.of(BEKREFTELSE_VENTET_FØDSELSDATO, FØDSELSATTEST, LEGEERKLÆRING,
-        DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, DOKUMENTASJON_AV_OMSORGSOVERTAKELSE, DOK_INNLEGGELSE, DOK_MORS_UTDANNING_ARBEID_SYKDOM)
+        DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, DOKUMENTASJON_AV_OMSORGSOVERTAKELSE, DOK_INNLEGGELSE, DOK_MORS_UTDANNING_ARBEID_SYKDOM,
+        DOK_HV, DOK_NAV_TILTAK)
         .stream().flatMap(dti -> List.of(dti.getKode(), dti.getOffisiellKode()).stream()).collect(Collectors.toSet());
 
     private static final Set<String> SØKNAD_TYPER = Set.of(SØKNAD_ENGANGSSTØNAD_FØDSEL, SØKNAD_FORELDREPENGER_FØDSEL,

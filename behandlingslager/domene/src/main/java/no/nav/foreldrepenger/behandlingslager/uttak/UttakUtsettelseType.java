@@ -26,6 +26,8 @@ public enum UttakUtsettelseType implements Kodeverdi {
     SYKDOM_SKADE("SYKDOM_SKADE", "Avhengig av hjelp grunnet sykdom"),
     SØKER_INNLAGT("SØKER_INNLAGT", "Søker er innlagt i helseinstitusjon"),
     BARN_INNLAGT("BARN_INNLAGT", "Barn er innlagt i helseinstitusjon"),
+    HV_OVELSE("HV_OVELSE", "Heimevernet"),
+    NAV_TILTAK("NAV_TILTAK", "Tiltak i regi av NAV"),
     UDEFINERT("-", "Ikke satt eller valgt kode"),
     ;
     private static final Map<String, UttakUtsettelseType> KODER = new LinkedHashMap<>();

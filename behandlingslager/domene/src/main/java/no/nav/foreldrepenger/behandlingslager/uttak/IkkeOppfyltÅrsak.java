@@ -48,7 +48,7 @@ public enum IkkeOppfyltÅrsak implements PeriodeResultatÅrsak {
     ARBEIDER_I_UTTAKSPERIODEN_MER_ENN_0_PROSENT("4023", "§14-10 femte ledd: Arbeider i uttaksperioden mer enn 0%", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}", Set.of(UTTAK)),
     AVSLAG_GRADERING_ARBEIDER_100_PROSENT_ELLER_MER("4025", "§14-16 første ledd: Avslag gradering - arbeid 100% eller mer", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-16\"}}}", Set.of(UTTAK)),
     UTSETTELSE_FØR_TERMIN_FØDSEL("4030", "§14-9: Avslag utsettelse før termin/fødsel", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9\"}}}", Set.of(UTSETTELSE)),
-    FERIE_INNENFOR_DE_FØRSTE_6_UKENE("4031", "§14-9: Ferie/arbeid innenfor de første 6 ukene", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9\"}}}", Set.of(UTSETTELSE)),
+    UTSETTELSE_INNENFOR_DE_FØRSTE_6_UKENE("4031", "§14-9: Ferie/arbeid innenfor de første 6 ukene", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9\"}}}", Set.of(UTSETTELSE)),
     FERIE_SELVSTENDIG_NÆRINGSDRIVENDSE_FRILANSER("4032", "§14-11 første ledd bokstav a: Ferie - selvstendig næringsdrivende/frilanser", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}", Set.of(UTSETTELSE)),
     IKKE_LOVBESTEMT_FERIE("4033", "§14-11 første ledd bokstav a: Ikke lovbestemt ferie", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}", Set.of(UTSETTELSE)),
     INGEN_STØNADSDAGER_IGJEN("4034", "§14-11, jf §14-9: Avslag utsettelse - ingen stønadsdager igjen", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11,14-9\"}}}", Set.of(UTSETTELSE)),

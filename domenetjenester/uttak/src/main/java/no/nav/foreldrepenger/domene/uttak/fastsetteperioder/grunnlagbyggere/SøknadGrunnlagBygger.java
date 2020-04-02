@@ -35,8 +35,10 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Dokumentasjo
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.GyldigGrunnPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppgittPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedBarnInnlagt;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedHV;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedInnleggelse;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedSykdomEllerSkade;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedTiltakIRegiAvNav;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Søknad;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Søknadstype;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
@@ -207,7 +209,7 @@ public class SøknadGrunnlagBygger {
         Dokumentasjon.Builder builder = new Dokumentasjon.Builder();
         Optional<PerioderUttakDokumentasjonEntitet> dokumentasjon = ytelseFordelingAggregat.getPerioderUttakDokumentasjon();
         if (dokumentasjon.isPresent()) {
-            leggTilDokumentasjon(builder, dokumentasjon);
+            leggTilDokumentasjon(builder, dokumentasjon.get());
         }
         if (ytelseFordelingAggregat.getPerioderUtenOmsorg().isPresent()) {
             leggTilDokumentasjon(ytelseFordelingAggregat, builder);
@@ -219,27 +221,34 @@ public class SøknadGrunnlagBygger {
     private void leggTilDokumentasjon(YtelseFordelingAggregat ytelseFordelingAggregat, Dokumentasjon.Builder builder) {
         List<PeriodeUtenOmsorgEntitet> perioderUtenOmsorg = ytelseFordelingAggregat.getPerioderUtenOmsorg().get().getPerioder();
         for (PeriodeUtenOmsorgEntitet periodeUtenOmsorg : perioderUtenOmsorg) {
-            builder.leggPerioderUtenOmsorg(new no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeUtenOmsorg(periodeUtenOmsorg.getPeriode().getFomDato(),
+            builder.leggPeriodeUtenOmsorg(new no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeUtenOmsorg(periodeUtenOmsorg.getPeriode().getFomDato(),
                 periodeUtenOmsorg.getPeriode().getTomDato()));
         }
     }
 
-    private void leggTilDokumentasjon(Dokumentasjon.Builder builder, Optional<PerioderUttakDokumentasjonEntitet> dokumentasjon) {
-        for (PeriodeUttakDokumentasjonEntitet periode : dokumentasjon.get().getPerioder()) {
+    private void leggTilDokumentasjon(Dokumentasjon.Builder builder, PerioderUttakDokumentasjonEntitet dokumentasjon) {
+        for (PeriodeUttakDokumentasjonEntitet periode : dokumentasjon.getPerioder()) {
             leggTilDokumetasjonPeriode(builder, periode);
         }
     }
 
     private static void leggTilDokumetasjonPeriode(Dokumentasjon.Builder builder, PeriodeUttakDokumentasjonEntitet dokumentasjonPeriode) {
         DatoIntervallEntitet tidsperiode = dokumentasjonPeriode.getPeriode();
-        if (UttakDokumentasjonType.SYK_SØKER.equals(dokumentasjonPeriode.getDokumentasjonType())) {
-            builder.leggPerioderMedSykdomEllerSkade(new PeriodeMedSykdomEllerSkade(tidsperiode.getFomDato(), tidsperiode.getTomDato()));
-        } else if (UttakDokumentasjonType.INNLAGT_BARN.equals(dokumentasjonPeriode.getDokumentasjonType())) {
-            builder.leggPerioderMedBarnInnlagt(new PeriodeMedBarnInnlagt(tidsperiode.getFomDato(), tidsperiode.getTomDato()));
-        } else if (UttakDokumentasjonType.INNLAGT_SØKER.equals(dokumentasjonPeriode.getDokumentasjonType())) {
-            builder.leggPerioderMedInnleggelse(new PeriodeMedInnleggelse(tidsperiode.getFomDato(), tidsperiode.getTomDato()));
+        var fom = tidsperiode.getFomDato();
+        var tom = tidsperiode.getTomDato();
+        var dokumentasjonType = dokumentasjonPeriode.getDokumentasjonType();
+        if (UttakDokumentasjonType.SYK_SØKER.equals(dokumentasjonType)) {
+            builder.leggPeriodeMedSykdomEllerSkade(new PeriodeMedSykdomEllerSkade(fom, tom));
+        } else if (UttakDokumentasjonType.INNLAGT_BARN.equals(dokumentasjonType)) {
+            builder.leggPeriodeMedBarnInnlagt(new PeriodeMedBarnInnlagt(fom, tom));
+        } else if (UttakDokumentasjonType.INNLAGT_SØKER.equals(dokumentasjonType)) {
+            builder.leggPeriodeMedInnleggelse(new PeriodeMedInnleggelse(fom, tom));
+        } else if (UttakDokumentasjonType.HV_OVELSE.equals(dokumentasjonType)) {
+            builder.leggTilPeriodeMedHV(new PeriodeMedHV(fom, tom));
+        } else if (UttakDokumentasjonType.NAV_TILTAK.equals(dokumentasjonType)) {
+            builder.leggTilPeriodeMedTiltakViaNav(new PeriodeMedTiltakIRegiAvNav(fom, tom));
         } else {
-            builder.leggGyldigGrunnPerioder(new GyldigGrunnPeriode(tidsperiode.getFomDato(), tidsperiode.getTomDato()));
+            builder.leggGyldigGrunnPeriode(new GyldigGrunnPeriode(fom, tom));
         }
     }
 }

@@ -122,6 +122,10 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
             } else if ((UtsettelseÅrsak.INSTITUSJON_SØKER.equals(årsak) || UtsettelseÅrsak.INSTITUSJON_BARN.equals(årsak))
                 && !dokumentTypeIdSet.contains(DokumentTypeId.DOK_INNLEGGELSE)) {
                 manglendeVedlegg.add(new ManglendeVedlegg(DokumentTypeId.DOK_INNLEGGELSE));
+            }  else if (UtsettelseÅrsak.HV_OVELSE.equals(årsak) && !dokumentTypeIdSet.contains(DokumentTypeId.DOK_HV)) {
+                manglendeVedlegg.add(new ManglendeVedlegg(DokumentTypeId.DOK_HV));
+            }   else if (UtsettelseÅrsak.NAV_TILTAK.equals(årsak) && !dokumentTypeIdSet.contains(DokumentTypeId.DOK_NAV_TILTAK)) {
+                manglendeVedlegg.add(new ManglendeVedlegg(DokumentTypeId.DOK_NAV_TILTAK));
             }
         });
 
