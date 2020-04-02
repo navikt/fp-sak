@@ -57,7 +57,8 @@ public class SvangerskapspengerRestTjeneste {
         tags = "svangerskapspenger")
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
     public SvpTilretteleggingDto tilrettelegging(@NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId for svangerskapspenger") @Valid BehandlingIdDto behandlingIdDto) {
-        return svangerskapspengerTjeneste.hentTilrettelegging(behandlingIdDto.getBehandlingId());
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingId());
+        return svangerskapspengerTjeneste.hentTilrettelegging(behandling);
     }
 
     @GET
@@ -69,7 +70,7 @@ public class SvangerskapspengerRestTjeneste {
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
     public SvpTilretteleggingDto tilrettelegging(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return svangerskapspengerTjeneste.hentTilrettelegging(behandling.getId());
+        return svangerskapspengerTjeneste.hentTilrettelegging(behandling);
     }
 }
 

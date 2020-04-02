@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
@@ -42,7 +44,9 @@ public class SvangerskapspengerTjeneste {
         this.iayTjeneste = iayTjeneste;
     }
 
-    public SvpTilretteleggingDto hentTilrettelegging(Long behandlingId) {
+    public SvpTilretteleggingDto hentTilrettelegging(Behandling behandling) {
+        var behandlingId = behandling.getId();
+
         SvpTilretteleggingDto dto = new SvpTilretteleggingDto();
 
         Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
@@ -64,12 +68,23 @@ public class SvangerskapspengerTjeneste {
         var arbeidsforholdInformasjon = iayTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdInformasjon()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Fant ikke forventent arbeidsforholdinformasjon for behandling: " + behandlingId));
 
-        var aktuelleTilretteleggingerUfiltrert = new TilretteleggingFilter(svpGrunnlagOpt.get()).getAktuelleTilretteleggingerUfiltrert().stream()
+        var tilretteleggingFilter = new TilretteleggingFilter(svpGrunnlagOpt.get());
+        var aktuelleTilretteleggingerUfiltrert = tilretteleggingFilter.getAktuelleTilretteleggingerUfiltrert().stream()
             .map(svpTilretteleggingEntitet -> mapTilrettelegging(svpTilretteleggingEntitet, arbeidsforholdInformasjon))
             .collect(Collectors.toList());
         dto.setArbeidsforholdListe(aktuelleTilretteleggingerUfiltrert);
+        dto.setSaksbehandlet(harSaksbehandletTilrettelegging(behandling));
 
         return dto;
+    }
+
+    /**
+     * Må se på aksjonspunkt ettersom overtsyrteTillrettelegginger (i {@link TilretteleggingFilter}
+     * ikke bare brukes av saksbehandler
+     */
+    private boolean harSaksbehandletTilrettelegging(Behandling behandling) {
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING);
+        return aksjonspunkt.isPresent() && aksjonspunkt.get().erUtført();
     }
 
     private SvpArbeidsforholdDto mapTilrettelegging(SvpTilretteleggingEntitet svpTilrettelegging, ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
