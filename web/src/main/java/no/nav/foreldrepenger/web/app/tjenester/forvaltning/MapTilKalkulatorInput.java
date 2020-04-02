@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import no.nav.folketrygdloven.beregningsgrunnlag.Grunnbeløp;
+import no.nav.folketrygdloven.kalkulator.gradering.AktivitetGradering;
+import no.nav.folketrygdloven.kalkulator.gradering.AndelGradering;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.iay.AktørArbeidDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.AktørInntektDto;
@@ -24,8 +26,12 @@ import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto
 import no.nav.folketrygdloven.kalkulator.modell.typer.Stillingsprosent;
 import no.nav.folketrygdloven.kalkulator.modell.virksomhet.Arbeidsgiver;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.AktivitetGraderingDto;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.AndelGraderingDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.ForeldrepengerGrunnlag;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.GraderingDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.GrunnbeløpDto;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.RefusjonskravDatoDto;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Aktør;
 import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
 import no.nav.folketrygdloven.kalkulus.felles.v1.BeløpDto;
@@ -44,6 +50,7 @@ import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.UtbetalingsPostDto;
 import no.nav.folketrygdloven.kalkulus.iay.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseDto;
 import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelserDto;
+import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
@@ -75,7 +82,47 @@ class MapTilKalkulatorInput {
             beregningsgrunnlagInput.getSkjæringstidspunktOpptjening()
         );
         kalkulatorInputDto.medYtelsespesifiktGrunnlag(mapYtelsesSpesifiktGrunnlag(beregningsgrunnlagInput.getYtelsespesifiktGrunnlag()));
+        kalkulatorInputDto.medRefusjonskravDatoer(mapRefusjonskravDatoer(beregningsgrunnlagInput.getRefusjonskravDatoer()));
+        kalkulatorInputDto.medAktivitetGradering(mapAktivitetGradering(beregningsgrunnlagInput.getAktivitetGradering()));
         return kalkulatorInputDto;
+    }
+
+    private static AktivitetGraderingDto mapAktivitetGradering(AktivitetGradering aktivitetGradering) {
+        return aktivitetGradering == null ? null : new AktivitetGraderingDto(mapAndelGraderinger(aktivitetGradering.getAndelGradering()));
+    }
+
+    private static List<AndelGraderingDto> mapAndelGraderinger(Set<AndelGradering> andelGradering) {
+        return andelGradering == null ? null : andelGradering.stream().map(MapTilKalkulatorInput::mapAndelGradering).collect(Collectors.toList());
+    }
+
+    private static AndelGraderingDto mapAndelGradering(AndelGradering andelGradering) {
+        return andelGradering == null ? null : new AndelGraderingDto(
+            andelGradering.getAktivitetStatus() == null ? null : new AktivitetStatus(andelGradering.getAktivitetStatus().getKode()),
+            mapArbeidsgiver(andelGradering.getArbeidsgiver()),
+            mapAbakusReferanse(andelGradering.getArbeidsforholdRef()),
+            mapGraderinger(andelGradering.getGraderinger())
+        );
+    }
+
+    private static List<GraderingDto> mapGraderinger(List<AndelGradering.Gradering> graderinger) {
+        return graderinger == null ? null : graderinger.stream().map(MapTilKalkulatorInput::mapGradering).collect(Collectors.toList());
+    }
+
+    private static GraderingDto mapGradering(AndelGradering.Gradering gradering) {
+        return gradering == null ? null : new GraderingDto(mapPeriode(gradering.getPeriode()), gradering.getArbeidstidProsent());
+    }
+
+    private static List<RefusjonskravDatoDto> mapRefusjonskravDatoer(List<no.nav.folketrygdloven.kalkulator.modell.iay.RefusjonskravDatoDto> refusjonskravDatoer) {
+        return refusjonskravDatoer == null ? null : refusjonskravDatoer.stream().map(MapTilKalkulatorInput::mapRefusjonskravDato).collect(Collectors.toList());
+    }
+
+    private static RefusjonskravDatoDto mapRefusjonskravDato(no.nav.folketrygdloven.kalkulator.modell.iay.RefusjonskravDatoDto refusjonskravDatoDto) {
+        return refusjonskravDatoDto == null ? null : new RefusjonskravDatoDto(
+            mapArbeidsgiver(refusjonskravDatoDto.getArbeidsgiver()),
+            refusjonskravDatoDto.getFørsteDagMedRefusjonskrav().orElse(null),
+            refusjonskravDatoDto.getFørsteInnsendingAvRefusjonskrav(),
+            refusjonskravDatoDto.harRefusjonFraStart()
+        );
     }
 
     private static ForeldrepengerGrunnlag mapYtelsesSpesifiktGrunnlag(no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
