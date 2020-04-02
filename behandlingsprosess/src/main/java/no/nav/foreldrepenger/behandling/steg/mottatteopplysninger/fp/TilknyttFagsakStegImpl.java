@@ -121,10 +121,6 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         return revurderingRepository.finnÅpenBehandlingMedforelder(fagsak);
     }
 
-    private void oppdaterEnhetMedAnnenPart(Behandling behandling) {
-        behandlendeEnhetTjeneste.sjekkEnhetEtterEndring(behandling)
-            .ifPresent(enhet -> behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, enhet, HistorikkAktør.VEDTAKSLØSNINGEN, "Annen part"));
-    }
 
     private void kobleSakerOppdaterEnhetVedBehov(Behandling behandling) {
         FagsakRelasjon kobling = kobleSakTjeneste.finnFagsakRelasjonDersomOpprettet(behandling).orElse(null);
@@ -136,9 +132,8 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         kobleSakTjeneste.kobleRelatertFagsakHvisDetFinnesEn(behandling);
         kobling = kobleSakTjeneste.finnFagsakRelasjonDersomOpprettet(behandling).orElse(null);
 
-        if (kobling == null || !kobling.getFagsakNrTo().isPresent()) {
+        if (kobling == null || kobling.getFagsakNrTo().isEmpty()) {
             // Ingen kobling foretatt
-            oppdaterEnhetMedAnnenPart(behandling);
             return;
         }
         behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandling, kobling).ifPresent(organisasjonsEnhet -> behandlendeEnhetTjeneste

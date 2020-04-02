@@ -23,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerEnhetDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,7 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseFilterDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.AktørId;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FagsakYtelseType;
+import no.nav.folketrygdloven.kalkulus.felles.v1.KalkulatorInputDto;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task.OpprettGrunnbeløpTask;
@@ -98,7 +100,12 @@ public class ForvaltningBeregningRestTjeneste {
         Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
         BeregningsgrunnlagInputFelles inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
         BeregningsgrunnlagInput beregningsgrunnlagInput = inputTjeneste.lagInput(behandling.getId());
-        return Response.ok(beregningsgrunnlagInput).build();
+        KalkulatorInputDto kalkulatorInputDto = MapTilKalkulatorInput.map(beregningsgrunnlagInput, behandling.getAktørId());
+        if (kalkulatorInputDto == null) {
+            return Response.noContent().build();
+
+        }
+        return Response.ok(kalkulatorInputDto).build();
     }
 
 
@@ -131,7 +138,7 @@ public class ForvaltningBeregningRestTjeneste {
             .map(behandlingRepository::hentBehandling)
             .collect(Collectors.toSet());
         logger.info("Fant {} behandlinger som må sjekkes", behandlinger.size());
-        Set<String> saksnummer = new HashSet<>();
+        Set<SaksnummerEnhetDto> liste = new HashSet<>();
         for (Behandling behandling : behandlinger) {
             BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = grunnlagList.stream().filter(gr -> gr.getBehandlingId().equals(behandling.getId())).findFirst().orElseThrow();
             LocalDate skjæringstidspunkt = grunnlagEntitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt).orElseThrow();
@@ -158,13 +165,14 @@ public class ForvaltningBeregningRestTjeneste {
                     // Hvis dette meldekortet ikke var "helt" må saken muligens revurderes
                     boolean erMeldekortKomplett = skjæringstidspunkt.isAfter(sisteMeldekort.get().getAnvistTOM());
                     if (!erMeldekortKomplett) {
-                        saksnummer.add(behandling.getFagsak().getSaksnummer().getVerdi());
+                        SaksnummerEnhetDto dto = new SaksnummerEnhetDto(behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getBehandlendeEnhet());
+                        liste.add(dto);
                     }
                 }
 
             }
         }
-        return Response.ok(saksnummer).build();
+        return Response.ok(liste).build();
     }
 
     @POST

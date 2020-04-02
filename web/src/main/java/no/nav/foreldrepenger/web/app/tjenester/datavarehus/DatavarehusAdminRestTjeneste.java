@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -41,7 +42,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-@Transaction
+@Transactional
 public class DatavarehusAdminRestTjeneste {
 
     private BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste;

@@ -10,12 +10,16 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -63,7 +67,6 @@ import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -76,10 +79,12 @@ import no.nav.vedtak.util.FPDateUtil;
  */
 @Path(FordelRestTjeneste.BASE_PATH)
 @ApplicationScoped
-@Transaction
+@Transactional
 public class FordelRestTjeneste {
 
     private static final String JSON_UTF8 = "application/json; charset=UTF-8";
+
+    private final Logger LOG = LoggerFactory.getLogger(FordelRestTjeneste.class);
 
     static final String BASE_PATH = "/fordel";
     private static final String INFORMASJON_PART_PATH = "/fagsak/informasjon";
@@ -318,8 +323,18 @@ public class FordelRestTjeneste {
             .medJournalførendeEnhet(mottattJournalpost.getJournalForendeEnhet());
 
         if (DokumentTypeId.INNTEKTSMELDING.getKode().equals(dokumentTypeId.getKode())) {
+            if (mottattJournalpost.getEksternReferanseId().isPresent()) {
+                LOG.info("FPSAK FORDEL REST mottak kanalref {}", mottattJournalpost.getEksternReferanseId().get());
+                mottattJournalpost.getEksternReferanseId().ifPresent(builder::medKanalreferanse);
+            } else {
+                LOG.info("FPSAK FORDEL REST mottak inntektsmelding uten kanalreferanse {}", mottattJournalpost.getJournalpostId());
+            }
             String referanseFraJournalpost = utledAltinnReferanseFraInntektsmelding(journalpostId);
             builder.medKanalreferanse(referanseFraJournalpost);
+            mottattJournalpost.getEksternReferanseId().ifPresent(ref -> {
+                if (!ref.equalsIgnoreCase(referanseFraJournalpost))
+                    LOG.info("FPSAK FORDEL REST mottak avvik kanalref {} og {}", ref, referanseFraJournalpost);
+            });
         }
 
         mottattJournalpost.getForsendelseId().ifPresent(builder::medForsendelseId);
