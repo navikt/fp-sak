@@ -47,7 +47,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
-public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegImplTest {
+public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
 
     private static final AktørId AKTØRID = AktørId.dummy();
 
