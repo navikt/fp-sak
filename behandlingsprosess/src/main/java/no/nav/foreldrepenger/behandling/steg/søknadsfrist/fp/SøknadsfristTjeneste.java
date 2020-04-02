@@ -45,10 +45,14 @@ public class SøknadsfristTjeneste {
 
     public Optional<AksjonspunktDefinisjon> vurderSøknadsfristForForeldrepenger(BehandlingskontrollKontekst kontekst) {
         Behandling behandling = repositoryProvider.getBehandlingRepository().hentBehandling(kontekst.getBehandlingId());
-        SøknadEntitet søknad = repositoryProvider.getSøknadRepository().hentSøknad(behandling);
         YtelseFordelingAggregat fordelingAggregat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
         List<OppgittPeriodeEntitet> oppgittePerioder = fordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder();
+        //Ingen perioder betyr behandling ut ny søknad. Trenger ikke å sjekke søknadsfrist på nytt ettersom uttaksperiodegrense er kopiert fra forrige behandling
+        if (oppgittePerioder.isEmpty()){
+            return Optional.empty();
+        }
 
+        SøknadEntitet søknad = repositoryProvider.getSøknadRepository().hentSøknad(behandling);
         SøknadsfristRegelAdapter regelAdapter = new SøknadsfristRegelAdapter();
         SøknadsfristResultat resultat = regelAdapter.vurderSøknadsfristFor(søknad, oppgittePerioder, søknadsfristEtterFørsteUttaksdag);
 
