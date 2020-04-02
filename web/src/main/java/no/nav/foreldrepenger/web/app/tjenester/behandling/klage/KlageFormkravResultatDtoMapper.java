@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
@@ -28,13 +29,19 @@ class KlageFormkravResultatDtoMapper {
     }
 
     private static KlageFormkravResultatDto lagDto(KlageFormkravEntitet klageFormkrav, FptilbakeRestKlient fptilbakeRestKlient) {
-        Long paKlagdBehandlingId = klageFormkrav.hentKlageResultat().getPåKlagdBehandling().map(Behandling::getId).orElse(null);
+        Optional<Behandling> paKlagdBehandling = klageFormkrav.hentKlageResultat().getPåKlagdBehandling();
         Optional<UUID> paKlagdEksternBehandlingUuid = klageFormkrav.hentKlageResultat().getPåKlagdEksternBehandling();
-        if (paKlagdBehandlingId == null && paKlagdEksternBehandlingUuid.isPresent()) {
-            paKlagdBehandlingId = hentPåklagdBehandlingIdForEksternApplikasjon(paKlagdEksternBehandlingUuid.get(), fptilbakeRestKlient);
-        }
         KlageFormkravResultatDto dto = new KlageFormkravResultatDto();
-        dto.setPaKlagdBehandlingId(paKlagdBehandlingId);
+        if (paKlagdBehandling.isEmpty() && paKlagdEksternBehandlingUuid.isPresent()) {
+            Optional<TilbakekrevingVedtakDto> tilbakekrevingVedtakDto = hentPåklagdBehandlingIdForEksternApplikasjon(paKlagdEksternBehandlingUuid.get(), fptilbakeRestKlient);
+            if (tilbakekrevingVedtakDto.isPresent()) {
+                dto.setPaKlagdBehandlingId(tilbakekrevingVedtakDto.get().getBehandlingId());
+                dto.setPaklagdBehandlingType(BehandlingType.fraKode(tilbakekrevingVedtakDto.get().getTilbakekrevingBehandlingType()));
+            }
+        } else {
+            dto.setPaKlagdBehandlingId(paKlagdBehandling.map(Behandling::getId).orElse(null));
+            dto.setPaklagdBehandlingType(paKlagdBehandling.map(Behandling::getType).orElse(null));
+        }
         dto.setBegrunnelse(klageFormkrav.hentBegrunnelse());
         dto.setErKlagerPart(klageFormkrav.erKlagerPart());
         dto.setErKlageKonkret(klageFormkrav.erKonkret());
@@ -50,8 +57,7 @@ class KlageFormkravResultatDtoMapper {
         return klageAvvistÅrsaker;
     }
 
-    private static Long hentPåklagdBehandlingIdForEksternApplikasjon(UUID paKlagdEksternBehandlingUuid, FptilbakeRestKlient fptilbakeRestKlient){
-        TilbakekrevingVedtakDto tilbakekrevingVedtakInfo = fptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(paKlagdEksternBehandlingUuid);
-        return  tilbakekrevingVedtakInfo != null ? tilbakekrevingVedtakInfo.getBehandlingId() : null;
+    private static Optional<TilbakekrevingVedtakDto> hentPåklagdBehandlingIdForEksternApplikasjon(UUID paKlagdEksternBehandlingUuid, FptilbakeRestKlient fptilbakeRestKlient){
+        return Optional.ofNullable(fptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(paKlagdEksternBehandlingUuid));
     }
 }

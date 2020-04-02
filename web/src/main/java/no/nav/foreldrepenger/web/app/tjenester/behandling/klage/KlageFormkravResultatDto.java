@@ -2,10 +2,12 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
 import java.util.List;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 
 public class KlageFormkravResultatDto {
     private Long paKlagdBehandlingId;
+    private BehandlingType paklagdBehandlingType;
     private String begrunnelse;
     private boolean erKlagerPart;
     private boolean erKlageKonkret;
@@ -21,7 +23,7 @@ public class KlageFormkravResultatDto {
         return avvistArsaker;
     }
 
-    public void setAvvistArsaker(List<KlageAvvistÅrsak> avvistArsaker) {
+    void setAvvistArsaker(List<KlageAvvistÅrsak> avvistArsaker) {
         this.avvistArsaker = avvistArsaker;
     }
 
@@ -29,15 +31,23 @@ public class KlageFormkravResultatDto {
         return paKlagdBehandlingId;
     }
 
-    public void setPaKlagdBehandlingId(Long paKlagdBehandlingId) {
+    void setPaKlagdBehandlingId(Long paKlagdBehandlingId) {
         this.paKlagdBehandlingId = paKlagdBehandlingId;
+    }
+
+    public BehandlingType getPaklagdBehandlingType() {
+        return paklagdBehandlingType;
+    }
+
+    void setPaklagdBehandlingType(BehandlingType paklagdBehandlingType) {
+        this.paklagdBehandlingType = paklagdBehandlingType;
     }
 
     public String getBegrunnelse() {
         return begrunnelse;
     }
 
-    public void setBegrunnelse(String begrunnelse) {
+    void setBegrunnelse(String begrunnelse) {
         this.begrunnelse = begrunnelse;
     }
 
@@ -45,7 +55,7 @@ public class KlageFormkravResultatDto {
         return erKlagerPart;
     }
 
-    public void setErKlagerPart(boolean erKlagerPart) {
+    void setErKlagerPart(boolean erKlagerPart) {
         this.erKlagerPart = erKlagerPart;
     }
 
@@ -53,7 +63,7 @@ public class KlageFormkravResultatDto {
         return erKlageKonkret;
     }
 
-    public void setErKlageKonkret(boolean erKlageKonkret) {
+    void setErKlageKonkret(boolean erKlageKonkret) {
         this.erKlageKonkret = erKlageKonkret;
     }
 
@@ -61,7 +71,7 @@ public class KlageFormkravResultatDto {
         return erKlagefirstOverholdt;
     }
 
-    public void setErKlagefirstOverholdt(boolean erKlagefirstOverholdt) {
+    void setErKlagefirstOverholdt(boolean erKlagefirstOverholdt) {
         this.erKlagefirstOverholdt = erKlagefirstOverholdt;
     }
 
@@ -69,7 +79,7 @@ public class KlageFormkravResultatDto {
         return erSignert;
     }
 
-    public void setErSignert(boolean erSignert) {
+    void setErSignert(boolean erSignert) {
         this.erSignert = erSignert;
     }
 }
