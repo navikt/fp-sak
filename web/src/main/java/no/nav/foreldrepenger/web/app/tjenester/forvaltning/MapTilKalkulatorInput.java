@@ -88,7 +88,11 @@ class MapTilKalkulatorInput {
     }
 
     private static AktivitetGraderingDto mapAktivitetGradering(AktivitetGradering aktivitetGradering) {
-        return aktivitetGradering == null ? null : new AktivitetGraderingDto(mapAndelGraderinger(aktivitetGradering.getAndelGradering()));
+        if (aktivitetGradering == null) {
+            return null;
+        }
+        AktivitetGraderingDto aktivitetGraderingDto = new AktivitetGraderingDto(mapAndelGraderinger(aktivitetGradering.getAndelGradering()));
+        return aktivitetGraderingDto.getAndelGraderingDto() == null || aktivitetGraderingDto.getAndelGraderingDto().isEmpty() ? null : aktivitetGraderingDto;
     }
 
     private static List<AndelGraderingDto> mapAndelGraderinger(Set<AndelGradering> andelGradering) {
@@ -199,7 +203,7 @@ class MapTilKalkulatorInput {
             ytelseAnvistDto.getBeløp().map(Beløp::getVerdi).map(BeløpDto::new).orElse(null),
             ytelseAnvistDto.getDagsats().map(Beløp::getVerdi).map(BeløpDto::new).orElse(null),
             ytelseAnvistDto.getUtbetalingsgradProsent().map(Stillingsprosent::getVerdi).orElse(null)
-            );
+        );
     }
 
     private static OppgittOpptjeningDto mapOppgittOpptjening(Optional<no.nav.folketrygdloven.kalkulator.modell.iay.OppgittOpptjeningDto> oppgittOpptjening) {
@@ -337,7 +341,7 @@ class MapTilKalkulatorInput {
             mapArbeidsgiver(arbeidsforholdOverstyringDto.getArbeidsgiver()),
             mapAbakusReferanse(arbeidsforholdOverstyringDto.getArbeidsforholdRef()),
             arbeidsforholdOverstyringDto.getHandling() == null ? null : new ArbeidsforholdHandlingType(arbeidsforholdOverstyringDto.getHandling().getKode())
-            );
+        );
     }
 
     private static ArbeidDto mapArbeidDto(Optional<AktørArbeidDto> aktørArbeidFraRegister) {
@@ -364,7 +368,7 @@ class MapTilKalkulatorInput {
             mapPeriode(aktivitetsAvtaleDto.getPeriode()),
             aktivitetsAvtaleDto.getSisteLønnsendringsdato(),
             aktivitetsAvtaleDto.erAnsettelsesPeriode() ? null : BigDecimal.valueOf(100)
-            );
+        );
     }
 
     private static no.nav.folketrygdloven.kalkulus.felles.v1.InternArbeidsforholdRefDto mapAbakusReferanse(InternArbeidsforholdRefDto arbeidsforholdRef) {
