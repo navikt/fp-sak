@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.infotrygd.rest;
 
 
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -41,13 +42,16 @@ Håndtering av overlapp av Foreldrepenger-foreldrepenger håndteres av klassen V
  */
 @ApplicationScoped
 public class LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste {
+
+    private static final Logger log = LoggerFactory.getLogger(LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste.class);
+    private static final BigDecimal PROSENT96 = new BigDecimal(96L);
+
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingRepository behandlingRepository;
     private AktørConsumer aktørConsumer;
     private InfotrygdPSGrunnlag infotrygdPSGrTjeneste;
     private InfotrygdSPGrunnlag infotrygdSPGrTjeneste;
     private BehandlingOverlappInfotrygdRepository overlappRepository;
-    private static final Logger log = LoggerFactory.getLogger(LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste.class);
 
 
     LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste() {
@@ -82,27 +86,32 @@ public class LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste {
     public List<BehandlingOverlappInfotrygd> vurderOmOverlappInfotrygd(Behandling behandling, LocalDate førsteUttaksDatoFP) {
         //Henter alle utbetalingsperioder på behandling som er iverksatt
         LocalDateTimeline<Boolean> perioderFp = hentPerioderFp(behandling.getId());
+        LocalDateTimeline<Boolean> perioderFpGradert = hentGradertePerioderFp(behandling.getId());
         //sjekker om noen av vedtaksperiodene i Infotrygd på sykepenger eller pleiepenger overlapper med perioderFp
-        return harFPYtelserSomOverlapperIT(behandling, førsteUttaksDatoFP, perioderFp);
+        return harFPYtelserSomOverlapperIT(behandling, førsteUttaksDatoFP, perioderFp, perioderFpGradert);
     }
 
-    public List<BehandlingOverlappInfotrygd> harFPYtelserSomOverlapperIT(Behandling behandling, LocalDate førsteUttaksdatoFp, LocalDateTimeline<Boolean> perioderFP) {
+    public List<BehandlingOverlappInfotrygd> harFPYtelserSomOverlapperIT(Behandling behandling, LocalDate førsteUttaksdatoFp, LocalDateTimeline<Boolean> perioderFP, LocalDateTimeline<Boolean> gradertePerioderFP) {
         List<BehandlingOverlappInfotrygd> overlappene = new ArrayList<>();
         var ident = getFnrFraAktørId(behandling.getAktørId());
 
         List<Grunnlag> infotrygdPSGrunnlag = infotrygdPSGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksdatoFp.minusWeeks(1), førsteUttaksdatoFp.plusYears(3));
         List<Grunnlag> infotrygdSPGrunnlag = infotrygdSPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksdatoFp.minusWeeks(1), førsteUttaksdatoFp.plusYears(3));
 
-        finnOverlappene(behandling, perioderFP, "HistSP", infotrygdSPGrunnlag, overlappene);
-        finnOverlappene(behandling, perioderFP, "HistBS", infotrygdPSGrunnlag, overlappene);
+        finnOverlappene(behandling, perioderFP, "HistSP", finnTidslinjeFraGrunnlagene(infotrygdSPGrunnlag), overlappene);
+        finnOverlappene(behandling, perioderFP, "HistBS", finnTidslinjeFraGrunnlagene(infotrygdPSGrunnlag), overlappene);
+
+        // Logger i tillegg overlapp FP-gradert / BS+SP-gradert - i påvente av videre epos om gradert samhandling
+        if (!gradertePerioderFP.getDatoIntervaller().isEmpty()) {
+            finnOverlappene(behandling, perioderFP, "GradSP", finnGradertTidslinjeFraGrunnlagene(infotrygdSPGrunnlag), overlappene);
+            finnOverlappene(behandling, perioderFP, "GradBS", finnGradertTidslinjeFraGrunnlagene(infotrygdPSGrunnlag), overlappene);
+        }
 
         return overlappene;
     }
 
     private void finnOverlappene(Behandling behandling, LocalDateTimeline<Boolean> perioderFP, String tema,
-                                 List<Grunnlag> infotrygdGrunnlaglist, List<BehandlingOverlappInfotrygd> overlappene) {
-        LocalDateTimeline<Boolean> tlGrunnlag = finnTidslinjeFraGrunnlagene(infotrygdGrunnlaglist);
-
+                                 LocalDateTimeline<Boolean> tlGrunnlag, List<BehandlingOverlappInfotrygd> overlappene) {
         tlGrunnlag.getDatoIntervaller()
             .forEach(grunnlagPeriode -> perioderFP.getDatoIntervaller().stream()
                 .filter(grunnlagPeriode::overlaps)
@@ -126,11 +135,35 @@ public class LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste {
         return helgeJusterTidslinje(new LocalDateTimeline<>(segments, StandardCombinators::alwaysTrueForMatch).compress());
     }
 
+    private LocalDateTimeline<Boolean> hentGradertePerioderFp(Long behandlingId) {
+        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
+
+        var segments = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+            .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
+            .filter(bp -> bp.getLavestUtbetalingsgrad().map(ug -> PROSENT96.compareTo(ug) > 0).orElse(Boolean.FALSE))
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), tomSøndag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
+            .collect(Collectors.toList());
+
+        return helgeJusterTidslinje(new LocalDateTimeline<>(segments, StandardCombinators::alwaysTrueForMatch).compress());
+    }
+
     private LocalDateTimeline<Boolean> finnTidslinjeFraGrunnlagene(List<Grunnlag> grunnlag) {
         List<LocalDateSegment<Boolean>> segmenter = grunnlag.stream()
             .map(Grunnlag::getVedtak)
             .flatMap(Collection::stream)
             .filter(v -> v.getUtbetalingsgrad() > 0)
+            .map(p-> new LocalDateSegment<>(p.getPeriode().getFom(), tomSøndag(p.getPeriode().getTom()), Boolean.TRUE))
+            .collect(Collectors.toList());
+
+        return helgeJusterTidslinje(new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress());
+    }
+
+    private LocalDateTimeline<Boolean> finnGradertTidslinjeFraGrunnlagene(List<Grunnlag> grunnlag) {
+        List<LocalDateSegment<Boolean>> segmenter = grunnlag.stream()
+            .map(Grunnlag::getVedtak)
+            .flatMap(Collection::stream)
+            .filter(v -> v.getUtbetalingsgrad() > 0)
+            .filter(v -> v.getUtbetalingsgrad() < 96)
             .map(p-> new LocalDateSegment<>(p.getPeriode().getFom(), tomSøndag(p.getPeriode().getTom()), Boolean.TRUE))
             .collect(Collectors.toList());
 
