@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsg
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.svp.OpptjeningsvilkårSvangerskapspenger;
 import no.nav.fpsak.nare.evaluation.Evaluation;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("SVP")
@@ -52,7 +51,7 @@ public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjenest
         List<OpptjeningInntektPeriode> relevanteOpptjeningInntekter = opptjeningTjeneste.hentRelevanteOpptjeningInntekterForVilkårVurdering(behandlingId, aktørId, skjæringstidspunkt);
         Opptjening opptjening = opptjeningTjeneste.hentOpptjening(behandlingId);
 
-        LocalDate behandlingstidspunkt = FPDateUtil.iDag();
+        LocalDate behandlingstidspunkt = LocalDate.now();
 
         Opptjeningsgrunnlag grunnlag = new OpptjeningsgrunnlagAdapter(behandlingstidspunkt, opptjening.getFom(),
             opptjening.getTom())

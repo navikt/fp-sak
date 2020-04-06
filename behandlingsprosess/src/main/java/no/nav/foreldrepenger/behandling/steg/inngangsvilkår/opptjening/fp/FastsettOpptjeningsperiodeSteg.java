@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.fp;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -14,14 +12,10 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 
 
 @BehandlingStegRef(kode = "VURDER_OPPTJ_PERIODE")
@@ -30,18 +24,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 @ApplicationScoped
 public class FastsettOpptjeningsperiodeSteg extends FastsettOpptjeningsperiodeStegFelles {
 
-    private final BehandlingsresultatRepository behandlingsresultatRepository;
     private OpptjeningRepository opptjeningRepository;
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    public FastsettOpptjeningsperiodeSteg(BehandlingRepositoryProvider repositoryProvider, OpptjeningRepository opptjeningRepository, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste, BehandlingsresultatRepository behandlingsresultatRepository) {
+    public FastsettOpptjeningsperiodeSteg(BehandlingRepositoryProvider repositoryProvider, OpptjeningRepository opptjeningRepository, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.FASTSETT_OPPTJENINGSPERIODE);
         this.opptjeningRepository = opptjeningRepository;
-        this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
     }
-
 
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
@@ -60,18 +51,6 @@ public class FastsettOpptjeningsperiodeSteg extends FastsettOpptjeningsperiodeSt
                 super.vedHoppOverFramover(kontekst, modell, førsteSteg, sisteSteg);
                 new RyddOpptjening(behandlingRepository, opptjeningRepository, kontekst).ryddOpp();
             }
-
         }
-    }
-
-    @Override
-    protected boolean erVilkårOverstyrt(Long behandlingId) {
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
-        Optional<VilkårResultat> resultatOpt = behandlingsresultat.map(Behandlingsresultat::getVilkårResultat);
-        if (resultatOpt.isPresent()) {
-            VilkårResultat vilkårResultat = resultatOpt.get();
-            return vilkårResultat.getVilkårene().stream().filter(vilkår -> vilkår.getVilkårType().equals(VilkårType.OPPTJENINGSVILKÅRET)).anyMatch(Vilkår::erOverstyrt);
-        }
-        return false;
     }
 }
