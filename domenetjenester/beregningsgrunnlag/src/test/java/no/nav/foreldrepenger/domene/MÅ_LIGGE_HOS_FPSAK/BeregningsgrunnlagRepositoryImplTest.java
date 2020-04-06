@@ -199,7 +199,7 @@ public class BeregningsgrunnlagRepositoryImplTest {
     public void skal_lagre_refusjon_overstrying() {
         // Arrange
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
-        BeregningRefusjonOverstyringEntitet overstyring = new BeregningRefusjonOverstyringEntitet(Arbeidsgiver.virksomhet("test123"), LocalDate.now());
+        BeregningRefusjonOverstyringEntitet overstyring = BeregningRefusjonOverstyringEntitet.builder().medArbeidsgiver(Arbeidsgiver.virksomhet("test123")).medFørsteMuligeRefusjonFom(LocalDate.now()).build();
         BeregningRefusjonOverstyringerEntitet refusjon = BeregningRefusjonOverstyringerEntitet.builder().leggTilOverstyring(
             overstyring
         ).build();

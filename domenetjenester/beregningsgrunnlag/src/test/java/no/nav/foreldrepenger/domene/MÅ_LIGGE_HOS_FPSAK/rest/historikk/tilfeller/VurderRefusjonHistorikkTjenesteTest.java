@@ -212,7 +212,10 @@ public class VurderRefusjonHistorikkTjenesteTest {
             .medInntektskategori(ARBEIDSTAKER)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .build(periode1);
-        BeregningRefusjonOverstyringerEntitet overstyring = BeregningRefusjonOverstyringerEntitet.builder().leggTilOverstyring(new BeregningRefusjonOverstyringEntitet(VIRKSOMHET, dato)).build();
+        BeregningRefusjonOverstyringerEntitet overstyring = BeregningRefusjonOverstyringerEntitet.builder().leggTilOverstyring(BeregningRefusjonOverstyringEntitet.builder()
+                .medArbeidsgiver(VIRKSOMHET)
+                .medFørsteMuligeRefusjonFom(dato).build())
+            .build();
         return BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
             .medBeregningsgrunnlag(beregningsgrunnlag)
             .medRefusjonOverstyring(overstyring)

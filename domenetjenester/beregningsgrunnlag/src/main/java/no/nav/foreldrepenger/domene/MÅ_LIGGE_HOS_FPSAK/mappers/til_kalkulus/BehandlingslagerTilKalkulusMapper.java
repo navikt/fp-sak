@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -64,7 +65,11 @@ public class BehandlingslagerTilKalkulusMapper {
         BeregningRefusjonOverstyringerDto.Builder dtoBuilder = BeregningRefusjonOverstyringerDto.builder();
 
         refusjonOverstyringerFraFpsak.getRefusjonOverstyringer().forEach(beregningRefusjonOverstyring -> {
-            BeregningRefusjonOverstyringDto dto = new BeregningRefusjonOverstyringDto(IAYMapperTilKalkulus.mapArbeidsgiver(beregningRefusjonOverstyring.getArbeidsgiver()), beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom());
+            Optional<LocalDate> førsteMuligeRefusjonFom = beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom();
+            if (førsteMuligeRefusjonFom.isEmpty()) {
+                throw new IllegalStateException("Forventer at første mulige refusjon er satt for denne kontrakten");
+            }
+            BeregningRefusjonOverstyringDto dto = new BeregningRefusjonOverstyringDto(IAYMapperTilKalkulus.mapArbeidsgiver(beregningRefusjonOverstyring.getArbeidsgiver()), førsteMuligeRefusjonFom.get());
             dtoBuilder.leggTilOverstyring(dto);
         });
         return dtoBuilder.build();
