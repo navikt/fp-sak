@@ -18,3 +18,5 @@ COMMENT ON TABLE BG_REFUSJON_START  IS 'Tabell som holder på hvilke refusjonskr
 COMMENT ON COLUMN BG_REFUSJON_START.arbeidsforhold_intern_id  IS 'Globalt unikt arbeidsforhold id generert for arbeidsgiver/arbeidsforhold. I motsetning til arbeidsforhold_ekstern_id som holder arbeidsgivers referanse';
 COMMENT ON COLUMN BG_REFUSJON_START.fom IS 'Fra og med datoen refusjon skal tas med i beregningen';
 COMMENT ON COLUMN BG_REFUSJON_START.BG_REFUSJON_OVERSTYRING_ID IS 'Foreign key til tabell BG_REFUSJON_OVERSTYRING';
+
+alter table BG_REFUSJON_OVERSTYRING modify (fom null);
