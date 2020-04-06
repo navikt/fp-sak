@@ -15,6 +15,8 @@ import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagRestInput;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDtoBuilder;
+import no.nav.folketrygdloven.kalkulator.modell.iay.InntektsmeldingAggregatDto;
+import no.nav.folketrygdloven.kalkulator.modell.iay.InntektsmeldingDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -28,9 +30,12 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import org.jetbrains.annotations.NotNull;
 
 
 public abstract class BeregningsgrunnlagRestInputFelles {
@@ -88,9 +93,19 @@ public abstract class BeregningsgrunnlagRestInputFelles {
     private Optional<BeregningsgrunnlagRestInput> lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var aktivitetGradering = andelGraderingTjeneste.utled(ref);
         List<RefusjonskravDato> refusjonskravDatoer = inntektsmeldingTjeneste.hentAlleRefusjonskravDatoerForFagsak(ref.getSaksnummer());
+        List<Inntektsmelding> inntektsmeldingDiff = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
+        List<InntektsmeldingDto> inntektsmeldingDiffDto = inntektsmeldingDiff.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto).collect(Collectors.toList());
+        InntektArbeidYtelseGrunnlagDto iayGrunnlagDtoUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag);
 
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
-        InntektArbeidYtelseGrunnlagDto iayGrunnlagDto = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag);
+
+        InntektArbeidYtelseGrunnlagDto iayGrunnlagDto;
+        if (!inntektsmeldingDiffDto.isEmpty()) {
+            iayGrunnlagDto = settInntektsmeldingDiffPåIAYGrunnlag(iayGrunnlagDtoUtenIMDiff, inntektsmeldingDiffDto);
+        } else {
+            iayGrunnlagDto = iayGrunnlagDtoUtenIMDiff;
+        }
+
         Map<Arbeidsgiver, ArbeidsgiverOpplysninger> arbeidsgiverOpplysninger = iayGrunnlag.getAktørArbeidFraRegister(ref.getAktørId())
             .map(AktørArbeid::hentAlleYrkesaktiviteter)
             .orElse(Collections.emptyList())
@@ -109,12 +124,20 @@ public abstract class BeregningsgrunnlagRestInputFelles {
             ytelseGrunnlag));
     }
 
+    private InntektArbeidYtelseGrunnlagDto settInntektsmeldingDiffPåIAYGrunnlag(InntektArbeidYtelseGrunnlagDto iayGrunnlagDto, List<InntektsmeldingDto> inntektsmeldingDiffDto) {
+        List<InntektsmeldingDto> inntektsmeldingDtos = iayGrunnlagDto.getInntektsmeldinger()
+            .map(InntektsmeldingAggregatDto::getAlleInntektsmeldinger)
+            .orElse(Collections.emptyList());
+        InntektArbeidYtelseGrunnlagDtoBuilder builder = InntektArbeidYtelseGrunnlagDtoBuilder.oppdatere(iayGrunnlagDto)
+            .medInntektsmeldinger(inntektsmeldingDtos, inntektsmeldingDiffDto);
+        return builder.build();
+    }
+
     /** Returnerer input hvis data er på tilgjengelig for det, ellers Optional.empty(). */
     public BeregningsgrunnlagRestInput lagInput(Long behandlingId) {
         var iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         return lagInput(behandling, iayGrunnlag).orElseThrow();
     }
-
     public abstract YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref);
 }
