@@ -3,15 +3,20 @@ package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.felles;
 import static java.util.Collections.singletonList;
 
 import java.util.List;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårFellesTjeneste;
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårStegImpl;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
@@ -19,6 +24,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsP
 public abstract class FastsettOpptjeningsperiodeStegFelles extends InngangsvilkårStegImpl {
 
     private OpptjeningRepository opptjeningRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     private static List<VilkårType> STØTTEDE_VILKÅR = singletonList(VilkårType.OPPTJENINGSPERIODEVILKÅR);
 
@@ -29,6 +35,7 @@ public abstract class FastsettOpptjeningsperiodeStegFelles extends Inngangsvilk�
     protected FastsettOpptjeningsperiodeStegFelles(BehandlingRepositoryProvider repositoryProvider, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste, BehandlingStegType behandlingStegType) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, behandlingStegType);
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     }
 
     @Override
@@ -54,6 +61,17 @@ public abstract class FastsettOpptjeningsperiodeStegFelles extends Inngangsvilk�
     @Override
     public List<VilkårType> vilkårHåndtertAvSteg() {
         return STØTTEDE_VILKÅR;
+    }
+
+    @Override
+    protected boolean erVilkårOverstyrt(Long behandlingId) {
+        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
+        Optional<VilkårResultat> resultatOpt = behandlingsresultat.map(Behandlingsresultat::getVilkårResultat);
+        if (resultatOpt.isPresent()) {
+            VilkårResultat vilkårResultat = resultatOpt.get();
+            return vilkårResultat.getVilkårene().stream().filter(vilkår -> vilkår.getVilkårType().equals(VilkårType.OPPTJENINGSVILKÅRET)).anyMatch(Vilkår::erOverstyrt);
+        }
+        return false;
     }
 
 }

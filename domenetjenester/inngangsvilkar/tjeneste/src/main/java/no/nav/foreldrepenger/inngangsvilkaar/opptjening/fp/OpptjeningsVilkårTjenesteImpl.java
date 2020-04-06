@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsg
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger;
 import no.nav.fpsak.nare.evaluation.Evaluation;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")
@@ -51,7 +50,7 @@ public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjenest
         List<OpptjeningInntektPeriode> relevanteOpptjeningInntekter = opptjeningTjeneste.hentRelevanteOpptjeningInntekterForVilkårVurdering(behandlingId, aktørId, skjæringstidspunkt);
         Opptjening opptjening = opptjeningTjeneste.hentOpptjening(behandlingId);
 
-        LocalDate behandlingstidspunkt = FPDateUtil.iDag(); // TODO (FC): Avklar hva denne bør være
+        LocalDate behandlingstidspunkt = LocalDate.now(); // TODO (FC): Avklar hva denne bør være
 
         Opptjeningsgrunnlag grunnlag = new OpptjeningsgrunnlagAdapter(behandlingstidspunkt, opptjening.getFom(),
             opptjening.getTom())

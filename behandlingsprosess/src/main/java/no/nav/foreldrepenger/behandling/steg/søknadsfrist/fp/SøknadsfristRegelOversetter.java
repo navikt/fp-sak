@@ -20,13 +20,11 @@ class SøknadsfristRegelOversetter {
             .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .collect(Collectors.toList());
 
-        SøknadsfristGrunnlag grunnlag = SøknadsfristGrunnlag.builder()
+        return SøknadsfristGrunnlag.builder()
             .medSøknadMottattDato(søknad.getMottattDato())
             .medErSøknadOmUttak(!uttaksperioder.isEmpty())
             .medFørsteUttaksdato(uttaksperioder.isEmpty() ? null : uttaksperioder.get(0).getFom())
-            .medAntallMånederSøknadsfrist(søknadsfristLengde.getMonths()) // TODO: broken når ikke heltall måneder, må rette opp regler den dagen det ikke matcher heltall måneder
+            .medAntallMånederSøknadsfrist(søknadsfristLengde.getMonths())
             .build();
-
-        return grunnlag;
     }
 }
