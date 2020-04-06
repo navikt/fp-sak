@@ -42,6 +42,7 @@ public class BeregningDtoTjeneste {
     private BeregningsgrunnlagRestInput settBeregningsgrunnlagPåInput(BeregningsgrunnlagRestInput input, BeregningsgrunnlagGrunnlagEntitet beregningsgrunnlagGrunnlagEntitet) {
         BeregningsgrunnlagGrunnlagDto bgRestDto = BehandlingslagerTilKalkulusMapper.mapGrunnlag(beregningsgrunnlagGrunnlagEntitet, input.getInntektsmeldinger());
         BeregningsgrunnlagRestInput inputMedBg = input.medBeregningsgrunnlagGrunnlag(bgRestDto);
+        inputMedBg.setInntektsmeldingDiff(input.getInntektsmeldingdiffFraOriginalbehandling());
         lagBeregningsgrunnlagHistorikk(inputMedBg);
         return inputMedBg;
     }

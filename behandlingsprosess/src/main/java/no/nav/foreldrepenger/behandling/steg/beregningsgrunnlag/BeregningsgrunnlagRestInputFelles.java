@@ -15,6 +15,7 @@ import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagRestInput;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDtoBuilder;
+import no.nav.folketrygdloven.kalkulator.modell.iay.InntektsmeldingDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -28,6 +29,7 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -101,12 +103,16 @@ public abstract class BeregningsgrunnlagRestInputFelles {
         InntektArbeidYtelseGrunnlagDto iayGrunnlagMedArbeidsforholdOpplysninger = InntektArbeidYtelseGrunnlagDtoBuilder.oppdatere(iayGrunnlagDto)
             .medArbeidsgiverOpplysninger(mapArbeidsforholdOpplysninger(arbeidsgiverOpplysninger, iayGrunnlag.getArbeidsforholdOverstyringer()))
             .build();
-        return Optional.of(new BeregningsgrunnlagRestInput(
+        List<Inntektsmelding> inntektsmeldings = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
+        List<InntektsmeldingDto> inntektsmeldingDiff = inntektsmeldings.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto).collect(Collectors.toList());
+        BeregningsgrunnlagRestInput input = new BeregningsgrunnlagRestInput(
             MapBehandlingRef.mapRef(ref),
             iayGrunnlagMedArbeidsforholdOpplysninger,
             aktivitetGradering,
             IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
-            ytelseGrunnlag));
+            ytelseGrunnlag);
+        input.setInntektsmeldingDiff(inntektsmeldingDiff);
+        return Optional.of(input);
     }
 
     /** Returnerer input hvis data er på tilgjengelig for det, ellers Optional.empty(). */

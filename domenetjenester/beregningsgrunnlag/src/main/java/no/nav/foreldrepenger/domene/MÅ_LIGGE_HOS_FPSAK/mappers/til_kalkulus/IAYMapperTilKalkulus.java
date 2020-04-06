@@ -200,7 +200,7 @@ public class IAYMapperTilKalkulus {
         return builder.build();
     }
 
-    private static InntektsmeldingDto mapInntektsmeldingDto(Inntektsmelding inntektsmelding) {
+    public static InntektsmeldingDto mapInntektsmeldingDto(Inntektsmelding inntektsmelding) {
         InntektsmeldingDtoBuilder builder = InntektsmeldingDtoBuilder.builder();
         builder.medArbeidsgiver(mapArbeidsgiver(inntektsmelding.getArbeidsgiver()));
         builder.medArbeidsforholdId(mapArbeidsforholdRef(inntektsmelding.getArbeidsforholdRef()));

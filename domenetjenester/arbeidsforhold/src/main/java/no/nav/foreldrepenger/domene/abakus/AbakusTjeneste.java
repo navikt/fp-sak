@@ -10,6 +10,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.abakus.iaygrunnlag.request.InntektsmeldingDiffRequest;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -70,6 +71,7 @@ public class AbakusTjeneste {
     private URI endpointGrunnlagSnapshot;
     private URI endpointInntektsmeldinger;
     private URI endpointRefusjonskravdatoer;
+    private URI endpointInntektsmeldingerDiff;
 
 
     AbakusTjeneste() {
@@ -91,6 +93,7 @@ public class AbakusTjeneste {
         this.innhentRegisterdata = toUri("/api/registerdata/v1/innhent/sync");
         this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
         this.endpointRefusjonskravdatoer = toUri("/api/iay/inntektsmeldinger/v1/hentRefusjonskravDatoer");
+        this.endpointInntektsmeldingerDiff = toUri("/api/iay/inntektsmeldinger/v1/hentDiff");
 
 
     }
@@ -148,6 +151,15 @@ public class AbakusTjeneste {
 
     public InntektsmeldingerDto hentUnikeUnntektsmeldinger(InntektsmeldingerRequest request) throws IOException {
         var endpoint = endpointInntektsmeldinger;
+        var reader = inntektsmeldingerReader;
+        var responseHandler = new ObjectReaderResponseHandler<InntektsmeldingerDto>(endpoint, reader);
+        var json = iayJsonWriter.writeValueAsString(request);
+
+        return hentFraAbakus(endpoint, responseHandler, json);
+    }
+
+    public InntektsmeldingerDto hentInntektsmeldingDiff(InntektsmeldingDiffRequest request) throws IOException {
+        var endpoint = endpointInntektsmeldingerDiff;
         var reader = inntektsmeldingerReader;
         var responseHandler = new ObjectReaderResponseHandler<InntektsmeldingerDto>(endpoint, reader);
         var json = iayJsonWriter.writeValueAsString(request);
