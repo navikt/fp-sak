@@ -70,7 +70,10 @@ public class KalkulusTilBehandlingslagerMapper {
         BeregningRefusjonOverstyringerEntitet.Builder entitetBuilder = BeregningRefusjonOverstyringerEntitet.builder();
 
         refusjonOverstyringerFraKalkulus.getRefusjonOverstyringer().forEach(beregningRefusjonOverstyring -> {
-            BeregningRefusjonOverstyringEntitet entitet = new BeregningRefusjonOverstyringEntitet(KalkulusTilIAYMapper.mapArbeidsgiver(beregningRefusjonOverstyring.getArbeidsgiver()), beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom());
+            BeregningRefusjonOverstyringEntitet entitet = BeregningRefusjonOverstyringEntitet.builder()
+                .medArbeidsgiver(KalkulusTilIAYMapper.mapArbeidsgiver(beregningRefusjonOverstyring.getArbeidsgiver()))
+                .medFørsteMuligeRefusjonFom(beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom())
+                .build();
             entitetBuilder.leggTilOverstyring(entitet);
         });
         return entitetBuilder.build();

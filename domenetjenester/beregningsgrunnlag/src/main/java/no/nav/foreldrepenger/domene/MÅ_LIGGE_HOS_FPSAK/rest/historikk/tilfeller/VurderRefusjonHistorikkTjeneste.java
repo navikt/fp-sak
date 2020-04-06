@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk.tilfelle
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -56,7 +57,7 @@ public class VurderRefusjonHistorikkTjeneste extends FaktaOmBeregningHistorikkTj
             .stream()
             .filter(beregningRefusjonOverstyring -> beregningRefusjonOverstyring.getArbeidsgiver().equals(arbeidsgiver))
             .findFirst()
-            .map(beregningRefusjonOverstyring -> beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom().equals(frist))
+            .map(beregningRefusjonOverstyring -> Objects.equals(beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom().orElse(null), frist))
             .orElse(null);
     }
 

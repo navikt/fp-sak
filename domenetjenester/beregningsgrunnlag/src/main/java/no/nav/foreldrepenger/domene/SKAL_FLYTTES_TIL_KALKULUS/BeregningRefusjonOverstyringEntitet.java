@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -12,6 +15,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -43,15 +47,11 @@ public class BeregningRefusjonOverstyringEntitet extends BaseEntitet {
     @JoinColumn(name = "br_overstyringer_id", nullable = false, updatable = false)
     private BeregningRefusjonOverstyringerEntitet refusjonOverstyringer;
 
+    @OneToMany(mappedBy = "refusjonOverstyring")
+    private List<BeregningRefusjonPeriodeEntitet> refusjonPerioder = new ArrayList<>();
+
     public BeregningRefusjonOverstyringEntitet() {
         // Hibernate
-    }
-
-    public BeregningRefusjonOverstyringEntitet(Arbeidsgiver arbeidsgiver, LocalDate førsteMuligeRefusjonFom) {
-        Objects.requireNonNull(arbeidsgiver);
-        Objects.requireNonNull(førsteMuligeRefusjonFom);
-        this.førsteMuligeRefusjonFom = førsteMuligeRefusjonFom;
-        this.arbeidsgiver = arbeidsgiver;
     }
 
     void setRefusjonOverstyringerEntitet(BeregningRefusjonOverstyringerEntitet refusjonOverstyringer) {
@@ -62,7 +62,54 @@ public class BeregningRefusjonOverstyringEntitet extends BaseEntitet {
         return arbeidsgiver;
     }
 
-    public LocalDate getFørsteMuligeRefusjonFom() {
-        return førsteMuligeRefusjonFom;
+    public Optional<LocalDate> getFørsteMuligeRefusjonFom() {
+        return Optional.ofNullable(førsteMuligeRefusjonFom);
     }
+
+    public List<BeregningRefusjonPeriodeEntitet> getRefusjonPerioder() {
+        return refusjonPerioder;
+    }
+
+    public static BeregningRefusjonOverstyringEntitet.Builder builder() {
+        return new BeregningRefusjonOverstyringEntitet.Builder();
+    }
+
+    public static class Builder {
+        private final BeregningRefusjonOverstyringEntitet kladd;
+
+        private Builder() {
+            kladd = new BeregningRefusjonOverstyringEntitet();
+        }
+
+        public BeregningRefusjonOverstyringEntitet.Builder leggTilRefusjonPeriode(BeregningRefusjonPeriodeEntitet beregningRefusjonStart) {
+            beregningRefusjonStart.setRefusjonOverstyringEntitet(kladd);
+            kladd.refusjonPerioder.add(beregningRefusjonStart);
+            return this;
+        }
+
+        public BeregningRefusjonOverstyringEntitet.Builder medArbeidsgiver(Arbeidsgiver arbeidsgiver) {
+            kladd.arbeidsgiver = arbeidsgiver;
+            return this;
+        }
+
+
+        public BeregningRefusjonOverstyringEntitet.Builder medFørsteMuligeRefusjonFom(LocalDate førsteMuligeRefusjonFom) {
+            kladd.førsteMuligeRefusjonFom = førsteMuligeRefusjonFom;
+            return this;
+        }
+
+
+        public BeregningRefusjonOverstyringEntitet build() {
+            kladd.verifiserTilstand();
+            return kladd;
+        }
+    }
+
+    private void verifiserTilstand() {
+        Objects.requireNonNull(arbeidsgiver, "arbeidsgiver");
+        if (refusjonPerioder.isEmpty()) {
+            Objects.requireNonNull(førsteMuligeRefusjonFom, "førsteMuligeRefusjonFom");
+        }
+    }
+
 }
