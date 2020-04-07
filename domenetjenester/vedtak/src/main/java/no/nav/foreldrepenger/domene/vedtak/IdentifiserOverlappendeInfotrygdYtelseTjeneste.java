@@ -33,7 +33,7 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.konfig.Tid;
 /*
@@ -50,7 +50,7 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
     private static final BigDecimal PROSENT96 = new BigDecimal(96L);
 
     private BeregningsresultatRepository beregningsresultatRepository;
-    private AktørConsumer aktørConsumer;
+    private AktørConsumerMedCache aktørConsumer;
     private InfotrygdPSGrunnlag infotrygdPSGrTjeneste;
     private InfotrygdSPGrunnlag infotrygdSPGrTjeneste;
     private BehandlingOverlappInfotrygdRepository overlappRepository;
@@ -62,7 +62,7 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
 
     @Inject
     public IdentifiserOverlappendeInfotrygdYtelseTjeneste(BeregningsresultatRepository beregningsresultatRepository,
-                                                          AktørConsumer aktørConsumer,
+                                                          AktørConsumerMedCache aktørConsumer,
                                                           InfotrygdPSGrunnlag infotrygdPSGrTjeneste,
                                                           InfotrygdSPGrunnlag infotrygdSPGrTjeneste,
                                                           BehandlingOverlappInfotrygdRepository overlappRepository) {

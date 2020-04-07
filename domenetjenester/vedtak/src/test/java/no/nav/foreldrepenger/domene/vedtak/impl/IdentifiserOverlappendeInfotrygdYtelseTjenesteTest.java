@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.vedtak.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdPSGrunnlag;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdSPGrunnlag;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Tema;
@@ -64,7 +64,7 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
     private BehandlingOverlappInfotrygdRepository overlappRepository = new BehandlingOverlappInfotrygdRepository(entityManager);
 
     @Mock
-    private AktørConsumer aktørConsumerMock;
+    private AktørConsumerMedCache aktørConsumerMock;
     @Mock
     private InfotrygdPSGrunnlag infotrygdPSGrTjenesteMock;
     @Mock
@@ -78,7 +78,7 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
     public void oppsett() {
 
         initMocks(this);
-        aktørConsumerMock = mock(AktørConsumer.class);
+        aktørConsumerMock = mock(AktørConsumerMedCache.class);
         infotrygdPSGrTjenesteMock = mock(InfotrygdPSGrunnlag.class);
         infotrygdSPGrTjenesteMock = mock(InfotrygdSPGrunnlag.class);
         overlappendeInfotrygdYtelseTjeneste = new IdentifiserOverlappendeInfotrygdYtelseTjeneste(beregningsresultatRepository, aktørConsumerMock,infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock , overlappRepository);
