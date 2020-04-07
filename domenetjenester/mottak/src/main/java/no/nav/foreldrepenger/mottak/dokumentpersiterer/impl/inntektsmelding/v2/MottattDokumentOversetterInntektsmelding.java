@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.mottak.dokumentpersiterer.NamespaceRef;
 import no.nav.inntektsmelding.xml.kodeliste._2018xxyy.NaturalytelseKodeliste;
 import no.nav.inntektsmelding.xml.kodeliste._2018xxyy.ÅrsakInnsendingKodeliste;
 import no.nav.inntektsmelding.xml.kodeliste._2018xxyy.ÅrsakUtsettelseKodeliste;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.konfig.Tid;
 import no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsforhold;
@@ -60,7 +60,7 @@ public class MottattDokumentOversetterInntektsmelding implements MottattDokument
     }
 
     private VirksomhetTjeneste virksomhetTjeneste;
-    private AktørConsumer aktørConsumer;
+    private AktørConsumerMedCache aktørConsumer;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     MottattDokumentOversetterInntektsmelding() {
@@ -70,7 +70,7 @@ public class MottattDokumentOversetterInntektsmelding implements MottattDokument
     @Inject
     public MottattDokumentOversetterInntektsmelding(InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                                     VirksomhetTjeneste virksomhetTjeneste,
-                                                    AktørConsumer aktørConsumer) {
+                                                    AktørConsumerMedCache aktørConsumer) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.aktørConsumer = aktørConsumer;

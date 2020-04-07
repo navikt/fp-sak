@@ -30,7 +30,7 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 
 /*
@@ -48,7 +48,7 @@ public class LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste {
 
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingRepository behandlingRepository;
-    private AktørConsumer aktørConsumer;
+    private AktørConsumerMedCache aktørConsumer;
     private InfotrygdPSGrunnlag infotrygdPSGrTjeneste;
     private InfotrygdSPGrunnlag infotrygdSPGrTjeneste;
     private BehandlingOverlappInfotrygdRepository overlappRepository;
@@ -61,7 +61,7 @@ public class LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste {
     @Inject
     public LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste(BeregningsresultatRepository beregningsresultatRepository,
                                                           BehandlingRepository behandlingRepository,
-                                                          AktørConsumer aktørConsumer,
+                                                          AktørConsumerMedCache aktørConsumer,
                                                           InfotrygdPSGrunnlag infotrygdPSGrTjeneste,
                                                           InfotrygdSPGrunnlag infotrygdSPGrTjeneste,
                                                           BehandlingOverlappInfotrygdRepository overlappRepository) {
