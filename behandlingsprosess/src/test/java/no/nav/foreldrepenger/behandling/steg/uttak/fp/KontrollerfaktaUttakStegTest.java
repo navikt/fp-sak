@@ -57,7 +57,7 @@ public class KontrollerfaktaUttakStegTest {
     private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
 
     @Inject
-    private RyddKontrollerFaktaUttakTjeneste ryddKontrollerFaktaUttakTjeneste;
+    private RyddFaktaUttakTjenesteFørstegangsbehandling ryddKontrollerFaktaUttakTjeneste;
 
     @Inject
     @FagsakYtelseTypeRef("FP")

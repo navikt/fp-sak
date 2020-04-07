@@ -25,13 +25,13 @@ public class KontrollerFaktaUttakRevurderingSteg implements UttakSteg {
 
     private KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
-    private RyddKontrollerFaktaUttakTjeneste ryddKontrollerFaktaUttakTjeneste;
+    private RyddFaktaUttakTjenesteRevurdering ryddFaktaUttakTjeneste;
 
     @Inject
     public KontrollerFaktaUttakRevurderingSteg(UttakInputTjeneste uttakInputTjeneste,
                                                KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste,
-                                               RyddKontrollerFaktaUttakTjeneste ryddKontrollerFaktaUttakTjeneste) {
-        this.ryddKontrollerFaktaUttakTjeneste = ryddKontrollerFaktaUttakTjeneste;
+                                               RyddFaktaUttakTjenesteRevurdering ryddFaktaUttakTjeneste) {
+        this.ryddFaktaUttakTjeneste = ryddFaktaUttakTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.kontrollerFaktaUttakTjeneste = kontrollerFaktaUttakTjeneste;
     }
@@ -52,6 +52,6 @@ public class KontrollerFaktaUttakRevurderingSteg implements UttakSteg {
 
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
-        ryddKontrollerFaktaUttakTjeneste.ryddVedHoppOverBakover(kontekst);
+        ryddFaktaUttakTjeneste.ryddVedHoppOverBakover(kontekst);
     }
 }
