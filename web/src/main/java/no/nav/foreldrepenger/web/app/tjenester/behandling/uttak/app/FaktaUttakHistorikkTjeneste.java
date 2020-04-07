@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResu
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
@@ -473,11 +472,11 @@ public class FaktaUttakHistorikkTjeneste {
      */
     public void byggHistorikkinnslagForAvklarAnnenforelderHarIkkeRett(AvklarAnnenforelderHarRettDto annenforelderHarIkkeRettDto, AksjonspunktOppdaterParameter param) {
         YtelseFordelingAggregat ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
-        Optional<PerioderAnnenforelderHarRettEntitet> perioderAnnenforelderHarRett = ytelseFordelingAggregat.getPerioderAnnenforelderHarRett();
+        var rettAvklaring = ytelseFordelingAggregat.getAnnenForelderRettAvklaring();
         Boolean harAnnenForeldreRettBekreftetVersjon = null;
 
-        if (perioderAnnenforelderHarRett.isPresent()) {
-            harAnnenForeldreRettBekreftetVersjon = !perioderAnnenforelderHarRett.get().getPerioder().isEmpty();
+        if (rettAvklaring.isPresent()) {
+            harAnnenForeldreRettBekreftetVersjon = rettAvklaring.get();
         }
         historikkApplikasjonTjeneste.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.RETT_TIL_FORELDREPENGER,
             konvertBooleanTilVerdiForAnnenforelderHarRett(harAnnenForeldreRettBekreftetVersjon),

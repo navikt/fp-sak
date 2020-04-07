@@ -14,14 +14,13 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SlettetUttakPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakDokumentasjonDto;
 
@@ -104,28 +103,28 @@ public class FaktaUttakToTrinnsTjeneste {
     public boolean oppdaterToTrinnskontrollVedEndringerAnnenforelderHarRett(AvklarAnnenforelderHarRettDto dto, Behandling behandling){
 
         YtelseFordelingAggregat ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
-        Optional<PerioderAnnenforelderHarRettEntitet> perioderAnnenforelderHarRett = ytelseFordelingAggregat.getPerioderAnnenforelderHarRett();
+        var rettAvkaring = ytelseFordelingAggregat.getAnnenForelderRettAvklaring();
         Boolean harAnnenForeldreRettSokVersjon = ytelseFordelingAggregat
             .getOppgittRettighet().getHarAnnenForeldreRett();
 
         Boolean harAnnenForeldreRettBekreftetVersjon = null;
-        if (perioderAnnenforelderHarRett.isPresent()) {
-            harAnnenForeldreRettBekreftetVersjon = !perioderAnnenforelderHarRett.get().getPerioder().isEmpty();
+        if (rettAvkaring.isPresent()) {
+            harAnnenForeldreRettBekreftetVersjon = rettAvkaring.get();
         }
 
         boolean avkreftetBrukersOpplysinger = erEndretBekreftetVersjonEllerAvkreftetBrukersOpplysinger(harAnnenForeldreRettSokVersjon, dto.getAnnenforelderHarRett());
         boolean erEndretBekreftetVersjon = erEndretBekreftetVersjonEllerAvkreftetBrukersOpplysinger(harAnnenForeldreRettBekreftetVersjon, dto.getAnnenforelderHarRett());
 
 
-        return setToTrinns(perioderAnnenforelderHarRett, erEndretBekreftetVersjon, avkreftetBrukersOpplysinger);
+        return setToTrinns(rettAvkaring, erEndretBekreftetVersjon, avkreftetBrukersOpplysinger);
     }
 
     private boolean erEndretBekreftetVersjonEllerAvkreftetBrukersOpplysinger(Object original, Object bekreftet) {
         return !Objects.equals(bekreftet, original);
     }
 
-    private boolean setToTrinns(Optional<PerioderAnnenforelderHarRettEntitet> perioderAnnenforelderHarRett, boolean erEndretBekreftetVersjon, boolean avkreftetBrukersOpplysinger) {
+    private boolean setToTrinns(Optional<Boolean> rettAvklaring, boolean erEndretBekreftetVersjon, boolean avkreftetBrukersOpplysinger) {
         // Totrinns er sett hvis saksbehandler avkreftet først gang eller endret etter han bekreftet
-        return avkreftetBrukersOpplysinger || (erEndretBekreftetVersjon && perioderAnnenforelderHarRett.isPresent());
+        return avkreftetBrukersOpplysinger || (erEndretBekreftetVersjon && rettAvklaring.isPresent());
     }
 }
