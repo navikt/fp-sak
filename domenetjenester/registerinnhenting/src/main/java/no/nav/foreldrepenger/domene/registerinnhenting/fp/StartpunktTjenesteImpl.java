@@ -54,12 +54,16 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
         EndringsresultatSnapshot snapshotOriginalBehandling = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(origBehandlingId);
         EndringsresultatDiff diff = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(revurdering.getId(), snapshotOriginalBehandling);
         LOGGER.info("Endringsresultat ved revurdering={} er: {}", revurdering.getId(), diff);// NOSONAR //$NON-NLS-1$
-        return utledStartpunktForDiffBehandlingsgrunnlag(revurdering, diff);
+        return getStartpunktType(revurdering, diff, false);
 
     }
 
     @Override
     public StartpunktType utledStartpunktForDiffBehandlingsgrunnlag(BehandlingReferanse revurdering, EndringsresultatDiff differanse) {
+        return getStartpunktType(revurdering, differanse, true);
+    }
+
+    private StartpunktType getStartpunktType(BehandlingReferanse revurdering, EndringsresultatDiff differanse, boolean normalDiff) {
         List<StartpunktType> startpunkter = new ArrayList<>();
         // Denne skal oppstå selv om grunnlaget er uendret. Eneste kjente tidsfristavhengige
         FamilieHendelseGrunnlagEntitet grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.getBehandlingId());
@@ -67,7 +71,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
             startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
 
         differanse.hentKunDelresultater().stream()
-            .map(diff -> utledStartpunktForDelresultat(revurdering, diff))
+            .map(diff -> utledStartpunktForDelresultat(revurdering, diff, normalDiff))
             .forEach(startpunkter::add);
 
         return startpunkter.stream()
@@ -75,10 +79,12 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
             .orElse(StartpunktType.UDEFINERT);
     }
 
-    private StartpunktType utledStartpunktForDelresultat(BehandlingReferanse revurdering, EndringsresultatDiff diff) {
+    private StartpunktType utledStartpunktForDelresultat(BehandlingReferanse revurdering, EndringsresultatDiff diff, boolean normalDiff) {
+        if (!diff.erSporedeFeltEndret())
+            return StartpunktType.UDEFINERT;
         var utleder = GrunnlagRef.Lookup.find(StartpunktUtleder.class, utledere, diff.getGrunnlag()).orElseThrow();
-        return utleder.erBehovForStartpunktUtledning(diff) ?
-            utleder.utledStartpunkt(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2()) : StartpunktType.UDEFINERT;
+        return normalDiff ? utleder.utledStartpunkt(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2()) :
+            utleder.utledInitieltStartpunktRevurdering(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2());
     }
 
     private boolean skalSjekkeForManglendeFødsel(FamilieHendelseGrunnlagEntitet grunnlagForBehandling) {

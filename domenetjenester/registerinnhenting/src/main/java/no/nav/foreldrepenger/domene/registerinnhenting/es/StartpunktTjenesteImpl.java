@@ -88,7 +88,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
     private StartpunktType utledStartpunktForDelresultat(BehandlingReferanse revurdering, EndringsresultatDiff diff) {
         var utleder = GrunnlagRef.Lookup.find(StartpunktUtleder.class, utledere, diff.getGrunnlag()).orElseThrow();
-        return utleder.erBehovForStartpunktUtledning(diff) ?
+        return diff.erSporedeFeltEndret() ?
             utleder.utledStartpunkt(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2()) : StartpunktType.UDEFINERT;
     }
 
