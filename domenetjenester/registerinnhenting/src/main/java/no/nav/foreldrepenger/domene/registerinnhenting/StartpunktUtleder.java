@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.domene.registerinnhenting;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 
 public interface StartpunktUtleder {
     StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2);
 
-    default boolean erBehovForStartpunktUtledning(EndringsresultatDiff diff) {
-        return diff.erSporedeFeltEndret();
+    default StartpunktType utledInitieltStartpunktRevurdering(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
+        return utledStartpunkt(ref, grunnlagId1, grunnlagId2);
     }
 }
