@@ -121,7 +121,7 @@ class MapOppgittOpptjening {
 
             var virksomhet = arbeidsforhold.getUtenlandskVirksomhet();
             if (virksomhet != null) {
-                var landKode = virksomhet.getLandkode() == null ? Landkode.NORGE : new Landkode(virksomhet.getLandkode().getKode());
+                var landKode = virksomhet.getLandkode() == null ? Landkode.NORGE : Landkode.fraKode(virksomhet.getLandkode().getKode());
                 if (virksomhet.getNavn() != null) {
                     dto.medOppgittVirksomhetNavn(fjernUnicodeControlOgAlternativeWhitespaceCharacters(virksomhet.getNavn()), landKode);
                 } else {
@@ -158,7 +158,7 @@ class MapOppgittOpptjening {
 
             var virksomhet = egenNæring.getVirksomhet();
             if (virksomhet != null) {
-                var landkode = virksomhet.getLandkode() == null ? Landkode.NORGE : new Landkode(virksomhet.getLandkode().getKode());
+                var landkode = virksomhet.getLandkode() == null ? Landkode.NORGE : Landkode.fraKode(virksomhet.getLandkode().getKode());
                 var navn = virksomhet.getNavn();
                 if (navn != null) {
                     dto.medOppgittVirksomhetNavn(fjernUnicodeControlOgAlternativeWhitespaceCharacters(navn), landkode);
