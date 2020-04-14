@@ -48,6 +48,7 @@ public class AnnonserVedtakTilAbakusTask implements ProsessTaskHandler {
                                        BehandlingRepository behandlingRepository,
                                        ProsessTaskRepository taskRepository,
                                        VedtattYtelseTjeneste vedtattYtelseTjeneste,
+                                       @KonfigVerdi("kafka.fattevedtak.topic") String topicName,
                                        @KonfigVerdi("bootstrap.servers") String bootstrapServers,
                                        @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
                                        @KonfigVerdi("systembruker.username") String username,
@@ -56,7 +57,7 @@ public class AnnonserVedtakTilAbakusTask implements ProsessTaskHandler {
         this.behandlingRepository = behandlingRepository;
         this.taskRepository = taskRepository;
         this.vedtattYtelseTjeneste = vedtattYtelseTjeneste;
-        this.producer = new HendelseProducer(TopicManifest.FATTET_VEDTAK, bootstrapServers, schemaRegistryUrl, username, password);
+        this.producer = new HendelseProducer(topicName, bootstrapServers, schemaRegistryUrl, username, password);
     }
 
     @Override
