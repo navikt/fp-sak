@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -30,6 +31,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     protected OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag;
     private VedtakTjeneste vedtakTjeneste;
     private BehandlingDokumentRepository behandlingDokumentRepository;
+    private BehandlingRepository behandlingRepository;
 
     AbstractVedtaksbrevOverstyringshåndterer() {
         // for CDI proxy
@@ -45,30 +47,54 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         this.opprettToTrinnsgrunnlag = opprettToTrinnsgrunnlag;
         this.vedtakTjeneste = vedtakTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
     }
 
-    void oppdaterVedtaksbrev(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param, OppdateringResultat.Builder builder) {
-        if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
-            Behandling behandling = param.getBehandling();
-            settFritekstBrev(behandling, dto.getOverskrift(), dto.getFritekstBrev());
-            opprettToTrinnsKontrollpunktForFritekstBrev(dto, behandling, builder);
-            opprettHistorikkinnslag(behandling);
-        }
+    void oppdaterFritekstVedtaksbrev(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param, OppdateringResultat.Builder builder) {
+        Behandling behandling = param.getBehandling();
+        settFritekstBrev(behandling, dto.getOverskrift(), dto.getFritekstBrev());
+        opprettToTrinnsKontrollpunktForFritekstBrev(dto, behandling, builder);
+        opprettHistorikkinnslag(behandling);
     }
 
     private void settFritekstBrev(Behandling behandling, String overskrift, String fritekst) {
-        behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).ifPresent(behandlingsresultat -> {
-            Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
-            BehandlingDokumentEntitet.Builder behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandlingDokument);
-            behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder
-                .medBehandling(behandling.getId())
-                .medOverstyrtBrevOverskrift(overskrift)
-                .medOverstyrtBrevFritekst(fritekst)
-                .build());
-            Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
-                .medVedtaksbrev(Vedtaksbrev.FRITEKST)
+        var behandlingId = behandling.getId();
+        var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandlingId);
+        behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder
+            .medBehandling(behandlingId)
+            .medOverstyrtBrevOverskrift(overskrift)
+            .medOverstyrtBrevFritekst(fritekst)
+            .build());
+        var behandlingsresultat = getBehandlingsresultatBuilder(behandlingId)
+            .medVedtaksbrev(Vedtaksbrev.FRITEKST)
+            .buildFor(behandling);
+        behandlingsresultatRepository.lagre(behandlingId, behandlingsresultat);
+    }
+
+    void fjernFritekstBrevHvisEksisterer(long behandlingId) {
+        var eksisterendeBehandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
+        if (eksisterendeBehandlingDokument.isPresent() && erFritekst(eksisterendeBehandlingDokument.get())) {
+            var behandlingDokument = getBehandlingDokumentBuilder(eksisterendeBehandlingDokument)
+                .medBehandling(behandlingId)
+                .medOverstyrtBrevOverskrift(null)
+                .medOverstyrtBrevFritekst(null)
+                .build();
+            behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
+            var behandling = behandlingRepository.hentBehandling(behandlingId);
+            var behandlingResultat = getBehandlingsresultatBuilder(behandlingId)
+                .medVedtaksbrev(Vedtaksbrev.AUTOMATISK)
                 .buildFor(behandling);
-        });
+            behandlingsresultatRepository.lagre(behandlingId, behandlingResultat);
+        }
+    }
+
+    private boolean erFritekst(BehandlingDokumentEntitet dok) {
+        return dok.getOverstyrtBrevFritekst() != null;
+    }
+
+    private Behandlingsresultat.Builder getBehandlingsresultatBuilder(long behandlingId) {
+        var eksisterendeBehandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
+        return Behandlingsresultat.builderEndreEksisterende(eksisterendeBehandlingsresultat);
     }
 
     private void opprettToTrinnsKontrollpunktForFritekstBrev(BekreftetAksjonspunktDto dto, Behandling behandling, OppdateringResultat.Builder builder) {
@@ -118,6 +144,11 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         innslag.setBehandlingId(behandling.getId());
         tekstBuilder.build(innslag);
         historikkApplikasjonTjeneste.lagInnslag(innslag);
+    }
+
+    BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(long behandlingId) {
+        var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
+        return getBehandlingDokumentBuilder(behandlingDokument);
     }
 
     BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(Optional<BehandlingDokumentEntitet> behandlingDokument) {
