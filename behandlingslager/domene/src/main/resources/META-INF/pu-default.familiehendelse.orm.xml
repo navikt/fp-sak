@@ -6,8 +6,6 @@
 	<sequence-generator name="SEQ_ADOPSJON" allocation-size="50" sequence-name="SEQ_ADOPSJON" />
 	<sequence-generator name="SEQ_TERMINBEKREFTELSE" allocation-size="50" sequence-name="SEQ_TERMINBEKREFTELSE" />
 
-	<sequence-generator name="SEQ_FAMILIERELASJON" allocation-size="50" sequence-name="SEQ_FAMILIERELASJON" />
-
 	<sequence-generator name="SEQ_UIDENTIFISERT_BARN" allocation-size="50" sequence-name="SEQ_UIDENTIFISERT_BARN" />
 	<sequence-generator name="SEQ_FAMILIE_HENDELSE" allocation-size="50" sequence-name="SEQ_FAMILIE_HENDELSE" />
 	<sequence-generator name="SEQ_GR_FAMILIE_HENDELSE" allocation-size="50" sequence-name="SEQ_GR_FAMILIE_HENDELSE" />
