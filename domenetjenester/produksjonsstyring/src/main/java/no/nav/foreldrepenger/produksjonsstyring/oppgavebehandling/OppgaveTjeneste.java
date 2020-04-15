@@ -353,6 +353,7 @@ public class OppgaveTjeneste {
     private ProsessTaskData opprettProsessTask(Behandling behandling, String taskType) {
         ProsessTaskData prosessTask = new ProsessTaskData(taskType);
         prosessTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        prosessTask.setPrioritet(50);
         return prosessTask;
     }
 
