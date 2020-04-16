@@ -36,12 +36,12 @@ public class OpprettProsessTaskIverksettImpl extends OpprettProsessTaskIverksett
     @Override
     public void opprettIverksettingstasker(Behandling behandling, List<String> inititellTaskNavn) {
         ProsessTaskGruppe taskData;
-        ProsessTaskData avsluttBehandling = new ProsessTaskData(AvsluttBehandlingTask.TASKTYPE);
+        ProsessTaskData avsluttBehandling = getProsesstaskFor(AvsluttBehandlingTask.TASKTYPE);
         Optional<ProsessTaskData> avsluttOppgave = oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling, behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK, false);
-        ProsessTaskData sendVedtaksbrev = new ProsessTaskData(SendVedtaksbrevTask.TASKTYPE);
+        ProsessTaskData sendVedtaksbrev = getProsesstaskFor(SendVedtaksbrevTask.TASKTYPE);
 
-        ProsessTaskData vurderOgSendØkonomiOppdrag = new ProsessTaskData(VurderOgSendØkonomiOppdragTask.TASKTYPE);
-        ProsessTaskData vedtakTilDatavarehus = new ProsessTaskData(VEDTAK_TIL_DATAVAREHUS_TASK);
+        ProsessTaskData vurderOgSendØkonomiOppdrag = getProsesstaskFor(VurderOgSendØkonomiOppdragTask.TASKTYPE);
+        ProsessTaskData vedtakTilDatavarehus = getProsesstaskFor(VEDTAK_TIL_DATAVAREHUS_TASK);
         taskData = new ProsessTaskGruppe();
 
         List<ProsessTaskData> parallelle = new ArrayList<>();
@@ -60,6 +60,12 @@ public class OpprettProsessTaskIverksettImpl extends OpprettProsessTaskIverksett
 
         // Opprettes som egen task da den er uavhengig av de andre
         prosessTaskRepository.lagre(opprettTaskVurderOppgaveTilbakekrevingES(behandling));
+    }
+
+    private ProsessTaskData getProsesstaskFor(String tasktype) {
+        var task = new ProsessTaskData(tasktype);
+        task.setPrioritet(50);
+        return task;
     }
 
     private ProsessTaskData opprettTaskVurderOppgaveTilbakekrevingES(Behandling behandling) {

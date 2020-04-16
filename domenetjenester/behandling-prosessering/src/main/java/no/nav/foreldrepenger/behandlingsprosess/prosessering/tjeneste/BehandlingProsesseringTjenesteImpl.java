@@ -209,19 +209,23 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
         ProsessTaskData innhentPersonopplysniger = new ProsessTaskData(InnhentPersonopplysningerTask.TASKTYPE);
         innhentPersonopplysniger.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         innhentPersonopplysniger.setCallIdFraEksisterende();
+        innhentPersonopplysniger.setPrioritet(50);
         ProsessTaskData innhentMedlemskapOpplysniger = new ProsessTaskData(InnhentMedlemskapOpplysningerTask.TASKTYPE);
         innhentMedlemskapOpplysniger.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         innhentMedlemskapOpplysniger.setCallIdFraEksisterende();
+        innhentMedlemskapOpplysniger.setPrioritet(50);
 
         ProsessTaskData abakusRegisterInnheting = new ProsessTaskData(InnhentIAYIAbakusTask.TASKTYPE);
         abakusRegisterInnheting.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         abakusRegisterInnheting.setCallIdFraEksisterende();
+        abakusRegisterInnheting.setPrioritet(50);
 
         gruppe.addNesteParallell(innhentPersonopplysniger, innhentMedlemskapOpplysniger, abakusRegisterInnheting);
 
         ProsessTaskData oppdaterInnhentTidspunkt = new ProsessTaskData(SettRegisterdataInnhentetTidspunktTask.TASKTYPE);
         oppdaterInnhentTidspunkt.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         oppdaterInnhentTidspunkt.setCallIdFraEksisterende();
+        oppdaterInnhentTidspunkt.setPrioritet(50);
         gruppe.addNesteSekvensiell(oppdaterInnhentTidspunkt);
 
         // Starter opp prosessen igjen fra steget hvor den var satt på vent
@@ -230,6 +234,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
         // NB: Viktig
         fortsettBehandlingTask.setProperty(GJENOPPTA_STEG, BehandlingStegType.INNHENT_REGISTEROPP.getKode());
         fortsettBehandlingTask.setProperty(FortsettBehandlingTaskProperties.MANUELL_FORTSETTELSE, String.valueOf(true));
+        fortsettBehandlingTask.setPrioritet(50);
         fortsettBehandlingTask.setCallIdFraEksisterende();
         gruppe.addNesteSekvensiell(fortsettBehandlingTask);
         return prosessTaskRepository.lagre(gruppe);
@@ -237,6 +242,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     private String lagreMedCallId(ProsessTaskData prosessTaskData) {
         prosessTaskData.setCallIdFraEksisterende();
+        prosessTaskData.setPrioritet(50);
         return prosessTaskRepository.lagre(prosessTaskData);
     }
 }
