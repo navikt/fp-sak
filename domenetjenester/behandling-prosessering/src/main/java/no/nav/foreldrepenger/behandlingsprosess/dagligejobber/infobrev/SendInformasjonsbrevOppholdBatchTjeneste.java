@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -39,12 +42,14 @@ public class SendInformasjonsbrevOppholdBatchTjeneste implements BatchTjeneste {
     public String launch(BatchArguments arguments) {
         SendInformasjonsbrevBatchArguments batchArguments = (SendInformasjonsbrevBatchArguments) arguments; // NOSONAR
         List<InformasjonssakData> saker = informasjonssakRepository.finnSakerMedMinsteInnvilgetOppholdperiodeInnenIntervall(batchArguments.getFom(), batchArguments.getTom());
+        LocalTime baseline = LocalTime.now();
         saker.forEach(sak -> {
             log.info("Oppretter informasjonssak-task for {}", sak.getAktørId().getId());
             ProsessTaskData data = new ProsessTaskData(OpprettInformasjonsFagsakTask.TASKTYPE);
             data.setAktørId(sak.getAktørId().getId());
             data.setCallIdFraEksisterende();
             data.setPrioritet(100);
+            data.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), baseline.plusSeconds(LocalDateTime.now().getNano() % 419)));
             data.setProperty(OpprettInformasjonsFagsakTask.OPPRETTET_DATO_KEY, sak.getKildesakOpprettetDato().toString());
             data.setProperty(OpprettInformasjonsFagsakTask.FH_DATO_KEY, sak.getFamilieHndelseDato().toString());
             data.setProperty(OpprettInformasjonsFagsakTask.BEH_ENHET_ID_KEY, sak.getEnhet());
