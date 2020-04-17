@@ -1,16 +1,14 @@
 package no.nav.foreldrepenger.jsonfeed.es;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.FagsakStatusEvent;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.jsonfeed.AbstractHendelsePublisererTjeneste;
 
@@ -25,13 +23,14 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
     }
 
     @Inject
-    public HendelsePublisererTjenesteImpl(BehandlingsresultatRepository behandlingsresultatRepository, 
-                                          EtterkontrollRepository etterkontrollRepository) {
-        super(behandlingsresultatRepository, etterkontrollRepository);
+    public HendelsePublisererTjenesteImpl(BehandlingsresultatRepository behandlingsresultatRepository,
+                                          EtterkontrollRepository etterkontrollRepository,
+                                          BehandlingRepositoryProvider provider) {
+        super(behandlingsresultatRepository, etterkontrollRepository, provider);
     }
 
     @Override
-    protected void doLagreVedtak(BehandlingVedtak vedtak, BehandlingType behandlingType) {
+    protected void doLagreVedtak(BehandlingVedtak vedtak, Behandling behandling) {
     }
 
     @Override
@@ -44,7 +43,7 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
     }
 
     @Override
-    protected boolean uttakFomEllerTomErEndret(Optional<Behandlingsresultat> gammeltResultat, Behandlingsresultat nyttResultat) {
+    protected boolean uttakFomEllerTomErEndret(Long orginalbehId, Long behandlingId) {
         return false;
     }
 }

@@ -1,8 +1,11 @@
 package no.nav.foreldrepenger.jsonfeed.svp;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Objects;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -14,16 +17,18 @@ import no.nav.foreldrepenger.behandling.FagsakStatusEvent;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.SvpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.jsonfeed.AbstractHendelsePublisererTjeneste;
@@ -42,14 +47,10 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
     private static final Logger log = LoggerFactory.getLogger(HendelsePublisererTjenesteImpl.class);
 
     private FeedRepository feedRepository;
-    private SvangerskapspengerUttakResultatRepository uttakResultatRepository;
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
-
-    protected static class UttakFomTom {
-        LocalDate førsteStønadsdag;
-        LocalDate sisteStønadsdag;
-    }
+    private BeregningsresultatRepository beregningsresultatRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     public HendelsePublisererTjenesteImpl() {
         // CDI
@@ -57,22 +58,24 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
 
     @Inject
     public HendelsePublisererTjenesteImpl(FeedRepository feedRepository,
-                                          SvangerskapspengerUttakResultatRepository uttakResultatRepository,
                                           BehandlingRepositoryProvider repositoryProvider,
                                           BehandlingsresultatRepository behandlingsresultatRepository,
                                           EtterkontrollRepository etterkontrollRepository) {
-        super(behandlingsresultatRepository, etterkontrollRepository);
+        super(behandlingsresultatRepository, etterkontrollRepository, repositoryProvider);
         this.feedRepository = feedRepository;
-        this.uttakResultatRepository = uttakResultatRepository;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
     }
 
     @Override
-    protected void doLagreVedtak(BehandlingVedtak vedtak, BehandlingType behandlingType) {
-        Innhold innhold = mapVedtakTilInnhold(vedtak);
+    protected void doLagreVedtak(BehandlingVedtak vedtak, Behandling behandling) {
+        Innhold innhold = mapVedtakTilInnhold(vedtak, behandling);
 
         Meldingstype meldingstype;
+
+        BehandlingType behandlingType = behandling.getType();
 
         if (erFørstegangsSøknad(behandlingType) || erInnvilgetRevurdering(behandlingType, vedtak.getBehandlingsresultat().getBehandlingResultatType())) {
             meldingstype = Meldingstype.SVANGERSKAPSPENGER_INNVILGET;
@@ -85,7 +88,7 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
         String payloadJason = JsonMapper.toJson(innhold);
 
         SvpVedtakUtgåendeHendelse svpVedtakUtgåendeHendelse = SvpVedtakUtgåendeHendelse.builder()
-            .aktørId(vedtak.getBehandlingsresultat().getBehandling().getAktørId().getId())
+            .aktørId(behandling.getAktørId().getId())
             .payload(payloadJason)
             .type(meldingstype.getType())
             .kildeId(VEDTAK_PREFIX + vedtak.getId())
@@ -115,20 +118,28 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
     }
 
     @Override
-    protected boolean uttakFomEllerTomErEndret(Optional<Behandlingsresultat> gammeltResultat, Behandlingsresultat nyttResultat) {
-        Optional<SvangerskapspengerUttakResultatEntitet> gammeltUttakResultat = gammeltResultat.isPresent()
-            ? uttakResultatRepository.hentHvisEksisterer(gammeltResultat.get().getBehandling().getId())
-            : Optional.empty();
-        Optional<SvangerskapspengerUttakResultatEntitet> nyttUttakResultat = uttakResultatRepository.hentHvisEksisterer(nyttResultat.getBehandling().getId());
+    protected boolean uttakFomEllerTomErEndret(Long orginalbehId, Long behandlingId) {
 
-        if (!gammeltUttakResultat.isPresent() || !nyttUttakResultat.isPresent()) {
+        Optional<LocalDate> førsteUtbetDatoOrgBeh = finnMinsteUtbetDato(orginalbehId);
+        Optional<LocalDate> førsteUtbetDato = finnMinsteUtbetDato(behandlingId);
+
+        if (førsteUtbetDatoOrgBeh.isEmpty() || førsteUtbetDato.isEmpty()) {
             return true;
         }
-        UttakFomTom gammelStønadsperiode = finnFørsteOgSisteStønadsdag(gammeltUttakResultat.get());
-        UttakFomTom nyStønadsperionde = finnFørsteOgSisteStønadsdag(nyttUttakResultat.get());
 
-        return !Objects.equals(gammelStønadsperiode.førsteStønadsdag, nyStønadsperionde.førsteStønadsdag) ||
-            !Objects.equals(gammelStønadsperiode.sisteStønadsdag, nyStønadsperionde.sisteStønadsdag);
+        Optional<LocalDate> sisteUtbetDatoOrgBeh = finnSisteUtbetDato(orginalbehId);
+        Optional<LocalDate> sisteUtbetDato = finnSisteUtbetDato(behandlingId);
+
+        // Hvis det ikke finnes noen perioder etter revurdering så vil hendelsen være at ytelsen opphører samme dag som den opprinnelig ble innvilget
+        if (sisteUtbetDato.isEmpty() ) {
+            sisteUtbetDato = førsteUtbetDato;
+        }
+        if (sisteUtbetDatoOrgBeh.isEmpty()) {
+            sisteUtbetDatoOrgBeh = førsteUtbetDatoOrgBeh;
+        }
+
+        return !førsteUtbetDatoOrgBeh.get().equals(førsteUtbetDato.get()) ||
+            !sisteUtbetDatoOrgBeh.get().equals(sisteUtbetDato.get());
     }
 
     private Innhold mapFagsakEventTilInnhold(FagsakStatusEvent event) {
@@ -141,77 +152,117 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
         if (!behandling.isPresent()) {
             throw HendelsePublisererFeil.FACTORY.finnerIkkeBehandlingForFagsak().toException();
         }
-        Optional<SvangerskapspengerUttakResultatEntitet> uttakResultat = uttakResultatRepository.hentHvisEksisterer(behandling.get().getId());
-        if (!uttakResultat.isPresent()) {
+
+        Optional<LocalDate> førsteUtbetDato = finnMinsteUtbetDato(behandling.get().getId());
+        if (førsteUtbetDato.isEmpty()) {
             throw HendelsePublisererFeil.FACTORY.finnerIkkeRelevantUttaksplanForVedtak().toException();
         }
 
-        UttakFomTom uttakFomTom = finnFørsteOgSisteStønadsdag(uttakResultat.get());
-        innhold.setFoersteStoenadsdag(uttakFomTom.førsteStønadsdag);
-        innhold.setSisteStoenadsdag(uttakFomTom.sisteStønadsdag);
+        Optional<LocalDate> sisteUtbetDato = finnSisteUtbetDato(behandling.get().getId());
+        if (sisteUtbetDato.isEmpty()) {
+            throw HendelsePublisererFeil.FACTORY.finnerIkkeRelevantUttaksplanForVedtak().toException();
+        }
+
+        førsteUtbetDato.ifPresent(innhold::setFoersteStoenadsdag);
+        sisteUtbetDato.ifPresent(innhold::setSisteStoenadsdag);
 
         return innhold;
     }
 
-    private Innhold mapVedtakTilInnhold(BehandlingVedtak vedtak) {
+    private Innhold mapVedtakTilInnhold(BehandlingVedtak vedtak, Behandling behandling) {
         Innhold innhold;
-        BehandlingType behandlingType = vedtak.getBehandlingsresultat().getBehandling().getType();
+        BehandlingType behandlingType = behandling.getType();
         Optional<Behandling> originalBehandling = Optional.empty();
+
         if (erFørstegangsSøknad(behandlingType) || erInnvilgetRevurdering(behandlingType, vedtak.getBehandlingsresultat().getBehandlingResultatType())) {
             innhold = new SvangerskapspengerInnvilget();
         } else if (erOpphørtRevurdering(behandlingType, vedtak.getBehandlingsresultat().getBehandlingResultatType())) {
             innhold = new SvangerskapspengerOpphoert();
-            originalBehandling = vedtak.getBehandlingsresultat().getBehandling().getOriginalBehandling();
+            originalBehandling = behandling.getOriginalBehandling();
         } else {
             innhold = new SvangerskapspengerEndret();
-            originalBehandling = vedtak.getBehandlingsresultat().getBehandling().getOriginalBehandling();
+            originalBehandling = behandling.getOriginalBehandling();
         }
 
-        if (originalBehandling.isPresent() && !uttakFomEllerTomErEndret(hentBehandlingsresultat(originalBehandling.get()), vedtak.getBehandlingsresultat())) { // NOSONAR
+        if (originalBehandling.isPresent() && !uttakFomEllerTomErEndret(originalBehandling.get().getId(), behandling.getId())) { // NOSONAR
             throw HendelsePublisererFeil.FACTORY.fantIngenEndringIUttakFomEllerTom().toException();
         }
 
-        Optional<SvangerskapspengerUttakResultatEntitet> uttakResultat = uttakResultatRepository
-            .hentHvisEksisterer(vedtak.getBehandlingsresultat().getBehandling().getId());
-        UttakFomTom uttakFomTom;
-        if (uttakResultat.isPresent()) {
-            uttakFomTom = finnFørsteOgSisteStønadsdag(uttakResultat.get());
-        } else if (originalBehandling.isPresent()) {
-            Optional<SvangerskapspengerUttakResultatEntitet> origUttakResultat = uttakResultatRepository.hentHvisEksisterer(originalBehandling.get().getId());
-            if (!origUttakResultat.isPresent()) {
+        Optional<LocalDate> førsteUtbetDato = finnMinsteUtbetDato(behandling.getId());
+        Optional<LocalDate> sisteUtbetDato = finnSisteUtbetDato(behandling.getId());
+
+        if (førsteUtbetDato.isEmpty()) {
+            //prøver å hente for orginalbehandling hvis den finnes
+            if (originalBehandling.isPresent()){
+                førsteUtbetDato = finnMinsteUtbetDato(originalBehandling.get().getId());
+                sisteUtbetDato = førsteUtbetDato;
+            }
+            //finner ingen minste dato, noe er feil
+            if (førsteUtbetDato.isEmpty()) {
                 throw HendelsePublisererFeil.FACTORY.finnerIkkeRelevantUttaksplanForVedtak().toException();
             }
-            uttakFomTom = finnOriginalStønadsOppstart(origUttakResultat.get());
-        } else {
+        }
+
+        if (sisteUtbetDato.isEmpty()) {
             throw HendelsePublisererFeil.FACTORY.finnerIkkeRelevantUttaksplanForVedtak().toException();
         }
 
-        innhold.setFoersteStoenadsdag(uttakFomTom.førsteStønadsdag);
-        innhold.setSisteStoenadsdag(uttakFomTom.sisteStønadsdag);
-        innhold.setAktoerId(vedtak.getBehandlingsresultat().getBehandling().getAktørId().getId());
-        innhold.setGsakId(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getSaksnummer().getVerdi());
+        førsteUtbetDato.ifPresent(innhold::setFoersteStoenadsdag);
+        sisteUtbetDato.ifPresent(innhold::setSisteStoenadsdag);
+        innhold.setAktoerId(behandling.getAktørId().getId());
+        innhold.setGsakId(behandling.getFagsak().getSaksnummer().getVerdi());
 
         return innhold;
     }
 
-    private UttakFomTom finnFørsteOgSisteStønadsdag(SvangerskapspengerUttakResultatEntitet uttakResultat) {
-        UttakFomTom resultat = new UttakFomTom();
+    private Optional<LocalDate> finnMinsteUtbetDato(Long behandlingId) {
+        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
 
-        if (uttakResultat.finnFørsteInnvilgedeUttaksdatoMedUtbetalingsgrad().isPresent()) {
-            resultat.førsteStønadsdag = uttakResultat.finnFørsteInnvilgedeUttaksdatoMedUtbetalingsgrad().get();
+        if (henlagtEllerOpphørFomFørsteUttak(behandlingId)) {
+            return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+                .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
+                .min(Comparator.naturalOrder())
+                .map(this::fomMandag);
+        }else {
+           return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+                .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
+                .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
+                .min(Comparator.naturalOrder())
+                .map(this::fomMandag);
         }
-        if (uttakResultat.finnSisteInnvilgedeUttaksdatoMedUtbetalingsgrad().isPresent()) {
-            resultat.sisteStønadsdag = uttakResultat.finnSisteInnvilgedeUttaksdatoMedUtbetalingsgrad().get();
-        }
-        return resultat;
+    }
+    private boolean henlagtEllerOpphørFomFørsteUttak(Long behandlingId) {
+        var resultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId).map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.INNVILGET);
+        if (resultat.erHenlagt())
+            return true;
+        // Aktuelt for revurderinger med Opphør fom start. Enkelte har opphør fom senere dato.
+        return Set.of(BehandlingResultatType.OPPHØR, BehandlingResultatType.AVSLÅTT).contains(resultat)
+            && finnSisteUtbetDato(behandlingId).isEmpty();
+    }
+    private Optional<LocalDate> finnSisteUtbetDato(Long behandlingId) {
+        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
+        return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+            .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
+            .max(Comparator.naturalOrder())
+            .map(this::tomFredag);
     }
 
-    private UttakFomTom finnOriginalStønadsOppstart(SvangerskapspengerUttakResultatEntitet uttakResultat) {
-        UttakFomTom resultat = new UttakFomTom();
-        if (uttakResultat.finnFørsteUttaksdato().isPresent()) {
-            resultat.førsteStønadsdag = uttakResultat.finnFørsteUttaksdato().get();
-            resultat.sisteStønadsdag = resultat.førsteStønadsdag;
-        }
-        return resultat;
+    private LocalDate fomMandag(LocalDate fom) {
+        DayOfWeek ukedag = DayOfWeek.from(fom);
+        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(1);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(2);
+        return fom;
+    }
+
+    private LocalDate tomFredag(LocalDate tom) {
+        DayOfWeek ukedag = DayOfWeek.from(tom);
+        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
+            return tom.minusDays(2);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return tom.minusDays(1);
+        return tom;
     }
 }

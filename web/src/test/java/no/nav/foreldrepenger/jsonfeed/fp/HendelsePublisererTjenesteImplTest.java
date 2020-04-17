@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.jsonfeed.fp;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +23,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -36,7 +43,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
@@ -46,7 +52,6 @@ import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.jsonfeed.HendelsePublisererTjeneste;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerEndret;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
@@ -57,12 +62,12 @@ import no.nav.vedtak.exception.TekniskException;
 
 public class HendelsePublisererTjenesteImplTest {
 
-    private static final LocalDate INNVILGET_PERIODE_FØRSTE_DAG = LocalDate.now();
-    private static final LocalDate INNVILGET_PERIODE_SISTE_DAG = LocalDate.now().plusMonths(3);
-    private static final LocalDate AVSLÅTT_PERIODE_START = LocalDate.now().minusMonths(3);
-    private static final LocalDate AVSLÅTT_PERIODE_SLUTT = LocalDate.now().minusDays(1);
-    private static final LocalDate NY_PERIODE_FØRSTE_DAG = LocalDate.now().minusDays(3);
-    private static final LocalDate NY_PERIODE_SISTE_DAG = LocalDate.now().plusMonths(4);
+    private static final LocalDate INNVILGET_PERIODE_FØRSTE_DAG = fomMandag(LocalDate.now());
+    private static final LocalDate INNVILGET_PERIODE_SISTE_DAG = tomFredag(LocalDate.now().plusMonths(3));
+    private static final LocalDate AVSLÅTT_PERIODE_START = fomMandag(LocalDate.now().minusMonths(3));
+    private static final LocalDate AVSLÅTT_PERIODE_SLUTT = tomFredag(LocalDate.now().minusDays(1));
+    private static final LocalDate NY_PERIODE_FØRSTE_DAG = fomMandag(LocalDate.now().minusDays(3));
+    private static final LocalDate NY_PERIODE_SISTE_DAG = tomFredag(LocalDate.now().plusMonths(4));
 
     private static final String FAGSAK_PREFIX = "FS";
     private static final String VEDTAK_PREFIX = "VT";
@@ -77,18 +82,15 @@ public class HendelsePublisererTjenesteImplTest {
     private FeedRepository feedRepository = new FeedRepository(repoRule.getEntityManager());
     private BehandlingRepository behandlingRepository = new BehandlingRepository(repoRule.getEntityManager());
     private BehandlingVedtakRepository vedtakRepo = new BehandlingVedtakRepository(repoRule.getEntityManager(), behandlingRepository);
-    private UttakRepository uttakRepository = new UttakRepository(repoRule.getEntityManager());
+    private BeregningsresultatRepository beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
     private BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     private EtterkontrollRepository etterkontrollRepository = new EtterkontrollRepository(repoRule.getEntityManager());
 
     private HendelsePublisererTjeneste tjeneste;
-    private Arbeidsgiver arbeidsgiver;
 
     @Before
     public void setUp() {
-        tjeneste = new HendelsePublisererTjenesteImpl(feedRepository, new ForeldrepengerUttakTjeneste(uttakRepository), repositoryProvider,
-            behandlingsresultatRepository, etterkontrollRepository);
-        arbeidsgiver = Arbeidsgiver.virksomhet("orgnr");
+        tjeneste = new HendelsePublisererTjenesteImpl(feedRepository, repositoryProvider, behandlingsresultatRepository, etterkontrollRepository);
     }
 
     @Test
@@ -96,19 +98,21 @@ public class HendelsePublisererTjenesteImplTest {
         expectedException.expect(TekniskException.class);
         expectedException.expectMessage("FP-343184:Finner ikke noen relevant uttaksplan for vedtak");
 
-        BehandlingVedtak vedtak = byggBehandlingVedtak(false, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET,
+        BehandlingVedtak vedtak = byggBehandlingVedtakOgBehandling(false, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET,
             null, VedtakResultatType.INNVILGET, false);
         tjeneste.lagreVedtak(vedtak);
     }
 
     @Test
-    public void skal_sett_første_og_siste_stønadsdag_lik_fom_på_første_periode_hvis_ingen_perioder_er_innvilget(){
-        UttakResultatPerioderEntitet uttaksPlan = lagUttaksPlan(AVSLÅTT_PERIODE_START, AVSLÅTT_PERIODE_SLUTT, true, false);
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.OPPHØR, uttaksPlan,
+    public void skal_sette_første_og_siste_stønadsdag_lik_fom_på_første_periode_om_beh_er_opphørt(){
+        BeregningsresultatEntitet berRes = lagBeregningsresultat(AVSLÅTT_PERIODE_START, AVSLÅTT_PERIODE_SLUTT, 0, 0);
+        BehandlingVedtak vedtak = byggBehandlingVedtakOgBehandling(true, BehandlingType.REVURDERING, BehandlingResultatType.OPPHØR, berRes,
             VedtakResultatType.AVSLAG, false);
         tjeneste.lagreVedtak(vedtak);
 
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
+        Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+
         assertThat(alle).hasSize(1);
         assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_OPPHOERT.getType());
         assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
@@ -116,154 +120,202 @@ public class HendelsePublisererTjenesteImplTest {
         assertThat(opphørt.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
         assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(AVSLÅTT_PERIODE_START);
         assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(AVSLÅTT_PERIODE_START);
-        assertThat(opphørt.getGsakId()).isEqualTo(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getSaksnummer().getVerdi());
+        assertThat(opphørt.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
     }
 
-    @Test
-    public void skal_lagre_ned_førstegangssøknad() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET,
-            null, VedtakResultatType.INNVILGET, false);
-        tjeneste.lagreVedtak(vedtak);
+        @Test
+        public void skal_lagre_ned_førstegangssøknad() {
+            BehandlingVedtak vedtak = byggBehandlingVedtakOgBehandling(true, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET,
+                null, VedtakResultatType.INNVILGET, false);
+            tjeneste.lagreVedtak(vedtak);
 
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
-        assertThat(alle).hasSize(1);
-        assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_INNVILGET.getType());
-        assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
-        ForeldrepengerInnvilget innvilget = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerInnvilget.class);
-        assertThat(innvilget.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
-        assertThat(innvilget.getFoersteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_FØRSTE_DAG);
-        assertThat(innvilget.getSisteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_SISTE_DAG);
-        assertThat(innvilget.getGsakId()).isEqualTo(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getSaksnummer().getVerdi());
-    }
+            List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
+            Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
 
-    @Test
-    public void skal_ikke_lagre_ned_vedtak_som_ikke_endrer_stønadsperiode() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.INNVILGET,
-            opprettUttakResultatPerioder(), VedtakResultatType.INNVILGET, false);
-        tjeneste.lagreVedtak(vedtak);
+            assertThat(alle).hasSize(1);
+            assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_INNVILGET.getType());
+            assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
+            ForeldrepengerInnvilget innvilget = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerInnvilget.class);
+            assertThat(innvilget.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
+            assertThat(innvilget.getFoersteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_FØRSTE_DAG);
+            assertThat(innvilget.getSisteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_SISTE_DAG);
+            assertThat(innvilget.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        }
 
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
-        assertThat(alle).isEmpty();
-    }
+        @Test
+        public void skal_ikke_lagre_ned_vedtak_som_ikke_endrer_stønadsperiode() {
+            BehandlingVedtak vedtak = byggBehandlingVedtakOgBehandling(true, BehandlingType.REVURDERING, BehandlingResultatType.INNVILGET,
+                opprettBerResultat(), VedtakResultatType.INNVILGET, false);
+            tjeneste.lagreVedtak(vedtak);
 
-    @Test
-    public void skal_ikke_lagre_ned_avslag_på_avslag() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(false, BehandlingType.REVURDERING, BehandlingResultatType.INGEN_ENDRING,
-            null, VedtakResultatType.AVSLAG, true);
-        tjeneste.lagreVedtak(vedtak);
+            List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
+            assertThat(alle).isEmpty();
+        }
 
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
-        assertThat(alle).isEmpty();
-    }
+        @Test
+        public void skal_ikke_lagre_ned_avslag_på_avslag() {
+            BehandlingVedtak vedtak = byggBehandlingVedtakOgBehandling(false, BehandlingType.REVURDERING, BehandlingResultatType.INGEN_ENDRING,
+                null, VedtakResultatType.AVSLAG, true);
+            tjeneste.lagreVedtak(vedtak);
 
-    @Test
-    public void skal_lagre_ned_revurdering_innvilget() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.INNVILGET,
-            opprettNyUttaksplan(), VedtakResultatType.INNVILGET, false);
-        tjeneste.lagreVedtak(vedtak);
+            List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
+            assertThat(alle).isEmpty();
+        }
 
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
-        assertThat(alle).hasSize(1);
-        assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_INNVILGET.getType());
-        assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
-        ForeldrepengerInnvilget innvilget = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerInnvilget.class);
-        assertThat(innvilget.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
-        assertThat(innvilget.getFoersteStoenadsdag()).isEqualTo(NY_PERIODE_FØRSTE_DAG);
-        assertThat(innvilget.getSisteStoenadsdag()).isEqualTo(NY_PERIODE_SISTE_DAG);
-        assertThat(innvilget.getGsakId()).isEqualTo(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getSaksnummer().getVerdi());
-    }
+        @Test
+        public void skal_lagre_ned_revurdering_innvilget() {
+            BehandlingVedtak vedtak = byggBehandlingVedtakOgBehandling(true, BehandlingType.REVURDERING, BehandlingResultatType.INNVILGET,
+                opprettNyttBerRes(), VedtakResultatType.INNVILGET, false);
+            tjeneste.lagreVedtak(vedtak);
 
-    @Test
-    public void skal_lagre_ned_revurdering_endret() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.FORELDREPENGER_ENDRET,
-            opprettNyUttaksplan(), VedtakResultatType.INNVILGET, false);
-        tjeneste.lagreVedtak(vedtak);
+            List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
+            Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
 
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
-        assertThat(alle).hasSize(1);
-        assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_ENDRET.getType());
-        assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
-        ForeldrepengerEndret endret = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerEndret.class);
-        assertThat(endret.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
-        assertThat(endret.getFoersteStoenadsdag()).isEqualTo(NY_PERIODE_FØRSTE_DAG);
-        assertThat(endret.getSisteStoenadsdag()).isEqualTo(NY_PERIODE_SISTE_DAG);
-        assertThat(endret.getGsakId()).isEqualTo(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getSaksnummer().getVerdi());
-    }
+            assertThat(alle).hasSize(1);
+            assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_INNVILGET.getType());
+            assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
+            ForeldrepengerInnvilget innvilget = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerInnvilget.class);
+            assertThat(innvilget.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
+            assertThat(innvilget.getFoersteStoenadsdag()).isEqualTo(NY_PERIODE_FØRSTE_DAG);
+            assertThat(innvilget.getSisteStoenadsdag()).isEqualTo(NY_PERIODE_SISTE_DAG);
+            assertThat(innvilget.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        }
 
-    @Test
-    public void skal_lagre_ned_revurdering_opphørt() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.OPPHØR,
-            opprettNyUttaksplan(), VedtakResultatType.AVSLAG, false);
-        tjeneste.lagreVedtak(vedtak);
+        @Test
+        public void skal_lagre_ned_revurdering_endret() {
+            BehandlingVedtak vedtak = byggBehandlingVedtakOgBehandling(true, BehandlingType.REVURDERING, BehandlingResultatType.FORELDREPENGER_ENDRET,
+                opprettNyttBerRes(), VedtakResultatType.INNVILGET, false);
+            tjeneste.lagreVedtak(vedtak);
 
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
-        assertThat(alle).hasSize(1);
-        assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_OPPHOERT.getType());
-        assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
-        ForeldrepengerOpphoert opphørt = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerOpphoert.class);
-        assertThat(opphørt.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
-        assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(NY_PERIODE_FØRSTE_DAG);
-        assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(NY_PERIODE_SISTE_DAG);
-        assertThat(opphørt.getGsakId()).isEqualTo(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getSaksnummer().getVerdi());
-    }
+            List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
+            Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
 
-    @Test
-    public void skal_ikkje_lagre_ned_beslutningsvedtak() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.REVURDERING, BehandlingResultatType.INGEN_ENDRING,
-            opprettUttakResultatPerioder(), VedtakResultatType.INNVILGET, false);
-        tjeneste.lagreVedtak(vedtak);
+            assertThat(alle).hasSize(1);
+            assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_ENDRET.getType());
+            assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
+            ForeldrepengerEndret endret = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerEndret.class);
+            assertThat(endret.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
+            assertThat(endret.getFoersteStoenadsdag()).isEqualTo(NY_PERIODE_FØRSTE_DAG);
+            assertThat(endret.getSisteStoenadsdag()).isEqualTo(NY_PERIODE_SISTE_DAG);
+            assertThat(endret.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        }
 
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
-        assertThat(alle).isEmpty();
-    }
+        @Test
+        public void skal_lagre_ned_revurdering_opphørt() {
+            BehandlingVedtak vedtak = byggBehandlingVedtakOgBehandling(true, BehandlingType.REVURDERING, BehandlingResultatType.OPPHØR,
+                opprettNyttBerRes(), VedtakResultatType.AVSLAG, false);
+            tjeneste.lagreVedtak(vedtak);
 
-    @Test
-    public void skal_lagre_fagsak_avsluttet() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak(true, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET,
-            null, VedtakResultatType.INNVILGET, false);
-        AktørId aktørId = vedtak.getBehandlingsresultat().getBehandling().getAktørId();
-        Long fagsakId = vedtak.getBehandlingsresultat().getBehandling().getFagsakId();
-        FagsakStatusEvent event = new FagsakStatusEvent(fagsakId, aktørId, FagsakStatus.LØPENDE, FagsakStatus.AVSLUTTET);
-        tjeneste.lagreFagsakAvsluttet(event);
+            List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
+            Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
 
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
-        assertThat(alle).hasSize(1);
-        assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_OPPHOERT.getType());
-        assertThat(alle.get(0).getKildeId()).isEqualTo(FAGSAK_PREFIX + fagsakId.toString());
-        ForeldrepengerOpphoert opphørt = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerOpphoert.class);
-        assertThat(opphørt.getAktoerId()).isEqualTo(aktørId.getId()).isNotNull();
-        assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_FØRSTE_DAG);
-        assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_SISTE_DAG);
-        assertThat(opphørt.getGsakId()).isEqualTo(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getSaksnummer().getVerdi());
-    }
+            assertThat(alle).hasSize(1);
+            assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_OPPHOERT.getType());
+            assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
+            ForeldrepengerOpphoert opphørt = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerOpphoert.class);
+            assertThat(opphørt.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
+            assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(NY_PERIODE_FØRSTE_DAG);
+            assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(NY_PERIODE_SISTE_DAG);
+            assertThat(opphørt.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        }
 
-    @Test
-    public void skal_lagre_fagsak_avsluttet_ved_siste_beh_henlagt() {
-        BehandlingVedtak vedtak = byggBehandlingVedtakHenlagtSpesial();
-        AktørId aktørId = vedtak.getBehandlingsresultat().getBehandling().getAktørId();
-        Long fagsakId = vedtak.getBehandlingsresultat().getBehandling().getFagsakId();
-        FagsakStatusEvent event = new FagsakStatusEvent(fagsakId, aktørId, FagsakStatus.LØPENDE, FagsakStatus.AVSLUTTET);
-        tjeneste.lagreFagsakAvsluttet(event);
+        @Test
+        public void skal_ikkje_lagre_ned_beslutningsvedtak() {
+            BehandlingVedtak vedtak = byggBehandlingVedtakOgBehandling(true, BehandlingType.REVURDERING, BehandlingResultatType.INGEN_ENDRING,
+                opprettBerResultat(), VedtakResultatType.INNVILGET, false);
+            tjeneste.lagreVedtak(vedtak);
 
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
-        assertThat(alle).hasSize(1);
-        assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_OPPHOERT.getType());
-        assertThat(alle.get(0).getKildeId()).isEqualTo(FAGSAK_PREFIX + fagsakId.toString());
-        ForeldrepengerOpphoert opphørt = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerOpphoert.class);
-        assertThat(opphørt.getAktoerId()).isEqualTo(aktørId.getId()).isNotNull();
-        assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(LocalDate.now().minusMonths(3));
-        assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(LocalDate.now().minusMonths(1));
-        assertThat(opphørt.getGsakId()).isEqualTo(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getSaksnummer().getVerdi());
-    }
+            List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
+            assertThat(alle).isEmpty();
+        }
 
+        @Test
+        public void skal_lagre_fagsak_avsluttet() {
+            BehandlingVedtak vedtak = byggBehandlingVedtakOgBehandling(true, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET,
+                null, VedtakResultatType.INNVILGET, false);
+            Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
 
-    private BehandlingVedtak byggBehandlingVedtak(boolean medUttaksPlan, BehandlingType behandlingType, BehandlingResultatType behandlingResultatType,
-                                                  UttakResultatPerioderEntitet nyUttaksPlan, VedtakResultatType nyttVedtakResultat, boolean trengerAvslåttOriginalBehandling) {
+            AktørId aktørId = behandling.getAktørId();
+            Long fagsakId = behandling.getFagsakId();
+            FagsakStatusEvent event = new FagsakStatusEvent(fagsakId, aktørId, FagsakStatus.LØPENDE, FagsakStatus.AVSLUTTET);
+            tjeneste.lagreFagsakAvsluttet(event);
+
+            List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
+            assertThat(alle).hasSize(1);
+            assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_OPPHOERT.getType());
+            assertThat(alle.get(0).getKildeId()).isEqualTo(FAGSAK_PREFIX + fagsakId.toString());
+            ForeldrepengerOpphoert opphørt = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerOpphoert.class);
+            assertThat(opphørt.getAktoerId()).isEqualTo(aktørId.getId()).isNotNull();
+            assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_FØRSTE_DAG);
+            assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_SISTE_DAG);
+            assertThat(opphørt.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        }
+
+        @Test
+        public void skal_lagre_fagsak_avsluttet_ved_siste_beh_henlagt() {
+            BehandlingVedtak vedtak = byggBehandlingVedtakHenlagtSpesial();
+            Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+
+            AktørId aktørId = behandling.getAktørId();
+            Long fagsakId = behandling.getFagsakId();
+            FagsakStatusEvent event = new FagsakStatusEvent(fagsakId, aktørId, FagsakStatus.LØPENDE, FagsakStatus.AVSLUTTET);
+            tjeneste.lagreFagsakAvsluttet(event);
+
+            List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
+            assertThat(alle).hasSize(1);
+            assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_OPPHOERT.getType());
+            assertThat(alle.get(0).getKildeId()).isEqualTo(FAGSAK_PREFIX + fagsakId.toString());
+            ForeldrepengerOpphoert opphørt = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerOpphoert.class);
+            assertThat(opphørt.getAktoerId()).isEqualTo(aktørId.getId()).isNotNull();
+            assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(fomMandag(LocalDate.now().minusMonths(3)));
+            assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(tomFredag(LocalDate.now().minusMonths(1)));
+            assertThat(opphørt.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        }
+
+        private BehandlingVedtak byggBehandlingVedtakHenlagtSpesial() {
+            ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+            scenario.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+            final FamilieHendelseBuilder familieHendelseBuilder = scenario.medSøknadHendelse();
+            familieHendelseBuilder.medAntallBarn(1)
+                .medFødselsDato(LocalDate.now().minusMonths(10));
+            Behandlingsresultat.Builder behandlingresultatBuilder = Behandlingsresultat.builder();
+            behandlingresultatBuilder.medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+            scenario.medBehandlingsresultat(behandlingresultatBuilder);
+
+            Behandling behandling = scenario.lagre(repositoryProvider);
+            behandling.avsluttBehandling();
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+            BehandlingVedtak.Builder vedtakBuilder = scenario.medBehandlingVedtak();
+            vedtakBuilder.medBehandlingsresultat(getBehandlingsresultat(behandling))
+                .medVedtakstidspunkt(LocalDateTime.now().minusMonths(3))
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .medAnsvarligSaksbehandler("Nav Navsdotter")
+                .build();
+            vedtakRepo.lagre(vedtakBuilder.build(), behandlingRepository.taSkriveLås(behandling));
+            beregningsresultatRepository.lagre(behandling, lagBeregningsresultat(LocalDate.now().minusMonths(3), LocalDate.now().minusMonths(1), 100, 100));
+
+            Long behandlingId = behandling.getId();
+
+            Behandling nyBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
+                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).medOriginalBehandling(behandling)).build();
+            Behandlingsresultat.Builder nyttBehandlingresultatBuilder = Behandlingsresultat.builder();
+            nyttBehandlingresultatBuilder.medBehandlingResultatType(BehandlingResultatType.HENLAGT_FEILOPPRETTET);
+            @SuppressWarnings("unused")
+            Behandlingsresultat nyttBehandingsresultat = nyttBehandlingresultatBuilder.build();
+            behandlingRepository.lagre(nyBehandling, behandlingRepository.taSkriveLås(nyBehandling));
+            repoRule.getEntityManager().flush();
+
+            Optional<BehandlingVedtak> hentBehandlingvedtakForBehandlingId = vedtakRepo.hentBehandlingvedtakForBehandlingId(behandlingId);
+            return hentBehandlingvedtakForBehandlingId.orElse(null);
+        }
+
+    private BehandlingVedtak byggBehandlingVedtakOgBehandling(boolean medBerRes, BehandlingType behandlingType, BehandlingResultatType behandlingResultatType,
+                                                  BeregningsresultatEntitet nyttBerRes, VedtakResultatType nyttVedtakResultat, boolean trengerAvslåttOriginalBehandling) {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         if (trengerAvslåttOriginalBehandling) {
             ScenarioMorSøkerForeldrepenger førstegangsScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
             Behandlingsresultat.Builder behandlingresultatBuilder = Behandlingsresultat.builder();
-            behandlingresultatBuilder.medBehandlingResultatType(nyUttaksPlan == null ? behandlingResultatType : BehandlingResultatType.INNVILGET);
+            behandlingresultatBuilder.medBehandlingResultatType(nyttBerRes == null ? behandlingResultatType : BehandlingResultatType.INNVILGET);
             førstegangsScenario.medBehandlingsresultat(behandlingresultatBuilder);
             Behandling førstegangsbehandling = førstegangsScenario.lagre(repositoryProvider);
             førstegangsbehandling.avsluttBehandling();
@@ -282,7 +334,7 @@ public class HendelsePublisererTjenesteImplTest {
         familieHendelseBuilder.medAntallBarn(1)
             .medFødselsDato(LocalDate.now());
         Behandlingsresultat.Builder behandlingresultatBuilder = Behandlingsresultat.builder();
-        behandlingresultatBuilder.medBehandlingResultatType(nyUttaksPlan == null ? behandlingResultatType : BehandlingResultatType.INNVILGET);
+        behandlingresultatBuilder.medBehandlingResultatType(nyttBerRes == null ? behandlingResultatType : BehandlingResultatType.INNVILGET);
         scenario.medBehandlingsresultat(behandlingresultatBuilder);
 
         Behandling behandling = scenario.lagre(repositoryProvider);
@@ -295,11 +347,13 @@ public class HendelsePublisererTjenesteImplTest {
             .medAnsvarligSaksbehandler("Nav Navsdotter")
             .build();
         vedtakRepo.lagre(vedtakBuilder.build(), behandlingRepository.taSkriveLås(behandling));
-        if (medUttaksPlan) {
-            uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprettUttakResultatPerioder());
+
+        if (medBerRes) {
+            beregningsresultatRepository.lagre(behandling, opprettBerResultat());
         }
+
         Long behandlingId = behandling.getId();
-        if (nyUttaksPlan != null) {
+        if (nyttBerRes != null) {
             Behandling nyBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).medOriginalBehandling(behandling)).build();
             Behandlingsresultat.Builder nyttBehandlingresultatBuilder = Behandlingsresultat.builder();
@@ -315,7 +369,7 @@ public class HendelsePublisererTjenesteImplTest {
                 .build();
             vedtakRepo.lagre(nyttVedtakBuilder.build(), behandlingRepository.taSkriveLås(nyBehandling));
             behandlingId = nyBehandling.getId();
-            uttakRepository.lagreOpprinneligUttakResultatPerioder(nyBehandling.getId(), nyUttaksPlan);
+            beregningsresultatRepository.lagre(nyBehandling, nyttBerRes);
         }
         repoRule.getEntityManager().flush();
 
@@ -323,93 +377,50 @@ public class HendelsePublisererTjenesteImplTest {
         return hentBehandlingvedtakForBehandlingId.orElse(null);
     }
 
-    private BehandlingVedtak byggBehandlingVedtakHenlagtSpesial() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
-        final FamilieHendelseBuilder familieHendelseBuilder = scenario.medSøknadHendelse();
-        familieHendelseBuilder.medAntallBarn(1)
-            .medFødselsDato(LocalDate.now().minusMonths(10));
-        Behandlingsresultat.Builder behandlingresultatBuilder = Behandlingsresultat.builder();
-        behandlingresultatBuilder.medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        scenario.medBehandlingsresultat(behandlingresultatBuilder);
+    private BeregningsresultatEntitet opprettBerResultat() {
+        return lagBeregningsresultat(INNVILGET_PERIODE_FØRSTE_DAG, INNVILGET_PERIODE_SISTE_DAG, 100, 100);
+    }
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        behandling.avsluttBehandling();
-        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        BehandlingVedtak.Builder vedtakBuilder = scenario.medBehandlingVedtak();
-        vedtakBuilder.medBehandlingsresultat(getBehandlingsresultat(behandling))
-            .medVedtakstidspunkt(LocalDateTime.now().minusMonths(3))
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medAnsvarligSaksbehandler("Nav Navsdotter")
-            .build();
-        vedtakRepo.lagre(vedtakBuilder.build(), behandlingRepository.taSkriveLås(behandling));
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), lagUttaksPlan(LocalDate.now().minusMonths(3), LocalDate.now().minusMonths(1), false, true));
-        Long behandlingId = behandling.getId();
+    private BeregningsresultatEntitet opprettNyttBerRes() {
+        return lagBeregningsresultat(NY_PERIODE_FØRSTE_DAG, NY_PERIODE_SISTE_DAG, 100, 100);
+    }
 
-        Behandling nyBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).medOriginalBehandling(behandling)).build();
-        Behandlingsresultat.Builder nyttBehandlingresultatBuilder = Behandlingsresultat.builder();
-        nyttBehandlingresultatBuilder.medBehandlingResultatType(BehandlingResultatType.HENLAGT_FEILOPPRETTET);
-        @SuppressWarnings("unused")
-        Behandlingsresultat nyttBehandingsresultat = nyttBehandlingresultatBuilder.buildFor(nyBehandling);
-        behandlingRepository.lagre(nyBehandling, behandlingRepository.taSkriveLås(nyBehandling));
-        repoRule.getEntityManager().flush();
-
-        Optional<BehandlingVedtak> hentBehandlingvedtakForBehandlingId = vedtakRepo.hentBehandlingvedtakForBehandlingId(behandlingId);
-        return hentBehandlingvedtakForBehandlingId.orElse(null);
+    private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, int dagsats, double utbetalingsgrad) {
+        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
+        BeregningsresultatPeriode beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
+            .build(beregningsresultat);
+        BeregningsresultatAndel.builder()
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medDagsats(dagsats)
+            .medDagsatsFraBg(dagsats)
+            .medBrukerErMottaker(true)
+            .medUtbetalingsgrad(BigDecimal.valueOf(utbetalingsgrad))
+            .medStillingsprosent(BigDecimal.valueOf(utbetalingsgrad))
+            .build(beregningsresultatPeriode);
+        return beregningsresultat;
     }
 
     private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
         return repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
     }
 
-    private UttakResultatPerioderEntitet opprettUttakResultatPerioder() {
-        return lagUttaksPlan(INNVILGET_PERIODE_FØRSTE_DAG, INNVILGET_PERIODE_SISTE_DAG, true, true);
+    private static LocalDate fomMandag(LocalDate fom) {
+        DayOfWeek ukedag = DayOfWeek.from(fom);
+        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(1);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(2);
+        return fom;
     }
 
-    private UttakResultatPerioderEntitet opprettNyUttaksplan() {
-        return lagUttaksPlan(NY_PERIODE_FØRSTE_DAG, NY_PERIODE_SISTE_DAG, false, true);
-    }
-
-    private UttakResultatPerioderEntitet lagUttaksPlan(LocalDate fom, LocalDate tom, boolean medAvslått, boolean medInnvilget) {
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
-        if(medInnvilget) {
-            UttakResultatPeriodeEntitet innvilgetPeriode1 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, fom, fom.plusWeeks(6));
-            UttakResultatPeriodeEntitet innvilgetPeriode2 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, tom.minusWeeks(2), tom);
-
-            perioder.leggTilPeriode(innvilgetPeriode1);
-            perioder.leggTilPeriode(innvilgetPeriode2);
-        }
-        if (medAvslått) {
-            UttakResultatPeriodeEntitet avslåttPeriode = opprettUttakResultatPeriode(PeriodeResultatType.AVSLÅTT, AVSLÅTT_PERIODE_START, AVSLÅTT_PERIODE_SLUTT);
-            perioder.leggTilPeriode(avslåttPeriode);
-        }
-        return perioder;
-    }
-
-    private UttakResultatPeriodeEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,
-                                                                    LocalDate fom,
-                                                                    LocalDate tom) {
-
-        UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
-            .build();
-
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .build();
-
-        UttakResultatPeriodeAktivitetEntitet periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode,
-            uttakAktivitet)
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
-            .medTrekkdager(new Trekkdager(10))
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .medUtbetalingsgrad(BigDecimal.valueOf(100))
-            .build();
-
-        uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);
-
-        return uttakResultatPeriode;
+    private static LocalDate tomFredag(LocalDate tom) {
+        DayOfWeek ukedag = DayOfWeek.from(tom);
+        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
+            return tom.minusDays(2);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return tom.minusDays(1);
+        return tom;
     }
 }

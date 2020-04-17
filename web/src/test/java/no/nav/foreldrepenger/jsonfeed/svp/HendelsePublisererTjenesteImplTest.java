@@ -3,10 +3,10 @@ package no.nav.foreldrepenger.jsonfeed.svp;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,6 +22,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -30,14 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.SvpVedtakUtgåendeHendelse;
@@ -51,10 +49,10 @@ import no.nav.foreldrepenger.mottak.hendelser.JsonMapper;
 
 public class HendelsePublisererTjenesteImplTest {
 
-    private static final LocalDate FØRSTE_PERIODE_FØRSTE_DAG = LocalDate.now();
-    private static final LocalDate FØRSTE_PERIODE_SISTE_DAG = FØRSTE_PERIODE_FØRSTE_DAG.plusMonths(1);
-    private static final LocalDate ANDRE_PERIODE_FØRSTE_DAG = FØRSTE_PERIODE_SISTE_DAG.plusDays(1);
-    private static final LocalDate ANDRE_PERIODE_SISTE_DAG = ANDRE_PERIODE_FØRSTE_DAG.plusMonths(1);
+    private static final LocalDate FØRSTE_PERIODE_FØRSTE_DAG = fomMandag(LocalDate.now());
+    private static final LocalDate FØRSTE_PERIODE_SISTE_DAG = tomFredag(FØRSTE_PERIODE_FØRSTE_DAG.plusMonths(1));
+    private static final LocalDate ANDRE_PERIODE_FØRSTE_DAG = fomMandag(FØRSTE_PERIODE_SISTE_DAG.plusDays(1));
+    private static final LocalDate ANDRE_PERIODE_SISTE_DAG = tomFredag(ANDRE_PERIODE_FØRSTE_DAG.plusMonths(1));
 
     private static final String FAGSAK_PREFIX = "FS";
     private static final String VEDTAK_PREFIX = "VT";
@@ -69,27 +67,29 @@ public class HendelsePublisererTjenesteImplTest {
     private FeedRepository feedRepository = new FeedRepository(repoRule.getEntityManager());
     private BehandlingRepository behandlingRepository = new BehandlingRepository(repoRule.getEntityManager());
     private BehandlingVedtakRepository vedtakRepo = new BehandlingVedtakRepository(repoRule.getEntityManager(), behandlingRepository);
-    private SvangerskapspengerUttakResultatRepository uttakRepository = new SvangerskapspengerUttakResultatRepository(repoRule.getEntityManager());
     private BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     private EtterkontrollRepository etterkontrollRepository = new EtterkontrollRepository(repoRule.getEntityManager());
+    private BeregningsresultatRepository beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
+
     private HendelsePublisererTjeneste tjeneste;
 
     @Before
     public void setUp() {
-        tjeneste = new HendelsePublisererTjenesteImpl(feedRepository, uttakRepository, repositoryProvider, behandlingsresultatRepository, etterkontrollRepository);
+        tjeneste = new HendelsePublisererTjenesteImpl(feedRepository, repositoryProvider, behandlingsresultatRepository, etterkontrollRepository);
     }
 
     @Test
     public void skal_lagre_ned_førstegangsbehandling_innvilget() {
         // Arrange
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeFg = opprettUttakPeriode(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, new BigDecimal(100L));
-        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET, VedtakResultatType.INNVILGET, Set.of(uttakPeriodeFg), Set.of());
+        BeregningsresultatEntitet berResFG  = opprettBerRes(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, 100);
+        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET, VedtakResultatType.INNVILGET, berResFG, null);
 
         // Act
         tjeneste.lagreVedtak(vedtak);
 
         // Assert
         List<SvpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(SvpVedtakUtgåendeHendelse.class);
+        Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
         assertThat(alle).hasSize(1);
         assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.SVANGERSKAPSPENGER_INNVILGET.getType());
         assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
@@ -97,15 +97,16 @@ public class HendelsePublisererTjenesteImplTest {
         assertThat(innvilget.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
         assertThat(innvilget.getFoersteStoenadsdag()).isEqualTo(FØRSTE_PERIODE_FØRSTE_DAG);
         assertThat(innvilget.getSisteStoenadsdag()).isEqualTo(FØRSTE_PERIODE_SISTE_DAG);
-        assertThat(innvilget.getGsakId()).isEqualTo(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getSaksnummer().getVerdi());
+        assertThat(innvilget.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
     }
 
     @Test
     public void skal_ikke_lagre_ned_vedtak_som_ikke_endrer_stønadsperiode() {
         // Arrange
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeFg = opprettUttakPeriode(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, new BigDecimal(100L));
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeRv = opprettUttakPeriode(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, new BigDecimal(100L));
-        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.REVURDERING, BehandlingResultatType.INNVILGET, VedtakResultatType.INNVILGET, Set.of(uttakPeriodeFg), Set.of(uttakPeriodeRv));
+        BeregningsresultatEntitet berResFg  = opprettBerRes(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, 100);
+        BeregningsresultatEntitet berResRv  = opprettBerRes(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, 100);
+
+        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.REVURDERING, BehandlingResultatType.INNVILGET, VedtakResultatType.INNVILGET, berResFg, berResRv);
 
         // Act
         tjeneste.lagreVedtak(vedtak);
@@ -118,15 +119,18 @@ public class HendelsePublisererTjenesteImplTest {
     @Test
     public void skal_lagre_ned_revurdering_innvilget() {
         // Arrange
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeFg = opprettUttakPeriode(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, new BigDecimal(100L));
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeRv = opprettUttakPeriode(ANDRE_PERIODE_FØRSTE_DAG, ANDRE_PERIODE_SISTE_DAG, new BigDecimal(100L));
-        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.REVURDERING, BehandlingResultatType.INNVILGET, VedtakResultatType.INNVILGET, Set.of(uttakPeriodeFg), Set.of(uttakPeriodeRv));
+        BeregningsresultatEntitet berResFg  = opprettBerRes(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, 100);
+        BeregningsresultatEntitet berResRv  = opprettBerRes(ANDRE_PERIODE_FØRSTE_DAG, ANDRE_PERIODE_SISTE_DAG, 100);
+
+        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.REVURDERING, BehandlingResultatType.INNVILGET, VedtakResultatType.INNVILGET, berResFg, berResRv);
 
         // Act
         tjeneste.lagreVedtak(vedtak);
 
         // Assert
         List<SvpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(SvpVedtakUtgåendeHendelse.class);
+        Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+
         assertThat(alle).hasSize(1);
         assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.SVANGERSKAPSPENGER_INNVILGET.getType());
         assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
@@ -134,21 +138,24 @@ public class HendelsePublisererTjenesteImplTest {
         assertThat(innvilget.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
         assertThat(innvilget.getFoersteStoenadsdag()).isEqualTo(ANDRE_PERIODE_FØRSTE_DAG);
         assertThat(innvilget.getSisteStoenadsdag()).isEqualTo(ANDRE_PERIODE_SISTE_DAG);
-        assertThat(innvilget.getGsakId()).isEqualTo(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getSaksnummer().getVerdi());
+        assertThat(innvilget.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
     }
 
     @Test
     public void skal_lagre_ned_revurdering_endret() {
         // Arrange
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeFg = opprettUttakPeriode(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, new BigDecimal(100L));
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeRv = opprettUttakPeriode(ANDRE_PERIODE_FØRSTE_DAG, ANDRE_PERIODE_SISTE_DAG, new BigDecimal(100L));
-        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.REVURDERING, BehandlingResultatType.FORELDREPENGER_ENDRET, VedtakResultatType.INNVILGET, Set.of(uttakPeriodeFg), Set.of(uttakPeriodeRv));
+        BeregningsresultatEntitet berResFg  = opprettBerRes(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, 100);
+        BeregningsresultatEntitet berResRv  = opprettBerRes(ANDRE_PERIODE_FØRSTE_DAG, ANDRE_PERIODE_SISTE_DAG, 100);
+
+        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.REVURDERING, BehandlingResultatType.FORELDREPENGER_ENDRET, VedtakResultatType.INNVILGET, berResFg, berResRv);
 
         // Act
         tjeneste.lagreVedtak(vedtak);
 
         // Assert
         List<SvpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(SvpVedtakUtgåendeHendelse.class);
+        Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+
         assertThat(alle).hasSize(1);
         assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.SVANGERSKAPSPENGER_ENDRET.getType());
         assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
@@ -156,21 +163,24 @@ public class HendelsePublisererTjenesteImplTest {
         assertThat(endret.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
         assertThat(endret.getFoersteStoenadsdag()).isEqualTo(ANDRE_PERIODE_FØRSTE_DAG);
         assertThat(endret.getSisteStoenadsdag()).isEqualTo(ANDRE_PERIODE_SISTE_DAG);
-        assertThat(endret.getGsakId()).isEqualTo(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getSaksnummer().getVerdi());
+        assertThat(endret.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
     }
 
     @Test
     public void skal_lagre_ned_revurdering_opphørt() {
         // Arrange
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeFg = opprettUttakPeriode(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, new BigDecimal(100L));
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeRv = opprettUttakPeriode(ANDRE_PERIODE_FØRSTE_DAG, ANDRE_PERIODE_SISTE_DAG, new BigDecimal(100L));
-        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.REVURDERING, BehandlingResultatType.OPPHØR, VedtakResultatType.AVSLAG, Set.of(uttakPeriodeFg), Set.of(uttakPeriodeRv));
+        BeregningsresultatEntitet berResFg  = opprettBerRes(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, 100);
+        BeregningsresultatEntitet berResRv  = opprettBerRes(ANDRE_PERIODE_FØRSTE_DAG, ANDRE_PERIODE_SISTE_DAG, 100);
+
+        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.REVURDERING, BehandlingResultatType.OPPHØR, VedtakResultatType.AVSLAG, berResFg, berResRv);
 
         // Act
         tjeneste.lagreVedtak(vedtak);
 
         // Assert
         List<SvpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(SvpVedtakUtgåendeHendelse.class);
+        Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+
         assertThat(alle).hasSize(1);
         assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.SVANGERSKAPSPENGER_OPPHOERT.getType());
         assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
@@ -178,15 +188,16 @@ public class HendelsePublisererTjenesteImplTest {
         assertThat(opphørt.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
         assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(ANDRE_PERIODE_FØRSTE_DAG);
         assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(ANDRE_PERIODE_SISTE_DAG);
-        assertThat(opphørt.getGsakId()).isEqualTo(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getSaksnummer().getVerdi());
+        assertThat(opphørt.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
     }
 
     @Test
     public void skal_ikke_lagre_ned_beslutningsvedtak() {
         // Arrange
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeFg = opprettUttakPeriode(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, new BigDecimal(100L));
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeRv = opprettUttakPeriode(ANDRE_PERIODE_FØRSTE_DAG, ANDRE_PERIODE_SISTE_DAG, new BigDecimal(100L));
-        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.REVURDERING, BehandlingResultatType.INGEN_ENDRING, VedtakResultatType.INNVILGET, Set.of(uttakPeriodeFg), Set.of(uttakPeriodeRv));
+        BeregningsresultatEntitet berResFg  = opprettBerRes(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, 100);
+        BeregningsresultatEntitet berResRv  = opprettBerRes(ANDRE_PERIODE_FØRSTE_DAG, ANDRE_PERIODE_SISTE_DAG, 100);
+
+        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.REVURDERING, BehandlingResultatType.INGEN_ENDRING, VedtakResultatType.INNVILGET, berResFg, berResRv);
 
         // Act
         tjeneste.lagreVedtak(vedtak);
@@ -199,10 +210,12 @@ public class HendelsePublisererTjenesteImplTest {
     @Test
     public void skal_lagre_fagsak_avsluttet() {
         // Arrange
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeFg = opprettUttakPeriode(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, new BigDecimal(100L));
-        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET, VedtakResultatType.INNVILGET, Set.of(uttakPeriodeFg), Set.of());
-        AktørId aktørId = vedtak.getBehandlingsresultat().getBehandling().getAktørId();
-        Long fagsakId = vedtak.getBehandlingsresultat().getBehandling().getFagsakId();
+        BeregningsresultatEntitet berResFg  = opprettBerRes(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, 100);
+        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET, VedtakResultatType.INNVILGET, berResFg, null);
+
+        Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        AktørId aktørId = behandling.getAktørId();
+        Long fagsakId = behandling.getFagsakId();
         FagsakStatusEvent event = new FagsakStatusEvent(fagsakId, aktørId, FagsakStatus.LØPENDE, FagsakStatus.AVSLUTTET);
 
         // Act
@@ -217,33 +230,16 @@ public class HendelsePublisererTjenesteImplTest {
         assertThat(opphørt.getAktoerId()).isEqualTo(aktørId.getId()).isNotNull();
         assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(FØRSTE_PERIODE_FØRSTE_DAG);
         assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(FØRSTE_PERIODE_SISTE_DAG);
-        assertThat(opphørt.getGsakId()).isEqualTo(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getSaksnummer().getVerdi());
+        assertThat(opphørt.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
     }
 
     @Test
     public void skal_benytte_første_periode_med_utbetalingsgrad_større_enn_0() {
         // Arrange
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeFg1 = opprettUttakPeriode(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, new BigDecimal(0L));
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeFg2 = opprettUttakPeriode(ANDRE_PERIODE_FØRSTE_DAG, ANDRE_PERIODE_SISTE_DAG, new BigDecimal(100L));
-        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET, VedtakResultatType.INNVILGET, Set.of(uttakPeriodeFg1, uttakPeriodeFg2), Set.of());
+        BeregningsresultatEntitet berResFg  = opprettBerRes(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, 0);
+        leggTilBeregningsresPeriode(berResFg, ANDRE_PERIODE_FØRSTE_DAG, ANDRE_PERIODE_SISTE_DAG, 100);
 
-        // Act
-        tjeneste.lagreVedtak(vedtak);
-
-        // Assert
-        List<SvpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(SvpVedtakUtgåendeHendelse.class);
-        assertThat(alle).hasSize(1);
-        SvangerskapspengerInnvilget innvilget = JsonMapper.fromJson(alle.get(0).getPayload(), SvangerskapspengerInnvilget.class);
-        assertThat(innvilget.getFoersteStoenadsdag()).isEqualTo(ANDRE_PERIODE_FØRSTE_DAG);
-        assertThat(innvilget.getSisteStoenadsdag()).isEqualTo(ANDRE_PERIODE_SISTE_DAG);
-    }
-
-    @Test
-    public void skal_benytte_første_periode_som_er_innvilget() {
-        // Arrange
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeFg1 = opprettUttakPeriode(FØRSTE_PERIODE_FØRSTE_DAG, FØRSTE_PERIODE_SISTE_DAG, new BigDecimal(100L), PeriodeResultatType.AVSLÅTT);
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriodeFg2 = opprettUttakPeriode(ANDRE_PERIODE_FØRSTE_DAG, ANDRE_PERIODE_SISTE_DAG, new BigDecimal(100L), PeriodeResultatType.INNVILGET);
-        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET, VedtakResultatType.INNVILGET, Set.of(uttakPeriodeFg1, uttakPeriodeFg2), Set.of());
+        BehandlingVedtak vedtak = byggBehandlingVedtak(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET, VedtakResultatType.INNVILGET, berResFg, null);
 
         // Act
         tjeneste.lagreVedtak(vedtak);
@@ -257,8 +253,8 @@ public class HendelsePublisererTjenesteImplTest {
     }
 
     private BehandlingVedtak byggBehandlingVedtak(BehandlingType behandlingType, BehandlingResultatType behandlingResultatType,
-                                                  VedtakResultatType nyttVedtakResultat, Set<SvangerskapspengerUttakResultatPeriodeEntitet> uttakPerioderFg,
-                                                  Set<SvangerskapspengerUttakResultatPeriodeEntitet> uttakPerioderRv) {
+                                                  VedtakResultatType nyttVedtakResultat, BeregningsresultatEntitet berResFg,
+                                                  BeregningsresultatEntitet berResRv) {
         ScenarioMorSøkerSvangerskapspenger scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenario.medBehandlingType(behandlingType);
         FamilieHendelseBuilder familieHendelseBuilder = scenario.medSøknadHendelse();
@@ -278,7 +274,7 @@ public class HendelsePublisererTjenesteImplTest {
             .build();
         vedtakRepo.lagre(vedtakBuilder.build(), behandlingRepository.taSkriveLås(behandling));
 
-        uttakRepository.lagre(behandling.getId(), opprettUttakResultat(behandling, uttakPerioderFg));
+        beregningsresultatRepository.lagre(behandling, berResFg);
         Long behandlingId = behandling.getId();
 
         if (BehandlingType.REVURDERING.equals(behandlingType)) {
@@ -296,8 +292,7 @@ public class HendelsePublisererTjenesteImplTest {
                 .build();
             vedtakRepo.lagre(nyttVedtakBuilder.build(), behandlingRepository.taSkriveLås(revurdering));
 
-            SvangerskapspengerUttakResultatEntitet uttakResultat = opprettUttakResultat(revurdering, uttakPerioderRv);
-            uttakRepository.lagre(revurdering.getId(), uttakResultat);
+            beregningsresultatRepository.lagre(revurdering, berResRv);
             behandlingId = revurdering.getId();
         }
 
@@ -307,42 +302,63 @@ public class HendelsePublisererTjenesteImplTest {
         return hentBehandlingvedtakForBehandlingId.orElse(null);
     }
 
-    private SvangerskapspengerUttakResultatPeriodeEntitet opprettUttakPeriode(LocalDate fom, LocalDate tom, BigDecimal utbetalingsgrad) {
-        return opprettUttakPeriode(fom, tom, utbetalingsgrad, PeriodeResultatType.INNVILGET);
-    }
-
-    private SvangerskapspengerUttakResultatPeriodeEntitet opprettUttakPeriode(LocalDate fom, LocalDate tom, BigDecimal utbetalingsgrad, PeriodeResultatType periodeResultatType) {
-            SvangerskapspengerUttakResultatPeriodeEntitet.Builder builder = new SvangerskapspengerUttakResultatPeriodeEntitet
-                .Builder(fom, tom)
-                .medRegelInput("{}")
-                .medRegelEvaluering("{}")
-                .medUtbetalingsgrad(utbetalingsgrad)
-                .medPeriodeResultatType(periodeResultatType);
-
-            if (!PeriodeResultatType.INNVILGET.equals(periodeResultatType)) {
-                builder.medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak._8308_SØKT_FOR_SENT);
-            }
-            return builder.build();
-    }
-
-    private SvangerskapspengerUttakResultatEntitet opprettUttakResultat(Behandling behandling, Set<SvangerskapspengerUttakResultatPeriodeEntitet> uttakPerioder) {
-        SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder builder = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medArbeidsforhold(Arbeidsgiver.person(AktørId.dummy()), null)
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID);
-
-        for (SvangerskapspengerUttakResultatPeriodeEntitet periode : uttakPerioder) {
-            builder.medPeriode(periode);
-        }
-
-        SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakArbeidsforhold = builder.build();
-
-        return new SvangerskapspengerUttakResultatEntitet
-            .Builder(behandlingsresultatRepository.hent(behandling.getId()))
-            .medUttakResultatArbeidsforhold(uttakArbeidsforhold)
-            .build();
-    }
-
     private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
         return behandlingsresultatRepository.hent(behandling.getId());
+    }
+
+    private BeregningsresultatEntitet opprettBerRes(LocalDate fom, LocalDate tom, long utbetalingsgrad) {
+        int dagsats = (int) utbetalingsgrad;
+        return lagBeregningsresultat(fom, tom, dagsats, utbetalingsgrad );
+    }
+
+    private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, int dagsats, double utbetalingsgrad) {
+        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
+        BeregningsresultatPeriode beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
+            .build(beregningsresultat);
+        BeregningsresultatAndel.builder()
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medDagsats(dagsats)
+            .medDagsatsFraBg(dagsats)
+            .medBrukerErMottaker(true)
+            .medUtbetalingsgrad(BigDecimal.valueOf(utbetalingsgrad))
+            .medStillingsprosent(BigDecimal.valueOf(utbetalingsgrad))
+            .build(beregningsresultatPeriode);
+        return beregningsresultat;
+    }
+
+    private void leggTilBeregningsresPeriode(BeregningsresultatEntitet beregningsresultatEntitet, LocalDate fom, LocalDate tom, long utbetalingsgrad) {
+        BeregningsresultatPeriode beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(fom, tom)
+            .build(beregningsresultatEntitet);
+        BeregningsresultatAndel.builder()
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medDagsats((int)utbetalingsgrad)
+            .medDagsatsFraBg((int)utbetalingsgrad)
+            .medBrukerErMottaker(true)
+            .medUtbetalingsgrad(BigDecimal.valueOf(utbetalingsgrad))
+            .medStillingsprosent(BigDecimal.valueOf(utbetalingsgrad))
+            .build(beregningsresultatPeriode);
+        beregningsresultatEntitet.addBeregningsresultatPeriode(beregningsresultatPeriode);
+    }
+
+    private static LocalDate fomMandag(LocalDate fom) {
+        DayOfWeek ukedag = DayOfWeek.from(fom);
+        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(1);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(2);
+        return fom;
+    }
+
+    private static LocalDate tomFredag(LocalDate tom) {
+        DayOfWeek ukedag = DayOfWeek.from(tom);
+        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
+            return tom.minusDays(2);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return tom.minusDays(1);
+        return tom;
     }
 }

@@ -12,6 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -23,20 +25,26 @@ public abstract class AbstractHendelsePublisererTjeneste implements HendelsePubl
 
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private EtterkontrollRepository etterkontrollRepository;
+    private BehandlingRepository behandlingRepository;
 
     public AbstractHendelsePublisererTjeneste() {
         //Creatively Diversified Investments
     }
 
-    public AbstractHendelsePublisererTjeneste(BehandlingsresultatRepository behandlingsresultatRepository, 
-                                              EtterkontrollRepository etterkontrollRepository) {
+    public AbstractHendelsePublisererTjeneste(BehandlingsresultatRepository behandlingsresultatRepository,
+                                              EtterkontrollRepository etterkontrollRepository,
+                                              BehandlingRepositoryProvider behandlingRepositoryProvider) {
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.etterkontrollRepository = etterkontrollRepository;
+        this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
     }
 
     @Override
     public void lagreVedtak(BehandlingVedtak vedtak) {
         log.info("lagrer utgående hendelse for vedtak {}", vedtak.getId());
+
+        Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        BehandlingType behandlingType = behandling.getType();
 
         if (hendelseEksistererAllerede(vedtak)) {
             log.debug("Skipper lagring av hendelse av vedtakId {} fordi den allerede eksisterer", vedtak.getId());
@@ -44,42 +52,42 @@ public abstract class AbstractHendelsePublisererTjeneste implements HendelsePubl
         }
 
         if (vedtak.getVedtakResultatType().equals(VedtakResultatType.AVSLAG) || vedtak.getVedtakResultatType().equals(VedtakResultatType.OPPHØR)){
-            etterkontrollRepository.avflaggDersomEksisterer(vedtak.getBehandlingsresultat().getBehandling().getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
+            etterkontrollRepository.avflaggDersomEksisterer(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
         }
-
-        BehandlingType behandlingType = vedtak.getBehandlingsresultat().getBehandling().getType();
 
         if (!(erInnvilgetFørstegangssøknad(vedtak, behandlingType) || erEndring(behandlingType))
             || erBeslutningsvedtak(behandlingType, vedtak.getBehandlingsresultat().getBehandlingResultatType())
-            || FagsakYtelseType.ENGANGSTØNAD.equals(vedtak.getBehandlingsresultat().getBehandling().getFagsak().getYtelseType())
-            || erEndringUtenEndretPeriode(vedtak) || erAvslagPåAvslag(vedtak)) {
+            || FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsak().getYtelseType())
+            || erEndringUtenEndretPeriode(behandling) || erAvslagPåAvslag(behandling)) {
             return; //dette vedtaket trigger ingen hendelse
         }
 
-        doLagreVedtak(vedtak, behandlingType);
+        doLagreVedtak(vedtak, behandling);
     }
 
     protected abstract boolean hendelseEksistererAllerede(BehandlingVedtak vedtak);
 
-    protected abstract void doLagreVedtak(BehandlingVedtak vedtak, BehandlingType behandlingType);
+    protected abstract void doLagreVedtak(BehandlingVedtak vedtak, Behandling behandling);
 
     private boolean erInnvilgetFørstegangssøknad(BehandlingVedtak vedtak, BehandlingType behandlingType) {
         return VedtakResultatType.INNVILGET.equals(vedtak.getVedtakResultatType())
             && (erFørstegangsSøknad(behandlingType));
     }
 
-    private boolean erEndringUtenEndretPeriode(BehandlingVedtak vedtak) {
-        if (!erEndring(vedtak.getBehandlingsresultat().getBehandling().getType())) {
+    private boolean erEndringUtenEndretPeriode(Behandling behandling) {
+        BehandlingType behandlingType = behandling.getType();
+
+        if (!erEndring(behandlingType)) {
             return false;
         }
-        Optional<Behandling> originalBehandling = vedtak.getBehandlingsresultat().getBehandling().getOriginalBehandling();
+        Optional<Behandling> originalBehandling = behandling.getOriginalBehandling();
         if (!originalBehandling.isPresent()) {
             throw HendelsePublisererFeil.FACTORY.manglerOriginialBehandlingPåEndringsVedtak().toException();
         }
-        return !uttakFomEllerTomErEndret(hentBehandlingsresultat(originalBehandling.get()), vedtak.getBehandlingsresultat());
+        return !uttakFomEllerTomErEndret(originalBehandling.get().getId(), behandling.getId());
     }
 
-    protected abstract boolean uttakFomEllerTomErEndret(Optional<Behandlingsresultat> gammeltResultat, Behandlingsresultat nyttResultat);
+    protected abstract boolean uttakFomEllerTomErEndret(Long orginalbehId, Long behandlingId);
 
     protected boolean erInnvilgetRevurdering(BehandlingType behandlingType, BehandlingResultatType behandlingResultatType) {
         return BehandlingType.REVURDERING.equals(behandlingType) && BehandlingResultatType.INNVILGET.equals(behandlingResultatType);
@@ -101,10 +109,9 @@ public abstract class AbstractHendelsePublisererTjeneste implements HendelsePubl
         return BehandlingType.REVURDERING.equals(behandlingType);
     }
 
-    private boolean erAvslagPåAvslag(BehandlingVedtak vedtak) {
-        Behandling behandling = vedtak.getBehandlingsresultat().getBehandling();
+    private boolean erAvslagPåAvslag(Behandling behandling) {
         if(behandling.erRevurdering()) {
-            Optional<Behandling> origBehandling = vedtak.getBehandlingsresultat().getBehandling().getOriginalBehandling();
+            Optional<Behandling> origBehandling = behandling.getOriginalBehandling();
             if (origBehandling.isPresent()) {
                 return erAvslåttBehandling(behandling) && erAvslåttBehandling(origBehandling.get());
             }
@@ -119,7 +126,7 @@ public abstract class AbstractHendelsePublisererTjeneste implements HendelsePubl
         return false;
     }
 
-    protected Optional<Behandlingsresultat> hentBehandlingsresultat(Behandling behandling) {
+    private Optional<Behandlingsresultat> hentBehandlingsresultat(Behandling behandling) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
     }
 }
