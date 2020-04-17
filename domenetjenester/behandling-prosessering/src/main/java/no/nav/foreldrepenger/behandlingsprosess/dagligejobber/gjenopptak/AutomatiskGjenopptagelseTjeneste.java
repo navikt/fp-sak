@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.gjenopptak;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -49,22 +51,24 @@ public class AutomatiskGjenopptagelseTjeneste {
         List<Behandling> behandlingListe = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
         String callId = MDCOperations.getCallId();
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
+        LocalTime baseline = LocalTime.now();
 
         for (Behandling behandling : behandlingListe) {
             String nyCallId = callId + behandling.getId();
-            opprettProsessTask(behandling, nyCallId);
+            opprettProsessTask(behandling, nyCallId, baseline);
         }
 
         //TODO(OJR) må endres i forbindelsen med at løsningen ser på task_grupper på en annet måte nå, hvis en prosess feiler i en gruppe stopper alt opp..
         return "-";
     }
 
-    private void opprettProsessTask(Behandling behandling, String callId) {
+    private void opprettProsessTask(Behandling behandling, String callId, LocalTime baseline) {
         log.info("oppretter task med ny callId: {} ", callId);
         ProsessTaskData prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
         prosessTaskData.setPrioritet(100);
+        prosessTaskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), baseline.plusSeconds(LocalDateTime.now().getNano() % 719)));
 
         // unik per task da det gjelder  ulike behandlinger, gjenbruker derfor ikke
         prosessTaskData.setCallId(callId);
@@ -83,12 +87,13 @@ public class AutomatiskGjenopptagelseTjeneste {
         List<OppgaveBehandlingKobling> oppgaveListe = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(fom, tom, OPPGAVE_TYPER);
         String callId = MDCOperations.getCallId();
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
+        LocalTime baseline = LocalTime.now();
 
         for (OppgaveBehandlingKobling oppgave : oppgaveListe) {
             Behandling behandling = oppgave.getBehandling();
             if (!behandling.erSaksbehandlingAvsluttet() && !behandling.isBehandlingPåVent() && behandling.erYtelseBehandling()) {
                 String nyCallId = callId + behandling.getId();
-                opprettProsessTask(behandling, nyCallId);
+                opprettProsessTask(behandling, nyCallId, baseline);
             }
         }
 
@@ -100,10 +105,11 @@ public class AutomatiskGjenopptagelseTjeneste {
         List<Behandling> sovende = behandlingKandidaterRepository.finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt();
         String callId = MDCOperations.getCallId();
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
+        LocalTime baseline = LocalTime.now();
 
         for (Behandling behandling : sovende) {
             String nyCallId = callId + behandling.getId();
-            opprettProsessTask(behandling, nyCallId);
+            opprettProsessTask(behandling, nyCallId, baseline);
         }
 
         //TODO(OJR) må endres i forbindelsen med at løsningen ser på task_grupper på en annet måte nå, hvis en prosess feiler i en gruppe stopper alt opp..

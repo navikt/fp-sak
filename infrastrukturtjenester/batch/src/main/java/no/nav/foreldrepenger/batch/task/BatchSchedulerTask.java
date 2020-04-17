@@ -32,29 +32,30 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 public class BatchSchedulerTask implements ProsessTaskHandler {
 
     public static final String TASKTYPE = "batch.scheduler";
+    public static final String ANT_DAGER = "antallDager=";
 
     private static final String AVSTEMMING = "BVL001";
 
     // Andre parametere må stå før antallDager= ....
     private static final List<BatchConfig> BATCH_OPPSETT_ANTALL_DAGER = Arrays.asList(
-        new BatchConfig(6, 53, AVSTEMMING, "fagomrade=SVP, antallDager="),
-        new BatchConfig(6, 54, AVSTEMMING, "fagomrade=SVPREF, antallDager="),
-        new BatchConfig(6, 55, AVSTEMMING, "fagomrade=REFUTG, antallDager="),
-        new BatchConfig(6, 56, AVSTEMMING, "fagomrade=FP, antallDager="),
-        new BatchConfig(6, 57, AVSTEMMING, "fagomrade=FPREF, antallDager="),
-        new BatchConfig(7, 5, "BVL006", "antallDager="), // Fagsakavslutning
-        new BatchConfig(7, 7, "BVL008", "antallDager="), // Infobrev far
-        new BatchConfig(7, 15, "BVL009", "antallDager=") // Infobrev opphold far
+        new BatchConfig(6, 45, AVSTEMMING, "fagomrade=SVP, antallDager="),
+        new BatchConfig(6, 46, AVSTEMMING, "fagomrade=SVPREF, antallDager="),
+        new BatchConfig(6, 47, AVSTEMMING, "fagomrade=REFUTG, antallDager="),
+        new BatchConfig(6, 48, AVSTEMMING, "fagomrade=FP, antallDager="),
+        new BatchConfig(6, 49, AVSTEMMING, "fagomrade=FPREF, antallDager="),
+        new BatchConfig(7, 6, "BVL006", ANT_DAGER), // Fagsakavslutning
+        new BatchConfig(7, 8, "BVL008", ANT_DAGER), // Infobrev far
+        new BatchConfig(7, 15, "BVL009", ANT_DAGER) // Infobrev opphold far
     );
 
     private static final List<BatchConfig> BATCH_OPPSETT_VIRKEDAGER = Arrays.asList(
-        new BatchConfig(6, 45, "BVL007", null), // Oppdatering dagsgamle oppgaver
-        new BatchConfig(6, 58, BatchRunnerTask.BATCH_NAME_RETRY_TASKS, null),
-        new BatchConfig(6, 59, "BVL005", null), // Kodeverk
-        new BatchConfig(7, 0, "BVL004", null), // Gjenoppta
-        new BatchConfig(7, 4, "BVL002", null), // Etterkontroll
-        new BatchConfig(7, 6, "BVL003", null),  // Forlengelsesbrev må kjøre noe etter Gjenoppta
-        new BatchConfig(2, 1, "BVL010", null)  //Oppdatering DVH. Bør kjøre før kl 03-04.
+        new BatchConfig(6, 17, "BVL007", null), // Oppdatering dagsgamle oppgaver
+        new BatchConfig(6, 50, BatchRunnerTask.BATCH_NAME_RETRY_TASKS, null),
+        new BatchConfig(6, 51, "BVL005", null), // Kodeverk
+        new BatchConfig(6, 52, "BVL004", null), // Gjenoppta
+        new BatchConfig(7, 5, "BVL002", null), // Etterkontroll
+        new BatchConfig(7, 7, "BVL003", null),  // Forlengelsesbrev må kjøre noe etter Gjenoppta
+        new BatchConfig(1, 58, "BVL010", null)  //Oppdatering DVH. Bør kjøre før kl 03-04.
     );
 
     private final Set<MonthDay> fasteStengteDager = Set.of(
