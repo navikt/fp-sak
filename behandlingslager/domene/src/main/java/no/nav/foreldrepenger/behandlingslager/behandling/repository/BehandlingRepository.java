@@ -190,6 +190,21 @@ public class BehandlingRepository {
         return query.getResultList();
     }
 
+    public List<Long> hentÅpneBehandlingerIdForFagsakId(Long fagsakId) {
+        Objects.requireNonNull(fagsakId, FAGSAK_ID); //$NON-NLS-1$
+
+        TypedQuery<Long> query = getEntityManager().createQuery(
+            "SELECT beh.id from Behandling AS beh " +
+                "WHERE beh.fagsak.id = :fagsakId " +
+                "AND beh.status NOT IN (:status)", //$NON-NLS-1$
+            Long.class);
+        query.setParameter(FAGSAK_ID, fagsakId); //$NON-NLS-1$
+        query.setParameter("status", BehandlingStatus.getFerdigbehandletStatuser()); //$NON-NLS-1$
+        query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
+        query.setHint(QueryHints.HINT_CACHE_MODE, "IGNORE");
+        return query.getResultList();
+    }
+
     public List<Behandling> hentÅpneYtelseBehandlingerForFagsakId(Long fagsakId) {
         Objects.requireNonNull(fagsakId, FAGSAK_ID); //$NON-NLS-1$
 
@@ -204,10 +219,6 @@ public class BehandlingRepository {
         query.setParameter("ytelseTyper", BehandlingType.getYtelseBehandlingTyper()); //$NON-NLS-1$
         query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
         return query.getResultList();
-    }
-
-    public List<Long> hentÅpneBehandlingerIdForFagsakId(Long fagsakId) {
-        return hentÅpneBehandlingerForFagsakId(fagsakId).stream().map(Behandling::getId).collect(Collectors.toList());
     }
 
     /** Kaller lagre Behandling, og renser first-level cache i JPA. */
