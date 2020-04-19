@@ -42,6 +42,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -102,7 +104,7 @@ public class DokumentmottakerInntektsmeldingTest {
 
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
-        dokumentmottaker = new DokumentmottakerInntektsmelding(dokumentmottakerFelles, mottatteDokumentTjeneste, behandlingsoppretter,
+        dokumentmottaker = new DokumentmottakerInntektsmelding(dokumentmottakerFelles, behandlingsoppretter,
             kompletthetskontroller, repositoryProvider, fpUttakTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
 
@@ -128,7 +130,7 @@ public class DokumentmottakerInntektsmeldingTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, revurderingBehandling.getFagsakId(), "", now(), true, "123");
 
         //Act
-        dokumentmottaker.mottaDokument(mottattDokument, revurderingBehandling.getFagsak(), dokumentTypeId, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokument(mottattDokument, revurderingBehandling.getFagsak(), BehandlingÅrsakType.UDEFINERT);
 
         //Assert
         verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(revurderingBehandling, mottattDokument);
@@ -156,7 +158,7 @@ public class DokumentmottakerInntektsmeldingTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, revurderingBehandling.getFagsakId(), "", now(), true, "123");
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, revurderingBehandling.getFagsak(), dokumentTypeId, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokument(mottattDokument, revurderingBehandling.getFagsak(), BehandlingÅrsakType.UDEFINERT);
 
         // Assert - sjekk flyt
         verify(dokumentmottaker).oppdaterÅpenBehandlingMedDokument(revurderingBehandling, mottattDokument, BehandlingÅrsakType.UDEFINERT);
@@ -177,7 +179,7 @@ public class DokumentmottakerInntektsmeldingTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.UDEFINERT);
 
         // Assert - sjekk flyt
         verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
@@ -197,7 +199,7 @@ public class DokumentmottakerInntektsmeldingTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.UDEFINERT);
 
         // Assert - sjekk flyt
         verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
@@ -224,12 +226,11 @@ public class DokumentmottakerInntektsmeldingTest {
         when(behandlingsoppretter.opprettRevurdering(behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING)).thenReturn(revurdering);
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.UDEFINERT);
 
         // Assert
         verify(behandlingsoppretter).opprettRevurdering(behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
         verify(mottatteDokumentTjeneste).persisterDokumentinnhold(revurdering, mottattDokument, Optional.empty());
-        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVedlegg(behandling.getFagsakId(), mottattDokument.getJournalpostId(), dokumentTypeId);
     }
 
     @Test
@@ -243,25 +244,28 @@ public class DokumentmottakerInntektsmeldingTest {
         when(behandlingsoppretter.opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.UDEFINERT, Optional.empty())).thenReturn(førstegangsbehandling);
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, fagsak, dokumentTypeId, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokument(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert
         verify(behandlingsoppretter).opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.UDEFINERT, Optional.empty());
-        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVedlegg(fagsak.getId(), mottattDokument.getJournalpostId(), dokumentTypeId);
+        verify(dokumentmottakerFelles).opprettInitiellFørstegangsbehandling(fagsak, mottattDokument, BehandlingÅrsakType.UDEFINERT);
     }
 
     @Test
     public void skal_opprette_køet_revurdering_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes() {
         // Arrange - opprette avsluttet førstegangsbehandling
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingsresultat(new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET))
+            .lagre(repositoryProvider);
         behandling.avsluttBehandling();
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
-        behandlingRepository.lagre(behandling, behandlingLås);
+        BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.INNVILGET);
+        repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        Fagsak fagsak = behandling.getFagsak();
 
         Behandling revurdering = mock(Behandling.class);
 
-        doReturn(revurdering).when(behandlingsoppretter).opprettKøetBehandling(behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
+        doReturn(revurdering).when(behandlingsoppretter).opprettRevurdering(behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
         doNothing().when(kompletthetskontroller).oppdaterKompletthetForKøetBehandling(behandling);
         doAnswer(invocationOnMock -> { return null;}).when(dokumentmottakerFelles).leggTilBehandlingsårsak(revurdering, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 
@@ -269,13 +273,12 @@ public class DokumentmottakerInntektsmeldingTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
 
         // Act
-        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, behandling.getFagsak(), dokumentTypeId, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.UDEFINERT);
 
         // Assert
-        verify(behandlingsoppretter).opprettKøetBehandling(behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
-        verify(kompletthetskontroller).persisterKøetDokumentOgVurderKompletthet(revurdering, mottattDokument, Optional.empty());
-        verify(dokumentmottakerFelles).opprettHistorikk(revurdering, mottattDokument.getJournalpostId());
-        verify(dokumentmottakerFelles).leggTilBehandlingsårsak(revurdering, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
+        verify(behandlingsoppretter).opprettRevurdering(fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
+        verify(behandlingsoppretter).settSomKøet(any());
+        verify(dokumentmottakerFelles).opprettKøetRevurdering(mottattDokument, fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
     }
 
     @Test
@@ -285,7 +288,9 @@ public class DokumentmottakerInntektsmeldingTest {
 
         // Arrange - sett opp opprettelse av køet behandling
         Behandling behandling = mock(Behandling.class);
-        doReturn(behandling).when(behandlingsoppretter).opprettKøetBehandling(fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
+        doReturn(fagsak.getId()).when(behandling).getFagsakId();
+        doReturn(fagsak).when(behandling).getFagsak();
+        doReturn(behandling).when(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
         doAnswer(invocationOnMock -> { return null;}).when(dokumentmottakerFelles).leggTilBehandlingsårsak(behandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 
         // Arrange - bygg inntektsmelding
@@ -293,13 +298,11 @@ public class DokumentmottakerInntektsmeldingTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsak.getId(), "", now(), true, "123");
 
         // Act
-        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, dokumentTypeId, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert - sjekk flyt
-        verify(behandlingsoppretter).opprettKøetBehandling(fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
-        verify(kompletthetskontroller).persisterKøetDokumentOgVurderKompletthet(behandling, mottattDokument, Optional.empty());
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument.getJournalpostId());
-        verify(dokumentmottakerFelles).leggTilBehandlingsårsak(behandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
+        verify(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
+        verify(dokumentmottakerFelles).opprettKøetFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument,fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
     }
 
     @Test
@@ -314,7 +317,7 @@ public class DokumentmottakerInntektsmeldingTest {
         // Act - send inntektsmelding
         DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
-        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, behandling.getFagsak(), dokumentTypeId, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.UDEFINERT);
 
         // Assert - verifiser flyt
         verify(kompletthetskontroller).persisterKøetDokumentOgVurderKompletthet(behandling, mottattDokument, Optional.empty());
@@ -340,7 +343,6 @@ public class DokumentmottakerInntektsmeldingTest {
         // Assert
         verify(behandlingsoppretter).opprettFørstegangsbehandling(behandling.getFagsak(), BehandlingÅrsakType.UDEFINERT, Optional.of(behandling));
         verify(mottatteDokumentTjeneste).persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling, null);
         verify(dokumentmottakerFelles).opprettTaskForÅStarteBehandling(behandling);
     }
 

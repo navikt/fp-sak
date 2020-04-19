@@ -95,8 +95,8 @@ public class VurderFagsystemTjenesteImplTest {
 
         Behandling behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
         Behandling behandling2 = Behandling.forFørstegangssøknad(fagsak2).build();
-        when(behandlingRepository.hentÅpneBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
-        when(behandlingRepository.hentÅpneBehandlingerForFagsakId(FAGSAK_TO_ID)).thenReturn(Collections.singletonList(behandling2));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_TO_ID)).thenReturn(Collections.singletonList(behandling2));
 
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(eq(FAGSAK_EN_ID))).thenReturn(Optional.of(behandling1));
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(eq(FAGSAK_TO_ID))).thenReturn(Optional.of(behandling2));
@@ -144,8 +144,8 @@ public class VurderFagsystemTjenesteImplTest {
         Behandling behandling2 = Behandling.forFørstegangssøknad(fagsak2).build();
         behandling1.avsluttBehandling();
         behandling2.avsluttBehandling();
-        when(behandlingRepository.hentÅpneBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
-        when(behandlingRepository.hentÅpneBehandlingerForFagsakId(FAGSAK_TO_ID)).thenReturn(Collections.singletonList(behandling2));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_TO_ID)).thenReturn(Collections.singletonList(behandling2));
 
         FamilieHendelseGrunnlagEntitet familieHendelse1 = BehandlingslagerTestUtil.byggFødselGrunnlag(FPDateUtil.iDag().minusMonths(8), null);
         FamilieHendelseGrunnlagEntitet familieHendelse2 = BehandlingslagerTestUtil.byggFødselGrunnlag(null, FPDateUtil.iDag().minusYears(1));
@@ -166,7 +166,7 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(Collections.singletonList(fagsak1));
 
         Behandling behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
-        when(behandlingRepository.hentÅpneBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
         FamilieHendelseGrunnlagEntitet familieHendelse1 = BehandlingslagerTestUtil.byggFødselGrunnlag(FPDateUtil.iDag().plusMonths(3), null);
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
@@ -189,7 +189,7 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(Collections.singletonList(fagsak1));
 
         Behandling behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
-        when(behandlingRepository.hentÅpneBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
         FamilieHendelseGrunnlagEntitet familieHendelse1 = BehandlingslagerTestUtil.byggFødselGrunnlag(FPDateUtil.iDag().plusMonths(3), null);
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
@@ -212,7 +212,7 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(Collections.singletonList(fagsak1));
 
         Behandling behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
-        when(behandlingRepository.hentÅpneBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
         FamilieHendelseGrunnlagEntitet familieHendelse1 = BehandlingslagerTestUtil.byggFødselGrunnlag(FPDateUtil.iDag().plusMonths(3), null);
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
@@ -234,7 +234,7 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(Collections.singletonList(fagsak1));
 
         Behandling behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
-        when(behandlingRepository.hentÅpneBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.emptyList());
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.emptyList());
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
         when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.empty());
         when(mottatteDokumentTjeneste.erSisteYtelsesbehandlingAvslåttPgaManglendeDokumentasjon(any())).thenReturn(false);

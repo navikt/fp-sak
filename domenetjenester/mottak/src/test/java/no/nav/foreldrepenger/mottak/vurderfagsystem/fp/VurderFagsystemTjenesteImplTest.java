@@ -176,7 +176,7 @@ public class VurderFagsystemTjenesteImplTest {
 
         final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(terminDatdato, null);
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(behandlingOpt);
-        when(behandlingRepositoryMock.hentÅpneBehandlingerForFagsakId(any())).thenReturn(Collections.emptyList());
+        when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(Collections.emptyList());
         when(grunnlagRepository.hentAggregat(behandling.getId())).thenReturn(grunnlag);
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandlingOpt.get().getId())).thenReturn(Optional.of(grunnlag));
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteFP));
@@ -215,7 +215,7 @@ public class VurderFagsystemTjenesteImplTest {
 
         Optional<Behandling> behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(behandling);
-        when(behandlingRepositoryMock.hentÅpneBehandlingerForFagsakId(any())).thenReturn(List.of(behandling.get()));
+        when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of(behandling.get()));
         final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(null, null);
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteFP));

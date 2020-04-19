@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
@@ -38,38 +37,36 @@ class DokumentmottakerKlage implements Dokumentmottaker {
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private DokumentmottakerFelles dokumentmottakerFelles;
-    private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private KlageFormkravTjeneste klageFormkravTjeneste;
 
     @Inject
     public DokumentmottakerKlage(BehandlingRepositoryProvider repositoryProvider, BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                 DokumentmottakerFelles dokumentmottakerFelles, MottatteDokumentTjeneste mottatteDokumentTjeneste,
+                                 DokumentmottakerFelles dokumentmottakerFelles,
                                  KlageFormkravTjeneste klageFormkravTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.dokumentmottakerFelles = dokumentmottakerFelles;
-        this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.klageFormkravTjeneste = klageFormkravTjeneste;
     }
 
     @Override
-    public void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, DokumentTypeId dokumentTypeId, BehandlingÅrsakType behandlingÅrsakType) {
-        startBehandlingAvKlage(mottattDokument, dokumentTypeId, fagsak);
+    public void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
+        startBehandlingAvKlage(mottattDokument, fagsak);
     }
 
     @Override
-    public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, DokumentTypeId dokumentTypeId,
+    public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak,
                                                BehandlingÅrsakType behandlingÅrsakType) {
-        startBehandlingAvKlage(mottattDokument, dokumentTypeId, fagsak);
+        startBehandlingAvKlage(mottattDokument, fagsak);
     }
 
-    void startBehandlingAvKlage(MottattDokument mottattDokument, DokumentTypeId dokumentTypeId, Fagsak fagsak) {
-        if (finnesKlageBehandlingForSak(fagsak) || DokumentTypeId.KLAGE_ETTERSENDELSE.equals(dokumentTypeId)) {
+    void startBehandlingAvKlage(MottattDokument mottattDokument, Fagsak fagsak) {
+        if (finnesKlageBehandlingForSak(fagsak) || DokumentTypeId.KLAGE_ETTERSENDELSE.equals(mottattDokument.getDokumentType())) {
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument); //#K3
             return;
         }
         opprettKlagebehandling(fagsak).ifPresent(behandling -> { //#K1
-            mottatteDokumentTjeneste.persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
+            dokumentmottakerFelles.persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
             klageFormkravTjeneste.opprettKlage(behandling);
             dokumentmottakerFelles.opprettTaskForÅStarteBehandling(behandling);
             dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument.getJournalpostId());

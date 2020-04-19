@@ -20,7 +20,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
@@ -86,8 +85,7 @@ public class VurderFagsystemFellesUtils {
     }
 
     private boolean harÅpenYtelsesBehandling(Fagsak fagsak) {
-        return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
-            .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()) || BehandlingType.REVURDERING.equals(b.getType()));
+        return !behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId()).isEmpty();
     }
 
     private List<Fagsak> harSakMedAvslagGrunnetManglendeDok(List<Fagsak> saker) {

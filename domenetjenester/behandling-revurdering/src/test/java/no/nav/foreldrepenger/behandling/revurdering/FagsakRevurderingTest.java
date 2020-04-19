@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,8 +28,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class FagsakRevurderingTest {
 
@@ -89,7 +90,7 @@ public class FagsakRevurderingTest {
         VilkårResultat.builder().leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR,
             VilkårUtfallType.IKKE_OPPFYLT, VilkårUtfallMerknad.VM_1005, null,
             Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O, false, false, null, null).buildFor(behandling);
-        when(behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId())).thenReturn(Arrays.asList(klageBehandling));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())).thenReturn(Collections.emptyList());
 
         FagsakRevurdering tjeneste = new FagsakRevurdering(behandlingRepository);
         Boolean kanRevurderingOpprettes = tjeneste.kanRevurderingOpprettes(fagsak);
@@ -103,7 +104,7 @@ public class FagsakRevurderingTest {
         VilkårResultat.builder().leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR,
             VilkårUtfallType.IKKE_OPPFYLT, VilkårUtfallMerknad.VM_1005, null,
             Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O, false, false, null, null).buildFor(behandling);
-        when(behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId())).thenReturn(Arrays.asList(innsynBehandling));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())).thenReturn(Collections.emptyList());
 
         FagsakRevurdering tjeneste = new FagsakRevurdering(behandlingRepository);
         Boolean kanRevurderingOpprettes = tjeneste.kanRevurderingOpprettes(fagsak);

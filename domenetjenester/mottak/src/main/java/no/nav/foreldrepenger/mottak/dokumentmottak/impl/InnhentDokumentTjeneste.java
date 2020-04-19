@@ -76,10 +76,10 @@ public class InnhentDokumentTjeneste {
 
         Dokumentmottaker dokumentmottaker = finnMottaker(dokumentGruppe, fagsak.getYtelseType());
         if (skalMottasSomKøet(fagsak)) {
-            dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, dokumentTypeId, behandlingÅrsakType);
+            dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, behandlingÅrsakType);
             return;
         }
-        dokumentmottaker.mottaDokument(mottattDokument, fagsak, dokumentTypeId, behandlingÅrsakType);
+        dokumentmottaker.mottaDokument(mottattDokument, fagsak, behandlingÅrsakType);
     }
 
     public void opprettFraTidligereBehandling(Long behandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) { //#SXX og #IXX
@@ -97,19 +97,13 @@ public class InnhentDokumentTjeneste {
     }
 
     private boolean skalMottasSomKøet(Fagsak fagsak) {
-        Optional<Behandling> åpenBehandlingMedforelder = finnÅpenBehandlingPåMedforelder(fagsak);
-        Optional<Behandling> køetBehandling = revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
-        return finnesÅpenBehandlingSomErBerørt(fagsak) || køetBehandling.isPresent() || (åpenBehandlingMedforelder.isPresent()
-            && !køKontroller.skalSnikeIKø(fagsak, åpenBehandlingMedforelder.get()));
-    }
-
-    private Optional<Behandling> finnÅpenBehandlingPåMedforelder(Fagsak fagsak) {
-        return revurderingRepository.finnÅpenBehandlingMedforelder(fagsak);
-    }
-
-    private boolean finnesÅpenBehandlingSomErBerørt(Fagsak fagsak) {
         Optional<Behandling> åpenBehandling = revurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId());
-        return åpenBehandling.map(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)).orElse(false);
+        if (åpenBehandling.isPresent())
+            return åpenBehandling.map(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)).orElse(false);
+        if (revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId()).isPresent())
+            return true;
+        Optional<Behandling> åpenBehandlingMedforelder = revurderingRepository.finnÅpenBehandlingMedforelder(fagsak);
+        return åpenBehandlingMedforelder.isPresent() && !køKontroller.skalSnikeIKø(fagsak, åpenBehandlingMedforelder.get());
     }
 
     private boolean brukDokumentKategori(DokumentTypeId dokumentTypeId, DokumentKategori dokumentKategori) {
