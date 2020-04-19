@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.dokumentmottak.InngåendeSaksdokument;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTaskProperties;
+import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -75,7 +75,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
         // Assert
         verify(prosessTaskRepository).lagre(captor.capture());
         ProsessTaskData prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(HåndterMottattDokumentTaskProperties.TASKTYPE);
+        assertThat(prosessTaskData.getTaskType()).isEqualTo(HåndterMottattDokumentTask.TASKTYPE);
         assertThat(prosessTaskData.getFagsakId()).isEqualTo(FAGSAK_ID);
     }
 
@@ -123,7 +123,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
         ProsessTaskData data = captor.getValue();
         assertThat(data.getFagsakId()).isEqualTo(456L);
         assertThat(data.getBehandlingId()).isNull();
-        assertThat(data.getPropertyValue(HåndterMottattDokumentTaskProperties.MOTTATT_DOKUMENT_ID_KEY)).isEqualTo("1");
+        assertThat(data.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)).isEqualTo("1");
     }
 
     @Test
@@ -152,7 +152,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
         ProsessTaskData data = captor.getValue();
         assertThat(data.getFagsakId()).isEqualTo(456L);
         assertThat(data.getBehandlingId()).isEqualTo(789L);
-        assertThat(data.getPropertyValue(HåndterMottattDokumentTaskProperties.MOTTATT_DOKUMENT_ID_KEY)).isEqualTo("1");
-        assertThat(data.getPropertyValue(HåndterMottattDokumentTaskProperties.BEHANDLING_ÅRSAK_TYPE_KEY)).isEqualToIgnoringCase(BehandlingÅrsakType.ETTER_KLAGE.getKode());
+        assertThat(data.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)).isEqualTo("1");
+        assertThat(data.getPropertyValue(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY)).isEqualToIgnoringCase(BehandlingÅrsakType.ETTER_KLAGE.getKode());
     }
 }

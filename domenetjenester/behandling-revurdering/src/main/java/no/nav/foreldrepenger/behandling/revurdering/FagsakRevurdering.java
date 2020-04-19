@@ -58,8 +58,7 @@ class FagsakRevurdering {
     }
 
     private boolean harÅpenBehandling(Fagsak fagsak) {
-        return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
-            .anyMatch(Behandling::erYtelseBehandling);
+        return !behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId()).isEmpty();
     }
 
     static class BehandlingAvsluttetDatoComparator implements Comparator<Behandling>, Serializable {

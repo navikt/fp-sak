@@ -48,8 +48,7 @@ public class DokmentmottakerSøknadHåndterÅpenFørstegang extends Dokumentmott
         dokumentmottakerSøknad = new DokumentmottakerSøknadDefault(
             repositoryProvider,
             dokumentmottakerFelles,
-            mottatteDokumentTjeneste,
-            behandlingsoppretterSpied,
+                behandlingsoppretterSpied,
             kompletthetskontroller,
             køKontroller, fpUttakTjeneste);
     }
@@ -72,8 +71,7 @@ public class DokmentmottakerSøknadHåndterÅpenFørstegang extends Dokumentmott
         dokumentmottakerSøknad = new DokumentmottakerSøknadDefault(
             repositoryProvider,
             felles,
-            mockMD,
-            behandlingsoppretterSpied,
+                behandlingsoppretterSpied,
             kompletthetskontroller,
             køKontroller, fpUttakTjeneste);
         Behandling nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
@@ -92,7 +90,7 @@ public class DokmentmottakerSøknadHåndterÅpenFørstegang extends Dokumentmott
         MottattDokument søknadDokument = dummySøknadDokument(behandling);
 
         // Act
-        dokumentmottakerSøknad.mottaDokument(søknadDokument, behandling.getFagsak(), søknadDokument.getDokumentType(), BehandlingÅrsakType.RE_ANNET);
+        dokumentmottakerSøknad.mottaDokument(søknadDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
         Mockito.verify(behandlingsoppretterSpied, Mockito.times(1)).oppdaterBehandlingViaHenleggelse(Mockito.any(), Mockito.any());

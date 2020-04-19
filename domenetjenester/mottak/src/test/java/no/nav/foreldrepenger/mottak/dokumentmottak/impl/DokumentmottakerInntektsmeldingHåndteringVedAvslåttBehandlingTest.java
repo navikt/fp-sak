@@ -29,7 +29,6 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
 
         dokumentmottakerInntektsmelding = new DokumentmottakerInntektsmelding(
             dokumentmottakerFellesSpied,
-            mottatteDokumentTjeneste,
             behandlingsoppretterSpied,
             kompletthetskontroller,
             repositoryProvider,
@@ -40,7 +39,7 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
     public void gittAvslåttBehandlingPgaManglendeDokMedIkkeUtløptFristForInnsendingSkalOppretteNyFørstegangsbehandling() {
         //Arrange
         Behandling nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
-        Mockito.doReturn(nyBehandling).when(dokumentmottakerFellesSpied).opprettNyFørstegangFraAvslag(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doReturn(true).when(dokumentmottakerFellesSpied).skalOppretteNyFørstegangsbehandling(any());
 
         Behandling avslåttBehandling = opprettBehandling(
@@ -53,10 +52,10 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
         MottattDokument inntektsmelding = dummyInntektsmeldingDokument(avslåttBehandling);
 
         // Act
-        dokumentmottakerInntektsmelding.mottaDokument(inntektsmelding, avslåttBehandling.getFagsak(), inntektsmelding.getDokumentType(), BehandlingÅrsakType.RE_ANNET);
+        dokumentmottakerInntektsmelding.mottaDokument(inntektsmelding, avslåttBehandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
-        Mockito.verify(dokumentmottakerFellesSpied, Mockito.times(1)).opprettNyFørstegangFraAvslag(any(), any(), any());
+        Mockito.verify(dokumentmottakerFellesSpied, Mockito.times(1)).opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(any(), any(), any());
     }
 
     @Test
@@ -73,7 +72,7 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
         MottattDokument inntektsmelding = dummyInntektsmeldingDokument(behandling);
 
         // Act
-        dokumentmottakerInntektsmelding.mottaDokument(inntektsmelding, behandling.getFagsak(), inntektsmelding.getDokumentType(), BehandlingÅrsakType.RE_ANNET);
+        dokumentmottakerInntektsmelding.mottaDokument(inntektsmelding, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
         Mockito.verify(behandlingsoppretterSpied, Mockito.never()).opprettNyFørstegangsbehandling(any(), any(), any());
@@ -94,7 +93,7 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
         MottattDokument inntektsmelding = dummyInntektsmeldingDokument(behandling);
 
         // Act
-        dokumentmottakerInntektsmelding.mottaDokument(inntektsmelding, behandling.getFagsak(), inntektsmelding.getDokumentType(), BehandlingÅrsakType.RE_ANNET);
+        dokumentmottakerInntektsmelding.mottaDokument(inntektsmelding, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
         Mockito.verify(behandlingsoppretterSpied, Mockito.never()).opprettNyFørstegangsbehandling(any(), any(), any());
@@ -113,9 +112,10 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
             VedtakResultatType.UDEFINERT,
             DATO_ETTER_INNSENDINGSFRISTEN);
         MottattDokument inntektsmelding = dummyInntektsmeldingDokument(behandling);
+        Mockito.doReturn(Boolean.TRUE).when(dokumentmottakerFellesSpied).harFagsakMottattSøknadTidligere(any());
 
         // Act
-        dokumentmottakerInntektsmelding.mottaDokument(inntektsmelding, behandling.getFagsak(), inntektsmelding.getDokumentType(), BehandlingÅrsakType.RE_ANNET);
+        dokumentmottakerInntektsmelding.mottaDokument(inntektsmelding, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
         Mockito.verify(behandlingsoppretterSpied, Mockito.never()).opprettNyFørstegangsbehandling(any(), any(), any());

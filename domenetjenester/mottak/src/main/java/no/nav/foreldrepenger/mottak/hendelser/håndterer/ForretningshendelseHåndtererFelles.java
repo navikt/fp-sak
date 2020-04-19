@@ -61,7 +61,6 @@ public class ForretningshendelseHåndtererFelles {
         }
         Behandling køetBehandling = behandlingsoppretter.opprettRevurdering(fagsak, behandlingÅrsakType);
         historikkinnslagTjeneste.opprettHistorikkinnslagForVenteFristRelaterteInnslag(køetBehandling, HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
-        kompletthetskontroller.oppdaterKompletthetForKøetBehandling(køetBehandling);
         køKontroller.enkøBehandling(køetBehandling);
     }
 }

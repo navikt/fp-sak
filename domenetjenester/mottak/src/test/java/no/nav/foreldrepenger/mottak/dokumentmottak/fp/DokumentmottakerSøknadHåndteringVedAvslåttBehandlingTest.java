@@ -43,8 +43,7 @@ public class DokumentmottakerSøknadHåndteringVedAvslåttBehandlingTest extends
         dokumentmottakerSøknad = new DokumentmottakerSøknadDefault(
             repositoryProvider,
             dokumentmottakerFelles,
-            mottatteDokumentTjeneste,
-            behandlingsoppretterSpied,
+                behandlingsoppretterSpied,
             kompletthetskontroller,
             køKontroller, fpUttakTjeneste);
     }
@@ -68,12 +67,11 @@ public class DokumentmottakerSøknadHåndteringVedAvslåttBehandlingTest extends
         dokumentmottakerSøknad = new DokumentmottakerSøknadDefault(
             repositoryProvider,
             felles,
-            mockMD,
-            behandlingsoppretterSpied,
+                behandlingsoppretterSpied,
             kompletthetskontroller,
             køKontroller, fpUttakTjeneste);
         Behandling nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
-        Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(),  Mockito.any());
+        Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(), Mockito.any());
         doNothing().when(mockMD).persisterDokumentinnhold(any(), any(), any());
 
         Behandling behandling = opprettBehandling(
@@ -86,7 +84,7 @@ public class DokumentmottakerSøknadHåndteringVedAvslåttBehandlingTest extends
         MottattDokument søknadDokument = dummySøknadDokument(behandling);
 
         // Act
-        dokumentmottakerSøknad.mottaDokument(søknadDokument, behandling.getFagsak(), søknadDokument.getDokumentType(), BehandlingÅrsakType.RE_ANNET);
+        dokumentmottakerSøknad.mottaDokument(søknadDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
         Mockito.verify(behandlingsoppretterSpied, Mockito.times(1)).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(), Mockito.any());

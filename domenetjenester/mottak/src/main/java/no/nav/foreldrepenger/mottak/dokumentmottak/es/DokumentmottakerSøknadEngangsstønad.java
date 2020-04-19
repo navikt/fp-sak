@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
-import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentGruppeRef;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerFelles;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerSøknad;
@@ -26,14 +25,12 @@ public class DokumentmottakerSøknadEngangsstønad extends DokumentmottakerSøkn
     @Inject
     public DokumentmottakerSøknadEngangsstønad(BehandlingRepositoryProvider repositoryProvider,
                                                DokumentmottakerFelles dokumentmottakerFelles,
-                                               MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                                Behandlingsoppretter behandlingsoppretter,
                                                Kompletthetskontroller kompletthetskontroller,
                                                KøKontroller køKontroller,
                                                ForeldrepengerUttakTjeneste fpUttakTjeneste) {
         super(repositoryProvider,
             dokumentmottakerFelles,
-            mottatteDokumentTjeneste,
             behandlingsoppretter,
             kompletthetskontroller,
             køKontroller,
@@ -43,7 +40,7 @@ public class DokumentmottakerSøknadEngangsstønad extends DokumentmottakerSøkn
     @Override
     public void håndterAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling, BehandlingÅrsakType behandlingÅrsakType) {
         if (erAvslag(avsluttetBehandling) || BehandlingÅrsakType.ETTER_KLAGE.equals(behandlingÅrsakType)) {
-            opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, behandlingÅrsakType); //#SE1
+            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType)); //#SE1
         } else {
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, avsluttetBehandling, mottattDokument); //#SE2
         }
@@ -52,6 +49,6 @@ public class DokumentmottakerSøknadEngangsstønad extends DokumentmottakerSøkn
     @Override
     public void opprettFraTidligereAvsluttetBehandling(Fagsak fagsak, Long avsluttetMedSøknadBehandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType, boolean opprettSomKøet) { //SExx
         Behandling avsluttetBehandlingMedSøknad = behandlingRepository.hentBehandling(avsluttetMedSøknadBehandlingId);
-        opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, avsluttetBehandlingMedSøknad, fagsak, behandlingÅrsakType);
+        dokumentmottakerFelles.opprettNyFørstegangFraBehandlingMedSøknad(fagsak, behandlingÅrsakType, avsluttetBehandlingMedSøknad, mottattDokument);
     }
 }

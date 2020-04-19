@@ -11,6 +11,7 @@ public interface ForretningshendelseHåndterer {
 
     void håndterAvsluttetBehandling(Behandling avsluttetBehandling, ForretningshendelseType forretningshendelseType, BehandlingÅrsakType behandlingÅrsakType);
 
-    void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType);
+    default void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
+    }
 
 }

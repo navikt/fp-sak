@@ -8,10 +8,7 @@ import org.slf4j.Logger;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -20,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
-import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 
 // Dokumentmottaker for ytelsesrelaterte dokumenter har felles protokoll som fanges her
 // Variasjoner av protokollen håndteres utenfro
@@ -29,13 +25,11 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(DokumentmottakerYtelsesesrelatertDokument.class);
 
     protected DokumentmottakerFelles dokumentmottakerFelles;
-    MottatteDokumentTjeneste mottatteDokumentTjeneste;
     Behandlingsoppretter behandlingsoppretter;
     Kompletthetskontroller kompletthetskontroller;
     BehandlingRevurderingRepository revurderingRepository;
     protected BehandlingRepository behandlingRepository;
     private ForeldrepengerUttakTjeneste fpUttakTjeneste;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     protected DokumentmottakerYtelsesesrelatertDokument() {
         // For CDI proxy
@@ -43,19 +37,16 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
 
     @Inject
     public DokumentmottakerYtelsesesrelatertDokument(DokumentmottakerFelles dokumentmottakerFelles,
-                                                     MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                                      Behandlingsoppretter behandlingsoppretter,
                                                      Kompletthetskontroller kompletthetskontroller,
                                                      ForeldrepengerUttakTjeneste fpUttakTjeneste,
                                                      BehandlingRepositoryProvider repositoryProvider) {
         this.dokumentmottakerFelles = dokumentmottakerFelles;
-        this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.behandlingsoppretter = behandlingsoppretter;
         this.kompletthetskontroller = kompletthetskontroller;
         this.revurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fpUttakTjeneste = fpUttakTjeneste;
-        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     }
 
     /* TEMPLATE-metoder som må håndteres spesifikt for hver type av ytelsesdokumenter - START */
@@ -71,14 +62,14 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
 
     public abstract boolean skalOppretteKøetBehandling(Fagsak fagsak);
 
-    protected abstract Behandling opprettKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType);
+    protected abstract void opprettKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling sisteAvsluttetBehandling);
     /* TEMPLATE-metoder SLUTT */
 
     @Override
-    public final void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, DokumentTypeId dokumentTypeId, BehandlingÅrsakType behandlingÅrsakType) {
+    public final void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         Optional<Behandling> sisteYtelsesbehandling = revurderingRepository.hentSisteYtelsesbehandling(fagsak.getId());
 
-        if (!sisteYtelsesbehandling.isPresent()) {
+        if (sisteYtelsesbehandling.isEmpty()) {
             håndterIngenTidligereBehandling(fagsak, mottattDokument, behandlingÅrsakType);
             return;
         }
@@ -103,22 +94,23 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
     }
 
     @Override
-    public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, DokumentTypeId dokumentTypeId, BehandlingÅrsakType behandlingÅrsakType) {
+    public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         Optional<Behandling> eksisterendeKøetBehandling = revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
-        Behandling køetBehandling = eksisterendeKøetBehandling
-            .orElseGet(() -> skalOppretteKøetBehandling(fagsak) ? opprettKøetBehandling(fagsak, behandlingÅrsakType) : null);
-        if (køetBehandling != null) {
+        if (eksisterendeKøetBehandling.isPresent()) {
+            Behandling køetBehandling = eksisterendeKøetBehandling.get();
             dokumentmottakerFelles.opprettHistorikk(køetBehandling, mottattDokument.getJournalpostId());
             dokumentmottakerFelles.opprettKøetHistorikk(køetBehandling, eksisterendeKøetBehandling.isPresent());
             håndterKøetBehandling(mottattDokument, køetBehandling, behandlingÅrsakType);
-        } else {
+        } else if (!skalOppretteKøetBehandling(fagsak)) {
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument); // Skal ikke være mulig for #Sx og #Ix som alltid oppretter køet, men #E12 vil treffe denne
+        } else {
+            Behandling sisteAvsluttetBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null);
+            opprettKøetBehandling(mottattDokument, fagsak, behandlingÅrsakType, sisteAvsluttetBehandling);
         }
     }
 
     protected final boolean erAvslag(Behandling avsluttetBehandling) {
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(avsluttetBehandling.getId());
-        return behandlingsresultat.isPresent() && behandlingsresultat.get().isBehandlingsresultatAvslått();
+        return behandlingsoppretter.erAvslåttBehandling(avsluttetBehandling);
     }
 
     boolean harAvslåttPeriode(Behandling avsluttetBehandling) {

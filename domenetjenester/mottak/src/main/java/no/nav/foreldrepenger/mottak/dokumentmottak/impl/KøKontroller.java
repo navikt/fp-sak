@@ -119,7 +119,7 @@ public class KøKontroller {
 
     public boolean skalSnikeIKø(Fagsak brukersFagsak, Behandling åpenBehandlingPåMedforelder) {
         Optional<Behandling> innvilgetBehandling = behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(brukersFagsak);
-        if (innvilgetBehandling.isEmpty() && medforelderHarÅpentAksjonspunktPåForTidligSøknad(åpenBehandlingPåMedforelder)
+        if (innvilgetBehandling.isEmpty() && medforelderHarÅpentApForTidligSøknad(åpenBehandlingPåMedforelder)
             && BehandlingType.FØRSTEGANGSSØKNAD.equals(åpenBehandlingPåMedforelder.getType())) {
 
             settAksjonspunktForTidligSøknadUtført(åpenBehandlingPåMedforelder);
@@ -128,12 +128,16 @@ public class KøKontroller {
                 HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
             return true;
         }
-        return false;
+        // Informasjonsbrev og IM fører til VentPåSøknad med VP REGSØK - før køhåndtering
+        return medforelderHarÅpentApVentPåSøknad(åpenBehandlingPåMedforelder);
     }
 
-    private boolean medforelderHarÅpentAksjonspunktPåForTidligSøknad(Behandling behandling) {
-        return behandling.getAksjonspunkter().stream().anyMatch(a -> a.erÅpentAksjonspunkt()
-            && a.getAksjonspunktDefinisjon().getKode().equals(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD.getKode()));
+    private boolean medforelderHarÅpentApForTidligSøknad(Behandling behandling) {
+        return behandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD).isPresent();
+    }
+
+    private boolean medforelderHarÅpentApVentPåSøknad(Behandling behandling) {
+        return behandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD).isPresent();
     }
 
     private void settAksjonspunktForTidligSøknadUtført(Behandling åpenBehandlingPåMedforelder) {

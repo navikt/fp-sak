@@ -106,8 +106,8 @@ public class DokumentmottakerKlageTest {
             behandlendeEnhetTjeneste, historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
-        dokumentmottaker = new DokumentmottakerKlage(repositoryProvider, behandlingskontrollTjeneste, dokumentmottakerFelles, mottatteDokumentTjeneste,
-            klageFormkravTjeneste);
+        dokumentmottaker = new DokumentmottakerKlage(repositoryProvider, behandlingskontrollTjeneste, dokumentmottakerFelles,
+                klageFormkravTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
     }
 
@@ -122,10 +122,10 @@ public class DokumentmottakerKlageTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, fagsak, dokumentTypeId, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokument(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert
-        verify(dokumentmottaker).startBehandlingAvKlage(mottattDokument, dokumentTypeId, fagsak);
+        verify(dokumentmottaker).startBehandlingAvKlage(mottattDokument, fagsak);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class DokumentmottakerKlageTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, fagsak, dokumentTypeId, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokument(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert
         verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument);
@@ -156,7 +156,7 @@ public class DokumentmottakerKlageTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, fagsak, dokumentTypeId, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokument(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert
         verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument);
@@ -189,7 +189,7 @@ public class DokumentmottakerKlageTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, fagsak, dokumentTypeId, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokument(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
     }
 
     private Behandling byggAvsluttetKlage() {

@@ -54,8 +54,7 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData) {
         final Long fagsakId = prosessTaskData.getFagsakId();
-        boolean åpneYtelsesBehandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsakId).stream()
-            .anyMatch(Behandling::erYtelseBehandling);
+        boolean åpneYtelsesBehandlinger = !behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).isEmpty();
 
         if (åpneYtelsesBehandlinger) {
             return;

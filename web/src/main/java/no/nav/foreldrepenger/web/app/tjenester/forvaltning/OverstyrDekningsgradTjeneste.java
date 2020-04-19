@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -105,16 +104,11 @@ public class OverstyrDekningsgradTjeneste {
     }
 
     private Behandling hentÅpenBehandlingEllerOpprettRevurdering(Fagsak fagsak) {
-        List<Behandling> åpneBehandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId());
-        Optional<Behandling> ytelseBehandlingOpt = åpneBehandlinger.stream()
-            .filter(Behandling::erYtelseBehandling)
-            .findFirst();
-        if (ytelseBehandlingOpt.isPresent()) {
-            return ytelseBehandlingOpt.get();
-        }
-        return revurderingTjeneste.opprettManuellRevurdering(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER,
+        Optional<Behandling> ytelseBehandlingOpt = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())
+            .stream().findFirst();
+        return ytelseBehandlingOpt.orElseGet(() -> revurderingTjeneste.opprettManuellRevurdering(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER,
             behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak)
-        );
+        ));
     }
 
     private void lagHistorikkinnslagOverstyrtDekningsgrad(Long fagsakId, Dekningsgrad fraVerdi, Dekningsgrad tilVerdi) {

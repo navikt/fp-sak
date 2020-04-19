@@ -111,8 +111,8 @@ public class DokumentmottakerSøknadDefaultTest {
             historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
-        dokumentmottaker = new DokumentmottakerSøknadDefault(repositoryProvider, dokumentmottakerFelles, mottatteDokumentTjeneste,
-            behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste);
+        dokumentmottaker = new DokumentmottakerSøknadDefault(repositoryProvider, dokumentmottakerFelles,
+                behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
     }
 
@@ -130,12 +130,11 @@ public class DokumentmottakerSøknadDefaultTest {
         when(behandlingsoppretter.opprettFørstegangsbehandling(eq(fagsak), any(), any())).thenReturn(behandlingMock);
 
         //Act
-        dokumentmottaker.mottaDokument(mottattDokument, fagsak, dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, fagsak, null);
 
         //Assert
         verify(dokumentmottaker).håndterIngenTidligereBehandling(fagsak, mottattDokument, null);
         verify(behandlingsoppretter).opprettFørstegangsbehandling(eq(fagsak), any(), any());
-        verify(dokumentmottakerFelles).opprettHistorikk(any(Behandling.class), eq(mottattDokument.getJournalpostId()));
     }
 
     @Test
@@ -152,12 +151,12 @@ public class DokumentmottakerSøknadDefaultTest {
         when(behandlingsoppretter.opprettFørstegangsbehandling(any(), any(), any())).thenReturn(behandlingMock);
 
         //Act
-        dokumentmottaker.mottaDokument(mottattDokument, fagsak, dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, fagsak, null);
 
         //Assert
         verify(dokumentmottaker).håndterIngenTidligereBehandling(fagsak, mottattDokument, null);
         verify(behandlingsoppretter).opprettFørstegangsbehandling(any(), any(), any());
-        verify(dokumentmottakerFelles).opprettHistorikk(any(Behandling.class), eq(mottattDokument.getJournalpostId()));
+        verify(dokumentmottakerFelles).opprettInitiellFørstegangsbehandling(fagsak, mottattDokument, null);
     }
 
     @Test
@@ -177,7 +176,7 @@ public class DokumentmottakerSøknadDefaultTest {
         when(kompletthetskontroller.støtterBehandlingstypePapirsøknad(behandling)).thenReturn(true);
 
         //Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
 
         //Assert
         verify(dokumentmottaker).oppdaterÅpenBehandlingMedDokument(behandling, mottattDokument, null);
@@ -202,7 +201,7 @@ public class DokumentmottakerSøknadDefaultTest {
         when(kompletthetskontroller.støtterBehandlingstypePapirsøknad(behandling)).thenReturn(false);
 
         //Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
 
         //Assert
         verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(behandling.getFagsak(), behandling, mottattDokument);
@@ -217,12 +216,13 @@ public class DokumentmottakerSøknadDefaultTest {
     @Test
     public void skal_lage_revurdering_når_det_finnes_en_avsluttet_behandling_på_saken_fra_før() {
         //Arrange
-        Behandling behandling = ScenarioMorSøkerEngangsstønad
-            .forFødselUtenSøknad()
+        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT))
             .lagre(repositoryProvider);
-
+        behandling.avsluttBehandling();
         BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.AVSLAG);
-        repoRule.getRepository().lagre(vedtak.getBehandlingsresultat());
+        repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
         //simulere at den tidliggere behandligen er avsluttet
         behandling.avsluttBehandling();
@@ -238,25 +238,27 @@ public class DokumentmottakerSøknadDefaultTest {
         doReturn(revurdering).when(behandlingsoppretter).opprettRevurdering(behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
 
         //Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
 
         //Assert
         verify(dokumentmottaker).håndterAvsluttetTidligereBehandling(mottattDokument, behandling.getFagsak(), null);
 
         //Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(behandlingsoppretter).opprettRevurdering(behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
-        verify(dokumentmottakerFelles).opprettHistorikk(revurdering, mottattDokument.getJournalpostId());
+        verify(dokumentmottakerFelles).opprettRevurdering(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
     }
 
     @Test
     public void skal_opprette_køet_revurdering_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes_og_siste_behandling_var_innvilget() {
         // Arrange - opprette innvilget behandling
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET))
+            .lagre(repositoryProvider);
         behandling.avsluttBehandling();
         BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.UDEFINERT);
-        repoRule.getRepository().lagre(vedtak.getBehandlingsresultat());
+        repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+
         Fagsak fagsak = behandling.getFagsak();
 
         // Arrange - mock tjenestekall
@@ -270,23 +272,23 @@ public class DokumentmottakerSøknadDefaultTest {
         Long fagsakId = fagsak.getId();
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
-        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert - verifiser flyt
         verify(behandlingsoppretter).opprettRevurdering(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
-        verify(kompletthetskontroller).persisterKøetDokumentOgVurderKompletthet(nyBehandling, mottattDokument, Optional.empty());
-        verify(dokumentmottakerFelles).opprettHistorikk(nyBehandling, mottattDokument.getJournalpostId());
+        verify(dokumentmottakerFelles).opprettKøetRevurdering(mottattDokument, fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
     }
 
     @Test
     public void skal_opprette_køet_førstegangsbehandling_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes_og_siste_behandling_var_avslått() {
         // Arrange - opprette avslått behandling
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingsresultat(new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT))
+            .lagre(repositoryProvider);
         behandling.avsluttBehandling();
-        BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.UDEFINERT);
-        repoRule.getRepository().lagre(vedtak.getBehandlingsresultat());
+        BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.AVSLAG);
+        repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         Fagsak fagsak = behandling.getFagsak();
 
         // Arrange - mock tjenestekall
@@ -294,19 +296,18 @@ public class DokumentmottakerSøknadDefaultTest {
         long behandlingId = 1L;
         doReturn(behandlingId).when(nyBehandling).getId();
         doReturn(fagsak).when(nyBehandling).getFagsak();
-        when(behandlingsoppretter.opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.UDEFINERT, Optional.empty())).thenReturn(nyBehandling);
+        when(behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(fagsak), any())).thenReturn(nyBehandling);
+        when(behandlingsoppretter.erAvslåttBehandling(behandling)).thenReturn(Boolean.TRUE);
 
         // Act - send inn søknad
         Long fagsakId = fagsak.getId();
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
-        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, BehandlingÅrsakType.UDEFINERT);
+        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert - verifiser flyt
-        verify(behandlingsoppretter).opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.UDEFINERT, Optional.empty());
+        verify(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         verify(behandlingsoppretter).settSomKøet(nyBehandling);
-        verify(kompletthetskontroller).persisterKøetDokumentOgVurderKompletthet(nyBehandling, mottattDokument, Optional.empty());
-        verify(dokumentmottakerFelles).opprettHistorikk(nyBehandling, mottattDokument.getJournalpostId());
     }
 
     @Test
@@ -319,19 +320,19 @@ public class DokumentmottakerSøknadDefaultTest {
         long behandlingId = 1L;
         doReturn(behandlingId).when(nyBehandling).getId();
         doReturn(fagsak).when(nyBehandling).getFagsak();
-        when(behandlingsoppretter.opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.UDEFINERT, Optional.empty())).thenReturn(nyBehandling);
 
         // Act - send inn søknad
         Long fagsakId = fagsak.getId();
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
-        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, BehandlingÅrsakType.UDEFINERT);
+        when(behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(fagsak), any())).thenReturn(nyBehandling);
+
+
+        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert - verifiser flyt
-        verify(behandlingsoppretter).opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.UDEFINERT, Optional.empty());
+        verify(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         verify(behandlingsoppretter).settSomKøet(nyBehandling);
-        verify(kompletthetskontroller).persisterKøetDokumentOgVurderKompletthet(nyBehandling, mottattDokument, Optional.empty());
-        verify(dokumentmottakerFelles).opprettHistorikk(nyBehandling, mottattDokument.getJournalpostId());
     }
 
     @Test
@@ -348,7 +349,7 @@ public class DokumentmottakerSøknadDefaultTest {
         Fagsak fagsak = behandling.getFagsak();
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
-        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, null);
+        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, null);
 
         // Assert - verifiser flyt
         verify(kompletthetskontroller).persisterKøetDokumentOgVurderKompletthet(behandling, mottattDokument, Optional.empty());
@@ -379,7 +380,7 @@ public class DokumentmottakerSøknadDefaultTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
 
         // Act
-        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, null);
+        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, null);
 
         // Assert - verifiser flyt
         verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
@@ -390,12 +391,11 @@ public class DokumentmottakerSøknadDefaultTest {
     @Test
     public void skal_lage_ny_førstegangsbehandling_når_det_finnes_en_henlagt_førstegangsbehandling_på_saken_fra_før() {
         //Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET));
-        Behandling behandling = scenario.lagre(repositoryProvider);
-
-        BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.UDEFINERT);
-        repoRule.getRepository().lagre(vedtak.getBehandlingsresultat());
+        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET))
+            .lagre(repositoryProvider);
+        behandling.avsluttBehandling();
+        repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
         //simulere at den tidliggere behandligen er avsluttet
         behandling.avsluttBehandling();
@@ -405,10 +405,10 @@ public class DokumentmottakerSøknadDefaultTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         doReturn(true).when(behandlingsoppretter).erBehandlingOgFørstegangsbehandlingHenlagt(behandling.getFagsak());
-        doReturn(behandling).when(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(null, behandling.getFagsak());
+        doReturn(behandling).when(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(behandling.getFagsak(), null);
 
         //Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
 
         //Assert
         verify(dokumentmottaker).håndterAvsluttetTidligereBehandling(mottattDokument, behandling.getFagsak(), null);
@@ -417,7 +417,6 @@ public class DokumentmottakerSøknadDefaultTest {
         verify(prosessTaskRepository).lagre(captor.capture());
         ProsessTaskData prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.getTaskType()).isEqualTo(StartBehandlingTask.TASKTYPE);
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument.getJournalpostId());
     }
 
     @Test
@@ -499,7 +498,7 @@ public class DokumentmottakerSøknadDefaultTest {
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling2.getFagsak(), dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling2.getFagsak(), null);
 
         // Assert
         verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(behandling2, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
@@ -543,7 +542,7 @@ public class DokumentmottakerSøknadDefaultTest {
         kobleFagsaker(behandling1, behandlingMedforelder);
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling2.getFagsak(), dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling2.getFagsak(), null);
 
         // Assert
         verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(behandling2, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
@@ -572,7 +571,7 @@ public class DokumentmottakerSøknadDefaultTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsak.getId(), "<søknad>", now(), true, null);
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling2.getFagsak(), dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling2.getFagsak(), null);
 
         // Assert
         verify(dokumentmottakerFelles).opprettHistorikk(behandling2, mottattDokument.getJournalpostId());

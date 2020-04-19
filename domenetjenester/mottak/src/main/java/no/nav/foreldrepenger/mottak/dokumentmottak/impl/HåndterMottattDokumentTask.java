@@ -19,11 +19,13 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(HåndterMottattDokumentTaskProperties.TASKTYPE)
+@ProsessTask(HåndterMottattDokumentTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class HåndterMottattDokumentTask extends FagsakProsessTask {
 
     public static final String TASKTYPE = "innhentsaksopplysninger.håndterMottattDokument";
+    public static final String BEHANDLING_ÅRSAK_TYPE_KEY = "arsakType";
+    public static final String MOTTATT_DOKUMENT_ID_KEY = "mottattDokumentId";
 
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(HåndterMottattDokumentTask.class);
 
@@ -48,12 +50,12 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData) {
-        Long dokumentId = Long.valueOf(prosessTaskData.getPropertyValue(HåndterMottattDokumentTaskProperties.MOTTATT_DOKUMENT_ID_KEY));
+        Long dokumentId = Long.valueOf(prosessTaskData.getPropertyValue(MOTTATT_DOKUMENT_ID_KEY));
         MottattDokument mottattDokument = mottatteDokumentTjeneste.hentMottattDokument(dokumentId)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: HåndterMottattDokument uten gyldig mottatt dokument, id=" + dokumentId.toString()));
         BehandlingÅrsakType behandlingÅrsakType = BehandlingÅrsakType.UDEFINERT;
-        if (prosessTaskData.getPropertyValue(HåndterMottattDokumentTaskProperties.BEHANDLING_ÅRSAK_TYPE_KEY) != null) {
-            behandlingÅrsakType = BehandlingÅrsakType.fraKode(prosessTaskData.getPropertyValue(HåndterMottattDokumentTaskProperties.BEHANDLING_ÅRSAK_TYPE_KEY));
+        if (prosessTaskData.getPropertyValue(BEHANDLING_ÅRSAK_TYPE_KEY) != null) {
+            behandlingÅrsakType = BehandlingÅrsakType.fraKode(prosessTaskData.getPropertyValue(BEHANDLING_ÅRSAK_TYPE_KEY));
         }
         log.info("HåndterMottattDokument taskId {} fagsakId {} behandlingId {} dokumentid {}", prosessTaskData.getId(), prosessTaskData.getFagsakId(), prosessTaskData.getBehandlingId(), mottattDokument.getId());
         if (prosessTaskData.getBehandlingId() != null) {
