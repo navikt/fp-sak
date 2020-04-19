@@ -405,7 +405,7 @@ public class DokumentmottakerSøknadDefaultTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         doReturn(true).when(behandlingsoppretter).erBehandlingOgFørstegangsbehandlingHenlagt(behandling.getFagsak());
-        doReturn(behandling).when(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(behandling.getFagsak(), null);
+        doReturn(behandling).when(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(behandling.getFagsak()), any());
 
         //Act
         dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
