@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -250,10 +249,14 @@ public class BehandlingRepository {
     @SuppressWarnings("unchecked")
     public Optional<Behandling> finnSisteAvsluttedeIkkeHenlagteBehandling(Long fagsakId) {
         Objects.requireNonNull(fagsakId, FAGSAK_ID);
-        return optionalFirst(finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsakId));
+        return optionalFirst(finnAlleAvsluttedeIkkeHenlagteBehandlingerAvType(fagsakId, BehandlingType.getYtelseBehandlingTyper()));
     }
 
     public List<Behandling> finnAlleAvsluttedeIkkeHenlagteBehandlinger(Long fagsakId) {
+        return finnAlleAvsluttedeIkkeHenlagteBehandlingerAvType(fagsakId, BehandlingType.getYtelseBehandlingTyper());
+    }
+
+    private List<Behandling> finnAlleAvsluttedeIkkeHenlagteBehandlingerAvType(Long fagsakId, Set<BehandlingType> inkluder) {
         // BehandlingResultatType = Innvilget, endret, ikke endret, avslått.
         Objects.requireNonNull(fagsakId, FAGSAK_ID); // NOSONAR //$NON-NLS-1$
 
@@ -264,14 +267,14 @@ public class BehandlingRepository {
                 "INNER JOIN BehandlingVedtak behandling_vedtak " +
                 "ON behandlingsresultat=behandling_vedtak.behandlingsresultat " +
                 "WHERE behandling.status IN :avsluttetOgIverkKode " +
-                "AND behandling.behandlingType NOT IN (:ekskluderteTyper) " +
+                "AND behandling.behandlingType IN (:inluderteTyper) " +
                 "AND behandling.fagsak.id=:fagsakId " +
                 "ORDER BY behandling_vedtak.vedtakstidspunkt DESC, behandling_vedtak.endretTidspunkt DESC",
             Behandling.class);
 
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("avsluttetOgIverkKode", BehandlingStatus.getFerdigbehandletStatuser());
-        query.setParameter("ekskluderteTyper", BehandlingType.getAndreBehandlingTyper());
+        query.setParameter("inluderteTyper", inkluder);
         query.setHint(QueryHints.HINT_READONLY, true);
         return query.getResultList();
     }

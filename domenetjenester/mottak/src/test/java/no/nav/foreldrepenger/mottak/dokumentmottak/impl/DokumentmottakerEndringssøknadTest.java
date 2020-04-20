@@ -11,6 +11,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,6 +46,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -317,7 +319,7 @@ public class DokumentmottakerEndringssøknadTest {
     @Test
     public void skal_henlegge_køet_behandling_dersom_endringssøknad_mottatt_tidligere() {
         // Arrange - opprette køet behandling
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medSøknadDato(LocalDate.now().minusDays(3))
             .medBehandlingType(BehandlingType.REVURDERING);
         Behandling behandling = scenario.lagre(repositoryProvider);
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
@@ -325,11 +327,11 @@ public class DokumentmottakerEndringssøknadTest {
         simulerKøetBehandling(behandling);
 
         // Arrange - mock tjenestekall
-        Behandling nyKøetBehandling = mock(Behandling.class);
-        when(nyKøetBehandling.getFagsak()).thenReturn(behandling.getFagsak());
+        Behandling nyKøetBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
+            .thenReturn(nyKøetBehandling);
 
         when(mottatteDokumentTjeneste.harMottattDokumentSet(behandling.getId(), DokumentTypeId.getEndringSøknadTyper())).thenReturn(true);
-        when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, BehandlingÅrsakType.KØET_BEHANDLING)).thenReturn(nyKøetBehandling);
 
         // Arrange - bygg søknad
         Long fagsakId = behandling.getFagsakId();
@@ -341,8 +343,7 @@ public class DokumentmottakerEndringssøknadTest {
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert - verifiser flyt
-        verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(behandling, BehandlingÅrsakType.KØET_BEHANDLING);
-        verify(kompletthetskontroller).persisterKøetDokumentOgVurderKompletthet(nyKøetBehandling, mottattDokument, Optional.empty());
+        verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument.getJournalpostId());
     }
 

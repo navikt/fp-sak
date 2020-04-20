@@ -4,6 +4,7 @@ import static java.time.LocalDate.now;
 import static no.nav.vedtak.felles.testutilities.Whitebox.setInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -296,7 +297,7 @@ public class DokumentmottakerSøknadDefaultTest {
         long behandlingId = 1L;
         doReturn(behandlingId).when(nyBehandling).getId();
         doReturn(fagsak).when(nyBehandling).getFagsak();
-        when(behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(fagsak), any())).thenReturn(nyBehandling);
+        when(behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(fagsak), any(), any(), anyBoolean())).thenReturn(nyBehandling);
         when(behandlingsoppretter.erAvslåttBehandling(behandling)).thenReturn(Boolean.TRUE);
 
         // Act - send inn søknad
@@ -306,7 +307,7 @@ public class DokumentmottakerSøknadDefaultTest {
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert - verifiser flyt
-        verify(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+        verify(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER, behandling, false);
         verify(behandlingsoppretter).settSomKøet(nyBehandling);
     }
 
@@ -325,13 +326,13 @@ public class DokumentmottakerSøknadDefaultTest {
         Long fagsakId = fagsak.getId();
         DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
-        when(behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(fagsak), any())).thenReturn(nyBehandling);
+        when(behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(fagsak), any(), any(), anyBoolean())).thenReturn(nyBehandling);
 
 
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert - verifiser flyt
-        verify(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+        verify(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER, null, false);
         verify(behandlingsoppretter).settSomKøet(nyBehandling);
     }
 
@@ -384,7 +385,6 @@ public class DokumentmottakerSøknadDefaultTest {
 
         // Assert - verifiser flyt
         verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
-        verify(kompletthetskontroller).persisterKøetDokumentOgVurderKompletthet(nyKøetBehandling, mottattDokument, Optional.empty());
         verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument.getJournalpostId());
     }
 
@@ -405,7 +405,7 @@ public class DokumentmottakerSøknadDefaultTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         doReturn(true).when(behandlingsoppretter).erBehandlingOgFørstegangsbehandlingHenlagt(behandling.getFagsak());
-        doReturn(behandling).when(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(behandling.getFagsak()), any());
+        doReturn(behandling).when(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(behandling.getFagsak()), any(), any(), anyBoolean());
 
         //Act
         dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
