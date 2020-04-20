@@ -59,6 +59,12 @@ jobs:
           echo "Build artifacts"
           echo "::set-env name=TAG::$(mvn help:evaluate --batch-mode --settings ./.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)"
 
+      - name: Stopper og fjerner oracle image/container
+        if: success()
+        run: |
+          docker stop oraclefpsak
+          docker system prune -f
+
       - name: Bygg og push docker-image for distribuering
         if: success()
         env:
