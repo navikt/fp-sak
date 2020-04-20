@@ -290,7 +290,7 @@ public class DokumentmottakerInntektsmeldingTest {
         Behandling behandling = mock(Behandling.class);
         doReturn(fagsak.getId()).when(behandling).getFagsakId();
         doReturn(fagsak).when(behandling).getFagsak();
-        doReturn(behandling).when(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
+        doReturn(behandling).when(behandlingsoppretter).opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING, Optional.empty());
         doAnswer(invocationOnMock -> { return null;}).when(dokumentmottakerFelles).leggTilBehandlingsårsak(behandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 
         // Arrange - bygg inntektsmelding
@@ -301,8 +301,8 @@ public class DokumentmottakerInntektsmeldingTest {
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert - sjekk flyt
-        verify(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
-        verify(dokumentmottakerFelles).opprettKøetFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument,fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
+        verify(behandlingsoppretter).opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING, Optional.empty());
+        verify(dokumentmottakerFelles).opprettKøetInitiellFørstegangsbehandling(fagsak, mottattDokument, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.es;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -69,7 +70,7 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
             kompletthetskontroller,
             køKontroller, fpUttakTjeneste);
         Behandling nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.ENGANGSTØNAD);
-        Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(), Mockito.any());
+        Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(), Mockito.any(), any(), anyBoolean());
         doNothing().when(mockMD).persisterDokumentinnhold(any(), any(), any());
 
         Behandling behandling = opprettBehandling(
@@ -85,7 +86,7 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
         dokumentmottakerSøknad.mottaDokument(søknadDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
-        Mockito.verify(behandlingsoppretterSpied, Mockito.times(1)).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(), Mockito.any());
+        Mockito.verify(behandlingsoppretterSpied, Mockito.times(1)).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(), Mockito.any(), any(), anyBoolean());
     }
 
     @Test

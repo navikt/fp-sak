@@ -177,6 +177,15 @@ public class DokumentmottakerFelles {
         return nyBehandling;
     }
 
+    Behandling oppdatereViaHenleggelseEnkø(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsak) {
+        Behandling nyBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, behandlingÅrsak);
+        opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(behandling, mottattDokument);
+        Optional<LocalDate> søknadsdato = revurderingRepository.finnSøknadsdatoFraHenlagtBehandling(nyBehandling);
+        mottatteDokumentTjeneste.persisterDokumentinnhold(nyBehandling, mottattDokument, søknadsdato);
+        behandlingsoppretter.settSomKøet(nyBehandling);
+        return nyBehandling;
+    }
+
     boolean skalOppretteNyFørstegangsbehandling(Fagsak fagsak) {
         if (mottatteDokumentTjeneste.erSisteYtelsesbehandlingAvslåttPgaManglendeDokumentasjon(fagsak)) {
             return !mottatteDokumentTjeneste.harFristForInnsendingAvDokGåttUt(fagsak);
@@ -186,7 +195,7 @@ public class DokumentmottakerFelles {
 
     public Behandling opprettNyFørstegangFraBehandlingMedSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling avsluttetBehandling, MottattDokument mottattDokument) {
         Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingFraTidligereSøknad(fagsak, behandlingÅrsakType, avsluttetBehandling);
-        behandlingsoppretter.opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(fagsak.getSaksnummer(), nyBehandling);
+        behandlingsoppretter.opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(nyBehandling);
         historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, mottattDokument.getJournalpostId(), false);
         opprettTaskForÅStarteBehandling(nyBehandling);
         return nyBehandling;
@@ -200,19 +209,36 @@ public class DokumentmottakerFelles {
         opprettHistorikk(behandling, mottattDokument);
     }
 
+    void opprettKøetInitiellFørstegangsbehandling(Fagsak fagsak, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) { //#S1
+        // Opprett ny førstegangsbehandling
+        Behandling behandling = behandlingsoppretter.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.empty());
+        persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
+        opprettHistorikk(behandling, mottattDokument);
+        behandlingsoppretter.settSomKøet(behandling);
+    }
+
     public void opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType);
+        Behandling forrigeBehandling = finnEvtForrigeBehandling(mottattDokument, fagsak);
+        Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType, forrigeBehandling, !mottattDokument.getDokumentType().erSøknadType());
         persisterDokumentinnhold(nyBehandling, mottattDokument, Optional.empty());
         opprettTaskForÅStarteBehandling(nyBehandling);
         opprettHistorikk(nyBehandling, mottattDokument);
     }
 
     public void opprettKøetFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType);
+        Behandling forrigeBehandling = finnEvtForrigeBehandling(mottattDokument, fagsak);
+        Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType, forrigeBehandling, !mottattDokument.getDokumentType().erSøknadType());
         persisterDokumentinnhold(nyBehandling, mottattDokument, Optional.empty());
         opprettHistorikk(nyBehandling, mottattDokument);
         opprettKøetHistorikk(nyBehandling, false);
         behandlingsoppretter.settSomKøet(nyBehandling);
+    }
+
+    private Behandling finnEvtForrigeBehandling(MottattDokument mottattDokument, Fagsak fagsak) {
+        Behandling behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null);
+        if (behandling == null && !mottattDokument.getDokumentType().erSøknadType())
+            throw new IllegalStateException("Fant ingen behandling som passet for saksnummer: " + fagsak.getSaksnummer());
+        return behandling;
     }
 
     void standardForAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling, BehandlingÅrsakType behandlingÅrsakType, boolean harAvslåttPeriode) {
