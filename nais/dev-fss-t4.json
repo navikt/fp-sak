@@ -17,6 +17,7 @@
     "KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID": "KP-privat-foreldrepenger-aksjonspunkthendelse-t4",
     "KAFKA_AKSJONSPUNKTHENDELSE_SCHEMA_REGISTRY_URL": "https://kafka-test-schema-registry.nais.preprod.local",
     "KAFKA_AKSJONSPUNKTHENDELSE_GROUP_ID": "KC-privat-foreldrepenger-aksjonspunkthendelse-t4",
+    "KAFKA_FATTEVEDTAK_TOPIC": "privat-familie-vedtakFattet-v1-t4",
     "KAFKA_HISTORIKKINNSLAG_TOPIC": "privat-foreldrepenger-historikkinnslag-t4",
     "KAFKA_RISIKOKLASSIFISERING_TOPIC": "privat-foreldrepenger-fprisk-utfor-t4",
     "KAFKA_RISIKOKLASSIFISERING_CLIENT_ID": "KP-privat-foreldrepenger-fprisk-utfor-t4",

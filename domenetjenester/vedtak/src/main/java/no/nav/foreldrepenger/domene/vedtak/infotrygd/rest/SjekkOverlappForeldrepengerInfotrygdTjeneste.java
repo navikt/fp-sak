@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.StatusKode;
@@ -30,14 +30,14 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
 
     private InfotrygdFPGrunnlag tjeneste ;
     private InfotrygdSVPGrunnlag svp;
-    private AktørConsumer aktørConsumer;
+    private AktørConsumerMedCache aktørConsumer;
 
     SjekkOverlappForeldrepengerInfotrygdTjeneste() {
         // CDI
     }
 
     @Inject
-    public SjekkOverlappForeldrepengerInfotrygdTjeneste(InfotrygdFPGrunnlag tjeneste, InfotrygdSVPGrunnlag svp, AktørConsumer aktørConsumer) {
+    public SjekkOverlappForeldrepengerInfotrygdTjeneste(InfotrygdFPGrunnlag tjeneste, InfotrygdSVPGrunnlag svp, AktørConsumerMedCache aktørConsumer) {
         this.tjeneste = tjeneste;
         this.svp = svp;
         this.aktørConsumer = aktørConsumer;

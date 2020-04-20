@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataInnhenter;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseHåndterer;
@@ -56,11 +55,6 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
         } else { // TODO(pjv): Det er litt ugreit å oppdatere grunnlag i avsluttet behandling. Kan ikke fagsaken oppdateres?
             registerdataInnhenter.innhentPersonopplysninger(avsluttetBehandling);
         }
-    }
-
-    @Override
-    public void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        // NOSONAR
     }
 
     private boolean erRelevantForEngangsstønadSak(Behandling behandling) {

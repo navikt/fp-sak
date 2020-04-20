@@ -61,12 +61,19 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
 
     @Override
     public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
-        return hentAlleStartpunktForInntektArbeidYtelse(ref, (UUID) grunnlagId1, (UUID) grunnlagId2).stream()
+        return hentAlleStartpunktForInntektArbeidYtelse(ref, true, (UUID) grunnlagId1, (UUID) grunnlagId2).stream()
             .min(Comparator.comparing(StartpunktType::getRangering))
             .orElse(StartpunktType.UDEFINERT);
     }
 
-    private List<StartpunktType> hentAlleStartpunktForInntektArbeidYtelse(BehandlingReferanse ref,
+    @Override
+    public StartpunktType utledInitieltStartpunktRevurdering(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
+        return hentAlleStartpunktForInntektArbeidYtelse(ref, false, (UUID) grunnlagId1, (UUID) grunnlagId2).stream()
+            .min(Comparator.comparing(StartpunktType::getRangering))
+            .orElse(StartpunktType.UDEFINERT);
+    }
+
+    private List<StartpunktType> hentAlleStartpunktForInntektArbeidYtelse(BehandlingReferanse ref, boolean vurderArbeidsforhold,
                                                                           UUID grunnlagId1, UUID grunnlagId2) {
         List<StartpunktType> startpunkter = new ArrayList<>();
         // Revurderinger skal normalt begynne i uttak.
@@ -76,12 +83,6 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         InntektArbeidYtelseGrunnlag grunnlag2 = iayTjeneste.hentGrunnlagForGrunnlagId(ref.getBehandlingId(), grunnlagId2);
 
         LocalDate skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
-        boolean skalTaStillingTilEndringerIArbeidsforhold = skalTaStillingTilEndringerIArbeidsforhold(ref);
-
-        InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId()); // TODO burde ikke være nødvendig (bør velge grunnlagId1, grunnlagId2)
-        SakInntektsmeldinger sakInntektsmeldinger = skalTaStillingTilEndringerIArbeidsforhold ? iayTjeneste.hentInntektsmeldinger(ref.getSaksnummer()) : null /* ikke hent opp */;
-
-        boolean erPåkrevdManuelleAvklaringer = !vurderArbeidsforholdTjeneste.vurder(ref, iayGrunnlag, sakInntektsmeldinger, skalTaStillingTilEndringerIArbeidsforhold).isEmpty();
 
         IAYGrunnlagDiff iayGrunnlagDiff = new IAYGrunnlagDiff(grunnlag1, grunnlag2);
         boolean erAktørArbeidEndretForSøker = iayGrunnlagDiff.erEndringPåAktørArbeidForAktør(skjæringstidspunkt, ref.getAktørId());
@@ -91,10 +92,19 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         Saksnummer saksnummer = ref.getSaksnummer();
         AktørYtelseEndring aktørYtelseEndringForSøker = iayGrunnlagDiff.endringPåAktørYtelseForAktør(saksnummer, skjæringstidspunkt, ref.getAktørId());
 
-        if (erPåkrevdManuelleAvklaringer) {
-            leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, StartpunktType.KONTROLLER_ARBEIDSFORHOLD, "manuell vurdering av arbeidsforhold");
-        } else {
-            ryddOppAksjonspunktHvisEksisterer(ref);
+        if (vurderArbeidsforhold) {
+            boolean skalTaStillingTilEndringerIArbeidsforhold = skalTaStillingTilEndringerIArbeidsforhold(ref);
+
+            InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId()); // TODO burde ikke være nødvendig (bør velge grunnlagId1, grunnlagId2)
+            SakInntektsmeldinger sakInntektsmeldinger = skalTaStillingTilEndringerIArbeidsforhold ? iayTjeneste.hentInntektsmeldinger(ref.getSaksnummer()) : null /* ikke hent opp */;
+
+            boolean erPåkrevdManuelleAvklaringer = !vurderArbeidsforholdTjeneste.vurder(ref, iayGrunnlag, sakInntektsmeldinger, skalTaStillingTilEndringerIArbeidsforhold).isEmpty();
+
+            if (erPåkrevdManuelleAvklaringer) {
+                leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, StartpunktType.KONTROLLER_ARBEIDSFORHOLD, "manuell vurdering av arbeidsforhold");
+            } else {
+                ryddOppAksjonspunktHvisEksisterer(ref);
+            }
         }
         if (erAktørArbeidEndretForSøker) {
             leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, defaultStartpunktForRegisterEndringer, "aktørarbeid");
@@ -117,7 +127,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
 
     private boolean skalTaStillingTilEndringerIArbeidsforhold(BehandlingReferanse behandlingReferanse) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingReferanse.getBehandlingId());
-        return !Objects.equals(behandlingReferanse.getBehandlingType(), BehandlingType.FØRSTEGANGSSØKNAD)
+        return Objects.equals(behandlingReferanse.getBehandlingType(), BehandlingType.REVURDERING)
             || behandling.harSattStartpunkt();
     }
 

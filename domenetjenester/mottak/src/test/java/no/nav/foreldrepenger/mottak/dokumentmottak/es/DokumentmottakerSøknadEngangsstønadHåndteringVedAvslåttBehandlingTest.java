@@ -42,7 +42,6 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
         dokumentmottakerSøknad = new DokumentmottakerSøknadEngangsstønad(
             repositoryProvider,
             dokumentmottakerFelles,
-            mottatteDokumentTjeneste,
             behandlingsoppretterSpied,
             kompletthetskontroller,
             køKontroller, fpUttakTjeneste);
@@ -66,12 +65,11 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
         dokumentmottakerSøknad = new DokumentmottakerSøknadEngangsstønad(
             repositoryProvider,
             felles,
-            mockMD,
             behandlingsoppretterSpied,
             kompletthetskontroller,
             køKontroller, fpUttakTjeneste);
         Behandling nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.ENGANGSTØNAD);
-        Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(),  Mockito.any());
+        Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(), Mockito.any());
         doNothing().when(mockMD).persisterDokumentinnhold(any(), any(), any());
 
         Behandling behandling = opprettBehandling(
@@ -84,7 +82,7 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
         MottattDokument søknadDokument = dummySøknadDokument(behandling);
 
         // Act
-        dokumentmottakerSøknad.mottaDokument(søknadDokument, behandling.getFagsak(), søknadDokument.getDokumentType(), BehandlingÅrsakType.RE_ANNET);
+        dokumentmottakerSøknad.mottaDokument(søknadDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
         Mockito.verify(behandlingsoppretterSpied, Mockito.times(1)).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(), Mockito.any());
@@ -108,7 +106,6 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
         dokumentmottakerSøknad = new DokumentmottakerSøknadEngangsstønad(
             repositoryProvider,
             felles,
-            mockMD,
             behandlingsoppretterSpied,
             kompletthetskontroller,
             køKontroller, fpUttakTjeneste);

@@ -89,7 +89,7 @@ public class BehandlingskontrollEventObserver {
     private ProsessTaskData opprettProsessTask(Long behandlingId, EventHendelse eventHendelse) throws IOException {
         ProsessTaskData taskData = new ProsessTaskData(PubliserEventTask.TASKTYPE);
         taskData.setCallIdFraEksisterende();
-        taskData.setPrioritet(50);
+        taskData.setPrioritet(90);
 
         Optional<Behandling> behandling = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId);
 

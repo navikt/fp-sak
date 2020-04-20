@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
@@ -21,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
@@ -104,6 +106,14 @@ public class DokumentmottakerFelles {
         historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), true);
     }
 
+    void opprettHistorikk(Behandling behandling, MottattDokument mottattDokument) {
+        if (mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType()) {
+            historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), false);
+        } else {
+            historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsakId(), mottattDokument.getJournalpostId(), mottattDokument.getDokumentType());
+        }
+    }
+
     void opprettHistorikk(Behandling behandling, JournalpostId journalPostId) {
         historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, journalPostId, false);
     }
@@ -139,7 +149,17 @@ public class DokumentmottakerFelles {
     final Behandling opprettRevurdering(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         Behandling revurdering = behandlingsoppretter.opprettRevurdering(fagsak, behandlingÅrsakType);
         mottatteDokumentTjeneste.persisterDokumentinnhold(revurdering, mottattDokument, Optional.empty());
+        opprettHistorikk(revurdering, mottattDokument);
         opprettTaskForÅStarteBehandling(revurdering);
+        return revurdering;
+    }
+
+    final Behandling opprettKøetRevurdering(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
+        Behandling revurdering = behandlingsoppretter.opprettRevurdering(fagsak, behandlingÅrsakType);
+        mottatteDokumentTjeneste.persisterDokumentinnhold(revurdering, mottattDokument, Optional.empty());
+        opprettHistorikk(revurdering, mottattDokument);
+        opprettKøetHistorikk(revurdering, false);
+        behandlingsoppretter.settSomKøet(revurdering);
         return revurdering;
     }
 
@@ -164,18 +184,71 @@ public class DokumentmottakerFelles {
         return false;
     }
 
-    Behandling opprettNyFørstegangFraAvslag(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling) {
-        Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandling(mottattDokument, fagsak, avsluttetBehandling);
-        behandlingsoppretter.opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(fagsak.getSaksnummer(), nyBehandling);
-        opprettTaskForÅStarteBehandling(nyBehandling);
-        return nyBehandling;
-    }
-
-    Behandling opprettNyFørstegangFraBehandlingMedSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling avsluttetBehandling, MottattDokument mottattDokument) {
+    public Behandling opprettNyFørstegangFraBehandlingMedSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling avsluttetBehandling, MottattDokument mottattDokument) {
         Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingFraTidligereSøknad(fagsak, behandlingÅrsakType, avsluttetBehandling);
         behandlingsoppretter.opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(fagsak.getSaksnummer(), nyBehandling);
         historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, mottattDokument.getJournalpostId(), false);
         opprettTaskForÅStarteBehandling(nyBehandling);
         return nyBehandling;
+    }
+
+    void opprettInitiellFørstegangsbehandling(Fagsak fagsak, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) { //#S1
+        // Opprett ny førstegangsbehandling
+        Behandling behandling = behandlingsoppretter.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.empty());
+        persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
+        opprettTaskForÅStarteBehandling(behandling);
+        opprettHistorikk(behandling, mottattDokument);
+    }
+
+    public void opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
+        Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType);
+        persisterDokumentinnhold(nyBehandling, mottattDokument, Optional.empty());
+        opprettTaskForÅStarteBehandling(nyBehandling);
+        opprettHistorikk(nyBehandling, mottattDokument);
+    }
+
+    public void opprettKøetFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
+        Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType);
+        persisterDokumentinnhold(nyBehandling, mottattDokument, Optional.empty());
+        opprettHistorikk(nyBehandling, mottattDokument);
+        opprettKøetHistorikk(nyBehandling, false);
+        behandlingsoppretter.settSomKøet(nyBehandling);
+    }
+
+    void standardForAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling, BehandlingÅrsakType behandlingÅrsakType, boolean harAvslåttPeriode) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
+            opprettTaskForÅVurdereDokument(fagsak, avsluttetBehandling, mottattDokument);
+            return;
+        }
+        if (skalOppretteNyFørstegangsbehandling(avsluttetBehandling.getFagsak())) { //#I3 #E6
+            opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, behandlingÅrsakType);
+        } else if (harAvslåttPeriode && behandlingsoppretter.harBehandlingsresultatOpphørt(avsluttetBehandling)) { //#I4 #E7 #S5
+            opprettRevurdering(mottattDokument, fagsak, behandlingÅrsakType);
+        } else { //#I5 #E8 #S7
+            opprettTaskForÅVurdereDokument(fagsak, avsluttetBehandling, mottattDokument);
+        }
+    }
+
+    void oppdaterMottattDokumentMedBehandling(MottattDokument mottattDokument, Long behandlingId) {
+        mottatteDokumentTjeneste.oppdaterMottattDokumentMedBehandling(mottattDokument, behandlingId);
+    }
+
+    boolean harAlleredeMottattEndringssøknad(Behandling behandling) {
+        return mottatteDokumentTjeneste.harMottattDokumentSet(behandling.getId(), DokumentTypeId.getEndringSøknadTyper());
+    }
+
+    boolean harMottattSøknadTidligere(Long behandlingId) {
+        return mottatteDokumentTjeneste.harMottattDokumentSet(behandlingId, DokumentTypeId.getSøknadTyper()) ||
+            mottatteDokumentTjeneste.harMottattDokumentSet(behandlingId, DokumentTypeId.getEndringSøknadTyper()) ||
+            mottatteDokumentTjeneste.harMottattDokumentKat(behandlingId, DokumentKategori.SØKNAD);
+    }
+
+    boolean harFagsakMottattSøknadTidligere(Long fagsakId) {
+        return mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsakId).stream()
+            .anyMatch(d -> d.getDokumentType().erSøknadType() || DokumentKategori.SØKNAD.equals(d.getDokumentKategori()));
+    }
+
+    void persisterDokumentinnhold(Behandling behandling, MottattDokument dokument, Optional<LocalDate> gjelderFra) {
+        mottatteDokumentTjeneste.persisterDokumentinnhold(behandling, dokument, gjelderFra);
     }
 }

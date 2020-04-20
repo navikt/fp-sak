@@ -12,7 +12,11 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import org.apache.kafka.common.serialization.Serde;
+import org.apache.kafka.common.serialization.Serdes;
+
 import no.nav.abakus.vedtak.ytelse.Ytelse;
+import no.nav.familie.topic.Topic;
 import no.nav.familie.topic.TopicManifest;
 import no.nav.folketrygdloven.kalkulator.JsonMapper;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -44,13 +48,14 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
     @Inject
     public PubliserVedtattYtelseHendelseTask(BehandlingRepositoryProvider repositoryProvider,
                                              VedtattYtelseTjeneste vedtakTjeneste,
+                                             @KonfigVerdi("kafka.fattevedtak.topic") String topicName,
                                              @KonfigVerdi("bootstrap.servers") String bootstrapServers,
                                              @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
                                              @KonfigVerdi("systembruker.username") String username,
                                              @KonfigVerdi("systembruker.password") String password) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.vedtakTjeneste = vedtakTjeneste;
-        this.producer = new HendelseProducer(TopicManifest.FATTET_VEDTAK, bootstrapServers, schemaRegistryUrl, username, password);
+        this.producer = new HendelseProducer(topicName, bootstrapServers, schemaRegistryUrl, username, password);
 
         @SuppressWarnings("resource")
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();

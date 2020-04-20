@@ -31,7 +31,7 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumer;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 
 /*
@@ -45,7 +45,7 @@ Håndtering av overlapp av Foreldrepenger-foreldrepenger håndteres av klassen V
 public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingRepository behandlingRepository;
-    private AktørConsumer aktørConsumer;
+    private AktørConsumerMedCache aktørConsumer;
     private InfotrygdSVPGrunnlag infotrygdSVPGrTjeneste;
     private InfotrygdFPGrunnlag infotrygdFPGrTjeneste;
     private BehandlingOverlappInfotrygdRepository overlappRepository;
@@ -59,7 +59,7 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
     @Inject
     public LoggHistoriskOverlappFPInfotrygdVLTjeneste(BeregningsresultatRepository beregningsresultatRepository,
                                                       BehandlingRepository behandlingRepository,
-                                                      AktørConsumer aktørConsumer,
+                                                      AktørConsumerMedCache aktørConsumer,
                                                       InfotrygdSVPGrunnlag infotrygdSVPGrTjeneste,
                                                       InfotrygdFPGrunnlag infotrygdFPGrTjeneste,
                                                       BehandlingOverlappInfotrygdRepository overlappRepository) {

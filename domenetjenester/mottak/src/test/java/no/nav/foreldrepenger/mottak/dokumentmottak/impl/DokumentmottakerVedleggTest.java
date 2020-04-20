@@ -86,7 +86,7 @@ public class DokumentmottakerVedleggTest {
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
         kompletthetskontroller = mock(Kompletthetskontroller.class);
-        dokumentmottaker = new DokumentmottakerVedlegg(repositoryProvider, dokumentmottakerFelles, behandlingsoppretter, kompletthetskontroller);
+        dokumentmottaker = new DokumentmottakerVedlegg(repositoryProvider, dokumentmottakerFelles, kompletthetskontroller);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
         when(behandlendeEnhetTjeneste.getKlageInstans()).thenReturn(new OrganisasjonsEnhet("4292", "NAV Klageinstans Midt-Norge"));
     }
@@ -104,7 +104,7 @@ public class DokumentmottakerVedleggTest {
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         //Act
-        dokumentmottaker.mottaDokument(mottattDokument, fagsak, dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, fagsak, null);
 
         //Assert
         verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument);
@@ -129,7 +129,7 @@ public class DokumentmottakerVedleggTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
 
         //Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
 
         //Assert
         verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
@@ -151,7 +151,7 @@ public class DokumentmottakerVedleggTest {
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         //Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
 
         //Assert
         verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(behandling.getFagsak(), behandling, mottattDokument);
@@ -181,7 +181,7 @@ public class DokumentmottakerVedleggTest {
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         //Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
 
         //Assert
         verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(behandling.getFagsak(), behandling, mottattDokument);
@@ -217,7 +217,7 @@ public class DokumentmottakerVedleggTest {
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         //Act
-        dokumentmottaker.mottaDokument(mottattDokument, klageBehandling.getFagsak(), dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, klageBehandling.getFagsak(), null);
 
         //Assert
         verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(klageBehandling.getFagsak(), klageBehandling, mottattDokument);
@@ -239,7 +239,7 @@ public class DokumentmottakerVedleggTest {
         Long fagsakId = fagsak.getId();
         DokumentTypeId dokumentTypeId = DokumentTypeId.ANNET;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
-        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, dokumentTypeId, BehandlingÅrsakType.RE_ANNET);
+        dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.RE_ANNET);
 
         // Assert - verifiser flyt
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(null, mottattDokument);
@@ -265,7 +265,7 @@ public class DokumentmottakerVedleggTest {
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         //Act
-        dokumentmottaker.mottaDokument(mottattDokument, klageBehandling.getFagsak(), dokumentTypeId, null);
+        dokumentmottaker.mottaDokument(mottattDokument, klageBehandling.getFagsak(), null);
 
         //Assert
         verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(klageBehandling.getFagsak(), klageBehandling, mottattDokument);

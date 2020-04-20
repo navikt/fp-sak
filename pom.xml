@@ -71,8 +71,7 @@
 
         <fp-kontrakter.version>5.1-20200401094249-8828af7</fp-kontrakter.version>
 
-
-        <kalkulus.version>1.0-2020.04.03.175156-e1680e4</kalkulus.version>
+        <kalkulus.version>1.0-2020.04.08.080217-287d56d</kalkulus.version>
     </properties>
 
     <prerequisites>
@@ -197,7 +196,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.abakus</groupId>
                 <artifactId>abakus-kontrakt</artifactId>
-                <version>1.1-20200315122951-5b3f05a</version>
+                <version>1.2-20200413120915-cb5b3c8</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>

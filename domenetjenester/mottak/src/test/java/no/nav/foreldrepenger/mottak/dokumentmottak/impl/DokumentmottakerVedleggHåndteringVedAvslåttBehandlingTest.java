@@ -32,7 +32,6 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
         dokumentmottakerVedlegg = new DokumentmottakerVedlegg(
             repositoryProvider,
             dokumentmottakerFellesSpied,
-            behandlingsoppretterSpied,
             kompletthetskontroller);
     }
 
@@ -40,7 +39,7 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
     public void gittAvslåttBehandlingPgaManglendeDokMedIkkeUtløptFristForInnsendingSkalOppretteNyFørstegangsbehandling() {
         //Arrange
         Behandling nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
-        Mockito.doReturn(nyBehandling).when(dokumentmottakerFellesSpied).opprettNyFørstegangFraAvslag(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doReturn(true).when(dokumentmottakerFellesSpied).skalOppretteNyFørstegangsbehandling(any());
         Behandling behandling = opprettBehandling(
             FagsakYtelseType.FORELDREPENGER,
@@ -52,10 +51,10 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
         MottattDokument vedlegg = dummyVedleggDokument(behandling);
 
         // Act
-        dokumentmottakerVedlegg.mottaDokument(vedlegg, behandling.getFagsak(), vedlegg.getDokumentType(), BehandlingÅrsakType.RE_ANNET);
+        dokumentmottakerVedlegg.mottaDokument(vedlegg, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
-        Mockito.verify(dokumentmottakerFellesSpied, Mockito.times(1)).opprettNyFørstegangFraAvslag(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(dokumentmottakerFellesSpied, Mockito.times(1)).opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -72,10 +71,10 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
         MottattDokument vedlegg = dummyVedleggDokument(behandling);
 
         // Act
-        dokumentmottakerVedlegg.mottaDokument(vedlegg, behandling.getFagsak(), vedlegg.getDokumentType(), BehandlingÅrsakType.RE_ANNET);
+        dokumentmottakerVedlegg.mottaDokument(vedlegg, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
-        Mockito.verify(behandlingsoppretterSpied, Mockito.never()).opprettNyFørstegangsbehandling(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(dokumentmottakerFellesSpied, Mockito.never()).opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(dokumentmottakerFellesSpied, Mockito.times(1)).opprettTaskForÅVurdereDokument(Mockito.any(), Mockito.any(), Mockito.any());
     }
 
@@ -93,10 +92,10 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
         MottattDokument vedlegg = dummyVedleggDokument(behandling);
 
         // Act
-        dokumentmottakerVedlegg.mottaDokument(vedlegg, behandling.getFagsak(), vedlegg.getDokumentType(), BehandlingÅrsakType.RE_ANNET);
+        dokumentmottakerVedlegg.mottaDokument(vedlegg, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
-        Mockito.verify(behandlingsoppretterSpied, Mockito.never()).opprettNyFørstegangsbehandling(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(dokumentmottakerFellesSpied, Mockito.never()).opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(dokumentmottakerFellesSpied, Mockito.times(1)).opprettTaskForÅVurdereDokument(Mockito.any(), Mockito.any(), Mockito.any());
     }
 
@@ -115,10 +114,10 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
         MottattDokument vedlegg = dummyVedleggDokumentTypeAnnet(behandling);
 
         // Act
-        dokumentmottakerVedlegg.mottaDokument(vedlegg, behandling.getFagsak(), vedlegg.getDokumentType(), BehandlingÅrsakType.RE_ANNET);
+        dokumentmottakerVedlegg.mottaDokument(vedlegg, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
-        Mockito.verify(behandlingsoppretterSpied, Mockito.never()).opprettNyFørstegangsbehandling(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(dokumentmottakerFellesSpied, Mockito.never()).opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(dokumentmottakerFellesSpied, Mockito.times(1)).opprettTaskForÅVurdereDokument(Mockito.any(), Mockito.any(), Mockito.any());
     }
 

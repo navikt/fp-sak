@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef
@@ -23,7 +22,6 @@ import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 class DokumentmottakerVedlegg implements Dokumentmottaker {
 
     private BehandlingRepository behandlingRepository;
-    private Behandlingsoppretter behandlingsoppretter;
     private DokumentmottakerFelles dokumentmottakerFelles;
     private BehandlingRevurderingRepository revurderingRepository;
     private Kompletthetskontroller kompletthetskontroller;
@@ -31,47 +29,47 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
     @Inject
     public DokumentmottakerVedlegg(BehandlingRepositoryProvider repositoryProvider,
                                    DokumentmottakerFelles dokumentmottakerFelles,
-                                   Behandlingsoppretter behandlingsoppretter,
                                    Kompletthetskontroller kompletthetskontroller) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.revurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
-        this.behandlingsoppretter = behandlingsoppretter;
         this.dokumentmottakerFelles = dokumentmottakerFelles;
         this.kompletthetskontroller = kompletthetskontroller;
     }
 
     @Override
-    public void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, DokumentTypeId dokumentTypeId, BehandlingÅrsakType behandlingÅrsakType) {
-        dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(mottattDokument.getFagsakId(), mottattDokument.getJournalpostId(), dokumentTypeId);
+    public void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
+        dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(mottattDokument.getFagsakId(), mottattDokument.getJournalpostId(), mottattDokument.getDokumentType());
 
-        Optional<Behandling> åpenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
-            .findFirst();
+        Optional<Behandling> åpenBehandling = revurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId());
+        Optional<Behandling> åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
+            .filter(b -> !b.erYtelseBehandling()).findFirst();
 
-        if (åpenBehandling.isPresent()) {
+        if (åpenAnnenBehandling.isPresent()) { // Klage, anke, etc
+            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, åpenAnnenBehandling.get(), mottattDokument);
+        } else if (åpenBehandling.isPresent()) {
             håndterÅpenBehandling(fagsak, åpenBehandling.get(), mottattDokument);
+        } else if (skalOppretteNyBehandlingSomFølgerAvVedlegget(mottattDokument, fagsak)) { //#V3
+            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, behandlingÅrsakType);
         } else {
-            if (skalOppretteNyBehandlingSomFølgerAvVedlegget(mottattDokument, fagsak)) { //#V3
-                Optional<Behandling> behandlingOptional = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
-                dokumentmottakerFelles.opprettNyFørstegangFraAvslag(mottattDokument, fagsak, behandlingOptional.get()); // NOSONAR
-            } else {
-                dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument); //#V1 og #V4
-            }
+            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument); //#V1 og #V4
         }
     }
 
     @Override
-    public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, DokumentTypeId dokumentTypeId, BehandlingÅrsakType behandlingÅrsakType) {
-        dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(mottattDokument.getFagsakId(), mottattDokument.getJournalpostId(), dokumentTypeId);
+    public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
+        dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(mottattDokument.getFagsakId(), mottattDokument.getJournalpostId(), mottattDokument.getDokumentType());
 
         Optional<Behandling> eksisterendeKøetBehandling = revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
-        Behandling køetBehandling = eksisterendeKøetBehandling
-            .orElseGet(() -> skalOppretteNyBehandlingSomFølgerAvVedlegget(mottattDokument, fagsak)
-                ? behandlingsoppretter.opprettKøetBehandling(fagsak, BehandlingÅrsakType.RE_ANNET) : null);
-        if (køetBehandling != null) { //#V5 og #V7
-            dokumentmottakerFelles.opprettKøetHistorikk(køetBehandling, eksisterendeKøetBehandling.isPresent());
-            kompletthetskontroller.persisterKøetDokumentOgVurderKompletthet(køetBehandling, mottattDokument, Optional.empty());
-        } else { //#V6
-            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument);
+        Optional<Behandling> åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
+            .filter(b -> !b.erYtelseBehandling()).findFirst();
+        if (åpenAnnenBehandling.isPresent()) { // Klage, anke, etc
+            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, åpenAnnenBehandling.get(), mottattDokument);
+        } else if (eksisterendeKøetBehandling.isPresent()) { //#V5
+            kompletthetskontroller.persisterKøetDokumentOgVurderKompletthet(eksisterendeKøetBehandling.get(), mottattDokument, Optional.empty());
+        } else if (skalOppretteNyBehandlingSomFølgerAvVedlegget(mottattDokument, fagsak)) { //#V7
+            dokumentmottakerFelles.opprettKøetFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, behandlingÅrsakType);
+        } else {
+            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument); //#V1 og #V4
         }
     }
 
@@ -84,12 +82,10 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
     }
 
     private void håndterÅpenBehandling(Fagsak fagsak, Behandling behandling, MottattDokument mottattDokument) { //#V2
-        /** TODO (essv): Digitalen - løfte {@link FagsakYtelseType.ENGANGSTØNAD} til protokoll for Startpunkt,
-         * slik at samme protokoll som for FP kan brukes */
-        if (fagsak.getYtelseType().equals(FagsakYtelseType.FORELDREPENGER) && behandling.erYtelseBehandling()) {
-            kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
-        } else {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, behandling, mottattDokument);
+        } else {
+            kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
         }
     }
 }

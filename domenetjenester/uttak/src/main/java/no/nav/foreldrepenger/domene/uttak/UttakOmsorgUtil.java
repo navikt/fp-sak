@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 
 public final class UttakOmsorgUtil {
@@ -29,9 +28,9 @@ public final class UttakOmsorgUtil {
         if (annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
             return true;
         }
-        Optional<PerioderAnnenforelderHarRettEntitet> perioderAnnenforelderHarRett = ytelseFordelingAggregat.getPerioderAnnenforelderHarRett();
-        if (perioderAnnenforelderHarRett.isPresent()) {
-            return !perioderAnnenforelderHarRett.get().getPerioder().isEmpty();
+        var annenForelderRettAvklaring = ytelseFordelingAggregat.getAnnenForelderRettAvklaring();
+        if (annenForelderRettAvklaring.isPresent()) {
+            return annenForelderRettAvklaring.get();
         }
         OppgittRettighetEntitet oppgittRettighet = ytelseFordelingAggregat.getOppgittRettighet();
         Objects.requireNonNull(oppgittRettighet, "oppgittRettighet");

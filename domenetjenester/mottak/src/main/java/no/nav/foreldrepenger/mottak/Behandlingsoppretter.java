@@ -99,12 +99,12 @@ public class Behandlingsoppretter {
         }); // NOSONAR
     }
 
-    public Behandling opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(BehandlingÅrsakType behandlingÅrsakType, Fagsak fagsak) {
+    public Behandling opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         Behandling forrigeBehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(), BehandlingType.FØRSTEGANGSSØKNAD)
             .orElseThrow(() -> new IllegalStateException("Fant ingen behandling som passet for saksnummer: " + fagsak.getSaksnummer()));
         Behandling nyFørstegangsbehandling = opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.of(forrigeBehandling));
         opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(fagsak.getSaksnummer(), nyFørstegangsbehandling);
-        kopierVedlegg(nyFørstegangsbehandling, nyFørstegangsbehandling);
+        kopierVedlegg(forrigeBehandling, nyFørstegangsbehandling);
         return nyFørstegangsbehandling;
     }
 
@@ -124,7 +124,7 @@ public class Behandlingsoppretter {
         boolean uregistrertPapirSøknadFP = sisteYtelseBehandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER);
         henleggBehandling(sisteYtelseBehandling);
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(sisteYtelseBehandling.getType())) {
-            return opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(revurderingsÅrsak, sisteYtelseBehandling.getFagsak());
+            return opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(sisteYtelseBehandling.getFagsak(), revurderingsÅrsak);
         }
         Behandling revurdering = opprettRevurdering(sisteYtelseBehandling.getFagsak(), revurderingsÅrsak);
 
@@ -187,22 +187,9 @@ public class Behandlingsoppretter {
         }
     }
 
-    public Behandling opprettKøetBehandling(Fagsak fagsak, BehandlingÅrsakType eksternÅrsak) {
-        Optional<Behandling> sisteYtelsesbehandling = revurderingRepository.hentSisteYtelsesbehandling(fagsak.getId());
-        Behandling behandling;
-        if (sisteYtelsesbehandling.isPresent() && !erBehandlingOgFørstegangsbehandlingHenlagt(fagsak)) {
-            behandling = opprettRevurdering(fagsak, eksternÅrsak);
-        } else {
-            behandling = opprettFørstegangsbehandling(fagsak, eksternÅrsak, Optional.empty());
-        }
-        settSomKøet(behandling);
-        return behandling;
-    }
-
     private List<MottattDokument> hentAlleInntektsmeldingdokumenter(Long fagsakId) {
-        DokumentTypeId dokumenttypeIM = DokumentTypeId.INNTEKTSMELDING;
         return mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsakId).stream()
-            .filter(dok -> dok.getDokumentType().equals(dokumenttypeIM))
+            .filter(dok -> DokumentTypeId.INNTEKTSMELDING.equals(dok.getDokumentType()))
             .collect(toList());
     }
 
@@ -217,8 +204,7 @@ public class Behandlingsoppretter {
     }
 
     public boolean erAvslåttBehandling(Behandling behandling) {
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
-        return behandlingsresultat.map(Behandlingsresultat::isBehandlingsresultatAvslått).orElse(false);
+        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).map(Behandlingsresultat::isBehandlingsresultatAvslått).orElse(false);
     }
 
     public Behandling opprettNyFørstegangsbehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling) {
@@ -253,10 +239,10 @@ public class Behandlingsoppretter {
     public boolean erBehandlingOgFørstegangsbehandlingHenlagt(Fagsak fagsak) {
         Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
         Optional<Behandlingsresultat> behandlingsresultat = behandling.flatMap(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()));
-        if (behandlingsresultat.isPresent() && behandlingsresultat.get().isBehandlingsresultatHenlagt()) {
+        if (behandlingsresultat.map(Behandlingsresultat::isBehandlingsresultatHenlagt).orElse(false)) {
             Optional<Behandling> førstegangsbehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(), BehandlingType.FØRSTEGANGSSØKNAD);
             Optional<Behandlingsresultat> førstegangsbehandlingBehandlingsresultat = førstegangsbehandling.flatMap(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()));
-            return førstegangsbehandlingBehandlingsresultat.isPresent() && førstegangsbehandlingBehandlingsresultat.get().isBehandlingsresultatHenlagt();
+            return førstegangsbehandlingBehandlingsresultat.map(Behandlingsresultat::isBehandlingsresultatHenlagt).orElse(false);
         }
         return false;
     }

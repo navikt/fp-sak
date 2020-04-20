@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTaskProperties;
+import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
 import no.nav.foreldrepenger.mottak.publiserer.producer.DialogHendelseProducer;
 import no.nav.foreldrepenger.mottak.publiserer.producer.DialogJsonConfig;
 import no.nav.foreldrepenger.mottak.publiserer.producer.PubliserPersistertDokumentHendelseFeil;
@@ -58,7 +58,7 @@ public class PubliserPersistertDokumentHendelseTask implements ProsessTaskHandle
     @Override
     public void doTask(ProsessTaskData data) {
         Fagsak fagsak = fagsakRepository.finnEksaktFagsak(data.getFagsakId());
-        Optional<MottattDokument> dokumentOptional = mottatteDokumentTjeneste.hentMottattDokument(Long.valueOf(data.getPropertyValue(HåndterMottattDokumentTaskProperties.MOTTATT_DOKUMENT_ID_KEY)));
+        Optional<MottattDokument> dokumentOptional = mottatteDokumentTjeneste.hentMottattDokument(Long.valueOf(data.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)));
         dokumentOptional.ifPresent(dokument -> {
             inntektsmeldingTjeneste.hentInntektsMeldingFor(data.getBehandlingId(), dokument.getJournalpostId()).ifPresent(inntektsmelding -> {
                 log.info("[DIALOG-HENDELSE] Inntektsmelding persistert : {}", inntektsmelding.getKanalreferanse());

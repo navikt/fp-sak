@@ -60,6 +60,7 @@ public class AutomatiskFagsakAvslutningTjeneste {
                 tasks.add(opprettFagsakAvslutningTask(fagsakRelasjon.getFagsakNrTo().get(), nyCallId));
             }
             if (!tasks.isEmpty()) {
+                tasks.forEach(t -> t.setPrioritet(100));
                 ProsessTaskGruppe gruppe = new ProsessTaskGruppe();
                 tasks.forEach(gruppe::addNesteSekvensiell);
                 prosessTaskRepository.lagre(gruppe);

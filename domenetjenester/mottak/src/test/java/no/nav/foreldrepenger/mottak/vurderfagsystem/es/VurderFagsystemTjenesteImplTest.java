@@ -119,9 +119,9 @@ public class VurderFagsystemTjenesteImplTest {
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(b1);
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(ÅPEN_FAGSAK_ID_2)).thenReturn(b2);
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(AVSLT_NY_FAGSAK_ID_1)).thenReturn(b3);
-        when(behandlingRepositoryMock.hentÅpneBehandlingerForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(List.of(b1.get())); // NOSONAR
-        when(behandlingRepositoryMock.hentÅpneBehandlingerForFagsakId(ÅPEN_FAGSAK_ID_2)).thenReturn(Collections.emptyList()); // NOSONAR
-        when(behandlingRepositoryMock.hentÅpneBehandlingerForFagsakId(AVSLT_NY_FAGSAK_ID_1)).thenReturn(Collections.emptyList()); // NOSONAR
+        when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(List.of(b1.get())); // NOSONAR
+        when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(ÅPEN_FAGSAK_ID_2)).thenReturn(Collections.emptyList()); // NOSONAR
+        when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(AVSLT_NY_FAGSAK_ID_1)).thenReturn(Collections.emptyList()); // NOSONAR
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
@@ -148,7 +148,7 @@ public class VurderFagsystemTjenesteImplTest {
         Optional<Behandling> b1 = byggBehandlingMedEndretDato(fagsakFødselMedId(ÅPEN_FAGSAK_ID_1), 10);
 
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(b1);
-        when(behandlingRepositoryMock.hentÅpneBehandlingerForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(List.of(b1.get())); // NOSONAR
+        when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(List.of(b1.get())); // NOSONAR
 
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
@@ -171,7 +171,7 @@ public class VurderFagsystemTjenesteImplTest {
         Optional<Behandling> b1 = byggBehandlingMedEndretDato(fagsakFødselMedId(ÅPEN_FAGSAK_ID_1), 10);
 
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(b1);
-        when(behandlingRepositoryMock.hentÅpneBehandlingerForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(Collections.emptyList()); // NOSONAR
+        when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(Collections.emptyList()); // NOSONAR
 
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
@@ -191,7 +191,7 @@ public class VurderFagsystemTjenesteImplTest {
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
         Optional<Behandling> b1 = byggBehandlingMedEndretDato(fagsakFødselMedId(ÅPEN_FAGSAK_ID_1), 10);
-        when(behandlingRepositoryMock.hentÅpneBehandlingerForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(List.of(b1.get())); // NOSONAR
+        when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(List.of(b1.get())); // NOSONAR
         List<Fagsak> saksliste = new ArrayList<>();
         saksliste.add(buildFagsak(ÅPEN_FAGSAK_ID_1, false, FagsakYtelseType.ENGANGSTØNAD));
 
@@ -385,7 +385,7 @@ public class VurderFagsystemTjenesteImplTest {
         Optional<Behandling> behandling = Optional.of(byggBehandlingFødsel(fagsakFødselES));
         final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(terminDatdato, null);
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(behandling);
-        when(behandlingRepositoryMock.hentÅpneBehandlingerForFagsakId(any())).thenReturn(List.of(behandling.get()));
+        when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of(behandling.get()));
 
         when(grunnlagRepository.hentAggregat(behandling.get().getId())).thenReturn(grunnlag);
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
@@ -405,7 +405,7 @@ public class VurderFagsystemTjenesteImplTest {
         saksliste.add(fagsakFødselES);
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.empty());
-        when(behandlingRepositoryMock.hentÅpneBehandlingerForFagsakId(any())).thenReturn(Collections.emptyList());
+        when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(Collections.emptyList());
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
         BehandlendeFagsystem result = toVurderFagsystem(vfData);
@@ -427,7 +427,7 @@ public class VurderFagsystemTjenesteImplTest {
         behandling.get().avsluttBehandling();
         final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(terminDatdato, null);
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(behandling);
-        when(behandlingRepositoryMock.hentÅpneBehandlingerForFagsakId(any())).thenReturn(Collections.emptyList());
+        when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(Collections.emptyList());
         when(grunnlagRepository.hentAggregat(behandling.get().getId())).thenReturn(grunnlag);
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));

@@ -226,8 +226,7 @@ public class OppdatererDtoMapper {
     private static VurderteArbeidsforholdDto mapVurdertArbeidsforhold(no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderteArbeidsforholdDto vurderteArbeidsforholdDto) {
         return new VurderteArbeidsforholdDto(
             vurderteArbeidsforholdDto.getAndelsnr(),
-            vurderteArbeidsforholdDto.isTidsbegrensetArbeidsforhold(),
-            vurderteArbeidsforholdDto.isOpprinneligVerdi()
+            vurderteArbeidsforholdDto.isTidsbegrensetArbeidsforhold()
         );
     }
 

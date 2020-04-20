@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTaskProperties;
+import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -362,14 +362,14 @@ public class OpprettNyFørstegangsbehandlingTest {
     //Verifiserer at den opprettede prosesstasken stemmer overens med MottattDokument-mock
     private void verifiserProsessTaskData(Behandling behandling, ProsessTaskData prosessTaskData, Long ventetDokument, boolean skalhabehandling) {
 
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(HåndterMottattDokumentTaskProperties.TASKTYPE);
+        assertThat(prosessTaskData.getTaskType()).isEqualTo(HåndterMottattDokumentTask.TASKTYPE);
         assertThat(prosessTaskData.getFagsakId()).isEqualTo(behandling.getFagsakId());
         if (skalhabehandling) {
             assertThat(prosessTaskData.getBehandlingId()).isEqualTo(behandling.getId());
         } else {
             assertThat(prosessTaskData.getBehandlingId()).isNull();
         }
-        assertThat(prosessTaskData.getPropertyValue(HåndterMottattDokumentTaskProperties.MOTTATT_DOKUMENT_ID_KEY))
+        assertThat(prosessTaskData.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY))
             .isEqualTo(ventetDokument.toString());
     }
 }

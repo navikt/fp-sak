@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -201,6 +202,22 @@ public class BehandlingRepository {
         query.setParameter("status", BehandlingStatus.getFerdigbehandletStatuser()); //$NON-NLS-1$
         query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
         query.setHint(QueryHints.HINT_CACHE_MODE, "IGNORE");
+        return query.getResultList();
+    }
+
+    public List<Behandling> hentÅpneYtelseBehandlingerForFagsakId(Long fagsakId) {
+        Objects.requireNonNull(fagsakId, FAGSAK_ID); //$NON-NLS-1$
+
+        TypedQuery<Behandling> query = getEntityManager().createQuery(
+            "SELECT beh from Behandling AS beh " +
+                "WHERE beh.fagsak.id = :fagsakId " +
+                "AND beh.behandlingType IN (:ytelseTyper) " +
+                "AND beh.status NOT IN (:status)", //$NON-NLS-1$
+            Behandling.class);
+        query.setParameter(FAGSAK_ID, fagsakId); //$NON-NLS-1$
+        query.setParameter("status", BehandlingStatus.getFerdigbehandletStatuser()); //$NON-NLS-1$
+        query.setParameter("ytelseTyper", BehandlingType.getYtelseBehandlingTyper()); //$NON-NLS-1$
+        query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
         return query.getResultList();
     }
 

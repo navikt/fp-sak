@@ -113,6 +113,8 @@ spec:
       value: kafka_dokumentbestilling.topic
     - name: KAFKA_DOKUMENTBESTILLING_CLIENT_ID
       value: kafka_dokumentbestilling_client.id
+    - name: KAFKA_FATTEVEDTAK_TOPIC
+      value: kafka_fattevedtak.topic
     - name: SCHEMA_REGISTRY_URL
       value: schema_registry.url
 

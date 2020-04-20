@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.registerinnhenting;
 
-import static no.nav.abakus.iaygrunnlag.kodeverk.RegisterdataType.ARBEIDSFORHOLD;
-import static no.nav.abakus.iaygrunnlag.kodeverk.RegisterdataType.INNTEKT_BEREGNINGSGRUNNLAG;
-import static no.nav.abakus.iaygrunnlag.kodeverk.RegisterdataType.INNTEKT_PENSJONSGIVENDE;
-import static no.nav.abakus.iaygrunnlag.kodeverk.RegisterdataType.INNTEKT_SAMMENLIGNINGSGRUNNLAG;
-import static no.nav.abakus.iaygrunnlag.kodeverk.RegisterdataType.LIGNET_NÆRING;
-import static no.nav.abakus.iaygrunnlag.kodeverk.RegisterdataType.YTELSE;
+import static no.nav.abakus.iaygrunnlag.request.RegisterdataType.ARBEIDSFORHOLD;
+import static no.nav.abakus.iaygrunnlag.request.RegisterdataType.INNTEKT_BEREGNINGSGRUNNLAG;
+import static no.nav.abakus.iaygrunnlag.request.RegisterdataType.INNTEKT_PENSJONSGIVENDE;
+import static no.nav.abakus.iaygrunnlag.request.RegisterdataType.INNTEKT_SAMMENLIGNINGSGRUNNLAG;
+import static no.nav.abakus.iaygrunnlag.request.RegisterdataType.LIGNET_NÆRING;
+import static no.nav.abakus.iaygrunnlag.request.RegisterdataType.YTELSE;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,7 +28,7 @@ import org.threeten.extra.Interval;
 
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.Periode;
-import no.nav.abakus.iaygrunnlag.kodeverk.RegisterdataType;
+import no.nav.abakus.iaygrunnlag.request.RegisterdataType;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
 import no.nav.foreldrepenger.behandlingslager.abakus.logg.AbakusInnhentingGrunnlagLogg;
 import no.nav.foreldrepenger.behandlingslager.abakus.logg.AbakusInnhentingGrunnlagLoggRepository;

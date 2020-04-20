@@ -89,10 +89,10 @@ public class HåndterMottattDokumentTaskTest {
 
         Long dokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
 
-        ProsessTaskData prosessTask = new ProsessTaskData(HåndterMottattDokumentTaskProperties.TASKTYPE);
+        ProsessTaskData prosessTask = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
         prosessTask.setFagsakId(FAGSAK_ID);
-        prosessTask.setProperty(HåndterMottattDokumentTaskProperties.MOTTATT_DOKUMENT_ID_KEY, dokumentId.toString());
-        prosessTask.setProperty(HåndterMottattDokumentTaskProperties.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.UDEFINERT.getKode());
+        prosessTask.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, dokumentId.toString());
+        prosessTask.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.UDEFINERT.getKode());
         ArgumentCaptor<MottattDokument> captor = ArgumentCaptor.forClass(MottattDokument.class);
 
         // Act
@@ -117,10 +117,10 @@ public class HåndterMottattDokumentTaskTest {
 
         Long dokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
 
-        ProsessTaskData prosessTask = new ProsessTaskData(HåndterMottattDokumentTaskProperties.TASKTYPE);
+        ProsessTaskData prosessTask = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
         prosessTask.setBehandling(FAGSAK_ID, BEHANDLING_ID, AKTØR_ID.getId());
-        prosessTask.setProperty(HåndterMottattDokumentTaskProperties.MOTTATT_DOKUMENT_ID_KEY, dokumentId.toString());
-        prosessTask.setProperty(HåndterMottattDokumentTaskProperties.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.ETTER_KLAGE.getKode());
+        prosessTask.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, dokumentId.toString());
+        prosessTask.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.ETTER_KLAGE.getKode());
         ArgumentCaptor<Long> captorBehandling = ArgumentCaptor.forClass(Long.class);
         ArgumentCaptor<MottattDokument> captorDokument = ArgumentCaptor.forClass(MottattDokument.class);
         ArgumentCaptor<BehandlingÅrsakType> captorBA = ArgumentCaptor.forClass(BehandlingÅrsakType.class);

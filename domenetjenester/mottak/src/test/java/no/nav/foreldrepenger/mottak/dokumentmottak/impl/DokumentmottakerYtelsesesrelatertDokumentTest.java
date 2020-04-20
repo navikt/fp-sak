@@ -87,8 +87,8 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
 
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
-        dokumentmottaker = new DokumentmottakerSøknadDefault(repositoryProvider, dokumentmottakerFelles, mottatteDokumentTjeneste,
-            behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste);
+        dokumentmottaker = new DokumentmottakerInntektsmelding(dokumentmottakerFelles, behandlingsoppretter,
+            kompletthetskontroller, repositoryProvider, fpUttakTjeneste);
 
         dokumentmottaker = Mockito.spy(dokumentmottaker);
 
@@ -109,8 +109,9 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
         when(behandlingsoppretter.erAvslåttBehandling(behandling)).thenReturn(true);
 
+
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 
         // Assert
         verify(dokumentmottaker).håndterAvslåttEllerOpphørtBehandling(mottattDokument, behandling.getFagsak(), behandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
@@ -135,10 +136,10 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
         Behandling nyBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.FØRSTEGANGSSØKNAD).build();
         // Hack, men det blir feil å lagre Behandlingen før Act da det påvirker scenarioet, og mock(Behandling) er heller ikke pent...
         setInternalState(nyBehandling, "id", 9999L);
-        doReturn(nyBehandling).when(behandlingsoppretter).opprettFørstegangsbehandling(any(), any(), any());
+        doReturn(nyBehandling).when(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(any(), any());
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 
         // Assert
         verify(dokumentmottaker).håndterAvslåttEllerOpphørtBehandling(mottattDokument, behandling.getFagsak(), behandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
@@ -157,9 +158,10 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
         DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
         when(behandlingsoppretter.harBehandlingsresultatOpphørt(behandling)).thenReturn(true);
+        Mockito.doReturn(false).when(dokumentmottaker).harAvslåttPeriode(behandling);
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 
         // Assert
         verify(dokumentmottaker).håndterAvslåttEllerOpphørtBehandling(mottattDokument, behandling.getFagsak(), behandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
@@ -182,7 +184,7 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
         doReturn(true).when(behandlingsoppretter).harBehandlingsresultatOpphørt(behandling);
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), dokumentTypeId, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 
         // Assert
         verify(dokumentmottaker).håndterAvslåttEllerOpphørtBehandling(mottattDokument, behandling.getFagsak(), behandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);

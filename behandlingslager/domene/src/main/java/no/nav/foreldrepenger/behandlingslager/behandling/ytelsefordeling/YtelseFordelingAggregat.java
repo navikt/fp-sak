@@ -50,6 +50,14 @@ public class YtelseFordelingAggregat {
         return Optional.ofNullable(perioderAnnenforelderHarRett);
     }
 
+    public Optional<Boolean> getAnnenForelderRettAvklaring() {
+        var perioder = getPerioderAnnenforelderHarRett();
+        if (perioder.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(!perioder.get().getPerioder().isEmpty());
+    }
+
     public OppgittFordelingEntitet getGjeldendeSøknadsperioder() {
         if (getOverstyrtFordeling().isPresent()) {
             return getOverstyrtFordeling().get();
@@ -146,7 +154,7 @@ public class YtelseFordelingAggregat {
             return this;
         }
 
-        Builder medPerioderAnnenforelderHarRett(PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRett) {
+        public Builder medPerioderAnnenforelderHarRett(PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRett) {
             kladd.perioderAnnenforelderHarRett = perioderAnnenforelderHarRett;
             return this;
         }
