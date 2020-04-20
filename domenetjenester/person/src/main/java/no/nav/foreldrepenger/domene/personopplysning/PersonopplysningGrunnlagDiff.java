@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class PersonopplysningGrunnlagDiff {
     private AktørId søkerAktørId;
+    private Optional<AktørId> annenPartAktørId;
     private PersonopplysningGrunnlagEntitet grunnlag1;
     private PersonopplysningGrunnlagEntitet grunnlag2;
     private Set<AktørId> søkersBarnUnion;
@@ -39,6 +40,7 @@ public class PersonopplysningGrunnlagDiff {
         søkersBarnUnion = finnAlleBarn();
         søkersBarnSnitt = finnFellesBarn();
         personerSnitt = fellesAktører();
+        annenPartAktørId = finnAnnenPart();
         søkersBarnDiff = søkersBarnUnion.stream().filter(barn -> !søkersBarnSnitt.contains(barn)).collect(Collectors.toSet());
     }
 
@@ -53,11 +55,15 @@ public class PersonopplysningGrunnlagDiff {
     }
 
     public boolean erRelasjonerEndretForSøkerUtenomNyeBarn() {
-        return erRelasjonerEndretForAktører(Set.of(søkerAktørId), søkersBarnDiff);
+        Set<AktørId> ikkeSjekkMot = new HashSet<>(søkersBarnDiff);
+        annenPartAktørId.ifPresent(ikkeSjekkMot::add);
+        return erRelasjonerEndretForAktører(Set.of(søkerAktørId), ikkeSjekkMot);
     }
 
     public boolean erRelasjonerEndretForEksisterendeBarn() {
-        return erRelasjonerEndretForAktører(søkersBarnSnitt, Collections.emptySet());
+        Set<AktørId> ikkeSjekkMot = new HashSet<>();
+        annenPartAktørId.ifPresent(ikkeSjekkMot::add);
+        return erRelasjonerEndretForAktører(søkersBarnSnitt, ikkeSjekkMot);
     }
 
     private boolean erRelasjonerEndretForAktører(Set<AktørId> fra, Set<AktørId> ikkeTil) {
@@ -88,6 +94,13 @@ public class PersonopplysningGrunnlagDiff {
         RegisterdataDiffsjekker differ = new RegisterdataDiffsjekker(true);
         return differ.erForskjellPå(hentAdresserFør(grunnlag1, Set.of(søkerAktørId), stp),
             hentAdresserFør(grunnlag2, Set.of(søkerAktørId), stp));
+    }
+
+    public boolean erSøkersAdresseLandEndretFør(LocalDate stp) {
+        RegisterdataDiffsjekker differ = new RegisterdataDiffsjekker(true);
+        return differ.erForskjellPå(
+            hentAdresserFør(grunnlag1, Set.of(søkerAktørId), stp).stream().map(PersonAdresseEntitet::getLand).collect(Collectors.toSet()),
+            hentAdresserFør(grunnlag2, Set.of(søkerAktørId), stp).stream().map(PersonAdresseEntitet::getLand).collect(Collectors.toSet()));
     }
 
     public boolean erAdresserEndretFør(LocalDate stp) {
@@ -178,6 +191,12 @@ public class PersonopplysningGrunnlagDiff {
             .map(PersonopplysningEntitet::getAktørId)
             .filter(første::contains)
             .collect(Collectors.toSet());
+    }
+
+    private Optional<AktørId> finnAnnenPart() {
+        Optional<AktørId> første = oppgittAnnenPart(grunnlag1).map(OppgittAnnenPartEntitet::getAktørId);
+        Optional<AktørId> andre = oppgittAnnenPart(grunnlag2).map(OppgittAnnenPartEntitet::getAktørId);
+        return første.map(f -> andre.map(f::equals).orElse(Boolean.FALSE) ? f : null);
     }
 
     private Set<AktørId> finnBarnaFor(PersonopplysningGrunnlagEntitet grunnlag, AktørId forelder) {
