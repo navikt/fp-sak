@@ -6,12 +6,13 @@ import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class PersonopplysningGrunnlagDiffTest {
@@ -60,6 +61,111 @@ public class PersonopplysningGrunnlagDiffTest {
         Assertions.assertThat(differ.erRelasjonerEndret()).isTrue();
         Assertions.assertThat(differ.erRelasjonerEndretSøkerAntallBarn()).isTrue();
         Assertions.assertThat(differ.erRelasjonerEndretForSøkerUtenomNyeBarn()).isFalse();
+        Assertions.assertThat(differ.erRelasjonerEndretForEksisterendeBarn()).isFalse();
+    }
+
+    @Test
+    public void skal_identifisere_som_kun_ny_fødsel_dersom_diff_kun_omfatter_etterregistrering_fødsel_annenpart() {
+        // Arrange
+        final PersonopplysningGrunnlagBuilder orginalt = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
+        final PersonInformasjonBuilder builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        builder1.leggTil(builder1.getPersonopplysningBuilder(SØKER_AKTØR_ID));
+        builder1.leggTil(builder1.getPersonopplysningBuilder(EKTEFELLE_AKTØR_ID));
+        builder1.leggTil(builder1.getPersonopplysningBuilder(BARN_AKTØR_ID).medFødselsdato(LocalDate.now().minusDays(1)));
+        builder1.leggTil(builder1.getRelasjonBuilder(SØKER_AKTØR_ID, BARN_AKTØR_ID, RelasjonsRolleType.BARN));
+        builder1.leggTil(builder1.getRelasjonBuilder(BARN_AKTØR_ID, SØKER_AKTØR_ID, RelasjonsRolleType.MORA));
+        final OppgittAnnenPartEntitet annenPart = new OppgittAnnenPartBuilder().medAktørId(EKTEFELLE_AKTØR_ID).build();
+        orginalt.medRegistrertVersjon(builder1).medOppgittAnnenPart(annenPart);
+
+        final PersonopplysningGrunnlagBuilder oppdatert = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
+        final PersonInformasjonBuilder builder2 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        builder2.leggTil(builder2.getPersonopplysningBuilder(SØKER_AKTØR_ID));
+        builder2.leggTil(builder2.getPersonopplysningBuilder(EKTEFELLE_AKTØR_ID));
+        builder2.leggTil(builder2.getPersonopplysningBuilder(BARN_AKTØR_ID).medFødselsdato(LocalDate.now().minusDays(1)));
+        builder2.leggTil(builder2.getRelasjonBuilder(SØKER_AKTØR_ID, BARN_AKTØR_ID, RelasjonsRolleType.BARN));
+        builder2.leggTil(builder2.getRelasjonBuilder(BARN_AKTØR_ID, SØKER_AKTØR_ID, RelasjonsRolleType.MORA));
+        builder2.leggTil(builder2.getRelasjonBuilder(EKTEFELLE_AKTØR_ID, BARN_AKTØR_ID, RelasjonsRolleType.BARN));
+        builder2.leggTil(builder2.getRelasjonBuilder(BARN_AKTØR_ID, EKTEFELLE_AKTØR_ID, RelasjonsRolleType.FARA));
+        oppdatert.medRegistrertVersjon(builder2).medOppgittAnnenPart(annenPart);
+
+        // Act/Assert
+        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(SØKER_AKTØR_ID, orginalt.build(), oppdatert.build());
+        Assertions.assertThat(differ.erRelasjonerEndret()).isTrue();
+        Assertions.assertThat(differ.erRelasjonerEndretSøkerAntallBarn()).isFalse();
+        Assertions.assertThat(differ.erRelasjonerEndretForSøkerUtenomNyeBarn()).isFalse();
+        Assertions.assertThat(differ.erRelasjonerEndretForEksisterendeBarn()).isFalse();
+    }
+
+    @Test
+    public void skal_identifisere_som_ingen_endring_ved_ekteskap_annen_part() {
+        // Arrange
+        final PersonopplysningGrunnlagBuilder orginalt = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
+        final PersonInformasjonBuilder builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        builder1.leggTil(builder1.getPersonopplysningBuilder(SØKER_AKTØR_ID));
+        builder1.leggTil(builder1.getPersonopplysningBuilder(EKTEFELLE_AKTØR_ID));
+        builder1.leggTil(builder1.getPersonopplysningBuilder(BARN_AKTØR_ID).medFødselsdato(LocalDate.now().minusDays(1)));
+        builder1.leggTil(builder1.getRelasjonBuilder(SØKER_AKTØR_ID, BARN_AKTØR_ID, RelasjonsRolleType.BARN));
+        builder1.leggTil(builder1.getRelasjonBuilder(BARN_AKTØR_ID, SØKER_AKTØR_ID, RelasjonsRolleType.MORA));
+        builder1.leggTil(builder1.getRelasjonBuilder(EKTEFELLE_AKTØR_ID, BARN_AKTØR_ID, RelasjonsRolleType.BARN));
+        builder1.leggTil(builder1.getRelasjonBuilder(BARN_AKTØR_ID, EKTEFELLE_AKTØR_ID, RelasjonsRolleType.FARA));
+        final OppgittAnnenPartEntitet annenPart = new OppgittAnnenPartBuilder().medAktørId(EKTEFELLE_AKTØR_ID).build();
+        orginalt.medRegistrertVersjon(builder1).medOppgittAnnenPart(annenPart);
+
+        final PersonopplysningGrunnlagBuilder oppdatert = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
+        final PersonInformasjonBuilder builder2 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        builder2.leggTil(builder2.getPersonopplysningBuilder(SØKER_AKTØR_ID));
+        builder2.leggTil(builder2.getPersonopplysningBuilder(EKTEFELLE_AKTØR_ID));
+        builder2.leggTil(builder2.getPersonopplysningBuilder(BARN_AKTØR_ID).medFødselsdato(LocalDate.now().minusDays(1)));
+        builder2.leggTil(builder2.getRelasjonBuilder(SØKER_AKTØR_ID, BARN_AKTØR_ID, RelasjonsRolleType.BARN));
+        builder2.leggTil(builder2.getRelasjonBuilder(BARN_AKTØR_ID, SØKER_AKTØR_ID, RelasjonsRolleType.MORA));
+        builder2.leggTil(builder2.getRelasjonBuilder(EKTEFELLE_AKTØR_ID, BARN_AKTØR_ID, RelasjonsRolleType.BARN));
+        builder2.leggTil(builder2.getRelasjonBuilder(BARN_AKTØR_ID, EKTEFELLE_AKTØR_ID, RelasjonsRolleType.FARA));
+        builder2.leggTil(builder2.getRelasjonBuilder(SØKER_AKTØR_ID, EKTEFELLE_AKTØR_ID, RelasjonsRolleType.EKTE));
+        builder2.leggTil(builder2.getRelasjonBuilder(EKTEFELLE_AKTØR_ID, SØKER_AKTØR_ID, RelasjonsRolleType.EKTE));
+        oppdatert.medRegistrertVersjon(builder2).medOppgittAnnenPart(annenPart);
+
+        // Act/Assert
+        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(SØKER_AKTØR_ID, orginalt.build(), oppdatert.build());
+        Assertions.assertThat(differ.erRelasjonerEndret()).isTrue();
+        Assertions.assertThat(differ.erRelasjonerEndretSøkerAntallBarn()).isFalse();
+        Assertions.assertThat(differ.erRelasjonerEndretForSøkerUtenomNyeBarn()).isFalse();
+        Assertions.assertThat(differ.erRelasjonerEndretForEksisterendeBarn()).isFalse();
+    }
+
+    @Test
+    public void skal_identifisere_som_endring_ved_ekteskap_tredje_part() {
+        // Arrange
+        final PersonopplysningGrunnlagBuilder orginalt = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
+        final PersonInformasjonBuilder builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        builder1.leggTil(builder1.getPersonopplysningBuilder(SØKER_AKTØR_ID));
+        builder1.leggTil(builder1.getPersonopplysningBuilder(EKTEFELLE_AKTØR_ID));
+        builder1.leggTil(builder1.getPersonopplysningBuilder(BARN_AKTØR_ID).medFødselsdato(LocalDate.now().minusDays(1)));
+        builder1.leggTil(builder1.getRelasjonBuilder(SØKER_AKTØR_ID, BARN_AKTØR_ID, RelasjonsRolleType.BARN));
+        builder1.leggTil(builder1.getRelasjonBuilder(BARN_AKTØR_ID, SØKER_AKTØR_ID, RelasjonsRolleType.MORA));
+        builder1.leggTil(builder1.getRelasjonBuilder(EKTEFELLE_AKTØR_ID, BARN_AKTØR_ID, RelasjonsRolleType.BARN));
+        builder1.leggTil(builder1.getRelasjonBuilder(BARN_AKTØR_ID, EKTEFELLE_AKTØR_ID, RelasjonsRolleType.FARA));
+        final OppgittAnnenPartEntitet annenPart = new OppgittAnnenPartBuilder().medAktørId(EKTEFELLE_AKTØR_ID).build();
+        orginalt.medRegistrertVersjon(builder1).medOppgittAnnenPart(annenPart);
+
+        final PersonopplysningGrunnlagBuilder oppdatert = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
+        final PersonInformasjonBuilder builder2 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        builder2.leggTil(builder2.getPersonopplysningBuilder(SØKER_AKTØR_ID));
+        builder2.leggTil(builder2.getPersonopplysningBuilder(EKTEFELLE_AKTØR_ID));
+        builder2.leggTil(builder2.getPersonopplysningBuilder(ANNEN_AKTØR_ID));
+        builder2.leggTil(builder2.getPersonopplysningBuilder(BARN_AKTØR_ID).medFødselsdato(LocalDate.now().minusDays(1)));
+        builder2.leggTil(builder2.getRelasjonBuilder(SØKER_AKTØR_ID, BARN_AKTØR_ID, RelasjonsRolleType.BARN));
+        builder2.leggTil(builder2.getRelasjonBuilder(BARN_AKTØR_ID, SØKER_AKTØR_ID, RelasjonsRolleType.MORA));
+        builder2.leggTil(builder2.getRelasjonBuilder(EKTEFELLE_AKTØR_ID, BARN_AKTØR_ID, RelasjonsRolleType.BARN));
+        builder2.leggTil(builder2.getRelasjonBuilder(BARN_AKTØR_ID, EKTEFELLE_AKTØR_ID, RelasjonsRolleType.FARA));
+        builder2.leggTil(builder2.getRelasjonBuilder(SØKER_AKTØR_ID, ANNEN_AKTØR_ID, RelasjonsRolleType.EKTE));
+        builder2.leggTil(builder2.getRelasjonBuilder(ANNEN_AKTØR_ID, SØKER_AKTØR_ID, RelasjonsRolleType.EKTE));
+        oppdatert.medRegistrertVersjon(builder2).medOppgittAnnenPart(annenPart);
+
+        // Act/Assert
+        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(SØKER_AKTØR_ID, orginalt.build(), oppdatert.build());
+        Assertions.assertThat(differ.erRelasjonerEndret()).isTrue();
+        Assertions.assertThat(differ.erRelasjonerEndretSøkerAntallBarn()).isFalse();
+        Assertions.assertThat(differ.erRelasjonerEndretForSøkerUtenomNyeBarn()).isTrue();
         Assertions.assertThat(differ.erRelasjonerEndretForEksisterendeBarn()).isFalse();
     }
 
