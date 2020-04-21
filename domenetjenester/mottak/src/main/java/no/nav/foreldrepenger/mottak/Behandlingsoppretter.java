@@ -97,7 +97,7 @@ public class Behandlingsoppretter {
     public Behandling opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling forrigeBehandling, boolean kopierGrunnlag) {
         Behandling nyFørstegangsbehandling = opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.of(forrigeBehandling));
         if (kopierGrunnlag) {
-            kopierTidligereGrunnlag(fagsak, forrigeBehandling, nyFørstegangsbehandling);
+            kopierTidligereGrunnlagFraTil(fagsak, forrigeBehandling, nyFørstegangsbehandling);
         }
         opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(nyFørstegangsbehandling);
         kopierVedlegg(forrigeBehandling, nyFørstegangsbehandling);
@@ -203,7 +203,7 @@ public class Behandlingsoppretter {
         return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).map(Behandlingsresultat::isBehandlingsresultatAvslått).orElse(false);
     }
 
-    private void kopierTidligereGrunnlag(Fagsak fagsak, Behandling nyBehandling, Behandling behandlingMedSøknad) {
+    private void kopierTidligereGrunnlagFraTil(Fagsak fagsak, Behandling behandlingMedSøknad, Behandling nyBehandling) {
         SøknadEntitet søknad = søknadRepository.hentSøknad(behandlingMedSøknad);
         if (søknad != null) {
             søknadRepository.lagreOgFlush(nyBehandling, søknad);
@@ -218,7 +218,7 @@ public class Behandlingsoppretter {
         Behandling behandling = harÅpenBehandling ? oppdaterBehandlingViaHenleggelse(sisteYtelsesbehandling.get(), behandlingÅrsakType)
             : opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.of(behandlingMedSøknad));
 
-        kopierTidligereGrunnlag(fagsak, behandlingMedSøknad, behandling);
+        kopierTidligereGrunnlagFraTil(fagsak, behandlingMedSøknad, behandling);
         return behandling;
     }
 
