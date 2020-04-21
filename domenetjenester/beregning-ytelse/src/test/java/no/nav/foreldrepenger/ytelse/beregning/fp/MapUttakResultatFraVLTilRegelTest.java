@@ -259,9 +259,9 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     private ForeldrepengerUttak lagUttakResultatPlan() {
-        ForeldrepengerUttakPeriode førFødselPeriode = lagUttakResultatPeriode(FORELDREPENGER_FØR_FØDSEL, FOM_FØR_FØDSEL, TOM_FØR_FØDSEL, INNVILGET);
-        ForeldrepengerUttakPeriode mødrekvote = lagUttakResultatPeriode(MØDREKVOTE, FOM_MØDREKVOTE, TOM_MØDREKVOTE, INNVILGET);
-        ForeldrepengerUttakPeriode fellesperiode = lagUttakResultatPeriode(FELLESPERIODE, FOM_FELLESPERIODE, TOM_FELLESPERIODE, AVSLÅTT);
+        ForeldrepengerUttakPeriode førFødselPeriode = lagUttakResultatPeriode(FOM_FØR_FØDSEL, TOM_FØR_FØDSEL, INNVILGET);
+        ForeldrepengerUttakPeriode mødrekvote = lagUttakResultatPeriode(FOM_MØDREKVOTE, TOM_MØDREKVOTE, INNVILGET);
+        ForeldrepengerUttakPeriode fellesperiode = lagUttakResultatPeriode(FOM_FELLESPERIODE, TOM_FELLESPERIODE, AVSLÅTT);
 
         List<ForeldrepengerUttakPeriode> perioder = new ArrayList<ForeldrepengerUttakPeriode>();
 
@@ -334,13 +334,9 @@ public class MapUttakResultatFraVLTilRegelTest {
         return new ForeldrepengerUttak(perioder);
     }
 
-    private ForeldrepengerUttakPeriode lagUttakResultatPeriode(UttakPeriodeType periodeType, LocalDate fom, LocalDate tom, PeriodeResultatType periodeResultatType) {
+    private ForeldrepengerUttakPeriode lagUttakResultatPeriode(LocalDate fom, LocalDate tom, PeriodeResultatType periodeResultatType) {
         ForeldrepengerUttakAktivitet uttakAktivitet = new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID,
             Arbeidsgiver.virksomhet(ARBEIDSFORHOLD_ORGNR), ARBEIDSFORHOLD_ID);
-        /*UttakResultatPeriodeSøknadEntitet søknadPeriode = new UttakResultatPeriodeSøknadEntitet.Builder()
-            .medUttakPeriodeType(periodeType)
-            .medMottattDato(LocalDate.now())
-            .build();*/
         List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter = new ArrayList<>();
         ForeldrepengerUttakPeriodeAktivitet periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(uttakAktivitet)
             .medArbeidsprosent(BigDecimal.ZERO)
@@ -352,10 +348,7 @@ public class MapUttakResultatFraVLTilRegelTest {
             .medResultatType(periodeResultatType)
             .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
             .medAktiviteter(aktiviteter)
-            //.medPeriodeSoknad(søknadPeriode)
             .build();
         return periode;
     }
-
-
 }
