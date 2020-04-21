@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -203,7 +204,7 @@ public class SøknadDtoTjeneste {
 
         ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandlingId).ifPresent(of -> {
             soknadAdopsjonDto.setOppgittRettighet(OppgittRettighetDto.mapFra(of.getOppgittRettighet()));
-            soknadAdopsjonDto.setOppgittFordeling(OppgittFordelingDto.mapFra(of.getOppgittFordeling(), hentOppgittStartdatoForPermisjon(ref.getBehandlingId())));
+            soknadAdopsjonDto.setOppgittFordeling(OppgittFordelingDto.mapFra(of.getOppgittFordeling(), hentOppgittStartdatoForPermisjon(ref.getBehandlingId(), null)));
         });
 
         medlemTjeneste.hentMedlemskap(behandlingId).ifPresent(ma -> {
@@ -215,22 +216,29 @@ public class SøknadDtoTjeneste {
         return Optional.of(soknadAdopsjonDto);
     }
 
-    private Optional<LocalDate> hentOppgittStartdatoForPermisjon(Long behandlingId) {
-        return skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getSkjæringstidspunktHvisUtledet();
+    /* TODO: Vurdere en util klasse for slike metoder se: VurderOpphørAvYtelser.fomMandag*/
+    private static LocalDate finnNesteUkedag(LocalDate fom) {
+        DayOfWeek ukedag = DayOfWeek.from(fom);
+        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(1);
+        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
+            return fom.plusDays(2);
+        return fom;
     }
 
     private Optional<LocalDate> hentOppgittStartdatoForPermisjon(Long behandlingId, RelasjonsRolleType rolleType) {
-        if (!RelasjonsRolleType.MORA.equals(rolleType)) {
-            return hentOppgittStartdatoForPermisjon(behandlingId);
-        }
         Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
 
         Optional<LocalDate> oppgittStartdato = getFørsteUttaksdagHvisOppgitt(skjæringstidspunkter)
             .or(() -> skjæringstidspunkter.getSkjæringstidspunktHvisUtledet());
-        Optional<LocalDate> evFødselFørOppgittStartdato = familieHendelseRepository.hentAggregat(behandlingId)
-            .getGjeldendeBekreftetVersjon().flatMap(FamilieHendelseEntitet::getFødselsdato)
-            .filter(fødselsdato -> fødselsdato.isBefore(oppgittStartdato.orElse(LocalDate.MAX)));
-        return evFødselFørOppgittStartdato.or(() -> oppgittStartdato);
+        if (RelasjonsRolleType.MORA.equals(rolleType)) {
+            Optional<LocalDate> evFødselFørOppgittStartdato = familieHendelseRepository.hentAggregat(behandlingId)
+                .getGjeldendeBekreftetVersjon().flatMap(FamilieHendelseEntitet::getFødselsdato).map(fødselsdato -> finnNesteUkedag(fødselsdato))
+                .filter(fødselsdatoUkedag -> fødselsdatoUkedag.isBefore(oppgittStartdato.orElse(LocalDate.MAX)));
+            return evFødselFørOppgittStartdato.or(() -> oppgittStartdato);
+        } else {
+            return oppgittStartdato;
+        }
     }
 
     private Optional<LocalDate> getFørsteUttaksdagHvisOppgitt(Skjæringstidspunkt skjæringstidspunkter) {
