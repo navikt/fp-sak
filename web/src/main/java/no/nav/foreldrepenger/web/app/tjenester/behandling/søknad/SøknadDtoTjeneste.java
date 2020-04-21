@@ -233,8 +233,8 @@ public class SøknadDtoTjeneste {
             .or(() -> skjæringstidspunkter.getSkjæringstidspunktHvisUtledet());
         if (RelasjonsRolleType.MORA.equals(rolleType)) {
             Optional<LocalDate> evFødselFørOppgittStartdato = familieHendelseRepository.hentAggregat(behandlingId)
-                .getGjeldendeBekreftetVersjon().flatMap(FamilieHendelseEntitet::getFødselsdato)
-                .filter(fødselsdato -> finnNesteUkedag(fødselsdato).isBefore(oppgittStartdato.orElse(LocalDate.MAX)));
+                .getGjeldendeBekreftetVersjon().flatMap(FamilieHendelseEntitet::getFødselsdato).map(fødselsdato -> finnNesteUkedag(fødselsdato))
+                .filter(fødselsdatoUkedag -> fødselsdatoUkedag.isBefore(oppgittStartdato.orElse(LocalDate.MAX)));
             return evFødselFørOppgittStartdato.or(() -> oppgittStartdato);
         } else {
             return oppgittStartdato;
