@@ -96,11 +96,12 @@ public class Behandlingsoppretter {
 
     public Behandling opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling forrigeBehandling, boolean kopierGrunnlag) {
         Behandling nyFørstegangsbehandling = opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.ofNullable(forrigeBehandling));
-        if (kopierGrunnlag) {
+        if (forrigeBehandling != null && kopierGrunnlag) {
             kopierTidligereGrunnlagFraTil(fagsak, forrigeBehandling, nyFørstegangsbehandling);
         }
         opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(nyFørstegangsbehandling);
-        kopierVedlegg(forrigeBehandling, nyFørstegangsbehandling);
+        if (forrigeBehandling != null)
+            kopierVedlegg(forrigeBehandling, nyFørstegangsbehandling);
         return nyFørstegangsbehandling;
     }
 
