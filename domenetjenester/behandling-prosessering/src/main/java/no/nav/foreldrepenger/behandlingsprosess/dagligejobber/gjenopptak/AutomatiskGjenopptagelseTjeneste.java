@@ -55,20 +55,20 @@ public class AutomatiskGjenopptagelseTjeneste {
 
         for (Behandling behandling : behandlingListe) {
             String nyCallId = callId + behandling.getId();
-            opprettProsessTask(behandling, nyCallId, baseline);
+            opprettProsessTask(behandling, nyCallId, baseline, 1439);
         }
 
         //TODO(OJR) må endres i forbindelsen med at løsningen ser på task_grupper på en annet måte nå, hvis en prosess feiler i en gruppe stopper alt opp..
         return "-";
     }
 
-    private void opprettProsessTask(Behandling behandling, String callId, LocalTime baseline) {
+    private void opprettProsessTask(Behandling behandling, String callId, LocalTime baseline, int spread) {
         log.info("oppretter task med ny callId: {} ", callId);
         ProsessTaskData prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
         prosessTaskData.setPrioritet(100);
-        prosessTaskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), baseline.plusSeconds(LocalDateTime.now().getNano() % 719)));
+        prosessTaskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), baseline.plusSeconds(LocalDateTime.now().getNano() % spread)));
 
         // unik per task da det gjelder  ulike behandlinger, gjenbruker derfor ikke
         prosessTaskData.setCallId(callId);
@@ -93,7 +93,7 @@ public class AutomatiskGjenopptagelseTjeneste {
             Behandling behandling = oppgave.getBehandling();
             if (!behandling.erSaksbehandlingAvsluttet() && !behandling.isBehandlingPåVent() && behandling.erYtelseBehandling()) {
                 String nyCallId = callId + behandling.getId();
-                opprettProsessTask(behandling, nyCallId, baseline);
+                opprettProsessTask(behandling, nyCallId, baseline, 1439);
             }
         }
 
@@ -109,7 +109,7 @@ public class AutomatiskGjenopptagelseTjeneste {
 
         for (Behandling behandling : sovende) {
             String nyCallId = callId + behandling.getId();
-            opprettProsessTask(behandling, nyCallId, baseline);
+            opprettProsessTask(behandling, nyCallId, baseline, 101);
         }
 
         //TODO(OJR) må endres i forbindelsen med at løsningen ser på task_grupper på en annet måte nå, hvis en prosess feiler i en gruppe stopper alt opp..

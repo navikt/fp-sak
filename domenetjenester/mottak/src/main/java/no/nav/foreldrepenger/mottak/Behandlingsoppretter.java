@@ -95,7 +95,7 @@ public class Behandlingsoppretter {
     }
 
     public Behandling opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling forrigeBehandling, boolean kopierGrunnlag) {
-        Behandling nyFørstegangsbehandling = opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.of(forrigeBehandling));
+        Behandling nyFørstegangsbehandling = opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.ofNullable(forrigeBehandling));
         if (kopierGrunnlag) {
             kopierTidligereGrunnlag(fagsak, forrigeBehandling, nyFørstegangsbehandling);
         }
