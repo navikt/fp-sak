@@ -36,6 +36,10 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
 
     private static final String AVSTEMMING = "BVL001";
 
+    // Ved tidsplanlegging: Husk at fødselshendelser prosesseres 06:30-06:59 (de fleste gir automatisk vedtak)  - inntil Leesah/OS
+    // Trege kall til skatt i gjenoppta, fødselshendeler og oppdatering/dagsgamle + omfattende query på infobrev
+    // Gjenoppta-tasks og oppdatering spres utover 24 min, infobrev 5 min,
+
     // Andre parametere må stå før antallDager= ....
     private static final List<BatchConfig> BATCH_OPPSETT_ANTALL_DAGER = Arrays.asList(
         new BatchConfig(6, 45, AVSTEMMING, "fagomrade=SVP, antallDager="),
@@ -43,19 +47,19 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
         new BatchConfig(6, 47, AVSTEMMING, "fagomrade=REFUTG, antallDager="),
         new BatchConfig(6, 48, AVSTEMMING, "fagomrade=FP, antallDager="),
         new BatchConfig(6, 49, AVSTEMMING, "fagomrade=FPREF, antallDager="),
-        new BatchConfig(7, 6, "BVL006", ANT_DAGER), // Fagsakavslutning
-        new BatchConfig(7, 8, "BVL008", ANT_DAGER), // Infobrev far
-        new BatchConfig(7, 15, "BVL009", ANT_DAGER) // Infobrev opphold far
+        new BatchConfig(7, 1, "BVL006", ANT_DAGER), // Fagsakavslutning
+        new BatchConfig(7, 3, "BVL008", ANT_DAGER), // Infobrev far - 7min spread
+        new BatchConfig(7, 10, "BVL009", ANT_DAGER) // Infobrev opphold far - 3 min spread
     );
 
     private static final List<BatchConfig> BATCH_OPPSETT_VIRKEDAGER = Arrays.asList(
-        new BatchConfig(6, 17, "BVL007", null), // Oppdatering dagsgamle oppgaver
-        new BatchConfig(6, 50, BatchRunnerTask.BATCH_NAME_RETRY_TASKS, null),
+        new BatchConfig(1, 58, "BVL010", null),  //Oppdatering DVH. Bør kjøre før kl 03-04.
+        new BatchConfig(6, 5, "BVL004", null), // Gjenoppta - 24 min spread
         new BatchConfig(6, 51, "BVL005", null), // Kodeverk
-        new BatchConfig(6, 52, "BVL004", null), // Gjenoppta
-        new BatchConfig(7, 5, "BVL002", null), // Etterkontroll
-        new BatchConfig(7, 7, "BVL003", null),  // Forlengelsesbrev må kjøre noe etter Gjenoppta
-        new BatchConfig(1, 58, "BVL010", null)  //Oppdatering DVH. Bør kjøre før kl 03-04.
+        new BatchConfig(7, 0, "BVL002", null), // Etterkontroll
+        new BatchConfig(7, 2, "BVL003", null),  // Forlengelsesbrev må kjøre noe etter Gjenoppta
+        new BatchConfig(7, 15, "BVL007", null), // Oppdatering dagsgamle oppgaver - 24 min spread
+        new BatchConfig(7, 45, BatchRunnerTask.BATCH_NAME_RETRY_TASKS, null) // Siste steg
     );
 
     private final Set<MonthDay> fasteStengteDager = Set.of(
