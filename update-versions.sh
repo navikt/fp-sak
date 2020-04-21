@@ -2,7 +2,7 @@
 
 echo ABAKUS_IMAGE=docker.pkg.github.com/navikt/fp-abakus/fpabakus > .env
 echo VTP_IMAGE=docker.pkg.github.com/navikt/vtp/vtp >> .env
-echo ORACLE_IMAGE=docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle >> .env
+echo ORACLE_IMAGE=docker.pkg.github.com/navikt/fpsak-autotest/oracle-flattened >> .env
 echo POSTGRES_IMAGE=postgres:12 >> .env
 
 
