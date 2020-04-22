@@ -34,7 +34,9 @@ jobs:
         run: |
           echo  $GITHUB_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
           echo "Henter og starter Oracle image"
+          rm -f nohup.out
           docker-compose -f oracle/docker-compose.yml up --quiet-pull --detach oracle
+          sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
 
       - name: Set build version
         run: |
