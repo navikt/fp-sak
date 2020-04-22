@@ -453,36 +453,6 @@ public class OppgaveTjenesteTest {
         assertThat(request.getSaksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
     }
 
-    @Test
-    public void oppretterOppgaveForTilbakekreving() {
-        // Arrange
-        String gsakOppgaveId = "GSAK1135";
-        String beskrivelse = "Opprett tilbakekreving.";
-        WSOpprettOppgaveResponse mockResponse = new WSOpprettOppgaveResponse();
-        mockResponse.setOppgaveId(gsakOppgaveId);
-
-        ArgumentCaptor<OpprettOppgaveRequest> captor = ArgumentCaptor.forClass(OpprettOppgaveRequest.class);
-        when(oppgavebehandlingConsumer.opprettOppgave(captor.capture())).thenReturn(mockResponse);
-
-        // Act
-        String oppgaveId = tjeneste.opprettOppgaveFeilutbetaling(behandling.getId(), beskrivelse);
-
-        // Assert
-        assertThat(oppgaveId).isEqualTo(gsakOppgaveId);
-
-        OpprettOppgaveRequest request = captor.getValue();
-        assertThat(request.getBeskrivelse()).isEqualTo(beskrivelse);
-        assertThat(request.getFagomradeKode()).isEqualTo(FagomradeKode.FOR);
-        assertThat(request.getOppgavetypeKode()).isEqualTo(OppgaveÅrsak.VURDER_KONS_FOR_YTELSE.getKode());
-        assertThat(request.getUnderkategoriKode()).isEqualTo("FEILUTB_FOR");
-        assertThat(request.getBrukerTypeKode()).isEqualTo(BrukerType.PERSON);
-        assertThat(request.isLest()).isFalse();
-        assertThat(request.getFnr()).isEqualTo(FNR);
-        assertThat(request.getAnsvarligEnhetId()).isEqualTo(behandling.getBehandlendeEnhet());
-        assertThat(request.getOpprettetAvEnhetId()).isEqualTo(Integer.parseInt(behandling.getBehandlendeEnhet()));
-        assertThat(request.getPrioritetKode()).isEqualTo(PrioritetKode.NORM_FOR);
-    }
-
     private LocalDate helgeJustert(LocalDate dato) {
         if (dato.getDayOfWeek().getValue() > DayOfWeek.FRIDAY.getValue()) {
             return dato.plusDays(1L + DayOfWeek.SUNDAY.getValue() - dato.getDayOfWeek().getValue());
