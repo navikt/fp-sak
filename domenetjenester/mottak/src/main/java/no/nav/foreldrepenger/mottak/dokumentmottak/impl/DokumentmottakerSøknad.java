@@ -67,10 +67,7 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
     public void håndterKøetBehandling(MottattDokument mottattDokument, Behandling køetBehandling, BehandlingÅrsakType behandlingÅrsakType) {
         if (dokumentmottakerFelles.harMottattSøknadTidligere(køetBehandling.getId())) { //#S13
             // Oppdatere behandling gjennom henleggelse
-            Behandling nyKøetBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(køetBehandling, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
-            behandlingsoppretter.settSomKøet(nyKøetBehandling);
-            Optional<LocalDate> søknadsdato = revurderingRepository.finnSøknadsdatoFraHenlagtBehandling(nyKøetBehandling);
-            kompletthetskontroller.persisterKøetDokumentOgVurderKompletthet(nyKøetBehandling, mottattDokument, søknadsdato);
+            dokumentmottakerFelles.oppdatereViaHenleggelseEnkø(køetBehandling, mottattDokument, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
         } else { //#S10, #S11, #S12 og #S14
             // Oppdater køet behandling med søknad
             Optional<LocalDate> søknadsdato = Optional.empty();

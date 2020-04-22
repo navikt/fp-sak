@@ -150,7 +150,7 @@ public class ForretningshendelseMottak {
         taskData.setCallIdFraEksisterende();
         if (LocalTime.now().isBefore(OPPDRAG_VÅKNER)) {
             // Porsjoner utover neste 7 min
-            taskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), OPPDRAG_VÅKNER.plusSeconds(LocalDateTime.now().getNano() % 719)));
+            taskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), OPPDRAG_VÅKNER.plusSeconds(LocalDateTime.now().getNano() % 1739)));
         }
         prosessTaskRepository.lagre(taskData);
     }

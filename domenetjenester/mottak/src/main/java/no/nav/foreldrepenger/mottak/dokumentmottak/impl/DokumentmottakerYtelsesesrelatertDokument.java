@@ -99,7 +99,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
         if (eksisterendeKøetBehandling.isPresent()) {
             Behandling køetBehandling = eksisterendeKøetBehandling.get();
             dokumentmottakerFelles.opprettHistorikk(køetBehandling, mottattDokument.getJournalpostId());
-            dokumentmottakerFelles.opprettKøetHistorikk(køetBehandling, eksisterendeKøetBehandling.isPresent());
+            dokumentmottakerFelles.opprettKøetHistorikk(køetBehandling, true);
             håndterKøetBehandling(mottattDokument, køetBehandling, behandlingÅrsakType);
         } else if (!skalOppretteKøetBehandling(fagsak)) {
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument); // Skal ikke være mulig for #Sx og #Ix som alltid oppretter køet, men #E12 vil treffe denne

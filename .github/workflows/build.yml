@@ -32,7 +32,7 @@ jobs:
 
       - name: Hent og start Oracle image
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
         id: oracle
         shell: bash
         run: |
@@ -58,6 +58,12 @@ jobs:
           mvn jacoco:prepare-agent install --quiet -e --batch-mode --settings ./.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -Djacoco.destFile=$(pwd)/target/jacoco.exec -Pgithub
           echo "Build artifacts"
           echo "::set-env name=TAG::$(mvn help:evaluate --batch-mode --settings ./.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)"
+
+      - name: Stopper og fjerner oracle image/container
+        if: success()
+        run: |
+          docker stop oraclefpsak
+          docker system prune -f
 
       - name: Bygg og push docker-image for distribuering
         if: success()

@@ -62,7 +62,7 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
             if (dokumentmottakerFelles.harFagsakMottattSøknadTidligere(fagsak.getId())) {
                 dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument);
             } else {
-                dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+                dokumentmottakerFelles.opprettInitiellFørstegangsbehandling(fagsak, mottattDokument,getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
             }
         } else { //#I7
             dokumentmottakerFelles.opprettRevurdering(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
@@ -82,14 +82,15 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
 
     @Override
     protected void opprettKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling sisteAvsluttetBehandling) {
-        if (behandlingsoppretter.erBehandlingOgFørstegangsbehandlingHenlagt(fagsak) || sisteAvsluttetBehandling == null) { //#E9
+        if (sisteAvsluttetBehandling != null && dokumentmottakerFelles.skalOppretteNyFørstegangsbehandling(sisteAvsluttetBehandling.getFagsak())) { //#I3 #E6
+            dokumentmottakerFelles.opprettKøetFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+        } else if (behandlingsoppretter.erBehandlingOgFørstegangsbehandlingHenlagt(fagsak) || sisteAvsluttetBehandling == null || erAvslag(sisteAvsluttetBehandling)) { //#E9
             if (dokumentmottakerFelles.harFagsakMottattSøknadTidligere(fagsak.getId())) {
                 dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument);
             } else {
-                dokumentmottakerFelles.opprettKøetFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+                // Informasjonssak, potensielt autohenlagt Inntektsmelding
+                dokumentmottakerFelles.opprettKøetInitiellFørstegangsbehandling(fagsak, mottattDokument,getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
             }
-        } else if (dokumentmottakerFelles.skalOppretteNyFørstegangsbehandling(sisteAvsluttetBehandling.getFagsak())) { //#I3 #E6
-            dokumentmottakerFelles.opprettKøetFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
         } else { //#E10
             dokumentmottakerFelles.opprettKøetRevurdering(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
         }

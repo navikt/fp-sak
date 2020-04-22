@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.any;
 
 import org.junit.Before;
@@ -75,7 +76,7 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
         dokumentmottakerInntektsmelding.mottaDokument(inntektsmelding, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
-        Mockito.verify(behandlingsoppretterSpied, Mockito.never()).opprettNyFørstegangsbehandling(any(), any(), any());
+        Mockito.verify(behandlingsoppretterSpied, Mockito.never()).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(any(), any(), any(), anyBoolean());
         Mockito.verify(dokumentmottakerFellesSpied, Mockito.times(1)).opprettTaskForÅVurdereDokument(any(), any(), any());
     }
 
@@ -96,7 +97,7 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
         dokumentmottakerInntektsmelding.mottaDokument(inntektsmelding, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
-        Mockito.verify(behandlingsoppretterSpied, Mockito.never()).opprettNyFørstegangsbehandling(any(), any(), any());
+        Mockito.verify(behandlingsoppretterSpied, Mockito.never()).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(any(), any(), any(), anyBoolean());
         Mockito.verify(dokumentmottakerFellesSpied, Mockito.times(1)).opprettTaskForÅVurdereDokument(any(), any(), any());
     }
 
@@ -118,7 +119,7 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
         dokumentmottakerInntektsmelding.mottaDokument(inntektsmelding, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
-        Mockito.verify(behandlingsoppretterSpied, Mockito.never()).opprettNyFørstegangsbehandling(any(), any(), any());
+        Mockito.verify(behandlingsoppretterSpied, Mockito.never()).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(any(), any(), any(), anyBoolean());
         Mockito.verify(dokumentmottakerFellesSpied, Mockito.times(1)).opprettTaskForÅVurdereDokument(any(), any(), any());
     }
 

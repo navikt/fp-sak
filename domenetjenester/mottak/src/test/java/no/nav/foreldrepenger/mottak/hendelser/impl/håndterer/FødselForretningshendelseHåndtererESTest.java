@@ -92,8 +92,7 @@ public class FødselForretningshendelseHåndtererESTest {
             behandlingskontrollTjeneste,
             null,
             mottatteDokumentTjeneste,
-            behandlendeEnhetTjeneste,
-            historikkinnslagTjeneste);
+            behandlendeEnhetTjeneste);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null);
         håndtererFelles = new ForretningshendelseHåndtererFelles(historikkinnslagTjeneste, kompletthetskontroller,
             behandlingProsesseringTjeneste, behandlingsoppretter, køKontroller);
