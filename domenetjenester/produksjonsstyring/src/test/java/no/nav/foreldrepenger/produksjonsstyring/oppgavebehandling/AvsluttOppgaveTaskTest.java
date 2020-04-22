@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -53,7 +54,8 @@ public class AvsluttOppgaveTaskTest {
 
     @Mock
     private TpsTjeneste tpsTjeneste;
-
+    @Mock
+    private OppgaveRestKlient oppgaveRestKlient;
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
 
@@ -63,7 +65,7 @@ public class AvsluttOppgaveTaskTest {
         oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
         mockService = Mockito.mock(BehandleoppgaveConsumer.class);
         oppgaveConsumer = Mockito.mock(OppgaveConsumer.class);
-        var oppgaveRestKlient = Mockito.mock(OppgaveRestKlient.class);
+        oppgaveRestKlient = Mockito.mock(OppgaveRestKlient.class);
         oppgaveTjeneste = new OppgaveTjeneste(repositoryProvider, oppgaveBehandlingKoblingRepository, mockService,
             oppgaveConsumer, oppgaveRestKlient, prosessTaskRepository, tpsTjeneste);
     }
@@ -90,6 +92,7 @@ public class AvsluttOppgaveTaskTest {
         WSFerdigstillOppgaveResponse mockResponse = new WSFerdigstillOppgaveResponse();
         ArgumentCaptor<FerdigstillOppgaveRequestMal> captor = ArgumentCaptor.forClass(FerdigstillOppgaveRequestMal.class);
         when(mockService.ferdigstillOppgave(captor.capture())).thenReturn(mockResponse);
+        Mockito.doThrow(new IllegalStateException("Nei takk")).when(oppgaveRestKlient).ferdigstillOppgave(any());
 
         // Act
         task.doTask(taskData);
