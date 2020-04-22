@@ -129,16 +129,6 @@ public class OppgaveTjeneste {
         opprettTaskAvsluttOppgave(behandling);
     }
 
-    public String opprettOppgaveFeilutbetaling(Long behandlingId, String beskrivelse) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Fagsak fagsak = behandling.getFagsak();
-        Personinfo personSomBehandles = hentPersonInfo(behandling.getAktørId());
-        OpprettOppgaveRequest request = createRequest(fagsak, personSomBehandles, OppgaveÅrsak.VURDER_KONS_FOR_YTELSE, behandling.getBehandlendeEnhet(),
-            beskrivelse, hentPrioritetKode(false), DEFAULT_OPPGAVEFRIST_DAGER, FEILUTBETALING_UNDERKATEGORI);
-        WSOpprettOppgaveResponse response = service.opprettOppgave(request);
-        return response.getOppgaveId();
-    }
-
     public String opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(Long fagsakId, OppgaveÅrsak oppgaveÅrsak, String enhetsId, String beskrivelse, boolean høyPrioritet) {
         Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
 
