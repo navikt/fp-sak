@@ -5,4 +5,4 @@ services:
     shm_size: 2gb
     ports:
       - 1521:1521
-    container_name: oraclefpsak
+    container_name: oracle
