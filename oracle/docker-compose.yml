@@ -6,5 +6,3 @@ services:
     ports:
       - 1521:1521
     container_name: oraclefpsak
-    volumes:
-      - ./init.d/:/docker-entrypoint-initdb.d/
