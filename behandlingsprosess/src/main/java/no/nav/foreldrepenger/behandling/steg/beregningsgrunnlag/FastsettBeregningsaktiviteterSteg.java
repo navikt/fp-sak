@@ -45,7 +45,6 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
     public FastsettBeregningsaktiviteterSteg(BehandlingRepository behandlingRepository,
                                              InngangsvilkårTjeneste inngangsvilkårTjeneste,
                                              BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                                             BeregningInfotrygdsakTjeneste beregningInfotrygdsakTjeneste,
                                              BeregningsgrunnlagInputProvider inputTjenesteProvider) {
         this.behandlingRepository = behandlingRepository;
         this.inngangsvilkårTjeneste = inngangsvilkårTjeneste;
