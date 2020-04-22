@@ -131,6 +131,30 @@ public class ForvaltningTekniskRestTjeneste {
     }
 
     @POST
+    @Path("/sett-oppgave-feilreg")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Ferdigstill Gosys-oppgave",
+        tags = "FORVALTNING-teknisk",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Oppgave satt til ferdig."),
+            @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+        })
+    @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response feilregistrerOppgave(@BeanParam @Valid ForvaltningBehandlingIdDto behandlingIdDto,
+                                       @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto) {
+        try {
+            oppgaveTjeneste.feilregistrerOppgaveForForvaltning(behandlingIdDto.getBehandlingId(), oppgaveIdDto.getProsessTaskId().toString());
+        } catch (Exception e) {
+            logger.info("Feil fra Gosys ved ferdigstillelse", e);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        return Response.ok().build();
+    }
+
+    @POST
     @Path("/sett-aksjonspunkt-avbrutt")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)

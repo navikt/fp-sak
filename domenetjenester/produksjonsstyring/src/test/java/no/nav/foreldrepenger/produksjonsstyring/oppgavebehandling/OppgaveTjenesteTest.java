@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -33,6 +34,7 @@ import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
+import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.rest.OppgaveRestKlient;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTaskProperties;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveGodkjennVedtakTask;
 import no.nav.tjeneste.virksomhet.behandleoppgave.v1.meldinger.WSOpprettOppgaveResponse;
@@ -81,10 +83,10 @@ public class OppgaveTjenesteTest {
         tpsTjeneste = mock(TpsTjeneste.class);
         oppgaveConsumer = mock(OppgaveConsumer.class);
         prosessTaskRepository = mock(ProsessTaskRepository.class);
-
+        var oppgaveRestKlient = Mockito.mock(OppgaveRestKlient.class);
         oppgaveBehandlingKoblingRepository = spy(new OppgaveBehandlingKoblingRepository(entityManager));
         tjeneste = new OppgaveTjeneste(repositoryProvider, oppgaveBehandlingKoblingRepository, oppgavebehandlingConsumer,
-            oppgaveConsumer, prosessTaskRepository, tpsTjeneste);
+            oppgaveConsumer, oppgaveRestKlient, prosessTaskRepository, tpsTjeneste);
         lagBehandling();
 
         // Sett opp default mock-oppførsel
