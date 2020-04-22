@@ -6,3 +6,5 @@ services:
     ports:
       - 1521:1521
     container_name: oracle
+    volumes:
+      - ./init.d/:/docker-entrypoint-initdb.d/
