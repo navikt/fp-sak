@@ -30,8 +30,11 @@ import org.mockito.junit.MockitoRule;
 
 import no.nav.abakus.iaygrunnlag.Periode;
 import no.nav.folketrygdloven.beregningsgrunnlag.Grunnbeløp;
+import no.nav.folketrygdloven.kalkulator.BeregningsperiodeTjeneste;
 import no.nav.folketrygdloven.kalkulator.FastsettBeregningAktiviteter;
 import no.nav.folketrygdloven.kalkulator.FastsettSkjæringstidspunktOgStatuser;
+import no.nav.folketrygdloven.kalkulator.adapter.regelmodelltilvl.MapBGSkjæringstidspunktOgStatuserFraRegelTilVL;
+import no.nav.folketrygdloven.kalkulator.adapter.vltilregelmodell.MapBeregningAktiviteterFraVLTilRegel;
 import no.nav.folketrygdloven.kalkulator.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -73,7 +76,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-
+import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 
 public class FastsettBeregningAktiviteterOgStatuserTest {
@@ -107,6 +110,10 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository = repositoryProvider.getBeregningsgrunnlagRepository();
     private GrunnbeløpTjeneste grunnbeløpTjeneste;
     private BeregningIAYTestUtil iayTestUtil;
+
+    private FastsettBeregningAktiviteter fastsettBeregningAktiviteter = new FastsettBeregningAktiviteter(new UnitTestLookupInstanceImpl<>(new MapBeregningAktiviteterFraVLTilRegel()));
+    private FastsettSkjæringstidspunktOgStatuser fastsettSkjæringstidspunktOgStatuser = new FastsettSkjæringstidspunktOgStatuser(
+        new MapBGSkjæringstidspunktOgStatuserFraRegelTilVL(new UnitTestLookupInstanceImpl<>(new BeregningsperiodeTjeneste())));
 
     private final AtomicLong journalpostIdInc = new AtomicLong(123L);
     private AbstractTestScenario<?> scenario;
@@ -145,8 +152,8 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
     private BeregningsgrunnlagEntitet act(OpptjeningAktiviteter opptjeningAktiviteter, Collection<Inntektsmelding> inntektsmeldinger) {
         var ref = lagReferanseMedStp();
         var input = lagBeregningsgrunnlagInput(ref, opptjeningAktiviteter, inntektsmeldinger);
-        var beregningAktivitetAggregat = FastsettBeregningAktiviteter.fastsettAktiviteter(input);
-        return mapBeregningsgrunnlag(FastsettSkjæringstidspunktOgStatuser.fastsett(MapBehandlingRef.mapRef(ref), beregningAktivitetAggregat, input.getIayGrunnlag(),
+        var beregningAktivitetAggregat = fastsettBeregningAktiviteter.fastsettAktiviteter(input);
+        return mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input, beregningAktivitetAggregat, input.getIayGrunnlag(),
             grunnbeløpTjeneste.mapGrunnbeløpSatser()));
     }
 
@@ -158,7 +165,8 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
     }
 
     private BehandlingReferanse lagReferanseMedStp() {
-        return behandlingReferanse.medSkjæringstidspunkt(Skjæringstidspunkt.builder()
+        return behandlingReferanse
+            .medSkjæringstidspunkt(Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING)
             .medFørsteUttaksdato(FØRSTE_UTTAKSDAG)
             .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING)
@@ -476,9 +484,9 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Act
         BehandlingReferanse ref = lagReferanseMedStp();
         var input = lagBeregningsgrunnlagInput(ref, opptjeningAktiviteter, List.of());
-        BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = mapSaksbehandletAktivitet(FastsettBeregningAktiviteter.fastsettAktiviteter(input));
+        BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = mapSaksbehandletAktivitet(fastsettBeregningAktiviteter.fastsettAktiviteter(input));
 
-        BeregningsgrunnlagEntitet BeregningsgrunnlagEntitet = mapBeregningsgrunnlag(FastsettSkjæringstidspunktOgStatuser.fastsett(MapBehandlingRef.mapRef(ref),
+        BeregningsgrunnlagEntitet BeregningsgrunnlagEntitet = mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input,
             mapSaksbehandletAktivitet(beregningAktivitetAggregat), input.getIayGrunnlag(), grunnbeløpTjeneste.mapGrunnbeløpSatser()));
 
         // Assert
