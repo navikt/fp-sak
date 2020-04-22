@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksettFelles;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
 import no.nav.foreldrepenger.domene.vedtak.task.VurderOgSendØkonomiOppdragTask;
-import no.nav.foreldrepenger.domene.vedtak.task.VurderOppgaveTilbakekrevingTask;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -57,21 +56,11 @@ public class OpprettProsessTaskIverksettImpl extends OpprettProsessTaskIverksett
         taskData.setCallIdFraEksisterende();
 
         prosessTaskRepository.lagre(taskData);
-
-        // Opprettes som egen task da den er uavhengig av de andre
-        prosessTaskRepository.lagre(opprettTaskVurderOppgaveTilbakekrevingES(behandling));
     }
 
     private ProsessTaskData getProsesstaskFor(String tasktype) {
         var task = new ProsessTaskData(tasktype);
         task.setPrioritet(50);
         return task;
-    }
-
-    private ProsessTaskData opprettTaskVurderOppgaveTilbakekrevingES(Behandling behandling) {
-        ProsessTaskData vurderOppgaveTilbakekreving = new ProsessTaskData(VurderOppgaveTilbakekrevingTask.TASKTYPE);
-        vurderOppgaveTilbakekreving.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        vurderOppgaveTilbakekreving.setCallIdFraEksisterende();
-        return vurderOppgaveTilbakekreving;
     }
 }
