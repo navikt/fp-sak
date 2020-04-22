@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
+import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.rest.OppgaveRestKlient;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveForBehandlingTask;
 import no.nav.tjeneste.virksomhet.behandleoppgave.v1.meldinger.WSOpprettOppgaveResponse;
 import no.nav.vedtak.felles.integrasjon.behandleoppgave.BehandleoppgaveConsumer;
@@ -73,10 +74,10 @@ public class OpprettOppgaveForBehandlingTaskTest {
         oppgavebehandlingConsumer = Mockito.mock(BehandleoppgaveConsumer.class);
         oppgaveConsumer = Mockito.mock(OppgaveConsumer.class);
         tpsTjeneste = Mockito.mock(TpsTjeneste.class);
-
+        var oppgaveRestKlient = Mockito.mock(OppgaveRestKlient.class);
         oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
         tjeneste = new OppgaveTjeneste(repositoryProvider, oppgaveBehandlingKoblingRepository, oppgavebehandlingConsumer,
-            oppgaveConsumer, prosessTaskRepository, tpsTjeneste);
+            oppgaveConsumer, oppgaveRestKlient, prosessTaskRepository, tpsTjeneste);
 
         // Bygg fagsak som gjenbrukes over testene
         fagsak = opprettOgLagreFagsak();
