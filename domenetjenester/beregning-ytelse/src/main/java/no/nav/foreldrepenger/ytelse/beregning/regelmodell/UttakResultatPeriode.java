@@ -60,4 +60,13 @@ public class UttakResultatPeriode {
     public int hashCode() {
         return Objects.hash(periode);
     }
+
+    @Override
+    public String toString() {
+        return "UttakResultatPeriode{" +
+            "periode=" + periode +
+            ", uttakAktiviteter=" + uttakAktiviteter +
+            ", erOppholdsPeriode=" + erOppholdsPeriode +
+            '}';
+    }
 }

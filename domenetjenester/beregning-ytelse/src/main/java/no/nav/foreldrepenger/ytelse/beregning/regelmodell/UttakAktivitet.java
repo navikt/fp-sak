@@ -45,4 +45,16 @@ public class UttakAktivitet {
     public boolean isErGradering() {
         return erGradering;
     }
+
+    @Override
+    public String toString() {
+        return "UttakAktivitet{" +
+            "stillingsgrad=" + stillingsgrad +
+            ", arbeidstidsprosent=" + arbeidstidsprosent +
+            ", utbetalingsgrad=" + utbetalingsgrad +
+            ", arbeidsforhold=" + arbeidsforhold +
+            ", aktivitetStatus=" + aktivitetStatus +
+            ", erGradering=" + erGradering +
+            '}';
+    }
 }

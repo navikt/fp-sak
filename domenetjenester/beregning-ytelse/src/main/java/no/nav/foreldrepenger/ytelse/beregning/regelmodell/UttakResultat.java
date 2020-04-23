@@ -23,4 +23,11 @@ public class UttakResultat {
             .collect(Collectors.toList());
         return new LocalDateTimeline<>(uttaksPerioder);
     }
+
+    @Override
+    public String toString() {
+        return "UttakResultat{" +
+            "uttakResultatPerioder=" + uttakResultatPerioder +
+            '}';
+    }
 }
