@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -23,7 +22,6 @@ public class OppgaveRestKlient {
     private static final String ENDPOINT_KEY = "oppgave.rs.uri";
     private static final String DEFAULT_URI = "http://oppgave.default/api/v1/oppgaver";
     private static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
-    private static final Set<Oppgavestatus> FERDIG_STATUS = Set.of(Oppgavestatus.FERDIGSTILT, Oppgavestatus.FEILREGISTRERT);
     private static final String STATUSKATEGORI_AAPEN = "AAPEN";
 
     private OidcRestClient oidcRestClient;
