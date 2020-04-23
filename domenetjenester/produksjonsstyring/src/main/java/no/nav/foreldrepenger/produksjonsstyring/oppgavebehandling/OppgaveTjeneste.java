@@ -429,7 +429,7 @@ public class OppgaveTjeneste {
         var oppgaveInfoList = oppgaveListe.stream().map(ol -> new Oppgaveinfo(ol.getOppgavetype().getKode(), ol.getStatus().getKode())).collect(Collectors.toList());
         try {
             List<String> oppgavetyper = oppgaveÅrsaker.stream().map(aarsak -> ÅRSAK_TIL_OPPGAVETYPER.get(OppgaveÅrsak.fraKode(aarsak))).map(Oppgavetyper::getKode).collect(Collectors.toList());
-            var oppgaver = restKlient.finnOppgaver(aktørId.getId(), Tema.FOR.getOffisiellKode(), oppgavetyper);
+            var oppgaver = restKlient.finnÅpneOppgaver(aktørId.getId(), Tema.FOR.getOffisiellKode(), oppgavetyper);
             if (oppgaver == null)
                 throw new IllegalStateException("Gosys rest: kunne ikke opprette oppgave");
             logger.info("FPSAK GOSYS hentOppgaver fant oppgaver {}", oppgaver);
