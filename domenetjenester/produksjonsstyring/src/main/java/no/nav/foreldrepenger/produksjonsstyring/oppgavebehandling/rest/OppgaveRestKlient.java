@@ -22,6 +22,7 @@ public class OppgaveRestKlient {
     private static final String ENDPOINT_KEY = "oppgave.rs.uri";
     private static final String DEFAULT_URI = "http://oppgave.default/api/v1/oppgaver";
     private static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
+    private static final String STATUSKATEGORI_AAPEN = "AAPEN";
 
     private OidcRestClient oidcRestClient;
     private URI endpoint;
@@ -40,8 +41,18 @@ public class OppgaveRestKlient {
         return oidcRestClient.post(endpoint, requestBuilder.build(), lagHeader(), Oppgave.class);
     }
 
-    public List<Oppgave> finnOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception {
+    public List<Oppgave> finnAlleOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception {
         var builder = new URIBuilder(endpoint).addParameter("aktoerId", aktørId);
+        if (tema != null)
+            builder.addParameter("tema", tema);
+        oppgaveTyper.forEach(ot -> builder.addParameter("oppgavetype", ot));
+        return oidcRestClient.get(builder.build(), lagHeader(), FinnOppgaveResponse.class).getOppgaver();
+    }
+
+    public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception {
+        var builder = new URIBuilder(endpoint)
+            .addParameter("aktoerId", aktørId)
+            .addParameter("statuskategori", STATUSKATEGORI_AAPEN);
         if (tema != null)
             builder.addParameter("tema", tema);
         oppgaveTyper.forEach(ot -> builder.addParameter("oppgavetype", ot));

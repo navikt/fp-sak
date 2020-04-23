@@ -37,4 +37,12 @@ public class Oppgaveinfo{
     public int hashCode() {
         return Objects.hashCode(oppgaveType);
     }
+
+    @Override
+    public String toString() {
+        return "Oppgaveinfo{" +
+            "oppgaveType='" + oppgaveType + '\'' +
+            ", status='" + status + '\'' +
+            '}';
+    }
 }
