@@ -221,8 +221,10 @@ spec:
       value: behandleoppgave_v1.url
     - name: MEDLEM_V2_URL
       value: medlem_v2.url
-    - name: ARBEIDSFORDELING_V1_URL
-      value: arbeidsfordeling_v1.url
+    - name: ARBEIDSFORDELING_RS_URL
+      value: arbeidsfordeling.rs.url
+    - name: OPPGAVE_RS_URI
+      value: oppgave.rs.uri
     - name: PERSON_V3_URL
       value: person_v3.url
     - name: KODEVERK_V2_URL

@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
 import no.nav.foreldrepenger.domene.vedtak.task.VurderOgSendØkonomiOppdragTask;
-import no.nav.foreldrepenger.domene.vedtak.task.VurderOppgaveTilbakekrevingTask;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTaskProperties;
@@ -69,7 +68,7 @@ public class OpprettProsessTaskIverksettTest {
         List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         List<String> tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
         assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE,
-            VurderOgSendØkonomiOppdragTask.TASKTYPE, VEDTAK_TIL_DATAVAREHUS_TASK, VurderOppgaveTilbakekrevingTask.TASKTYPE);
+            VurderOgSendØkonomiOppdragTask.TASKTYPE, VEDTAK_TIL_DATAVAREHUS_TASK);
     }
 
     @Test
@@ -85,7 +84,7 @@ public class OpprettProsessTaskIverksettTest {
         List<String> tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
         assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE,
             AvsluttOppgaveTaskProperties.TASKTYPE, VurderOgSendØkonomiOppdragTask.TASKTYPE,
-            VEDTAK_TIL_DATAVAREHUS_TASK, VurderOppgaveTilbakekrevingTask.TASKTYPE);
+            VEDTAK_TIL_DATAVAREHUS_TASK);
     }
 
     private void mockOpprettTaskAvsluttOppgave() {

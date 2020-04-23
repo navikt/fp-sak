@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -22,6 +23,7 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.rest.OppgaveRestKlient;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTaskProperties;
 import no.nav.tjeneste.virksomhet.behandleoppgave.v1.meldinger.WSFerdigstillOppgaveResponse;
@@ -52,7 +54,8 @@ public class AvsluttOppgaveTaskTest {
 
     @Mock
     private TpsTjeneste tpsTjeneste;
-
+    @Mock
+    private OppgaveRestKlient oppgaveRestKlient;
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
 
@@ -62,8 +65,9 @@ public class AvsluttOppgaveTaskTest {
         oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
         mockService = Mockito.mock(BehandleoppgaveConsumer.class);
         oppgaveConsumer = Mockito.mock(OppgaveConsumer.class);
+        oppgaveRestKlient = Mockito.mock(OppgaveRestKlient.class);
         oppgaveTjeneste = new OppgaveTjeneste(repositoryProvider, oppgaveBehandlingKoblingRepository, mockService,
-            oppgaveConsumer, prosessTaskRepository, tpsTjeneste);
+            oppgaveConsumer, oppgaveRestKlient, prosessTaskRepository, tpsTjeneste);
     }
 
     @Test
@@ -88,6 +92,7 @@ public class AvsluttOppgaveTaskTest {
         WSFerdigstillOppgaveResponse mockResponse = new WSFerdigstillOppgaveResponse();
         ArgumentCaptor<FerdigstillOppgaveRequestMal> captor = ArgumentCaptor.forClass(FerdigstillOppgaveRequestMal.class);
         when(mockService.ferdigstillOppgave(captor.capture())).thenReturn(mockResponse);
+        Mockito.doThrow(new IllegalStateException("Nei takk")).when(oppgaveRestKlient).ferdigstillOppgave(any());
 
         // Act
         task.doTask(taskData);

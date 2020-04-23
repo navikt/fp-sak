@@ -71,6 +71,7 @@
     "BEHANDLESAK_V2_URL": "https://wasapp-t4.adeo.no/nav-gsak-ws/BehandleSakV2",
     "ORGANISASJON_V4_URL": "https://modapp-t4.adeo.no/ereg/ws/OrganisasjonService/v4",
     "OPPGAVE_V3_URL": "https://wasapp-t4.adeo.no/nav-gsak-ws/OppgaveV3",
+    "OPPGAVE_RS_URI": "http://oppgave.t4/api/v1/oppgaver",
     "BEHANDLEOPPGAVE_V1_URL": "https://wasapp-t4.adeo.no/nav-gsak-ws/BehandleOppgaveV1",
     "MEDLEM_V2_URL": "https://app-t4.adeo.no/medl2/ws/Medlemskap/v2",
     "ARBEIDSFORDELING_RS_URL": "https://app-t1.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
