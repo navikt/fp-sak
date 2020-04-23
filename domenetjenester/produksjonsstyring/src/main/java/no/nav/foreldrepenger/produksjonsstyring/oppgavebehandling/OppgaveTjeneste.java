@@ -429,12 +429,14 @@ public class OppgaveTjeneste {
         var oppgaveInfoList = oppgaveListe.stream().map(ol -> new Oppgaveinfo(ol.getOppgavetype().getKode(), ol.getStatus().getKode())).collect(Collectors.toList());
         try {
             List<String> oppgavetyper = oppgaveÅrsaker.stream().map(aarsak -> ÅRSAK_TIL_OPPGAVETYPER.get(OppgaveÅrsak.fraKode(aarsak))).map(Oppgavetyper::getKode).collect(Collectors.toList());
-            var oppgaver = restKlient.finnOppgaver(aktørId.getId(), Tema.FOR.getOffisiellKode(), oppgavetyper);
+            var oppgaver = restKlient.finnÅpneOppgaver(aktørId.getId(), Tema.FOR.getOffisiellKode(), oppgavetyper);
             if (oppgaver == null)
                 throw new IllegalStateException("Gosys rest: kunne ikke opprette oppgave");
             logger.info("FPSAK GOSYS hentOppgaver fant oppgaver {}", oppgaver);
             var restOppgaveInfos = oppgaver.stream().map(o -> new Oppgaveinfo(o.getOppgavetype(), o.getStatus().name())).collect(Collectors.toList());
-            var wsOppgaveInfos = oppgaveInfoList.stream().map(o -> new Oppgaveinfo(ÅRSAK_TIL_OPPGAVETYPER.get(OppgaveÅrsak.fraKode(o.getOppgaveType())).getKode(), o.getStatus())).collect(Collectors.toList());
+            var wsOppgaveInfos = oppgaveInfoList.stream()
+                .filter(o -> oppgaveÅrsaker.contains(o.getOppgaveType()))
+                .map(o -> new Oppgaveinfo(o.getOppgaveType(), o.getStatus())).collect(Collectors.toList());
             if (restOppgaveInfos.size() == wsOppgaveInfos.size())
                 logger.info("FPSAK GOSYS rest hentOppgaver samme antall oppgaver");
             if (restOppgaveInfos.containsAll(wsOppgaveInfos) && wsOppgaveInfos.containsAll(restOppgaveInfos))
@@ -442,7 +444,7 @@ public class OppgaveTjeneste {
             else
                 logger.info("FPSAK GOSYS rest hentOppgaver avvik oppgaver: rs {} ws {}", restOppgaveInfos, wsOppgaveInfos);
         } catch (Exception e) {
-            logger.info("FPSAK GOSYS rest hentOppgaver - feil ved oppretting av oppgave",e );
+            logger.info("FPSAK GOSYS rest hentOppgaver - feil ved henting av oppgave",e );
         }
         return oppgaveInfoList;
     }
