@@ -24,6 +24,7 @@ public class OppgaveRestKlient {
     private static final String DEFAULT_URI = "http://oppgave.default/api/v1/oppgaver";
     private static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
     private static final Set<Oppgavestatus> FERDIG_STATUS = Set.of(Oppgavestatus.FERDIGSTILT, Oppgavestatus.FEILREGISTRERT);
+    private static final String STATUSKATEGORI_AAPEN = "AAPEN";
 
     private OidcRestClient oidcRestClient;
     private URI endpoint;
@@ -51,9 +52,13 @@ public class OppgaveRestKlient {
     }
 
     public List<Oppgave> finnÅpneOppgaver(String aktørId, String tema, List<String> oppgaveTyper) throws Exception {
-        return finnAlleOppgaver(aktørId, tema, oppgaveTyper).stream()
-            .filter(o -> !FERDIG_STATUS.contains(o.getStatus()))
-            .collect(Collectors.toList());
+        var builder = new URIBuilder(endpoint)
+            .addParameter("aktoerId", aktørId)
+            .addParameter("statuskategori", STATUSKATEGORI_AAPEN);
+        if (tema != null)
+            builder.addParameter("tema", tema);
+        oppgaveTyper.forEach(ot -> builder.addParameter("oppgavetype", ot));
+        return oidcRestClient.get(builder.build(), lagHeader(), FinnOppgaveResponse.class).getOppgaver();
     }
 
     public void ferdigstillOppgave(String oppgaveId) {
