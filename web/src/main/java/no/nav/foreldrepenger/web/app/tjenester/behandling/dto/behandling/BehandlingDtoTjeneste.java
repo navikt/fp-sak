@@ -1,19 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.post;
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.setStandardfelter;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
@@ -85,6 +71,20 @@ import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.vedtak.konfig.KonfigVerdi;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.post;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.setStandardfelter;
 
 /**
  * Bygger et sammensatt resultat av BehandlingDto ved å samle data fra ulike tjenester, for å kunne levere dette ut på en REST tjeneste.
@@ -106,6 +106,7 @@ public class BehandlingDtoTjeneste {
     private OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
+    private String fpoppdragOverrideProxyUrl;
 
     BehandlingDtoTjeneste() {
         // for CDI proxy
@@ -119,7 +120,8 @@ public class BehandlingDtoTjeneste {
                                  OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste,
                                  BehandlingDokumentRepository behandlingDokumentRepository,
                                  RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
+                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
+                                 @KonfigVerdi("fpoppdrag.override.proxy.url") String fpoppdragOverrideProxyUrl) {
 
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
@@ -133,6 +135,7 @@ public class BehandlingDtoTjeneste {
         this.opptjeningIUtlandDokStatusTjeneste = opptjeningIUtlandDokStatusTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
+        this.fpoppdragOverrideProxyUrl = fpoppdragOverrideProxyUrl;
     }
 
     private static BehandlingDto lagBehandlingDto(Behandling behandling,
@@ -471,10 +474,9 @@ public class BehandlingDtoTjeneste {
     }
 
     private Optional<ResourceLink> lagSimuleringResultatLink(Behandling behandling) {
-        //fpoppdrag.override.proxy.url brukes ved testing lokalt
+        //fpoppdrag.override.proxy.url brukes ved testing lokalt og docker-compose
         BehandlingIdDto idDto = new BehandlingIdDto(behandling.getId());
-        String fpoppdragOverrideUrl = System.getProperty("fpoppdrag.override.proxy.url");
-        String baseUurl = fpoppdragOverrideUrl != null ? fpoppdragOverrideUrl : "/fpoppdrag/api";
+        String baseUurl = fpoppdragOverrideProxyUrl != null ? fpoppdragOverrideProxyUrl : "/fpoppdrag/api";
         return Optional.of(ResourceLink.post(baseUurl + "/simulering/resultat-uten-inntrekk", "simuleringResultat", idDto));
     }
 
