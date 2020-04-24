@@ -485,11 +485,11 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_ikke_regne_overkompensasjon_ved_over_100_prosent_stilling() {
+    public void skal_ikke_regne_overkompensasjon_ved_100_prosent_stilling() {
         // Arrange
         int redBrukersAndelPrÅr = 100000;
         int redRefusjonPrÅr = 500000;
-        BigDecimal stillingsgrad = BigDecimal.valueOf(140);
+        BigDecimal stillingsgrad = BigDecimal.valueOf(100);
         int nyArbeidstidProsent = 40;
         long dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         long dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
