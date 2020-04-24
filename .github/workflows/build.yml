@@ -109,11 +109,11 @@ jobs:
             <tr><td>prod-fss</td><td>default</td></tr>
             </table>
 
-      - name: Trigger fpsak-autotest til å kjøre tester
+      - name: Trigger fpsak-autotest til å kjøre verdikjedetestene
         if: success()
         uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           repository: navikt/fpsak-autotest
-          event-type: fpsak-autotest
+          event-type: fpsak-verdikjede
           client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
