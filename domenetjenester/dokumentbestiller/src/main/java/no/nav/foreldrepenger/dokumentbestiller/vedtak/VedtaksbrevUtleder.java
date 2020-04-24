@@ -115,15 +115,15 @@ public class VedtaksbrevUtleder {
         KlageVurdering klagevurdering = klagevurderingResultat.getKlageVurdering();
 
         if (unleash != null && unleash.isEnabled(FPSAK_FRITEKST_BREV_FOR_KLAGE,false)) {
-                    if (KlageVurdering.AVVIS_KLAGE.equals(klagevurdering)) {
-                        return DokumentMalType.KLAGE_AVVIST;
-                    } else if (Arrays.asList(OPPHEVE_YTELSESVEDTAK, HJEMSENDE_UTEN_Å_OPPHEVE).contains(klagevurdering)) {
-                        return DokumentMalType.KLAGE_YTELSESVEDTAK_OPPHEVET_DOK;
-                    } else if (MEDHOLD_I_KLAGE.equals(klagevurdering)) {
-                        return DokumentMalType.KLAGE_OMGJØRING;
-                    } else if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klagevurdering)) {
-                        return DokumentMalType.KLAGE_STADFESTET;
-                    }
+            if (KlageVurdering.AVVIS_KLAGE.equals(klagevurdering)) {
+                return DokumentMalType.KLAGE_AVVIST;
+            } else if (Arrays.asList(OPPHEVE_YTELSESVEDTAK, HJEMSENDE_UTEN_Å_OPPHEVE).contains(klagevurdering)) {
+                return DokumentMalType.KLAGE_HJEMSENDT;
+            } else if (MEDHOLD_I_KLAGE.equals(klagevurdering)) {
+                return DokumentMalType.KLAGE_OMGJØRING;
+            } else if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klagevurdering)) {
+                return DokumentMalType.KLAGE_STADFESTET;
+            }
         }
 
         if (KlageVurdering.AVVIS_KLAGE.equals(klagevurdering)) {

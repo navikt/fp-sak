@@ -41,7 +41,8 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_STADFESTET("KSTADF", "Vedtak om stadfestelse"),
     KLAGE_AVVIST("KAVVIS", "Vedtak om avvist klage"),
     KLAGE_OMGJØRING("KOMGJO", "Vedtak om omgjøring av klage"), // medhold
-    KLAGE_OVERSENDT_KLAGEINSTANS("KOVKLA", "Klagre oversendt til klageinstans"),
+    KLAGE_OVERSENDT_KLAGEINSTANS("KOVKLA", "Klage oversendt til klageinstans"),
+    KLAGE_HJEMSENDT("KHJEMS", "Klage hjemsendt/opphevet"),
 
     ;
 
