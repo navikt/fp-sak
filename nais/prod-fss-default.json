@@ -14,21 +14,11 @@
   "env": {
     "APPDYNAMICS_AGENT_ACCOUNT_NAME": "PROD",
     "KAFKA_AKSJONSPUNKTHENDELSE_TOPIC": "privat-foreldrepenger-aksjonspunkthendelse-p",
-    "KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID": "KP-privat-foreldrepenger-aksjonspunkthendelse-p",
-    "KAFKA_AKSJONSPUNKTHENDELSE_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
-    "KAFKA_AKSJONSPUNKTHENDELSE_GROUP_ID": "KC-privat-foreldrepenger-aksjonspunkthendelse-p",
     "KAFKA_FATTEVEDTAK_TOPIC": "privat-familie-vedtakFattet-v1",
     "KAFKA_HISTORIKKINNSLAG_TOPIC": "privat-foreldrepenger-historikkinnslag",
     "KAFKA_RISIKOKLASSIFISERING_TOPIC": "privat-foreldrepenger-fprisk-utfor",
-    "KAFKA_RISIKOKLASSIFISERING_CLIENT_ID": "KP-privat-foreldrepenger-fprisk-utfor",
-    "KAFKA_RISIKOKLASSIFISERING_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
-    "KAFKA_RISIKOKLASSIFISERING_GROUP_ID": "KC-privat-foreldrepenger-fprisk-utfor",
     "KAFKA_KONTROLL_RESULTAT_TOPIC": "privat-foreldrepenger-kontroll-resultat",
-    "KAFKA_KONTROLL_RESULTAT_CLIENT_ID": "KP-privat-foreldrepenger-kontroll-resultat",
-    "KAFKA_KONTROLL_RESULTAT_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
-    "KAFKA_KONTROLL_RESULTAT_GROUP_ID": "KC-privat-foreldrepenger-kontroll-resultat",
     "KAFKA_DOKUMENTBESTILLING_TOPIC": "privat-foreldrepenger-dokumenthendelse",
-    "KAFKA_DOKUMENTBESTILLING_CLIENT_ID": "KP-privat-foreldrepenger-dokumenthendelse",
     "SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
     "SECURITYTOKENSERVICE_URL": "https://sts.adeo.no/SecurityTokenServiceProvider/",
     "BOOTSTRAP_SERVERS": "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443",
@@ -70,13 +60,10 @@
     "JOURNAL_V3_URL": "https://dokarkiv.nais.adeo.no/services/journal/v3",
     "BEHANDLESAK_V2_URL": "https://wasapp.adeo.no/nav-gsak-ws/BehandleSakV2",
     "ORGANISASJON_V4_URL": "https://modapp.adeo.no/ereg/ws/OrganisasjonService/v4",
-    "OPPGAVE_V3_URL": "https://wasapp.adeo.no/nav-gsak-ws/OppgaveV3",
     "OPPGAVE_RS_URI": "http://oppgave.default/api/v1/oppgaver",
-    "BEHANDLEOPPGAVE_V1_URL": "https://wasapp.adeo.no/nav-gsak-ws/BehandleOppgaveV1",
     "MEDLEM_V2_URL": "https://app.adeo.no/medl2/ws/Medlemskap/v2",
     "ARBEIDSFORDELING_RS_URL": "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
     "PERSON_V3_URL": "https://wasapp.adeo.no/tpsws/ws/Person/v3",
-    "KODEVERK_V2_URL": "https://kodeverk.nais.adeo.no/ws/kodeverk/v2",
-    "SERVICEGATEWAY_URL": "https://service-gw.adeo.no/"
+    "KODEVERK_V2_URL": "https://kodeverk.nais.adeo.no/ws/kodeverk/v2"
   }
 }

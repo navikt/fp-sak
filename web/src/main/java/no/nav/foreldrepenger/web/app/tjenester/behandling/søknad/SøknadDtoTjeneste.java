@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
@@ -216,16 +216,6 @@ public class SøknadDtoTjeneste {
         return Optional.of(soknadAdopsjonDto);
     }
 
-    /* TODO: Vurdere en util klasse for slike metoder se: VurderOpphørAvYtelser.fomMandag*/
-    private static LocalDate finnNesteUkedag(LocalDate fom) {
-        DayOfWeek ukedag = DayOfWeek.from(fom);
-        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
-            return fom.plusDays(1);
-        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
-            return fom.plusDays(2);
-        return fom;
-    }
-
     private Optional<LocalDate> hentOppgittStartdatoForPermisjon(Long behandlingId, RelasjonsRolleType rolleType) {
         Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
 
@@ -233,7 +223,7 @@ public class SøknadDtoTjeneste {
             .or(() -> skjæringstidspunkter.getSkjæringstidspunktHvisUtledet());
         if (RelasjonsRolleType.MORA.equals(rolleType)) {
             Optional<LocalDate> evFødselFørOppgittStartdato = familieHendelseRepository.hentAggregat(behandlingId)
-                .getGjeldendeBekreftetVersjon().flatMap(FamilieHendelseEntitet::getFødselsdato).map(fødselsdato -> finnNesteUkedag(fødselsdato))
+                .getGjeldendeBekreftetVersjon().flatMap(FamilieHendelseEntitet::getFødselsdato).map(VirkedagUtil::fomVirkedag)
                 .filter(fødselsdatoUkedag -> fødselsdatoUkedag.isBefore(oppgittStartdato.orElse(LocalDate.MAX)));
             return evFødselFørOppgittStartdato.or(() -> oppgittStartdato);
         } else {

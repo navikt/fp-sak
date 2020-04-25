@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.behandling.impl.kafka.behandlingskontroll;
 
-import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.log.mdc.MDCOperations;
+import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -15,10 +19,8 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Properties;
-import java.util.concurrent.ExecutionException;
+import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
 public class AksjonspunktKafkaProducer {
@@ -34,23 +36,22 @@ public class AksjonspunktKafkaProducer {
     }
 
     @Inject
-    public AksjonspunktKafkaProducer(@KonfigVerdi("kafka.aksjonspunkthendelse.topic") String topic,
+    public AksjonspunktKafkaProducer(@KonfigVerdi("kafka.aksjonspunkthendelse.topic") String topicName,
                                        @KonfigVerdi("bootstrap.servers") String bootstrapServers,
-                                       @KonfigVerdi("kafka.aksjonspunkthendelse.schema.registry.url") String schemaRegistryUrl,
-                                       @KonfigVerdi("kafka.aksjonspunkthendelse.client.id") String clientId,
+                                       @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
                                        @KonfigVerdi("systembruker.username") String username,
                                        @KonfigVerdi("systembruker.password") String password) {
         Properties properties = new Properties();
 
         properties.setProperty("bootstrap.servers", bootstrapServers);
         properties.setProperty("schema.registry.url", schemaRegistryUrl);
-        properties.setProperty("client.id", clientId);
+        properties.setProperty("client.id", getProducerClientId(topicName));
 
         setSecurity(username, properties);
         setUsernameAndPassword(username, password, properties);
 
         this.producer = createProducer(properties);
-        this.topic = topic;
+        this.topic = topicName;
 
     }
 
@@ -100,5 +101,9 @@ public class AksjonspunktKafkaProducer {
     public void sendJsonMedNøkkel(String nøkkel, String json) {
         String callId = MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId();
         runProducerWithSingleJson(new ProducerRecord<>(topic, null, nøkkel, json, new RecordHeaders().add(CALLID_NAME, callId.getBytes())));
+    }
+
+    private final String getProducerClientId(String topicName) {
+        return "KP-" + topicName;
     }
 }

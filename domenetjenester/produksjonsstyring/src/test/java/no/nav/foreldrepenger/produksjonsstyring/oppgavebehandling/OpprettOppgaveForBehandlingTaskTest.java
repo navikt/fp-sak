@@ -13,7 +13,6 @@ import javax.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -22,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -32,12 +32,11 @@ import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.rest.OppgaveRestKlient;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveForBehandlingTask;
-import no.nav.tjeneste.virksomhet.behandleoppgave.v1.meldinger.WSOpprettOppgaveResponse;
-import no.nav.vedtak.felles.integrasjon.behandleoppgave.BehandleoppgaveConsumer;
-import no.nav.vedtak.felles.integrasjon.behandleoppgave.opprett.OpprettOppgaveRequest;
-import no.nav.vedtak.felles.integrasjon.oppgave.OppgaveConsumer;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
@@ -47,6 +46,9 @@ public class OpprettOppgaveForBehandlingTaskTest {
     private static final String FORNAVN_ETTERNAVN = "Fornavn Etternavn";
     private static final String FNR = "00000000000";
     private static final LocalDate FØDSELSDATO = LocalDate.now().minusYears(20);
+    private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
+        Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
+        LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET);
 
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
@@ -57,27 +59,21 @@ public class OpprettOppgaveForBehandlingTaskTest {
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
+    private OppgaveRestKlient oppgaveRestKlient;
 
     private Fagsak fagsak;
 
     @Mock
-    private BehandleoppgaveConsumer oppgavebehandlingConsumer;
-    @Mock
     private TpsTjeneste tpsTjeneste;
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
-    @Mock
-    private OppgaveConsumer oppgaveConsumer;
 
     @Before
     public void setup() {
-        oppgavebehandlingConsumer = Mockito.mock(BehandleoppgaveConsumer.class);
-        oppgaveConsumer = Mockito.mock(OppgaveConsumer.class);
         tpsTjeneste = Mockito.mock(TpsTjeneste.class);
-        var oppgaveRestKlient = Mockito.mock(OppgaveRestKlient.class);
+        oppgaveRestKlient = Mockito.mock(OppgaveRestKlient.class);
         oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
-        tjeneste = new OppgaveTjeneste(repositoryProvider, oppgaveBehandlingKoblingRepository, oppgavebehandlingConsumer,
-            oppgaveConsumer, oppgaveRestKlient, prosessTaskRepository, tpsTjeneste);
+        tjeneste = new OppgaveTjeneste(repositoryProvider, oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository, tpsTjeneste);
 
         // Bygg fagsak som gjenbrukes over testene
         fagsak = opprettOgLagreFagsak();
@@ -105,11 +101,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         OpprettOppgaveForBehandlingTask task = new OpprettOppgaveForBehandlingTask(tjeneste, repositoryProvider);
 
-        String gsakOppgaveId = "GSAK1110";
-        WSOpprettOppgaveResponse mockResponse = new WSOpprettOppgaveResponse();
-        mockResponse.setOppgaveId(gsakOppgaveId);
-        ArgumentCaptor<OpprettOppgaveRequest> captor = ArgumentCaptor.forClass(OpprettOppgaveRequest.class);
-        when(oppgavebehandlingConsumer.opprettOppgave(captor.capture())).thenReturn(mockResponse);
+        when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
 
         List<OppgaveBehandlingKobling> oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
         assertThat(OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(OppgaveÅrsak.BEHANDLE_SAK, oppgaver)).isNotPresent();
@@ -138,10 +130,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
         taskData.setBehandling(revurdering.getFagsakId(), revurdering.getId(), revurdering.getAktørId().getId());
         OpprettOppgaveForBehandlingTask task = new OpprettOppgaveForBehandlingTask(tjeneste, repositoryProvider);
 
-        String gsakOppgaveId = "GSAK11101";
-        WSOpprettOppgaveResponse mockResponse = new WSOpprettOppgaveResponse();
-        mockResponse.setOppgaveId(gsakOppgaveId);
-        when(oppgavebehandlingConsumer.opprettOppgave(any())).thenReturn(mockResponse);
+        when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
 
         // Skal ikke ha en oppgave av typen revurder fra før
         List<OppgaveBehandlingKobling> oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());

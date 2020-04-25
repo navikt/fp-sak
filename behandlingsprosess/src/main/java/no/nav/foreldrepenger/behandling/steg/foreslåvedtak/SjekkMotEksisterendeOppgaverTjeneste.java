@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,9 +16,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
+import no.nav.foreldrepenger.historikk.Oppgavetyper;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.Oppgaveinfo;
 
 @ApplicationScoped
 public class SjekkMotEksisterendeOppgaverTjeneste {
@@ -45,19 +44,14 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
 
         List<Historikkinnslag> historikkInnslagFraRepo = historikkRepository.hentHistorikk(behandling.getId());
         List<AksjonspunktDefinisjon> aksjonspunktliste = new ArrayList<>();
-        List<String> oppgaveÅrsakerVurder = Arrays.asList(OppgaveÅrsak.VURDER_DOKUMENT.getKode(),
-            Oppgaveinfo.VURDER_KONST_YTELSE_FORELDREPENGER.getOppgaveType());
 
-        List<Oppgaveinfo> oppgaveinfos = oppgaveTjeneste.hentOppgaveListe(aktørid, oppgaveÅrsakerVurder);
-        if (oppgaveinfos != null && !oppgaveinfos.isEmpty()) {
-            if (oppgaveinfos.contains(Oppgaveinfo.VURDER_KONST_YTELSE_FORELDREPENGER)) {
-                aksjonspunktliste.add(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK);
-                opprettHistorikkinnslagOmVurderingFørVedtak(behandling, OppgaveÅrsak.VURDER_KONS_FOR_YTELSE, historikkInnslagFraRepo);
-            }
-            if (oppgaveinfos.contains(Oppgaveinfo.VURDER_DOKUMENT)) {
-                aksjonspunktliste.add(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK);
-                opprettHistorikkinnslagOmVurderingFørVedtak(behandling, OppgaveÅrsak.VURDER_DOKUMENT, historikkInnslagFraRepo);
-            }
+        if (oppgaveTjeneste.harÅpneOppgaverAvType(aktørid, Oppgavetyper.VURDER_KONSEKVENS_YTELSE)) {
+            aksjonspunktliste.add(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK);
+            opprettHistorikkinnslagOmVurderingFørVedtak(behandling, OppgaveÅrsak.VURDER_KONS_FOR_YTELSE, historikkInnslagFraRepo);
+        }
+        if (oppgaveTjeneste.harÅpneOppgaverAvType(aktørid, Oppgavetyper.VURDER_DOKUMENT_VL)) {
+            aksjonspunktliste.add(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK);
+            opprettHistorikkinnslagOmVurderingFørVedtak(behandling, OppgaveÅrsak.VURDER_DOKUMENT, historikkInnslagFraRepo);
         }
         return aksjonspunktliste;
     }

@@ -85,34 +85,14 @@ spec:
     # Integrasjoner (Kafka)
     - name: KAFKA_AKSJONSPUNKTHENDELSE_TOPIC
       value: kafka_aksjonspunkthendelse.topic
-    - name: KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID
-      value: kafka_aksjonspunkthendelse_client.id
-    - name: KAFKA_AKSJONSPUNKTHENDELSE_SCHEMA_REGISTRY_URL
-      value: kafka_aksjonspunkthendelse_schemaregistry.url
-    - name: KAFKA_AKSJONSPUNKTHENDELSE_GROUP_ID
-      value: kafka_aksjonspunkthendelse_group.id
     - name: KAFKA_HISTORIKKINNSLAG_TOPIC
       value: kafka_historikkinnslag.topic
     - name: KAFKA_RISIKOKLASSIFISERING_TOPIC
       value: kafka_risikoklassifisering.topic
-    - name: KAFKA_RISIKOKLASSIFISERING_CLIENT_ID
-      value: kafka_risikoklassifisering_client.id
-    - name: KAFKA_RISIKOKLASSIFISERING_SCHEMA_REGISTRY_URL
-      value: kafka_risikoklassifisering_schemaregistry.url
-    - name: KAFKA_RISIKOKLASSIFISERING_GROUP_ID
-      value: kafka_risikoklassifisering_group.id
     - name: KAFKA_KONTROLL_RESULTAT_TOPIC
       value: kafka_kontroll_resultat.topic
-    - name: KAFKA_KONTROLL_RESULTAT_CLIENT_ID
-      value: kafka_kontroll_resultat_client.id
-    - name: KAFKA_KONTROLL_RESULTAT_SCHEMA_REGISTRY_URL
-      value: kafka_kontroll_resultat_schemaregistry.url
-    - name: KAFKA_KONTROLL_RESULTAT_GROUP_ID
-      value: kafka_kontroll_resultat_group.id
     - name: KAFKA_DOKUMENTBESTILLING_TOPIC
       value: kafka_dokumentbestilling.topic
-    - name: KAFKA_DOKUMENTBESTILLING_CLIENT_ID
-      value: kafka_dokumentbestilling_client.id
     - name: KAFKA_FATTEVEDTAK_TOPIC
       value: kafka_fattevedtak.topic
     - name: SCHEMA_REGISTRY_URL
@@ -215,10 +195,6 @@ spec:
       value: behandlesak_v2.url
     - name: ORGANISASJON_V4_URL
       value: organisasjon_v4.url
-    - name: OPPGAVE_V3_URL
-      value: oppgave_v3.url
-    - name: BEHANDLEOPPGAVE_V1_URL
-      value: behandleoppgave_v1.url
     - name: MEDLEM_V2_URL
       value: medlem_v2.url
     - name: ARBEIDSFORDELING_RS_URL
@@ -230,6 +206,3 @@ spec:
     - name: KODEVERK_V2_URL
       value: kodeverk_v2.url
 
-    # Service gateway
-    - name: SERVICEGATEWAY_URL
-      value: servicegateway.url

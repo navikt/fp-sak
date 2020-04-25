@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.vedtak;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.SjekkOverlappForeldrepengerInfotrygdTjeneste;
@@ -200,7 +200,7 @@ public class VurderOpphørAvYtelser  {
         Optional<LocalDate> minFom = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
             .min(Comparator.naturalOrder())
-            .map(this::fomMandag);
+            .map(VirkedagUtil::fomVirkedag);
         return minFom.orElse(Tid.TIDENES_ENDE);
     }
 
@@ -218,7 +218,7 @@ public class VurderOpphørAvYtelser  {
         Optional<LocalDate> maxTom = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
             .max(Comparator.naturalOrder())
-            .map(this::tomFredag);
+            .map(VirkedagUtil::tomVirkedag);
         return maxTom.orElse(Tid.TIDENES_BEGYNNELSE);
     }
 
@@ -228,7 +228,7 @@ public class VurderOpphørAvYtelser  {
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
             .max(Comparator.naturalOrder())
-            .map(this::tomFredag);
+            .map(VirkedagUtil::tomVirkedag);
         return maxTom.orElse(Tid.TIDENES_BEGYNNELSE);
     }
 
@@ -268,24 +268,6 @@ public class VurderOpphørAvYtelser  {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         BehandlingÅrsak.builder(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN).buildFor(behandling);
         behandlingRepository.lagre(behandling, lås);
-    }
-
-    private LocalDate fomMandag(LocalDate fom) {
-        DayOfWeek ukedag = DayOfWeek.from(fom);
-        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
-            return fom.plusDays(1);
-        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
-            return fom.plusDays(2);
-        return fom;
-    }
-
-    private LocalDate tomFredag(LocalDate tom) {
-        DayOfWeek ukedag = DayOfWeek.from(tom);
-        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
-            return tom.minusDays(2);
-        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
-            return tom.minusDays(1);
-        return tom;
     }
 
 }
