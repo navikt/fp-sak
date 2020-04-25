@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.vedtak.infotrygd.rest;
 
 
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygd;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygdRepository;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -76,7 +76,7 @@ public class LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste {
     public void vurderOglagreEventueltOverlapp(Long behandlingId, LocalDate minFraQuery) {
         try {
             var behandling = behandlingRepository.hentBehandling(behandlingId);
-            LocalDate førsteUttaksDatoFP = fomMandag(minFraQuery);
+            LocalDate førsteUttaksDatoFP = VirkedagUtil.fomVirkedag(minFraQuery);
             vurderOmOverlappInfotrygd(behandling, førsteUttaksDatoFP).forEach(behandlingOverlappInfotrygd -> overlappRepository.lagre(behandlingOverlappInfotrygd));
         } catch (Exception e) {
             log.info("Identifisering av overlapp i Infotrygd feilet ", e);
@@ -129,7 +129,7 @@ public class LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste {
 
         var segments = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
-            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), tomSøndag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), VirkedagUtil.tomSøndag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
             .collect(Collectors.toList());
 
         return helgeJusterTidslinje(new LocalDateTimeline<>(segments, StandardCombinators::alwaysTrueForMatch).compress());
@@ -141,7 +141,7 @@ public class LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste {
         var segments = berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .filter(bp -> bp.getLavestUtbetalingsgrad().map(ug -> PROSENT96.compareTo(ug) > 0).orElse(Boolean.FALSE))
-            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), tomSøndag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), VirkedagUtil.tomSøndag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
             .collect(Collectors.toList());
 
         return helgeJusterTidslinje(new LocalDateTimeline<>(segments, StandardCombinators::alwaysTrueForMatch).compress());
@@ -152,7 +152,7 @@ public class LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste {
             .map(Grunnlag::getVedtak)
             .flatMap(Collection::stream)
             .filter(v -> v.getUtbetalingsgrad() > 0)
-            .map(p-> new LocalDateSegment<>(p.getPeriode().getFom(), tomSøndag(p.getPeriode().getTom()), Boolean.TRUE))
+            .map(p-> new LocalDateSegment<>(p.getPeriode().getFom(), VirkedagUtil.tomSøndag(p.getPeriode().getTom()), Boolean.TRUE))
             .collect(Collectors.toList());
 
         return helgeJusterTidslinje(new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress());
@@ -164,7 +164,7 @@ public class LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste {
             .flatMap(Collection::stream)
             .filter(v -> v.getUtbetalingsgrad() > 0)
             .filter(v -> v.getUtbetalingsgrad() < 96)
-            .map(p-> new LocalDateSegment<>(p.getPeriode().getFom(), tomSøndag(p.getPeriode().getTom()), Boolean.TRUE))
+            .map(p-> new LocalDateSegment<>(p.getPeriode().getFom(), VirkedagUtil.tomSøndag(p.getPeriode().getTom()), Boolean.TRUE))
             .collect(Collectors.toList());
 
         return helgeJusterTidslinje(new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress());
@@ -182,36 +182,8 @@ public class LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste {
 
     private LocalDateTimeline<Boolean> helgeJusterTidslinje(LocalDateTimeline<Boolean> tidslinje) {
         var segments = tidslinje.getDatoIntervaller().stream()
-            .map(p -> new LocalDateSegment<>(fomMandag(p.getFomDato()), tomFredag(p.getTomDato()), Boolean.TRUE))
+            .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getFomDato()), VirkedagUtil.tomVirkedag(p.getTomDato()), Boolean.TRUE))
             .collect(Collectors.toList());
         return new LocalDateTimeline<>(segments, StandardCombinators::alwaysTrueForMatch).compress();
-    }
-
-    private LocalDate fomMandag(LocalDate fom) {
-        DayOfWeek ukedag = DayOfWeek.from(fom);
-        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
-            return fom.plusDays(1);
-        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
-            return fom.plusDays(2);
-        return fom;
-    }
-
-    private LocalDate tomFredag(LocalDate tom) {
-        DayOfWeek ukedag = DayOfWeek.from(tom);
-        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
-            return tom.minusDays(2);
-        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
-            return tom.minusDays(1);
-        return tom;
-    }
-
-    // Utvidelser for å koble p1.tom/fredag og p2.fom/mandag
-    private LocalDate tomSøndag(LocalDate fom) {
-        DayOfWeek ukedag = DayOfWeek.from(fom);
-        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
-            return fom.plusDays(1);
-        if (DayOfWeek.FRIDAY.getValue() == ukedag.getValue())
-            return fom.plusDays(2);
-        return fom;
     }
 }

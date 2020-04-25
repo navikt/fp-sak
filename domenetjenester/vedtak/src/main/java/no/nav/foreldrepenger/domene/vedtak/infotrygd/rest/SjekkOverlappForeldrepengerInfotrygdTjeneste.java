@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.vedtak.infotrygd.rest;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -13,6 +12,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
@@ -58,7 +58,7 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
     }
 
     private boolean overlapper(Grunnlag grunnlag, LocalDate vedtakDato) {
-        LocalDate maxDato = tomFredag(finnMaxDatoUtbetaling(grunnlag).orElse(finnMaxDato(grunnlag)));
+        LocalDate maxDato = VirkedagUtil.tomVirkedag(finnMaxDatoUtbetaling(grunnlag).orElse(finnMaxDato(grunnlag)));
         if (!maxDato.isBefore(vedtakDato)) {
             LOG.info("Overlapp INFOTRYGD: fødselsdato barn: {} opphørsdato fra INFOTRYGD: {} Startdato ny sak: {}", grunnlag.getFødselsdatoBarn(), maxDato, vedtakDato);
         } else {
@@ -68,7 +68,7 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
     }
 
     private Optional<LocalDate> finnMaxDatoUtbetaling(Grunnlag grunnlag) {
-        return grunnlag.getVedtak().stream().filter(this::harUtbetaling).map(Vedtak::getPeriode).map(Periode::getTom).max(Comparator.naturalOrder()).map(this::tomFredag);
+        return grunnlag.getVedtak().stream().filter(this::harUtbetaling).map(Vedtak::getPeriode).map(Periode::getTom).max(Comparator.naturalOrder()).map(VirkedagUtil::tomVirkedag);
     }
 
     private LocalDate finnMaxDato(Grunnlag grunnlag) {
@@ -98,20 +98,6 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
     }
 
     private LocalDate localDateMinus1Virkedag(LocalDate opphoerFomDato) {
-        LocalDate dato = opphoerFomDato.minusDays(1);
-        if (dato.getDayOfWeek().getValue() > DayOfWeek.FRIDAY.getValue()) {
-            dato = opphoerFomDato.minusDays(1L + dato.getDayOfWeek().getValue() - DayOfWeek.FRIDAY.getValue());
-        }
-        return dato;
+        return VirkedagUtil.tomVirkedag(opphoerFomDato.minusDays(1));
     }
-
-    private LocalDate tomFredag(LocalDate tom) {
-        DayOfWeek ukedag = DayOfWeek.from(tom);
-        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
-            return tom.minusDays(2);
-        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
-            return tom.minusDays(1);
-        return tom;
-    }
-
 }

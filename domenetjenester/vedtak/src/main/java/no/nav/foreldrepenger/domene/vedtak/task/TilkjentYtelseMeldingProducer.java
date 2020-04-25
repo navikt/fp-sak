@@ -57,7 +57,7 @@ public class TilkjentYtelseMeldingProducer {
     TilkjentYtelseMeldingProducer(@KonfigVerdi("fp.tilkjentytelse.v1.topic.url") String topic,
                                   @KonfigVerdi("bootstrap.servers") String bootstrapServers,
                                   @KonfigVerdi("application.name") String clientId,
-                                  @KonfigVerdi("kafka.aksjonspunkthendelse.schema.registry.url") String schemaRegistryUrl,
+                                  @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
                                   @KonfigVerdi("systembruker.username") String username,
                                   @KonfigVerdi("systembruker.password") String password) {
         Properties properties = new Properties();

@@ -45,7 +45,7 @@ public class XacmlRequestBuilderTjenesteImplTest {
     public void setUp() {
         pdpConsumerMock = mock(PdpConsumer.class);
         xamlRequestBuilderTjeneste = new AppXacmlRequestBuilderTjenesteImpl();
-        pdpKlient = new PdpKlientImpl(pdpConsumerMock, xamlRequestBuilderTjeneste, PEP_ID);
+        pdpKlient = new PdpKlientImpl(pdpConsumerMock, xamlRequestBuilderTjeneste);
     }
 
     @Test

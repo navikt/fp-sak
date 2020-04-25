@@ -9,8 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
@@ -48,7 +46,6 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.Oppgaveinfo;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
@@ -91,7 +88,6 @@ public class ForeslåVedtakTjenesteTest {
 
     private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
 
-    private ArrayList<Oppgaveinfo> oppgaveinfoerSomReturneres = new ArrayList<>();
 
     @Before
     public void setUp() {
@@ -99,7 +95,7 @@ public class ForeslåVedtakTjenesteTest {
         entityManager.persist(behandling.getBehandlingsresultat());
         kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
 
-        when(oppgaveTjeneste.hentOppgaveListe(any(AktørId.class), any())).thenReturn(oppgaveinfoerSomReturneres);
+        when(oppgaveTjeneste.harÅpneOppgaverAvType(any(AktørId.class), any())).thenReturn(Boolean.FALSE);
         when(dokumentBehandlingTjeneste.erDokumentBestilt(anyLong(), any())).thenReturn(true);
 
         SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(historikkRepository, oppgaveTjeneste);
@@ -182,8 +178,7 @@ public class ForeslåVedtakTjenesteTest {
     @Test
     public void lagerRiktigAksjonspunkterNårDetErOppgaveriGsak() {
         // Arrange
-        oppgaveinfoerSomReturneres.add(Oppgaveinfo.VURDER_KONST_YTELSE_FORELDREPENGER);
-        oppgaveinfoerSomReturneres.add(Oppgaveinfo.VURDER_DOKUMENT);
+        when(oppgaveTjeneste.harÅpneOppgaverAvType(any(AktørId.class), any())).thenReturn(Boolean.TRUE);
 
         // Act
         BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
@@ -199,8 +194,7 @@ public class ForeslåVedtakTjenesteTest {
     public void lagerIkkeNyeAksjonspunkterNårAksjonspunkterAlleredeFinnes() {
         // Arrange
         leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK, false);
-        oppgaveinfoerSomReturneres.add(Oppgaveinfo.VURDER_KONST_YTELSE_FORELDREPENGER);
-        oppgaveinfoerSomReturneres.add(Oppgaveinfo.VURDER_DOKUMENT);
+        when(oppgaveTjeneste.harÅpneOppgaverAvType(any(AktørId.class), any())).thenReturn(Boolean.TRUE);
 
         // Act
         BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
