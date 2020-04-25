@@ -92,14 +92,16 @@ public class OppgaveRedirectTjenesteTest {
     @Test
     public void skal_lage_feil_vedinkonsistens_oppgave_fagsakfinnes() throws ServletException, IOException {
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        Saksnummer inkonsistentSaksnummer = new Saksnummer("123");
         Whitebox.setInternalState(fagsak, "id", 3l);
-        Whitebox.setInternalState(fagsak, "saksnummer", new Saksnummer("123"));
+        Whitebox.setInternalState(fagsak, "saksnummer", inkonsistentSaksnummer);
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
         OppgaveBehandlingKobling kobling = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1", saksnummer, behandling);
+        oppgaveRepo.lagre(kobling);
         Mockito.when(fagsakRepo.hentSakGittSaksnummer(saksnummer)).thenReturn(Optional.of(fagsak));
         Mockito.when(fagsakRepo.finnEksaktFagsak(3)).thenReturn(fagsak);
 
-        Mockito.when(oppgaveRepo.hentOppgaveBehandlingKobling("1")).thenReturn(Optional.of(kobling));
+        Mockito.when(oppgaveRepo.hentOppgaveBehandlingKobling("1", saksnummer)).thenReturn(Optional.of(kobling));
 
         Response response = tjeneste.doRedirect(new OppgaveIdDto("1"), new SaksnummerDto(saksnummer));
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());

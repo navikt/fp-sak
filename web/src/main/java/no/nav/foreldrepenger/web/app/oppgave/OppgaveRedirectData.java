@@ -42,7 +42,7 @@ public class OppgaveRedirectData {
             return OppgaveRedirectData.medFeilmelding(logg(OppgaveRedirectServletFeil.FACTORY.detFinnesIngenFagsak(saksnummer.getVerdi())));
         }
 
-        Optional<OppgaveBehandlingKobling> oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId.getVerdi());
+        Optional<OppgaveBehandlingKobling> oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId.getVerdi(), saksnummer);
         if (oppgave.isPresent()) {
             Behandling behandling = oppgave.get().getBehandling();
             Fagsak fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());

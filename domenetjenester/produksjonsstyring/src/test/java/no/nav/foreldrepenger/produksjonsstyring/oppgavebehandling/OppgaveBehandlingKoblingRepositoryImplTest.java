@@ -41,6 +41,14 @@ public class OppgaveBehandlingKoblingRepositoryImplTest {
         assertThat(behandlingKoblingOpt).hasValueSatisfying(behandlingKobling ->
             assertThat(behandlingKobling.getOppgaveÅrsak()).isEqualTo(OppgaveÅrsak.BEHANDLE_SAK)
         );
+
+        // Act
+        Optional<OppgaveBehandlingKobling> oppBehandlingKoblingOpt = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(behandling.getId(), oppgaveId);
+
+        // Assert
+        assertThat(oppBehandlingKoblingOpt).hasValueSatisfying(behandlingKobling ->
+            assertThat(behandlingKobling.getOppgaveÅrsak()).isEqualTo(OppgaveÅrsak.BEHANDLE_SAK)
+        );
     }
 
     @Test
