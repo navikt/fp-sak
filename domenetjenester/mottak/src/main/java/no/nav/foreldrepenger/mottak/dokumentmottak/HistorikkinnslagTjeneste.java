@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.VariantFormat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
@@ -27,11 +25,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.dokumentarkiv.ArkivFilType;
-import no.nav.foreldrepenger.dokumentarkiv.journal.JournalMetadata;
-import no.nav.foreldrepenger.dokumentarkiv.journal.JournalTjeneste;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
+import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
@@ -44,7 +44,7 @@ public class HistorikkinnslagTjeneste {
     private static final String INNTEKTSMELDING = "Inntektsmelding";
     private static final String ETTERSENDELSE = "Ettersendelse";
     private HistorikkRepository historikkRepository;
-    private JournalTjeneste journalTjeneste;
+    private DokumentArkivTjeneste dokumentArkivTjeneste;
     private PersoninfoAdapter personinfoAdapter;
 
     HistorikkinnslagTjeneste() {
@@ -52,13 +52,15 @@ public class HistorikkinnslagTjeneste {
     }
 
     @Inject
-    public HistorikkinnslagTjeneste(HistorikkRepository historikkRepository, JournalTjeneste journalTjeneste, PersoninfoAdapter personinfoAdapter) {
+    public HistorikkinnslagTjeneste(HistorikkRepository historikkRepository,
+                                    DokumentArkivTjeneste dokumentArkivTjeneste,
+                                    PersoninfoAdapter personinfoAdapter) {
         this.historikkRepository = historikkRepository;
-        this.journalTjeneste = journalTjeneste;
+        this.dokumentArkivTjeneste = dokumentArkivTjeneste;
         this.personinfoAdapter = personinfoAdapter;
     }
 
-    public void opprettHistorikkinnslag(Behandling behandling, JournalpostId journalpostId, Boolean selvOmLoggetTidligere) {
+    public void opprettHistorikkinnslag(Behandling behandling, JournalpostId journalpostId, Boolean selvOmLoggetTidligere, boolean elektronisk, boolean erIM) {
         if (!selvOmLoggetTidligere && historikkinnslagForBehandlingStartetErLoggetTidligere(behandling.getId(), HistorikkinnslagType.BEH_STARTET)) {
             return;
         }
@@ -70,7 +72,7 @@ public class HistorikkinnslagTjeneste {
         historikkinnslag.setBehandlingId(behandling.getId());
         historikkinnslag.setFagsakId(behandling.getFagsakId());
 
-        leggTilHistorikkinnslagDokumentlinker(behandling.getType(), journalpostId, historikkinnslag);
+        leggTilHistorikkinnslagDokumentlinker(behandling.getFagsak().getSaksnummer(), behandling.getType(), journalpostId, historikkinnslag, elektronisk, erIM);
 
         HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(BehandlingType.KLAGE.equals(behandling.getType()) ? HistorikkinnslagType.KLAGEBEH_STARTET : HistorikkinnslagType.BEH_STARTET);
@@ -103,42 +105,34 @@ public class HistorikkinnslagTjeneste {
         return false;
     }
 
-    void leggTilHistorikkinnslagDokumentlinker(BehandlingType behandlingType, JournalpostId journalpostId, Historikkinnslag historikkinnslag) {
+    void leggTilHistorikkinnslagDokumentlinker(Saksnummer saksnummer, BehandlingType behandlingType, JournalpostId journalpostId,
+                                               Historikkinnslag historikkinnslag, boolean elektronisk, boolean erIM) {
         List<HistorikkinnslagDokumentLink> dokumentLinker = new ArrayList<>();
         if (journalpostId != null) {
-            List<JournalMetadata> journalMetadataListe = journalTjeneste.hentMetadata(journalpostId);
-
-            List<JournalMetadata> hoveddokumentJournalMetadata = journalMetadataListe.stream().filter(JournalMetadata::getErHoveddokument).collect(Collectors.toList());
-
-            Optional<JournalMetadata> elektroniskSøknad = hoveddokumentJournalMetadata.stream()
-                .filter(it -> VariantFormat.ORIGINAL.equals(it.getVariantFormat())
-                    || VariantFormat.FULLVERSJON.equals(it.getVariantFormat())) //Ustrukturerte dokumenter kan ha xml med variantformat SKANNING_META
-                .filter(it -> ArkivFilType.XML.equals(it.getArkivFilType())).findFirst();
-
-            leggTilSøknadDokumentLenke(behandlingType, journalpostId, historikkinnslag, dokumentLinker, hoveddokumentJournalMetadata, elektroniskSøknad);
-            journalMetadataListe.stream().filter(j -> !j.getErHoveddokument()).forEach(journalMetadata -> dokumentLinker
-                .add(lagHistorikkInnslagDokumentLink(journalMetadata, journalpostId, historikkinnslag, VEDLEGG)));
+            dokumentArkivTjeneste.hentJournalpostForSak(saksnummer, journalpostId).ifPresent(jp -> {
+                leggTilSøknadDokumentLenke(behandlingType, journalpostId, historikkinnslag, dokumentLinker, jp.getHovedDokument(), elektronisk, erIM);
+                jp.getAndreDokument().forEach(ad -> dokumentLinker.add(lagHistorikkInnslagDokumentLink(ad, journalpostId, historikkinnslag, VEDLEGG)));
+            });
         }
 
         historikkinnslag.setDokumentLinker(dokumentLinker);
     }
 
-    private void leggTilSøknadDokumentLenke(BehandlingType behandlingType, JournalpostId journalpostId, Historikkinnslag historikkinnslag, List<HistorikkinnslagDokumentLink> dokumentLinker, List<JournalMetadata> hoveddokumentJournalMetadata, Optional<JournalMetadata> elektroniskSøknad) {
-        if (elektroniskSøknad.isPresent()) {
-            final JournalMetadata journalMetadata = elektroniskSøknad.get();
-            String linkTekst = BehandlingType.KLAGE.equals(behandlingType) ? KLAGE :
-                journalMetadata.getDokumentType().equals(DokumentTypeId.INNTEKTSMELDING) ? INNTEKTSMELDING : SØKNAD; // NOSONAR
-            dokumentLinker.add(lagHistorikkInnslagDokumentLink(journalMetadata, journalpostId, historikkinnslag, linkTekst));
+    private void leggTilSøknadDokumentLenke(BehandlingType behandlingType, JournalpostId journalpostId, Historikkinnslag historikkinnslag,
+                                            List<HistorikkinnslagDokumentLink> dokumentLinker, ArkivDokument arkivDokument, boolean elektronisk, boolean erIM) {
+        if (elektronisk) {
+            String linkTekst = BehandlingType.KLAGE.equals(behandlingType) ? KLAGE : (erIM ? INNTEKTSMELDING : SØKNAD); // NOSONAR
+            dokumentLinker.add(lagHistorikkInnslagDokumentLink(arkivDokument, journalpostId, historikkinnslag, linkTekst));
         } else {
             String linkTekst = BehandlingType.KLAGE.equals(behandlingType) ? KLAGE : BehandlingType.UDEFINERT.equals(behandlingType) ? ETTERSENDELSE : PAPIRSØKNAD;
-            Optional<JournalMetadata> papirSøknad = hoveddokumentJournalMetadata.stream().filter(j -> !ArkivFilType.XML.equals(j.getArkivFilType())).findFirst();
-            papirSøknad.ifPresent(journalMetadata -> dokumentLinker.add(lagHistorikkInnslagDokumentLink(journalMetadata, journalpostId, historikkinnslag, linkTekst)));
+            if (arkivDokument != null)
+                dokumentLinker.add(lagHistorikkInnslagDokumentLink(arkivDokument, journalpostId, historikkinnslag, linkTekst));
         }
     }
 
-    private HistorikkinnslagDokumentLink lagHistorikkInnslagDokumentLink(JournalMetadata journalMetadata, JournalpostId journalpostId, Historikkinnslag historikkinnslag, String linkTekst) {
+    private HistorikkinnslagDokumentLink lagHistorikkInnslagDokumentLink(ArkivDokument arkivDokument, JournalpostId journalpostId, Historikkinnslag historikkinnslag, String linkTekst) {
         HistorikkinnslagDokumentLink historikkinnslagDokumentLink = new HistorikkinnslagDokumentLink();
-        historikkinnslagDokumentLink.setDokumentId(journalMetadata.getDokumentId());
+        historikkinnslagDokumentLink.setDokumentId(arkivDokument.getDokumentId());
         historikkinnslagDokumentLink.setJournalpostId(journalpostId);
         historikkinnslagDokumentLink.setLinkTekst(linkTekst);
         historikkinnslagDokumentLink.setHistorikkinnslag(historikkinnslag);
@@ -157,17 +151,18 @@ public class HistorikkinnslagTjeneste {
         historikkRepository.lagre(historikkinnslag);
     }
 
-    public void opprettHistorikkinnslagForVedlegg(Long fagsakId, JournalpostId journalpostId, DokumentTypeId dokumentTypeId) {
+    public void opprettHistorikkinnslagForVedlegg(Fagsak fagsak, JournalpostId journalpostId, DokumentTypeId dokumentTypeId, boolean elektronisk) {
         Historikkinnslag historikkinnslag = new Historikkinnslag();
-        if (dokumentTypeId != null && dokumentTypeId.equals(DokumentTypeId.INNTEKTSMELDING)) {
+        if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
             historikkinnslag.setAktør(HistorikkAktør.ARBEIDSGIVER);
         } else {
             historikkinnslag.setAktør(HistorikkAktør.SØKER);
         }
         historikkinnslag.setType(HistorikkinnslagType.VEDLEGG_MOTTATT);
-        historikkinnslag.setFagsakId(fagsakId);
+        historikkinnslag.setFagsakId(fagsak.getId());
 
-        leggTilHistorikkinnslagDokumentlinker(BehandlingType.UDEFINERT, journalpostId, historikkinnslag);
+        leggTilHistorikkinnslagDokumentlinker(fagsak.getSaksnummer(), BehandlingType.UDEFINERT, journalpostId, historikkinnslag,
+            elektronisk, DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId));
 
         HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.VEDLEGG_MOTTATT);

@@ -206,7 +206,7 @@ public class DokumentmottakerSøknadDefaultTest {
 
         //Assert
         verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(behandling.getFagsak(), behandling, mottattDokument);
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument.getJournalpostId());
+        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument);
 
         //Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(prosessTaskRepository).lagre(captor.capture());
@@ -354,7 +354,7 @@ public class DokumentmottakerSøknadDefaultTest {
 
         // Assert - verifiser flyt
         verify(kompletthetskontroller).persisterKøetDokumentOgVurderKompletthet(behandling, mottattDokument, Optional.empty());
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument.getJournalpostId());
+        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument);
     }
 
     @Test
@@ -385,7 +385,7 @@ public class DokumentmottakerSøknadDefaultTest {
 
         // Assert - verifiser flyt
         verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument.getJournalpostId());
+        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument);
     }
 
     @Test
@@ -502,7 +502,7 @@ public class DokumentmottakerSøknadDefaultTest {
 
         // Assert
         verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(behandling2, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling2, mottattDokument.getJournalpostId());
+        verify(dokumentmottakerFelles).opprettHistorikk(behandling2, mottattDokument);
 
         verify(prosessTaskRepository).lagre(captor.capture());
         ProsessTaskData prosessTaskData = captor.getValue();
@@ -546,7 +546,7 @@ public class DokumentmottakerSøknadDefaultTest {
 
         // Assert
         verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(behandling2, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling2, mottattDokument.getJournalpostId());
+        verify(dokumentmottakerFelles).opprettHistorikk(behandling2, mottattDokument);
 
         verify(køKontroller).dekøFørsteBehandlingISakskompleks(behandling3);
     }
@@ -574,7 +574,7 @@ public class DokumentmottakerSøknadDefaultTest {
         dokumentmottaker.mottaDokument(mottattDokument, behandling2.getFagsak(), null);
 
         // Assert
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling2, mottattDokument.getJournalpostId());
+        verify(dokumentmottakerFelles).opprettHistorikk(behandling2, mottattDokument);
         verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(behandling2, mottattDokument);
     }
 

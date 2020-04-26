@@ -36,7 +36,7 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
 
     @Override
     public void oppdaterÅpenBehandlingMedDokument(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) {
-        dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument.getJournalpostId());
+        dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument);
 
         Fagsak fagsak = behandling.getFagsak();
 
@@ -129,7 +129,7 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
             dokumentmottakerFelles.opprettNyFørstegangFraBehandlingMedSøknad(fagsak, behandlingÅrsakType, avsluttetBehandlingMedSøknad, mottattDokument);
         } else {
             Behandling revurdering = dokumentmottakerFelles.opprettManuellRevurdering(fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
-            dokumentmottakerFelles.opprettHistorikk(revurdering, mottattDokument.getJournalpostId());
+            dokumentmottakerFelles.opprettHistorikk(revurdering, mottattDokument);
         }
     }
 

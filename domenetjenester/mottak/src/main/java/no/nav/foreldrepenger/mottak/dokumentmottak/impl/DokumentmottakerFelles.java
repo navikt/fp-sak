@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
@@ -103,28 +102,30 @@ public class DokumentmottakerFelles {
 
     void opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(Behandling behandling, MottattDokument mottattDokument) {
         historikkinnslagTjeneste.opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(behandling);
-        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), true);
+        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), true,
+            mottattDokument.getElektroniskRegistrert(), DokumentTypeId.INNTEKTSMELDING.equals(mottattDokument.getDokumentType()));
     }
 
     void opprettHistorikk(Behandling behandling, MottattDokument mottattDokument) {
-        if (mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType()) {
-            historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), false);
+        DokumentTypeId dokType = mottattDokument.getDokumentType();
+        if (dokType.erSøknadType() || dokType.erEndringsSøknadType() || DokumentTypeId.KLAGE_DOKUMENT.equals(dokType) ||
+            DokumentKategori.SØKNAD.equals(mottattDokument.getDokumentKategori())) {
+            historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), false,
+                mottattDokument.getElektroniskRegistrert(), false);
         } else {
-            historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsakId(), mottattDokument.getJournalpostId(), mottattDokument.getDokumentType());
+            historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), mottattDokument.getJournalpostId(),
+                mottattDokument.getDokumentType(), mottattDokument.getElektroniskRegistrert());
         }
     }
 
-    void opprettHistorikk(Behandling behandling, JournalpostId journalPostId) {
-        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, journalPostId, false);
-    }
-
-    void opprettHistorikkinnslagForVedlegg(Long fagsakId, JournalpostId journalpostId, DokumentTypeId dokumentTypeId) {
-        historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(fagsakId, journalpostId, dokumentTypeId);
+    void opprettHistorikkinnslagForVedlegg(Fagsak fagsak, MottattDokument mottattDokument) {
+        historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument.getJournalpostId(),
+            mottattDokument.getDokumentType(), mottattDokument.getElektroniskRegistrert());
     }
 
     String hentBehandlendeEnhetTilVurderDokumentOppgave(MottattDokument dokument, Fagsak sak, Behandling behandling) {
         // Prod: Klageinstans + Viken sender dokumenter til scanning med forside som inneholder enhet. Journalføring og Vurder dokument skal til enheten.
-        if (dokument.getJournalEnhet().isPresent() && behandlendeEnhetTjeneste.gyldigEnhetNfpNk(dokument.getJournalEnhet().get())) {
+        if (dokument.getJournalEnhet().map(behandlendeEnhetTjeneste::gyldigEnhetNfpNk).orElse(Boolean.FALSE)) {
             return dokument.getJournalEnhet().get();
         }
         if (behandling == null) {
@@ -196,7 +197,8 @@ public class DokumentmottakerFelles {
     public Behandling opprettNyFørstegangFraBehandlingMedSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling avsluttetBehandling, MottattDokument mottattDokument) {
         Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingFraTidligereSøknad(fagsak, behandlingÅrsakType, avsluttetBehandling);
         behandlingsoppretter.opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(nyBehandling);
-        historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, mottattDokument.getJournalpostId(), false);
+        historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, mottattDokument.getJournalpostId(), false,
+            mottattDokument.getElektroniskRegistrert(), DokumentTypeId.INNTEKTSMELDING.equals(mottattDokument.getDokumentType()));
         opprettTaskForÅStarteBehandling(nyBehandling);
         return nyBehandling;
     }

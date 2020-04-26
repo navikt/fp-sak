@@ -98,7 +98,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
         Optional<Behandling> eksisterendeKøetBehandling = revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
         if (eksisterendeKøetBehandling.isPresent()) {
             Behandling køetBehandling = eksisterendeKøetBehandling.get();
-            dokumentmottakerFelles.opprettHistorikk(køetBehandling, mottattDokument.getJournalpostId());
+            dokumentmottakerFelles.opprettHistorikk(køetBehandling, mottattDokument);
             dokumentmottakerFelles.opprettKøetHistorikk(køetBehandling, true);
             håndterKøetBehandling(mottattDokument, køetBehandling, behandlingÅrsakType);
         } else if (!skalOppretteKøetBehandling(fagsak)) {

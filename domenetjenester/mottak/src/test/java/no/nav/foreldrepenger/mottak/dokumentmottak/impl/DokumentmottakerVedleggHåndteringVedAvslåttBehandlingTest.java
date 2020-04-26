@@ -27,7 +27,7 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
         this.behandlingsoppretterSpied = Mockito.spy(behandlingsoppretter);
         this.dokumentmottakerFellesSpied = Mockito.spy(dokumentmottakerFelles);
 
-        Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettHistorikkinnslagForVedlegg(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettHistorikkinnslagForVedlegg(Mockito.any(), Mockito.any());
 
         dokumentmottakerVedlegg = new DokumentmottakerVedlegg(
             repositoryProvider,

@@ -2,34 +2,34 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.VariantFormat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dokumentarkiv.ArkivFilType;
-import no.nav.foreldrepenger.dokumentarkiv.journal.JournalMetadata;
-import no.nav.foreldrepenger.dokumentarkiv.journal.JournalTjeneste;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
+import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 
 public class HistorikkinnslagTjenesteTest {
@@ -39,16 +39,16 @@ public class HistorikkinnslagTjenesteTest {
     private static final String VEDLEGG_DOKUMENT_ID = "2";
 
     private HistorikkRepository historikkRepository;
-    private JournalTjeneste journalTjeneste;
+    private DokumentArkivTjeneste dokumentArkivTjeneste;
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
     private PersoninfoAdapter personinfoAdapter;
 
     @Before
     public void before() {
         historikkRepository = mock(HistorikkRepository.class);
-        journalTjeneste = mock(JournalTjeneste.class);
+        dokumentArkivTjeneste = mock(DokumentArkivTjeneste.class);
         personinfoAdapter = mock(PersoninfoAdapter.class);
-        historikkinnslagTjeneste = new HistorikkinnslagTjeneste(historikkRepository, journalTjeneste, personinfoAdapter);
+        historikkinnslagTjeneste = new HistorikkinnslagTjeneste(historikkRepository, dokumentArkivTjeneste, personinfoAdapter);
     }
 
     @Test
@@ -58,14 +58,11 @@ public class HistorikkinnslagTjenesteTest {
         Behandling behandling = scenario.lagMocked();
         // Arrange
 
-        JournalMetadata journalMetadataHoveddokumentXml = byggJournalMetadata(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, ArkivFilType.XML, true, VariantFormat.FULLVERSJON);
-        JournalMetadata journalMetadataHoveddokumentPdf = byggJournalMetadata(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, ArkivFilType.PDF, true, VariantFormat.ARKIV);
-        JournalMetadata journalMetadataVedlegg = byggJournalMetadata(JOURNALPOST_ID, VEDLEGG_DOKUMENT_ID, ArkivFilType.XML, false, VariantFormat.FULLVERSJON);
-
-        when(journalTjeneste.hentMetadata(JOURNALPOST_ID)).thenReturn(List.of(journalMetadataHoveddokumentXml, journalMetadataHoveddokumentPdf, journalMetadataVedlegg));
+        when(dokumentArkivTjeneste.hentJournalpostForSak(any(), eq(JOURNALPOST_ID)))
+            .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.singletonList(VEDLEGG_DOKUMENT_ID))));
 
         // Act
-        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false);
+        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false, true, false);
 
         // Assert
         ArgumentCaptor<Historikkinnslag> captor = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -92,12 +89,11 @@ public class HistorikkinnslagTjenesteTest {
         Behandling behandling = scenario.lagMocked();
         // Arrange
 
-        JournalMetadata journalMetadataHoveddokument = byggJournalMetadata(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, ArkivFilType.PDF, true, VariantFormat.ARKIV);
-
-        when(journalTjeneste.hentMetadata(JOURNALPOST_ID)).thenReturn(Collections.singletonList(journalMetadataHoveddokument));
+        when(dokumentArkivTjeneste.hentJournalpostForSak(any(), eq(JOURNALPOST_ID)))
+            .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act
-        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false);
+        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false, false, false);
 
         // Assert
         ArgumentCaptor<Historikkinnslag> captor = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -111,20 +107,17 @@ public class HistorikkinnslagTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_historikkinnslag_for_papir_søknad_med_skanning_meta_xml() throws Exception {
+    public void skal_lagre_historikkinnslag_for_im()  {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
         Behandling behandling = scenario.lagMocked();
         // Arrange
 
-        JournalMetadata journalMetadataHoveddokumentPdf = byggJournalMetadata(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, ArkivFilType.PDF, true, VariantFormat.ARKIV);
-        JournalMetadata journalMetadataHoveddokumentSkanningXml = byggJournalMetadata(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, ArkivFilType.XML, true, VariantFormat.SKANNING_META);
-
-        when(journalTjeneste.hentMetadata(JOURNALPOST_ID))
-                .thenReturn(List.of(journalMetadataHoveddokumentPdf, journalMetadataHoveddokumentSkanningXml));
+        when(dokumentArkivTjeneste.hentJournalpostForSak(any(), eq(JOURNALPOST_ID)))
+            .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act
-        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false);
+        historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), JOURNALPOST_ID, DokumentTypeId.INNTEKTSMELDING, true);
 
         // Assert
         ArgumentCaptor<Historikkinnslag> captor = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -134,11 +127,35 @@ public class HistorikkinnslagTjenesteTest {
         assertThat(dokumentLinker).hasSize(1);
         assertThat(dokumentLinker.get(0).getDokumentId()).isEqualTo(HOVEDDOKUMENT_DOKUMENT_ID);
         assertThat(dokumentLinker.get(0).getJournalpostId()).isEqualTo(JOURNALPOST_ID);
-        assertThat(dokumentLinker.get(0).getLinkTekst()).isEqualTo("Papirsøknad");
+        assertThat(dokumentLinker.get(0).getLinkTekst()).isEqualTo("Inntektsmelding");
     }
 
     @Test
-    public void skal_ikke_lagre_historikkinnslag_når_det_allerede_finnes() throws Exception {
+    public void skal_lagre_historikkinnslag_for_vedlegg() {
+        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+
+        Behandling behandling = scenario.lagMocked();
+        // Arrange
+
+        when(dokumentArkivTjeneste.hentJournalpostForSak(any(), eq(JOURNALPOST_ID)))
+            .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
+
+        // Act
+        historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), JOURNALPOST_ID, DokumentTypeId.ANNET, false);
+
+        // Assert
+        ArgumentCaptor<Historikkinnslag> captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        verify(historikkRepository, times(1)).lagre(captor.capture());
+        Historikkinnslag historikkinnslag = captor.getValue();
+        List<HistorikkinnslagDokumentLink> dokumentLinker = historikkinnslag.getDokumentLinker();
+        assertThat(dokumentLinker).hasSize(1);
+        assertThat(dokumentLinker.get(0).getDokumentId()).isEqualTo(HOVEDDOKUMENT_DOKUMENT_ID);
+        assertThat(dokumentLinker.get(0).getJournalpostId()).isEqualTo(JOURNALPOST_ID);
+        assertThat(dokumentLinker.get(0).getLinkTekst()).isEqualTo("Ettersendelse");
+    }
+
+    @Test
+    public void skal_ikke_lagre_historikkinnslag_når_det_allerede_finnes()  {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = scenario.lagMocked();
@@ -148,43 +165,35 @@ public class HistorikkinnslagTjenesteTest {
         when(historikkRepository.hentHistorikk(behandling.getId())).thenReturn(Collections.singletonList(eksisterendeHistorikkinnslag));
 
         // Act
-        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false);
+        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false, true, false);
 
         // Assert
         verify(historikkRepository, times(0)).lagre(any(Historikkinnslag.class));
     }
 
     @Test
-    public void skal_støtte_at_journalpostId_er_null_og_ikke_kalle_journalTjeneste() throws Exception {
+    public void skal_støtte_at_journalpostId_er_null_og_ikke_kalle_journalTjeneste()  {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = scenario.lagMocked();
 
         // Act
-        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, null, false);
+        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, null, false, false, false);
 
         // Assert
-        verify(journalTjeneste, times(0)).hentMetadata(any(JournalpostId.class));
+        verify(dokumentArkivTjeneste, times(0)).hentJournalpostForSak(any(Saksnummer.class), any(JournalpostId.class));
         ArgumentCaptor<Historikkinnslag> captor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepository, times(1)).lagre(captor.capture());
         Historikkinnslag historikkinnslag = captor.getValue();
         assertThat(historikkinnslag.getDokumentLinker()).isEmpty();
     }
 
-
-
-    private JournalMetadata byggJournalMetadata(JournalpostId journalpostId, String dokumentId, ArkivFilType arkivFiltype, boolean hoveddokument, VariantFormat variantFormat) {
-        JournalMetadata.Builder builderHoveddok = JournalMetadata.builder();
-        builderHoveddok.medJournalpostId(journalpostId);
-        builderHoveddok.medDokumentId(dokumentId);
-        builderHoveddok.medVariantFormat(variantFormat);
-        builderHoveddok.medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
-        builderHoveddok.medDokumentKategori(DokumentKategori.SØKNAD);
-        builderHoveddok.medArkivFilType(arkivFiltype);
-        builderHoveddok.medErHoveddokument(hoveddokument);
-        builderHoveddok.medForsendelseMottatt(LocalDate.now());
-        builderHoveddok.medBrukerIdentListe(Collections.singletonList("01234567890"));
-        JournalMetadata journalMetadataHoveddokument = builderHoveddok.build();
-        return journalMetadataHoveddokument;
+    private ArkivJournalPost byggJournalpost(JournalpostId journalpostId, String dokumentId, List<String> vedleggDokID) {
+        var builder = ArkivJournalPost.Builder.ny()
+            .medJournalpostId(journalpostId)
+            .medHoveddokument(ArkivDokument.Builder.ny().medDokumentId(dokumentId).build());
+        vedleggDokID.forEach(vid -> builder.leggTillVedlegg(ArkivDokument.Builder.ny().medDokumentId(vid).build()));
+        return builder.build();
     }
+
 }

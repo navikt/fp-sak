@@ -40,7 +40,7 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
 
     @Override
     public void oppdaterÅpenBehandlingMedDokument(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) {
-        dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument.getJournalpostId());
+        dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument);
 
         BehandlingÅrsakType brukÅrsakType = getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType);
         dokumentmottakerFelles.opprettHistorikkinnslagForBehandlingOppdatertMedNyeOpplysninger(behandling, brukÅrsakType);

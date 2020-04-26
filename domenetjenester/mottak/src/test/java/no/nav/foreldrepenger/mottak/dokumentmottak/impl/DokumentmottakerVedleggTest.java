@@ -133,7 +133,7 @@ public class DokumentmottakerVedleggTest {
 
         //Assert
         verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
-        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVedlegg(behandling.getFagsakId(), mottattDokument.getJournalpostId(), dokumentTypeId);
+        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), mottattDokument);
     }
 
     @Test

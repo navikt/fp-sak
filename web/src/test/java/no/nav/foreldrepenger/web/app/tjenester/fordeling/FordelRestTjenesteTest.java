@@ -20,8 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-import no.nav.foreldrepenger.dokumentarkiv.journal.JournalTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -48,8 +46,6 @@ public class FordelRestTjenesteTest {
     private OpprettSakTjeneste opprettSakTjenesteMock;
 
     private VurderFagsystemFellesTjeneste vurderFagsystemTjenesteMock;
-    private DokumentArkivTjeneste dokumentArkivTjeneste;
-    private JournalTjeneste journalTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepositoryMock = mock(SvangerskapspengerRepository.class);
 
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
@@ -58,14 +54,12 @@ public class FordelRestTjenesteTest {
     @Before
     public void setup() {
         dokumentmottakTjenesteMock = mock(SaksbehandlingDokumentmottakTjeneste.class);
-        dokumentArkivTjeneste = mock(DokumentArkivTjeneste.class);
-        journalTjeneste = mock(JournalTjeneste.class);
         fagsakTjenesteMock = new FagsakTjeneste(repositoryProvider, null);
         opprettSakOrchestratorMock = mock(OpprettSakOrchestrator.class);
         opprettSakTjenesteMock = mock(OpprettSakTjeneste.class);
         vurderFagsystemTjenesteMock = mock(VurderFagsystemFellesTjeneste.class);
 
-        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock,  dokumentArkivTjeneste, journalTjeneste,
+        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock,
             fagsakTjenesteMock, opprettSakOrchestratorMock, opprettSakTjenesteMock,repositoryProvider,vurderFagsystemTjenesteMock, svangerskapspengerRepositoryMock);
     }
 

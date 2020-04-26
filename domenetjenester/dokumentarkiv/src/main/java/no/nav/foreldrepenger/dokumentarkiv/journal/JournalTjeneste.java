@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.dokumentarkiv.journal;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -20,10 +18,6 @@ public class JournalTjeneste {
     @Inject
     public JournalTjeneste(InngåendeJournalAdapter inngaaendeJournalAdapter) {
         this.inngaaendeJournalAdapter = inngaaendeJournalAdapter;
-    }
-
-    public List<JournalMetadata> hentMetadata(JournalpostId journalpostId) {
-        return inngaaendeJournalAdapter.hentMetadata(journalpostId);
     }
 
     public ArkivJournalPost hentInngåendeJournalpostHoveddokument(JournalpostId journalpostId) {
