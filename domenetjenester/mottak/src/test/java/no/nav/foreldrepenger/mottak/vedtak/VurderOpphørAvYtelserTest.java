@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -19,7 +18,6 @@ import javax.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -48,6 +46,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.SjekkOverlappForeldrepengerInfotrygdTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -55,17 +54,16 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 public class VurderOpphørAvYtelserTest {
 
-    private static final LocalDate FØDSELS_DATO_1 = fomMandag(LocalDate.now().minusMonths(2));
+    private static final LocalDate FØDSELS_DATO_1 = VirkedagUtil.fomVirkedag(LocalDate.now().minusMonths(2));
     private static final LocalDate SISTE_DAG_MOR = FØDSELS_DATO_1.plusWeeks(6);
 
-    private static final LocalDate SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1 = fomMandag(LocalDate.now().minusMonths(1));
+    private static final LocalDate SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1 = VirkedagUtil.fomVirkedag(LocalDate.now().minusMonths(1));
     private static final LocalDate SISTE_DAG_PER_OVERLAPP = SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1.plusWeeks(6);
 
-    private static final LocalDate SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1 = fomMandag(LocalDate.now().plusMonths(1));
+    private static final LocalDate SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1 = VirkedagUtil.fomVirkedag(LocalDate.now().plusMonths(1));
     private static final LocalDate SISTE_DAG_IKKE_OVERLAPP = SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1.plusWeeks(6);
 
     private static final int DAGSATS = 123;
@@ -335,12 +333,4 @@ public class VurderOpphørAvYtelserTest {
         repositoryProvider.getBehandlingRepository().lagre(revurdering, repositoryProvider.getBehandlingRepository().taSkriveLås(revurdering));
     }
 
-    private static LocalDate fomMandag(LocalDate fom) {
-        DayOfWeek ukedag = DayOfWeek.from(fom);
-        if (DayOfWeek.SUNDAY.getValue() == ukedag.getValue())
-            return fom.plusDays(1);
-        if (DayOfWeek.SATURDAY.getValue() == ukedag.getValue())
-            return fom.plusDays(2);
-        return fom;
-    }
 }

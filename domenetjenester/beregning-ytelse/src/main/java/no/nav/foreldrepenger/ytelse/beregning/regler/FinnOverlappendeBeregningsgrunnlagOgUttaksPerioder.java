@@ -19,6 +19,8 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.vedtak.util.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -30,6 +32,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecification<BeregningsresultatRegelmodellMellomregning> {
+    private static final Logger log = LoggerFactory.getLogger(FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder.class);
     public static final String ID = "FP_BR 20_1";
     public static final String BESKRIVELSE = "FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder";
 
@@ -53,7 +56,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         BeregningsresultatRegelmodell regelmodell = mellomregning.getInput();
         Beregningsgrunnlag grunnlag = regelmodell.getBeregningsgrunnlag();
         UttakResultat uttakResultat = regelmodell.getUttakResultat();
-
+        log.info("Uttaksresultat før regelkjøring FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder + " + uttakResultat.toString());
         List<BeregningsresultatPeriode> periodeListe = mapPerioder(grunnlag, uttakResultat, resultater);
         periodeListe.forEach(p -> mellomregning.getOutput().addBeregningsresultatPeriode(p));
         return beregnet(resultater);
@@ -253,7 +256,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
     }
 
     private static boolean skalGjøreOverkompensasjon(UttakAktivitet uttakAktivitet) {
-        if (uttakAktivitet.getStillingsgrad().compareTo(FULL_STILLING) > 0) {
+        if (uttakAktivitet.getStillingsgrad().compareTo(FULL_STILLING) >= 0) {
             // Jobber mer enn 100%, skal aldri overkompenseres
             return false;
         }

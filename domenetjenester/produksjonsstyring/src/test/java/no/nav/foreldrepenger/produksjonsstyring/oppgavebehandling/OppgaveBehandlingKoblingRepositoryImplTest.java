@@ -41,6 +41,30 @@ public class OppgaveBehandlingKoblingRepositoryImplTest {
         assertThat(behandlingKoblingOpt).hasValueSatisfying(behandlingKobling ->
             assertThat(behandlingKobling.getOppgaveÅrsak()).isEqualTo(OppgaveÅrsak.BEHANDLE_SAK)
         );
+
+        // Act
+        Optional<OppgaveBehandlingKobling> oppBehandlingKoblingOpt = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(behandling.getId(), oppgaveId);
+
+        // Assert
+        assertThat(oppBehandlingKoblingOpt).hasValueSatisfying(behandlingKobling ->
+            assertThat(behandlingKobling.getOppgaveÅrsak()).isEqualTo(OppgaveÅrsak.BEHANDLE_SAK)
+        );
+    }
+
+    @Test
+    public void skal_hente_opp_oppgave_behandling_kobling_basert_på_saksnummer() {
+        // Arrange
+        String oppgaveId = "G1502453";
+        Behandling behandling = new BasicBehandlingBuilder(repoRule.getEntityManager()).opprettOgLagreFørstegangssøknad(FagsakYtelseType.ENGANGSTØNAD);
+        lagOppgave(new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, oppgaveId, DUMMY_SAKSNUMMER, behandling));
+
+        // Act
+        Optional<OppgaveBehandlingKobling> behandlingKoblingOpt = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId, DUMMY_SAKSNUMMER);
+
+        // Assert
+        assertThat(behandlingKoblingOpt).hasValueSatisfying(behandlingKobling ->
+            assertThat(behandlingKobling.getOppgaveÅrsak()).isEqualTo(OppgaveÅrsak.BEHANDLE_SAK)
+        );
     }
 
     @Test

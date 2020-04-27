@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
+import no.nav.foreldrepenger.behandlingslager.behandling.Temagrupper;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -31,7 +32,7 @@ import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRe
 @ApplicationScoped
 public class EnhetsTjeneste {
 
-    private static final String TEMAGRUPPE = "FMLI"; // Kodeverk Temagrupper - dekker FOR + OMS
+    private static final String TEMAGRUPPE = Temagrupper.FAMILIEYTELSER.getOffisiellKode(); // Kodeverk Temagrupper - dekker FOR + OMS
     private static final String TEMA = Tema.FOR.getOffisiellKode(); // Kodeverk Tema
     private static final String OPPGAVETYPE = OppgaveÅrsak.BEHANDLE_SAK.getKode(); // Kodeverk Oppgavetype - NFP , uten spesialenheter
     private static final String ENHET_TYPE_NFP = "FPY"; // NOSONAR Kodeverk EnhetstyperNORG - NFP , uten spesialenheter (alt dropp behtype og filter på denne)
@@ -40,8 +41,6 @@ public class EnhetsTjeneste {
     private static final String NK_ENHET_ID = "4292";
 
     private static final OrganisasjonsEnhet KLAGE_ENHET =  new OrganisasjonsEnhet(NK_ENHET_ID, "NAV Klageinstans Midt-Norge");
-
-    private static final Logger logger = LoggerFactory.getLogger(EnhetsTjeneste.class);
 
     private TpsTjeneste tpsTjeneste;
     private ArbeidsfordelingRestKlient norgRest;

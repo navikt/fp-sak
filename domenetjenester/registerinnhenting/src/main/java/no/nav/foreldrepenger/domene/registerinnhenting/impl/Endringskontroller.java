@@ -78,8 +78,6 @@ public class Endringskontroller {
         Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
 
-        avsluttOppgaverIGsak(behandling, behandling.getStatus());
-
         StartpunktType startpunkt = FagsakYtelseTypeRef.Lookup.find(startpunktTjenester, behandling.getFagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + behandling.getFagsakYtelseType().getKode()))
             .utledStartpunktForDiffBehandlingsgrunnlag(ref, endringsresultat);
@@ -111,6 +109,8 @@ public class Endringskontroller {
         }
 
         if (tilbakeføres) {
+            // Fjern evt Gokjenn vedtak
+            avsluttOppgaverIGsak(behandling, behandling.getStatus());
             // Eventuelt ta behandling av vent
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
             // Spol tilbake
