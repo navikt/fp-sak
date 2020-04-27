@@ -64,7 +64,7 @@ public class OppgaveBehandlingKoblingRepository {
             .createQuery("from OppgaveBehandlingKobling where oppgave_id=:oppgaveId and saksnummer=:saksnummer", //$NON-NLS-1$
             OppgaveBehandlingKobling.class);
         query.setParameter("oppgaveId", oppgaveId); //$NON-NLS-1$
-        query.setParameter("saksnummer", saksnummer.getVerdi()); //$NON-NLS-1$
+        query.setParameter("saksnummer", saksnummer); //$NON-NLS-1$
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
