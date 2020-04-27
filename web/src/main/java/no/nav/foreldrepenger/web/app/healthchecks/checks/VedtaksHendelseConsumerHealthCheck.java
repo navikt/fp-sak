@@ -5,24 +5,24 @@ import javax.inject.Inject;
 
 import org.apache.kafka.streams.KafkaStreams;
 
-import no.nav.foreldrepenger.historikk.kafka.HistorikkConsumer;
+import no.nav.foreldrepenger.mottak.vedtak.kafka.VedtaksHendelseConsumer;
 
 @ApplicationScoped
-public class HistorikkConsumerHealthCheck extends ExtHealthCheck {
+public class VedtaksHendelseConsumerHealthCheck extends ExtHealthCheck {
 
-    private HistorikkConsumer consumer;
+    private VedtaksHendelseConsumer consumer;
 
-    HistorikkConsumerHealthCheck() {
+    VedtaksHendelseConsumerHealthCheck() {
     }
 
     @Inject
-    public HistorikkConsumerHealthCheck(HistorikkConsumer consumer) {
+    public VedtaksHendelseConsumerHealthCheck(VedtaksHendelseConsumer consumer) {
         this.consumer = consumer;
     }
 
     @Override
     protected String getDescription() {
-        return "Test av consumering av historikk fra kafka";
+        return "Test av konsumering av fattetVedtak fra kafka";
     }
 
     @Override
@@ -36,13 +36,13 @@ public class HistorikkConsumerHealthCheck extends ExtHealthCheck {
 
         KafkaStreams.State tilstand = consumer.getTilstand();
         intTestRes.setMessage("Consumer is in state [" + tilstand.name() + "].");
-        intTestRes.setOk(holderPåÅKonsumere(tilstand));
+        if (tilstand.isRunningOrRebalancing() || KafkaStreams.State.CREATED.equals(tilstand)) {
+            intTestRes.setOk(true);
+        } else {
+            intTestRes.setOk(false);
+        }
         intTestRes.noteResponseTime();
 
         return intTestRes;
-    }
-
-    private boolean holderPåÅKonsumere(KafkaStreams.State tilstand) {
-        return tilstand.isRunningOrRebalancing() || KafkaStreams.State.CREATED.equals(tilstand);
     }
 }

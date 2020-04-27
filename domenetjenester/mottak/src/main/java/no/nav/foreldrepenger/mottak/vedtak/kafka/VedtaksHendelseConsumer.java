@@ -23,17 +23,17 @@ import org.slf4j.LoggerFactory;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
 
 @ApplicationScoped
-public class VedtakConsumer implements AppServiceHandler {
+public class VedtaksHendelseConsumer implements AppServiceHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(VedtakConsumer.class);
+    private static final Logger log = LoggerFactory.getLogger(VedtaksHendelseConsumer.class);
     private KafkaStreams stream;
     private String topic;
 
-    VedtakConsumer() {
+    VedtaksHendelseConsumer() {
     }
 
     @Inject
-    public VedtakConsumer(VedtaksHendelseHåndterer vedtaksHendelseHåndterer, VedtakStreamKafkaProperties streamKafkaProperties) {
+    public VedtaksHendelseConsumer(VedtaksHendelseHåndterer vedtaksHendelseHåndterer, VedtakStreamKafkaProperties streamKafkaProperties) {
         this.topic = streamKafkaProperties.getTopic();
 
         Properties props = setupProperties(streamKafkaProperties);

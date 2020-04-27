@@ -55,6 +55,7 @@ public class VedtaksHendelseHåndterer {
     private FagsakTjeneste fagsakTjeneste;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository tilkjentYtelseRepository;
+    private Validator validator;
 
     public VedtaksHendelseHåndterer() {
     }
@@ -64,14 +65,17 @@ public class VedtaksHendelseHåndterer {
         this.fagsakTjeneste = fagsakTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.tilkjentYtelseRepository = repositoryProvider.getBeregningsresultatRepository();
+        @SuppressWarnings("resource")
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        // hibernate validator implementations er thread-safe, trenger ikke close
+        validator = factory.getValidator();
     }
 
     void handleMessage(String key, String payload) {
         LOG.debug("Mottatt ytelse-vedtatt hendelse med key='{}', payload={}", key, payload);
         Ytelse mottattVedtak;
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()){
+        try {
             mottattVedtak = OBJECT_MAPPER.readValue(payload, Ytelse.class);
-            Validator validator = factory.getValidator();
             Set<ConstraintViolation<Ytelse>> violations = validator.validate(mottattVedtak);
             if (!violations.isEmpty()) {
                 // Har feilet validering
