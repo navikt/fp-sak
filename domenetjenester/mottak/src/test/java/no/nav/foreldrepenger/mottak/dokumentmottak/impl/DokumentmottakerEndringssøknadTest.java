@@ -188,7 +188,7 @@ public class DokumentmottakerEndringssøknadTest {
         //Assert
         verify(dokumentmottaker).oppdaterÅpenBehandlingMedDokument(revurdering, mottattDokument, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(revurdering, mottattDokument);
-        verify(dokumentmottakerFelles).opprettHistorikk(revurdering, mottattDokument.getJournalpostId());
+        verify(dokumentmottakerFelles).opprettHistorikk(revurdering, mottattDokument);
     }
 
     @Test
@@ -313,7 +313,7 @@ public class DokumentmottakerEndringssøknadTest {
 
         // Assert - verifiser flyt
         verify(kompletthetskontroller).persisterKøetDokumentOgVurderKompletthet(behandling, mottattDokument, Optional.empty());
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument.getJournalpostId());
+        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument);
     }
 
     @Test
@@ -344,7 +344,7 @@ public class DokumentmottakerEndringssøknadTest {
 
         // Assert - verifiser flyt
         verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument.getJournalpostId());
+        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument);
     }
 
     @Test

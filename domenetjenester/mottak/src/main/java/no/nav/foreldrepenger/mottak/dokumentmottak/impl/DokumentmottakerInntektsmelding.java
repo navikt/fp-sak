@@ -39,7 +39,7 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
 
     @Override
     public void oppdaterÅpenBehandlingMedDokument(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) { //#I2
-        dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(behandling.getFagsakId(), mottattDokument.getJournalpostId(), mottattDokument.getDokumentType());
+        dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument);
         dokumentmottakerFelles.leggTilBehandlingsårsak(behandling, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
         dokumentmottakerFelles.opprettHistorikkinnslagForBehandlingOppdatertMedNyeOpplysninger(behandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_INNTEKT);
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
@@ -118,7 +118,7 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
         }
         Behandling nyBehandling = behandlingsoppretter.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.of(avsluttetBehandling));
         dokumentmottakerFelles.persisterDokumentinnhold(nyBehandling, mottattDokument, Optional.empty());
-        dokumentmottakerFelles.opprettHistorikk(nyBehandling, mottattDokument.getJournalpostId());
+        dokumentmottakerFelles.opprettHistorikk(nyBehandling, mottattDokument);
         dokumentmottakerFelles.opprettTaskForÅStarteBehandling(nyBehandling);
     }
 }

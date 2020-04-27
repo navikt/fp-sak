@@ -134,7 +134,7 @@ public class DokumentmottakerInntektsmeldingTest {
 
         //Assert
         verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(revurderingBehandling, mottattDokument);
-        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVedlegg(behandling.getFagsakId(), mottattDokument.getJournalpostId(), dokumentTypeId);
+        verify(dokumentmottakerFelles).opprettHistorikk(revurderingBehandling, mottattDokument);
     }
 
     @Test
@@ -163,7 +163,7 @@ public class DokumentmottakerInntektsmeldingTest {
         // Assert - sjekk flyt
         verify(dokumentmottaker).oppdaterÅpenBehandlingMedDokument(revurderingBehandling, mottattDokument, BehandlingÅrsakType.UDEFINERT);
         verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(revurderingBehandling, mottattDokument);
-        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVedlegg(behandling.getFagsakId(), mottattDokument.getJournalpostId(), dokumentTypeId);
+        verify(dokumentmottakerFelles).opprettHistorikk(revurderingBehandling, mottattDokument);
     }
 
     @Test
@@ -183,7 +183,7 @@ public class DokumentmottakerInntektsmeldingTest {
 
         // Assert - sjekk flyt
         verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
-        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVedlegg(behandling.getFagsakId(), mottattDokument.getJournalpostId(), dokumentTypeId);
+        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument);
     }
 
     @Test
@@ -203,7 +203,7 @@ public class DokumentmottakerInntektsmeldingTest {
 
         // Assert - sjekk flyt
         verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
-        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVedlegg(behandling.getFagsakId(), mottattDokument.getJournalpostId(), dokumentTypeId);
+        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument);
     }
 
     @Test
@@ -321,7 +321,7 @@ public class DokumentmottakerInntektsmeldingTest {
 
         // Assert - verifiser flyt
         verify(kompletthetskontroller).persisterKøetDokumentOgVurderKompletthet(behandling, mottattDokument, Optional.empty());
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument.getJournalpostId());
+        verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument);
     }
 
     @Test
