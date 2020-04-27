@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -70,8 +69,8 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
         return d -> {
             TilbaketrekkForTilkommetArbeidEntry entry = new TilbaketrekkForTilkommetArbeidEntry();
             entry.setTilkomneNøklerMedStartEtterDato(finnNøklerMedStartLikEllerEtter(yrkesaktiviteter, skjæringstidspunkt, tilkomneAndeler).apply(d));
-            entry.setAndelerIRevurderingMedSluttFørDato(finnBrukersAndelerSomAvslutterFørStartdatoForTilkommet(d, skjæringstidspunkt, revurderingAndelerSortertPåNøkkel, yrkesaktiviteter));
-            entry.setAndelerIOriginalMedSluttFørDato(finnBrukersAndelerSomAvslutterFørStartdatoForTilkommet(d, skjæringstidspunkt, originaleAndelerSortertPåNøkkel, yrkesaktiviteter));
+            entry.setAndelerIRevurderingMedSluttFørDato(finnBrukersAndelerSomAvslutterFørStartdatoForTilkommet(d, skjæringstidspunkt, revurderingAndelerSortertPåNøkkel, originaleAndelerSortertPåNøkkel, yrkesaktiviteter));
+            entry.setAndelerIOriginalMedSluttFørDato(finnBrukersAndelerSomAvslutterFørStartdatoForTilkommet(d, skjæringstidspunkt, originaleAndelerSortertPåNøkkel, originaleAndelerSortertPåNøkkel, yrkesaktiviteter));
             return entry;
         };
     }
@@ -81,17 +80,24 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
             .collect(Collectors.toList());
     }
 
-    private static Map<LocalDate, List<BRNøkkelMedAndeler>> finnBrukersAndelerSomAvslutterFørStartdatoForTilkommet(LocalDate startdatoArbeid, LocalDate skjæringstidspunkt, List<BRNøkkelMedAndeler> nøkler, Collection<Yrkesaktivitet> yrkesaktiviteter) {
-        List<BRNøkkelMedAndeler> nøklerSomSlutterFørDato = nøkler.stream()
+    private static Map<LocalDate, List<BRNøkkelMedAndeler>> finnBrukersAndelerSomAvslutterFørStartdatoForTilkommet(LocalDate startdatoArbeid, LocalDate skjæringstidspunkt,
+                                                                                                                   List<BRNøkkelMedAndeler> nøkler,
+                                                                                                                   List<BRNøkkelMedAndeler> originaleAndelerSortertPåNøkkel, Collection<Yrkesaktivitet> yrkesaktiviteter) {
+        List<BRNøkkelMedAndeler> nøklerSomSlutterFørDatoIkkeErTilkommet = nøkler.stream()
             .filter(harNøkkelAvsluttetArbeidsforhold(startdatoArbeid, skjæringstidspunkt, yrkesaktiviteter))
+            .filter(erIkkeTilkommetIRevurdering(originaleAndelerSortertPåNøkkel))
             .collect(Collectors.toList());
-        return nøklerSomSlutterFørDato.stream()
+        return nøklerSomSlutterFørDatoIkkeErTilkommet.stream()
             .collect(Collectors.toMap(n -> finnSluttdatoFørTilkommetForNøkkel(n, startdatoArbeid, yrkesaktiviteter, skjæringstidspunkt), List::of, (l1, l2) -> {
                 ArrayList<BRNøkkelMedAndeler> newList = new ArrayList<>();
                 newList.addAll(l1);
                 newList.addAll(l2);
                 return newList;
             }));
+    }
+
+    private static Predicate<BRNøkkelMedAndeler> erIkkeTilkommetIRevurdering(List<BRNøkkelMedAndeler> originaleAndelerSortertPåNøkkel) {
+        return n -> originaleAndelerSortertPåNøkkel.stream().anyMatch(originalNøkkel -> originalNøkkel.getNøkkel().equals(n.getNøkkel()));
     }
 
     private static LocalDate finnSluttdatoFørTilkommetForNøkkel(BRNøkkelMedAndeler n, LocalDate startdatoArbeid, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
