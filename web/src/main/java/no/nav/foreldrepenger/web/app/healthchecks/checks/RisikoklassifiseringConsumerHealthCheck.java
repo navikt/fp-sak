@@ -36,11 +36,7 @@ public class RisikoklassifiseringConsumerHealthCheck extends ExtHealthCheck {
 
         KafkaStreams.State tilstand = consumer.getTilstand();
         intTestRes.setMessage("Consumer is in state [" + tilstand.name() + "].");
-        if (tilstand.isRunningOrRebalancing() || KafkaStreams.State.CREATED.equals(tilstand)) {
-            intTestRes.setOk(true);
-        } else {
-            intTestRes.setOk(false);
-        }
+        intTestRes.setOk(tilstand.isRunningOrRebalancing() || KafkaStreams.State.CREATED.equals(tilstand));
         intTestRes.noteResponseTime();
 
         return intTestRes;

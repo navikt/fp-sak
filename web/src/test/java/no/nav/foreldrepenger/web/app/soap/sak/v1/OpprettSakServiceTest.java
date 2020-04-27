@@ -78,8 +78,9 @@ public class OpprettSakServiceTest {
         opprettSakTjeneste = mock(OpprettSakTjeneste.class);
         journalTjeneste = mock(JournalTjeneste.class);
         fagsakRepository = mock(FagsakRepository.class);
+        var fordelRest = mock(FpfordelRestKlient.class);
         opprettSakOrchestrator = new OpprettSakOrchestrator(opprettSakTjeneste, fagsakRepository);
-        service = new OpprettSakService(opprettSakOrchestrator, journalTjeneste);
+        service = new OpprettSakService(opprettSakOrchestrator, journalTjeneste, fordelRest);
         personinfo = new Personinfo.Builder().medAktørId(AKTØR_ID).medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Lorem Ipsum")
             .medPersonIdent(new PersonIdent(new FiktiveFnr().nesteKvinneFnr())).medFødselsdato(LocalDate.now().minusYears(20)).build();
         when(opprettSakTjeneste.utledYtelseType(any(BehandlingTema.class))).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
