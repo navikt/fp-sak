@@ -61,15 +61,19 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
     private OpprettSakOrchestrator opprettSakOrchestrator;
     private JournalTjeneste journalTjeneste;
+    private FpfordelRestKlient fordelKlient;
 
     public OpprettSakService() {
         // NOSONAR: cdi
     }
 
     @Inject
-    public OpprettSakService(OpprettSakOrchestrator opprettSakOrchestrator, JournalTjeneste journalTjeneste) {
+    public OpprettSakService(OpprettSakOrchestrator opprettSakOrchestrator,
+                             JournalTjeneste journalTjeneste,
+                             FpfordelRestKlient fordelKlient) {
         this.opprettSakOrchestrator = opprettSakOrchestrator;
         this.journalTjeneste = journalTjeneste;
+        this.fordelKlient = fordelKlient;
     }
 
     @Override
@@ -89,26 +93,33 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
         }
         AktørId aktørId = new AktørId(opprettSakRequest.getSakspart().getAktoerId());
         BehandlingTema behandlingTema = hentBehandlingstema(opprettSakRequest.getBehandlingstema().getValue());
-        DokumentType dokumentTypeId = validerJournalpostId(opprettSakRequest.getJournalpostId(), behandlingTema, aktørId);
+        validerJournalpostId(opprettSakRequest.getJournalpostId(), behandlingTema, aktørId);
         JournalpostId journalpostId = new JournalpostId(opprettSakRequest.getJournalpostId());
 
         Saksnummer saksnummer = opprettSakOrchestrator.opprettSak(journalpostId, behandlingTema, aktørId);
-        if (!(DokumentTypeId.erSøknadType(dokumentTypeId) || DokumentTypeId.INNTEKTSMELDING.getKode().equals(dokumentTypeId.getKode()))) {
-            logger.info("Opprettet saksnummer {} basert på journalpost {} av type {} - kan kreve manuell oppfølging", saksnummer.getVerdi(), journalpostId.getVerdi(), dokumentTypeId.getKode());
-        }
 
         return lagResponse(saksnummer);
     }
 
-    private DokumentType validerJournalpostId(String journalpostId, BehandlingTema behandlingTema, AktørId aktørId) throws OpprettSakUgyldigInput {
+    private void validerJournalpostId(String journalpostId, BehandlingTema behandlingTema, AktørId aktørId) throws OpprettSakUgyldigInput {
         final String feltnavnJournalpostId = "JournalpostId";
         if (!JournalpostId.erGyldig(journalpostId)) {
             UgyldigInput faultInfo = lagUgyldigInput(feltnavnJournalpostId, journalpostId);
             throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
         }
+
+        var jpostId = new JournalpostId(journalpostId);
+        try {
+            Boolean kanOpprette = fordelKlient.kanOppretteSakFra(jpostId);
+            logger.info("FPSAK vurdering FPFORDEL er {} opprette", kanOpprette ? "kan" : "kan ikke");
+            if (kanOpprette)
+                return;
+        } catch (Exception e) {
+            logger.info("FPSAK vurdering FPFORDEL - noe gikk galt", e);
+        }
         // Hindre at man oppretter sak basert på en klage - de skal journalføres på eksisterende sak
 
-        ArkivJournalPost arkivJournalPost = journalTjeneste.hentInngåendeJournalpostHoveddokument(new JournalpostId(journalpostId));
+        ArkivJournalPost arkivJournalPost = journalTjeneste.hentInngåendeJournalpostHoveddokument(jpostId);
         if (arkivJournalPost == null || arkivJournalPost.getHovedDokument() == null) {
             throw OpprettSakServiceFeil.FACTORY.ikkeStøttetKunVedlegg().toException();
         }
@@ -120,17 +131,17 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
                 throw OpprettSakServiceFeil.FACTORY.ikkeStøttetDokumentType(dokumentTypeId.getKode()).toException();
             }
             // Burde hatt sjekk på om valgt ytelsetype stemmer med im.ytelse. Dette sjekkes først ved journalføringservice
-            return dokumentTypeId;
+            return;
         }
         // Herfra og ned bør man kanskje hindre saksoppretting hvis det finnes en løpende eller åpen sak. Må vurderes ift SVP og erfaringer fra innstramming
         if (DokumentTypeId.erSøknadType(dokumentTypeId)) {
             if (!matchBehandlingtemaDokumenttypeSøknad(dokumentTypeId, behandlingTema)) {
                 throw OpprettSakServiceFeil.FACTORY.inkonsistensTemaVsDokument(dokumentTypeId.getKode()).toException();
             }
-            return dokumentTypeId;
+            return;
         }
         if (DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori())) {
-            return dokumentTypeId;
+            return;
         }
         throw OpprettSakServiceFeil.FACTORY.ikkeStøttetDokumentType(dokumentTypeId.getKode()).toException();
     }
