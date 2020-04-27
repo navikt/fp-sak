@@ -89,10 +89,6 @@ class EndringIBeregningsresultat {
         return dagsatsFraBg;
     }
 
-    public Integer getOriginalDagsats() {
-        return originalDagsats;
-    }
-
     public Boolean erBrukerMottaker() {
         return brukerErMottaker;
     }

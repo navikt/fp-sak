@@ -54,7 +54,9 @@ class FinnEndringerIResultatForTilkommetArbeidsforhold {
         return Optional.empty();
     }
 
-    private static List<EndringIBeregningsresultat> flyttForMatchendeReferanser(List<EndringIBeregningsresultat> endringITilkommetArbeidsgiversAndel, BRNøkkelMedAndeler nøkkelForAvsluttetArbeid, BRNøkkelMedAndeler originalNøkkel) {
+    private static List<EndringIBeregningsresultat> flyttForMatchendeReferanser(List<EndringIBeregningsresultat> endringITilkommetArbeidsgiversAndel,
+                                                                                BRNøkkelMedAndeler nøkkelForAvsluttetArbeid,
+                                                                                BRNøkkelMedAndeler originalNøkkel) {
         List<EndringIBeregningsresultat> endringerForMatchMellomOriginalOgRevurdering = initEndringerForMatchendeReferanser(nøkkelForAvsluttetArbeid, originalNøkkel);
         for (EndringIBeregningsresultat endring : endringerForMatchMellomOriginalOgRevurdering) {
             flyttDagsatsForAndel(endringITilkommetArbeidsgiversAndel, endring);
