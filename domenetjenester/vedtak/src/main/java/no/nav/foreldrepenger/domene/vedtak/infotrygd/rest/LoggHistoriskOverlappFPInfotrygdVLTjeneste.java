@@ -138,6 +138,7 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
         List<LocalDateSegment<Boolean>> segments = new ArrayList<>();
         segments.add(new LocalDateSegment<>(minUttakDato, minUttakDato, Boolean.TRUE)); // Sikre en periode
         berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+            .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), VirkedagUtil.tomSøndag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
             .forEach(segments::add);
 
