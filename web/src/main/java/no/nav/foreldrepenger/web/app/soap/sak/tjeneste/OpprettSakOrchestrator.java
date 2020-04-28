@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.web.app.soap.sak.tjeneste;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -54,6 +56,14 @@ public class OpprettSakOrchestrator {
         return fagsakRepository.hentForBruker(aktørId).stream()
             .filter(fs -> fs.getYtelseType().equals(behandlingTema.getFagsakYtelseType()))
             .anyMatch(fs -> !FagsakStatus.AVSLUTTET.equals(fs.getStatus()));
+    }
+
+    public List<BehandlingTema> aktiveBehandlingTema(AktørId aktørId) {
+        return fagsakRepository.hentForBruker(aktørId).stream()
+            .filter(Fagsak::erÅpen)
+            .map(Fagsak::getYtelseType)
+            .map(y -> BehandlingTema.fraFagsakHendelse(y, null))
+            .collect(Collectors.toList());
     }
 
     private Fagsak finnEllerOpprettFagSak(JournalpostId journalpostId, FagsakYtelseType ytelseType, Personinfo bruker) {

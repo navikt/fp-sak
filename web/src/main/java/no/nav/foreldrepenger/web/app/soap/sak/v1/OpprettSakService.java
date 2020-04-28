@@ -110,7 +110,8 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
         var jpostId = new JournalpostId(journalpostId);
         try {
-            Boolean kanOpprette = fordelKlient.kanOppretteSakFra(jpostId);
+            var ønsket = BehandlingTema.fraFagsakHendelse(behandlingTema.getFagsakYtelseType(), null);
+            Boolean kanOpprette = fordelKlient.kanOppretteSakFra(jpostId, ønsket, opprettSakOrchestrator.aktiveBehandlingTema(aktørId));
             logger.info("FPSAK vurdering FPFORDEL er {} opprette", kanOpprette ? "kan" : "kan ikke");
             if (kanOpprette)
                 return;
