@@ -119,27 +119,23 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
 
     @Override
     protected boolean uttakFomEllerTomErEndret(Long orginalbehId, Long behandlingId) {
+        LocalDate førsteUtbetDatoOrgBeh = finnMinsteUtbetDato(orginalbehId).orElse(null);
+        LocalDate førsteUtbetDato = finnMinsteUtbetDato(behandlingId).orElse(null);
 
-        Optional<LocalDate> førsteUtbetDatoOrgBeh = finnMinsteUtbetDato(orginalbehId);
-        Optional<LocalDate> førsteUtbetDato = finnMinsteUtbetDato(behandlingId);
+        if (førsteUtbetDatoOrgBeh==null && førsteUtbetDato==null) {
+            return false;
+        }
 
-        if (førsteUtbetDatoOrgBeh.isEmpty() || førsteUtbetDato.isEmpty()) {
+        if (førsteUtbetDatoOrgBeh==null || førsteUtbetDato==null) {
             return true;
         }
 
-        Optional<LocalDate> sisteUtbetDatoOrgBeh = finnSisteUtbetDato(orginalbehId);
-        Optional<LocalDate> sisteUtbetDato = finnSisteUtbetDato(behandlingId);
-
         // Hvis det ikke finnes noen perioder etter revurdering så vil hendelsen være at ytelsen opphører samme dag som den opprinnelig ble innvilget
-        if (sisteUtbetDato.isEmpty() ) {
-            sisteUtbetDato = førsteUtbetDato;
-        }
-        if (sisteUtbetDatoOrgBeh.isEmpty()) {
-            sisteUtbetDatoOrgBeh = førsteUtbetDatoOrgBeh;
-        }
+        LocalDate sisteUtbetDatoOrgBeh = finnSisteUtbetDato(orginalbehId).orElse(førsteUtbetDatoOrgBeh);
+        LocalDate sisteUtbetDato = finnSisteUtbetDato(behandlingId).orElse(førsteUtbetDato);
 
-        return !førsteUtbetDatoOrgBeh.get().equals(førsteUtbetDato.get()) ||
-            !sisteUtbetDatoOrgBeh.get().equals(sisteUtbetDato.get());
+        return !førsteUtbetDatoOrgBeh.equals(førsteUtbetDato) ||
+            !sisteUtbetDatoOrgBeh.equals(sisteUtbetDato);
     }
 
     private Innhold mapFagsakEventTilInnhold(FagsakStatusEvent event) {
@@ -218,7 +214,7 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
     private Optional<LocalDate> finnMinsteUtbetDato(Long behandlingId) {
         Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
 
-        if (henlagtEllerOpphørFomFørsteUttak(behandlingId)) {
+        if (opphørFomFørsteUttak(behandlingId)) {
             return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
                 .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
                 .min(Comparator.naturalOrder())
@@ -231,14 +227,13 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
                 .map(this::fomMandag);
         }
     }
-    private boolean henlagtEllerOpphørFomFørsteUttak(Long behandlingId) {
+    private boolean opphørFomFørsteUttak(Long behandlingId) {
         var resultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId).map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.INNVILGET);
-        if (resultat.erHenlagt())
-            return true;
         // Aktuelt for revurderinger med Opphør fom start. Enkelte har opphør fom senere dato.
         return Set.of(BehandlingResultatType.OPPHØR, BehandlingResultatType.AVSLÅTT).contains(resultat)
             && finnSisteUtbetDato(behandlingId).isEmpty();
     }
+
     private Optional<LocalDate> finnSisteUtbetDato(Long behandlingId) {
         Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
         return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
