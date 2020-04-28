@@ -186,7 +186,7 @@ public class DatavarehusEventObserverTest {
     private BehandlingVedtak byggVedtak() {
         return BehandlingVedtak.builder()
             .medAnsvarligSaksbehandler("s142443")
-            .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
+            .medIverksettingStatus(IverksettingStatus.IVERKSATT)
             .medVedtakstidspunkt(LocalDateTime.now())
             .medVedtakResultatType(VedtakResultatType.INNVILGET)
             .build();

@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 import no.nav.vedtak.util.FPDateUtil;
@@ -54,6 +55,7 @@ public class BehandlingVedtakTjeneste {
             .medVedtakstidspunkt(vedtakstidspunkt)
             .medBehandlingsresultat(behandling.getBehandlingsresultat())
             .medBeslutning(erRevurderingMedUendretUtfall)
+            .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
             .build();
         behandlingVedtakRepository.lagre(behandlingVedtak, kontekst.getSkriveLås());
         behandlingVedtakEventPubliserer.fireEvent(behandlingVedtak, behandling);
