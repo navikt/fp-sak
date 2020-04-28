@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -34,7 +35,7 @@ public class VedtakFattetEventObserver {
     }
 
     public void observerStegOvergang(@Observes BehandlingVedtakEvent event) {
-        if (erBehandlingAvRettType(event.getBehandlingId())) {
+        if (IverksettingStatus.IVERKSATT.equals(event.getVedtak().getIverksettingStatus()) && erBehandlingAvRettType(event.getBehandlingId())) {
             opprettTaskForPubliseringAvVedtak(event.getBehandlingId());
         }
     }

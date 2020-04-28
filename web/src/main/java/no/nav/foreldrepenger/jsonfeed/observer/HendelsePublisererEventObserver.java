@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.FagsakStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -32,8 +33,10 @@ public class HendelsePublisererEventObserver {
     }
 
     public void observerBehandlingVedtak(@Observes BehandlingVedtakEvent event) {
-        HendelsePublisererTjeneste hendelsePubliserer = finnFagsak(event.getFagsakId());
-        hendelsePubliserer.lagreVedtak(event.getVedtak());
+        if (IverksettingStatus.IVERKSATT.equals(event.getVedtak().getIverksettingStatus())) {
+            HendelsePublisererTjeneste hendelsePubliserer = finnFagsak(event.getFagsakId());
+            hendelsePubliserer.lagreVedtak(event.getVedtak());
+        }
     }
 
     public void observerFagsakAvsluttetEvent(@Observes FagsakStatusEvent event) {
