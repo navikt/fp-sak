@@ -67,30 +67,27 @@ jobs:
 
       - name: Bygg og push docker-image for distribuering
         if: success()
-        env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-        run: |
-          docker build --pull --tag ${IMAGE_BASE}:${TAG} --tag ${IMAGE_BASE}:latest .
-          echo "$GITHUB_PASSWORD" | docker login --username "$GITHUB_USERNAME" --password-stdin https://docker.pkg.github.com
-          docker push ${IMAGE_BASE}:latest
-          docker push ${IMAGE_BASE}:${TAG}
+        uses: whoan/docker-build-with-cache-action@v5.0.1
+        with:
+          username: x-access-token
+          password: "${{ secrets.GITHUB_ACCESS_TOKEN }}"
+          image_name: ${{ github.repository }}/fpsak
+          image_tag: ${TAG},latest
+          push_git_tag: true
+          registry: docker.pkg.github.com
 
       - name: Bygg og push docker-image for bruk under testing
         if: success()
-        env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-        run: |
-          docker build -f vtp/Dockerfile --pull \
-            --build-arg DOWNLOAD_SCRIPT=getmqclients-GA.sh \
-            --build-arg TOKEN_CARRIER="$GITHUB_PASSWORD" \
-            --build-arg VERSION=${TAG} \
-            --tag ${IMAGE_BASE}-test:${TAG} \
-            --tag ${IMAGE_BASE}-test:latest .
-          echo "$GITHUB_PASSWORD" | docker login --username "$GITHUB_USERNAME" --password-stdin https://docker.pkg.github.com
-          docker push ${IMAGE_BASE}-test:latest
-          docker push ${IMAGE_BASE}-test:${TAG}
+        uses: whoan/docker-build-with-cache-action@v5.0.1
+        with:
+          username: x-access-token
+          password: "${{ secrets.GITHUB_ACCESS_TOKEN }}"
+          image_name: ${{ github.repository }}/fpsak-test
+          image_tag: ${TAG},latest
+          push_git_tag: true
+          registry: docker.pkg.github.com
+          dockerfile: vtp/Dockerfile
+          build_extra_args: "--build-arg DOWNLOAD_SCRIPT=getmqclients-GA.sh --build-arg TOKEN_CARRIER=$GITHUB_PASSWORD --build-arg VERSION=${TAG}"
 
       - name: Opprett deployment issue
         if: success()
