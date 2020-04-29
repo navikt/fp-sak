@@ -69,7 +69,7 @@ jobs:
         if: success()
         uses: whoan/docker-build-with-cache-action@v5.0.1
         with:
-          username: $GITHUB_USERNAME
+          username: x-access-token
           password: "${{ secrets.GITHUB_ACCESS_TOKEN }}"
           image_name: ${{ github.repository }}/fpsak
           image_tag: ${TAG},latest
@@ -80,7 +80,7 @@ jobs:
         if: success()
         uses: whoan/docker-build-with-cache-action@v5.0.1
         with:
-          username: $GITHUB_USERNAME
+          username: x-access-token
           password: "${{ secrets.GITHUB_ACCESS_TOKEN }}"
           image_name: ${{ github.repository }}/fpsak-test
           image_tag: ${TAG},latest
