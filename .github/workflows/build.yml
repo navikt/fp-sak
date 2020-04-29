@@ -86,7 +86,7 @@ jobs:
           image_tag: ${{ env.TAG }},latest
           registry: docker.pkg.github.com
           dockerfile: vtp/Dockerfile
-          build_extra_args: "--build-arg DOWNLOAD_SCRIPT=getmqclients-GA.sh --build-arg TOKEN_CARRIER=$GITHUB_PASSWORD --build-arg VERSION=${{ env.TAG }}"
+          build_extra_args: "--build-arg DOWNLOAD_SCRIPT=getmqclients-GA.sh --build-arg TOKEN_CARRIER=${{ secrets.GITHUB_ACCESS_TOKEN }} --build-arg VERSION=${{ env.TAG }}"
 
       - name: Opprett deployment issue
         if: success()
