@@ -46,7 +46,6 @@ jobs:
           cd oracle
           docker-compose up --quiet-pull > nohup.out 2>&1 &
           sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
-          rm -f nohup.out
 
       - name: Set build version
         run: |
