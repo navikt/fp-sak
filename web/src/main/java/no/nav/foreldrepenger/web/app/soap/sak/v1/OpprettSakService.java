@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
@@ -110,6 +111,9 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
         var jpostId = new JournalpostId(journalpostId);
         try {
+            FagsakYtelseType ytelsefraDokument = fordelKlient.utledYtelestypeFor(jpostId);
+            if (ytelsefraDokument.equals(behandlingTema.getFagsakYtelseType()))
+                return;
             var ønsket = BehandlingTema.fraFagsakHendelse(behandlingTema.getFagsakYtelseType(), null);
             Boolean kanOpprette = fordelKlient.kanOppretteSakFra(jpostId, ønsket, opprettSakOrchestrator.aktiveBehandlingTema(aktørId));
             logger.info("FPSAK vurdering FPFORDEL er {} opprette", kanOpprette ? "kan" : "kan ikke");
