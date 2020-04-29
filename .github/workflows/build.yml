@@ -67,6 +67,7 @@ jobs:
 
       - name: Bygg og push docker-image for distribuering
         if: success()
+        uses: whoan/docker-build-with-cache-action@v5.0.1
         with:
           username: $GITHUB_USERNAME
           password: "${{ secrets.GITHUB_ACCESS_TOKEN }}"
@@ -77,6 +78,7 @@ jobs:
 
       - name: Bygg og push docker-image for bruk under testing
         if: success()
+        uses: whoan/docker-build-with-cache-action@v5.0.1
         with:
           username: $GITHUB_USERNAME
           password: "${{ secrets.GITHUB_ACCESS_TOKEN }}"
