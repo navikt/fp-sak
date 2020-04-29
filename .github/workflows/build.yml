@@ -62,7 +62,7 @@ jobs:
       - name: Stopper og fjerner oracle image/container
         if: success()
         run: |
-          docker stop oraclefpsak
+          docker stop oracle
           docker system prune -f
 
       - name: Bygg og push docker-image for distribuering
