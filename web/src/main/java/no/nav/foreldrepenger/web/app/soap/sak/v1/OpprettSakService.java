@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.soap.sak.v1;
 
+import java.lang.module.ResolutionException;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -14,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
@@ -58,6 +62,15 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
     private static final Logger logger = LoggerFactory.getLogger(OpprettSakService.class);
+
+    private static final String RESPONS_IMFP = "IMFP";
+    private static final Map<String, FagsakYtelseType> TYPE_YTELSE_MAP = Map.of(
+        FagsakYtelseType.ENGANGSTØNAD.getKode(), FagsakYtelseType.ENGANGSTØNAD,
+        FagsakYtelseType.FORELDREPENGER.getKode(), FagsakYtelseType.FORELDREPENGER,
+        FagsakYtelseType.SVANGERSKAPSPENGER.getKode(), FagsakYtelseType.SVANGERSKAPSPENGER,
+        RESPONS_IMFP, FagsakYtelseType.FORELDREPENGER,
+        "IMSVP", FagsakYtelseType.SVANGERSKAPSPENGER
+    );
 
     private OpprettSakOrchestrator opprettSakOrchestrator;
     private JournalTjeneste journalTjeneste;
@@ -110,11 +123,16 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
         var jpostId = new JournalpostId(journalpostId);
         try {
-            var ønsket = BehandlingTema.fraFagsakHendelse(behandlingTema.getFagsakYtelseType(), null);
-            Boolean kanOpprette = fordelKlient.kanOppretteSakFra(jpostId, ønsket, opprettSakOrchestrator.aktiveBehandlingTema(aktørId));
-            logger.info("FPSAK vurdering FPFORDEL er {} opprette", kanOpprette ? "kan" : "kan ikke");
-            if (kanOpprette)
-                return;
+            String ytelsefraDokument = fordelKlient.utledYtelestypeFor(jpostId);
+            FagsakYtelseType ytelseTypeFraDokument = TYPE_YTELSE_MAP.getOrDefault(ytelsefraDokument, FagsakYtelseType.UDEFINERT);
+            logger.info("FPSAK vurdering FPFORDEL ytelsedok {} vs ytelseoppgitt {}", ytelseTypeFraDokument, behandlingTema.getFagsakYtelseType());
+            if (ytelseTypeFraDokument.equals(behandlingTema.getFagsakYtelseType())) {
+                if (RESPONS_IMFP.equals(ytelsefraDokument) && opprettSakOrchestrator.harAktivSak(aktørId, behandlingTema)) {
+                    logger.info("FPSAK vurdering FPFORDEL IM med åpen Foreldrepengesak"); ;
+                } else {
+                    return;
+                }
+            }
         } catch (Exception e) {
             logger.info("FPSAK vurdering FPFORDEL - noe gikk galt", e);
         }
@@ -162,6 +180,10 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
             behandlingTema = BehandlingTema.finnForKodeverkEiersKode(behandlingstemaOffisiellKode);
         }
         if (behandlingTema == null || BehandlingTema.UDEFINERT.equals(behandlingTema)) {
+            UgyldigInput faultInfo = lagUgyldigInput("Behandlingstema", behandlingstemaOffisiellKode);
+            throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
+        }
+        if (FagsakYtelseType.UDEFINERT.equals(behandlingTema.getFagsakYtelseType())) {
             UgyldigInput faultInfo = lagUgyldigInput("Behandlingstema", behandlingstemaOffisiellKode);
             throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
         }
