@@ -72,7 +72,7 @@ jobs:
           username: x-access-token
           password: "${{ secrets.GITHUB_ACCESS_TOKEN }}"
           image_name: ${{ github.repository }}/fpsak
-          image_tag: ${TAG},latest
+          image_tag: ${{ env.TAG }},latest
           push_git_tag: true
           registry: docker.pkg.github.com
 
@@ -83,7 +83,7 @@ jobs:
           username: x-access-token
           password: "${{ secrets.GITHUB_ACCESS_TOKEN }}"
           image_name: ${{ github.repository }}/fpsak-test
-          image_tag: ${TAG},latest
+          image_tag: ${{ env.TAG }},latest
           push_git_tag: true
           registry: docker.pkg.github.com
           dockerfile: vtp/Dockerfile
