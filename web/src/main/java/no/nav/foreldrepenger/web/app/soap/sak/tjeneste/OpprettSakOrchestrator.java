@@ -58,14 +58,6 @@ public class OpprettSakOrchestrator {
             .anyMatch(fs -> !FagsakStatus.AVSLUTTET.equals(fs.getStatus()));
     }
 
-    public List<BehandlingTema> aktiveBehandlingTema(AktørId aktørId) {
-        return fagsakRepository.hentForBruker(aktørId).stream()
-            .filter(Fagsak::erÅpen)
-            .map(Fagsak::getYtelseType)
-            .map(y -> BehandlingTema.fraFagsakHendelse(y, null))
-            .collect(Collectors.toList());
-    }
-
     private Fagsak finnEllerOpprettFagSak(JournalpostId journalpostId, FagsakYtelseType ytelseType, Personinfo bruker) {
         Optional<Journalpost> journalpost = fagsakRepository.hentJournalpost(journalpostId);
         if (journalpost.isPresent()) {
