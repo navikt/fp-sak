@@ -69,7 +69,7 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
         this.behandlingsresultatRepository = behandlingsresultatRepository;
     }
 
-    @Override
+/*    @Override
     protected void doLagreVedtak(BehandlingVedtak vedtak, Behandling behandling) {
         Innhold innhold = mapVedtakTilInnhold(vedtak, behandling);
 
@@ -99,7 +99,7 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
     protected boolean hendelseEksistererAllerede(BehandlingVedtak vedtak) {
         return feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, VEDTAK_PREFIX + vedtak.getId());
     }
-
+*/
     @Override
     public void lagreFagsakAvsluttet(FagsakStatusEvent event) {
         log.info("lagrer utgående hendelse for fagsak {}", event.getFagsakId());

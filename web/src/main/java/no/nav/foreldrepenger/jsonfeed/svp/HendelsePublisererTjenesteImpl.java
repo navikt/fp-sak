@@ -95,12 +95,6 @@ public class HendelsePublisererTjenesteImpl extends AbstractHendelsePublisererTj
             .build();
         feedRepository.lagre(svpVedtakUtgåendeHendelse);
     }
-
-    @Override
-    protected boolean hendelseEksistererAllerede(BehandlingVedtak vedtak) {
-        return feedRepository.harHendelseMedKildeId(SvpVedtakUtgåendeHendelse.class, VEDTAK_PREFIX + vedtak.getId());
-    }
-
     @Override
     public void lagreFagsakAvsluttet(FagsakStatusEvent event) {
         log.info("lagrer utgående hendelse for fagsak {}", event.getFagsakId());
