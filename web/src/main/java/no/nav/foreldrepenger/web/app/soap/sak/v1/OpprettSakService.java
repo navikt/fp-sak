@@ -112,6 +112,7 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
         var jpostId = new JournalpostId(journalpostId);
         try {
             FagsakYtelseType ytelsefraDokument = fordelKlient.utledYtelestypeFor(jpostId);
+            logger.info("FPSAK vurdering FPFORDEL ytelsedok {} vs ytelseoppgitt {}", ytelsefraDokument, behandlingTema.getFagsakYtelseType());
             if (ytelsefraDokument.equals(behandlingTema.getFagsakYtelseType()))
                 return;
             var ønsket = BehandlingTema.fraFagsakHendelse(behandlingTema.getFagsakYtelseType(), null);
@@ -166,6 +167,10 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
             behandlingTema = BehandlingTema.finnForKodeverkEiersKode(behandlingstemaOffisiellKode);
         }
         if (behandlingTema == null || BehandlingTema.UDEFINERT.equals(behandlingTema)) {
+            UgyldigInput faultInfo = lagUgyldigInput("Behandlingstema", behandlingstemaOffisiellKode);
+            throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
+        }
+        if (FagsakYtelseType.UDEFINERT.equals(behandlingTema.getFagsakYtelseType())) {
             UgyldigInput faultInfo = lagUgyldigInput("Behandlingstema", behandlingstemaOffisiellKode);
             throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
         }
