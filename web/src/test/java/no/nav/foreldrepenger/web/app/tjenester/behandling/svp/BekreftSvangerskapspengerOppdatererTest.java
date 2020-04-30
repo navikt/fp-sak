@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,10 +62,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
 
     @Test
     public void skal_sette_totrinn_ved_endring() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING, BehandlingStegType.VURDER_TILRETTELEGGING);
-        scenario.medDefaultBekreftetTerminbekreftelse();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        Behandling behandling = behandlingMedTilretteleggingAP();
 
         SvpGrunnlagEntitet svpGrunnlag = byggSøknadsgrunnlag(behandling);
         BekreftSvangerskapspengerDto dto = byggDto(BEHOV_DATO, TERMINDATO,
@@ -99,10 +96,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     @Test
     public void skal_kunne_overstyre_utbetalinsgrad_dersom_ansatt_har_rolle_overstyrer() {
         settOppTilgangTilOverstyring(true);
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING, BehandlingStegType.VURDER_TILRETTELEGGING);
-        scenario.medDefaultBekreftetTerminbekreftelse();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        Behandling behandling = behandlingMedTilretteleggingAP();
 
         SvpGrunnlagEntitet svpGrunnlag = byggSøknadsgrunnlag(behandling);
         BekreftSvangerskapspengerDto dto = byggDto(BEHOV_DATO, TERMINDATO,
@@ -128,10 +122,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     @Test
     public void skal_ikke_kunne_overstyre_utbetalinsgrad_dersom_ansatt_ikke_har_rolle_overstyrer() {
         settOppTilgangTilOverstyring(false);
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING, BehandlingStegType.VURDER_TILRETTELEGGING);
-        scenario.medDefaultBekreftetTerminbekreftelse();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        Behandling behandling = behandlingMedTilretteleggingAP();
 
         SvpGrunnlagEntitet svpGrunnlag = byggSøknadsgrunnlag(behandling);
         BekreftSvangerskapspengerDto dto = byggDto(BEHOV_DATO, TERMINDATO,
@@ -144,6 +135,28 @@ public class BekreftSvangerskapspengerOppdatererTest {
 
         oppdaterer.oppdater(dto, param);
     }
+
+    @Test
+    public void stillingsprosent_skal_kunne_være_null_når_arbeidsforholdet_ikke_skal_brukes() {
+        var behandling = behandlingMedTilretteleggingAP();
+
+        var svpGrunnlag = byggSøknadsgrunnlag(behandling);
+        var dto = byggDto(BEHOV_DATO, TERMINDATO,
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            false,
+            new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.DELVIS_TILRETTELEGGING, null));
+
+        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
+        assertThatCode(() -> oppdaterer.oppdater(dto, param)).doesNotThrowAnyException();
+    }
+
+    private Behandling behandlingMedTilretteleggingAP() {
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING, BehandlingStegType.VURDER_TILRETTELEGGING);
+        scenario.medDefaultBekreftetTerminbekreftelse();
+        return scenario.lagre(repositoryProvider);
+    }
+
 
     private void settOppTilgangTilOverstyring(boolean kanOverstyre) {
         var dto = new InnloggetNavAnsattDto.Builder()
@@ -181,6 +194,14 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     private BekreftSvangerskapspengerDto byggDto(LocalDate behovDato, LocalDate termindato, Long id, SvpTilretteleggingDatoDto... tilretteleggingDatoer) {
+        return byggDto(behovDato, termindato, id, true, tilretteleggingDatoer);
+    }
+
+    private BekreftSvangerskapspengerDto byggDto(LocalDate behovDato,
+                                                 LocalDate termindato,
+                                                 Long id,
+                                                 boolean skalBrukes,
+                                                 SvpTilretteleggingDatoDto... tilretteleggingDatoer) {
         BekreftSvangerskapspengerDto dto = new BekreftSvangerskapspengerDto("Velbegrunnet begrunnelse");
         dto.setTermindato(termindato);
 
@@ -195,9 +216,9 @@ public class BekreftSvangerskapspengerOppdatererTest {
         arbeidsforholdDto.setArbeidsgiverNavn("Byggmaker Bob");
         arbeidsforholdDto.setMottattTidspunkt(FPDateUtil.nå());
         arbeidsforholdDto.setTilretteleggingId(id);
-        arbeidsforholdDto.setSkalBrukes(true);
+        arbeidsforholdDto.setSkalBrukes(skalBrukes);
 
-        dto.setBekreftetSvpArbeidsforholdList(Collections.singletonList(arbeidsforholdDto));
+        dto.setBekreftetSvpArbeidsforholdList(List.of(arbeidsforholdDto));
         return dto;
     }
 }
