@@ -46,7 +46,6 @@ public class FordelRestTjenesteTest {
     private OpprettSakTjeneste opprettSakTjenesteMock;
 
     private VurderFagsystemFellesTjeneste vurderFagsystemTjenesteMock;
-    private SvangerskapspengerRepository svangerskapspengerRepositoryMock = mock(SvangerskapspengerRepository.class);
 
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     private FordelRestTjeneste fordelRestTjeneste;
@@ -60,7 +59,7 @@ public class FordelRestTjenesteTest {
         vurderFagsystemTjenesteMock = mock(VurderFagsystemFellesTjeneste.class);
 
         fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock,
-            fagsakTjenesteMock, opprettSakOrchestratorMock, opprettSakTjenesteMock,repositoryProvider,vurderFagsystemTjenesteMock, svangerskapspengerRepositoryMock);
+            fagsakTjenesteMock, opprettSakOrchestratorMock, opprettSakTjenesteMock,repositoryProvider,vurderFagsystemTjenesteMock);
     }
 
     @Test

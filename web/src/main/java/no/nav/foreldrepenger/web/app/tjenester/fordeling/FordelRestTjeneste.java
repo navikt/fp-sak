@@ -35,10 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -101,7 +98,6 @@ public class FordelRestTjeneste {
     private VurderFagsystemFellesTjeneste vurderFagsystemTjeneste;
     private FamilieHendelseRepository familieGrunnlagRepository;
     private BehandlingRepository behandlingRepository;
-    private SvangerskapspengerRepository svangerskapspengerRepository;
 
     public FordelRestTjeneste() {// For Rest-CDI
     }
@@ -109,8 +105,7 @@ public class FordelRestTjeneste {
     @Inject
     public FordelRestTjeneste(SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste,
                               FagsakTjeneste fagsakTjeneste, OpprettSakOrchestrator opprettSakOrchestrator, OpprettSakTjeneste opprettSakTjeneste,
-                              BehandlingRepositoryProvider repositoryProvider, VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste,
-                              SvangerskapspengerRepository svangerskapspengerRepository) { // NOSONAR
+                              BehandlingRepositoryProvider repositoryProvider, VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste) { // NOSONAR
         this.dokumentmottakTjeneste = dokumentmottakTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.opprettSakOrchestrator = opprettSakOrchestrator;
@@ -118,7 +113,6 @@ public class FordelRestTjeneste {
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.vurderFagsystemTjeneste = vurderFagsystemFellesTjeneste;
-        this.svangerskapspengerRepository = svangerskapspengerRepository;
     }
 
     @POST
@@ -153,25 +147,7 @@ public class FordelRestTjeneste {
         BehandlingTema behandlingTemaFraKodeverksRepo = BehandlingTema.fraFagsak(optFagsak.get(), familieHendelse);
         String behandlingstemaOffisiellKode = behandlingTemaFraKodeverksRepo.getOffisiellKode();
         AktørId aktørId = optFagsak.get().getAktørId();
-        boolean åpenSvpSøknad = false;
-        if(behandling.isPresent()) {
-            åpenSvpSøknad = erBehandlingÅpenOgHarSvangerskapspengerSøknad(behandling.get());
-        }
-        return new FagsakInfomasjonDto(aktørId.getId(), behandlingstemaOffisiellKode, åpenSvpSøknad);
-    }
-
-    private Boolean erBehandlingÅpenOgHarSvangerskapspengerSøknad(Behandling behandling) {
-        if(!FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())){
-            return false;
-        }
-        if(behandling.erAvsluttet()){
-            return false;
-        }
-        var svpGrunnlag = svangerskapspengerRepository.hentGrunnlag(behandling.getId());
-        return svpGrunnlag.map(svpGrunnlagEntitet -> {
-            var aktuelleTilretteleggingerUfiltrert = new TilretteleggingFilter(svpGrunnlagEntitet).getAktuelleTilretteleggingerUfiltrert();
-            return aktuelleTilretteleggingerUfiltrert.stream().anyMatch(trlg -> !trlg.getKopiertFraTidligereBehandling());
-        }).orElse(false);
+        return new FagsakInfomasjonDto(aktørId.getId(), behandlingstemaOffisiellKode);
     }
 
     @POST

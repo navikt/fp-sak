@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.soap.sak.v1;
 
-import java.lang.module.ResolutionException;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
@@ -25,6 +23,7 @@ import no.nav.foreldrepenger.dokumentarkiv.journal.JournalTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostVurderingDto;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.BehandleForeldrepengesakV1;
@@ -123,12 +122,13 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
         var jpostId = new JournalpostId(journalpostId);
         try {
-            String ytelsefraDokument = fordelKlient.utledYtelestypeFor(jpostId);
-            FagsakYtelseType ytelseTypeFraDokument = TYPE_YTELSE_MAP.getOrDefault(ytelsefraDokument, FagsakYtelseType.UDEFINERT);
-            logger.info("FPSAK vurdering FPFORDEL ytelsedok {} vs ytelseoppgitt {}", ytelseTypeFraDokument, behandlingTema.getFagsakYtelseType());
-            if (ytelseTypeFraDokument.equals(behandlingTema.getFagsakYtelseType())) {
-                if (RESPONS_IMFP.equals(ytelsefraDokument) && opprettSakOrchestrator.harAktivSak(aktørId, behandlingTema)) {
-                    logger.info("FPSAK vurdering FPFORDEL IM med åpen Foreldrepengesak"); ;
+            JournalpostVurderingDto vurdering = fordelKlient.utledYtelestypeFor(jpostId);
+            var btVurdering = BehandlingTema.finnForKodeverkEiersKode(vurdering.getBehandlingstemaOffisiellKode());
+            var btOppgitt = BehandlingTema.fraFagsakHendelse(behandlingTema.getFagsakYtelseType(), null);
+            logger.info("FPSAK vurdering FPFORDEL ytelsedok {} vs ytelseoppgitt {}", btVurdering, btOppgitt);
+            if (btVurdering.equals(btOppgitt) && (vurdering.getErFørstegangssøknad() || vurdering.getErInntektsmelding())) {
+                if (BehandlingTema.FORELDREPENGER.equals(btVurdering) && vurdering.getErInntektsmelding() && opprettSakOrchestrator.harAktivSak(aktørId, behandlingTema)) {
+                    logger.info("FPSAK vurdering FPFORDEL IM med åpen Foreldrepengesak");
                 } else {
                     return;
                 }
