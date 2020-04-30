@@ -1,15 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -31,6 +21,15 @@ import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingÅrsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BehandlingÅrsakDtoTest {
 
@@ -55,7 +54,7 @@ public class BehandlingÅrsakDtoTest {
         var opptjeningIUtlandDokStatusTjeneste = new OpptjeningIUtlandDokStatusTjeneste(new OpptjeningIUtlandDokStatusRepository(repoRule.getEntityManager()));
         behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository,
             skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()));
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()), null);
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
