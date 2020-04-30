@@ -121,7 +121,7 @@ public class BehandlingDtoTjeneste {
                                  BehandlingDokumentRepository behandlingDokumentRepository,
                                  RelatertBehandlingTjeneste relatertBehandlingTjeneste,
                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
-                                 @KonfigVerdi("fpoppdrag.override.proxy.url") String fpoppdragOverrideProxyUrl) {
+                                 @KonfigVerdi(value="fpoppdrag.override.proxy.url", required=false) String fpoppdragOverrideProxyUrl) {
 
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
