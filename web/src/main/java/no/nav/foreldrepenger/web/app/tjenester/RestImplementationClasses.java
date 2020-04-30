@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBeregningR
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.integrasjonstatus.IntegrasjonstatusRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.konfig.KonfigRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.FeatureToggleRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.NavAnsattRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.VedtakRestTjeneste;
@@ -66,7 +65,6 @@ public class RestImplementationClasses {
         classes.add(HistorikkRestTjeneste.class);
         classes.add(BehandlingskontrollRestTjeneste.class);
         classes.add(KodeverkRestTjeneste.class);
-        classes.add(KonfigRestTjeneste.class);
         classes.add(BatchRestTjeneste.class);
         classes.add(ProsessTaskRestTjeneste.class);
         classes.add(VedtakJsonFeedRestTjeneste.class);
