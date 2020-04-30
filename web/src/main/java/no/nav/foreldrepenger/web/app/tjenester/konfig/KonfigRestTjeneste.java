@@ -11,6 +11,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import org.slf4j.Logger;
+
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -21,6 +23,8 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Transaction
 @Produces("application/json")
 public class KonfigRestTjeneste {
+
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(KonfigRestTjeneste.class);
 
     private URI rettskildeUrl;
     private URI systemrutineUrl;
@@ -43,6 +47,7 @@ public class KonfigRestTjeneste {
     @BeskyttetRessurs(action = READ, ressurs = APPLIKASJON, sporingslogg = false)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Konfig hentRettskildeUrl() {
+        LOG.info("Konfig resttjeneste i bruk");
         return new Konfig(rettskildeUrl.toString());
     }
 
@@ -53,6 +58,7 @@ public class KonfigRestTjeneste {
     @BeskyttetRessurs(action = READ, ressurs = APPLIKASJON, sporingslogg = false)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Konfig hentSystemrutine() {
+        LOG.info("Konfig resttjeneste i bruk");
         return new Konfig(systemrutineUrl.toString());
     }
 
