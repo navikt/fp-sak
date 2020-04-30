@@ -71,7 +71,7 @@ import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
-import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.økonomi.simulering.klient.FpOppdragUrlProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -106,7 +106,7 @@ public class BehandlingDtoTjeneste {
     private OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
-    private String fpoppdragOverrideProxyUrl;
+    private FpOppdragUrlProvider fpOppdragUrlProvider;
 
     BehandlingDtoTjeneste() {
         // for CDI proxy
@@ -121,7 +121,7 @@ public class BehandlingDtoTjeneste {
                                  BehandlingDokumentRepository behandlingDokumentRepository,
                                  RelatertBehandlingTjeneste relatertBehandlingTjeneste,
                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
-                                 @KonfigVerdi(value="fpoppdrag.override.proxy.url", required=false) String fpoppdragOverrideProxyUrl) {
+                                 FpOppdragUrlProvider fpOppdragUrlProvider) {
 
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
@@ -135,7 +135,7 @@ public class BehandlingDtoTjeneste {
         this.opptjeningIUtlandDokStatusTjeneste = opptjeningIUtlandDokStatusTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
-        this.fpoppdragOverrideProxyUrl = fpoppdragOverrideProxyUrl;
+        this.fpOppdragUrlProvider = fpOppdragUrlProvider;
     }
 
     private static BehandlingDto lagBehandlingDto(Behandling behandling,
@@ -474,10 +474,9 @@ public class BehandlingDtoTjeneste {
     }
 
     private Optional<ResourceLink> lagSimuleringResultatLink(Behandling behandling) {
-        //fpoppdrag.override.proxy.url brukes ved testing lokalt og docker-compose
         BehandlingIdDto idDto = new BehandlingIdDto(behandling.getId());
-        String baseUurl = fpoppdragOverrideProxyUrl != null ? fpoppdragOverrideProxyUrl : "/fpoppdrag/api";
-        return Optional.of(ResourceLink.post(baseUurl + "/simulering/resultat-uten-inntrekk", "simuleringResultat", idDto));
+        String fpoppdragBasePath = fpOppdragUrlProvider.getFpoppdragFrontendUrl();
+        return Optional.of(ResourceLink.post(fpoppdragBasePath + "/simulering/resultat-uten-inntrekk", "simuleringResultat", idDto));
     }
 
     private Optional<ResourceLink> lagTilbakekrevingValgLink(Behandling behandling) {

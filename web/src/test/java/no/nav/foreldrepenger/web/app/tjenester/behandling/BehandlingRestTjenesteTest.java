@@ -25,22 +25,31 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.foreldrepenger.økonomi.simulering.klient.FpOppdragUrlProvider;
+import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.time.Period;
 
-import static org.mockito.Mockito.mock;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
+@RunWith(CdiRunner.class)
 public class BehandlingRestTjenesteTest {
 
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+
+    @Inject
+    private FpOppdragUrlProvider fpOppdragUrlProvider;
+
     private BehandlingRestTjeneste behandlingRestTjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -64,7 +73,7 @@ public class BehandlingRestTjenesteTest {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil);
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository,
             skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()), null);
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()), fpOppdragUrlProvider);
 
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningApplikasjonTjeneste,
             behandlingsoppretterApplikasjonTjeneste,

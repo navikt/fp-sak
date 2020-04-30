@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.økonomi.simulering.klient;
 
-import java.net.URI;
+import no.nav.vedtak.felles.integrasjon.rest.SystemUserOidcRestClient;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import no.nav.vedtak.felles.integrasjon.rest.SystemUserOidcRestClient;
+import java.net.URI;
 
 @ApplicationScoped
 public class FpoppdragSystembrukerRestKlient {
@@ -13,18 +12,16 @@ public class FpoppdragSystembrukerRestKlient {
     private static final String FPOPPDRAG_KANSELLER_SIMULERING = "/simulering/kanseller";
 
     private SystemUserOidcRestClient restClient;
-    private URI uriKansellerSimulering;
+    private FpOppdragUrlProvider fpOppdragUrlProvider;
 
     public FpoppdragSystembrukerRestKlient() {
         //for cdi proxy
     }
 
     @Inject
-    public FpoppdragSystembrukerRestKlient(SystemUserOidcRestClient restClient) {
+    public FpoppdragSystembrukerRestKlient(SystemUserOidcRestClient restClient, FpOppdragUrlProvider fpOppdragUrlProvider) {
         this.restClient = restClient;
-        String fpoppdragBaseUrl = FpoppdragFelles.getFpoppdragBaseUrl();
-
-        uriKansellerSimulering = URI.create(fpoppdragBaseUrl + FPOPPDRAG_KANSELLER_SIMULERING);
+        this.fpOppdragUrlProvider = fpOppdragUrlProvider;
     }
 
     /**
@@ -33,7 +30,8 @@ public class FpoppdragSystembrukerRestKlient {
      * @param behandlingId
      */
     public void kansellerSimulering(Long behandlingId) {
-        restClient.post(uriKansellerSimulering, new BehandlingIdDto(behandlingId));
+        String fpoppdragBaseUrl = fpOppdragUrlProvider.getFpoppdragUrl();
+        restClient.post(URI.create(fpoppdragBaseUrl + FPOPPDRAG_KANSELLER_SIMULERING), new BehandlingIdDto(behandlingId));
     }
 
 }

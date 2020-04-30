@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.økonomi.simulering.klient;
 
-import java.net.URI;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.økonomi.simulering.kontrakt.SimulerOppdragDto;
 import no.nav.foreldrepenger.økonomi.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.net.URI;
+import java.util.Optional;
 
 @ApplicationScoped
 public class FpOppdragRestKlient {
@@ -16,29 +15,27 @@ public class FpOppdragRestKlient {
     private static final String FPOPPDRAG_START_SIMULERING = "/simulering/start";
     private static final String FPOPPDRAG_HENT_RESULTAT = "/simulering/resultat";
 
-
     private OidcRestClient restClient;
-    private URI uriStartSimulering;
-    private URI uriHentResultat;
+    private FpOppdragUrlProvider fpOppdragUrlProvider;
 
     public FpOppdragRestKlient() {
         //for cdi proxy
     }
 
     @Inject
-    public FpOppdragRestKlient(OidcRestClient restClient) {
+    public FpOppdragRestKlient(OidcRestClient restClient, FpOppdragUrlProvider fpOppdragUrlProvider) {
         this.restClient = restClient;
-        String fpoppdragBaseUrl = FpoppdragFelles.getFpoppdragBaseUrl();
-        uriStartSimulering = URI.create(fpoppdragBaseUrl + FPOPPDRAG_START_SIMULERING);
-        uriHentResultat = URI.create(fpoppdragBaseUrl + FPOPPDRAG_HENT_RESULTAT);
+        this.fpOppdragUrlProvider = fpOppdragUrlProvider;
     }
+
 
     /**
      * Starter en simulering for gitt behandling med oppdrag XMLer.
      * @param request med behandlingId og liste med oppdrag-XMLer
      */
     public void startSimulering(SimulerOppdragDto request) {
-        restClient.post(uriStartSimulering, request);
+        String fpoppdragBaseUrl = fpOppdragUrlProvider.getFpoppdragUrl();
+        restClient.post(URI.create(fpoppdragBaseUrl + FPOPPDRAG_START_SIMULERING), request);
     }
 
     /**
@@ -47,7 +44,9 @@ public class FpOppdragRestKlient {
      * @return Optional med SimuleringResultatDto kan være tom
      */
     public Optional<SimuleringResultatDto> hentResultat(Long behandlingId) {
-        return restClient.postReturnsOptional(uriHentResultat, new BehandlingIdDto(behandlingId), SimuleringResultatDto.class);
+        String fpoppdragBaseUrl = fpOppdragUrlProvider.getFpoppdragUrl();
+        return restClient.postReturnsOptional(URI.create(fpoppdragBaseUrl + FPOPPDRAG_HENT_RESULTAT),
+                                                new BehandlingIdDto(behandlingId), SimuleringResultatDto.class);
     }
 
 }

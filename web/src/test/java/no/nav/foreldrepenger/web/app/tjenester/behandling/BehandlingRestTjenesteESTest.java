@@ -35,11 +35,15 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.foreldrepenger.økonomi.simulering.klient.FpOppdragUrlProvider;
+import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -49,10 +53,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@RunWith(CdiRunner.class)
 public class BehandlingRestTjenesteESTest {
 
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+
+    @Inject
+    private FpOppdragUrlProvider fpOppdragUrlProvider;
 
     private BehandlingRestTjeneste behandlingRestTjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -74,7 +82,7 @@ public class BehandlingRestTjenesteESTest {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         BehandlingDtoTjeneste behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste,
             tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()), null);
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()), fpOppdragUrlProvider);
 
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningApplikasjonTjeneste,
             behandlingsoppretterApplikasjonTjeneste,

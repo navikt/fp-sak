@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.Behandl
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
 import no.nav.foreldrepenger.web.app.util.RestUtils;
+import no.nav.foreldrepenger.økonomi.simulering.klient.FpOppdragUrlProvider;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import org.junit.Before;
 import org.junit.Rule;
@@ -74,6 +75,9 @@ public class BehandlingDtoTjenesteImplTest {
     @Inject
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
+    @Inject
+    private FpOppdragUrlProvider fpOppdragUrlProvider;
+
     private BehandlingDtoTjeneste tjeneste;
 
     private LocalDate now = LocalDate.now();
@@ -84,7 +88,7 @@ public class BehandlingDtoTjenesteImplTest {
     public void setUp() {
         existingRoutes = RestUtils.getRoutes();
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
-            opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste, foreldrepengerUttakTjeneste, null);
+            opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste, foreldrepengerUttakTjeneste, fpOppdragUrlProvider);
     }
 
     @Test
