@@ -34,10 +34,6 @@
 			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
 			<artifactId>journal-klient</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-			<artifactId>inngaaendejournal-klient</artifactId>
-		</dependency>
 
 
 		<!-- Test avhengigheter -->

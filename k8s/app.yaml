@@ -183,12 +183,6 @@ spec:
       value: sak_v1.url
     - name: AKTOER_V2_URL
       value: aktoer_v2.url
-    - name: DOKUMENTPRODUKSJON_V2_URL
-      value: dokumentproduksjon_v2.url
-    - name: BEHANDLEINNGAAENDEJOURNAL_V1_URL
-      value: behandleinngaaendejournal_v1.url
-    - name: INNGAAENDEJOURNAL_V1_URL
-      value: inngaaende_journal_v1.url
     - name: JOURNAL_V3_URL
       value: journal_v3.url
     - name: BEHANDLESAK_V2_URL
