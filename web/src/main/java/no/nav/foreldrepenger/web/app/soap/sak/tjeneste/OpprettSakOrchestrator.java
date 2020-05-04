@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.web.app.soap.sak.tjeneste;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,7 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Journalpost;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -53,9 +50,11 @@ public class OpprettSakOrchestrator {
     }
 
     public boolean harAktivSak(AktørId aktørId, BehandlingTema behandlingTema) {
+        var ytelsetype = behandlingTema.getFagsakYtelseType();
         return fagsakRepository.hentForBruker(aktørId).stream()
-            .filter(fs -> fs.getYtelseType().equals(behandlingTema.getFagsakYtelseType()))
-            .anyMatch(fs -> !FagsakStatus.AVSLUTTET.equals(fs.getStatus()));
+            .filter(Fagsak::erÅpen)
+            .map(Fagsak::getYtelseType)
+            .anyMatch(ytelsetype::equals);
     }
 
     private Fagsak finnEllerOpprettFagSak(JournalpostId journalpostId, FagsakYtelseType ytelseType, Personinfo bruker) {
