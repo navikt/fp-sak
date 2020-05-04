@@ -159,14 +159,17 @@ public class DokumentmottakerFelles {
         Behandling revurdering = behandlingsoppretter.opprettRevurdering(fagsak, behandlingÅrsakType);
         mottatteDokumentTjeneste.persisterDokumentinnhold(revurdering, mottattDokument, Optional.empty());
         opprettHistorikk(revurdering, mottattDokument);
-        opprettKøetHistorikk(revurdering, false);
-        behandlingsoppretter.settSomKøet(revurdering);
+        leggNyBehandlingPåKøOgOpprettHistorikkinnslag(revurdering);
         return revurdering;
     }
 
-    final Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
+    final Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, boolean opprettSomKøet) {
         Behandling revurdering = behandlingsoppretter.opprettManuellRevurdering(fagsak, behandlingÅrsakType);
-        opprettTaskForÅStarteBehandling(revurdering);
+        if (opprettSomKøet) {
+            leggNyBehandlingPåKøOgOpprettHistorikkinnslag(revurdering);
+        } else {
+            opprettTaskForÅStarteBehandling(revurdering);
+        }
         return revurdering;
     }
 
@@ -194,12 +197,24 @@ public class DokumentmottakerFelles {
         return false;
     }
 
-    public Behandling opprettNyFørstegangFraBehandlingMedSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling avsluttetBehandling, MottattDokument mottattDokument) {
+    public Behandling opprettFørstegangsbehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Optional<Behandling> tidligereBehandling, boolean opprettSomKøet) {
+        Behandling nyBehandling = behandlingsoppretter.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, tidligereBehandling);
+        if (opprettSomKøet) {
+            leggNyBehandlingPåKøOgOpprettHistorikkinnslag(nyBehandling);
+        }
+        return nyBehandling;
+    }
+
+    public Behandling opprettNyFørstegangFraBehandlingMedSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling avsluttetBehandling, MottattDokument mottattDokument, boolean opprettSomKøet) {
         Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingFraTidligereSøknad(fagsak, behandlingÅrsakType, avsluttetBehandling);
         behandlingsoppretter.opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(nyBehandling);
         historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, mottattDokument.getJournalpostId(), false,
             mottattDokument.getElektroniskRegistrert(), DokumentTypeId.INNTEKTSMELDING.equals(mottattDokument.getDokumentType()));
-        opprettTaskForÅStarteBehandling(nyBehandling);
+        if (opprettSomKøet) {
+            leggNyBehandlingPåKøOgOpprettHistorikkinnslag(nyBehandling);
+        } else {
+            opprettTaskForÅStarteBehandling(nyBehandling);
+        }
         return nyBehandling;
     }
 
@@ -232,8 +247,7 @@ public class DokumentmottakerFelles {
         Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType, forrigeBehandling, !mottattDokument.getDokumentType().erSøknadType());
         persisterDokumentinnhold(nyBehandling, mottattDokument, Optional.empty());
         opprettHistorikk(nyBehandling, mottattDokument);
-        opprettKøetHistorikk(nyBehandling, false);
-        behandlingsoppretter.settSomKøet(nyBehandling);
+        leggNyBehandlingPåKøOgOpprettHistorikkinnslag(nyBehandling);
     }
 
     private Behandling finnEvtForrigeBehandling(MottattDokument mottattDokument, Fagsak fagsak) {
@@ -279,4 +293,10 @@ public class DokumentmottakerFelles {
     void persisterDokumentinnhold(Behandling behandling, MottattDokument dokument, Optional<LocalDate> gjelderFra) {
         mottatteDokumentTjeneste.persisterDokumentinnhold(behandling, dokument, gjelderFra);
     }
+
+    private void leggNyBehandlingPåKøOgOpprettHistorikkinnslag(Behandling nyBehandling) {
+        opprettKøetHistorikk(nyBehandling, false);
+        behandlingsoppretter.settSomKøet(nyBehandling);
+    }
+
 }

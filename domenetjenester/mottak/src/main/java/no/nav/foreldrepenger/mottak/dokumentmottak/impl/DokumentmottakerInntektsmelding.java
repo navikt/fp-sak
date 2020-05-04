@@ -103,12 +103,6 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
 
     @Override
     public void opprettFraTidligereAvsluttetBehandling(Fagsak fagsak, Long behandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType, boolean opprettSomKøet) {
-        if (opprettSomKøet) {
-            // Ikke støttet og antagelig ikke ønsket interaktivt. Hvis i kø pga berørt på samme sak - da kan man vente. Kø pga medforelder skal behandles i INSØK, ikke i mottak!
-            logger.warn("Ignorerer forsøk på å opprette ny førstegangsbehandling fra tidligere avsluttet id={} på fagsak={} da køing ikke er støttet her",
-                behandlingId, fagsak.getId());
-            return;
-        }
         Behandling avsluttetBehandling = behandlingRepository.hentBehandling(behandlingId);
         boolean harÅpenBehandling = !revurderingRepository.hentSisteYtelsesbehandling(fagsak.getId()).map(Behandling::erSaksbehandlingAvsluttet).orElse(Boolean.TRUE);
         if (harÅpenBehandling || !(erAvslag(avsluttetBehandling) || avsluttetBehandling.isBehandlingHenlagt())) {
@@ -116,9 +110,11 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
                 behandlingId, fagsak.getId(), harÅpenBehandling, erAvslag(avsluttetBehandling), avsluttetBehandling.isBehandlingHenlagt());
             return;
         }
-        Behandling nyBehandling = behandlingsoppretter.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.of(avsluttetBehandling));
+        Behandling nyBehandling = dokumentmottakerFelles.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.of(avsluttetBehandling), opprettSomKøet);
         dokumentmottakerFelles.persisterDokumentinnhold(nyBehandling, mottattDokument, Optional.empty());
         dokumentmottakerFelles.opprettHistorikk(nyBehandling, mottattDokument);
-        dokumentmottakerFelles.opprettTaskForÅStarteBehandling(nyBehandling);
+        if (!opprettSomKøet) {
+            dokumentmottakerFelles.opprettTaskForÅStarteBehandling(nyBehandling);
+        }
     }
 }
