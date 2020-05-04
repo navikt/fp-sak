@@ -10,18 +10,6 @@ public interface HendelsePublisererFeil extends DeklarerteFeil {
 
     HendelsePublisererFeil FACTORY = FeilFactory.create(HendelsePublisererFeil.class);
 
-    @TekniskFeil(feilkode = "FP-184343", feilmelding = "Manglende originalBehandling for BehandlingVedtak om endring", logLevel = LogLevel.ERROR)
-    Feil manglerOriginialBehandlingPåEndringsVedtak();
-
-    @TekniskFeil(feilkode = "FP-683342", feilmelding = "Ingen endring i uttak fom/tom", logLevel = LogLevel.WARN)
-    Feil fantIngenEndringIUttakFomEllerTom();
-
-    @TekniskFeil(feilkode = "FP-343184", feilmelding = "Finner ikke noen relevant uttaksplan for vedtak", logLevel = LogLevel.ERROR)
-    Feil finnerIkkeRelevantUttaksplanForVedtak();
-
     @TekniskFeil(feilkode = "FP-792048", feilmelding = "Ukjent type %s funnet for sekvensnummer %s i vedtak-json-feed", logLevel = LogLevel.WARN)
     Feil ukjentHendelseMeldingstype(String type, Long sekvensnummer);
-
-    @TekniskFeil(feilkode = "FP-213891", feilmelding = "Finner ikke siste behandling for fagsak", logLevel = LogLevel.ERROR)
-    Feil finnerIkkeBehandlingForFagsak();
 }
