@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygd;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygdRepository;
@@ -40,7 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.domene.vedtak.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdPSGrunnlag;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdSPGrunnlag;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
@@ -81,7 +82,7 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         aktørConsumerMock = mock(AktørConsumerMedCache.class);
         infotrygdPSGrTjenesteMock = mock(InfotrygdPSGrunnlag.class);
         infotrygdSPGrTjenesteMock = mock(InfotrygdSPGrunnlag.class);
-        overlappendeInfotrygdYtelseTjeneste = new IdentifiserOverlappendeInfotrygdYtelseTjeneste(beregningsresultatRepository, aktørConsumerMock,infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock , overlappRepository);
+        overlappendeInfotrygdYtelseTjeneste = new IdentifiserOverlappendeInfotrygdYtelseTjeneste(beregningsresultatRepository, aktørConsumerMock,infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock , overlappRepository, mock(BehandlingRepository.class));
         førsteUttaksdatoFp = LocalDate.now().minusMonths(4).minusWeeks(2);
         førsteUttaksdatoFp = VirkedagUtil.fomVirkedag(førsteUttaksdatoFp);
 
@@ -113,11 +114,47 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd(behandlingFP);
+        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
 
         // Assert
         assertThat(overlappIT).hasSize(1);
         assertThat(overlappIT.get(0).getPeriodeInfotrygd().getTomDato()).isEqualTo(førsteUttaksdatoFp);
+    }
+
+    @Test
+    public void overlapp_gradert_opphører() {
+        // Arrange
+        List<Vedtak> vedtakPeriode = new ArrayList<>();
+        vedtakPeriode.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), 50));
+        Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), vedtakPeriode);
+
+
+        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag));
+        when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
+
+        BeregningsresultatEntitet berFp = lagGradertBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
+        beregningsresultatRepository.lagre(behandlingFP, berFp);
+
+        // Act
+        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
+
+        // Assert
+        assertThat(overlappIT).isEmpty();
+
+        // Arrange2
+        List<Vedtak> vedtakPeriode2 = new ArrayList<>();
+        vedtakPeriode2.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), 100));
+        Grunnlag infotrygPSGrunnlag2 = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), vedtakPeriode2);
+
+
+        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag2));
+
+        // Act
+        List<BehandlingOverlappInfotrygd> overlappIT2 = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
+
+        // Assert
+        assertThat(overlappIT2).hasSize(1);
+        assertThat(overlappIT2.get(0).getPeriodeInfotrygd().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(4));
     }
 
     @Test
@@ -143,11 +180,12 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        List<BehandlingOverlappInfotrygd> flereSomOverlapper = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd(behandlingFP);
+        List<BehandlingOverlappInfotrygd> flereSomOverlapper = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
 
         // Assert
         assertThat(flereSomOverlapper).hasSize(2);
     }
+
     @Test
     public void flereGrunnlagMenEttOverlappIlisten() {
 
@@ -171,7 +209,7 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        List<BehandlingOverlappInfotrygd> flereSomOverlapper = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd(behandlingFP);
+        List<BehandlingOverlappInfotrygd> flereSomOverlapper = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
 
         // Assert
         assertThat(flereSomOverlapper).hasSize(1);
@@ -192,7 +230,7 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd(behandlingFP);
+        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
 
         // Assert
         assertThat(overlappIT).hasSize(0);
@@ -208,7 +246,7 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd(behandlingFP);
+        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
 
         // Assert
         assertThat(overlappIT).isEmpty();
@@ -249,6 +287,23 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
             .medDagsatsFraBg(200)
             .medBrukerErMottaker(true)
             .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .build(beregningsresultatPeriode);
+        return beregningsresultat;
+    }
+
+    private BeregningsresultatEntitet lagGradertBeregningsresultatFP(LocalDate periodeFom, LocalDate periodeTom) {
+        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
+        BeregningsresultatPeriode beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
+            .build(beregningsresultat);
+        BeregningsresultatAndel.builder()
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medDagsats(100)
+            .medDagsatsFraBg(200)
+            .medBrukerErMottaker(true)
+            .medUtbetalingsgrad(BigDecimal.valueOf(50))
             .medStillingsprosent(BigDecimal.valueOf(100))
             .build(beregningsresultatPeriode);
         return beregningsresultat;

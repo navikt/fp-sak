@@ -1,8 +1,9 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -26,6 +27,7 @@ import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -34,7 +36,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.json.JacksonJsonConfig;
+import no.nav.foreldrepenger.mottak.vedtak.VurderOpphørAvYtelser;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
@@ -43,6 +47,7 @@ import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -53,6 +58,7 @@ public class VedtaksHendelseHåndterer {
     private static final ObjectMapper OBJECT_MAPPER = JacksonJsonConfig.getMapper();
 
     private FagsakTjeneste fagsakTjeneste;
+    private VurderOpphørAvYtelser vurderOpphørAvYtelser;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository tilkjentYtelseRepository;
     private Validator validator;
@@ -61,8 +67,11 @@ public class VedtaksHendelseHåndterer {
     }
 
     @Inject
-    public VedtaksHendelseHåndterer(FagsakTjeneste fagsakTjeneste, BehandlingRepositoryProvider repositoryProvider) {
+    public VedtaksHendelseHåndterer(FagsakTjeneste fagsakTjeneste,
+                                    VurderOpphørAvYtelser vurderOpphørAvYtelser,
+                                    BehandlingRepositoryProvider repositoryProvider) {
         this.fagsakTjeneste = fagsakTjeneste;
+        this.vurderOpphørAvYtelser = vurderOpphørAvYtelser;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.tilkjentYtelseRepository = repositoryProvider.getBeregningsresultatRepository();
         @SuppressWarnings("resource")
@@ -72,7 +81,6 @@ public class VedtaksHendelseHåndterer {
     }
 
     void handleMessage(String key, String payload) {
-        LOG.debug("Mottatt ytelse-vedtatt hendelse med key='{}', payload={}", key, payload);
         Ytelse mottattVedtak;
         try {
             mottattVedtak = OBJECT_MAPPER.readValue(payload, Ytelse.class);
@@ -99,38 +107,53 @@ public class VedtaksHendelseHåndterer {
     }
 
     private void sjekkVedtakOverlapp(YtelseV1 ytelse) {
+        List<LocalDateSegment<Boolean>> ytelsesegments = ytelse.getAnvist().stream()
+            // .filter(p -> p.getUtbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) > 0)
+            .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getPeriode().getFom()), VirkedagUtil.tomVirkedag(p.getPeriode().getTom()), Boolean.TRUE))
+            .collect(Collectors.toList());
+        if (ytelsesegments.isEmpty())
+            return;
+
         List<Fagsak> fagsaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(ytelse.getAktør().getVerdi())).stream()
             .filter(f -> !FagsakYtelseType.ENGANGSTØNAD.equals(f.getYtelseType()))
-            .filter(Fagsak::erÅpen) // OBS: fjern denne for å
             .collect(Collectors.toList());
         if (fagsaker.isEmpty())
             return;
-        LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}", ytelse.getType(), fagsaker);
+        LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}", ytelse.getType(), fagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList()));
 
-        List<LocalDateSegment<Boolean>> ytelsesegments = ytelse.getAnvist().stream()
-            .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getPeriode().getFom()), VirkedagUtil.tomVirkedag(p.getPeriode().getTom()), Boolean.TRUE))
-            .collect(Collectors.toList());
-
-        List<LocalDateSegment<Boolean>> fpsegments = fagsaker.stream()
+        var minYtelseDato = ytelsesegments.stream().map(LocalDateSegment::getFom).min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
+        var ytelseTidslinje = new LocalDateTimeline<>(ytelsesegments, StandardCombinators::alwaysTrueForMatch).compress();
+        List<Behandling> behandlinger = fagsaker.stream()
             .map(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()))
             .flatMap(Optional::stream)
-            .map(b -> tilkjentYtelseRepository.hentBeregningsresultat(b.getId()))
-            .flatMap(Optional::stream)
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
-            .flatMap(Collection::stream)
-            .filter(p -> p.getDagsats() > 0)
-            .filter(p -> p.getBeregningsresultatPeriodeTom().isAfter(LocalDate.now().minusYears(1)))
-            .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getBeregningsresultatPeriodeFom()), VirkedagUtil.tomVirkedag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
+            .filter(b -> sjekkOverlappFor(minYtelseDato, ytelseTidslinje, b))
+            .sorted(Comparator.comparing(Behandling::getOpprettetDato).reversed())
             .collect(Collectors.toList());
 
-        if (ytelsesegments.isEmpty() || fpsegments.isEmpty())
-            return;
+        if (!behandlinger.isEmpty()) {
+            var overlappsaker = behandlinger.stream().map(Behandling::getFagsak).map(Fagsak::getSaksnummer).map(Saksnummer::getVerdi).collect(Collectors.joining(", "));
+            var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL; %s", ytelse.getType().getNavn(), ytelse.getSaksnummer(), overlappsaker);
+            LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER UMIDDELBART - {}", beskrivelse);
+            // TODO (jol): enable VKY etter avklaring. Deretter vurder å opprette revurdering ....
+            // vurderOpphørAvYtelser.opprettTaskForÅVurdereKonsekvens(behandlinger.get(0).getFagsakId(), behandlinger.get(0).getBehandlendeEnhet(),
+            //    beskrivelse, Optional.of(ytelse.getAktør().getVerdi()));
+        }
+    }
+
+    private boolean sjekkOverlappFor(LocalDate minYtelseDato, LocalDateTimeline<Boolean> ytelseTidslinje, Behandling behandling) {
+        List<LocalDateSegment<Boolean>> fpsegments = tilkjentYtelseRepository.hentBeregningsresultat(behandling.getId())
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .filter(p -> p.getDagsats() > 0)
+            .filter(p -> p.getBeregningsresultatPeriodeTom().isAfter(minYtelseDato.minusDays(1)))
+            .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getBeregningsresultatPeriodeFom()),
+                VirkedagUtil.tomVirkedag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
+            .collect(Collectors.toList());
+
+        if (fpsegments.isEmpty())
+            return false;
 
         var fpTidslinje = new LocalDateTimeline<>(fpsegments, StandardCombinators::alwaysTrueForMatch).compress();
-        var ytelseTidslinje = new LocalDateTimeline<>(ytelsesegments, StandardCombinators::alwaysTrueForMatch).compress();
-
-        if (!fpTidslinje.intersection(ytelseTidslinje).getDatoIntervaller().isEmpty())
-            LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER for overlapp mellom ytelse {} sak {} og VL-sakene {}", ytelse.getType(), ytelse.getSaksnummer(), fagsaker);
+        return !fpTidslinje.intersection(ytelseTidslinje).getDatoIntervaller().isEmpty();
     }
 
     private interface YtelseFeil extends DeklarerteFeil {

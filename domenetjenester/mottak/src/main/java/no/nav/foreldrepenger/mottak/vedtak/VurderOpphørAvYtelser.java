@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesser
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.SjekkOverlappForeldrepengerInfotrygdTjeneste;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.SjekkOverlappForeldrepengerInfotrygdTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -56,6 +56,8 @@ vurdere om opphør skal gjennomføres eller ikke. Saksbehandling må skje manuel
  */
 @ApplicationScoped
 public class VurderOpphørAvYtelser  {
+    private static final Logger LOG = LoggerFactory.getLogger(VurderOpphørAvYtelser.class);
+
     private FagsakRepository fagsakRepository;
     private PersonopplysningRepository personopplysningRepository;
     private BehandlingRepository behandlingRepository;
@@ -66,7 +68,6 @@ public class VurderOpphørAvYtelser  {
     private ProsessTaskRepository prosessTaskRepository;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
-    private static final Logger log = LoggerFactory.getLogger(VurderOpphørAvYtelser.class);
     private SjekkOverlappForeldrepengerInfotrygdTjeneste sjekkOverlappInfortrygd;
 
     public VurderOpphørAvYtelser() {
@@ -142,7 +143,7 @@ public class VurderOpphørAvYtelser  {
         opprettTaskForÅVurdereKonsekvens(gjeldendeFagsak.getId(), gjeldendeBehandling.getBehandlendeEnhet(),
             "Nytt barn i VL: Vurder opphør av ytelse i Infotrygd", Optional.of(aktørId.getId()));
 
-        log.info("Overlapp INFOTRYGD på aktør {} for vedtatt sak {}", aktørId, gjeldendeFagsak.getSaksnummer());
+        LOG.info("Overlapp INFOTRYGD på aktør {} for vedtatt sak {}", aktørId, gjeldendeFagsak.getSaksnummer());
     }
 
     private void håndtereOpphør(Fagsak sakOpphør) {
@@ -158,9 +159,9 @@ public class VurderOpphørAvYtelser  {
             if (behandling.erAvsluttet()) {
                 Behandling revurderingOpphør = opprettRevurdering(sakOpphør, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
                 if (revurderingOpphør != null) {
-                    log.info("Overlapp FPSAK: Vurder opphør av ytelse har opprettet revurdering med behandlingId {} på sak med saksnummer {} pga behandlingId {}", revurderingOpphør.getId(), sakOpphør.getSaksnummer(), behandlingId);
+                    LOG.info("Overlapp FPSAK: Vurder opphør av ytelse har opprettet revurdering med behandlingId {} på sak med saksnummer {} pga behandlingId {}", revurderingOpphør.getId(), sakOpphør.getSaksnummer(), behandlingId);
                 } else {
-                    log.info("Overlapp FPSAK: Vurder opphør av ytelse kunne ikke opprette revurdering på sak med saksnummer {} pga behandlingId {}", sakOpphør.getSaksnummer(), behandlingId);
+                    LOG.info("Overlapp FPSAK: Vurder opphør av ytelse kunne ikke opprette revurdering på sak med saksnummer {} pga behandlingId {}", sakOpphør.getSaksnummer(), behandlingId);
                 }
             } else {
                 oppdatereBehMedÅrsak(behandlingId, lås);
@@ -178,18 +179,12 @@ public class VurderOpphørAvYtelser  {
 
     private boolean erMaxDatoPåLøpendeSakEtterStartDatoNysak(Fagsak fagsak, LocalDate startDato) {
         var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
-        // TODO (aga): Sjekke logger og vurder fjerning av denne loggingen.
-        behandling.ifPresent(behandling1 -> {
-            var maxDato= finnMaxDato(behandling1.getId());
-            if(!maxDato.isBefore(startDato)) {
-                log.info("Oppdaget overlapp. Mulig Avslått periode for fagsak {} med maxDato {} ", fagsak.getId(), maxDato );
-            }
-        });
-        return behandling.map(behandling1 -> evaluerHarSakOverlapp(behandling1, startDato)).orElse(Boolean.FALSE);
-    }
+        LocalDate maxDato = behandling.map(Behandling::getId).map(this::finnMaxDato).orElse(Tid.TIDENES_BEGYNNELSE);
+        LocalDate maxUtbetaltDato = behandling.map(Behandling::getId).map(this::finnMaxDatoUtenAvslåtte).orElse(Tid.TIDENES_BEGYNNELSE);
+        if (!maxDato.isBefore(startDato) && maxUtbetaltDato.isBefore(startDato))
+            LOG.info("VurderOpphør - mulig overlapp ifm avslått periode for fagsak {} med maxDato {} og maxUtbetalt {}", fagsak.getSaksnummer(), maxDato, maxUtbetaltDato );
 
-    private boolean evaluerHarSakOverlapp(Behandling behandling, LocalDate startDato) {
-        return !finnMaxDatoUtenAvslåtte(behandling.getId()).isBefore(startDato); // true hvis lik el senere
+        return !maxUtbetaltDato.isBefore(startDato);
     }
 
     private LocalDate finnMinDato(Long behandlingId) {
@@ -252,7 +247,7 @@ public class VurderOpphørAvYtelser  {
         return FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsak.getYtelseType()) ? revurderingTjenesteSVP : revurderingTjenesteFP;
     }
 
-    void opprettTaskForÅVurdereKonsekvens(Long fagsakId, String behandlendeEnhetsId, String oppgaveBeskrivelse, Optional<String> gjeldendeAktørId) {
+    public void opprettTaskForÅVurdereKonsekvens(Long fagsakId, String behandlendeEnhetsId, String oppgaveBeskrivelse, Optional<String> gjeldendeAktørId) {
         ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, behandlendeEnhetsId);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, oppgaveBeskrivelse);

@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,6 +103,14 @@ public class BeregningsresultatPeriode extends BaseEntitet {
             .filter(a -> a.getDagsats() > 0)
             .map(BeregningsresultatAndel::getUtbetalingsgrad)
             .min(Comparator.naturalOrder());
+    }
+
+    public BigDecimal getKalkulertUtbetalingsgrad() {
+        var dagsats = getDagsats();
+        var bgsats = getDagsatsFraBg();
+        if (dagsats == 0 || bgsats == 0)
+            return BigDecimal.ZERO;
+        return new BigDecimal(100).multiply(new BigDecimal(dagsats)).divide(new BigDecimal(bgsats), RoundingMode.HALF_UP);
     }
 
     @Override

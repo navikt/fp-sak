@@ -10,9 +10,9 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.domene.vedtak.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
 import no.nav.foreldrepenger.mottak.vedtak.VurderOpphørAvYtelserTask;
 
