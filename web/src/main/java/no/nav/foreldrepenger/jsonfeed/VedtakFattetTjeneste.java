@@ -71,7 +71,7 @@ public class VedtakFattetTjeneste {
 
     private FeedElement mapTilFeedElement(UtgåendeHendelse hendelse) {
         Meldingstype type = Meldingstype.fromType(hendelse.getType());
-        if (type == null) { //ignorerer ukjente typer
+        if (type == null) {
             throw new IllegalStateException("Utviklerfeil: Udefinert hendelsetype");
         }
 

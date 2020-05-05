@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerOpphoert;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Meldingstype;
 import no.nav.foreldrepenger.mottak.hendelser.JsonMapper;
-import no.nav.vedtak.exception.TekniskException;
 
 public class HendelsePublisererTjenesteTest {
 

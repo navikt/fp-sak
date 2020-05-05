@@ -21,10 +21,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.domene.feed.SvpVedtakUtgåendeHendelse;
+import no.nav.foreldrepenger.domene.feed.UtgåendeHendelse;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerEndret;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
@@ -67,7 +69,7 @@ public class HendelsePublisererTjeneste {
 
         Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
 
-        if (hendelseEksistererAllerede(vedtak)) {
+        if (hendelseEksistererAllerede(vedtak, behandling.getFagsakYtelseType())) {
             log.debug("Skipper lagring av hendelse av vedtakId {} fordi den allerede eksisterer", vedtak.getId());
             return;
         }
@@ -243,7 +245,11 @@ public class HendelsePublisererTjeneste {
             .map(VirkedagUtil::tomVirkedag);
     }
 
-    private boolean hendelseEksistererAllerede(BehandlingVedtak vedtak) {
-        return feedRepository.harHendelseMedKildeId(SvpVedtakUtgåendeHendelse.class, VEDTAK_PREFIX + vedtak.getId());
+    private boolean hendelseEksistererAllerede(BehandlingVedtak vedtak, FagsakYtelseType ytelseType) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
+            return feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, VEDTAK_PREFIX + vedtak.getId());
+        } else {
+            return feedRepository.harHendelseMedKildeId(SvpVedtakUtgåendeHendelse.class, VEDTAK_PREFIX + vedtak.getId());
+        }
     }
 }

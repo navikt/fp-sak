@@ -96,17 +96,6 @@ public class VedtakFattetTjenesteTest {
         assertThat(dto.isHarFlereElementer()).isTrue();
     }
 
-    @Test
-    public void skal_ignorere_ukjent_type() {
-        FpVedtakUtgåendeHendelse hendelse = mockFpHendelse(SIST_LEST_SEKVENSID + 1);
-        when(hendelse.getType()).thenReturn("Ukjent");
-        when(feedRepository.hentUtgåendeHendelser(eq(FpVedtakUtgåendeHendelse.class), any(HendelseCriteria.class))).thenReturn(List.of(hendelse));
-
-        VedtakDto dto = tjeneste.hentFpVedtak(SIST_LEST_SEKVENSID, 1L, HENDELSE_TYPE, Optional.of(AKTØR_ID));
-
-        assertThat(dto.getElementer()).isEmpty();
-    }
-
     private FpVedtakUtgåendeHendelse mockFpHendelse(Long sekvensenummer) {
         FpVedtakUtgåendeHendelse hendelse = mock(FpVedtakUtgåendeHendelse.class);
         when(hendelse.getType()).thenReturn(HENDELSE_TYPE);
