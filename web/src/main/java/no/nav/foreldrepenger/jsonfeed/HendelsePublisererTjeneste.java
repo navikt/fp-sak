@@ -99,7 +99,7 @@ public class HendelsePublisererTjeneste {
 
         if (meldingstype == null) {
             //ingen endring i perioder
-           return;
+            return;
         }
         Innhold innhold = nyMapVedtakTilInnhold(behandling, meldingstype, innvilgetPeriode.orElseGet(orginalPeriode::get));
 
@@ -114,7 +114,7 @@ public class HendelsePublisererTjeneste {
                 .build();
             feedRepository.lagre(fpVedtakUtgåendeHendelse);
         } else {
-            SvpVedtakUtgåendeHendelse svpVedtakUtgåendeHendelse= SvpVedtakUtgåendeHendelse.builder()
+            SvpVedtakUtgåendeHendelse svpVedtakUtgåendeHendelse = SvpVedtakUtgåendeHendelse.builder()
                 .aktørId(behandling.getAktørId().getId())
                 .payload(payloadJason)
                 .type(meldingstype.getType())
@@ -126,9 +126,8 @@ public class HendelsePublisererTjeneste {
 
     private Meldingstype mapMeldingstype (FagsakYtelseType ytelseType, Optional<LocalDateInterval> innvilgetPeriode, Optional<LocalDateInterval> orginalPeriode) {
 
-        if (innvilgetPeriode.isEmpty() && orginalPeriode.isEmpty()) {
-            return null;
-        } else if (innvilgetPeriode.isPresent() && orginalPeriode.isEmpty()) {
+
+        if (innvilgetPeriode.isPresent() && orginalPeriode.isEmpty()) {
             if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
                 return Meldingstype.FORELDREPENGER_INNVILGET;
             } else {
