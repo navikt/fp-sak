@@ -37,11 +37,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.vedtak.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
+import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.vedtak.fp.OpprettProsessTaskIverksettImpl;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
 import no.nav.foreldrepenger.mottak.vedtak.VurderOpphørAvYtelserTask;
 import no.nav.vedtak.felles.testutilities.db.Repository;
@@ -84,7 +84,7 @@ public class IverksetteVedtakStegYtelseTest {
         // Arrange
         opprettBehandlingVedtak(VedtakResultatType.INNVILGET, IverksettingStatus.IKKE_IVERKSATT);
         when(vurderBehandlingerUnderIverksettelse.vurder(eq(behandling))).thenReturn(true);
-        when(iverksettingSkalIkkeStoppesAvOverlappendeYtelse.vurderOmOverlappInfotrygd(eq(behandling))).thenReturn(Collections.emptyList());
+        when(iverksettingSkalIkkeStoppesAvOverlappendeYtelse.vurderOmOverlappInfotrygd(any(), eq(behandling), any())).thenReturn(Collections.emptyList());
 
         // Act
         BehandleStegResultat resultat = utførSteg(behandling);
@@ -107,7 +107,7 @@ public class IverksetteVedtakStegYtelseTest {
         opprettBehandlingVedtak(VedtakResultatType.INNVILGET, IverksettingStatus.IKKE_IVERKSATT);
         when(vurderBehandlingerUnderIverksettelse.vurder(eq(behandling))).thenReturn(false);
         List<BehandlingOverlappInfotrygd> overlappIt = new ArrayList();
-        when(iverksettingSkalIkkeStoppesAvOverlappendeYtelse.vurderOmOverlappInfotrygd(eq(behandling))).thenReturn(overlappIt);
+        when(iverksettingSkalIkkeStoppesAvOverlappendeYtelse.vurderOmOverlappInfotrygd(any(), eq(behandling), any())).thenReturn(overlappIt);
 
         // Act
         BehandleStegResultat resultat = utførSteg(behandling);
@@ -123,7 +123,7 @@ public class IverksetteVedtakStegYtelseTest {
         // Arrange
         opprettBehandlingVedtak(VedtakResultatType.INNVILGET, IverksettingStatus.IKKE_IVERKSATT);
         when(vurderBehandlingerUnderIverksettelse.vurder(eq(behandling))).thenReturn(false);
-        when(iverksettingSkalIkkeStoppesAvOverlappendeYtelse.vurderOmOverlappInfotrygd(eq(behandling))).thenReturn(Collections.emptyList());
+        when(iverksettingSkalIkkeStoppesAvOverlappendeYtelse.vurderOmOverlappInfotrygd(any(), eq(behandling), any())).thenReturn(Collections.emptyList());
 
         // Act
         BehandleStegResultat resultat = utførSteg(behandling);

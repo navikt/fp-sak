@@ -34,10 +34,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.LoggHistoriskOverlappFPInfotrygdVLTjeneste;
 import no.nav.foreldrepenger.mottak.vedtak.VurderOpphørAvYtelserTask;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.EnkelPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingEnkeltSakDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
 import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -52,17 +56,27 @@ public class ForvaltningUttrekkRestTjeneste {
     private EntityManager entityManager;
     private FagsakRepository fagsakRepository;
     private ProsessTaskRepository prosessTaskRepository;
+    private InformasjonssakRepository informasjonssakRepository;
+    private IdentifiserOverlappendeInfotrygdYtelseTjeneste spbsLog;
+    private LoggHistoriskOverlappFPInfotrygdVLTjeneste forLog;
 
     public ForvaltningUttrekkRestTjeneste() {
         // For CDI
     }
 
     @Inject
-    public ForvaltningUttrekkRestTjeneste(@VLPersistenceUnit EntityManager entityManager, BehandlingRepositoryProvider repositoryProvider,
-                                          ProsessTaskRepository prosessTaskRepository) {
+    public ForvaltningUttrekkRestTjeneste(@VLPersistenceUnit EntityManager entityManager,
+                                          BehandlingRepositoryProvider repositoryProvider,
+                                          ProsessTaskRepository prosessTaskRepository,
+                                          InformasjonssakRepository informasjonssakRepository,
+                                          IdentifiserOverlappendeInfotrygdYtelseTjeneste spbsLog,
+                                          LoggHistoriskOverlappFPInfotrygdVLTjeneste forLog) {
         this.entityManager = entityManager;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.prosessTaskRepository = prosessTaskRepository;
+        this.informasjonssakRepository = informasjonssakRepository;
+        this.spbsLog = spbsLog;
+        this.forLog = forLog;
     }
 
     @POST
@@ -127,13 +141,13 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     @POST
-    @Path("/listFagsakMedoverlappTrex")
+    @Path("/avstemPeriodeOverlappTrex")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(action = READ, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response listFagsakerMedOverlapp(@Parameter(description = "Periode") @BeanParam @Valid EnkelPeriodeDto dto) {
+    public Response avstemPeriodeForOverlapp(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
         ProsessTaskData prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
         prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_KEY_KEY, dto.getKey());
         prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_FOM_KEY, dto.getFom().toString());
@@ -142,5 +156,46 @@ public class ForvaltningUttrekkRestTjeneste {
 
         prosessTaskRepository.lagre(prosessTaskData);
         return Response.ok().build();
+    }
+
+    @POST
+    @Path("/avstemSakOverlappTrex")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(action = READ, ressurs = DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response avstemSakForOverlapp(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingEnkeltSakDto dto) {
+        ProsessTaskData prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
+        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_KEY_KEY, dto.getKey());
+        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_SAKSNUMMER_KEY, dto.getSaksnummer());
+        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_PREFIX_KEY, "SAK");
+        prosessTaskData.setCallIdFraEksisterende();
+
+        prosessTaskRepository.lagre(prosessTaskData);
+
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/avstemSakOverlappInteraktiv")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Prøver å finne overlapp og returnere resultat", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(action = READ, ressurs = DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response avstemSakForOverlappInteraktiv(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingEnkeltSakDto dto) {
+        if (VurderOpphørAvYtelserTask.HIJACK_OTH_KEY.equals(dto.getKey())) {
+            var vedtak = informasjonssakRepository.finnSakerOpprettetInnenIntervallMedKunUtbetalte(null, null, dto.getSaksnummer());
+            if (!vedtak.isEmpty()) {
+                return Response.ok(spbsLog.vurderEventueltOverlapp(vedtak.get(0).getBehandlingId(), vedtak.get(0).getTidligsteDato())).build();
+            }
+        } else if (VurderOpphørAvYtelserTask.HIJACK_FOR_KEY.equals(dto.getKey())) {
+            var vedtak = informasjonssakRepository.finnSakerOpprettetInnenIntervallMedSisteVedtak(null, null, dto.getSaksnummer());
+            if (!vedtak.isEmpty()) {
+                return Response.ok(forLog.vurderEventueltOverlapp(vedtak.get(0).getBehandlingId(), vedtak.get(0).getAnnenPartAktørId(), vedtak.get(0).getTidligsteDato())).build();
+            }
+        }
+        return Response.status(Response.Status.BAD_REQUEST).build();
     }
 }
