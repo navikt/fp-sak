@@ -83,10 +83,44 @@ public class HendelsePublisererTjeneste {
             return;
         }
 
-            nyDoLagreVedtak(vedtak, behandling);
+        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
+            doLagreVedtakFP(vedtak, behandling);
+        } else {
+            doLagreVedtakSVP(vedtak, behandling);
+        }
     }
 
-    private void nyDoLagreVedtak(BehandlingVedtak vedtak, Behandling behandling) {
+    private void doLagreVedtakFP(BehandlingVedtak vedtak, Behandling behandling) {
+        Optional<LocalDateInterval> innvilgetPeriode = finnPeriode(behandling);
+        Optional<LocalDateInterval> orginalPeriode = behandling.getOriginalBehandling().flatMap(this::finnPeriode);
+
+        if (innvilgetPeriode.isEmpty() && orginalPeriode.isEmpty()) {
+            //ingen hendelse
+            return;
+        }
+        Meldingstype meldingstype;
+
+        FpVedtakUtgåendeHendelse.Builder fpVedtakUtgåendeHendelseBuilder = FpVedtakUtgåendeHendelse.builder();
+
+        fpVedtakUtgåendeHendelseBuilder.aktørId(behandling.getAktørId().getId());
+
+        meldingstype = mapMeldingstypeFp(innvilgetPeriode, orginalPeriode);
+        if (meldingstype == null) {
+            //ingen endring i perioder
+            return;
+        }
+        fpVedtakUtgåendeHendelseBuilder.type(meldingstype.getType());
+        fpVedtakUtgåendeHendelseBuilder.kildeId(VEDTAK_PREFIX + vedtak.getId());
+
+        Innhold innhold = mapVedtakTilInnholdFp(behandling, meldingstype, innvilgetPeriode.orElseGet(orginalPeriode::get));
+
+        String payloadJason = JsonMapper.toJson(innhold);
+        fpVedtakUtgåendeHendelseBuilder.payload(payloadJason);
+
+        feedRepository.lagre(fpVedtakUtgåendeHendelseBuilder.build());
+    }
+
+    private void doLagreVedtakSVP(BehandlingVedtak vedtak, Behandling behandling) {
         Optional<LocalDateInterval> innvilgetPeriode = finnPeriode(behandling);
         Optional<LocalDateInterval> orginalPeriode = behandling.getOriginalBehandling().flatMap(this::finnPeriode);
 
@@ -95,56 +129,47 @@ public class HendelsePublisererTjeneste {
             return;
         }
 
-        Meldingstype meldingstype = mapMeldingstype(behandling.getFagsakYtelseType(), innvilgetPeriode, orginalPeriode);
+        SvpVedtakUtgåendeHendelse.Builder svpVedtakUtgåendeHendelseBuilder = SvpVedtakUtgåendeHendelse.builder();
+        svpVedtakUtgåendeHendelseBuilder.aktørId(behandling.getAktørId().getId());
+
+        Meldingstype meldingstype = mapMeldingstypeSVP(innvilgetPeriode, orginalPeriode);
 
         if (meldingstype == null) {
             //ingen endring i perioder
             return;
         }
-        Innhold innhold = nyMapVedtakTilInnhold(behandling, meldingstype, innvilgetPeriode.orElseGet(orginalPeriode::get));
+
+        svpVedtakUtgåendeHendelseBuilder.type(meldingstype.getType());
+        svpVedtakUtgåendeHendelseBuilder.kildeId(VEDTAK_PREFIX + vedtak.getId());
+
+        Innhold innhold = mapVedtakTilInnholdSVP(behandling, meldingstype, innvilgetPeriode.orElseGet(orginalPeriode::get));
 
         String payloadJason = JsonMapper.toJson(innhold);
+        svpVedtakUtgåendeHendelseBuilder.payload(payloadJason);
 
-        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
-            FpVedtakUtgåendeHendelse fpVedtakUtgåendeHendelse = FpVedtakUtgåendeHendelse.builder()
-                .aktørId(behandling.getAktørId().getId())
-                .payload(payloadJason)
-                .type(meldingstype.getType())
-                .kildeId(VEDTAK_PREFIX + vedtak.getId())
-                .build();
-            feedRepository.lagre(fpVedtakUtgåendeHendelse);
+        feedRepository.lagre(svpVedtakUtgåendeHendelseBuilder.build());
+    }
+
+    private Meldingstype mapMeldingstypeFp(Optional<LocalDateInterval> innvilgetPeriode, Optional<LocalDateInterval> orginalPeriode) {
+        if (innvilgetPeriode.isPresent() && orginalPeriode.isEmpty()) {
+            return Meldingstype.FORELDREPENGER_INNVILGET;
+        } else if (innvilgetPeriode.isEmpty()) {
+            return Meldingstype.FORELDREPENGER_OPPHOERT;
+        } else if (!innvilgetPeriode.map(ip->orginalPeriode.map(ip::equals).orElse(false)).orElse(false)) {
+            return Meldingstype.FORELDREPENGER_ENDRET;
         } else {
-            SvpVedtakUtgåendeHendelse svpVedtakUtgåendeHendelse = SvpVedtakUtgåendeHendelse.builder()
-                .aktørId(behandling.getAktørId().getId())
-                .payload(payloadJason)
-                .type(meldingstype.getType())
-                .kildeId(VEDTAK_PREFIX + vedtak.getId())
-                .build();
-            feedRepository.lagre(svpVedtakUtgåendeHendelse);
+            //revurdering, men ingen endring i utbetalingsperiode
+            return null;
         }
     }
 
-    private Meldingstype mapMeldingstype (FagsakYtelseType ytelseType, Optional<LocalDateInterval> innvilgetPeriode, Optional<LocalDateInterval> orginalPeriode) {
-
-
+    private Meldingstype mapMeldingstypeSVP(Optional<LocalDateInterval> innvilgetPeriode, Optional<LocalDateInterval> orginalPeriode) {
         if (innvilgetPeriode.isPresent() && orginalPeriode.isEmpty()) {
-            if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
-                return Meldingstype.FORELDREPENGER_INNVILGET;
-            } else {
-                return Meldingstype.SVANGERSKAPSPENGER_INNVILGET;
-                }
+            return Meldingstype.SVANGERSKAPSPENGER_INNVILGET;
         } else if (innvilgetPeriode.isEmpty()) {
-                if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
-                    return Meldingstype.FORELDREPENGER_OPPHOERT;
-            } else {
-                    return Meldingstype.SVANGERSKAPSPENGER_OPPHOERT;
-                }
+            return Meldingstype.SVANGERSKAPSPENGER_OPPHOERT;
         } else if (!innvilgetPeriode.map(ip->orginalPeriode.map(ip::equals).orElse(false)).orElse(false)) {
-                if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
-                    return Meldingstype.FORELDREPENGER_ENDRET;
-            } else {
-                    return Meldingstype.SVANGERSKAPSPENGER_ENDRET;
-                }
+            return Meldingstype.SVANGERSKAPSPENGER_ENDRET;
         } else {
             //revurdering, men ingen endring i utbetalingsperiode
             return null;
@@ -163,22 +188,33 @@ public class HendelsePublisererTjeneste {
         }
     }
 
-    private Innhold nyMapVedtakTilInnhold(Behandling behandling, Meldingstype meldingstype, LocalDateInterval utbetPeriode ) {
+    private Innhold mapVedtakTilInnholdFp(Behandling behandling, Meldingstype meldingstype, LocalDateInterval utbetPeriode ) {
         Innhold innhold;
 
         if (Meldingstype.FORELDREPENGER_INNVILGET.equals(meldingstype)) {
             innhold = new ForeldrepengerInnvilget();
         } else if (Meldingstype.FORELDREPENGER_OPPHOERT.equals(meldingstype)) {
             innhold = new ForeldrepengerOpphoert();
-        } else if (Meldingstype.FORELDREPENGER_ENDRET.equals(meldingstype)) {
+        } else
             innhold = new ForeldrepengerEndret();
-        } else if (Meldingstype.SVANGERSKAPSPENGER_INNVILGET.equals(meldingstype)) {
+
+        innhold.setFoersteStoenadsdag(utbetPeriode.getFomDato());
+        innhold.setSisteStoenadsdag(utbetPeriode.getTomDato());
+        innhold.setAktoerId(behandling.getAktørId().getId());
+        innhold.setGsakId(behandling.getFagsak().getSaksnummer().getVerdi());
+
+        return innhold;
+    }
+
+    private Innhold mapVedtakTilInnholdSVP(Behandling behandling, Meldingstype meldingstype, LocalDateInterval utbetPeriode ) {
+        Innhold innhold;
+
+        if (Meldingstype.SVANGERSKAPSPENGER_INNVILGET.equals(meldingstype)) {
             innhold = new SvangerskapspengerInnvilget();
         } else if (Meldingstype.SVANGERSKAPSPENGER_OPPHOERT.equals(meldingstype)) {
             innhold = new SvangerskapspengerOpphoert();
-        } else {
+        } else
             innhold = new SvangerskapspengerEndret();
-        }
 
         innhold.setFoersteStoenadsdag(utbetPeriode.getFomDato());
         innhold.setSisteStoenadsdag(utbetPeriode.getTomDato());
