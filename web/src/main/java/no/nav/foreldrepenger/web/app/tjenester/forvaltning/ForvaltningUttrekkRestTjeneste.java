@@ -16,7 +16,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -39,14 +38,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygd;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.LoggHistoriskOverlappFPInfotrygdVLTjeneste;
 import no.nav.foreldrepenger.mottak.vedtak.VurderOpphørAvYtelserTask;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingSaksnummerDto;
 import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -62,10 +59,7 @@ public class ForvaltningUttrekkRestTjeneste {
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
-    private InformasjonssakRepository informasjonssakRepository;
     private BehandlingOverlappInfotrygdRepository overlappRepository;
-    private IdentifiserOverlappendeInfotrygdYtelseTjeneste spbsLog;
-    private LoggHistoriskOverlappFPInfotrygdVLTjeneste forLog;
 
     public ForvaltningUttrekkRestTjeneste() {
         // For CDI
@@ -75,18 +69,12 @@ public class ForvaltningUttrekkRestTjeneste {
     public ForvaltningUttrekkRestTjeneste(@VLPersistenceUnit EntityManager entityManager,
                                           BehandlingRepositoryProvider repositoryProvider,
                                           ProsessTaskRepository prosessTaskRepository,
-                                          InformasjonssakRepository informasjonssakRepository,
-                                          BehandlingOverlappInfotrygdRepository overlappRepository,
-                                          IdentifiserOverlappendeInfotrygdYtelseTjeneste spbsLog,
-                                          LoggHistoriskOverlappFPInfotrygdVLTjeneste forLog) {
+                                          BehandlingOverlappInfotrygdRepository overlappRepository) {
         this.entityManager = entityManager;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.prosessTaskRepository = prosessTaskRepository;
-        this.informasjonssakRepository = informasjonssakRepository;
         this.overlappRepository = overlappRepository;
-        this.spbsLog = spbsLog;
-        this.forLog = forLog;
     }
 
     @POST
@@ -175,10 +163,10 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(action = READ, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response avstemSakForOverlapp(@BeanParam @NotNull @Valid SaksnummerDto s) {
+    public Response avstemSakForOverlapp(@Parameter(description = "Saksnummer") @BeanParam @Valid AvstemmingSaksnummerDto s) {
         ProsessTaskData prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
         prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_KEY_KEY, VurderOpphørAvYtelserTask.HIJACK_BOTH_KEY);
-        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_SAKSNUMMER_KEY, s.getVerdi());
+        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_SAKSNUMMER_KEY, s.getSaksnummer());
         prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_PREFIX_KEY, "AvstemSak-");
         prosessTaskData.setCallIdFraEksisterende();
 
@@ -193,8 +181,8 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Prøver å finne overlapp og returnere resultat", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response hentAvstemtSakOverlappTrex(@BeanParam @NotNull @Valid SaksnummerDto s) {
-        var resultat = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(s.getVerdi()))
+    public Response hentAvstemtSakOverlappTrex(@Parameter(description = "Saksnummer") @BeanParam @Valid AvstemmingSaksnummerDto s) {
+        var resultat = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(s.getSaksnummer()))
                 .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()))
                 .map(b -> overlappRepository.hentForBehandling(b.getId())).orElse(List.of()).stream()
                 .sorted(Comparator.comparing(BehandlingOverlappInfotrygd::getOpprettetTidspunkt).reversed())
