@@ -82,15 +82,6 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
         }
     }
 
-    public List<BehandlingOverlappInfotrygd> vurderEventueltOverlapp(Long behandlingId, AktørId annenPart, LocalDate minFraQuery) {
-        try {
-            return utledPerioderMedOverlapp("I", behandlingId, annenPart, minFraQuery);
-        } catch (Exception e) {
-            log.info("Identifisering av overlapp i Infotrygd feilet ", e);
-        }
-        return Collections.emptyList();
-    }
-
     private List<BehandlingOverlappInfotrygd> utledPerioderMedOverlapp(String prefix, Long behandlingId, AktørId annenPart, LocalDate minFraQuery) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         List<BehandlingOverlappInfotrygd> resultat = new ArrayList<>();

@@ -95,17 +95,6 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
         }
     }
 
-    public List<BehandlingOverlappInfotrygd> vurderEventueltOverlapp(Long behandlingId, LocalDate minFraQuery) {
-        try {
-            var behandling = behandlingRepository.hentBehandling(behandlingId);
-            LocalDate førsteUttaksDatoFP = VirkedagUtil.fomVirkedag(minFraQuery);
-            return vurderOmOverlappInfotrygd("I", behandling, førsteUttaksDatoFP);
-        } catch (Exception e) {
-            log.info("Identifisering av overlapp i Infotrygd feilet ", e);
-            return Collections.emptyList();
-        }
-    }
-
     public List<BehandlingOverlappInfotrygd> vurderOmOverlappInfotrygd(String prefix, Behandling behandling, LocalDate førsteUttaksDatoFP) {
         //Henter alle utbetalingsperioder på behandling som er iverksatt
         var brPerioder = beregningsresultatRepository.hentBeregningsresultat(behandling.getId())
