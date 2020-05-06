@@ -85,14 +85,6 @@ public class HendelsePublisererTjeneste {
             return;
         }
 
-        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
-            doLagreVedtakFP(vedtak, behandling);
-        } else {
-            doLagreVedtakSVP(vedtak, behandling);
-        }
-    }
-
-    private void doLagreVedtakFP(BehandlingVedtak vedtak, Behandling behandling) {
         Optional<LocalDateInterval> innvilgetPeriode = finnPeriode(behandling);
         Optional<LocalDateInterval> orginalPeriode = behandling.getOriginalBehandling().flatMap(this::finnPeriode);
 
@@ -100,13 +92,20 @@ public class HendelsePublisererTjeneste {
             //ingen hendelse
             return;
         }
-        Meldingstype meldingstype;
 
+        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
+            doLagreVedtakFP(vedtak, behandling, innvilgetPeriode, orginalPeriode );
+        } else {
+            doLagreVedtakSVP(vedtak, behandling, innvilgetPeriode, orginalPeriode);
+        }
+    }
+
+    private void doLagreVedtakFP(BehandlingVedtak vedtak, Behandling behandling, Optional<LocalDateInterval> innvilgetPeriode,Optional<LocalDateInterval> orginalPeriode) {
         FpVedtakUtgåendeHendelse.Builder fpVedtakUtgåendeHendelseBuilder = FpVedtakUtgåendeHendelse.builder();
-
         fpVedtakUtgåendeHendelseBuilder.aktørId(behandling.getAktørId().getId());
 
-        meldingstype = mapMeldingstypeFp(innvilgetPeriode, orginalPeriode);
+        Meldingstype meldingstype = mapMeldingstypeFp(innvilgetPeriode, orginalPeriode);
+
         if (meldingstype == null) {
             //ingen endring i perioder
             return;
@@ -122,15 +121,7 @@ public class HendelsePublisererTjeneste {
         feedRepository.lagre(fpVedtakUtgåendeHendelseBuilder.build());
     }
 
-    private void doLagreVedtakSVP(BehandlingVedtak vedtak, Behandling behandling) {
-        Optional<LocalDateInterval> innvilgetPeriode = finnPeriode(behandling);
-        Optional<LocalDateInterval> orginalPeriode = behandling.getOriginalBehandling().flatMap(this::finnPeriode);
-
-        if (innvilgetPeriode.isEmpty() && orginalPeriode.isEmpty()) {
-            //ingen hendelse
-            return;
-        }
-
+    private void doLagreVedtakSVP(BehandlingVedtak vedtak, Behandling behandling, Optional<LocalDateInterval> innvilgetPeriode,Optional<LocalDateInterval> orginalPeriode) {
         SvpVedtakUtgåendeHendelse.Builder svpVedtakUtgåendeHendelseBuilder = SvpVedtakUtgåendeHendelse.builder();
         svpVedtakUtgåendeHendelseBuilder.aktørId(behandling.getAktørId().getId());
 
