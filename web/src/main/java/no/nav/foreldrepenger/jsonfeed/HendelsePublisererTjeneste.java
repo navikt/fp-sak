@@ -21,12 +21,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.domene.feed.SvpVedtakUtgåendeHendelse;
-import no.nav.foreldrepenger.domene.feed.UtgåendeHendelse;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerEndret;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
