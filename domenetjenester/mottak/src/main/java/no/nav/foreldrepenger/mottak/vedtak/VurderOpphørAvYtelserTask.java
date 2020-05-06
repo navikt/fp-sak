@@ -64,8 +64,8 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
         if (prosessTaskData.getPropertyValue(HIJACK_KEY_KEY) != null) {
             String saksnr = prosessTaskData.getPropertyValue(HIJACK_SAKSNUMMER_KEY);
             String prefix = prosessTaskData.getPropertyValue(HIJACK_PREFIX_KEY);
-            LocalDate fom = LocalDate.parse(prosessTaskData.getPropertyValue(HIJACK_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
-            LocalDate tom = LocalDate.parse(prosessTaskData.getPropertyValue(HIJACK_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
+            LocalDate fom = prosessTaskData.getPropertyValue(HIJACK_FOM_KEY) != null ? LocalDate.parse(prosessTaskData.getPropertyValue(HIJACK_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE) : null;
+            LocalDate tom = prosessTaskData.getPropertyValue(HIJACK_TOM_KEY) != null ? LocalDate.parse(prosessTaskData.getPropertyValue(HIJACK_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE) : null;
             if (HIJACK_FOR_KEY.equalsIgnoreCase(prosessTaskData.getPropertyValue(HIJACK_KEY_KEY))) {
                 loggOverlappFOR(fom, tom, saksnr, prefix);
             } else if (HIJACK_OTH_KEY.equalsIgnoreCase(prosessTaskData.getPropertyValue(HIJACK_KEY_KEY))) {
