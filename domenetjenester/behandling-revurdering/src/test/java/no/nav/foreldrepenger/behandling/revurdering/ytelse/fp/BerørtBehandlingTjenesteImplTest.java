@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +30,14 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -149,6 +154,42 @@ public class BerørtBehandlingTjenesteImplTest {
         assertThat(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat,
             lagUttakResultatPerioder(LocalDate.now().minusDays(12), LocalDate.now().plusDays(2), false, true),
             lagUttakResultatPerioder(LocalDate.now().plusDays(3), LocalDate.now().plusDays(5), false, false))).isFalse();
+    }
+
+    //foreldrepenger er endret og uttak har overlappende avslått periode med trekkdager
+    @Test
+    public void skal_opprette_berørt_behandling_dersom_revudering_er_endring_i_foreldrepenger_med_endring_i_uttak_og_overlappende_avslått_perioder_med_trekkdager() {
+        var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.FORELDREPENGER_ENDRET, KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
+
+        var behandling = behandlingsresultat.get().getBehandling();
+        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag());
+        when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
+        when(stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)).thenReturn(false);
+
+        var brukersPeriode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 1, 1).plusWeeks(1))
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .build();
+        List<ForeldrepengerUttakPeriode> brukersPerioder = List.of(brukersPeriode);
+        var brukersUttak = new ForeldrepengerUttak(brukersPerioder);
+        var annenpartInnvilgetPeriode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(brukersPeriode.getFom().minusWeeks(1), brukersPeriode.getFom().minusDays(1))
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .build();
+        var aktivitetMedTrekkdager = new ForeldrepengerUttakPeriodeAktivitet.Builder()
+            .medTrekkdager(new Trekkdager(10))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
+            .build();
+        var annenpartOverlappendeAvslåttMedTrekkdager = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(brukersPeriode.getFom(), brukersPeriode.getTom())
+            .medResultatType(PeriodeResultatType.AVSLÅTT)
+            .medAktiviteter(List.of(aktivitetMedTrekkdager))
+            .build();
+        List<ForeldrepengerUttakPeriode> annenpartPerioder = List.of(annenpartInnvilgetPeriode, annenpartOverlappendeAvslåttMedTrekkdager);
+        var annenpartUttak = new ForeldrepengerUttak(annenpartPerioder);
+        var skalOpprettes = berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat, Optional.of(brukersUttak), Optional.of(annenpartUttak));
+        assertThat(skalOpprettes).isTrue();
     }
 
     //Scenarie 4b - foreldrepenger er innvilget og uttak har negativ saldo

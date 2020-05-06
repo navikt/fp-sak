@@ -125,12 +125,11 @@ public class BerørtBehandlingTjeneste {
         if (brukersUttaksplan.isPresent() && motpartsUttaksplan.isPresent()) {
             if (harBrukerFørsteUttak(brukersUttaksplan.get(), motpartsUttaksplan.get())) {
                 return true;
-            } else {
-                Optional<LocalDate> medforeldrersSisteDag = sisteUttaksdatoUtenAvslåttePerioder(motpartsUttaksplan.get());
-                Optional<LocalDate> brukersFørsteDag = førsteUttaksdatoUtenAvslåttePerioder(brukersUttaksplan.get());
-                if (medforeldrersSisteDag.isPresent() && brukersFørsteDag.isPresent()) {
-                    return !brukersFørsteDag.get().isAfter(medforeldrersSisteDag.get());
-                }
+            }
+            Optional<LocalDate> medforeldrersSisteDag = sisteUttaksdato(motpartsUttaksplan.get());
+            Optional<LocalDate> brukersFørsteDag = førsteUttaksdatoUtenAvslåttePerioder(brukersUttaksplan.get());
+            if (medforeldrersSisteDag.isPresent() && brukersFørsteDag.isPresent()) {
+                return !brukersFørsteDag.get().isAfter(medforeldrersSisteDag.get());
             }
         }
         return false;
@@ -154,7 +153,7 @@ public class BerørtBehandlingTjeneste {
 
     private LocalDate førsteForeldrersSisteDag(ForeldrepengerUttak brukersUttaksplan, ForeldrepengerUttak motpartsUttaksplan) {
         Optional<LocalDate> førsteForeldrersSisteDag = brukersUttaksplan.finnFørsteUttaksdato().isAfter(motpartsUttaksplan.finnFørsteUttaksdato())
-            ? sisteUttaksdatoUtenAvslåttePerioder(motpartsUttaksplan) : sisteUttaksdatoUtenAvslåttePerioder(brukersUttaksplan);
+            ? sisteUttaksdato(motpartsUttaksplan) : sisteUttaksdato(brukersUttaksplan);
         return førsteForeldrersSisteDag.orElse(null);
     }
 
@@ -169,9 +168,11 @@ public class BerørtBehandlingTjeneste {
             .filter(u -> !PeriodeResultatType.AVSLÅTT.equals(u.getResultatType())).map(p -> p.getFom()).min(LocalDate::compareTo);
     }
 
-    private Optional<LocalDate> sisteUttaksdatoUtenAvslåttePerioder(ForeldrepengerUttak uttaksplan) {
+    private Optional<LocalDate> sisteUttaksdato(ForeldrepengerUttak uttaksplan) {
         return uttaksplan.getGjeldendePerioder().stream()
-            .filter(u -> !PeriodeResultatType.AVSLÅTT.equals(u.getResultatType())).map(p -> p.getTidsperiode().getTomDato()).max(LocalDate::compareTo);
+            .filter(periode -> PeriodeResultatType.INNVILGET.equals(periode.getResultatType()) || periode.getAktiviteter().stream().anyMatch(a -> a.getTrekkdager().merEnn0()))
+            .map(p -> p.getTidsperiode().getTomDato())
+            .max(LocalDate::compareTo);
     }
 
     public boolean harKonsekvens(Behandlingsresultat behandlingsresultat, KonsekvensForYtelsen konsekvens) {
