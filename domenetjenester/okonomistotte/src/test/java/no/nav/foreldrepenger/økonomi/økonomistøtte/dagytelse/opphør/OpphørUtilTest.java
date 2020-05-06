@@ -137,6 +137,7 @@ public class OpphørUtilTest {
             .medBehandlingId(1L)
             .medSaksnummer(saksnummer)
             .medVenterKvittering(false)
+            .medProsessTaskId(-1L)
             .build();
     }
 
