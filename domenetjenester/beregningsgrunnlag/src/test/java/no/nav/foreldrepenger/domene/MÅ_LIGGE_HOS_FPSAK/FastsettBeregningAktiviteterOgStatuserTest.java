@@ -37,6 +37,7 @@ import no.nav.folketrygdloven.kalkulator.adapter.regelmodelltilvl.MapBGSkjæring
 import no.nav.folketrygdloven.kalkulator.adapter.vltilregelmodell.MapBeregningAktiviteterFraVLTilRegel;
 import no.nav.folketrygdloven.kalkulator.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.ytelse.fp.FastsettSkjæringstidspunktOgStatuserFP;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
@@ -112,7 +113,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
     private BeregningIAYTestUtil iayTestUtil;
 
     private FastsettBeregningAktiviteter fastsettBeregningAktiviteter = new FastsettBeregningAktiviteter(new UnitTestLookupInstanceImpl<>(new MapBeregningAktiviteterFraVLTilRegel()));
-    private FastsettSkjæringstidspunktOgStatuser fastsettSkjæringstidspunktOgStatuser = new FastsettSkjæringstidspunktOgStatuser(
+    private FastsettSkjæringstidspunktOgStatuser fastsettSkjæringstidspunktOgStatuser = new FastsettSkjæringstidspunktOgStatuserFP(
         new MapBGSkjæringstidspunktOgStatuserFraRegelTilVL(new UnitTestLookupInstanceImpl<>(new BeregningsperiodeTjeneste())));
 
     private final AtomicLong journalpostIdInc = new AtomicLong(123L);
@@ -154,7 +155,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         var input = lagBeregningsgrunnlagInput(ref, opptjeningAktiviteter, inntektsmeldinger);
         var beregningAktivitetAggregat = fastsettBeregningAktiviteter.fastsettAktiviteter(input);
         return mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input, beregningAktivitetAggregat, input.getIayGrunnlag(),
-            grunnbeløpTjeneste.mapGrunnbeløpSatser()));
+            grunnbeløpTjeneste.mapGrunnbeløpSatser()).getBeregningsgrunnlag());
     }
 
     private BeregningsgrunnlagInput lagBeregningsgrunnlagInput(BehandlingReferanse ref, OpptjeningAktiviteter opptjeningAktiviteter,
@@ -487,7 +488,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = mapSaksbehandletAktivitet(fastsettBeregningAktiviteter.fastsettAktiviteter(input));
 
         BeregningsgrunnlagEntitet BeregningsgrunnlagEntitet = mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input,
-            mapSaksbehandletAktivitet(beregningAktivitetAggregat), input.getIayGrunnlag(), grunnbeløpTjeneste.mapGrunnbeløpSatser()));
+            mapSaksbehandletAktivitet(beregningAktivitetAggregat), input.getIayGrunnlag(), grunnbeløpTjeneste.mapGrunnbeløpSatser()).getBeregningsgrunnlag());
 
         // Assert
         assertThat(BeregningsgrunnlagEntitet.getSkjæringstidspunkt()).isEqualTo(permisjonFom);
