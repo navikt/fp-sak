@@ -70,7 +70,7 @@ public abstract class BaseEntitet implements Serializable {
         String brukerident = SubjectHandler.getSubjectHandler().getUid();
         return brukerident != null ? brukerident : BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES;
     }
-    
+
     /**
      * Kan brukes til å eksplisitt sette opprettet tidspunkt, f.eks. ved migrering av data fra et annet system. Ivaretar da opprinnelig
      * tidspunkt istdf å sette likt now().

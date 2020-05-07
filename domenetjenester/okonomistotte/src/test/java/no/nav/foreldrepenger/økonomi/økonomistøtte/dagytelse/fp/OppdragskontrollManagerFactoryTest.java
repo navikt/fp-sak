@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
+import no.finn.unleash.FakeUnleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -36,11 +37,12 @@ public class OppdragskontrollManagerFactoryTest {
     private SjekkOmDetFinnesTilkjentYtelse sjekkOmDetFinnesTilkjentYtelseMock = mock(SjekkOmDetFinnesTilkjentYtelse.class);
     private Behandling originalBehandling;
     private Behandling revurdering;
+    private FakeUnleash unleash = new FakeUnleash();
 
     @Before
     public void setup() {
         oppdragskontrollFørstegangFP = new OppdragskontrollFørstegang(behandlingTilOppdragMapperTjenesteFP);
-        oppdragskontrollOpphørFP = new OppdragskontrollOpphør(behandlingTilOppdragMapperTjenesteFP);
+        oppdragskontrollOpphørFP = new OppdragskontrollOpphør(behandlingTilOppdragMapperTjenesteFP, unleash);
         opprettOpphørIEndringsoppdragBruker = new OpprettOpphørIEndringsoppdrag(oppdragskontrollOpphørFP);
         oppdragskontrollEndringFP = new OppdragskontrollEndring(behandlingTilOppdragMapperTjenesteFP, opprettOpphørIEndringsoppdragBruker);
         oppdragskontrollManagerFactory = new OppdragskontrollManagerFactoryDagYtelse(

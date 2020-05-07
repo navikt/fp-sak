@@ -146,6 +146,10 @@ public class Oppdragslinje150 extends BaseEntitet {
         return kodeKlassifik;
     }
 
+    public ØkonomiKodeKlassifik getKodeKlassifikEnum() {
+        return ØkonomiKodeKlassifik.fraKode(kodeKlassifik);
+    }
+
     public LocalDate getDatoVedtakFom() {
         return vedtakPeriode.getFomDato();
     }
