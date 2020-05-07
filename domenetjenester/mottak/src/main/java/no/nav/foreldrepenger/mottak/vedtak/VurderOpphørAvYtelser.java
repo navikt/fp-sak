@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.vedtak;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,8 +50,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
 
 /**
-Funksjonen sjekker om det finnes løpende saker for den personen det innvilges foreldrepenger på.
-Om det finnes løpende saker sjekkes det om det er ny sak overlapper med løpende sak. Det sjekkes både for mor, far og en eventuell medforelder.
+Funksjonen sjekker om det finnes løpende saker for den personen det innvilges foreldrepenger eller svangerskapsper på.
+Om det finnes løpende saker sjekkes det om det er ny sak overlapper med løpende sak. Det sjekkes både for mor, far og en eventuell medforelder på foreldrepenger.
 Dersom det er overlapp opprettes en "vurder konsekvens for ytelse"-oppgave i Gosys, og en revurdering med egen årsak slik at saksbehandler kan
 vurdere om opphør skal gjennomføres eller ikke. Saksbehandling må skje manuelt, og fritekstbrev må benyttes for opphør av løpende sak.
  */
@@ -69,6 +70,7 @@ public class VurderOpphørAvYtelser  {
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private SjekkOverlappForeldrepengerInfotrygdTjeneste sjekkOverlappInfortrygd;
+    private static final BigDecimal HUNDRE = new BigDecimal(100);
 
     public VurderOpphørAvYtelser() {
         //NoSonar
@@ -99,35 +101,44 @@ public class VurderOpphørAvYtelser  {
     void vurderOpphørAvYtelser(Long fagsakId, Long behandlingId) {
 
         Fagsak gjeldendeFagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
-        if (!FagsakYtelseType.FORELDREPENGER.equals(gjeldendeFagsak.getYtelseType())) {
+
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(gjeldendeFagsak.getYtelseType())) {
             return;
         }
-        // Finner første fradato i vedtatt uttaksperiode for iverksatt behandling
+        // Finner første fradato i vedtatt periode for iverksatt behandling
         LocalDate startDatoIVB = finnMinDato(behandlingId);
         if (Tid.TIDENES_ENDE.equals(startDatoIVB)) {
             return;
         }
 
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(gjeldendeFagsak.getYtelseType())) {
+            vurderOpphørAvYtelserForSVP(gjeldendeFagsak, startDatoIVB);
+        } else {
+            vurderOppørAvYtelserForFP(gjeldendeFagsak, behandlingId, startDatoIVB);
+        }
+    }
+
+    void vurderOppørAvYtelserForFP(Fagsak gjeldendeFagsak, Long behandlingId, LocalDate startDatoIVB) {
         List<AktørId> aktørIdList = new ArrayList<>();
 
         aktørIdList.add(gjeldendeFagsak.getAktørId());
 
         List<AktørId> aktørIdListSjekkInfotrygd = new ArrayList<>();
-        if(RelasjonsRolleType.erFar(gjeldendeFagsak.getRelasjonsRolleType())) {
+        if (RelasjonsRolleType.erFar(gjeldendeFagsak.getRelasjonsRolleType())) {
             aktørIdListSjekkInfotrygd.add(gjeldendeFagsak.getAktørId());
         }
 
         if (RelasjonsRolleType.erMor(gjeldendeFagsak.getRelasjonsRolleType())) {
             Optional<AktørId> annenPartAktørId = hentAnnenPartAktørId(behandlingId);
-            if( annenPartAktørId.isPresent()) {
+            if (annenPartAktørId.isPresent()) {
                 aktørIdList.add(annenPartAktørId.get());
                 aktørIdListSjekkInfotrygd.add(annenPartAktørId.get());
             }
         }
         //Sjekker om det finnes overlapp på far og medforelder i Infotrygd
         aktørIdListSjekkInfotrygd.forEach(aktørId -> {
-            boolean overlappInfotrygd = sjekkOverlappInfortrygd.harForeldrepengerInfotrygdSomOverlapper(aktørId, startDatoIVB) ;
-            if(overlappInfotrygd) {
+            boolean overlappInfotrygd = sjekkOverlappInfortrygd.harForeldrepengerInfotrygdSomOverlapper(aktørId, startDatoIVB);
+            if (overlappInfotrygd) {
                 håndtereOpphørInfotrygd(behandlingId, gjeldendeFagsak, aktørId);
             }
         });
@@ -135,6 +146,24 @@ public class VurderOpphørAvYtelser  {
         aktørIdList
             .forEach(aktørId -> løpendeSakerSomOverlapperUttakPåNySak(aktørId, gjeldendeFagsak.getSaksnummer(), startDatoIVB)
                 .forEach(this::håndtereOpphør));
+    }
+
+    void vurderOpphørAvYtelserForSVP(Fagsak gjeldendeSVPsak, LocalDate startDatoIVB) {
+        List<Fagsak> overlapper = løpendeSakerSomOverlapperUttakPåNySak(gjeldendeSVPsak.getAktørId(), gjeldendeSVPsak.getSaksnummer(), startDatoIVB);
+        overlapper.forEach( fagsak -> {
+            //Vi logger foreløpig når det er overlapp SVP-SVP
+            if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsak.getYtelseType())) {
+                LOG.info("Overlapp SVP oppdaget for sak {} med løpende SVP-sak {}. Ingen revurdering opprettet", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
+            }
+            if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
+                if (erFullUtbetalingSistePeriode(fagsak.getId())) {
+                    håndtereOpphør(fagsak);
+                    LOG.info("Overlapp SVP: SVP-sak {} overlapper med FP-sak {}. Revurdering opprettet", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
+                } else {
+                    LOG.info("Overlapp SVP: SVP-sak {} overlapper med gradert FP-sak {}. Ingen revurdering opprettet", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
+                }
+            }
+        });
     }
 
     private void håndtereOpphørInfotrygd(Long behandlingId, Fagsak gjeldendeFagsak, AktørId aktørId) {
@@ -225,6 +254,15 @@ public class VurderOpphørAvYtelser  {
             .max(Comparator.naturalOrder())
             .map(VirkedagUtil::tomVirkedag);
         return maxTom.orElse(Tid.TIDENES_BEGYNNELSE);
+    }
+
+    private boolean erFullUtbetalingSistePeriode(Long fagsakId) {
+        var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
+        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandling.map(Behandling::getId).orElse(null));
+
+        return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+            .sorted(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom).reversed())
+            .findFirst().map(BeregningsresultatPeriode::getKalkulertUtbetalingsgrad).equals(Optional.of(HUNDRE));
     }
 
     private Optional<AktørId> hentAnnenPartAktørId(long behId) {
