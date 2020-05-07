@@ -114,7 +114,7 @@ public class BehandlingVedtak extends BaseEntitet {
     }
 
     public IverksettingStatus getIverksettingStatus() {
-        return Objects.equals(IverksettingStatus.UDEFINERT, iverksettingStatus) ? null : iverksettingStatus;
+        return iverksettingStatus;
     }
 
     public void setIverksettingStatus(IverksettingStatus iverksettingStatus) {

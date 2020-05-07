@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.vedtak.infotrygd.rest;
+package no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdFPGrunnlag;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdSVPGrunnlag;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;

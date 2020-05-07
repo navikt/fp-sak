@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -23,6 +24,8 @@ import javax.persistence.Version;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.vedtak.util.env.Cluster;
+import no.nav.vedtak.util.env.Environment;
 
 /**
  * Denne klassen er en ren avbildning fra Oppdragsløsningens meldingsformater.
@@ -190,6 +193,19 @@ public class Oppdrag110 extends BaseEntitet {
     public boolean venterKvittering() {
         return !erKvitteringMottatt();
     }
+
+    /**
+     * gjør tilgjengelig for test, siden det er funksjonell avhengighet til opprettetTidspunkt
+     */
+    @Override
+    public void setOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
+        if (Environment.current().getCluster() == Cluster.LOCAL) {
+            super.setOpprettetTidspunkt(opprettetTidspunkt);
+        } else {
+            throw new IllegalArgumentException("Det er ikke tillat å endre opprettetTidspunkt for Oppdrag110 noe annet sted enn i enhetstester.");
+        }
+    }
+
 
     @Override
     public boolean equals(Object object) {

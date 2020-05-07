@@ -100,9 +100,6 @@ public class TilretteleggingFOM extends BaseEntitet implements IndexKey {
         public TilretteleggingFOM build() {
             Objects.requireNonNull(mal.fomDato, "fomDato er påkrevd");
             Objects.requireNonNull(mal.type, "type er påkrevd");
-            if (TilretteleggingType.DELVIS_TILRETTELEGGING.equals(mal.type)) {
-                Objects.requireNonNull(mal.stillingsprosent, "stillingsprosent er påkrevd for delvis tilrettelegging");
-            }
             return mal;
         }
     }

@@ -31,6 +31,7 @@ import no.nav.tjeneste.virksomhet.journal.v3.HentDokumentJournalpostIkkeFunnet;
 import no.nav.tjeneste.virksomhet.journal.v3.HentDokumentSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.journal.v3.HentKjerneJournalpostListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.journal.v3.HentKjerneJournalpostListeUgyldigInput;
+import no.nav.tjeneste.virksomhet.journal.v3.informasjon.DokumenttypeIder;
 import no.nav.tjeneste.virksomhet.journal.v3.informasjon.Journaltilstand;
 import no.nav.tjeneste.virksomhet.journal.v3.informasjon.Variantformater;
 import no.nav.tjeneste.virksomhet.journal.v3.informasjon.hentkjernejournalpostliste.ArkivSak;
@@ -67,7 +68,7 @@ public class DokumentArkivTjeneste {
         this.kodeverkRepository = kodeverkRepository;
     }
 
-    public byte[] hentDokumnet(JournalpostId journalpostId, String dokumentId) {
+    public byte[] hentDokument(JournalpostId journalpostId, String dokumentId) {
         LOG.info("HentDokument: input parametere journalpostId {} dokumentId {}", journalpostId, dokumentId);
         byte[] pdfFile = new byte[0];
         HentDokumentRequest hentDokumentRequest = new HentDokumentRequest();
@@ -139,8 +140,12 @@ public class DokumentArkivTjeneste {
     }
 
     public Optional<ArkivJournalPost> hentJournalpostForSak(Saksnummer saksnummer, JournalpostId journalpostId) {
-        List<ArkivJournalPost> journalPosts = hentAlleJournalposterForSak(saksnummer);
-        return journalPosts.stream().filter(jpost -> journalpostId.equals(jpost.getJournalpostId())).findFirst();
+        return doHentKjerneJournalpostListe(saksnummer)
+            .map(HentKjerneJournalpostListeResponse::getJournalpostListe).orElse(new ArrayList<>())
+            .stream()
+            .filter(journalpost -> journalpostId.getVerdi().equals(journalpost.getJournalpostId()))
+            .findFirst()
+            .map(journalpost -> opprettArkivJournalPost(saksnummer, journalpost).build());
     }
 
     public Set<DokumentType> hentDokumentTypeIdForSak(Saksnummer saksnummer, LocalDate mottattEtterDato, List<DokumentType> eksisterende) {
@@ -168,37 +173,21 @@ public class DokumentArkivTjeneste {
         return etterDato;
     }
 
-    public DokumentType utledDokumentTypeFraTittel(Saksnummer saksnummer, JournalpostId journalpostId) {
-        ArkivJournalPost arkivJournalPost = hentJournalpostForSak(saksnummer, journalpostId).orElse(null);
-        if (arkivJournalPost == null || arkivJournalPost.getHovedDokument() == null || arkivJournalPost.getHovedDokument().getTittel() == null) {
-            return DokumentTypeId.UDEFINERT;
-        }
-
-        var opt = kodeverkRepository.finnForKodeverkEiersNavn(DokumentTypeIdKodeliste.class, arkivJournalPost.getHovedDokument().getTittel());
-        if(opt.isPresent()) {
-            return opt.get();
-        } else {
-            return DokumentTypeId.UDEFINERT;
-        }
-    }
-
     private void ekstraherDTID(Set<DokumentType> eksisterende, ArkivDokument dokument) {
         if (dokument == null) {
             return;
         }
-        if (!eksisterende.contains(dokument.getDokumentType())) {
-            eksisterende.add(dokument.getDokumentType());
-        }
+        eksisterende.add(dokument.getDokumentType());
+        dokumentTypeFraTittel(dokument.getTittel()).ifPresent(eksisterende::add);
         for (ArkivDokumentVedlegg vedlegg : dokument.getInterneVedlegg()) {
-            if (!eksisterende.contains(vedlegg.getDokumentTypeId())) {
-                eksisterende.add(vedlegg.getDokumentTypeId());
-            }
+            eksisterende.add(vedlegg.getDokumentTypeId());
+            dokumentTypeFraTittel(dokument.getTittel()).ifPresent(eksisterende::add);
         }
     }
 
     private Optional<HentKjerneJournalpostListeResponse> doHentKjerneJournalpostListe(Saksnummer saksnummer) {
         final Optional<Fagsak> fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
-        if (!fagsak.isPresent()) {
+        if (fagsak.isEmpty()) {
             return Optional.empty();
         }
         HentKjerneJournalpostListeRequest hentKjerneJournalpostListeRequest = new HentKjerneJournalpostListeRequest();
@@ -241,9 +230,7 @@ public class DokumentArkivTjeneste {
             .medTidspunkt(tidspunkt)
             .medKommunikasjonsretning(Kommunikasjonsretning.fromKommunikasjonsretningCode(journalpost.getJournalposttype().getValue()))
             .medHoveddokument(opprettArkivDokument(journalpost.getHoveddokument()).build());
-        journalpost.getVedleggListe().forEach(vedlegg -> {
-            builder.leggTillVedlegg(opprettArkivDokument(vedlegg).build());
-        });
+        journalpost.getVedleggListe().forEach(vedlegg -> builder.leggTillVedlegg(opprettArkivDokument(vedlegg).build()));
         return builder;
     }
 
@@ -251,17 +238,14 @@ public class DokumentArkivTjeneste {
         ArkivDokument.Builder builder = ArkivDokument.Builder.ny()
             .medDokumentId(detaljertDokumentinformasjon.getDokumentId())
             .medTittel(detaljertDokumentinformasjon.getTittel())
-            .medDokumentTypeId(detaljertDokumentinformasjon.getDokumentTypeId() != null
-                ? DokumentTypeId.finnForKodeverkEiersKode(detaljertDokumentinformasjon.getDokumentTypeId().getValue())
-                : DokumentTypeId.UDEFINERT)
+            .medDokumentTypeId(utledDokumentType(detaljertDokumentinformasjon.getDokumentTypeId(), detaljertDokumentinformasjon.getTittel()))
             .medDokumentKategori(detaljertDokumentinformasjon.getDokumentkategori() != null
                 ? DokumentKategori.finnForKodeverkEiersKode(detaljertDokumentinformasjon.getDokumentkategori().getValue())
                 : DokumentKategori.UDEFINERT);
         detaljertDokumentinformasjon.getSkannetInnholdListe().forEach(vedlegg -> {
             builder.leggTilInterntVedlegg(ArkivDokumentVedlegg.Builder.ny()
                 .medTittel(vedlegg.getVedleggInnhold())
-                .medDokumentTypeId(vedlegg.getDokumenttypeId() != null ? DokumentTypeId.finnForKodeverkEiersKode(vedlegg.getDokumenttypeId().getValue())
-                    : DokumentTypeId.UDEFINERT)
+                .medDokumentTypeId(utledDokumentType(vedlegg.getDokumenttypeId(), vedlegg.getVedleggInnhold()))
                 .build());
         });
         detaljertDokumentinformasjon.getDokumentInnholdListe().forEach(innhold -> {
@@ -273,5 +257,21 @@ public class DokumentArkivTjeneste {
                 .build());
         });
         return builder;
+    }
+
+    private DokumentTypeId utledDokumentType(DokumenttypeIder dokumenttypeIder, String tittel) {
+        var fraDokumenttype = dokumenttypeIder != null ? DokumentTypeId.finnForKodeverkEiersKode(dokumenttypeIder.getValue()) : DokumentTypeId.UDEFINERT;
+        if (DokumentTypeId.UDEFINERT.equals(fraDokumenttype) || DokumentTypeId.ANNET.equals(fraDokumenttype)) {
+            return dokumentTypeFraTittel(tittel).orElse(fraDokumenttype);
+        }
+        return fraDokumenttype;
+    }
+
+    private Optional<DokumentTypeId> dokumentTypeFraTittel(String tittel) {
+        if (tittel == null)
+            return Optional.empty();
+        return kodeverkRepository.finnForKodeverkEiersNavn(DokumentTypeIdKodeliste.class, tittel)
+            .map(dtkl -> DokumentTypeId.finnForKodeverkEiersKode(dtkl.getOffisiellKode()))
+            .filter(dt -> !DokumentTypeId.UDEFINERT.equals(dt));
     }
 }

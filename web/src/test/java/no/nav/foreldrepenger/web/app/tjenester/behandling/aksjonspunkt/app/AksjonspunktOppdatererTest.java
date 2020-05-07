@@ -165,6 +165,37 @@ public class AksjonspunktOppdatererTest {
     }
 
     @Test
+    public void bekreft_foreslå_vedtak_aksjonspunkt_uten_overstyrende_fritekst_fjerner_fritekst_i_behandling_dokument() {
+        // Arrange
+        var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
+        scenario.medSøknadHendelse().medFødselsDato(now);
+        var behandling = scenario.lagre(repositoryProvider);
+
+        var eksisterendeDok = BehandlingDokumentEntitet.Builder.ny()
+            .medOverstyrtBrevFritekst("123")
+            .medOverstyrtBrevOverskrift("345")
+            .medBehandling(behandling.getId())
+            .build();
+        behandlingDokumentRepository.lagreOgFlush(eksisterendeDok);
+
+        ForeslaVedtakAksjonspunktDto dto = new ForeslaVedtakAksjonspunktDto(null, null, null, false);
+        ForeslåVedtakAksjonspunktOppdaterer foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
+            repositoryProvider, mock(HistorikkTjenesteAdapter.class),
+            opprettTotrinnsgrunnlag,
+            vedtakTjeneste,
+            behandlingDokumentRepository);
+
+        // Act
+        foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
+
+        // Assert
+        Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+        assertThat(behandlingDokument.isPresent()).isTrue();
+        assertThat(behandlingDokument.get().getOverstyrtBrevOverskrift()).isNull();
+        assertThat(behandlingDokument.get().getOverstyrtBrevFritekst()).isNull();
+    }
+
+    @Test
     public void oppdaterer_aksjonspunkt_med_beslutters_vurdering_ved_totrinnskontroll() {
         ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()

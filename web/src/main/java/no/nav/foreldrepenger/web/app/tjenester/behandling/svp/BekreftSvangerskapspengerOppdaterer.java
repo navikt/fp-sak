@@ -144,7 +144,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             .medSkalBrukes(arbeidsforholdDto.getSkalBrukes());
 
         for (var datoDto : arbeidsforholdDto.getTilretteleggingDatoer()) {
-            if (datoDto.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING) && datoDto.getStillingsprosent() == null) {
+            if (arbeidsforholdDto.getSkalBrukes() && delvisTilretteleggingUtenStillingsprosent(datoDto)) {
                 throw SvangerskapsTjenesteFeil.FACTORY.manglerStillingsprosentForDelvisTilrettelegging().toException();
             }
             //Sjekk om overstyring av utbetalingsgrad er lovlig
@@ -172,6 +172,10 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         }
 
         return erEndret;
+    }
+
+    private boolean delvisTilretteleggingUtenStillingsprosent(SvpTilretteleggingDatoDto dto) {
+        return dto.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING) && dto.getStillingsprosent() == null;
     }
 
     private boolean sjekkOmOverstyringErLovlig() {

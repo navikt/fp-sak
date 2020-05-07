@@ -150,7 +150,9 @@ public class UttakYrkesaktiviteter {
     }
 
     private AktivitetsAvtale finnAktivitetPåDato(Collection<AktivitetsAvtale> aktivitetsAvtaler, LocalDate dato) {
-        Optional<AktivitetsAvtale> overlapper = aktivitetsAvtaler.stream().filter(aa -> riktigDato(dato, aa)).findFirst();
+        Optional<AktivitetsAvtale> overlapper = aktivitetsAvtaler.stream()
+            .filter(aa -> riktigDato(dato, aa))
+            .max(Comparator.comparing(o -> o.getProsentsats().getVerdi()));
         if (overlapper.isPresent()) {
             return overlapper.get();
         }

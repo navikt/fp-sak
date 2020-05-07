@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.LoggHistoriskOverlappFPInfotrygdVLTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.LoggHistoriskOverlappFPInfotrygdVLTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -27,11 +27,18 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
     public static final String HIJACK_KEY_KEY = "hijack";
     public static final String HIJACK_FOR_KEY = "hijackFOR";
     public static final String HIJACK_OTH_KEY = "hijackOTH";
-    public static final String HIJACK_FOM_KEY = "fom";
-    public static final String HIJACK_TOM_KEY = "tom";
+    public static final String HIJACK_BOTH_KEY = "hijackBTH";
+    public static final String HIJACK_PREFIX_KEY = "hijackprefix";
+    public static final String HIJACK_FOM_KEY = "hijackfom";
+    public static final String HIJACK_TOM_KEY = "hijacktom";
+    public static final String HIJACK_SAKSNUMMER_KEY = "hijacksaksnummer";
+    public static final String K9_YTELSE_KEY = "k9ytelse";
+    public static final String K9_SAK_KEY = "k9sak";
+    public static final String K9_FOM_KEY = "k9fom";
+    public static final String K9_TOM_KEY = "k9tom";
 
     private InformasjonssakRepository informasjonssakRepository;
-    private LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste syklogger;
+    private IdentifiserOverlappendeInfotrygdYtelseTjeneste syklogger;
     private LoggHistoriskOverlappFPInfotrygdVLTjeneste loggertjeneste;
 
 
@@ -46,7 +53,7 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
     public VurderOpphørAvYtelserTask(VurderOpphørAvYtelser tjeneste,
                                      InformasjonssakRepository informasjonssakRepository,
                                      LoggHistoriskOverlappFPInfotrygdVLTjeneste loggertjeneste,
-                                     LoggHistoriskOverlappSYKOMSInfotrygdVLTjeneste syklogger) {
+                                     IdentifiserOverlappendeInfotrygdYtelseTjeneste syklogger) {
         this.tjeneste = tjeneste;
         this.informasjonssakRepository = informasjonssakRepository;
         this.syklogger = syklogger;
@@ -56,28 +63,43 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         if (prosessTaskData.getPropertyValue(HIJACK_KEY_KEY) != null) {
-            if (HIJACK_FOR_KEY.equalsIgnoreCase(prosessTaskData.getPropertyValue(HIJACK_KEY_KEY))) {
-                loggOverlappFOR(LocalDate.parse(prosessTaskData.getPropertyValue(HIJACK_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE),
-                    LocalDate.parse(prosessTaskData.getPropertyValue(HIJACK_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE));
-            } else if (HIJACK_OTH_KEY.equalsIgnoreCase(prosessTaskData.getPropertyValue(HIJACK_KEY_KEY))) {
-                loggOverlappOTH(LocalDate.parse(prosessTaskData.getPropertyValue(HIJACK_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE),
-                    LocalDate.parse(prosessTaskData.getPropertyValue(HIJACK_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE));
+            String saksnr = prosessTaskData.getPropertyValue(HIJACK_SAKSNUMMER_KEY);
+            String prefix = prosessTaskData.getPropertyValue(HIJACK_PREFIX_KEY);
+            if (saksnr != null) {
+                loggOverlappFOR(null, null, saksnr, prefix);
+                loggOverlappOTH(null, null, saksnr, prefix);
+            } else {
+                LocalDate fom = LocalDate.parse(prosessTaskData.getPropertyValue(HIJACK_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
+                LocalDate tom = LocalDate.parse(prosessTaskData.getPropertyValue(HIJACK_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
+                if (HIJACK_FOR_KEY.equalsIgnoreCase(prosessTaskData.getPropertyValue(HIJACK_KEY_KEY))) {
+                    loggOverlappFOR(fom, tom, saksnr, prefix);
+                } else if (HIJACK_OTH_KEY.equalsIgnoreCase(prosessTaskData.getPropertyValue(HIJACK_KEY_KEY))) {
+                    loggOverlappOTH(fom, tom, saksnr, prefix);
+                }
             }
+            return;
+        }
+        if (prosessTaskData.getPropertyValue(K9_SAK_KEY) != null) {
+            String saksnr = prosessTaskData.getPropertyValue(K9_SAK_KEY);
+            String ytelse = prosessTaskData.getPropertyValue(K9_YTELSE_KEY);
+            LocalDate fom = LocalDate.parse(prosessTaskData.getPropertyValue(K9_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
+            LocalDate tom = LocalDate.parse(prosessTaskData.getPropertyValue(K9_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
+            LOG.info("Vedtatt-Ytelse task skal opprette VKY for {} {} {} {}", ytelse, saksnr, fom, tom);
             return;
         }
         Long behandlingId = prosessTaskData.getBehandlingId();
         tjeneste.vurderOpphørAvYtelser(prosessTaskData.getFagsakId(), behandlingId);
     }
 
-    private void loggOverlappFOR(LocalDate fom, LocalDate tom) {
-        LOG.info("FPSAK DETEKTOR PERIODE {} til {}", fom, tom);
-        var saker = informasjonssakRepository.finnSakerOpprettetInnenIntervallMedSisteVedtak(fom, tom);
-        saker.forEach(o -> loggertjeneste.vurderOglagreEventueltOverlapp(o.getBehandlingId(), o.getAnnenPartAktørId(), o.getTidligsteDato()));
+    private void loggOverlappFOR(LocalDate fom, LocalDate tom, String saksnr, String prefix) {
+        if (fom != null) LOG.info("FPSAK DETEKTOR PERIODE {} til {}", fom, tom);
+        var saker = informasjonssakRepository.finnSakerOpprettetInnenIntervallMedSisteVedtak(fom, tom, saksnr);
+        saker.forEach(o -> loggertjeneste.vurderOglagreEventueltOverlapp(prefix, o.getBehandlingId(), o.getAnnenPartAktørId(), o.getTidligsteDato()));
     }
 
-    private void loggOverlappOTH(LocalDate fom, LocalDate tom) {
-        LOG.info("FPSAK SPBS DETEKTOR PERIODE {} til {}", fom, tom);
-        var saker = informasjonssakRepository.finnSakerOpprettetInnenIntervallMedKunUtbetalte(fom, tom);
-        saker.forEach(o -> syklogger.vurderOglagreEventueltOverlapp(o.getBehandlingId(), o.getTidligsteDato()));
+    private void loggOverlappOTH(LocalDate fom, LocalDate tom, String saksnr, String prefix) {
+        if (fom != null) LOG.info("FPSAK SPBS DETEKTOR PERIODE {} til {}", fom, tom);
+        var saker = informasjonssakRepository.finnSakerOpprettetInnenIntervallMedKunUtbetalte(fom, tom, saksnr);
+        saker.forEach(o -> syklogger.vurderOglagreEventueltOverlapp(prefix, o.getBehandlingId(), o.getTidligsteDato()));
     }
 }

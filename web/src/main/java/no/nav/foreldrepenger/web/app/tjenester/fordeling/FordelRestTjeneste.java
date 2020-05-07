@@ -5,7 +5,6 @@ import static no.nav.vedtak.feil.LogLevel.WARN;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -36,15 +35,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
-import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
-import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-import no.nav.foreldrepenger.dokumentarkiv.journal.JournalTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -99,35 +92,27 @@ public class FordelRestTjeneste {
     public static final String VURDER_FAGSYSTEM_PATH = BASE_PATH + VURDER_FAGSYSTEM_PART_PATH; //NOSONAR TFP-2234
 
     private SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste;
-    private DokumentArkivTjeneste dokumentArkivTjeneste;
-    private JournalTjeneste journalTjeneste;
     private FagsakTjeneste fagsakTjeneste;
     private OpprettSakOrchestrator opprettSakOrchestrator;
     private OpprettSakTjeneste opprettSakTjeneste;
     private VurderFagsystemFellesTjeneste vurderFagsystemTjeneste;
     private FamilieHendelseRepository familieGrunnlagRepository;
     private BehandlingRepository behandlingRepository;
-    private SvangerskapspengerRepository svangerskapspengerRepository;
 
     public FordelRestTjeneste() {// For Rest-CDI
     }
 
     @Inject
     public FordelRestTjeneste(SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste,
-                              DokumentArkivTjeneste dokumentArkivTjeneste, JournalTjeneste journalTjeneste,
                               FagsakTjeneste fagsakTjeneste, OpprettSakOrchestrator opprettSakOrchestrator, OpprettSakTjeneste opprettSakTjeneste,
-                              BehandlingRepositoryProvider repositoryProvider, VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste,
-                              SvangerskapspengerRepository svangerskapspengerRepository) { // NOSONAR
+                              BehandlingRepositoryProvider repositoryProvider, VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste) { // NOSONAR
         this.dokumentmottakTjeneste = dokumentmottakTjeneste;
-        this.dokumentArkivTjeneste = dokumentArkivTjeneste;
-        this.journalTjeneste = journalTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.opprettSakOrchestrator = opprettSakOrchestrator;
         this.opprettSakTjeneste = opprettSakTjeneste;
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.vurderFagsystemTjeneste = vurderFagsystemFellesTjeneste;
-        this.svangerskapspengerRepository = svangerskapspengerRepository;
     }
 
     @POST
@@ -150,7 +135,7 @@ public class FordelRestTjeneste {
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
     public FagsakInfomasjonDto fagsak(@Parameter(description = "Saksnummeret det skal hentes saksinformasjon om") @Valid AbacSaksnummerDto saksnummerDto) {
         Optional<Fagsak> optFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(new Saksnummer(saksnummerDto.getSaksnummer()), false);
-        if (!optFagsak.isPresent() || optFagsak.get().getSkalTilInfotrygd()) {
+        if (optFagsak.isEmpty() || optFagsak.get().getSkalTilInfotrygd()) {
             return null;
         }
         final Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(optFagsak.get().getId());
@@ -162,25 +147,7 @@ public class FordelRestTjeneste {
         BehandlingTema behandlingTemaFraKodeverksRepo = BehandlingTema.fraFagsak(optFagsak.get(), familieHendelse);
         String behandlingstemaOffisiellKode = behandlingTemaFraKodeverksRepo.getOffisiellKode();
         AktørId aktørId = optFagsak.get().getAktørId();
-        boolean åpenSvpSøknad = false;
-        if(behandling.isPresent()) {
-            åpenSvpSøknad = erBehandlingÅpenOgHarSvangerskapspengerSøknad(behandling.get());
-        }
-        return new FagsakInfomasjonDto(aktørId.getId(), behandlingstemaOffisiellKode, åpenSvpSøknad);
-    }
-
-    private Boolean erBehandlingÅpenOgHarSvangerskapspengerSøknad(Behandling behandling) {
-        if(!FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())){
-            return false;
-        }
-        if(behandling.erAvsluttet()){
-            return false;
-        }
-        var svpGrunnlag = svangerskapspengerRepository.hentGrunnlag(behandling.getId());
-        return svpGrunnlag.map(svpGrunnlagEntitet -> {
-            var aktuelleTilretteleggingerUfiltrert = new TilretteleggingFilter(svpGrunnlagEntitet).getAktuelleTilretteleggingerUfiltrert();
-            return aktuelleTilretteleggingerUfiltrert.stream().anyMatch(trlg -> !trlg.getKopiertFraTidligereBehandling());
-        }).orElse(false);
+        return new FagsakInfomasjonDto(aktørId.getId(), behandlingstemaOffisiellKode);
     }
 
     @POST
@@ -291,7 +258,6 @@ public class FordelRestTjeneste {
 
     private InngåendeSaksdokument map(AbacJournalpostMottakDto mottattJournalpost) {
         BehandlingTema behandlingTema = BehandlingTema.finnForKodeverkEiersKode(mottattJournalpost.getBehandlingstemaOffisiellKode());
-        JournalpostId journalpostId = new JournalpostId(mottattJournalpost.getJournalpostId());
 
         Saksnummer saksnummer = new Saksnummer(mottattJournalpost.getSaksnummer());
         Optional<Fagsak> fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false);
@@ -300,17 +266,10 @@ public class FordelRestTjeneste {
             throw new IllegalStateException("Finner ingen fagsak for saksnummer " + saksnummer);
         }
 
-        DokumentType dokumentTypeId = mottattJournalpost.getDokumentTypeIdOffisiellKode().isPresent()
-            ? DokumentTypeId.finnForKodeverkEiersKode(mottattJournalpost.getDokumentTypeIdOffisiellKode().get())
-            : DokumentTypeId.UDEFINERT; // NOSONAR
+        DokumentType dokumentTypeId = mottattJournalpost.getDokumentTypeIdOffisiellKode()
+            .map(DokumentTypeId::finnForKodeverkEiersKode).orElse(DokumentTypeId.UDEFINERT);
 
-        DokumentKategori dokumentKategori = mottattJournalpost.getDokumentKategoriOffisiellKode() != null
-            ? DokumentKategori.finnForKodeverkEiersKode(mottattJournalpost.getDokumentKategoriOffisiellKode())
-            : DokumentKategori.UDEFINERT; // NOSONAR
-
-        dokumentTypeId = utledDokumentTypeId(saksnummer, journalpostId, dokumentTypeId);
-        dokumentKategori = utledDokumentKategori(dokumentKategori, dokumentTypeId);
-        dokumentTypeId = utledDokumentTypeIdForANNET(saksnummer, journalpostId, dokumentTypeId, dokumentKategori);
+        DokumentKategori dokumentKategori = utledDokumentKategori(mottattJournalpost.getDokumentKategoriOffisiellKode(), dokumentTypeId);
 
         Optional<String> payloadXml = mottattJournalpost.getPayloadXml();
         InngåendeSaksdokument.Builder builder = InngåendeSaksdokument.builder()
@@ -322,19 +281,8 @@ public class FordelRestTjeneste {
             .medDokumentKategori(dokumentKategori)
             .medJournalførendeEnhet(mottattJournalpost.getJournalForendeEnhet());
 
-        if (DokumentTypeId.INNTEKTSMELDING.getKode().equals(dokumentTypeId.getKode())) {
-            if (mottattJournalpost.getEksternReferanseId().isPresent()) {
-                LOG.info("FPSAK FORDEL REST mottak kanalref {}", mottattJournalpost.getEksternReferanseId().get());
-                mottattJournalpost.getEksternReferanseId().ifPresent(builder::medKanalreferanse);
-            } else {
-                LOG.info("FPSAK FORDEL REST mottak inntektsmelding uten kanalreferanse {}", mottattJournalpost.getJournalpostId());
-            }
-            String referanseFraJournalpost = utledAltinnReferanseFraInntektsmelding(journalpostId);
-            builder.medKanalreferanse(referanseFraJournalpost);
-            mottattJournalpost.getEksternReferanseId().ifPresent(ref -> {
-                if (!ref.equalsIgnoreCase(referanseFraJournalpost))
-                    LOG.info("FPSAK FORDEL REST mottak avvik kanalref {} og {}", ref, referanseFraJournalpost);
-            });
+        if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
+            mottattJournalpost.getEksternReferanseId().ifPresent(builder::medKanalreferanse);
         }
 
         mottattJournalpost.getForsendelseId().ifPresent(builder::medForsendelseId);
@@ -348,33 +296,14 @@ public class FordelRestTjeneste {
         return builder.build();
     }
 
-    private DokumentType utledDokumentTypeId(Saksnummer saksnummer, JournalpostId journalpostId, DokumentType dokumentTypeId) {
-        if (DokumentTypeId.UDEFINERT.getKode().equals(dokumentTypeId.getKode())) {
-            return dokumentArkivTjeneste.utledDokumentTypeFraTittel(saksnummer, journalpostId);
-        }
-        return dokumentTypeId;
-    }
-
-    private DokumentType utledDokumentTypeIdForANNET(Saksnummer saksnummer, JournalpostId journalpostId, DokumentType dokumentTypeId, DokumentKategori dokumentKategori) {
-        if (DokumentKategori.SØKNAD.equals(dokumentKategori) && Objects.equals(DokumentTypeId.ANNET.getKode(), dokumentTypeId.getKode())) {
-            return dokumentArkivTjeneste.utledDokumentTypeFraTittel(saksnummer, journalpostId);
-        }
-        return dokumentTypeId;
-    }
-
-    private DokumentKategori utledDokumentKategori(DokumentKategori dokumentKategori, BasisKodeverdi dokumentTypeId) {
+    private DokumentKategori utledDokumentKategori(String dokumentKategori, BasisKodeverdi dokumentTypeId) {
         if (DokumentTypeId.getSøknadTyper().contains(dokumentTypeId.getKode())) {
             return DokumentKategori.SØKNAD;
         }
         if (DokumentTypeId.KLAGE_DOKUMENT.getKode().equals(dokumentTypeId.getKode())) {
             return DokumentKategori.KLAGE_ELLER_ANKE;
         }
-        return dokumentKategori;
-    }
-
-    private String utledAltinnReferanseFraInntektsmelding(JournalpostId journalpostId) {
-        ArkivJournalPost journalPost = journalTjeneste.hentInngåendeJournalpostHoveddokument(journalpostId);
-        return journalPost != null ? journalPost.getKanalreferanse() : null;
+        return dokumentKategori != null ? DokumentKategori.finnForKodeverkEiersKode(dokumentKategori) : DokumentKategori.UDEFINERT;
     }
 
     public static class AbacJournalpostMottakDto extends JournalpostMottakDto implements AbacDto {

@@ -36,7 +36,7 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
 
     @Override
     public void oppdaterÅpenBehandlingMedDokument(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) {
-        dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument.getJournalpostId());
+        dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument);
 
         Fagsak fagsak = behandling.getFagsak();
 
@@ -117,19 +117,13 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
 
     @Override
     public void opprettFraTidligereAvsluttetBehandling(Fagsak fagsak, Long avsluttetMedSøknadBehandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType, boolean opprettSomKøet) {
-        if (opprettSomKøet) {
-            // Ikke støttet og antagelig ikke ønsket interaktivt. Hvis i kø pga berørt på samme sak - da kan man vente. Kø pga medforelder skal behandles i INSØK, ikke i mottak!
-            logger.warn("Ignorerer forsøk på å opprette ny førstegangsbehandling fra tidligere avsluttet id={} på fagsak={} da køing ikke er støttet her",
-                avsluttetMedSøknadBehandlingId, fagsak.getId());
-            return;
-        }
         Behandling avsluttetBehandlingMedSøknad = behandlingRepository.hentBehandling(avsluttetMedSøknadBehandlingId);
         boolean harÅpenBehandling = !revurderingRepository.hentSisteYtelsesbehandling(fagsak.getId()).map(Behandling::erSaksbehandlingAvsluttet).orElse(Boolean.TRUE);
         if (harÅpenBehandling || erAvslag(avsluttetBehandlingMedSøknad) || avsluttetBehandlingMedSøknad.isBehandlingHenlagt()) {
-            dokumentmottakerFelles.opprettNyFørstegangFraBehandlingMedSøknad(fagsak, behandlingÅrsakType, avsluttetBehandlingMedSøknad, mottattDokument);
+            dokumentmottakerFelles.opprettNyFørstegangFraBehandlingMedSøknad(fagsak, behandlingÅrsakType, avsluttetBehandlingMedSøknad, mottattDokument, opprettSomKøet);
         } else {
-            Behandling revurdering = dokumentmottakerFelles.opprettManuellRevurdering(fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
-            dokumentmottakerFelles.opprettHistorikk(revurdering, mottattDokument.getJournalpostId());
+            Behandling revurdering = dokumentmottakerFelles.opprettManuellRevurdering(fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType), opprettSomKøet);
+            dokumentmottakerFelles.opprettHistorikk(revurdering, mottattDokument);
         }
     }
 

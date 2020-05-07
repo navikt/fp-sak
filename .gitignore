@@ -32,3 +32,4 @@ dep.txt
 /logback.xml
 .temp*.txt
 .env
+/lsp/

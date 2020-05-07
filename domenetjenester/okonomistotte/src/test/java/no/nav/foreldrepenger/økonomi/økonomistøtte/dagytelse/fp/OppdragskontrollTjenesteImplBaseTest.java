@@ -142,7 +142,7 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
         MapBehandlingVedtak mapBehandlingVedtakFP = new MapBehandlingVedtak(repositoryProvider.getBehandlingVedtakRepository());
         BehandlingTilOppdragMapperTjeneste behandlingTilOppdragMapperTjenesteFP = new BehandlingTilOppdragMapperTjeneste(hentOppdragMedPositivKvittering, mapBehandlingVedtakFP, tpsTjeneste, tilbakekrevingRepository, beregningsresultatRepository, familieHendelseRepository, sjekkOmDetFinnesTilkjentYtelse);
         OppdragskontrollFørstegang oppdragskontrollFørstegangFP = new OppdragskontrollFørstegang(behandlingTilOppdragMapperTjenesteFP);
-        OppdragskontrollOpphør oppdragskontrollOpphørFP = new OppdragskontrollOpphør(behandlingTilOppdragMapperTjenesteFP);
+        OppdragskontrollOpphør oppdragskontrollOpphørFP = new OppdragskontrollOpphør(behandlingTilOppdragMapperTjenesteFP, unleash);
         OpprettOpphørIEndringsoppdrag opprettOpphørIEndringsoppdragBruker = new OpprettOpphørIEndringsoppdrag(oppdragskontrollOpphørFP);
         OppdragskontrollEndring oppdragskontrollEndringFP = new OppdragskontrollEndring(behandlingTilOppdragMapperTjenesteFP,
             opprettOpphørIEndringsoppdragBruker);

@@ -38,7 +38,7 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
 
     @Override
     public void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(mottattDokument.getFagsakId(), mottattDokument.getJournalpostId(), mottattDokument.getDokumentType());
+        dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument);
 
         Optional<Behandling> åpenBehandling = revurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId());
         Optional<Behandling> åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
@@ -57,7 +57,7 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
 
     @Override
     public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(mottattDokument.getFagsakId(), mottattDokument.getJournalpostId(), mottattDokument.getDokumentType());
+        dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument);
 
         Optional<Behandling> eksisterendeKøetBehandling = revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
         Optional<Behandling> åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()

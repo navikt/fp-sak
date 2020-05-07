@@ -3,7 +3,6 @@ name: Bygg pull request
 on: [pull_request]
 
 env:
-  ORACLE_IMAGE: docker.pkg.github.com/navikt/vtp/foreldrepenger-oracle
   TZ: "Europe/Oslo"
 
 jobs:
@@ -17,12 +16,23 @@ jobs:
         run: |
           echo "::set-env name=CACHE_KEY::$(expr $(date +%V) - 1 + 1)"
           echo "::set-env name=PREVIOUS_CACHE_KEY::$(expr $(date +%V) - 1)"
-      - uses: actions/cache@v1.1.2
+      - name: Henter maven avhengigheter som er cachet
+        uses: actions/cache@v1.1.2
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
           restore-keys: |
             ${{ runner.os }}-maven-${{ env.PREVIOUS_CACHE_KEY }}
+
+      # TODO: Caching fungerer ikke med images
+#      - name: Henter docker images som er cachet
+#        uses: actions/cache@v1.1.2
+#        with:
+#          path: /var/lib/docker/overlay2
+#          key: ${{ runner.os }}-docker-images-${{ env.CACHE_KEY }}
+#          restore-keys: |
+#            ${{ runner.os }}-docker-images-${{ env.PREVIOUS_CACHE_KEY }}
+
       - uses: actions/setup-java@v1
         with:
           java-version: 1.11
@@ -34,10 +44,9 @@ jobs:
         shell: bash
         run: |
           echo  $GITHUB_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
-          echo "Henter og starter Oracle image $ORACLE_IMAGE"
-          docker-compose -f oracle/docker-compose.yml pull
-          rm -f nohup.out
-          docker-compose -f oracle/docker-compose.yml up oracle >nohup.out 2>&1 &
+          echo "Henter og starter Oracle image"
+          cd oracle
+          docker-compose up --quiet-pull > nohup.out 2>&1 &
           sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
 
       - name: Set build version

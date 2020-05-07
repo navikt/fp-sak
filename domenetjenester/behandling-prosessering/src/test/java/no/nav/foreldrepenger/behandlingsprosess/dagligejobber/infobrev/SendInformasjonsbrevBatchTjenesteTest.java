@@ -24,13 +24,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -127,7 +128,6 @@ public class SendInformasjonsbrevBatchTjenesteTest {
 
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medSøknadDato(terminDato.minusDays(40));
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         scenario.medSøknadAnnenPart().medAktørId(new AktørId("0000000000000")).medNavn("Ola Dunk").build();
 
         scenario.medBekreftetHendelse()
@@ -170,8 +170,7 @@ public class SendInformasjonsbrevBatchTjenesteTest {
                 .build();
             perioder.leggTilPeriode(uttakFelles);
             scenario.medUttak(perioder);
-        }
-        else{
+        } else {
             UttakResultatPeriodeEntitet uttakFelles = new UttakResultatPeriodeEntitet.Builder(terminDato.plusWeeks(6), terminDato.plusWeeks(6).plusDays(8))
                 .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
                 .build();
@@ -182,9 +181,6 @@ public class SendInformasjonsbrevBatchTjenesteTest {
             perioder.leggTilPeriode(uttakFelles);
             scenario.medUttak(perioder);
         }
-
-
-
 
         scenario.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         Behandling behandling = scenario.lagre(repositoryProvider);
@@ -200,7 +196,12 @@ public class SendInformasjonsbrevBatchTjenesteTest {
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
+        var konto = Stønadskontoberegning.builder()
+            .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.MØDREKVOTE).medMaxDager(75).build())
+            .medRegelInput("{ blablabla }").medRegelEvaluering("{ blablabla }");
+
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
+        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), konto.build());
 
         repoRule.getRepository().flushAndClear();
         behandling = repoRule.getEntityManager().find(Behandling.class, behandling.getId());

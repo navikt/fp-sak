@@ -71,9 +71,8 @@ public class VedtakFattetTjeneste {
 
     private FeedElement mapTilFeedElement(UtgåendeHendelse hendelse) {
         Meldingstype type = Meldingstype.fromType(hendelse.getType());
-        if (type == null) { //ignorerer ukjente typer
-            HendelsePublisererFeil.FACTORY.ukjentHendelseMeldingstype(hendelse.getType(), hendelse.getSekvensnummer()).log(log);
-            return null;
+        if (type == null) {
+            throw new IllegalStateException("Utviklerfeil: Udefinert hendelsetype");
         }
 
         Innhold innhold = JsonMapper.fromJson(hendelse.getPayload(), type.getMeldingsDto());

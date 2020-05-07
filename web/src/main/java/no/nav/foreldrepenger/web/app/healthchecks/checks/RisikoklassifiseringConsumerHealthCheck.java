@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.web.app.healthchecks.checks;
 
-import no.nav.foreldrepenger.domene.risikoklassifisering.konsument.RisikoklassifiseringConsumer;
-import org.apache.kafka.streams.KafkaStreams;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.apache.kafka.streams.KafkaStreams;
+
+import no.nav.foreldrepenger.domene.risikoklassifisering.konsument.RisikoklassifiseringConsumer;
 
 @ApplicationScoped
 public class RisikoklassifiseringConsumerHealthCheck extends ExtHealthCheck {
@@ -35,11 +36,7 @@ public class RisikoklassifiseringConsumerHealthCheck extends ExtHealthCheck {
 
         KafkaStreams.State tilstand = consumer.getTilstand();
         intTestRes.setMessage("Consumer is in state [" + tilstand.name() + "].");
-        if (tilstand.isRunning() || KafkaStreams.State.CREATED.equals(tilstand)) {
-            intTestRes.setOk(true);
-        } else {
-            intTestRes.setOk(false);
-        }
+        intTestRes.setOk(tilstand.isRunningOrRebalancing() || KafkaStreams.State.CREATED.equals(tilstand));
         intTestRes.noteResponseTime();
 
         return intTestRes;

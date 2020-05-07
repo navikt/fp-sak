@@ -69,7 +69,7 @@ class DokumentmottakerKlage implements Dokumentmottaker {
             dokumentmottakerFelles.persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
             klageFormkravTjeneste.opprettKlage(behandling);
             dokumentmottakerFelles.opprettTaskForÅStarteBehandling(behandling);
-            dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument.getJournalpostId());
+            dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument);
         });
     }
 

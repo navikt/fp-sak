@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.soap.sak.v1;
 
-import java.util.Set;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -12,15 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
-import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
-import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
-import no.nav.foreldrepenger.dokumentarkiv.journal.JournalTjeneste;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostVurderingDto;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.BehandleForeldrepengesakV1;
@@ -37,6 +32,8 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
+import no.nav.vedtak.util.env.Cluster;
+import no.nav.vedtak.util.env.Environment;
 
 /**
  * Webservice for å opprette sak i VL ved manuelle journalføringsoppgaver.
@@ -60,16 +57,27 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
     private static final Logger logger = LoggerFactory.getLogger(OpprettSakService.class);
 
     private OpprettSakOrchestrator opprettSakOrchestrator;
-    private JournalTjeneste journalTjeneste;
+    private FpfordelRestKlient fordelKlient;
+    private boolean isEnvStable;
 
     public OpprettSakService() {
         // NOSONAR: cdi
     }
 
     @Inject
-    public OpprettSakService(OpprettSakOrchestrator opprettSakOrchestrator, JournalTjeneste journalTjeneste) {
+    public OpprettSakService(OpprettSakOrchestrator opprettSakOrchestrator,
+                             FpfordelRestKlient fordelKlient) {
         this.opprettSakOrchestrator = opprettSakOrchestrator;
-        this.journalTjeneste = journalTjeneste;
+        this.fordelKlient = fordelKlient;
+        this.isEnvStable = Cluster.PROD_FSS.equals(Environment.current().getCluster());
+    }
+
+    OpprettSakService(OpprettSakOrchestrator opprettSakOrchestrator,
+                             FpfordelRestKlient fordelKlient,
+                             boolean envForTest) {
+        this.opprettSakOrchestrator = opprettSakOrchestrator;
+        this.fordelKlient = fordelKlient;
+        this.isEnvStable = envForTest;
     }
 
     @Override
@@ -89,83 +97,47 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
         }
         AktørId aktørId = new AktørId(opprettSakRequest.getSakspart().getAktoerId());
         BehandlingTema behandlingTema = hentBehandlingstema(opprettSakRequest.getBehandlingstema().getValue());
-        DokumentType dokumentTypeId = validerJournalpostId(opprettSakRequest.getJournalpostId(), behandlingTema, aktørId);
         JournalpostId journalpostId = new JournalpostId(opprettSakRequest.getJournalpostId());
+        validerJournalpostId(journalpostId, behandlingTema, aktørId);
 
         Saksnummer saksnummer = opprettSakOrchestrator.opprettSak(journalpostId, behandlingTema, aktørId);
-        if (!(DokumentTypeId.erSøknadType(dokumentTypeId) || DokumentTypeId.INNTEKTSMELDING.getKode().equals(dokumentTypeId.getKode()))) {
-            logger.info("Opprettet saksnummer {} basert på journalpost {} av type {} - kan kreve manuell oppfølging", saksnummer.getVerdi(), journalpostId.getVerdi(), dokumentTypeId.getKode());
-        }
 
         return lagResponse(saksnummer);
     }
 
-    private DokumentType validerJournalpostId(String journalpostId, BehandlingTema behandlingTema, AktørId aktørId) throws OpprettSakUgyldigInput {
-        final String feltnavnJournalpostId = "JournalpostId";
-        if (!JournalpostId.erGyldig(journalpostId)) {
-            UgyldigInput faultInfo = lagUgyldigInput(feltnavnJournalpostId, journalpostId);
-            throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
-        }
-        // Hindre at man oppretter sak basert på en klage - de skal journalføres på eksisterende sak
-
-        ArkivJournalPost arkivJournalPost = journalTjeneste.hentInngåendeJournalpostHoveddokument(new JournalpostId(journalpostId));
-        if (arkivJournalPost == null || arkivJournalPost.getHovedDokument() == null) {
-            throw OpprettSakServiceFeil.FACTORY.ikkeStøttetKunVedlegg().toException();
-        }
-        ArkivDokument dokument = arkivJournalPost.getHovedDokument();
-        DokumentType dokumentTypeId = dokument.getDokumentType();
-        validerIkkeSpesifiktForbudt(dokument, dokumentTypeId);
-        if (DokumentTypeId.INNTEKTSMELDING.getKode().equals(dokumentTypeId.getKode())) {
-            if (opprettSakOrchestrator.harAktivSak(aktørId, behandlingTema)) {
-                throw OpprettSakServiceFeil.FACTORY.ikkeStøttetDokumentType(dokumentTypeId.getKode()).toException();
+    private void validerJournalpostId(JournalpostId journalpostId, BehandlingTema behandlingTema, AktørId aktørId) throws OpprettSakUgyldigInput {
+        if (!isEnvStable)
+            return;
+        JournalpostVurderingDto vurdering = fordelKlient.utledYtelestypeFor(journalpostId);
+        var btVurdering = BehandlingTema.finnForKodeverkEiersKode(vurdering.getBehandlingstemaOffisiellKode());
+        var btOppgitt = BehandlingTema.fraFagsakHendelse(behandlingTema.getFagsakYtelseType(), null);
+        logger.info("FPSAK vurdering FPFORDEL ytelsedok {} vs ytelseoppgitt {}", btVurdering, btOppgitt);
+        if (btVurdering.equals(btOppgitt) && (vurdering.getErFørstegangssøknad() || vurdering.getErInntektsmelding())) {
+            if (vurdering.getErInntektsmelding() && BehandlingTema.FORELDREPENGER.equals(btVurdering) && opprettSakOrchestrator.harAktivSak(aktørId, behandlingTema)) {
+                UgyldigInput faultInfo = lagUgyldigInput("Journalpost", "Inntektsmelding når det finnes åpen Foreldrepengesak");
+                throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
+            } else {
+                return;
             }
-            // Burde hatt sjekk på om valgt ytelsetype stemmer med im.ytelse. Dette sjekkes først ved journalføringservice
-            return dokumentTypeId;
         }
-        // Herfra og ned bør man kanskje hindre saksoppretting hvis det finnes en løpende eller åpen sak. Må vurderes ift SVP og erfaringer fra innstramming
-        if (DokumentTypeId.erSøknadType(dokumentTypeId)) {
-            if (!matchBehandlingtemaDokumenttypeSøknad(dokumentTypeId, behandlingTema)) {
-                throw OpprettSakServiceFeil.FACTORY.inkonsistensTemaVsDokument(dokumentTypeId.getKode()).toException();
-            }
-            return dokumentTypeId;
-        }
-        if (DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori())) {
-            return dokumentTypeId;
-        }
-        throw OpprettSakServiceFeil.FACTORY.ikkeStøttetDokumentType(dokumentTypeId.getKode()).toException();
-    }
-
-    private void validerIkkeSpesifiktForbudt(ArkivDokument dokument, DokumentType dokumentTypeId) {
-        if (DokumentTypeId.KLAGE_DOKUMENT.getKode().equals(dokumentTypeId.getKode()) || DokumentKategori.KLAGE_ELLER_ANKE.equals(dokument.getDokumentKategori())) {
-            throw OpprettSakServiceFeil.FACTORY.ikkeStøttetDokumentType(dokumentTypeId.getKode()).toException();
-        }
-        if (DokumentTypeId.erEndringsSøknadType(dokumentTypeId)) {
-            throw OpprettSakServiceFeil.FACTORY.ikkeStøttetDokumentType(dokumentTypeId.getKode()).toException();
+        if (BehandlingTema.UDEFINERT.equals(btVurdering) || btVurdering.equals(btOppgitt)) {
+            throw OpprettSakServiceFeil.FACTORY.ikkeStøttetDokumentType().toException();
+        } else {
+            throw OpprettSakServiceFeil.FACTORY.inkonsistensTemaVsDokument().toException();
         }
     }
 
     private BehandlingTema hentBehandlingstema(String behandlingstemaOffisiellKode) throws OpprettSakUgyldigInput {
-        BehandlingTema behandlingTema = null;
-        if (behandlingstemaOffisiellKode != null) {
-            behandlingTema = BehandlingTema.finnForKodeverkEiersKode(behandlingstemaOffisiellKode);
+        BehandlingTema behandlingTema = BehandlingTema.finnForKodeverkEiersKode(behandlingstemaOffisiellKode);
+        if (BehandlingTema.UDEFINERT.equals(behandlingTema)) {
+            UgyldigInput faultInfo = lagUgyldigInput("Behandlingstema", behandlingstemaOffisiellKode);
+            throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
         }
-        if (behandlingTema == null || BehandlingTema.UDEFINERT.equals(behandlingTema)) {
+        if (FagsakYtelseType.UDEFINERT.equals(behandlingTema.getFagsakYtelseType())) {
             UgyldigInput faultInfo = lagUgyldigInput("Behandlingstema", behandlingstemaOffisiellKode);
             throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
         }
         return behandlingTema;
-    }
-
-    private boolean matchBehandlingtemaDokumenttypeSøknad(DokumentType dokumentTypeId, BehandlingTema behandlingTema) {
-
-        DokumentTypeId dokId = DokumentTypeId.fraKode(dokumentTypeId.getKode());  // konverterer for
-        if (BehandlingTema.gjelderEngangsstønad(behandlingTema) && Set.of(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON).contains(dokId)) {
-            return true;
-        }
-        if (BehandlingTema.gjelderForeldrepenger(behandlingTema) && Set.of(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON).contains(dokId)) {
-            return true;
-        }
-        return BehandlingTema.gjelderSvangerskapspenger(behandlingTema) && DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(dokId);
     }
 
     private UgyldigInput lagUgyldigInput(String feltnavn, String value) {

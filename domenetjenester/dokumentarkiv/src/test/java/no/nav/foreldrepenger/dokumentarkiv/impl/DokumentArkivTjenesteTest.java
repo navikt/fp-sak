@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.VariantFormat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -220,26 +219,11 @@ public class DokumentArkivTjenesteTest {
 
         // Act
 
-        byte[] bytesActual = dokumentApplikasjonTjeneste.hentDokumnet(new JournalpostId("123"), "456");
+        byte[] bytesActual = dokumentApplikasjonTjeneste.hentDokument(new JournalpostId("123"), "456");
 
         // Assert
         assertThat(bytesActual).isEqualTo(bytesExpected);
     }
-
-    @Test
-    public void skalKorrigereManglendeDokTypeBasertPåTittel() throws Exception {
-        final String tittel = "Søknad om engangsstønad ved fødsel";
-        HentKjerneJournalpostListeResponse hentJournalpostListeResponse = new HentKjerneJournalpostListeResponse();
-        hentJournalpostListeResponse.getJournalpostListe().add(createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, YESTERDAY, NOW,"I"));
-        hentJournalpostListeResponse.getJournalpostListe().get(0).getHoveddokument().setDokumentTypeId(null);
-        hentJournalpostListeResponse.getJournalpostListe().get(0).getHoveddokument().setTittel(tittel);
-        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class))).thenReturn(hentJournalpostListeResponse);
-
-        BasisKodeverdi dtid = dokumentApplikasjonTjeneste.utledDokumentTypeFraTittel(KJENT_SAK, JOURNAL_ID);
-
-        assertThat(dtid.getKode()).isEqualTo(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode());
-    }
-
 
     private Journalpost createJournalpost(ArkivFilType arkivFilTypeKonst, VariantFormat variantFormatKonst) throws DatatypeConfigurationException {
         return createJournalpost(arkivFilTypeKonst, variantFormatKonst, NOW, NOW, "U");

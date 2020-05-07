@@ -542,21 +542,23 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
     private void oversettUttakperiode(OppgittPeriodeBuilder oppgittPeriodeBuilder, Uttaksperiode periode) {
         oppgittPeriodeBuilder.medPeriodeType(UttakPeriodeType.fraKode(periode.getType().getKode()));
-        if (periode.isOenskerSamtidigUttak() != null) {
-            oppgittPeriodeBuilder.medSamtidigUttak(periode.isOenskerSamtidigUttak());
-        }
         if (periode.isOenskerFlerbarnsdager() != null) {
             oppgittPeriodeBuilder.medFlerbarnsdager(periode.isOenskerFlerbarnsdager());
         }
-        if (periode.getSamtidigUttakProsent() != null) {
+        //Støtter nå enten samtidig uttak eller gradering. Mulig dette endres senere
+        if (erSamtidigUttak(periode)) {
+            oppgittPeriodeBuilder.medSamtidigUttak(true);
             oppgittPeriodeBuilder.medSamtidigUttaksprosent(BigDecimal.valueOf(periode.getSamtidigUttakProsent()));
-        }
-        if (periode instanceof Gradering) {
+        } else if (periode instanceof Gradering) {
             oversettGradering(oppgittPeriodeBuilder, (Gradering) periode);
         }
         if (periode.getMorsAktivitetIPerioden() != null && !periode.getMorsAktivitetIPerioden().getKode().isEmpty()) {
             oppgittPeriodeBuilder.medMorsAktivitet(MorsAktivitet.fraKode(periode.getMorsAktivitetIPerioden().getKode()));
         }
+    }
+
+    private boolean erSamtidigUttak(Uttaksperiode periode) {
+        return periode.isOenskerSamtidigUttak() != null && periode.isOenskerSamtidigUttak();
     }
 
     private void oversettGradering(OppgittPeriodeBuilder oppgittPeriodeBuilder, Gradering gradering) {

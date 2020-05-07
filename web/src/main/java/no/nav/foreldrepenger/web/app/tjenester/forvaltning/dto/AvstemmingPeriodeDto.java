@@ -12,7 +12,7 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;
 
-public class EnkelPeriodeDto implements AbacDto {
+public class AvstemmingPeriodeDto implements AbacDto {
 
     private static final String DATO_PATTERN = "(\\d{4}-\\d{2}-\\d{2})";
 
@@ -21,6 +21,12 @@ public class EnkelPeriodeDto implements AbacDto {
     @QueryParam("key")
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String key;
+
+    @NotNull
+    @Parameter(description = "logprefix")
+    @QueryParam("prefix")
+    @Pattern(regexp = InputValideringRegex.FRITEKST)
+    private String prefix;
 
     @NotNull
     @Parameter(description = "fom (YYYY-MM-DD)")
@@ -34,13 +40,14 @@ public class EnkelPeriodeDto implements AbacDto {
     @Pattern(regexp = DATO_PATTERN)
     private String tom;
 
-    public EnkelPeriodeDto(@NotNull String key, @NotNull String fom, @NotNull String tom) {
+    public AvstemmingPeriodeDto(@NotNull String key, @NotNull String prefix, @NotNull String fom, @NotNull String tom) {
         this.key = key;
+        this.prefix = prefix;
         this.fom = fom;
         this.tom = tom;
     }
 
-    public EnkelPeriodeDto() {
+    public AvstemmingPeriodeDto() {
     }
 
     @Override
@@ -50,6 +57,10 @@ public class EnkelPeriodeDto implements AbacDto {
 
     public String getKey() {
         return key;
+    }
+
+    public String getPrefix() {
+        return prefix;
     }
 
     public LocalDate getFom() {

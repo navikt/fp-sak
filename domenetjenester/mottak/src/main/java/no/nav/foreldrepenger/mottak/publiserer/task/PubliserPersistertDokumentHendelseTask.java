@@ -17,8 +17,8 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
+import no.nav.foreldrepenger.mottak.json.JacksonJsonConfig;
 import no.nav.foreldrepenger.mottak.publiserer.producer.DialogHendelseProducer;
-import no.nav.foreldrepenger.mottak.publiserer.producer.DialogJsonConfig;
 import no.nav.foreldrepenger.mottak.publiserer.producer.PubliserPersistertDokumentHendelseFeil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -76,7 +76,7 @@ public class PubliserPersistertDokumentHendelseTask implements ProsessTaskHandle
                     .medStartDato(inntektsmelding.getStartDatoPermisjon().orElse(null))
                     .medSaksnummer(fagsak.getSaksnummer().getVerdi())
                     .build();
-                producer.sendJsonMedNøkkel(inntektsmelding.getKanalreferanse(), DialogJsonConfig.toJson(hendelse, PubliserPersistertDokumentHendelseFeil.FEILFACTORY::kanIkkeSerialisere));
+                producer.sendJsonMedNøkkel(inntektsmelding.getKanalreferanse(), JacksonJsonConfig.toJson(hendelse, PubliserPersistertDokumentHendelseFeil.FEILFACTORY::kanIkkeSerialisere));
             });
         });
     }

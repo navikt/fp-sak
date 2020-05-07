@@ -59,6 +59,10 @@ public class ArbeidGrunnlagBygger {
         var ytelseFordelingAggregat = ytelsesfordelingRepository.hentAggregat(input.getBehandlingReferanse().getBehandlingId());
         var uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
 
+        if (beregningsgrunnlagStatuser.isEmpty()) {
+            throw new IllegalStateException("Beregningsgrunnlag mangler status");
+        }
+
         for (BeregningsgrunnlagStatus beregningsgrunnlagStatus : beregningsgrunnlagStatuser) {
             var arbeidsforhold = lagArbeidsforhold(beregningsgrunnlagStatuser, beregningsgrunnlagStatus, ytelseFordelingAggregat, uttakYrkesaktiviteter);
             resultat.add(arbeidsforhold);

@@ -29,6 +29,7 @@ public enum Fagsystem implements Kodeverdi {
     GOSYS("GOSYS", "Gosys", "FS22"),
     ENHETSREGISTERET("ENHETSREGISTERET", "Enhetsregisteret", "ER01"),
     AAREGISTERET("AAREGISTERET", "AAregisteret", "AR01"),
+    K9SAK("K9SAK", "Vedtaksløsning Folketrygdloven Kapittel 9", "K9SAK"),
    
     /**
      * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden gjør samme nytten.

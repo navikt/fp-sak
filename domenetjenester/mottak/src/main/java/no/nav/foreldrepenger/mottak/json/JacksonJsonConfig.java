@@ -1,0 +1,70 @@
+package no.nav.foreldrepenger.mottak.json;
+
+import java.util.function.Function;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.InjectableValues;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StringSerializer;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import no.nav.abakus.iaygrunnlag.kodeverk.KodeValidator;
+import no.nav.vedtak.feil.Feil;
+
+public final class JacksonJsonConfig {
+
+    private static final ObjectMapper OM = new ObjectMapper();
+
+    static {
+        OM.registerModule(new Jdk8Module());
+        OM.registerModule(new JavaTimeModule());
+        OM.registerModule(createModule());
+        OM.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        OM.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        OM.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+        OM.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE);
+        OM.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
+        OM.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        OM.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY);
+
+        InjectableValues.Std std = new InjectableValues.Std();
+        std.addValue(KodeValidator.class, KodeValidator.HAPPY_VALIDATOR);
+        OM.setInjectableValues(std);
+    }
+
+    private JacksonJsonConfig() {
+        // skjul public constructor
+    }
+
+    public static ObjectMapper getMapper() {
+        return OM;
+    }
+
+    public static String toJson(Object object, Function<JsonProcessingException, Feil> feilFactory) {
+        try {
+            return OM.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            throw feilFactory.apply(e).toException();
+        }
+    }
+
+    private static SimpleModule createModule() {
+        SimpleModule module = new SimpleModule("VL-REST", new Version(1, 0, 0, null, null, null));
+
+        addSerializers(module);
+
+        return module;
+    }
+
+    private static void addSerializers(SimpleModule module) {
+        module.addSerializer(new StringSerializer());
+    }
+}
+

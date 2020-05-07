@@ -169,7 +169,7 @@ public class DokumentRestTjeneste {
                                  @NotNull @QueryParam("dokumentId") @Parameter(description = "Unik identifikator av DokumentInfo/Dokumentbeskrivelse (dokumentnivå)") @Valid DokumentIdDto dokumentId) {
         try {
             ResponseBuilder responseBuilder = Response.ok(
-                new ByteArrayInputStream(dokumentArkivTjeneste.hentDokumnet(new JournalpostId(journalpostId.getJournalpostId()), dokumentId.getDokumentId())));
+                new ByteArrayInputStream(dokumentArkivTjeneste.hentDokument(new JournalpostId(journalpostId.getJournalpostId()), dokumentId.getDokumentId())));
             responseBuilder.type("application/pdf");
             responseBuilder.header("Content-Disposition", "filename=dokument.pdf");
             return responseBuilder.build();

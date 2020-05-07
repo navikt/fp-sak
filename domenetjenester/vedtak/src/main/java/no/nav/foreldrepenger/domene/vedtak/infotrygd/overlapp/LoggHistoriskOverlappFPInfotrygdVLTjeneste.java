@@ -1,12 +1,12 @@
-package no.nav.foreldrepenger.domene.vedtak.infotrygd.rest;
+package no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp;
 
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -27,6 +27,8 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdFPGrunnlag;
+import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdSVPGrunnlag;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -71,83 +73,101 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
         this.overlappRepository = overlappRepository;
     }
 
-    public void vurderOglagreEventueltOverlapp(Long behandlingId, AktørId annenPart, LocalDate minFraQuery) {
+    public void vurderOglagreEventueltOverlapp(String prefix, Long behandlingId, AktørId annenPart, LocalDate minFraQuery) {
         try {
-            var behandling = behandlingRepository.hentBehandling(behandlingId);
-            LocalDate førsteUttaksDatoFP = VirkedagUtil.fomVirkedag(minFraQuery);
-            //Henter alle utbetalingsperioder på behandling som er iverksatt
-            LocalDateTimeline<Boolean> perioderFp = hentPerioderFp(behandling.getId(), førsteUttaksDatoFP);
-            harFPYtelserSomOverlapperIT(behandling, førsteUttaksDatoFP, perioderFp, behandling.getAktørId(), "FP")
-                .forEach(behandlingOverlappInfotrygd -> overlappRepository.lagre(behandlingOverlappInfotrygd));
-            if (RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType()) && annenPart != null && FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()))  {
-                harFPYtelserSomOverlapperIT(behandling, førsteUttaksDatoFP, perioderFp, annenPart, "FPA")
-                    .forEach(behandlingOverlappInfotrygd -> overlappRepository.lagre(behandlingOverlappInfotrygd));
-            }
-            if (RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType())) {
-                harSVPYtelserSomOverlapperIT(behandling, førsteUttaksDatoFP, perioderFp)
-                    .forEach(behandlingOverlappInfotrygd -> overlappRepository.lagre(behandlingOverlappInfotrygd));
-            }
+            utledPerioderMedOverlapp(prefix, behandlingId, annenPart, minFraQuery)
+                .forEach(overlappRepository::lagre);
         } catch (Exception e) {
             log.info("Identifisering av overlapp i Infotrygd feilet ", e);
         }
     }
 
+    private List<BehandlingOverlappInfotrygd> utledPerioderMedOverlapp(String prefix, Long behandlingId, AktørId annenPart, LocalDate minFraQuery) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        List<BehandlingOverlappInfotrygd> resultat = new ArrayList<>();
 
-    private List<BehandlingOverlappInfotrygd> harFPYtelserSomOverlapperIT(Behandling behandling, LocalDate førsteUttaksdatoFp,
-                                                                          LocalDateTimeline<Boolean> perioderFP, AktørId finnForAktørId, String tema) {
-        List<BehandlingOverlappInfotrygd> overlappene = new ArrayList<>();
+        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
+            // Her skal vi oppdage alle ytelser som strekker seg forbi førsteDatoVL - uansett overlapp eller ei.
+            LocalDate førsteDatoVL = VirkedagUtil.fomVirkedag(minFraQuery);
+            LocalDateInterval førstePeriodeVL = hentPerioderFp(behandlingId, førsteDatoVL);
+
+            harFPYtelserSomOverlapperIT(førsteDatoVL, behandling.getAktørId()).getDatoIntervaller().stream().findFirst()
+                .ifPresent(grunnlagPeriode -> resultat.add(opprettOverlappIT(behandling, prefix + "F1", grunnlagPeriode, førstePeriodeVL)));
+            if (RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType()) && annenPart != null)  {
+                harFPYtelserSomOverlapperIT(førsteDatoVL, annenPart).getDatoIntervaller().stream().findFirst()
+                    .ifPresent(grunnlagPeriode -> resultat.add(opprettOverlappIT(behandling, prefix + "F2", grunnlagPeriode, førstePeriodeVL)));
+            }
+            if (RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType())) {
+                harSVPYtelserSomOverlapperIT(førsteDatoVL, behandling.getAktørId()).getDatoIntervaller().stream().findFirst()
+                    .ifPresent(grunnlagPeriode -> resultat.add(opprettOverlappIT(behandling, prefix + "SV", grunnlagPeriode, førstePeriodeVL)));
+            }
+        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
+            // Her skal vi oppdage alle ytelser med netto overlapp - kun utbetalinger
+            LocalDateTimeline<Boolean> perioderVL = hentPerioderSVP(behandlingId);
+            LocalDate førsteDatoVL = perioderVL.getDatoIntervaller().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(null);
+            if (førsteDatoVL != null) {
+                harFPYtelserSomOverlapperIT(førsteDatoVL, behandling.getAktørId())
+                    .intersection(perioderVL, StandardCombinators::alwaysTrueForMatch).compress().getDatoIntervaller().stream().findFirst()
+                    .ifPresent(grunnlagPeriode -> resultat.add(opprettOverlappIT(behandling, prefix + "F1", grunnlagPeriode, grunnlagPeriode)));
+                if (RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType())) {
+                    harSVPYtelserSomOverlapperIT(førsteDatoVL, behandling.getAktørId())
+                        .intersection(perioderVL, StandardCombinators::alwaysTrueForMatch).compress().getDatoIntervaller().stream().findFirst()
+                        .ifPresent(grunnlagPeriode -> resultat.add(opprettOverlappIT(behandling, prefix + "SV", grunnlagPeriode, grunnlagPeriode)));
+                }
+            }
+        }
+        return resultat;
+    }
+
+    private LocalDateTimeline<Boolean> harFPYtelserSomOverlapperIT(LocalDate førsteDatoVL, AktørId finnForAktørId) {
         var ident = getFnrFraAktørId(finnForAktørId);
 
-        List<Grunnlag> infotrygdFPGrunnlag = infotrygdFPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp.plusYears(3));
+        List<Grunnlag> infotrygdFPGrunnlag = infotrygdFPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteDatoVL.minusWeeks(4), førsteDatoVL.plusYears(3));
 
-        finnOverlappene(behandling, perioderFP, tema, infotrygdFPGrunnlag, overlappene);
-
-        return overlappene;
+        return finnTidslinjeFraGrunnlagene(infotrygdFPGrunnlag, førsteDatoVL);
     }
 
-    private List<BehandlingOverlappInfotrygd> harSVPYtelserSomOverlapperIT(Behandling behandling, LocalDate førsteUttaksdatoFp,
-                                                                           LocalDateTimeline<Boolean> perioderFP) {
-        List<BehandlingOverlappInfotrygd> overlappene = new ArrayList<>();
-        var ident = getFnrFraAktørId(behandling.getAktørId());
+    private LocalDateTimeline<Boolean> harSVPYtelserSomOverlapperIT(LocalDate førsteDatoVL, AktørId finnForAktørId) {
+        var ident = getFnrFraAktørId(finnForAktørId);
 
-        List<Grunnlag> infotrygdSVPGrunnlag = infotrygdSVPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp.plusYears(3));
+        List<Grunnlag> infotrygdSVPGrunnlag = infotrygdSVPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteDatoVL.minusWeeks(4), førsteDatoVL.plusYears(3));
 
-        finnOverlappene(behandling, perioderFP, "SVP", infotrygdSVPGrunnlag, overlappene);
-
-        return overlappene;
+        return finnTidslinjeFraGrunnlagene(infotrygdSVPGrunnlag, førsteDatoVL);
     }
 
-    private void finnOverlappene(Behandling behandling, LocalDateTimeline<Boolean> perioderFP, String tema,
-                                 List<Grunnlag> infotrygdGrunnlaglist, List<BehandlingOverlappInfotrygd> overlappene) {
-        LocalDateTimeline<Boolean> tlGrunnlag = finnTidslinjeFraGrunnlagene(infotrygdGrunnlaglist);
-
-        tlGrunnlag.getDatoIntervaller()
-            .forEach(grunnlagPeriode -> perioderFP.getDatoIntervaller().stream()
-                .filter(grunnlagPeriode::overlaps)
-                .map(vlPeriode -> opprettOverlappIT(behandling, tema, grunnlagPeriode, vlPeriode))
-                .forEach(overlappene::add)
-        );
-    }
 
     private PersonIdent getFnrFraAktørId(AktørId aktørId) {
         return aktørConsumer.hentPersonIdentForAktørId(aktørId.getId()).map(PersonIdent::new).orElseThrow();
     }
 
-    private LocalDateTimeline<Boolean> hentPerioderFp(Long behandlingId, LocalDate minUttakDato) {
-        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
-        List<LocalDateSegment<Boolean>> segments = new ArrayList<>();
-        segments.add(new LocalDateSegment<>(minUttakDato, minUttakDato, Boolean.TRUE)); // Sikre en periode
-        berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+    private LocalDateInterval hentPerioderFp(Long behandlingId, LocalDate minUttakDato) {
+        var minimum = new LocalDateInterval(minUttakDato, minUttakDato);
+
+        var segmenter = new ArrayList<>(List.of(new LocalDateSegment<>(minimum, Boolean.TRUE)));
+        beregningsresultatRepository.hentBeregningsresultat(behandlingId)
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), VirkedagUtil.tomSøndag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
-            .forEach(segments::add);
+            .forEach(segmenter::add);
+
+        return helgeJusterTidslinje(new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress()).getDatoIntervaller().stream()
+            .min(Comparator.comparing(LocalDateInterval::getFomDato)).orElse(minimum);
+    }
+
+    private LocalDateTimeline<Boolean> hentPerioderSVP(Long behandlingId) {
+        var segments = beregningsresultatRepository.hentBeregningsresultat(behandlingId)
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+            .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), VirkedagUtil.tomSøndag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
+            .collect(Collectors.toList());
 
         return helgeJusterTidslinje(new LocalDateTimeline<>(segments, StandardCombinators::alwaysTrueForMatch).compress());
     }
 
-    private LocalDateTimeline<Boolean> finnTidslinjeFraGrunnlagene(List<Grunnlag> grunnlag) {
+    private LocalDateTimeline<Boolean> finnTidslinjeFraGrunnlagene(List<Grunnlag> grunnlag, LocalDate førsteUttaksdatoFp) {
         List<LocalDateSegment<Boolean>> segmenter = grunnlag.stream()
             .map(Grunnlag::getVedtak)
             .flatMap(Collection::stream)
+            .filter(v -> !v.getPeriode().getTom().isBefore(førsteUttaksdatoFp))
             .filter(v -> v.getUtbetalingsgrad() > 0)
             .map(p-> new LocalDateSegment<>(p.getPeriode().getFom(), VirkedagUtil.tomSøndag(p.getPeriode().getTom()), Boolean.TRUE))
             .collect(Collectors.toList());

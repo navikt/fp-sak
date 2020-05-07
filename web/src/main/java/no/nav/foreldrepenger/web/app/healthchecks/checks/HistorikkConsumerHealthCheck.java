@@ -43,6 +43,6 @@ public class HistorikkConsumerHealthCheck extends ExtHealthCheck {
     }
 
     private boolean holderPåÅKonsumere(KafkaStreams.State tilstand) {
-        return tilstand.isRunning() || KafkaStreams.State.CREATED.equals(tilstand);
+        return tilstand.isRunningOrRebalancing() || KafkaStreams.State.CREATED.equals(tilstand);
     }
 }
