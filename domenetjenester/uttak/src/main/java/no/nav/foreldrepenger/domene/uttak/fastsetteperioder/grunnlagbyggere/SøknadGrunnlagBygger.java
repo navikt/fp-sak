@@ -112,7 +112,7 @@ public class SøknadGrunnlagBygger {
         if (oppgittPeriode.erGradert()) {
             return byggGradertPeriode(oppgittPeriode, stønadskontotype, aktiviter);
         }
-        return OppgittPeriode.forVanligPeriode(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(), map(oppgittPeriode.getPeriodeKilde()),
+        return OppgittPeriode.forVanligPeriode(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
             samtidigUttaksprosent(oppgittPeriode), oppgittPeriode.isFlerbarnsdager(), map(oppgittPeriode.getPeriodeVurderingType()));
     }
 
@@ -136,7 +136,7 @@ public class SøknadGrunnlagBygger {
             throw new IllegalStateException("Forventer minst en gradert aktivitet ved gradering i søknadsperioden");
         }
 
-        return OppgittPeriode.forGradering(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(), map(oppgittPeriode.getPeriodeKilde()),
+        return OppgittPeriode.forGradering(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
             oppgittPeriode.getArbeidsprosent(), samtidigUttaksprosent(oppgittPeriode), oppgittPeriode.isFlerbarnsdager(), gradertAktivitet, periodeVurderingType);
     }
 
@@ -160,15 +160,14 @@ public class SøknadGrunnlagBygger {
         var overføringÅrsak = map((OverføringÅrsak) oppgittPeriode.getÅrsak());
         var periodeVurderingType = map(oppgittPeriode.getPeriodeVurderingType());
 
-        return OppgittPeriode.forOverføring(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
-            map(oppgittPeriode.getPeriodeKilde()), periodeVurderingType, overføringÅrsak);
+        return OppgittPeriode.forOverføring(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(), periodeVurderingType, overføringÅrsak);
     }
 
     private OppgittPeriode byggUtsettelseperiode(OppgittPeriodeEntitet oppgittPeriode) {
         var utsettelseÅrsak = map((UtsettelseÅrsak) oppgittPeriode.getÅrsak());
         var periodeVurderingType = map(oppgittPeriode.getPeriodeVurderingType());
 
-        return OppgittPeriode.forUtsettelse(oppgittPeriode.getFom(), oppgittPeriode.getTom(), map(oppgittPeriode.getPeriodeKilde()),
+        return OppgittPeriode.forUtsettelse(oppgittPeriode.getFom(), oppgittPeriode.getTom(),
             periodeVurderingType, utsettelseÅrsak);
     }
 
@@ -177,7 +176,7 @@ public class SøknadGrunnlagBygger {
         if (årsak instanceof OppholdÅrsak) {
             var oppholdÅrsak = (OppholdÅrsak) årsak;
             var mappedÅrsak = map(oppholdÅrsak);
-            return OppgittPeriode.forOpphold(oppgittPeriode.getFom(), oppgittPeriode.getTom(), map(oppgittPeriode.getPeriodeKilde()), mappedÅrsak);
+            return OppgittPeriode.forOpphold(oppgittPeriode.getFom(), oppgittPeriode.getTom(), mappedÅrsak);
         }
         throw new IllegalArgumentException("Ikke-støttet årsakstype: " + årsak);
     }
