@@ -37,6 +37,7 @@ import no.nav.folketrygdloven.kalkulator.adapter.regelmodelltilvl.MapBGSkjæring
 import no.nav.folketrygdloven.kalkulator.adapter.vltilregelmodell.MapBeregningAktiviteterFraVLTilRegel;
 import no.nav.folketrygdloven.kalkulator.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.ytelse.fp.FastsettSkjæringstidspunktOgStatuserFP;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
@@ -112,7 +113,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
     private BeregningIAYTestUtil iayTestUtil;
 
     private FastsettBeregningAktiviteter fastsettBeregningAktiviteter = new FastsettBeregningAktiviteter(new UnitTestLookupInstanceImpl<>(new MapBeregningAktiviteterFraVLTilRegel()));
-    private FastsettSkjæringstidspunktOgStatuser fastsettSkjæringstidspunktOgStatuser = new FastsettSkjæringstidspunktOgStatuser(
+    private FastsettSkjæringstidspunktOgStatuser fastsettSkjæringstidspunktOgStatuser = new FastsettSkjæringstidspunktOgStatuserFP(
         new MapBGSkjæringstidspunktOgStatuserFraRegelTilVL(new UnitTestLookupInstanceImpl<>(new BeregningsperiodeTjeneste())));
 
     private final AtomicLong journalpostIdInc = new AtomicLong(123L);
