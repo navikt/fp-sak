@@ -46,7 +46,7 @@ public class YtelserKonsolidertTjeneste {
         var ytelser = filter.getFiltrertYtelser();
 
         Collection<Ytelse> fraGrunnlag = ytelser.stream()
-            .filter(ytelse -> !inkluder.isPresent() || inkluder.get().contains(ytelse.getRelatertYtelseType()))
+            .filter(ytelse -> inkluder.isEmpty() || inkluder.get().contains(ytelse.getRelatertYtelseType()))
             .collect(Collectors.toList());
         List<TilgrensendeYtelserDto> resultat = new ArrayList<>(BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(fraGrunnlag));
 
@@ -55,7 +55,7 @@ public class YtelserKonsolidertTjeneste {
         Set<FagsakStatus> statuser = Set.of(FagsakStatus.OPPRETTET, FagsakStatus.UNDER_BEHANDLING);
         List<TilgrensendeYtelserDto> resultatÅpen = fagsakRepository.hentForBruker(aktørId).stream()
             .filter(sak -> !saksnumre.contains(sak.getSaksnummer()))
-            .filter(sak -> !inkluder.isPresent() || inkluder.get().contains(BehandlingRelaterteYtelserMapper.mapFraFagsakYtelseTypeTilRelatertYtelseType(sak.getYtelseType())))
+            .filter(sak -> inkluder.isEmpty() || inkluder.get().contains(BehandlingRelaterteYtelserMapper.mapFraFagsakYtelseTypeTilRelatertYtelseType(sak.getYtelseType())))
             .filter(sak -> statuser.contains(sak.getStatus()))
             .map(sak -> BehandlingRelaterteYtelserMapper.mapFraFagsak(sak, iDag))
             .collect(Collectors.toList());
