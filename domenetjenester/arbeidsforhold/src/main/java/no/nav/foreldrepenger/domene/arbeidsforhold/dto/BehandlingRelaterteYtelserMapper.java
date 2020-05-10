@@ -24,10 +24,10 @@ public class BehandlingRelaterteYtelserMapper {
     public static final List<RelatertYtelseType> RELATERT_YTELSE_TYPER_FOR_SØKER = List.of(
         RelatertYtelseType.FORELDREPENGER,
         RelatertYtelseType.ENGANGSSTØNAD,
-        RelatertYtelseType.SVANGERSKAPSPENGER,
         RelatertYtelseType.SYKEPENGER,
         RelatertYtelseType.DAGPENGER,
         RelatertYtelseType.ARBEIDSAVKLARINGSPENGER,
+        RelatertYtelseType.SVANGERSKAPSPENGER,
         RelatertYtelseType.OMSORGSPENGER,
         RelatertYtelseType.OPPLÆRINGSPENGER,
         RelatertYtelseType.PLEIEPENGER_SYKT_BARN,
