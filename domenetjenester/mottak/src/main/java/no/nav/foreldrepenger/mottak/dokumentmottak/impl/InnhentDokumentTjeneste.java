@@ -99,11 +99,14 @@ public class InnhentDokumentTjeneste {
     private boolean skalMottasSomKøet(Fagsak fagsak) {
         Optional<Behandling> åpenBehandling = revurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId());
         if (åpenBehandling.isPresent())
-            return åpenBehandling.map(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)).orElse(false);
+            return åpenBehandling.map(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)).orElse(skalKøesGrunnetMedforelder(fagsak));
         if (revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId()).isPresent())
             return true;
-        Optional<Behandling> åpenBehandlingMedforelder = revurderingRepository.finnÅpenBehandlingMedforelder(fagsak);
-        return åpenBehandlingMedforelder.isPresent() && !køKontroller.skalSnikeIKø(fagsak, åpenBehandlingMedforelder.get());
+        return skalKøesGrunnetMedforelder(fagsak);
+    }
+
+    private boolean skalKøesGrunnetMedforelder(Fagsak fagsak) {
+        return revurderingRepository.finnÅpenBehandlingMedforelder(fagsak).map(b -> !køKontroller.skalSnikeIKø(fagsak, b)).orElse(false);
     }
 
     private boolean brukDokumentKategori(DokumentTypeId dokumentTypeId, DokumentKategori dokumentKategori) {
