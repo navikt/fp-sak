@@ -30,16 +30,22 @@ public enum RelatertYtelseType implements Kodeverdi {
     FORELDREPENGER("FORELDREPENGER", "Foreldrepenger"),
     ENGANGSSTØNAD("ENGANGSSTØNAD", "Engangsstønad"),
     PÅRØRENDESYKDOM("PÅRØRENDESYKDOM", "Pårørendesykdom"),
+    FRISINN("FRISINN", "FRISINN"),
+    PLEIEPENGER_SYKT_BARN("PSB", "Pleiepenger sykt barn"),
+    PLEIEPENGER_NÆRSTÅENDE("PPN", "Pleiepenger nærstående"),
+    OMSORGSPENGER("OMP", "Omsorgspenger"),
+    OPPLÆRINGSPENGER("OLP", "Opplæringspenger"),
     ARBEIDSAVKLARINGSPENGER("ARBEIDSAVKLARINGSPENGER", "Arbeidsavklaringspenger"),
     DAGPENGER("DAGPENGER", "Dagpenger"),
     UDEFINERT("-", "Ikke definert"),
     ;
 
+    private static final Set<RelatertYtelseType> OPPTJENING_RELATERTYTELSE_FELLES = Set.of(SYKEPENGER, SVANGERSKAPSPENGER, FORELDREPENGER,
+        PÅRØRENDESYKDOM, PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OMSORGSPENGER, OPPLÆRINGSPENGER, FRISINN, DAGPENGER);
+
     private static final Map<FagsakYtelseType, Set<RelatertYtelseType>> OPPTJENING_RELATERTYTELSE_CONFIG = Map.of(
-        FagsakYtelseType.FORELDREPENGER,
-        Set.of(ENSLIG_FORSØRGER, SYKEPENGER, SVANGERSKAPSPENGER, FORELDREPENGER, PÅRØRENDESYKDOM, ARBEIDSAVKLARINGSPENGER, DAGPENGER),
-        FagsakYtelseType.SVANGERSKAPSPENGER,
-        Set.of(SYKEPENGER, SVANGERSKAPSPENGER, FORELDREPENGER, PÅRØRENDESYKDOM, DAGPENGER));
+        FagsakYtelseType.FORELDREPENGER, Set.of(ENSLIG_FORSØRGER, ARBEIDSAVKLARINGSPENGER),
+        FagsakYtelseType.SVANGERSKAPSPENGER, Collections.emptySet());
 
     private static final Map<String, RelatertYtelseType> KODER = new LinkedHashMap<>();
 
@@ -113,7 +119,7 @@ public enum RelatertYtelseType implements Kodeverdi {
         if (relatertYtelseTypeSet == null) {
             throw new IllegalStateException("Støtter ikke fagsakYtelseType" + ytelseType);
         }
-        return relatertYtelseTypeSet.contains(this);
+        return OPPTJENING_RELATERTYTELSE_FELLES.contains(this) || relatertYtelseTypeSet.contains(this);
     }
 
     public static void main(String[] args) {

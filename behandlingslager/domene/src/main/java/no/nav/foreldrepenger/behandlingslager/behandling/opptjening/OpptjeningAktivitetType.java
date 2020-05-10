@@ -1,14 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.opptjening;
 
 import java.util.AbstractMap;
-/**
- * <h3>Internt kodeverk</h3>
- * Definerer aktiviteter benyttet til å vurdere Opptjening.
- * <p>
- * Kodeverket sammenstiller data fra {@link ArbeidType} og {@link RelatertYtelseType}.<br>
- * Senere benyttes dette i mapping til bla. Beregningsgrunnlag.
- *
- */
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,6 +22,14 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
+
+/**
+ * <h3>Internt kodeverk</h3>
+ * Definerer aktiviteter benyttet til å vurdere Opptjening.
+ * <p>
+ * Kodeverket sammenstiller data fra {@link ArbeidType} og {@link RelatertYtelseType}.<br>
+ * Senere benyttes dette i mapping til bla. Beregningsgrunnlag.
+ */
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
@@ -65,17 +65,21 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
             Set.of()),
     OMSORGSPENGER("OMSORGSPENGER", "Omsorgspenger",
             Set.of(),
-            Set.of(),
+            Set.of(RelatertYtelseType.OMSORGSPENGER),
             Set.of(TemaUnderkategori.PÅRØRENDE_OMSORGSPENGER)),
     OPPLÆRINGSPENGER("OPPLÆRINGSPENGER", "Opplæringspenger",
             Set.of(),
-            Set.of(),
+            Set.of(RelatertYtelseType.OPPLÆRINGSPENGER),
             Set.of(TemaUnderkategori.PÅRØRENDE_OPPLÆRINGSPENGER)),
     PLEIEPENGER("PLEIEPENGER", "Pleiepenger",
             Set.of(),
-            Set.of(),
+            Set.of(RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE, RelatertYtelseType.PLEIEPENGER_SYKT_BARN),
             Set.of(TemaUnderkategori.PÅRØRENDE_PLEIETRENGENDE_SYKT_BARN, TemaUnderkategori.PÅRØRENDE_PLEIETRENGENDE,
                 TemaUnderkategori.PÅRØRENDE_PLEIETRENGENDE_PÅRØRENDE, TemaUnderkategori.PÅRØRENDE_PLEIEPENGER)),
+    FRISINN("FRISINN", "FRISINN",
+            Set.of(),
+            Set.of(RelatertYtelseType.FRISINN),
+            Set.of()),
     ETTERLØNN_SLUTTPAKKE("ETTERLØNN_SLUTTPAKKE", "Etterlønn eller sluttpakke",
             Set.of(ArbeidType.ETTERLØNN_SLUTTPAKKE),
             Set.of(),
@@ -195,7 +199,7 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     public static void main(String[] args) {
         System.out.println(KODER.keySet().stream().map(k -> "'" + k + "'").collect(Collectors.toList()));
     }
