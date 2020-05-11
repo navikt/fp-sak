@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -22,16 +23,15 @@ public class FagsakRelasjonTjeneste {
 
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private FagsakRelasjonEventPubliserer fagsakRelasjonEventPubliserer;
-
-    FagsakRelasjonTjeneste() {
-        // for CDI proxy
-    }
+    private FagsakRepository fagsakRepository;
 
     @Inject
     public FagsakRelasjonTjeneste(FagsakRelasjonRepository fagsakRelasjonRepository,
-                                  FagsakRelasjonEventPubliserer fagsakRelasjonEventPubliserer) {
+                                  FagsakRelasjonEventPubliserer fagsakRelasjonEventPubliserer,
+                                  FagsakRepository fagsakRepository) {
 
         this.fagsakRelasjonEventPubliserer = fagsakRelasjonEventPubliserer;
+        this.fagsakRepository = fagsakRepository;
 
         if (fagsakRelasjonEventPubliserer != null) {
             this.fagsakRelasjonEventPubliserer = fagsakRelasjonEventPubliserer;
@@ -40,6 +40,10 @@ public class FagsakRelasjonTjeneste {
         }
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
 
+    }
+
+    FagsakRelasjonTjeneste() {
+        // for CDI proxy
     }
 
 
@@ -63,7 +67,8 @@ public class FagsakRelasjonTjeneste {
         return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId);
     }
 
-    public void lagre(Fagsak fagsak, FagsakRelasjon fagsakRelasjon, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
+    public void lagre(long fagsakId, FagsakRelasjon fagsakRelasjon, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
+        var fagsak = finnFagsak(fagsakId);
         fagsakRelasjonRepository.lagre(fagsak, behandlingId, stønadskontoberegning);
         fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon);
     }
@@ -107,8 +112,13 @@ public class FagsakRelasjonTjeneste {
     }
 
 
-    public void overstyrStønadskontoberegning(Fagsak fagsak, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
+    public void overstyrStønadskontoberegning(long fagsakId, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
+        var fagsak = finnFagsak(fagsakId);
         fagsakRelasjonRepository.overstyrStønadskontoberegning(fagsak, behandlingId, stønadskontoberegning);
+    }
+
+    private Fagsak finnFagsak(long fagsakId) {
+        return fagsakRepository.finnEksaktFagsak(fagsakId);
     }
 
     public void oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås lås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {

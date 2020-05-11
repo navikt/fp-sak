@@ -44,7 +44,8 @@ public class VurderDekningsgradOppdatererTest {
     @Rule
     public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), FagsakRelasjonEventPubliserer.NULL_EVENT_PUB);
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(),
+        FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, repositoryProvider.getFagsakRepository());
 
 
     @Inject

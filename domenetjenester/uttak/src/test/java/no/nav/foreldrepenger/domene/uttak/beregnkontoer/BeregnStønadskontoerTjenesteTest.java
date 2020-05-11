@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -51,8 +52,9 @@ public class BeregnStønadskontoerTjenesteTest {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
     private FagsakRelasjonRepository fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+    private FagsakRepository fagsakRepository = repositoryProvider.getFagsakRepository();
 
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(fagsakRelasjonRepository, FagsakRelasjonEventPubliserer.NULL_EVENT_PUB);
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(fagsakRelasjonRepository, FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, fagsakRepository);
 
     @Inject
     private ForeldrepengerUttakTjeneste uttakTjeneste;
@@ -76,7 +78,7 @@ public class BeregnStønadskontoerTjenesteTest {
         // Act
         BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
-        beregnStønadskontoerTjeneste.beregnStønadskontoer(input);
+        beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
         // Assert
         Optional<Stønadskontoberegning> stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
@@ -112,7 +114,7 @@ public class BeregnStønadskontoerTjenesteTest {
         // Act
         BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
-        beregnStønadskontoerTjeneste.beregnStønadskontoer(input);
+        beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
         // Assert
         Optional<Stønadskontoberegning> stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
@@ -148,7 +150,7 @@ public class BeregnStønadskontoerTjenesteTest {
         // Act
         BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
-        beregnStønadskontoerTjeneste.beregnStønadskontoer(input);
+        beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
         // Assert
         Optional<Stønadskontoberegning> stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
@@ -180,7 +182,7 @@ public class BeregnStønadskontoerTjenesteTest {
         // Act
         BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
-        beregnStønadskontoerTjeneste.beregnStønadskontoer(input);
+        beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
         // Assert
         Optional<Stønadskontoberegning> stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
@@ -212,7 +214,7 @@ public class BeregnStønadskontoerTjenesteTest {
         // Act
         BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
-        beregnStønadskontoerTjeneste.beregnStønadskontoer(input);
+        beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
         // Assert
         Optional<Stønadskontoberegning> stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer())

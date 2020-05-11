@@ -60,6 +60,13 @@ public class Stønadskontoberegning extends BaseEntitet {
         return Collections.unmodifiableSet(stønadskontoer);
     }
 
+    @Override
+    public String toString() {
+        return "Stønadskontoberegning{" +
+            "stønadskontoer=" + stønadskontoer +
+            '}';
+    }
+
     public static class Builder {
         private Stønadskontoberegning kladd;
 
