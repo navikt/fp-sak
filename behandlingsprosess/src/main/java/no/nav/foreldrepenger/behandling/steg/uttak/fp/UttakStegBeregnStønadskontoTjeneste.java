@@ -6,7 +6,11 @@ import java.time.LocalDate;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -19,6 +23,8 @@ import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 
 @ApplicationScoped
 public class UttakStegBeregnStønadskontoTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UttakStegBeregnStønadskontoTjeneste.class);
 
     private BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
@@ -50,13 +56,26 @@ public class UttakStegBeregnStønadskontoTjeneste {
 
         //Trenger ikke behandlingslås siden stønadskontoer lagres på fagsakrelasjon.
         if (fagsakRelasjon.getStønadskontoberegning().isEmpty() || !finnesLøpendeInnvilgetFP(fpGrunnlag)) {
-            beregnStønadskontoerTjeneste.beregnStønadskontoer(input);
+            beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
             return BeregningingAvStønadskontoResultat.BEREGNET;
         } else if (dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref) || oppfyllerPrematurUker(fpGrunnlag)){
             beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input);
             return BeregningingAvStønadskontoResultat.OVERSTYRT;
         }
+
+        //Mulig hver behandling skal regne ut stønadskontoer på nytt. Logger her for å samle data på hvor mye endringer det fører til
+        logEvtEndring(input, fagsakRelasjon);
+
         return BeregningingAvStønadskontoResultat.INGEN_BEREGNING;
+    }
+
+    private void logEvtEndring(UttakInput input, FagsakRelasjon fagsakRelasjon) {
+        var eksiterendeKontoer = fagsakRelasjon.getStønadskontoberegning().orElseThrow();
+        var nyeKontoer = beregnStønadskontoerTjeneste.beregn(input, fagsakRelasjon);
+
+        if (beregnStønadskontoerTjeneste.inneholderEndringer(eksiterendeKontoer, nyeKontoer)) {
+            LOG.info("Behandling ville ha endret stønadskontoer " + nyeKontoer);
+        }
     }
 
     private boolean oppfyllerPrematurUker(ForeldrepengerGrunnlag fpGrunnlag) {

@@ -76,7 +76,8 @@ public class KobleSakTjenesteTest {
     @Before
     public void oppsett() {
         tpsTjeneste = mock(TpsTjeneste.class);
-        FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(),null);
+        FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
         kobleSakTjeneste = new KobleSakTjeneste(repositoryProvider, tpsTjeneste,fagsakRelasjonTjeneste);
     }
 
