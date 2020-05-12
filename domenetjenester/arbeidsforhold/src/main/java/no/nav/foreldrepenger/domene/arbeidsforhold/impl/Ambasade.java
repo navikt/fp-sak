@@ -106,12 +106,10 @@ public enum Ambasade {
 
     private String orgnr;
 
-    private static ArrayList<Ambasade> LISTE_MED_AMBASADER;
     private static ArrayList<String> LISTE_MED_ORGNR = new ArrayList<>();
 
     static {
-        LISTE_MED_AMBASADER = new ArrayList<>(Arrays.asList(Ambasade.values()));
-        for (Ambasade a : LISTE_MED_AMBASADER) {
+        for (Ambasade a : Ambasade.values()) {
             LISTE_MED_ORGNR.add(a.getOrgnr());
         }
     }
@@ -131,7 +129,4 @@ public enum Ambasade {
         return LISTE_MED_ORGNR.contains(orgnr);
     }
 
-    public static boolean erAmbasade(Ambasade ambasade) {
-        return LISTE_MED_AMBASADER.contains(ambasade);
-    }
 }
