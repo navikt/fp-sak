@@ -96,7 +96,7 @@ public class OverstyrDekningsgradTjeneste {
         Behandling behandling = hentÅpenBehandlingEllerOpprettRevurdering(fagsak);
 
         var uttakInput = uttakInputTjeneste.lagInput(behandling);
-        beregnStønadskontoerTjeneste.beregnStønadskontoer(uttakInput);
+        beregnStønadskontoerTjeneste.opprettStønadskontoer(uttakInput);
         if (behandling.getAktivtBehandlingSteg() == null) {
             opprettTaskForÅStarteBehandling(behandling);
         }

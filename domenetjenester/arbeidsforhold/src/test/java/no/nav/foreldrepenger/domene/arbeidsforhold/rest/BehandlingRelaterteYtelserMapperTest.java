@@ -29,9 +29,9 @@ import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class BehandlingRelaterteYtelserMapperTest {
     private static final LocalDate I_DAG = LocalDate.now();
@@ -90,7 +90,7 @@ public class BehandlingRelaterteYtelserMapperTest {
         @SuppressWarnings("unchecked")
         List<RelaterteYtelserDto> resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(Collections.EMPTY_LIST, RELATERT_YTELSE_TYPER_FOR_SØKER);
 
-        assertThat(resultatListe).hasSize(7);
+        assertThat(resultatListe).hasSize(11);
         IntStream.range(0, RELATERT_YTELSE_TYPER_FOR_SØKER.size()).forEach(i -> {
             assertThat(resultatListe.get(i).getRelatertYtelseType()).isEqualTo(RELATERT_YTELSE_TYPER_FOR_SØKER.get(i).getKode());
             assertThat(resultatListe.get(i).getTilgrensendeYtelserListe()).isEmpty();
@@ -123,7 +123,7 @@ public class BehandlingRelaterteYtelserMapperTest {
 
         List<RelaterteYtelserDto> resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelserDtos, RELATERT_YTELSE_TYPER_FOR_SØKER);
 
-        assertThat(resultatListe).hasSize(7);
+        assertThat(resultatListe).hasSize(11);
         assertThat(resultatListe.get(0).getRelatertYtelseType()).isEqualTo(RelatertYtelseType.FORELDREPENGER.getKode());
         assertThat(resultatListe.get(0).getTilgrensendeYtelserListe()).hasSize(1);
         assertThat(resultatListe.get(2).getRelatertYtelseType()).isEqualTo(RelatertYtelseType.SYKEPENGER.getKode());
@@ -135,8 +135,8 @@ public class BehandlingRelaterteYtelserMapperTest {
         assertThat(sykepengerYtelserListe.get(3).getPeriodeFraDato()).isEqualTo(I_DAG.minusDays(165));
         assertThat(sykepengerYtelserListe.get(4).getPeriodeFraDato()).isEqualTo(I_DAG.minusDays(265));
         assertThat(sykepengerYtelserListe.get(5).getPeriodeFraDato()).isEqualTo(I_DAG.minusDays(365));
-        assertThat(resultatListe.get(5).getRelatertYtelseType()).isEqualTo(RelatertYtelseType.ARBEIDSAVKLARINGSPENGER.getKode());
-        assertThat(resultatListe.get(5).getTilgrensendeYtelserListe()).hasSize(1);
+        assertThat(resultatListe.get(4).getRelatertYtelseType()).isEqualTo(RelatertYtelseType.ARBEIDSAVKLARINGSPENGER.getKode());
+        assertThat(resultatListe.get(4).getTilgrensendeYtelserListe()).hasSize(1);
     }
 
     @Test
