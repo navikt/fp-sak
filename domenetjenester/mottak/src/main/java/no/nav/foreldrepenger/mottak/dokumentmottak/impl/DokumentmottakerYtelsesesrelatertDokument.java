@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
@@ -96,7 +97,11 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
     @Override
     public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         Optional<Behandling> eksisterendeKøetBehandling = revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
-        if (eksisterendeKøetBehandling.isPresent()) {
+        Optional<Behandling> eksisterendeÅpenBehandlingUtenSøknad = revurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId())
+            .filter(b -> b.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD));
+        if (eksisterendeÅpenBehandlingUtenSøknad.isPresent()) {
+            oppdaterÅpenBehandlingMedDokument(eksisterendeÅpenBehandlingUtenSøknad.get(), mottattDokument, behandlingÅrsakType);
+        } else if (eksisterendeKøetBehandling.isPresent()) {
             Behandling køetBehandling = eksisterendeKøetBehandling.get();
             dokumentmottakerFelles.opprettHistorikk(køetBehandling, mottattDokument);
             dokumentmottakerFelles.opprettKøetHistorikk(køetBehandling, true);

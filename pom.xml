@@ -60,7 +60,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <fp-uttak.version>3.1-20200507090812-657acb6</fp-uttak.version>
+        <fp-uttak.version>3.1-20200331090802-c202b1e</fp-uttak.version>
 
         <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
 
@@ -71,7 +71,7 @@
 
         <fp-kontrakter.version>5.1-20200430102838-bbe5ceb</fp-kontrakter.version>
 
-        <kalkulus.version>1.0-2020.05.07.093250-ba77747</kalkulus.version>
+        <kalkulus.version>1.0-2020.05.13.112907-156645e</kalkulus.version>
     </properties>
 
     <prerequisites>

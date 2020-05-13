@@ -25,10 +25,14 @@ public class BehandlingRelaterteYtelserMapper {
         RelatertYtelseType.FORELDREPENGER,
         RelatertYtelseType.ENGANGSSTØNAD,
         RelatertYtelseType.SYKEPENGER,
-        RelatertYtelseType.ENSLIG_FORSØRGER,
         RelatertYtelseType.DAGPENGER,
         RelatertYtelseType.ARBEIDSAVKLARINGSPENGER,
-        RelatertYtelseType.SVANGERSKAPSPENGER);
+        RelatertYtelseType.SVANGERSKAPSPENGER,
+        RelatertYtelseType.OMSORGSPENGER,
+        RelatertYtelseType.OPPLÆRINGSPENGER,
+        RelatertYtelseType.PLEIEPENGER_SYKT_BARN,
+        RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE,
+        RelatertYtelseType.FRISINN);
 
     public static final List<RelatertYtelseType> RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER = List.of(
         RelatertYtelseType.FORELDREPENGER,
