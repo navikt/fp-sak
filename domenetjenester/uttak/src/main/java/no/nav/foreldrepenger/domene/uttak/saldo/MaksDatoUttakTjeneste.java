@@ -45,13 +45,11 @@ public class MaksDatoUttakTjeneste {
     public Optional<LocalDate> beregnMaksDatoUttak(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
 
-        Optional<LocalDate> sisteUttaksdato;
-
         if (uttakInput.getYtelsespesifiktGrunnlag() instanceof ForeldrepengerGrunnlag) {
             Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(ref.getBehandlingId());
             ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
             Optional<UttakResultatEntitet> annenpartResultat = annenPartUttak(foreldrepengerGrunnlag);
-            sisteUttaksdato = finnSisteUttaksdatoForFPSak(uttakResultat, annenpartResultat);
+            Optional<LocalDate> sisteUttaksdato = finnSisteUttaksdatoForFPSak(uttakResultat, annenpartResultat);
             if (sisteUttaksdato.isPresent()) {
                 SaldoUtregning saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
                 if (ref.getRelasjonsRolleType().equals(RelasjonsRolleType.MORA)) {
