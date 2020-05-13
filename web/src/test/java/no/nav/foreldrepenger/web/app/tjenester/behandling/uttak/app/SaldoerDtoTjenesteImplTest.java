@@ -455,7 +455,7 @@ public class SaldoerDtoTjenesteImplTest {
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhetForMor2.getOrgnr())).thenReturn(new VirksomhetEntitet.Builder().medOrgnr(virksomhetForMor2.getOrgnr()).oppdatertOpplysningerNå().build());
 
         SaldoerDtoTjeneste tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste,
-            new MaksDatoUttakTjeneste(repositoryProvider.getUttakRepository(), stønadskontoSaldoTjeneste),
+            new MaksDatoUttakTjeneste(repositoryProvider.getUttakRepository(),repositoryProvider.getSvangerskapspengerUttakResultatRepository(), stønadskontoSaldoTjeneste),
             new ArbeidsgiverDtoTjeneste(arbeidsgiverTjeneste),
             stønadskontoRegelAdapter,
             repositoryProvider,

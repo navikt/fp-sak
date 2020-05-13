@@ -15,6 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
@@ -24,6 +26,7 @@ import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 @ApplicationScoped
 public class MaksDatoUttakTjeneste {
 
+    private SvangerskapspengerUttakResultatRepository svpUttakRepository;
     private UttakRepository uttakRepository;
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
 
@@ -32,32 +35,42 @@ public class MaksDatoUttakTjeneste {
     }
 
     @Inject
-    public MaksDatoUttakTjeneste(UttakRepository uttakRepository,
+    public MaksDatoUttakTjeneste(UttakRepository uttakRepository, SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository,
                                  StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
         this.uttakRepository = uttakRepository;
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
+        this.svpUttakRepository = svangerskapspengerUttakResultatRepository;
     }
 
     public Optional<LocalDate> beregnMaksDatoUttak(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(ref.getBehandlingId());
-        ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        Optional<UttakResultatEntitet> annenpartResultat = annenPartUttak(foreldrepengerGrunnlag);
 
-        Optional<LocalDate> sisteUttaksdato = finnSisteUttaksdato(uttakResultat, annenpartResultat);
+        Optional<LocalDate> sisteUttaksdato;
 
-        if (sisteUttaksdato.isPresent()) {
-            SaldoUtregning saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
-            if (ref.getRelasjonsRolleType().equals(RelasjonsRolleType.MORA)) {
-                return Optional.of(beregnMaksDato(saldoUtregning, List.of(Stønadskontotype.MØDREKVOTE,
-                    Stønadskontotype.FELLESPERIODE,
-                    Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
-            } else {
-                return Optional.of(beregnMaksDato(saldoUtregning, List.of(Stønadskontotype.FEDREKVOTE,
-                    Stønadskontotype.FELLESPERIODE,
-                    Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
+        if (uttakInput.getYtelsespesifiktGrunnlag() instanceof ForeldrepengerGrunnlag) {
+            Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(ref.getBehandlingId());
+            ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+            Optional<UttakResultatEntitet> annenpartResultat = annenPartUttak(foreldrepengerGrunnlag);
+            sisteUttaksdato = finnSisteUttaksdatoForFPSak(uttakResultat, annenpartResultat);
+            if (sisteUttaksdato.isPresent()) {
+                SaldoUtregning saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
+                if (ref.getRelasjonsRolleType().equals(RelasjonsRolleType.MORA)) {
+                    return Optional.of(beregnMaksDato(saldoUtregning, List.of(Stønadskontotype.MØDREKVOTE,
+                        Stønadskontotype.FELLESPERIODE,
+                        Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
+                } else {
+                    return Optional.of(beregnMaksDato(saldoUtregning, List.of(Stønadskontotype.FEDREKVOTE,
+                        Stønadskontotype.FELLESPERIODE,
+                        Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
+                }
             }
+
+        } else if (uttakInput.getYtelsespesifiktGrunnlag() instanceof SvangerskapspengerUttakResultatEntitet) {
+            Optional<SvangerskapspengerUttakResultatEntitet> uttakResultat = svpUttakRepository.hentHvisEksisterer(ref.getBehandlingId());
+            return finnSisteUttaksdatoForSVP(uttakResultat);
         }
+
+
         return Optional.empty();
     }
 
@@ -69,7 +82,7 @@ public class MaksDatoUttakTjeneste {
         return Optional.empty();
     }
 
-    private Optional<LocalDate> finnSisteUttaksdato(Optional<UttakResultatEntitet> uttakResultat, Optional<UttakResultatEntitet> uttakResultatAnnenPart) {
+    private Optional<LocalDate> finnSisteUttaksdatoForFPSak(Optional<UttakResultatEntitet> uttakResultat, Optional<UttakResultatEntitet> uttakResultatAnnenPart) {
         if (uttakResultat.isPresent()) {
             boolean erManuellBehandling = uttakResultat.get().getGjeldendePerioder().getPerioder()
                 .stream()
@@ -89,6 +102,10 @@ public class MaksDatoUttakTjeneste {
             .filter(this::erInnvilgetEllerAvslåttMedTrekkdager)
             .max(Comparator.comparing(UttakResultatPeriodeEntitet::getTom))
             .map(UttakResultatPeriodeEntitet::getTom);
+    }
+
+    private Optional<LocalDate> finnSisteUttaksdatoForSVP(Optional<SvangerskapspengerUttakResultatEntitet> uttakResultat) {
+        return (uttakResultat.isPresent())?uttakResultat.get().finnSisteUttaksdato():Optional.empty();
     }
 
     private boolean erInnvilgetEllerAvslåttMedTrekkdager(UttakResultatPeriodeEntitet periode) {
