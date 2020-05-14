@@ -35,7 +35,7 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
 
     @Inject
     public OppdaterFagsakStatusImpl(BehandlingRepository behandlingRepository, OppdaterFagsakStatusFelles oppdaterFagsakStatusFelles,
-                                    MaksDatoUttakTjeneste maksDatoUttakTjeneste,
+                                    @FagsakYtelseTypeRef("SVP") MaksDatoUttakTjeneste maksDatoUttakTjeneste,
                                     UttakInputTjeneste uttakInputTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.oppdaterFagsakStatusFelles = oppdaterFagsakStatusFelles;
