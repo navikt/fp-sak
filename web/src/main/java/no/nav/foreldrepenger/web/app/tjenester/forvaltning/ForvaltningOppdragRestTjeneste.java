@@ -62,6 +62,7 @@ public class ForvaltningOppdragRestTjeneste {
         ØkonomiKvittering kvittering = new ØkonomiKvittering();
         kvittering.setBehandlingId(kvitteringDto.getBehandlingId());
         kvittering.setFagsystemId(kvitteringDto.getFagsystemId());
+        kvittering.setAlvorlighetsgrad("00"); //kode som indikerer at alt er OK
 
         logger.info("Kvitterer oppdrag OK for behandlingId={] fagsystemId={} oppdaterProsessTask=", kvitteringDto.getBehandlingId(), kvitteringDto.getFagsystemId(), oppdaterProsessTask);
         økonomioppdragKvitteringTjeneste.behandleKvittering(kvittering, oppdaterProsessTask);
