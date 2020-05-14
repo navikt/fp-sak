@@ -35,13 +35,9 @@ public class OppdaterFagsakStatusImplTest {
     }
 
     @Test
-    public void utløpt_ytelsesvedtak() {
-        assertThat(erVedtakUtløpt(0)).as("Maksdato uttak er ikke utløpt").isFalse();
-        assertThat(erVedtakUtløpt(1)).as("Maksdato utløpt").isTrue();
-    }
-
-    private boolean erVedtakUtløpt(int antallDagerEtterMaksdato) {
-        LocalDate maksDatoUttak = LocalDate.now().minusDays(antallDagerEtterMaksdato);
+    public void har_løpende_ytelsesvedtak_() {
+        //Arrange
+        LocalDate maksDatoUttak = LocalDate.now().minusDays(0);
 
         ScenarioMorSøkerSvangerskapspenger scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         Behandling behandling = scenario.lagMocked();
@@ -53,6 +49,35 @@ public class OppdaterFagsakStatusImplTest {
 
         var oppdaterFagsakStatusSVP = new OppdaterFagsakStatusImpl(repositoryProvider.getBehandlingRepository(), new OppdaterFagsakStatusFelles(repositoryProvider, fagsakStatusEventPubliserer),
             maksDatoUttakTjeneste, uttakInputTjeneste);
-        return oppdaterFagsakStatusSVP.ingenLøpendeYtelsesvedtak(behandling);
+        //Act
+        boolean ingenLøpendeYtelsesvedtak = oppdaterFagsakStatusSVP.ingenLøpendeYtelsesvedtak(behandling);
+
+        //Assert
+        assertThat(ingenLøpendeYtelsesvedtak).as("Maksdato uttak er ikke utløpt").isFalse();
+
     }
+
+    @Test
+    public void ingen_løpende_ytelsesvedtak() {
+        //Arrange
+        LocalDate maksDatoUttak = LocalDate.now().minusDays(1);
+
+        ScenarioMorSøkerSvangerskapspenger scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
+        Behandling behandling = scenario.lagMocked();
+        BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+
+        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, null);
+        Mockito.when(uttakInputTjeneste.lagInput(behandling)).thenReturn(uttakInput);
+        Mockito.when(maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput)).thenReturn(Optional.of(maksDatoUttak));
+
+        var oppdaterFagsakStatusSVP = new OppdaterFagsakStatusImpl(repositoryProvider.getBehandlingRepository(), new OppdaterFagsakStatusFelles(repositoryProvider, fagsakStatusEventPubliserer),
+            maksDatoUttakTjeneste, uttakInputTjeneste);
+        //Act
+        boolean ingenLøpendeYtelsesvedtak = oppdaterFagsakStatusSVP.ingenLøpendeYtelsesvedtak(behandling);
+
+        //Assert
+        assertThat(ingenLøpendeYtelsesvedtak).as("Maksdato utløpt").isTrue();
+
+    }
+
 }
