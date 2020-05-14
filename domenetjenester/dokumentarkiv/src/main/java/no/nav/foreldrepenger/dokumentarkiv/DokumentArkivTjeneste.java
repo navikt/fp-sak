@@ -15,7 +15,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.VariantFormat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -151,29 +150,30 @@ public class DokumentArkivTjeneste {
     public Set<DokumentType> hentDokumentTypeIdForSak(Saksnummer saksnummer, LocalDate mottattEtterDato, List<DokumentType> eksisterende) {
         List<ArkivJournalPost> journalPosts = hentAlleJournalposterForSak(saksnummer);
         Set<DokumentType> alleDTID = new HashSet<>();
-        journalPosts.forEach(jpost -> {
-            ekstraherDTID(alleDTID, jpost.getHovedDokument());
-            jpost.getAndreDokument().forEach(dok -> ekstraherDTID(alleDTID, dok));
-        });
+        journalPosts.forEach(jpost -> ekstraherJournalpostDTID(alleDTID, jpost));
         if (LocalDate.MIN.equals(mottattEtterDato)) {
             return alleDTID;
         }
         Set<DokumentType> etterDato = new HashSet<>();
-        journalPosts.stream().filter(jpost -> jpost.getTidspunkt() != null && !jpost.getTidspunkt().toLocalDate().isBefore(mottattEtterDato))
-            .forEach(jpost -> {
-                ekstraherDTID(etterDato, jpost.getHovedDokument());
-                jpost.getAndreDokument().forEach(dok -> ekstraherDTID(etterDato, dok));
-            });
-        alleDTID.stream().filter(dtid -> !etterDato.contains(dtid))
+        journalPosts.stream()
+            .filter(jpost -> jpost.getTidspunkt() != null && !jpost.getTidspunkt().toLocalDate().isBefore(mottattEtterDato))
+            .forEach(jpost -> ekstraherJournalpostDTID(etterDato, jpost));
+        alleDTID.stream()
+            .filter(dtid -> !etterDato.contains(dtid))
             .forEach(dtid -> {
-                if (eksisterende.contains(dtid)) {
+                if (eksisterende.contains(dtid))
                     etterDato.add(dtid);
-                }
             });
         return etterDato;
     }
 
-    private void ekstraherDTID(Set<DokumentType> eksisterende, ArkivDokument dokument) {
+    private void ekstraherJournalpostDTID(Set<DokumentType> alleDTID, ArkivJournalPost jpost) {
+        dokumentTypeFraTittel(jpost.getBeskrivelse()).ifPresent(alleDTID::add);
+        ekstraherDokumentDTID(alleDTID, jpost.getHovedDokument());
+        jpost.getAndreDokument().forEach(dok -> ekstraherDokumentDTID(alleDTID, dok));
+    }
+
+    private void ekstraherDokumentDTID(Set<DokumentType> eksisterende, ArkivDokument dokument) {
         if (dokument == null) {
             return;
         }
@@ -238,10 +238,7 @@ public class DokumentArkivTjeneste {
         ArkivDokument.Builder builder = ArkivDokument.Builder.ny()
             .medDokumentId(detaljertDokumentinformasjon.getDokumentId())
             .medTittel(detaljertDokumentinformasjon.getTittel())
-            .medDokumentTypeId(utledDokumentType(detaljertDokumentinformasjon.getDokumentTypeId(), detaljertDokumentinformasjon.getTittel()))
-            .medDokumentKategori(detaljertDokumentinformasjon.getDokumentkategori() != null
-                ? DokumentKategori.finnForKodeverkEiersKode(detaljertDokumentinformasjon.getDokumentkategori().getValue())
-                : DokumentKategori.UDEFINERT);
+            .medDokumentTypeId(utledDokumentType(detaljertDokumentinformasjon.getDokumentTypeId(), detaljertDokumentinformasjon.getTittel()));
         detaljertDokumentinformasjon.getSkannetInnholdListe().forEach(vedlegg -> {
             builder.leggTilInterntVedlegg(ArkivDokumentVedlegg.Builder.ny()
                 .medTittel(vedlegg.getVedleggInnhold())

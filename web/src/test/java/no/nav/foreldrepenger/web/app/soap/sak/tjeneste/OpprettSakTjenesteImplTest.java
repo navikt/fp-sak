@@ -33,10 +33,10 @@ public class OpprettSakTjenesteImplTest {
 
     @Rule
     public final MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-    
+
     @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    
+
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
 
     @Mock
@@ -68,7 +68,7 @@ public class OpprettSakTjenesteImplTest {
         when(brukerTjenesteMock.hentEllerOpprettFraAktorId(any(Personinfo.class))).thenReturn(navBruker);
 
         var fagsakTjeneste = new FagsakTjeneste(repositoryProvider, null);
-        var opprettGSakTjeneste = new OpprettGSakTjeneste(null, null);
+        var opprettGSakTjeneste = new OpprettGSakTjeneste(null, null, null);
         this.opprettSakTjeneste = new OpprettSakTjeneste(tpsTjenesteMock, fagsakTjeneste, opprettGSakTjeneste, brukerTjenesteMock, null);
     }
 

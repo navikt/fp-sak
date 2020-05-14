@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
@@ -19,10 +20,9 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.opprettgsak.OpprettGSakTjeneste;
-import no.nav.vedtak.felles.jpa.Transaction;
 
 @ApplicationScoped
-@Transaction
+@Transactional
 /* HACK (u139158): Transaksjonsgrensen her er flyttet hit fra webservice'en OpprettSakService
  * Dette er ikke i henhold til standard og kan ikke gjøres uten godkjenning fra sjefsarkitekt.
  * Grunnen for at det er gjort her er for å sikre at de tre kallene går i separate transaksjoner.
@@ -83,14 +83,6 @@ public class OpprettSakTjeneste {
             throw OpprettSakFeil.FACTORY.ukjentBehandlingstemaKode(behandlingTema.getOffisiellKode()).toException();
         }
         return fagsakYtelseType;
-    }
-
-    public Saksnummer opprettSakIGsak(Long fagsakId, Personinfo bruker) {
-        return opprettGSakTjeneste.opprettSakIGsak(fagsakId, bruker);
-    }
-
-    public Optional<Saksnummer> finnGsak(Long fagsakId) {
-        return opprettGSakTjeneste.finnGsak(fagsakId);
     }
 
     public Saksnummer opprettEllerFinnGsak(Long fagsakId, Personinfo bruker) {
