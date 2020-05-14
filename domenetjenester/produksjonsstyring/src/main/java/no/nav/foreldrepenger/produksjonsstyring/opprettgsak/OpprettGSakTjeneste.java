@@ -11,7 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.tjeneste.virksomhet.behandlesak.v2.WSAktor;
 import no.nav.tjeneste.virksomhet.behandlesak.v2.WSOpprettSakRequest;
@@ -36,22 +38,26 @@ public class OpprettGSakTjeneste {
     private static final String VL_FAGSYSTEM_KODE = Fagsystem.FPSAK.getOffisiellKode();
     private static final String MED_FAGSAK_KODE = "MFS";
 
-    private Logger logger = LoggerFactory.getLogger(OpprettGSakTjeneste.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpprettGSakTjeneste.class);
 
     private BehandleSakConsumer behandleSakConsumer;
     private SakConsumer sakConsumer;
+    private SakRestKlient restKlient;
 
     public OpprettGSakTjeneste() {
         //For CDI
     }
 
     @Inject
-    public OpprettGSakTjeneste(BehandleSakConsumer behandleSakConsumer, SakConsumer sakConsumer) {
+    public OpprettGSakTjeneste(BehandleSakConsumer behandleSakConsumer,
+                               SakConsumer sakConsumer,
+                               SakRestKlient restKlient) {
         this.behandleSakConsumer = behandleSakConsumer;
         this.sakConsumer = sakConsumer;
+        this.restKlient = restKlient;
     }
 
-    public Saksnummer opprettSakIGsak(@SuppressWarnings("unused") Long fagsakId, Personinfo bruker) {
+    private Saksnummer opprettSakIGsak(@SuppressWarnings("unused") Long fagsakId, Personinfo bruker) {
 
         WSSak sak = new WSSak();
         sak.setFagomrade(FORELDREPENGER_KODE);
@@ -68,7 +74,7 @@ public class OpprettGSakTjeneste {
 
         try {
             WSOpprettSakResponse response = behandleSakConsumer.opprettSak(opprettSakRequest);
-            logger.info(removeLineBreaks("Sak opprettet i GSAK med saksnummer: {}"), removeLineBreaks(response.getSakId())); //NOSONAR
+            LOGGER.info(removeLineBreaks("Sak opprettet i GSAK med saksnummer: {}"), removeLineBreaks(response.getSakId())); //NOSONAR
             return new Saksnummer(response.getSakId());
         } catch (WSSakEksistererAlleredeException e) {
             throw OpprettGSakFeil.FACTORY.kanIkkeOppretteIGsakFordiSakAlleredeEksisterer(e).toException();
@@ -79,7 +85,7 @@ public class OpprettGSakTjeneste {
         }
     }
 
-    public Optional<Saksnummer> finnGsak(Long fagsakId) {
+    private Optional<Saksnummer> finnGsak(Long fagsakId) {
         FinnSakRequest finnSakRequest = new FinnSakRequest();
 
         no.nav.tjeneste.virksomhet.sak.v1.informasjon.Fagsystemer fagsystem = new no.nav.tjeneste.virksomhet.sak.v1.informasjon.Fagsystemer();
@@ -112,6 +118,13 @@ public class OpprettGSakTjeneste {
 
     public Saksnummer opprettEllerFinnGsak(Long fagsakId, Personinfo bruker) {
         Saksnummer saksnummer;
+        try {
+            var sak = restKlient.opprettSakUtenSaksnummer(Tema.FOR, Fagsystem.FPSAK, bruker.getAktørId());
+            LOGGER.info("SAK REST opprettet sak {}", sak.getVerdi());
+            return sak;
+        } catch (Exception e) {
+            LOGGER.warn("SAK REST noe gikk feil", e);
+        }
         try {
             saksnummer = opprettSakIGsak(fagsakId, bruker);
         } catch (SakEksistererAlleredeException ignored) { //NOSONAR

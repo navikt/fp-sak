@@ -10,7 +10,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
-import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 @ApplicationScoped
@@ -20,7 +19,7 @@ public class HistorikkInnslagKonverter {
     public HistorikkInnslagKonverter() {
     }
 
-    public HistorikkinnslagDto mapFra(Historikkinnslag historikkinnslag, List<ArkivJournalPost> journalPosterForSak) {
+    public HistorikkinnslagDto mapFra(Historikkinnslag historikkinnslag, List<JournalpostId> journalPosterForSak) {
         HistorikkinnslagDto dto = new HistorikkinnslagDto();
         dto.setBehandlingId(historikkinnslag.getBehandlingId());
         List<HistorikkinnslagDelDto> historikkinnslagDeler = HistorikkinnslagDelDto.mapFra(historikkinnslag.getHistorikkinnslagDeler());
@@ -37,22 +36,22 @@ public class HistorikkInnslagKonverter {
         return dto;
     }
 
-    private List<HistorikkInnslagDokumentLinkDto> mapLenker(List<HistorikkinnslagDokumentLink> lenker, List<ArkivJournalPost> journalPosterForSak) {
+    private List<HistorikkInnslagDokumentLinkDto> mapLenker(List<HistorikkinnslagDokumentLink> lenker, List<JournalpostId> journalPosterForSak) {
         return lenker.stream().map(lenke -> map(lenke, journalPosterForSak)).collect(Collectors.toList());
     }
 
-    private HistorikkInnslagDokumentLinkDto map(HistorikkinnslagDokumentLink lenke, List<ArkivJournalPost> journalPosterForSak) {
-        Optional<ArkivJournalPost> aktivJournalPost = aktivJournalPost(lenke.getJournalpostId(), journalPosterForSak);
+    private HistorikkInnslagDokumentLinkDto map(HistorikkinnslagDokumentLink lenke, List<JournalpostId> journalPosterForSak) {
+        Optional<JournalpostId> aktivJournalPost = aktivJournalPost(lenke.getJournalpostId(), journalPosterForSak);
         HistorikkInnslagDokumentLinkDto dto = new HistorikkInnslagDokumentLinkDto();
         dto.setTag(lenke.getLinkTekst());
-        dto.setUtgått(!aktivJournalPost.isPresent());
+        dto.setUtgått(aktivJournalPost.isEmpty());
         dto.setDokumentId(lenke.getDokumentId());
         dto.setJournalpostId(lenke.getJournalpostId().getVerdi());
         return dto;
     }
 
-    private Optional<ArkivJournalPost> aktivJournalPost(JournalpostId journalpostId, List<ArkivJournalPost> journalPosterForSak) {
-        return journalPosterForSak.stream().filter(ajp -> Objects.equals(ajp.getJournalpostId(), journalpostId)).findFirst();
+    private Optional<JournalpostId> aktivJournalPost(JournalpostId journalpostId, List<JournalpostId> journalPosterForSak) {
+        return journalPosterForSak.stream().filter(ajp -> Objects.equals(ajp, journalpostId)).findFirst();
     }
 
     private String medStorBokstav(String opprettetAv) {

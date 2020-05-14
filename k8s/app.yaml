@@ -181,6 +181,8 @@ spec:
     # Web services
     - name: SAK_V1_URL
       value: sak_v1.url
+    - name: SAK_RS_URL
+      value: sak.rs.url
     - name: AKTOER_V2_URL
       value: aktoer_v2.url
     - name: JOURNAL_V3_URL

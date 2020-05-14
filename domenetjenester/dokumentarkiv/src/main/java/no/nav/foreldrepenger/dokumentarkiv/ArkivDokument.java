@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 
@@ -12,7 +11,6 @@ public class ArkivDokument {
     private String dokumentId;
     private String tittel;
     private DokumentType dokumentTypeId;
-    private DokumentKategori dokumentKategori;
     private List<ArkivDokumentHentbart> tilgjengeligSom; // hvilke formater som er tilgjengelig fra joark
     private List<ArkivDokumentVedlegg> interneVedlegg; // sammensatt dokument der vedlegg er scannet inn i ett dokument
 
@@ -40,14 +38,6 @@ public class ArkivDokument {
         this.dokumentTypeId = dokumentTypeId;
     }
 
-    public DokumentKategori getDokumentKategori() {
-        return dokumentKategori;
-    }
-
-    public void setDokumentKategori(DokumentKategori dokumentKategori) {
-        this.dokumentKategori = dokumentKategori;
-    }
-
     public List<ArkivDokumentVedlegg> getInterneVedlegg() {
         return interneVedlegg;
     }
@@ -71,14 +61,13 @@ public class ArkivDokument {
         ArkivDokument that = (ArkivDokument) o;
         return Objects.equals(dokumentId, that.dokumentId) &&
             Objects.equals(tittel, that.tittel) &&
-            Objects.equals(dokumentTypeId, that.dokumentTypeId) &&
-            Objects.equals(dokumentKategori, that.dokumentKategori);
+            Objects.equals(dokumentTypeId, that.dokumentTypeId);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(dokumentId, tittel, dokumentTypeId, dokumentKategori);
+        return Objects.hash(dokumentId, tittel, dokumentTypeId);
     }
 
     public static class Builder {
@@ -87,7 +76,6 @@ public class ArkivDokument {
         private Builder() {
             this.arkivDokument = new ArkivDokument();
             this.arkivDokument.setDokumentType(DokumentTypeId.UDEFINERT);
-            this.arkivDokument.setDokumentKategori(DokumentKategori.UDEFINERT);
             this.arkivDokument.setInterneVedlegg(new ArrayList<>());
             this.arkivDokument.setTilgjengeligSom(new ArrayList<>());
         }
@@ -108,11 +96,6 @@ public class ArkivDokument {
 
         public Builder medDokumentTypeId(DokumentTypeId dokumentTypeId) {
             this.arkivDokument.setDokumentType(dokumentTypeId);
-            return this;
-        }
-
-        public Builder medDokumentKategori(DokumentKategori dokumentKategori) {
-            this.arkivDokument.setDokumentKategori(dokumentKategori);
             return this;
         }
 
