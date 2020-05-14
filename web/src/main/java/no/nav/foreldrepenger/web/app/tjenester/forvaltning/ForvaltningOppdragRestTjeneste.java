@@ -54,7 +54,7 @@ public class ForvaltningOppdragRestTjeneste {
     @Produces(APPLICATION_JSON)
     @Operation(description = "Kvitterer oppdrag manuelt. Brukes kun når det er avklart at oppdrag har gått OK, og kvittering ikke kommer til å komme fra Oppdragsystemet. Sjekk med Team Ukelønn hvis i tvil",
         tags = "FORVALTNING-oppdrag")
-    @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
+    @BeskyttetRessurs(action = CREATE, ressurs = DRIFT, sporingslogg = false)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response kvitterOK(@Parameter(description = "Identifikasjon av oppdrag som kvitteres OK. Sett oppdaterProsessTask til false kun når prosesstasken allerede er flyttet til FERDIG") @NotNull @Valid KvitteringDto kvitteringDto) {
         boolean oppdaterProsessTask = kvitteringDto.getOppdaterProsessTask();
@@ -111,8 +111,7 @@ public class ForvaltningOppdragRestTjeneste {
         @Override
         public AbacDataAttributter abacAttributter() {
             return AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId)
-                .leggTil(AppAbacAttributtType.SAKSNUMMER, Long.toString(fagsystemId / 1000));
+                .leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
         }
     }
 
