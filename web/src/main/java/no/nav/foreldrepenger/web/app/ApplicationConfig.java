@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.foreldrepenger.web.app.tjenester.datavarehus.DatavarehusAdminRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningFagsakRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOppdragRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOpptjeningRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningStegRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRestTjeneste;
@@ -74,6 +75,7 @@ public class ApplicationConfig extends Application {
         classes.add(ForvaltningFagsakRestTjeneste.class);
         classes.add(ForvaltningTekniskRestTjeneste.class);
         classes.add(ForvaltningUttrekkRestTjeneste.class);
+        classes.add(ForvaltningOppdragRestTjeneste.class);
         classes.add(ForvaltningOpptjeningRestTjeneste.class);
         classes.add(ForvaltningUttakRestTjeneste.class);
         classes.add(ForvaltningBehandlingRestTjeneste.class);
