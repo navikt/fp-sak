@@ -33,9 +33,9 @@ public class BehandleØkonomioppdragKvittering {
 
     @Inject
     public BehandleØkonomioppdragKvittering(AlleMottakereHarPositivKvitteringProvider alleMottakereHarPositivKvitteringProvider,
-                                                ProsessTaskHendelseMottak hendelsesmottak,
-                                                ØkonomioppdragRepository økonomioppdragRepository,
-                                                BehandleNegativeKvitteringTjeneste behandleNegativeKvitteringTjeneste) {
+                                            ProsessTaskHendelseMottak hendelsesmottak,
+                                            ØkonomioppdragRepository økonomioppdragRepository,
+                                            BehandleNegativeKvitteringTjeneste behandleNegativeKvitteringTjeneste) {
         this.alleMottakereHarPositivKvitteringProvider = alleMottakereHarPositivKvitteringProvider;
         this.hendelsesmottak = hendelsesmottak;
         this.økonomioppdragRepository = økonomioppdragRepository;
@@ -49,10 +49,13 @@ public class BehandleØkonomioppdragKvittering {
      * @param kvittering Kvittering fra oppdragssystemet
      */
     public void behandleKvittering(ØkonomiKvittering kvittering) {
+        behandleKvittering(kvittering, true);
+    }
+
+    public void behandleKvittering(ØkonomiKvittering kvittering, boolean oppdaterProsesstask) {
         Long behandlingId = kvittering.getBehandlingId();
 
-        log.info("Behandler økonomikvittering med resultatkode: {} i behandling: {}",
-            kvittering.getAlvorlighetsgrad(), behandlingId); //$NON-NLS-1$
+        log.info("Behandler økonomikvittering med resultatkode: {} i behandling: {}", kvittering.getAlvorlighetsgrad(), behandlingId); //$NON-NLS-1$
         //Korrelere med lagret oppdrag
         Oppdragskontroll oppdrag = økonomioppdragRepository.finnVentendeOppdrag(behandlingId);
 
@@ -84,14 +87,19 @@ public class BehandleØkonomioppdragKvittering {
         if (erAlleKvitteringerMottatt) {
             log.info("Alle økonomioppdrag-kvitteringer er mottatt for behandling: {}", behandlingId);
             oppdrag.setVenterKvittering(false);
-            //Dersom kvittering viser positivt resultat: La Behandlingskontroll/TaskManager fortsette behandlingen - trigger prosesstask Behandling.Avslutte hvis brev er bekreftet levert
-            boolean alleViserPositivtResultat = erAlleKvitteringerMedPositivtResultat(behandlingId, oppdrag);
-            if (alleViserPositivtResultat) {
-                log.info("Alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
-                hendelsesmottak.mottaHendelse(oppdrag.getProsessTaskId(), ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
+
+            if (oppdaterProsesstask) {
+                //Dersom kvittering viser positivt resultat: La Behandlingskontroll/TaskManager fortsette behandlingen - trigger prosesstask Behandling.Avslutte hvis brev er bekreftet levert
+                boolean alleViserPositivtResultat = erAlleKvitteringerMedPositivtResultat(behandlingId, oppdrag);
+                if (alleViserPositivtResultat) {
+                    log.info("Alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
+                    hendelsesmottak.mottaHendelse(oppdrag.getProsessTaskId(), ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
+                } else {
+                    log.warn("Ikke alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
+                    behandleNegativeKvittering.nullstilleØkonomioppdragTask(oppdrag.getProsessTaskId());
+                }
             } else {
-                log.warn("Ikke alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
-                behandleNegativeKvittering.nullstilleØkonomioppdragTask(oppdrag.getProsessTaskId());
+                log.info("Oppdaterer ikke prosesstask");
             }
         }
         økonomioppdragRepository.lagre(oppdrag);
