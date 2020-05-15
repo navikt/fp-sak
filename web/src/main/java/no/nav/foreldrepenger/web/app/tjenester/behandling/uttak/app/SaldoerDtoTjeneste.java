@@ -11,6 +11,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -61,7 +62,7 @@ public class SaldoerDtoTjeneste {
 
     @Inject
     public SaldoerDtoTjeneste(StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
-                              MaksDatoUttakTjeneste maksDatoUttakTjeneste,
+                              @FagsakYtelseTypeRef("FP") MaksDatoUttakTjeneste maksDatoUttakTjeneste,
                               ArbeidsgiverDtoTjeneste arbeidsgiverDtoTjeneste,
                               StønadskontoRegelAdapter stønadskontoRegelAdapter,
                               BehandlingRepositoryProvider repositoryProvider,

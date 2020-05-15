@@ -14,6 +14,8 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,7 +63,7 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.saldo.fp.MaksDatoUttakTjenesteImpl;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
@@ -88,7 +90,7 @@ public class SaldoerDtoTjenesteImplTest {
     @Inject
     private UttakRepository uttakRepository;
 
-    @Inject
+    @Inject @FagsakYtelseTypeRef("FP")
     private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
 
     @Inject
@@ -455,7 +457,7 @@ public class SaldoerDtoTjenesteImplTest {
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhetForMor2.getOrgnr())).thenReturn(new VirksomhetEntitet.Builder().medOrgnr(virksomhetForMor2.getOrgnr()).oppdatertOpplysningerNå().build());
 
         SaldoerDtoTjeneste tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste,
-            new MaksDatoUttakTjeneste(repositoryProvider.getUttakRepository(), stønadskontoSaldoTjeneste),
+            new MaksDatoUttakTjenesteImpl(repositoryProvider.getUttakRepository(), stønadskontoSaldoTjeneste),
             new ArbeidsgiverDtoTjeneste(arbeidsgiverTjeneste),
             stønadskontoRegelAdapter,
             repositoryProvider,

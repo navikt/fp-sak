@@ -131,7 +131,6 @@ public class OpprettSakServiceTest {
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
         when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettSakIGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         when(opprettSakTjeneste.opprettEllerFinnGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         mockOppdaterFagsakMedGsakId(fagsak, expectedSakId);
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, true, false));
@@ -149,7 +148,6 @@ public class OpprettSakServiceTest {
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
         when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettSakIGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         when(opprettSakTjeneste.opprettEllerFinnGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         when(fagsakRepository.hentJournalpost(any())).thenReturn(Optional.empty());
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, true, false));
@@ -175,7 +173,6 @@ public class OpprettSakServiceTest {
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
         when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettSakIGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(BehandlingTema.UDEFINERT.getOffisiellKode(), false, false));
 
@@ -193,7 +190,6 @@ public class OpprettSakServiceTest {
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
         when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettSakIGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(BehandlingTema.UDEFINERT.getOffisiellKode(), false, false));
 
@@ -215,7 +211,6 @@ public class OpprettSakServiceTest {
         when(fagsak.getYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(opprettSakTjeneste.utledYtelseType(BehandlingTema.FORELDREPENGER_FØDSEL)).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.FORELDREPENGER, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettSakIGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         when(opprettSakTjeneste.opprettEllerFinnGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         when(fagsakRepository.hentForBruker(any())).thenReturn(List.of(fagsak));
         when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
@@ -242,7 +237,6 @@ public class OpprettSakServiceTest {
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
         when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettSakIGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         when(opprettSakTjeneste.opprettEllerFinnGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         mockOppdaterFagsakMedGsakId(fagsak, expectedSakId);
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, true, false));
@@ -260,7 +254,6 @@ public class OpprettSakServiceTest {
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
         when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettSakIGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(BehandlingTema.UDEFINERT.getOffisiellKode(), false, false));
 
@@ -277,7 +270,6 @@ public class OpprettSakServiceTest {
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
         when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettSakIGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         when(opprettSakTjeneste.opprettEllerFinnGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         mockOppdaterFagsakMedGsakId(fagsak, expectedSakId);
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, true, false));
@@ -296,7 +288,6 @@ public class OpprettSakServiceTest {
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
         when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettSakIGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         when(opprettSakTjeneste.opprettEllerFinnGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         when(fagsakRepository.hentJournalpost(any())).thenReturn(Optional.empty());
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, false, true));

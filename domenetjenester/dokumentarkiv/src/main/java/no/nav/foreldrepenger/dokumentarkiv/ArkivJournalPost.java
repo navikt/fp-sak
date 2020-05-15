@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -15,10 +14,8 @@ public class ArkivJournalPost {
     private ArkivDokument hovedDokument;
     private List<ArkivDokument> andreDokument;
     private Kommunikasjonsretning kommunikasjonsretning;
-    private String kanalreferanse;
     private String beskrivelse;
     private LocalDateTime tidspunkt;
-    private String journalEnhet;
 
     public JournalpostId getJournalpostId() {
         return journalpostId;
@@ -60,14 +57,6 @@ public class ArkivJournalPost {
         this.kommunikasjonsretning = kommunikasjonsretning;
     }
 
-    public String getKanalreferanse() {
-        return kanalreferanse;
-    }
-
-    public void setKanalreferanse(String kanalreferanse) {
-        this.kanalreferanse = kanalreferanse;
-    }
-
     public String getBeskrivelse() {
         return beskrivelse;
     }
@@ -82,14 +71,6 @@ public class ArkivJournalPost {
 
     public void setTidspunkt(LocalDateTime tidspunkt) {
         this.tidspunkt = tidspunkt;
-    }
-
-    public Optional<String> getJournalEnhet() {
-        return Optional.ofNullable(journalEnhet);
-    }
-
-    public void setJournalEnhet(String journalEnhet) {
-        this.journalEnhet = journalEnhet;
     }
 
     @Override
@@ -108,7 +89,6 @@ public class ArkivJournalPost {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(journalpostId, saksnummer, hovedDokument, andreDokument, kommunikasjonsretning, beskrivelse, tidspunkt);
     }
 
@@ -149,18 +129,8 @@ public class ArkivJournalPost {
             return this;
         }
 
-        public Builder medKanalreferanse(String kanalreferanse) {
-            this.arkivJournalPost.setKanalreferanse(kanalreferanse);
-            return this;
-        }
-
         public Builder medHoveddokument(ArkivDokument hovedDokument){
             this.arkivJournalPost.setHovedDokument(hovedDokument);
-            return this;
-        }
-
-        public Builder medJournalFørendeEnhet(String enhet) {
-            this.arkivJournalPost.setJournalEnhet(enhet);
             return this;
         }
 
