@@ -125,7 +125,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(bruker);
         Fagsak fagsak = Fagsak.opprettNy(ytelseType, navBruker);
         fagsakTjeneste.opprettFagsak(fagsak);
-        Saksnummer saksnummer = opprettGSakTjeneste.opprettEllerFinnGsak(fagsak.getId(), bruker);
+        Saksnummer saksnummer = opprettGSakTjeneste.opprettArkivsak(bruker.getAktørId());
         fagsakTjeneste.oppdaterFagsakMedGsakSaksnummer(fagsak.getId(), saksnummer);
         return fagsakTjeneste.finnEksaktFagsak(fagsak.getId());
     }

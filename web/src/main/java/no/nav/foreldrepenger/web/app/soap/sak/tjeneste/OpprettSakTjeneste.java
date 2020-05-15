@@ -85,8 +85,8 @@ public class OpprettSakTjeneste {
         return fagsakYtelseType;
     }
 
-    public Saksnummer opprettEllerFinnGsak(Long fagsakId, Personinfo bruker) {
-        return opprettGSakTjeneste.opprettEllerFinnGsak(fagsakId, bruker);
+    public Saksnummer opprettEllerFinnGsak(@SuppressWarnings("unused") Long fagsakId, Personinfo bruker) {
+        return opprettGSakTjeneste.opprettArkivsak(bruker.getAktørId());
     }
 
     public void oppdaterFagsakMedGsakSaksnummer(Long fagsakId, Saksnummer saksnummer) {
