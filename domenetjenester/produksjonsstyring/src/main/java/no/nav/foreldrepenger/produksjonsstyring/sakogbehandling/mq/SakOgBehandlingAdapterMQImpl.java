@@ -20,6 +20,8 @@ import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelse
 import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.Sakstemaer;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.util.env.Cluster;
+import no.nav.vedtak.util.env.Environment;
 
 @Dependent
 class SakOgBehandlingAdapterMQImpl implements SakOgBehandlingAdapter {
@@ -30,13 +32,20 @@ class SakOgBehandlingAdapterMQImpl implements SakOgBehandlingAdapter {
 
     private static final String PRIMÆR_RELASJONSTYPE = "forrige"; //Er fra kodeverk: http://nav.no/kodeverk/Kode/Prim_c3_a6rRelasjonstyper/forrige?v=1
     private static final Fagsystem fpsak = Fagsystem.FPSAK;
+    private boolean isEnvStable;
 
     @Inject
-    public SakOgBehandlingAdapterMQImpl(
-        SakOgBehandlingClient sakOgBehandlingClient) {
-
+    public SakOgBehandlingAdapterMQImpl(SakOgBehandlingClient sakOgBehandlingClient) {
         this.sakOgBehandlingClient = sakOgBehandlingClient;
         this.applicationName = fpsak.getOffisiellKode();
+        this.isEnvStable = Cluster.PROD_FSS.equals(Environment.current().getCluster());
+    }
+
+    SakOgBehandlingAdapterMQImpl(SakOgBehandlingClient sakOgBehandlingClient,
+                      boolean envForTest) {
+        this.sakOgBehandlingClient = sakOgBehandlingClient;
+        this.applicationName = fpsak.getOffisiellKode();
+        this.isEnvStable = envForTest;
     }
 
     private String createUniqueBehandlingsId(String behandlingsId) {
@@ -86,7 +95,8 @@ class SakOgBehandlingAdapterMQImpl implements SakOgBehandlingAdapter {
 
         behandlingOpprettet.setAnsvarligEnhetREF(opprettetBehandlingStatus.getAnsvarligEnhetRef());
 
-        sakOgBehandlingClient.sendBehandlingOpprettet(behandlingOpprettet);
+        if (isEnvStable)
+            sakOgBehandlingClient.sendBehandlingOpprettet(behandlingOpprettet);
     }
 
     @Override
@@ -125,7 +135,8 @@ class SakOgBehandlingAdapterMQImpl implements SakOgBehandlingAdapter {
         sakstema.setValue(avsluttetBehandlingStatus.getSakstemaKode());
         behandlingAvsluttet.setSakstema(sakstema);
 
-        sakOgBehandlingClient.sendBehandlingAvsluttet(behandlingAvsluttet);
+        if (isEnvStable)
+            sakOgBehandlingClient.sendBehandlingAvsluttet(behandlingAvsluttet);
     }
 
     private XMLGregorianCalendar gregDate(LocalDate localDate) {

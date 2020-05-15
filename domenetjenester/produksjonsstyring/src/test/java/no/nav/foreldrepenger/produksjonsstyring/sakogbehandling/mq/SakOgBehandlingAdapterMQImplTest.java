@@ -34,7 +34,7 @@ public class SakOgBehandlingAdapterMQImplTest {
     @Before
     public void setUp(){
         sakOgBehandlingClient=mock(SakOgBehandlingClient.class);
-        sakOgBehandlingAdapterMQ=new SakOgBehandlingAdapterMQImpl(sakOgBehandlingClient);
+        sakOgBehandlingAdapterMQ=new SakOgBehandlingAdapterMQImpl(sakOgBehandlingClient, true);
     }
 
     @Test
