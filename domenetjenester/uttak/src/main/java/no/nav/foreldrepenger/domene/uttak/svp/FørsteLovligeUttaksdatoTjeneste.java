@@ -46,7 +46,6 @@ public class FørsteLovligeUttaksdatoTjeneste {
         //Sjekk søknadsfristregel
         var søknadsfristGrunnlag = new SøknadsfristGrunnlag.Builder()
             .medAntallMånederSøknadsfrist(søknadsfristEtterFørsteUttaksdag.getMonths()) // TODO, broken må rette uttak-regler den dagen det ikke er heltall antall måneder her.
-            .medErSøknadOmUttak(true)
             .medFørsteUttaksdato(uttaksgrenser.getFomDato())
             .medSøknadMottattDato(søknadMottattDato)
             .build();
