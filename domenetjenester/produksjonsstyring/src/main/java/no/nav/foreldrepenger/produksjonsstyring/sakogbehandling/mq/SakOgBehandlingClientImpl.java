@@ -8,9 +8,6 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.xml.bind.JAXBException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.BehandlingAvsluttet;
 import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.BehandlingOpprettet;
 import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.ObjectFactory;
@@ -19,13 +16,14 @@ import no.nav.vedtak.felles.integrasjon.jms.ExternalQueueProducer;
 import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
 import no.nav.vedtak.felles.integrasjon.jms.JmsMessage;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.util.env.Cluster;
-import no.nav.vedtak.util.env.Environment;
 
 @Dependent
 class SakOgBehandlingClientImpl extends ExternalQueueProducer implements SakOgBehandlingClient {
-    private static final Logger log = LoggerFactory.getLogger(SakOgBehandlingClientImpl.class);
-    private final Environment env = Environment.current();
+
+    public SakOgBehandlingClientImpl() {
+        // CDI
+
+    }
 
     @Inject
     public SakOgBehandlingClientImpl(@Named("SakOgBehandling") JmsKonfig konfig) {
@@ -34,29 +32,20 @@ class SakOgBehandlingClientImpl extends ExternalQueueProducer implements SakOgBe
 
     @Override
     public void sendBehandlingOpprettet(BehandlingOpprettet behandlingOpprettet) {
-        if (env.getCluster() == Cluster.PROD_FSS) {
-            final JmsMessage build = JmsMessage.builder()
+        final JmsMessage build = JmsMessage.builder()
                 .withMessage(mapTilBehandlingOpprettetXml(behandlingOpprettet))
                 .addHeader("callId", MDCOperations.getCallId())
                 .build();
-            sendTextMessage(build);
-        } else {
-            log.info("Noop - sender ikke BehandlingOpprettet hendelse til SakogBehandling: " + behandlingOpprettet.getBehandlingsID());
-        }
+        sendTextMessage(build);
     }
 
     @Override
     public void sendBehandlingAvsluttet(BehandlingAvsluttet behandlingAvsluttet) {
-        if (env.getCluster() == Cluster.PROD_FSS) {
-            final JmsMessage build = JmsMessage.builder()
+        final JmsMessage build = JmsMessage.builder()
                 .withMessage(mapTilBehandlingAvsluttetXml(behandlingAvsluttet))
                 .addHeader("callId", MDCOperations.getCallId())
                 .build();
-            sendTextMessage(build);
-
-        } else {
-            log.info("Noop - sender ikke BehandlingAvsluttet hendelse til SakogBehandling: " + behandlingAvsluttet.getBehandlingsID());
-        }
+        sendTextMessage(build);
     }
 
     String mapTilBehandlingOpprettetXml(BehandlingOpprettet behandlingOpprettet) {
