@@ -1,17 +1,21 @@
 package no.nav.foreldrepenger.domene.vedtak.svp;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.FagsakStatusOppdateringResultat;
 import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatus;
 import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusFelles;
@@ -22,15 +26,22 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
 
     private BehandlingRepository behandlingRepository;
     private OppdaterFagsakStatusFelles oppdaterFagsakStatusFelles;
+    private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
+    private UttakInputTjeneste uttakInputTjeneste;
 
     OppdaterFagsakStatusImpl(){
         //CDI
     }
 
     @Inject
-    public OppdaterFagsakStatusImpl(BehandlingRepository behandlingRepository, OppdaterFagsakStatusFelles oppdaterFagsakStatusFelles) {
+    public OppdaterFagsakStatusImpl(BehandlingRepository behandlingRepository, OppdaterFagsakStatusFelles oppdaterFagsakStatusFelles,
+                                    @FagsakYtelseTypeRef("SVP") MaksDatoUttakTjeneste maksDatoUttakTjeneste,
+                                    UttakInputTjeneste uttakInputTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.oppdaterFagsakStatusFelles = oppdaterFagsakStatusFelles;
+        this.maksDatoUttakTjeneste = maksDatoUttakTjeneste;
+        this.uttakInputTjeneste = uttakInputTjeneste;
+
     }
 
     @Override
@@ -63,7 +74,7 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
 
         // ingen andre behandlinger er åpne
         if (alleÅpneBehandlinger.isEmpty()) {
-            if (behandling == null || oppdaterFagsakStatusFelles.ingenLøpendeYtelsesvedtak(behandling)) {
+            if (behandling == null || ingenLøpendeYtelsesvedtak(behandling)) {
                 oppdaterFagsakStatusFelles.oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.AVSLUTTET);
                 return FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET;
             }
@@ -71,5 +82,23 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
             return FagsakStatusOppdateringResultat.FAGSAK_LØPENDE;
         }
         return FagsakStatusOppdateringResultat.INGEN_OPPDATERING;
+    }
+
+    boolean ingenLøpendeYtelsesvedtak(Behandling behandling) {
+        if (oppdaterFagsakStatusFelles.ingenLøpendeYtelsesvedtak(behandling)) {
+            return true;
+        }
+        Optional<Behandling> sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
+
+        if (sisteYtelsesvedtak.isPresent()) {
+            var uttakInput = uttakInputTjeneste.lagInput(sisteYtelsesvedtak.get());
+            var maksDatoUttak = maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
+            if (maksDatoUttak.isEmpty()) {
+                // Kan ikke avgjøre om dato er utløpt
+                return false;
+            }
+            return maksDatoUttak.get().isBefore(LocalDate.now());
+        }
+        return true;
     }
 }

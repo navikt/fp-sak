@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,14 +35,14 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSÃ
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
-public class MaksDatoUttakTjenesteTest {
+public class MaksDatoUttakTjenesteImplTest {
 
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private EntityManager entityManager = repoRule.getEntityManager();
     private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(entityManager);
 
-    @Inject
+    @Inject @FagsakYtelseTypeRef("FP")
     private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
 
     @Test
