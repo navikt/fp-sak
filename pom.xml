@@ -247,13 +247,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>sakogbehandling-klient</artifactId>
-                <version>${felles.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-servlets</artifactId>
                 <version>${metrics.version}</version>
