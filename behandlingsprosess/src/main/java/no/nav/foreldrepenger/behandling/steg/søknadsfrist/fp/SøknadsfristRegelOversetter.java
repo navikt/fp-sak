@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp;
 import java.time.Period;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -16,14 +15,14 @@ class SøknadsfristRegelOversetter {
     }
 
     static SøknadsfristGrunnlag tilGrunnlag(SøknadEntitet søknad, List<OppgittPeriodeEntitet> oppgittePerioder, Period søknadsfristLengde) {
-        List<OppgittPeriodeEntitet> uttaksperioder = oppgittePerioder.stream()
+        var førsteUttaksdato = oppgittePerioder.stream()
             .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-            .collect(Collectors.toList());
+            .map(o -> o.getFom())
+            .findFirst().orElseThrow(() -> new IllegalStateException("Prøver å kjøre søknadsfristregel uten oppgitte perioder"));
 
         return SøknadsfristGrunnlag.builder()
             .medSøknadMottattDato(søknad.getMottattDato())
-            .medErSøknadOmUttak(!uttaksperioder.isEmpty())
-            .medFørsteUttaksdato(uttaksperioder.isEmpty() ? null : uttaksperioder.get(0).getFom())
+            .medFørsteUttaksdato(førsteUttaksdato)
             .medAntallMånederSøknadsfrist(søknadsfristLengde.getMonths())
             .build();
     }
