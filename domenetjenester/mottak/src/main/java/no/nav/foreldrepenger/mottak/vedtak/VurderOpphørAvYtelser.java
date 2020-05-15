@@ -51,7 +51,7 @@ import no.nav.vedtak.konfig.Tid;
 
 /**
 Funksjonen sjekker om det finnes løpende saker for den personen det innvilges foreldrepenger eller svangerskapsper på.
-Om det finnes løpende saker sjekkes det om det er ny sak overlapper med løpende sak. Det sjekkes både for mor, far og en eventuell medforelder på foreldrepenger.
+Om det finnes løpende saker sjekkes det om ny sak overlapper med løpende sak. Det sjekkes både for mor, far og en eventuell medforelder på foreldrepenger.
 Dersom det er overlapp opprettes en "vurder konsekvens for ytelse"-oppgave i Gosys, og en revurdering med egen årsak slik at saksbehandler kan
 vurdere om opphør skal gjennomføres eller ikke. Saksbehandling må skje manuelt, og fritekstbrev må benyttes for opphør av løpende sak.
  */
@@ -261,8 +261,10 @@ public class VurderOpphørAvYtelser  {
         Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandling.map(Behandling::getId).orElse(null));
 
         return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
-            .sorted(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom).reversed())
-            .findFirst().map(BeregningsresultatPeriode::getKalkulertUtbetalingsgrad).equals(Optional.of(HUNDRE));
+            .max(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom))
+            .map(BeregningsresultatPeriode::getKalkulertUtbetalingsgrad)
+            .map(ug -> ug.compareTo(HUNDRE) >= 0).orElse(false);
+
     }
 
     private Optional<AktørId> hentAnnenPartAktørId(long behId) {
