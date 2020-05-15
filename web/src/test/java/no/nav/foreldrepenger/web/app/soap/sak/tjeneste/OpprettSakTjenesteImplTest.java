@@ -68,7 +68,7 @@ public class OpprettSakTjenesteImplTest {
         when(brukerTjenesteMock.hentEllerOpprettFraAktorId(any(Personinfo.class))).thenReturn(navBruker);
 
         var fagsakTjeneste = new FagsakTjeneste(repositoryProvider, null);
-        var opprettGSakTjeneste = new OpprettGSakTjeneste(null, null, null);
+        var opprettGSakTjeneste = new OpprettGSakTjeneste(null);
         this.opprettSakTjeneste = new OpprettSakTjeneste(tpsTjenesteMock, fagsakTjeneste, opprettGSakTjeneste, brukerTjenesteMock, null);
     }
 

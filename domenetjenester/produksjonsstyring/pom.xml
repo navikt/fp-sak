@@ -43,7 +43,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>behandlesak-klient</artifactId>
+            <artifactId>sak-klient</artifactId>
         </dependency>
         
         <dependency>
