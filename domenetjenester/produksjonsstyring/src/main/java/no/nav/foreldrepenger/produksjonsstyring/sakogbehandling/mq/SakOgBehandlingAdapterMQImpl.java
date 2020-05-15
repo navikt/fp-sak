@@ -38,7 +38,7 @@ class SakOgBehandlingAdapterMQImpl implements SakOgBehandlingAdapter {
     public SakOgBehandlingAdapterMQImpl(SakOgBehandlingClient sakOgBehandlingClient) {
         this.sakOgBehandlingClient = sakOgBehandlingClient;
         this.applicationName = fpsak.getOffisiellKode();
-        this.isEnvStable = Cluster.PROD_FSS.equals(Environment.current().getCluster());
+        this.isEnvStable = !Cluster.LOCAL.equals(Environment.current().getCluster());
     }
 
     SakOgBehandlingAdapterMQImpl(SakOgBehandlingClient sakOgBehandlingClient,
