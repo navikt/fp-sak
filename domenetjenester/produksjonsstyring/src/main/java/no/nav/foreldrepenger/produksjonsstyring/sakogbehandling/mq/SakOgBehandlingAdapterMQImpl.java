@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
+package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.mq;
 
 import java.time.LocalDate;
 
@@ -7,6 +7,9 @@ import javax.inject.Inject;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
+import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.AvsluttetBehandlingStatus;
+import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.OpprettetBehandlingStatus;
+import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.SakOgBehandlingAdapter;
 import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.Aktoer;
 import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.Applikasjoner;
 import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.Avslutningsstatuser;
@@ -16,7 +19,6 @@ import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelse
 import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.PrimaerRelasjonstyper;
 import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.Sakstemaer;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
-import no.nav.vedtak.felles.integrasjon.sakogbehandling.SakOgBehandlingClient;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @Dependent

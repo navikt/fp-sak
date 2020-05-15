@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
 
-import no.nav.vedtak.felles.integrasjon.sakogbehandling.SakOgBehandlingClient;
+import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.mq.SakOgBehandlingClient;
 
 public class SakOgBehandlingQueueHealthCheckTest {
 
