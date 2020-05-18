@@ -116,6 +116,9 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
         return getGjeldendeBekreftetVersjon().isPresent();
     }
 
+    public boolean getHarRegisterData() {
+        return getBekreftetVersjon().map(FamilieHendelseEntitet::getType).filter(FamilieHendelseType.FØDSEL::equals).isPresent();
+    }
 
     public boolean getHarOverstyrteData() {
         return getOverstyrtVersjon().isPresent();
