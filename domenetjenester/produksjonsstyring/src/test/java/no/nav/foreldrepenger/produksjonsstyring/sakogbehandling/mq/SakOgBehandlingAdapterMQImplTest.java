@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
+package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.mq;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.AvsluttetBehandl
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.OpprettetBehandlingStatus;
 import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.BehandlingAvsluttet;
 import no.nav.melding.virksomhet.behandlingsstatus.hendelsehandterer.v1.hendelseshandtererbehandlingsstatus.BehandlingOpprettet;
-import no.nav.vedtak.felles.integrasjon.sakogbehandling.SakOgBehandlingClient;
 
 public class SakOgBehandlingAdapterMQImplTest {
 
@@ -35,7 +34,7 @@ public class SakOgBehandlingAdapterMQImplTest {
     @Before
     public void setUp(){
         sakOgBehandlingClient=mock(SakOgBehandlingClient.class);
-        sakOgBehandlingAdapterMQ=new SakOgBehandlingAdapterMQImpl(sakOgBehandlingClient);
+        sakOgBehandlingAdapterMQ=new SakOgBehandlingAdapterMQImpl(sakOgBehandlingClient, true);
     }
 
     @Test

@@ -210,11 +210,11 @@ public class DokumentTypeId implements DokumentType {
         }
     }
 
-    public static boolean erSøknadType(DokumentType dokumentTypeId) {
-        return fraKode(dokumentTypeId.getKode()).erSøknadType();
-    }
-
-    public static boolean erEndringsSøknadType(DokumentType dokumentTypeId) {
-        return fraKode(dokumentTypeId.getKode()).erEndringsSøknadType();
+    @Override
+    public String toString() {
+        return "DokumentTypeId{" +
+            "offisiellKode='" + offisiellKode + '\'' +
+            ", kode='" + kode + '\'' +
+            '}';
     }
 }
