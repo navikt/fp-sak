@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.EndringsdatoRevurderingUtleder;
@@ -52,23 +51,20 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     private static final Logger log = LoggerFactory.getLogger(EndringsdatoRevurderingUtlederImpl.class);
     private static final Comparator<LocalDate> LOCAL_DATE_COMPARATOR = Comparator.comparing(LocalDate::toEpochDay);
 
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private UttakRepository uttakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private DekningsgradTjeneste dekningsgradTjeneste;
 
-    EndringsdatoRevurderingUtlederImpl() {
-        // CDI
-    }
-
     @Inject
-    public EndringsdatoRevurderingUtlederImpl(InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                              UttakRepositoryProvider repositoryProvider,
+    public EndringsdatoRevurderingUtlederImpl(UttakRepositoryProvider repositoryProvider,
                                               DekningsgradTjeneste dekningsgradTjeneste) {
-        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.uttakRepository = repositoryProvider.getUttakRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.dekningsgradTjeneste = dekningsgradTjeneste;
+    }
+
+    EndringsdatoRevurderingUtlederImpl() {
+        // CDI
     }
 
     @Override
@@ -147,7 +143,6 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         var ref = input.getBehandlingReferanse();
         Optional<EndringsdatoType> endringsdato = Optional.empty();
         if (input.isBehandlingManueltOpprettet() ||
-            erInntektsmeldingMottattEtterGjeldendeVedtak(ref) ||
             input.isOpplysningerOmDødEndret() ||
             arbeidsforholdRelevantForUttakErEndret(input) ||
             endretDekningsgrad(ref)) {
@@ -270,10 +265,6 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
             return ytelseFordelingAggregat.get().getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
         }
         return Optional.empty();
-    }
-
-    private boolean erInntektsmeldingMottattEtterGjeldendeVedtak(BehandlingReferanse revurdering) {
-        return !inntektsmeldingTjeneste.hentAlleInntektsmeldingerMottattEtterGjeldendeVedtak(revurdering).isEmpty();
     }
 
     private boolean arbeidsforholdRelevantForUttakErEndret(UttakInput input) {
