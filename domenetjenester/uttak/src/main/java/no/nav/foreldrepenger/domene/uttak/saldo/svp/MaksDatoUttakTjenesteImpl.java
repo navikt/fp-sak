@@ -34,6 +34,6 @@ public class MaksDatoUttakTjenesteImpl  implements MaksDatoUttakTjeneste {
     }
 
     private Optional<LocalDate> finnSisteUttaksdato(Optional<SvangerskapspengerUttakResultatEntitet> uttakResultat) {
-        return (uttakResultat.isPresent())?uttakResultat.get().finnSisteUttaksdato():Optional.empty();
+        return (uttakResultat.isPresent())?uttakResultat.get().finnSisteInnvilgedeUttaksdatoMedUtbetalingsgrad():Optional.empty();
     }
 }
