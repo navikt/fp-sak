@@ -61,11 +61,11 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -83,7 +83,6 @@ import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
@@ -105,7 +104,6 @@ public class EndringsdatoRevurderingUtlederImplTest {
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
     private AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
 
     @Inject
     private DekningsgradTjeneste dekningsgradTjeneste;
@@ -119,8 +117,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     public void before() {
         testUtil = new UttakRevurderingTestUtil(repositoryProvider, iayTjeneste);
         uttakBeregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
-        utleder = new EndringsdatoRevurderingUtlederImpl(inntektsmeldingTjeneste,
-            repositoryProvider, dekningsgradTjeneste);
+        utleder = new EndringsdatoRevurderingUtlederImpl(repositoryProvider, dekningsgradTjeneste);
     }
 
     @Test
