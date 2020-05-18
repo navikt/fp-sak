@@ -167,7 +167,7 @@ public class FamilieHendelseRepository {
     private boolean erFørsteFødselRegistreringHarTidligereOverstyrtFødsel(FamilieHendelseGrunnlagEntitet kladd) {
         final FamilieHendelseType overstyrtHendelseType = kladd.getOverstyrtVersjon()
             .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
-        return !kladd.getHarBekreftedeData() && kladd.getHarOverstyrteData() && FamilieHendelseType.FØDSEL.equals(overstyrtHendelseType);
+        return !kladd.getHarRegisterData() && kladd.getHarOverstyrteData() && FamilieHendelseType.FØDSEL.equals(overstyrtHendelseType);
     }
 
     private boolean harOverstyrtTerminOgOvergangTilFødsel(FamilieHendelseGrunnlagEntitet kladd) {
@@ -261,8 +261,15 @@ public class FamilieHendelseRepository {
     public FamilieHendelseBuilder opprettBuilderFor(Behandling behandling) {
         Optional<FamilieHendelseGrunnlagEntitet> familieHendelseAggregat = hentAggregatHvisEksisterer(behandling.getId());
         final FamilieHendelseGrunnlagBuilder oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
+        Objects.requireNonNull(oppdatere, "oppdatere"); //$NON-NLS-1$
+        return opprettBuilderFor(Optional.ofNullable(oppdatere.getKladd()), false);
+    }
 
-        return opprettBuilderForBuilder(oppdatere);
+    public FamilieHendelseBuilder opprettBuilderForregister(Behandling behandling) {
+        Optional<FamilieHendelseGrunnlagEntitet> familieHendelseAggregat = hentAggregatHvisEksisterer(behandling.getId());
+        final FamilieHendelseGrunnlagBuilder oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
+        Objects.requireNonNull(oppdatere, "oppdatere"); //$NON-NLS-1$
+        return opprettBuilderFor(Optional.ofNullable(oppdatere.getKladd()), true);
     }
 
     /**
@@ -275,10 +282,10 @@ public class FamilieHendelseRepository {
      * @param aggregat nåværende aggregat
      * @return Builder
      */
-    private FamilieHendelseBuilder opprettBuilderFor(Optional<FamilieHendelseGrunnlagEntitet> aggregat) {
+    private FamilieHendelseBuilder opprettBuilderFor(Optional<FamilieHendelseGrunnlagEntitet> aggregat, boolean register) {
         Objects.requireNonNull(aggregat, "aggregat"); // NOSONAR //$NON-NLS-1$
         if (aggregat.isPresent()) {
-            HendelseVersjonType type = utledTypeFor(aggregat);
+            HendelseVersjonType type = register ? HendelseVersjonType.BEKREFTET : utledTypeFor(aggregat);
             final FamilieHendelseGrunnlagEntitet hendelseAggregat = aggregat.get();
             final FamilieHendelseBuilder hendelseAggregat1 = getFamilieHendelseBuilderForType(hendelseAggregat, type);
             if (hendelseAggregat1 != null) {
@@ -295,13 +302,13 @@ public class FamilieHendelseRepository {
             case SØKNAD:
                 return FamilieHendelseBuilder.oppdatere(Optional.ofNullable(aggregat.getSøknadVersjon()), type);
             case BEKREFTET:
-                if (!aggregat.getBekreftetVersjon().isPresent()) {
+                if (aggregat.getBekreftetVersjon().isEmpty()) {
                     return getFamilieHendelseBuilderForType(aggregat, HendelseVersjonType.SØKNAD);
                 } else {
                     return FamilieHendelseBuilder.oppdatere(aggregat.getBekreftetVersjon(), type);
                 }
             case OVERSTYRT:
-                if (!aggregat.getOverstyrtVersjon().isPresent()) {
+                if (aggregat.getOverstyrtVersjon().isEmpty()) {
                     return getFamilieHendelseBuilderForType(aggregat, HendelseVersjonType.BEKREFTET);
                 } else {
                     return FamilieHendelseBuilder.oppdatere(aggregat.getOverstyrtVersjon(), type);
@@ -325,11 +332,6 @@ public class FamilieHendelseRepository {
         return HendelseVersjonType.SØKNAD;
     }
 
-    private FamilieHendelseBuilder opprettBuilderForBuilder(FamilieHendelseGrunnlagBuilder aggregatBuilder) {
-        Objects.requireNonNull(aggregatBuilder, "aggregatBuilder"); //$NON-NLS-1$
-        return opprettBuilderFor(Optional.ofNullable(aggregatBuilder.getKladd()));
-    }
-
     public Optional<Long> hentIdPåAktivFamiliehendelse(Long behandlingId) {
         return getAktivtFamilieHendelseGrunnlag(behandlingId)
             .map(FamilieHendelseGrunnlagEntitet::getId);
@@ -338,7 +340,7 @@ public class FamilieHendelseRepository {
     public FamilieHendelseGrunnlagEntitet hentFamilieHendelserPåGrunnlagId(Long aggregatId) {
         Optional<FamilieHendelseGrunnlagEntitet> optGrunnlag = getVersjonAvFamiliehendelseGrunnlagPåId(
             aggregatId);
-        return optGrunnlag.isPresent() ? optGrunnlag.get() : null;
+        return optGrunnlag.orElse(null);
     }
 
     private Optional<FamilieHendelseGrunnlagEntitet> getVersjonAvFamiliehendelseGrunnlagPåId(

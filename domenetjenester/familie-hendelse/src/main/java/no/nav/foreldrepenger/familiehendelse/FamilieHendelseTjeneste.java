@@ -99,7 +99,7 @@ public class FamilieHendelseTjeneste {
             return;
         }
 
-        final FamilieHendelseBuilder hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
+        final FamilieHendelseBuilder hendelseBuilder = familieGrunnlagRepository.opprettBuilderForregister(behandling)
             .tilbakestillBarn();
 
         bekreftetTps.forEach(barn -> hendelseBuilder.leggTilBarn(barn.getFødselsdato(), barn.getDødsdato().orElse(null)));
