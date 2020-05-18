@@ -43,6 +43,7 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.SjekkOverlappForeldrepengerInfotrygdTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -70,6 +71,7 @@ public class VurderOpphørAvYtelser  {
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private SjekkOverlappForeldrepengerInfotrygdTjeneste sjekkOverlappInfortrygd;
+    private KøKontroller køKontroller;
     private static final BigDecimal HUNDRE = new BigDecimal(100);
 
     public VurderOpphørAvYtelser() {
@@ -83,7 +85,8 @@ public class VurderOpphørAvYtelser  {
                                  ProsessTaskRepository prosessTaskRepository,
                                  BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                  BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                 SjekkOverlappForeldrepengerInfotrygdTjeneste sjekkOverlappInfortrygd
+                                 SjekkOverlappForeldrepengerInfotrygdTjeneste sjekkOverlappInfortrygd,
+                                 KøKontroller køKontroller
                                  ) {
         this.fagsakRepository = behandlingRepositoryProvider.getFagsakRepository();
         this.personopplysningRepository = behandlingRepositoryProvider.getPersonopplysningRepository();
@@ -96,6 +99,7 @@ public class VurderOpphørAvYtelser  {
         this.revurderingTjenesteFP = revurderingTjenesteFP;
         this.revurderingTjenesteSVP = revurderingTjenesteSVP;
         this.sjekkOverlappInfortrygd = sjekkOverlappInfortrygd;
+        this.køKontroller = køKontroller;
     }
 
     void vurderOpphørAvYtelser(Long fagsakId, Long behandlingId) {
@@ -184,9 +188,12 @@ public class VurderOpphørAvYtelser  {
 
             opprettTaskForÅVurdereKonsekvens(sakOpphør.getId(), behandling.getBehandlendeEnhet(),
                 "Nytt barn: Vurder om ytelse skal opphøre", Optional.empty());
+            var harÅpenOrdinærBehandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(sakOpphør.getId()).stream()
+                .anyMatch(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
 
-            if (behandling.erAvsluttet()) {
-                Behandling revurderingOpphør = opprettRevurdering(sakOpphør, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
+            if (!harÅpenOrdinærBehandling) {
+                var skalKøes = !behandling.erAvsluttet() && behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING);
+                Behandling revurderingOpphør = opprettRevurdering(sakOpphør, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN, skalKøes);
                 if (revurderingOpphør != null) {
                     LOG.info("Overlapp FPSAK: Vurder opphør av ytelse har opprettet revurdering med behandlingId {} på sak med saksnummer {} pga behandlingId {}", revurderingOpphør.getId(), sakOpphør.getSaksnummer(), behandlingId);
                 } else {
@@ -273,12 +280,16 @@ public class VurderOpphørAvYtelser  {
             .map(OppgittAnnenPartEntitet::getAktørId);
     }
 
-    private Behandling opprettRevurdering(Fagsak sakRevurdering, BehandlingÅrsakType behandlingÅrsakType) {
+    private Behandling opprettRevurdering(Fagsak sakRevurdering, BehandlingÅrsakType behandlingÅrsakType, boolean skalKøes) {
         OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(sakRevurdering);
 
         Behandling revurdering = getRevurderingTjeneste(sakRevurdering).opprettAutomatiskRevurdering(sakRevurdering, behandlingÅrsakType, enhet);
 
-        behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
+        if (skalKøes) {
+            køKontroller.enkøBehandling(revurdering);
+        } else {
+            behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
+        }
 
         return revurdering;
     }
