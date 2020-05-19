@@ -143,7 +143,8 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
         // template method
     }
 
-    private boolean erNoenVilkårIkkeOppfylt(RegelResultat regelResultat) {
+    // Vennligst ikke override - det er forbeholdt vurdersamlet ....
+    protected boolean erNoenVilkårIkkeOppfylt(RegelResultat regelResultat) {
         return regelResultat.getVilkårResultat().getVilkårene().stream()
             .filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType()))
             .anyMatch(v -> v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT));
