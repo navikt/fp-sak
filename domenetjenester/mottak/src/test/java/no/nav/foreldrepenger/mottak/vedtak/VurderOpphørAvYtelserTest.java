@@ -304,7 +304,7 @@ public class VurderOpphørAvYtelserTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehSVPOverlapper.getId());
 
-        verify(revurderingTjenesteMock, times(1)).opprettAutomatiskRevurdering(eq(avsluttetFPSakMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verify(revurderingTjenesteMock, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
     }
 
     @Test
@@ -341,7 +341,7 @@ public class VurderOpphørAvYtelserTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehSVPOverlapper.getId());
 
-        verify(revurderingTjenesteMock, times(1)).opprettAutomatiskRevurdering(eq(avsluttetFPSakMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verify(revurderingTjenesteMock, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
     }
 
     @Test
