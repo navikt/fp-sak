@@ -15,8 +15,8 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -123,7 +123,7 @@ public class DatoerGrunnlagByggerTest {
         leggTilSøkersDødsdato(behandling, søkersDødsdato);
         Repository repository = repositoryRule.getRepository();
         repository.lagre(behandling.getBehandlingsresultat());
-        lagreUttaksperiodegrense(behandling, repositoryProvider.getUttakRepository(), førsteLovligeUttaksdag);
+        lagreUttaksperiodegrense(behandling, repositoryProvider.getUttaksperiodegrenseRepository(), førsteLovligeUttaksdag);
 
         return behandling;
     }
@@ -137,15 +137,15 @@ public class DatoerGrunnlagByggerTest {
         personopplysningRepository.lagre(behandling.getId(), builder);
     }
 
-    private void lagreUttaksperiodegrense(Behandling behandling, UttakRepository uttakRepository, LocalDate førsteLovligeUttaksdag) {
+    private void lagreUttaksperiodegrense(Behandling behandling, UttaksperiodegrenseRepository repository, LocalDate førsteLovligeUttaksdag) {
         Uttaksperiodegrense grense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
             .medFørsteLovligeUttaksdag(førsteLovligeUttaksdag)
             .medMottattDato(LocalDate.now().minusWeeks(2)).build();
-        uttakRepository.lagreUttaksperiodegrense(behandling.getId(), grense);
+        repository.lagre(behandling.getId(), grense);
     }
 
     private DatoerGrunnlagBygger grunnlagBygger() {
-        return new DatoerGrunnlagBygger(repositoryProvider.getUttakRepository(), personopplysningTjeneste);
+        return new DatoerGrunnlagBygger(repositoryProvider.getUttaksperiodegrenseRepository(), personopplysningTjeneste);
     }
 
     private Datoer byggGrunnlag(UttakInput input) {

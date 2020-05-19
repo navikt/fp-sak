@@ -63,17 +63,17 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
@@ -175,13 +175,8 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     @Inject
     private PersonopplysningTjeneste personopplysningTjeneste;
 
-    private DvhPersonopplysningXmlTjenesteImpl dvhPersonopplysningXmlTjenesteImpl;
-    private VedtakXmlTjeneste vedtakXmlTjeneste;
-
     @Inject
     private ØkonomioppdragRepository økonomioppdragRepository;
-
-    private HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering;
 
     @Inject
     private FamilieHendelseRepository familieHendelseRepository;
@@ -200,7 +195,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     @Before
     public void oppsett() {
-        hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
+        HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
 
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
@@ -208,7 +203,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
         var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste, kodeverkRepository);
 
-        dvhPersonopplysningXmlTjenesteImpl = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
+        DvhPersonopplysningXmlTjenesteImpl dvhPersonopplysningXmlTjenesteImpl = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
             familieHendelseRepository,
             vergeRepository,
             medlemskapRepository,
@@ -217,7 +212,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
             iayTjeneste,
             ytelseFordelingTjeneste);
 
-        vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
+        VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
         OppdragXmlTjenesteImpl oppdragXmlTjenesteImpl = new OppdragXmlTjenesteImpl(hentOppdragMedPositivKvittering);
 
         dvhVedtakXmlTjenesteFP = new DvhVedtakXmlTjeneste(repositoryProvider,
@@ -287,7 +282,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
             .medFørsteLovligeUttaksdag(LocalDate.now())
             .medMottattDato(LocalDate.now())
             .build();
-        repositoryProvider.getUttakRepository().lagreUttaksperiodegrense(behandling.getId(), uttaksperiodegrense);
+        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), uttaksperiodegrense);
 
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusDays(11))
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
@@ -295,7 +290,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         UttakResultatPerioderEntitet uttakResultatPerioder1 = new UttakResultatPerioderEntitet();
         uttakResultatPerioder1.leggTilPeriode(periode);
 
-        repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder1);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder1);
 
         opprettStønadskontoer(behandling);
         lagBeregningsgrunnlag(behandling);
@@ -305,7 +300,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
         Arbeidsgiver arbeidsgiverVirksomhet = opprettOgLagreVirksomhet(ytelseHjelper);
         UttakResultatEntitet uttakResultatEntitet = opprettUttak(true, behandling, ytelseHjelper.uttakFom, ytelseHjelper.uttakTom, arbeidsgiverVirksomhet);
-        repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatEntitet.getGjeldendePerioder());
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatEntitet.getGjeldendePerioder());
 
         BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         BehandlingVedtak vedtak = BehandlingVedtak.builder()

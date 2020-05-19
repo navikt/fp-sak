@@ -30,9 +30,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
@@ -53,7 +53,7 @@ public class BerørtBehandlingTjenesteImplTest {
     @Mock
     BehandlingRepositoryProvider repositoryProvider;
     @Mock
-    UttakRepository uttakRepository;
+    FpUttakRepository fpUttakRepository;
     @Mock
     private UttakInputTjeneste uttakInputTjeneste;
 
@@ -63,17 +63,17 @@ public class BerørtBehandlingTjenesteImplTest {
     public void fellesOppsett() {
         stønadskontoSaldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
         historikkRepository = mock(HistorikkRepository.class);
-        uttakRepository = mock(UttakRepository.class);
+        fpUttakRepository = mock(FpUttakRepository.class);
         repositoryProvider = mock(BehandlingRepositoryProvider.class);
         uttakInputTjeneste = mock(UttakInputTjeneste.class);
         when(repositoryProvider.getHistorikkRepository()).thenReturn(historikkRepository);
-        when(repositoryProvider.getUttakRepository()).thenReturn(uttakRepository);
+        when(repositoryProvider.getFpUttakRepository()).thenReturn(fpUttakRepository);
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, new NavBrukerBuilder().medAktørId(AktørId.dummy()).build());
         var førsteBehandling = Behandling.forFørstegangssøknad(fagsak).build();
         revurdering = Behandling.fraTidligereBehandling(førsteBehandling, BehandlingType.REVURDERING).build();
         revurdering.getOriginalBehandling();
         berørtBehandlingTjeneste = new BerørtBehandlingTjeneste(stønadskontoSaldoTjeneste, repositoryProvider, uttakInputTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()));
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
     }
 
     //Scenarie 1 - Opphør

@@ -19,19 +19,19 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.ManuellBehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatDokRegelEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeSøknadEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakUtsettelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatDokRegelEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -50,7 +50,7 @@ import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 @ApplicationScoped
 public class FastsettePerioderRegelResultatKonverterer {
 
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
     private YtelsesFordelingRepository ytelsesfordelingRepository;
 
     FastsettePerioderRegelResultatKonverterer() {
@@ -58,9 +58,9 @@ public class FastsettePerioderRegelResultatKonverterer {
     }
 
     @Inject
-    public FastsettePerioderRegelResultatKonverterer(UttakRepository uttakRepository,
+    public FastsettePerioderRegelResultatKonverterer(FpUttakRepository fpUttakRepository,
                                                      YtelsesFordelingRepository ytelsesfordelingRepository) {
-        this.uttakRepository = uttakRepository;
+        this.fpUttakRepository = fpUttakRepository;
         this.ytelsesfordelingRepository = ytelsesfordelingRepository;
     }
 
@@ -94,7 +94,7 @@ public class FastsettePerioderRegelResultatKonverterer {
     private void prependPerioderFraOriginalBehandling(BehandlingReferanse ref, UttakResultatPerioderEntitet perioder) {
         Long originalBehandling = ref.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
-        Optional<UttakResultatEntitet> opprinneligUttak = uttakRepository.hentUttakResultatHvisEksisterer(originalBehandling);
+        Optional<UttakResultatEntitet> opprinneligUttak = fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandling);
         if (opprinneligUttak.isPresent()) {
             LocalDate endringsdato = ytelsesfordelingRepository.hentAggregat(ref.getBehandlingId()).getGjeldendeEndringsdato();
             List<UttakResultatPeriodeEntitet> perioderFørEndringsdato = FastsettePerioderRevurderingUtil.perioderFørDato(opprinneligUttak.get(),

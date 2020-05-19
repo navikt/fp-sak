@@ -126,7 +126,7 @@ public class KontrollerOppgittFordelingTjenesteImplTest {
     }
 
     private KontrollerOppgittFordelingTjeneste tjeneste() {
-        return tjeneste(new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste, new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository())));
+        return tjeneste(new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())));
     }
 
     private KontrollerOppgittFordelingTjeneste tjeneste(FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste) {

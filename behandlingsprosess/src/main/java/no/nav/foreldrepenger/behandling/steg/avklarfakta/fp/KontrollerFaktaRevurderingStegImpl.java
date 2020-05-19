@@ -49,7 +49,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
@@ -79,7 +79,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste;
 
-    private UttakRepository uttakRepository;
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     private StartpunktTjeneste startpunktTjeneste;
 
@@ -116,7 +116,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.tjeneste = tjeneste;
         this.hentBeregningsgrunnlagTjeneste = hentBeregningsgrunnlagTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
         this.startpunktTjeneste = startpunktTjeneste;
         this.behandlingÅrsakTjeneste = behandlingÅrsakTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -299,7 +299,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private Behandling kopierUttaksperiodegrense(Behandling revurdering, Behandling origBehandling) {
         // Kopier Uttaksperiodegrense - må alltid ha en søknadsfrist angitt
-        Optional<Uttaksperiodegrense> funnetUttaksperiodegrense = uttakRepository.hentUttaksperiodegrenseHvisEksisterer(origBehandling.getId());
+        Optional<Uttaksperiodegrense> funnetUttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(origBehandling.getId());
         if (funnetUttaksperiodegrense.isPresent()) {
             Uttaksperiodegrense origGrense = funnetUttaksperiodegrense.get();
             var behandlingsresultat = behandlingsresultatRepository.hent(revurdering.getId());
@@ -307,7 +307,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 .medFørsteLovligeUttaksdag(origGrense.getFørsteLovligeUttaksdag())
                 .medMottattDato(origGrense.getMottattDato())
                 .build();
-            uttakRepository.lagreUttaksperiodegrense(revurdering.getId(), uttaksperiodegrense);
+            uttaksperiodegrenseRepository.lagre(revurdering.getId(), uttaksperiodegrense);
             return behandlingRepository.hentBehandling(revurdering.getId());
         }
         return revurdering;

@@ -51,6 +51,6 @@ class GrunnlagOppretter {
             .medFørsteLovligeUttaksdag(førsteLovligeUttaksdag)
             .medMottattDato(mottaksdato)
             .build();
-        repositoryProvider.getUttakRepository().lagreUttaksperiodegrense(behandling.getId(), uttaksperiodegrense);
+        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), uttaksperiodegrense);
     }
 }

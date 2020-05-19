@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettUttakManueltAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
 
@@ -35,7 +35,7 @@ public class UttakStegImpl implements UttakSteg {
     private FastsettePerioderTjeneste fastsettePerioderTjeneste;
     private FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
     private UttakInputTjeneste uttakInputTjeneste;
     private UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste;
     private FagsakRepository fagsakRepository;
@@ -51,7 +51,7 @@ public class UttakStegImpl implements UttakSteg {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.beregnStønadskontoTjeneste = beregnStønadskontoTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
     }
@@ -89,7 +89,7 @@ public class UttakStegImpl implements UttakSteg {
     }
 
     private void ryddUttak(Long behandlingId) {
-        uttakRepository.deaktivterAktivtResultat(behandlingId);
+        fpUttakRepository.deaktivterAktivtResultat(behandlingId);
     }
 
     private void ryddStønadskontoberegning(Long behandlingId, Long fagsakId) {

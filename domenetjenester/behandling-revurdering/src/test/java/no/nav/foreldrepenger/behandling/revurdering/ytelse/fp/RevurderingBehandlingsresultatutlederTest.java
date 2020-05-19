@@ -64,13 +64,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
@@ -130,7 +130,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     private RevurderingTjeneste revurderingTjeneste;
     private BeregningsresultatRepository beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
-    private UttakRepository uttakRepository = repositoryProvider.getUttakRepository();
+    private FpUttakRepository fpUttakRepository = repositoryProvider.getFpUttakRepository();
     private HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(repoRule.getEntityManager());
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
     private boolean erVarselOmRevurderingSendt = true;
@@ -1205,7 +1205,7 @@ public class RevurderingBehandlingsresultatutlederTest {
                                                                    List<StønadskontoType> stønadskontoTyper) {
         UttakResultatEntitet uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanTjeneste(behandling, perioder, samtidigUttak,
             periodeResultatTyper, periodeResultatÅrsak, graderingInnvilget, andelIArbeid, utbetalingsgrad, trekkdager, stønadskontoTyper);
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakresultat.getGjeldendePerioder());
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakresultat.getGjeldendePerioder());
         return uttakresultat;
     }
 

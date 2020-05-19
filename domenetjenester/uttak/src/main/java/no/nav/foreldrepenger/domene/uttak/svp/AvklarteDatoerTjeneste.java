@@ -12,10 +12,9 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
-import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -25,27 +24,27 @@ import no.nav.svangerskapspenger.domene.søknad.Ferie;
 @ApplicationScoped
 class AvklarteDatoerTjeneste {
 
-    private UttakRepository uttakRepository;
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
     private BasisPersonopplysningTjeneste personopplysningTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+
+    @Inject
+    AvklarteDatoerTjeneste(UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
+                           BasisPersonopplysningTjeneste personopplysningTjeneste,
+                           InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+        this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
+        this.personopplysningTjeneste = personopplysningTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+    }
 
     AvklarteDatoerTjeneste() {
         //For CDI
     }
 
-    @Inject
-    AvklarteDatoerTjeneste(UttakRepositoryProvider repositoryProvider,
-                           BasisPersonopplysningTjeneste personopplysningTjeneste,
-                           InntektsmeldingTjeneste inntektsmeldingTjeneste) {
-        this.uttakRepository = repositoryProvider.getUttakRepository();
-        this.personopplysningTjeneste = personopplysningTjeneste;
-        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
-    }
-
     public AvklarteDatoer finn(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         var behandlingId = ref.getBehandlingId();
-        var uttaksgrense = uttakRepository.hentUttaksperiodegrenseHvisEksisterer(behandlingId);
+        var uttaksgrense = uttaksperiodegrenseRepository.hentHvisEksisterer(behandlingId);
 
         SvangerskapspengerGrunnlag svpGrunnlag = input.getYtelsespesifiktGrunnlag();
         var termindato = svpGrunnlag.getFamilieHendelse().getTermindato().orElseThrow(() -> new IllegalStateException("Det skal alltid være termindato på svangerskapspenger søknad."));

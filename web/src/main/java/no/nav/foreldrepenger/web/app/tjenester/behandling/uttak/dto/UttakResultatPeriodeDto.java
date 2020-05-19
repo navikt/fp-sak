@@ -10,11 +10,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.GraderingAvslagÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.ManuellBehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakUtsettelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 
 public class UttakResultatPeriodeDto {
 

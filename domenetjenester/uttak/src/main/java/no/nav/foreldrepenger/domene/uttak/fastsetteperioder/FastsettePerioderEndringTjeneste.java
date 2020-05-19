@@ -10,35 +10,35 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.UttakPeriodeEndringDto;
 
 @ApplicationScoped
 public class FastsettePerioderEndringTjeneste {
 
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
 
     FastsettePerioderEndringTjeneste() {
         //CDI
     }
 
     @Inject
-    public FastsettePerioderEndringTjeneste(UttakRepository uttakRepository) {
-        this.uttakRepository = uttakRepository;
+    public FastsettePerioderEndringTjeneste(FpUttakRepository fpUttakRepository) {
+        this.fpUttakRepository = fpUttakRepository;
     }
 
     public List<UttakPeriodeEndringDto> finnEndringerMellomOpprinneligOgOverstyrt(Long uttakResultatId) {
-        UttakResultatEntitet uttakResultat = uttakRepository.hentUttakResultatPåId(uttakResultatId)
+        UttakResultatEntitet uttakResultat = fpUttakRepository.hentUttakResultatPåId(uttakResultatId)
             .orElseThrow(() -> new IllegalStateException("Fant ingen uttakresultat med id " + uttakResultatId.toString()));
         return lagEndringDto(uttakResultat);
     }
 
     public List<UttakPeriodeEndringDto> finnEndringerMellomOpprinneligOgOverstyrt(Behandling behandling) {
-        UttakResultatEntitet uttakResultat = uttakRepository.hentUttakResultat(behandling.getId());
+        UttakResultatEntitet uttakResultat = fpUttakRepository.hentUttakResultat(behandling.getId());
         return lagEndringDto(uttakResultat);
     }
 

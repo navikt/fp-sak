@@ -12,16 +12,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.GraderingAvslagÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.InnvilgetÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.ManuellBehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakUtsettelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -62,7 +62,7 @@ public final class UttakEnumMapper {
         throw new IllegalStateException("Ukjent type " + periodeResultatType);
     }
 
-    public static Trekkdager map(no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager trekkdager) {
+    public static Trekkdager map(no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager trekkdager) {
         return new Trekkdager(trekkdager.decimalValue());
     }
 
@@ -249,7 +249,7 @@ public final class UttakEnumMapper {
         }
     }
 
-    public static no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType map(Stønadskontotype stønadskontotype) {
+    public static StønadskontoType map(Stønadskontotype stønadskontotype) {
         if (stønadskontotype == null) {
             return StønadskontoType.UDEFINERT;
         }

@@ -26,9 +26,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
@@ -169,7 +169,7 @@ public class UttakRevurderingTestUtil {
             .medFørsteLovligeUttaksdag(LocalDate.of(2018, 1, 1))
             .medMottattDato(FØDSELSDATO)
             .build();
-        repositoryProvider.getUttakRepository().lagreUttaksperiodegrense(behandling.getId(), grense);
+        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), grense);
     }
 
     private void opprettUttakResultat(Behandling førstegangsbehandling, List<UttakResultatPeriodeEntitet> perioder) {
@@ -180,7 +180,7 @@ public class UttakRevurderingTestUtil {
         for (UttakResultatPeriodeEntitet periode : perioder) {
             uttakResultatPerioder.leggTilPeriode(periode);
         }
-        repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(førstegangsbehandling.getId(), uttakResultatPerioder);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(førstegangsbehandling.getId(), uttakResultatPerioder);
     }
 
     private void avsluttBehandlingOgFagsak(Behandling behandling) {

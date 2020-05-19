@@ -10,11 +10,11 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakUtsettelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
@@ -25,11 +25,11 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUtt
 @ApplicationScoped
 public class AnnenPartGrunnlagBygger {
 
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
 
     @Inject
-    public AnnenPartGrunnlagBygger(UttakRepository uttakRepository) {
-        this.uttakRepository = uttakRepository;
+    public AnnenPartGrunnlagBygger(FpUttakRepository fpUttakRepository) {
+        this.fpUttakRepository = fpUttakRepository;
     }
 
     AnnenPartGrunnlagBygger() {
@@ -42,7 +42,7 @@ public class AnnenPartGrunnlagBygger {
         }
         var annenpart = fpGrunnlag.getAnnenpart().get();
 
-        var annenpartUttak = uttakRepository.hentUttakResultatHvisEksisterer(annenpart.getGjeldendeVedtakBehandlingId());
+        var annenpartUttak = fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.getGjeldendeVedtakBehandlingId());
         if (annenpartUttak.isEmpty()) {
             return Optional.empty();
         }

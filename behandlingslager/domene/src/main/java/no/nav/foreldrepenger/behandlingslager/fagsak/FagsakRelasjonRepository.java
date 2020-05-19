@@ -21,8 +21,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
 import no.nav.foreldrepenger.behandlingslager.diff.TraverseGraph;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 

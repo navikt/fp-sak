@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -27,16 +27,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatDokRegelEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeSøknadEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatDokRegelEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
@@ -63,13 +63,13 @@ public class UttakPeriodeEndringDtoTjenesteTest {
     private Behandling behandling;
     private LocalDate dato;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
 
 
     @Before
     public void setUp() {
         ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        uttakRepository = repositoryProvider.getUttakRepository();
+        fpUttakRepository = repositoryProvider.getFpUttakRepository();
         dato = LocalDate.of(2018, 8, 1);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagre(repositoryProvider);
@@ -214,14 +214,14 @@ public class UttakPeriodeEndringDtoTjenesteTest {
             StønadskontoType.FORELDREPENGER, new BigDecimal("100"), BigDecimal.valueOf(100));
         UttakResultatPerioderEntitet opprinneligFordeling = new UttakResultatPerioderEntitet();
         opprinneligFordeling.leggTilPeriode(opprinneligPeriode);
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
 
         // Legg til overstyrende periode
         UttakResultatPeriodeEntitet overstyrendePeriode = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, dato, dato.plusMonths(1),
             StønadskontoType.FORELDREPENGER, new BigDecimal("100"), BigDecimal.valueOf(100));
         UttakResultatPerioderEntitet overstyrendeFordeling = new UttakResultatPerioderEntitet();
         overstyrendeFordeling.leggTilPeriode(overstyrendePeriode);
-        uttakRepository.lagreOverstyrtUttakResultatPerioder(behandling.getId(), overstyrendeFordeling);
+        fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandling.getId(), overstyrendeFordeling);
 
         // Legg til data i totrinnsvurdering.
         Totrinnsvurdering.Builder ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER);
@@ -245,14 +245,14 @@ public class UttakPeriodeEndringDtoTjenesteTest {
             StønadskontoType.FORELDREPENGER, new BigDecimal("100"), BigDecimal.valueOf(100));
         UttakResultatPerioderEntitet opprinneligFordeling = new UttakResultatPerioderEntitet();
         opprinneligFordeling.leggTilPeriode(opprinneligPeriode);
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
 
         // Legg til overstyrende periode
         UttakResultatPeriodeEntitet overstyrendePeriode = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, dato.plusWeeks(2),
             dato.plusMonths(1).plusWeeks(2), StønadskontoType.FORELDREPENGER, new BigDecimal("100"), BigDecimal.valueOf(100));
         UttakResultatPerioderEntitet overstyrendeFordeling = new UttakResultatPerioderEntitet();
         overstyrendeFordeling.leggTilPeriode(overstyrendePeriode);
-        uttakRepository.lagreOverstyrtUttakResultatPerioder(behandling.getId(), overstyrendeFordeling);
+        fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandling.getId(), overstyrendeFordeling);
 
         // Legg til data i totrinnsvurdering.
         Totrinnsvurdering.Builder ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER);
@@ -276,14 +276,14 @@ public class UttakPeriodeEndringDtoTjenesteTest {
             StønadskontoType.FORELDREPENGER, new BigDecimal("100"), BigDecimal.valueOf(100));
         UttakResultatPerioderEntitet opprinneligFordeling = new UttakResultatPerioderEntitet();
         opprinneligFordeling.leggTilPeriode(opprinneligPeriode);
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
 
         // Legg til overstyrende periode
         UttakResultatPeriodeEntitet overstyrendePeriode = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, dato, dato.plusMonths(1).minusDays(1),
             StønadskontoType.FORELDREPENGER, new BigDecimal("100"), BigDecimal.valueOf(100));
         UttakResultatPerioderEntitet overstyrendeFordeling = new UttakResultatPerioderEntitet();
         overstyrendeFordeling.leggTilPeriode(overstyrendePeriode);
-        uttakRepository.lagreOverstyrtUttakResultatPerioder(behandling.getId(), overstyrendeFordeling);
+        fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandling.getId(), overstyrendeFordeling);
 
         // Legg til data i totrinnsvurdering.
         Totrinnsvurdering.Builder ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.TILKNYTTET_STORTINGET);

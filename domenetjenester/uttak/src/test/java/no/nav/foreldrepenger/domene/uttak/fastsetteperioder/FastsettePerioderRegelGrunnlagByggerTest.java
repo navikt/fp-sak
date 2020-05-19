@@ -26,18 +26,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
@@ -311,7 +311,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
         perioder.leggTilPeriode(utsettelse);
 
-        repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), perioder);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), perioder);
 
         morsBehandling.avsluttBehandling();
         repository.lagre(morsBehandling);
@@ -337,7 +337,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
-        lagreUttaksperiodegrense(farsBehandling, repositoryProvider.getUttakRepository());
+        lagreUttaksperiodegrense(farsBehandling, repositoryProvider.getUttaksperiodegrenseRepository());
         repositoryProvider.getYtelsesFordelingRepository().lagre(farsBehandling.getId(), new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato).build());
         lagreYrkesAktiviter(farsBehandling, virksomhet, Collections.singletonList(aktivitet.getArbeidsforholdId()),
             BigDecimal.valueOf(100), fødselsdato.minusYears(1));
@@ -450,10 +450,10 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         return behandling;
     }
 
-    private void lagreUttaksperiodegrense(Behandling behandling, UttakRepository uttakRepository) {
+    private void lagreUttaksperiodegrense(Behandling behandling, UttaksperiodegrenseRepository repository) {
         Uttaksperiodegrense grense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
             .medFørsteLovligeUttaksdag(LocalDate.now().minusMonths(6)).medMottattDato(LocalDate.now().minusWeeks(2)).build();
-        uttakRepository.lagreUttaksperiodegrense(behandling.getId(), grense);
+        repository.lagre(behandling.getId(), grense);
     }
 
     private Arbeidsgiver lagVirksomhetArbeidsgiver(String orgnr) {
@@ -586,7 +586,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(førsteUttaksdag).build());
 
         Behandling behandling = lagre(scenario);
-        lagreUttaksperiodegrense(behandling, repositoryProvider.getUttakRepository());
+        lagreUttaksperiodegrense(behandling, repositoryProvider.getUttaksperiodegrenseRepository());
         lagreStønadskontoer(behandling, repositoryProvider.getFagsakRelasjonRepository());
         return behandling;
     }

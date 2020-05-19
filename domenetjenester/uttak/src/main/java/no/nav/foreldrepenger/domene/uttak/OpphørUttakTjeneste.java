@@ -13,17 +13,17 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.uttak.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 
 @ApplicationScoped
 public class OpphørUttakTjeneste {
 
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
 
     OpphørUttakTjeneste() {
         //CDI
@@ -31,7 +31,7 @@ public class OpphørUttakTjeneste {
 
     @Inject
     public OpphørUttakTjeneste(UttakRepositoryProvider repositoryProvider) {
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
     }
 
     public Optional<LocalDate> getOpphørsdato(BehandlingReferanse ref, Behandlingsresultat behandlingsresultat) {
@@ -45,7 +45,7 @@ public class OpphørUttakTjeneste {
     }
 
     private UttakResultatEntitet hentUttakResultatFor(Long behandlingId) {
-        return uttakRepository.hentUttakResultatHvisEksisterer(behandlingId).orElse(null);
+        return fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId).orElse(null);
     }
 
     private LocalDate utledOpphørsdatoFraUttak(UttakResultatEntitet uttakResultat, LocalDate skjæringstidspunkt) {

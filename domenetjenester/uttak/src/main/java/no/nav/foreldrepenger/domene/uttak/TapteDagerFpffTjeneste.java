@@ -8,8 +8,8 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -20,13 +20,13 @@ import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 @ApplicationScoped
 public class TapteDagerFpffTjeneste {
 
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
 
     @Inject
     public TapteDagerFpffTjeneste(UttakRepositoryProvider repositoryProvider, YtelseFordelingTjeneste ytelseFordelingTjeneste) {
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
     }
@@ -88,7 +88,7 @@ public class TapteDagerFpffTjeneste {
         if (originalBehandling.isEmpty()) {
             return false;
         }
-        var uttakOriginalBehandling = uttakRepository.hentUttakResultatHvisEksisterer(originalBehandling.get().getId());
+        var uttakOriginalBehandling = fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandling.get().getId());
         if (uttakOriginalBehandling.isEmpty()) {
             return false;
         }

@@ -54,7 +54,7 @@ public class BehandlingÅrsakDtoTest {
         var opptjeningIUtlandDokStatusTjeneste = new OpptjeningIUtlandDokStatusTjeneste(new OpptjeningIUtlandDokStatusRepository(repoRule.getEntityManager()));
         behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository,
             skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()), null);
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), null);
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());

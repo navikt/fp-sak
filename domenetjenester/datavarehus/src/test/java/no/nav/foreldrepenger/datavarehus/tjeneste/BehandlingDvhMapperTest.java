@@ -41,17 +41,17 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatDokRegelEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeSøknadEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatDokRegelEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -83,8 +83,8 @@ public class BehandlingDvhMapperTest {
     private Arbeidsgiver arbeidsgiver;
 
     private final Repository repository = repoRule.getRepository();
-    private final UttakRepository uttakRepository = new UttakRepository(repoRule.getEntityManager());
-    private final ForeldrepengerUttakTjeneste uttakTjeneste = new ForeldrepengerUttakTjeneste(uttakRepository);
+    private final FpUttakRepository fpUttakRepository = new FpUttakRepository(repoRule.getEntityManager());
+    private final ForeldrepengerUttakTjeneste uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
 
     private Behandling behandling;
 
@@ -152,14 +152,14 @@ public class BehandlingDvhMapperTest {
         LocalDateTime mottattTidspunkt = LocalDateTime.now();
 
         UttakResultatPerioderEntitet opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET,LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinnelig);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinnelig);
         var hentetUttakResultatOpt = uttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
         BehandlingDvh dvh = mapper.map(behandling, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
             hentetUttakResultatOpt, Optional.empty());
         assertThat(dvh.getFoersteStoenadsdag()).isEqualTo(LocalDate.now());
 
         UttakResultatPerioderEntitet uttakResultat = opprettUttakResultatPeriode(PeriodeResultatType.AVSLÅTT, LocalDate.now().plusDays(1), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultat);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultat);
         hentetUttakResultatOpt = uttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
         dvh = mapper.map(behandling, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
             hentetUttakResultatOpt, Optional.empty());
