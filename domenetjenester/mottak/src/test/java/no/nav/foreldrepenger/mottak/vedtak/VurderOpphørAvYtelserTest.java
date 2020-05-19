@@ -51,6 +51,7 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.SjekkOverlappForeldrepengerInfotrygdTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -98,7 +99,8 @@ public class VurderOpphørAvYtelserTest {
     @Before
     public void setUp() {
         initMocks(this);
-        vurderOpphørAvYtelser = new VurderOpphørAvYtelser(repositoryProvider, revurderingTjenesteMock, null, prosessTaskRepository, behandlendeEnhetTjeneste, behandlingProsesseringTjenesteMock, sjekkInfotrygdTjeneste );
+        vurderOpphørAvYtelser = new VurderOpphørAvYtelser(repositoryProvider, revurderingTjenesteMock, null,
+            prosessTaskRepository, behandlendeEnhetTjeneste, behandlingProsesseringTjenesteMock, sjekkInfotrygdTjeneste, mock(KøKontroller.class) );
     }
 
     @Test
@@ -131,7 +133,7 @@ public class VurderOpphørAvYtelserTest {
         beregningsresultatRepository.lagre(nyAvsBehandlingMor, berResMorOverlapp);
         Fagsak fagsakNy = nyAvsBehandlingMor.getFagsak();
 
-        Behandling avslBehFarMedOverlappMor = lagBehandlingFar(FØDSELS_DATO_1, MEDF_AKTØR_ID);
+        Behandling avslBehFarMedOverlappMor = lagBehandlingFar(FØDSELS_DATO_1, MEDF_AKTØR_ID, AKTØR_ID_MOR);
         BeregningsresultatEntitet berResFar = lagBeregningsresultat(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(avslBehFarMedOverlappMor, berResFar);
         Fagsak fsavsluttetBehFar = avslBehFarMedOverlappMor.getFagsak();
@@ -141,6 +143,25 @@ public class VurderOpphørAvYtelserTest {
         verify(revurderingTjenesteMock, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
         verify(revurderingTjenesteMock, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
         verify(sjekkInfotrygdTjeneste, times(1)).harForeldrepengerInfotrygdSomOverlapper(fsavsluttetBehFar.getAktørId(),SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1 );
+    }
+
+    @Test
+    public void adopsjonFarFørstSkalIkkeOpphøresAvMor() {
+
+        Behandling avsluttetBehFar = lagBehandlingFar(FØDSELS_DATO_1, MEDF_AKTØR_ID, AKTØR_ID_MOR);
+        BeregningsresultatEntitet berResFarBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
+        beregningsresultatRepository.lagre(avsluttetBehFar, berResFarBeh1);
+        Fagsak fsavsluttetBehFar = avsluttetBehFar.getFagsak();
+
+        Behandling avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, MEDF_AKTØR_ID);
+        BeregningsresultatEntitet berResMorBeh1 = lagBeregningsresultat(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP, Inntektskategori.ARBEIDSTAKER);
+        beregningsresultatRepository.lagre(avsluttetBehMor, berResMorBeh1);
+        Fagsak fsavsluttetBehMor = avsluttetBehMor.getFagsak();
+
+        vurderOpphørAvYtelser.vurderOpphørAvYtelser(fsavsluttetBehMor.getId(),avsluttetBehMor.getId());
+
+        // OBS: Dette vil vi helst ikke. Trenger sjekk på om sak gjelder samme barn
+        verify(revurderingTjenesteMock, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
     }
 
     @Test
@@ -174,7 +195,7 @@ public class VurderOpphørAvYtelserTest {
         beregningsresultatRepository.lagre(nyBehMorSomIkkeOverlapper, berResMorBeh2);
         Fagsak fagsakNy = nyBehMorSomIkkeOverlapper.getFagsak();
 
-        Behandling avslBehFarMedOverlappMor = lagBehandlingFar(SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1, MEDF_AKTØR_ID);
+        Behandling avslBehFarMedOverlappMor = lagBehandlingFar(SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1, MEDF_AKTØR_ID, AKTØR_ID_MOR);
         BeregningsresultatEntitet berResFar = lagBeregningsresultat(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1.plusMonths(2), SISTE_DAG_PER_OVERLAPP.plusMonths(2), Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(avslBehFarMedOverlappMor, berResFar);
         Fagsak fsavsluttetBehFar = avslBehFarMedOverlappMor.getFagsak();
@@ -187,14 +208,14 @@ public class VurderOpphørAvYtelserTest {
 
     @Test
     public void opphørSakPåFarNårNySakPåFarOverlapper() {
-        Behandling avslBehFar = lagBehandlingFar(FØDSELS_DATO_1, MEDF_AKTØR_ID);
+        Behandling avslBehFar = lagBehandlingFar(FØDSELS_DATO_1, MEDF_AKTØR_ID, AKTØR_ID_MOR);
         BeregningsresultatEntitet berResFarBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
         leggTilBeregningsresPeriode(berResFarBeh1, SISTE_DAG_MOR, SISTE_DAG_MOR.plusWeeks(2), false);
         beregningsresultatRepository.lagre(avslBehFar, berResFarBeh1);
 
         Fagsak fsavsluttetBehFar = avslBehFar.getFagsak();
 
-        Behandling nyBehFar = lagBehandlingFar(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, MEDF_AKTØR_ID);
+        Behandling nyBehFar = lagBehandlingFar(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, MEDF_AKTØR_ID, AKTØR_ID_MOR);
         BeregningsresultatEntitet berResFar = lagBeregningsresultat(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(nyBehFar, berResFar);
         Fagsak fagsakNy = nyBehFar.getFagsak();
@@ -356,10 +377,13 @@ public class VurderOpphørAvYtelserTest {
         return behandling;
     }
 
-    private Behandling lagBehandlingFar( LocalDate fødselsDato, AktørId aktørId)
+    private Behandling lagBehandlingFar( LocalDate fødselsDato, AktørId aktørId, AktørId medfAktørId)
     {
         ScenarioFarSøkerForeldrepenger scenarioAvsluttetBehFar = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenarioAvsluttetBehFar.medSøknadHendelse().medFødselsDato(fødselsDato);
+        if (medfAktørId!= null) {
+            scenarioAvsluttetBehFar.medSøknadAnnenPart().medAktørId(medfAktørId).medNavn("Is Pinne").medType(SøknadAnnenPartType.MOR);
+        }
         scenarioAvsluttetBehFar.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioAvsluttetBehFar.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioAvsluttetBehFar.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
