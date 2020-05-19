@@ -13,11 +13,11 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.AvsluttetBehandlingStatus;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.Behandlingsstatus;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.OpprettetBehandlingStatus;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.SakOgBehandlingTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 public class SakOgBehandlingTaskTest {
@@ -42,7 +42,7 @@ public class SakOgBehandlingTaskTest {
 
         fyllUtProsessTaskData(prosessTaskData);
 
-        SakOgBehandlingTask sakOgBehandlingTask = new SakOgBehandlingTask(sakOgBehandlingTjenesteMock);
+        SakOgBehandlingTask sakOgBehandlingTask = new SakOgBehandlingTask(sakOgBehandlingTjenesteMock, mock(BehandlingRepositoryProvider.class), false);
         ArgumentCaptor<AvsluttetBehandlingStatus> captor = ArgumentCaptor.forClass(AvsluttetBehandlingStatus.class);
 
         sakOgBehandlingTask.doTask(prosessTaskData);
@@ -65,7 +65,7 @@ public class SakOgBehandlingTaskTest {
         LocalDate behandlingOpprettetTidspunkt = LocalDate.now();
         prosessTaskData.setProperty(SakOgBehandlingTask.BEHANDLING_OPPRETTET_TIDSPUNKT_KEY, behandlingOpprettetTidspunkt.toString());
 
-        SakOgBehandlingTask sakOgBehandlingTask = new SakOgBehandlingTask(sakOgBehandlingTjenesteMock);
+        SakOgBehandlingTask sakOgBehandlingTask = new SakOgBehandlingTask(sakOgBehandlingTjenesteMock, mock(BehandlingRepositoryProvider.class), false);
         ArgumentCaptor<OpprettetBehandlingStatus> captor = ArgumentCaptor.forClass(OpprettetBehandlingStatus.class);
 
         sakOgBehandlingTask.doTask(prosessTaskData);
