@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -21,7 +20,6 @@ public class BehandlingStatusDto {
     private OrganisasjonsEnhet enhet;
     private Long originalBehandlingId;
     private LocalDateTime hendelsesTidspunkt;
-    private UUID behandlingEksternRef;
 
     public Long getBehandlingId() {
         return behandlingId;
@@ -63,15 +61,12 @@ public class BehandlingStatusDto {
         return hendelsesTidspunkt;
     }
 
-    public UUID getBehandlingEksternRef() {
-        return behandlingEksternRef;
-    }
-
     @Override
     public String toString() {
         return "BehandlingStatusDto{" +
             "behandlingId=" + behandlingId +
             ", saksnummer=" + saksnummer +
+            ", behandlingStatus=" + behandlingStatus +
             ", hendelsesTidspunkt=" + hendelsesTidspunkt +
             '}';
     }
@@ -129,11 +124,6 @@ public class BehandlingStatusDto {
 
         public B medHendelsesTidspunkt(LocalDateTime hendelse) {
             this.status.hendelsesTidspunkt = hendelse;
-            return this;
-        }
-
-        public B medBehandlingEksternRef(UUID eksternRef) {
-            this.status.behandlingEksternRef = eksternRef;
             return this;
         }
 

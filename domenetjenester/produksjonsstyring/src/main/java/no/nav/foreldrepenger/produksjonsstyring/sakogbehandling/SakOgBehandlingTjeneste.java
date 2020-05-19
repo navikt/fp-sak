@@ -5,6 +5,9 @@ import java.util.List;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import contract.sob.dto.Aktoer;
 import contract.sob.dto.Applikasjoner;
 import contract.sob.dto.Avslutningsstatuser;
@@ -21,11 +24,12 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.JsonObjectMapper;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducer;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducerFeil;
+import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @Dependent
 public class SakOgBehandlingTjeneste {
-
+    private static final Logger LOG = LoggerFactory.getLogger(SakOgBehandlingTjeneste.class);
     private SakOgBehandlingAdapter adapter;
     private SakOgBehandlingHendelseProducer producer;
 
@@ -62,17 +66,20 @@ public class SakOgBehandlingTjeneste {
             .aktoerREF(List.of(new Aktoer(dto.getAktørId().getId())))
             .ansvarligEnhetREF(dto.getEnhet().getEnhetId())
             .applikasjonSakREF(dto.getSaksnummer().getVerdi())
-            .applikasjonBehandlingREF(dto.getBehandlingEksternRef().toString())
+            .applikasjonBehandlingREF(String.valueOf(dto.getBehandlingId()))
             .hendelsesId(callId)
             .hendelsesprodusentREF(Applikasjoner.builder().value(Fagsystem.FPSAK.getOffisiellKode()).build())
             .hendelsesTidspunkt(dto.getHendelsesTidspunkt());
 
         if (dto.getOriginalBehandlingId() != null) {
-            builder.primaerBehandlingREF(new PrimaerBehandling(createUniqueBehandlingsId(String.valueOf(dto.getOriginalBehandlingId())),
+            builder.primaerBehandlingREF(new PrimaerBehandling(String.valueOf(dto.getOriginalBehandlingId()),
                 PrimaerRelasjonstyper.builder().value("forrige").build()));
         }
 
-        producer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(dto.getBehandlingId()), dto.getBehandlingStatusKode()), generatePayload(builder.build()));
+        var hendelse = builder.build();
+        LOG.info("SOBKAFKA sender behandlingsstatus {}", dto);
+
+        producer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(dto.getBehandlingId()), dto.getBehandlingStatusKode()), generatePayload(hendelse));
     }
 
     private String createUniqueBehandlingsId(String behandlingsId) {
