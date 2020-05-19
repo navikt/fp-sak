@@ -19,6 +19,7 @@
     "KAFKA_RISIKOKLASSIFISERING_TOPIC": "privat-foreldrepenger-fprisk-utfor-t4",
     "KAFKA_KONTROLL_RESULTAT_TOPIC": "privat-foreldrepenger-kontroll-resultat-t4",
     "KAFKA_DOKUMENTBESTILLING_TOPIC": "privat-foreldrepenger-dokumenthendelse-t4",
+    "KAFKA_SAKOGBEHANDLING_TOPIC": "aapen-sob-oppgaveHendelse-v1",
     "SCHEMA_REGISTRY_URL": "https://kafka-test-schema-registry.nais.preprod.local",
     "SECURITYTOKENSERVICE_URL": "https://sts-t4.test.local/SecurityTokenServiceProvider/",
     "BOOTSTRAP_SERVERS": "d26apvl00159.test.local:8443,d26apvl00160.test.local:8443,d26apvl00161.test.local:8443",

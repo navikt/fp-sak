@@ -538,6 +538,13 @@
                 <version>2.5.0</version>
             </dependency>
 
+            <!-- SoB -->
+            <dependency>
+                <groupId>no.nav.virksomhetsstyring.sakogbehandling-kafka-dto</groupId>
+                <artifactId>contract-sob-dto</artifactId>
+                <version>1.0.1</version>
+            </dependency>
+
             <!-- Transitive avhengighet resolution for å sikre bestemt versjon -->
             <dependency>
                 <groupId>joda-time</groupId>
