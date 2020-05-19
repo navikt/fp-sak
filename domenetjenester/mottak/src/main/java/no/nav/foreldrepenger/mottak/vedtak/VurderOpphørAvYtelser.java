@@ -161,8 +161,9 @@ public class VurderOpphørAvYtelser  {
             }
             if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
                 if (erFullUtbetalingSistePeriode(fagsak.getId())) {
-                    håndtereOpphør(fagsak);
-                    LOG.info("Overlapp SVP: SVP-sak {} overlapper med FP-sak {}. Revurdering opprettet", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
+//                    Midlertidig fix (TFP-3379) for å hindre at feilaktige revurderinger opprettes - må endre hvordan overlapp sjekkes for SVP
+//                   håndtereOpphør(fagsak);
+                    LOG.info("Overlapp SVP: SVP-sak {} overlapper med FP-sak {}. Mest sannsynlig ikke overlapp. Kode skal endres", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
                 } else {
                     LOG.info("Overlapp SVP: SVP-sak {} overlapper med gradert FP-sak {}. Ingen revurdering opprettet", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
                 }
