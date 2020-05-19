@@ -44,18 +44,19 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.behandlingslager.uttak.InnvilgetÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -108,7 +109,10 @@ public class FastsettePerioderTjenesteTest {
     private FagsakRelasjonRepository relasjonRepository;
 
     @Inject
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
+
+    @Inject
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     @Inject
     private FastsettePerioderRegelAdapter regelAdapter;
@@ -154,7 +158,7 @@ public class FastsettePerioderTjenesteTest {
         // Assert
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         assertThat(uttakResultat).isPresent();
         List<UttakResultatPeriodeEntitet> uttakResultatPerioder = uttakResultat.get().getOpprinneligPerioder().getPerioder();
         assertThat(uttakResultatPerioder).hasSize(1);
@@ -224,7 +228,7 @@ public class FastsettePerioderTjenesteTest {
         // Assert
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         assertThat(uttakResultat).isPresent();
         List<UttakResultatPeriodeEntitet> uttakResultatPerioder = uttakResultat.get().getOpprinneligPerioder().getPerioder();
         assertThat(uttakResultatPerioder).hasSize(3);
@@ -276,7 +280,7 @@ public class FastsettePerioderTjenesteTest {
         // Assert
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         assertThat(uttakResultat).isPresent();
         List<UttakResultatPeriodeEntitet> uttakResultatPerioder = uttakResultat.get().getOpprinneligPerioder().getPerioder();
         assertThat(uttakResultatPerioder.get(3).getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(arbeidsprosent);
@@ -327,7 +331,7 @@ public class FastsettePerioderTjenesteTest {
 
         // Assert
 
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         assertThat(uttakResultat).isPresent();
         List<UttakResultatPeriodeEntitet> uttakResultatPerioder = uttakResultat.get().getOpprinneligPerioder().getPerioder();
         assertThat(uttakResultatPerioder).hasSize(3);
@@ -344,7 +348,7 @@ public class FastsettePerioderTjenesteTest {
         // Act
         fastsettePerioderTjeneste.fastsettePerioder(lagInput(behandling, fødselsdato));
 
-        uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         assertThat(uttakResultat).isPresent();
         uttakResultatPerioder = uttakResultat.get().getOpprinneligPerioder().getPerioder();
         assertThat(uttakResultatPerioder).hasSize(3);
@@ -412,7 +416,7 @@ public class FastsettePerioderTjenesteTest {
         // Assert
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         UttakResultatPeriodeEntitet resultat = uttakResultat.get().getOpprinneligPerioder().getPerioder().get(1);
         assertThat(resultat.getDokRegel().isTilManuellBehandling()).isFalse();
         assertThat(resultat.getResultatÅrsak()).isInstanceOf(InnvilgetÅrsak.class);
@@ -473,7 +477,7 @@ public class FastsettePerioderTjenesteTest {
         // Assert
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         Optional<UttakAktivitetEntitet> uttakAktivitetVirksomhet = aktivitetMedArbeidsgiverIPeriode(virksomhet,
             uttakResultat.get().getGjeldendePerioder().getPerioder().get(0));
         Optional<UttakAktivitetEntitet> uttakAktivitetPerson = aktivitetMedArbeidsgiverIPeriode(person,
@@ -527,7 +531,7 @@ public class FastsettePerioderTjenesteTest {
             .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
         tjeneste().fastsettePerioder(input);
 
-        var resultat = uttakRepository.hentUttakResultat(input.getBehandlingReferanse().getId());
+        var resultat = fpUttakRepository.hentUttakResultat(input.getBehandlingReferanse().getId());
 
         assertThat(resultat.getGjeldendePerioder().getPerioder()).hasSize(3);
         var aktiviteterPeriode1 = resultat.getGjeldendePerioder().getPerioder().get(0).getAktiviteter();
@@ -579,7 +583,7 @@ public class FastsettePerioderTjenesteTest {
     }
 
     private FastsettePerioderTjeneste tjeneste() {
-        return new FastsettePerioderTjeneste(repositoryProvider.getUttakRepository(),
+        return new FastsettePerioderTjeneste(repositoryProvider.getFpUttakRepository(),
             repositoryProvider.getYtelsesFordelingRepository(),
             validator(),
             regelAdapter,
@@ -628,7 +632,7 @@ public class FastsettePerioderTjenesteTest {
         FastsettePerioderTjeneste fastsettePerioderTjeneste = tjeneste();
         fastsettePerioderTjeneste.fastsettePerioder(lagInput(behandling, fødselsdato));
 
-        Optional<UttakResultatEntitet> opprinneligResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        Optional<UttakResultatEntitet> opprinneligResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
 
         // Steg 2: Opprett overstyrt uttaksplan med perioder
         var overtstyrtMødrekvote = periodeAktivitet(StønadskontoType.MØDREKVOTE);
@@ -645,7 +649,7 @@ public class FastsettePerioderTjenesteTest {
             null, null), perioder);
 
         // Assert
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         assertThat(uttakResultat).isPresent();
         List<UttakResultatPeriodeEntitet> opprinneligePerioder = uttakResultat.get().getOpprinneligPerioder().getPerioder();
         assertThat(opprinneligePerioder).hasSize(opprinneligResultat.get().getOpprinneligPerioder().getPerioder().size());
@@ -694,7 +698,7 @@ public class FastsettePerioderTjenesteTest {
             .medFørsteLovligeUttaksdag(mottattDato.withDayOfMonth(1).minusMonths(3))
             .build();
 
-        uttakRepository.lagreUttaksperiodegrense(behandling.getId(), uttaksperiodegrense);
+        uttaksperiodegrenseRepository.lagre(behandling.getId(), uttaksperiodegrense);
 
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(mottattDato).build();
         repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), avklarteUttakDatoer);

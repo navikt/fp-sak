@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -1061,7 +1061,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
             Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER, endringsdato);
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
         UttakResultatPerioderEntitet perioder = buildUttakResultatPerioderEntitet();
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), perioder);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), perioder);
 
         // Act
         Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);

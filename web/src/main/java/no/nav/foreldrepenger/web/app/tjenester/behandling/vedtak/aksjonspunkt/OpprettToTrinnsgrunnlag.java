@@ -7,8 +7,8 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
@@ -22,7 +22,7 @@ public class OpprettToTrinnsgrunnlag {
 
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
     private TotrinnTjeneste totrinnTjeneste;
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
@@ -33,12 +33,12 @@ public class OpprettToTrinnsgrunnlag {
     @Inject
     public OpprettToTrinnsgrunnlag(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                            YtelsesFordelingRepository ytelsesFordelingRepository,
-                           UttakRepository uttakRepository,
+                           FpUttakRepository fpUttakRepository,
                            TotrinnTjeneste totrinnTjeneste,
                            InntektArbeidYtelseTjeneste iayTjeneste) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
-        this.uttakRepository = uttakRepository;
+        this.fpUttakRepository = fpUttakRepository;
         this.iayTjeneste = iayTjeneste;
         this.totrinnTjeneste = totrinnTjeneste;
     }
@@ -47,7 +47,7 @@ public class OpprettToTrinnsgrunnlag {
         Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagOpt = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId())
                 .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
         Optional<Long> ytelseFordelingIdOpt = ytelsesFordelingRepository.hentIdPåAktivYtelsesFordeling(behandling.getId());
-        Optional<UttakResultatEntitet> uttakResultatOpt = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        Optional<UttakResultatEntitet> uttakResultatOpt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         Optional<InntektArbeidYtelseGrunnlag> iayGrunnlagOpt = iayTjeneste.finnGrunnlag(behandling.getId());
 
         Totrinnresultatgrunnlag totrinnsresultatgrunnlag = new Totrinnresultatgrunnlag(behandling,

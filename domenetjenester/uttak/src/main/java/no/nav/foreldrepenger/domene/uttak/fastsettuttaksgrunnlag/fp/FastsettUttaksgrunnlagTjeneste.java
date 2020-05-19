@@ -17,8 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.EndringsdatoRevurderingUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -29,7 +29,7 @@ import no.nav.vedtak.util.Tuple;
 @Dependent
 public class FastsettUttaksgrunnlagTjeneste {
 
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private EndringsdatoFørstegangsbehandlingUtleder endringsdatoFørstegangsbehandlingUtleder;
     private EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder;
@@ -41,7 +41,7 @@ public class FastsettUttaksgrunnlagTjeneste {
     public FastsettUttaksgrunnlagTjeneste(UttakRepositoryProvider provider,
                                           EndringsdatoFørstegangsbehandlingUtleder endringsdatoFørstegangsbehandlingUtleder,
                                           @FagsakYtelseTypeRef("FP") EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder) {
-        this.uttakRepository = provider.getUttakRepository();
+        this.fpUttakRepository = provider.getFpUttakRepository();
         this.ytelsesFordelingRepository = provider.getYtelsesFordelingRepository();
         this.endringsdatoFørstegangsbehandlingUtleder = endringsdatoFørstegangsbehandlingUtleder;
         this.endringsdatoRevurderingUtleder = endringsdatoRevurderingUtleder;
@@ -128,7 +128,7 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     private boolean behandlingHarUttaksresultat(Long forrigeBehandlingId) {
-        return uttakRepository.hentUttakResultatHvisEksisterer(forrigeBehandlingId).isPresent();
+        return fpUttakRepository.hentUttakResultatHvisEksisterer(forrigeBehandlingId).isPresent();
     }
 
     private AvklarteUttakDatoerEntitet avklarteDatoerMedEndringsdato(Long behandlingId, LocalDate endringsdato) {
@@ -139,7 +139,7 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private List<OppgittPeriodeEntitet> kopierVedtaksperioderFomEndringsdato(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate endringsdato, Long forrigeBehandling) {
         //Kopier vedtaksperioder fom endringsdato.
-        UttakResultatEntitet uttakResultatEntitet = uttakRepository.hentUttakResultat(forrigeBehandling);
+        UttakResultatEntitet uttakResultatEntitet = fpUttakRepository.hentUttakResultat(forrigeBehandling);
         return vedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato);
     }
 

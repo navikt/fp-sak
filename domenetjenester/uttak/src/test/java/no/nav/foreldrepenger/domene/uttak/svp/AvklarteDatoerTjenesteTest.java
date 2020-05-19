@@ -48,7 +48,8 @@ public class AvklarteDatoerTjenesteTest {
 
     @Before
     public void setup() {
-        avklarteDatoerTjeneste = new AvklarteDatoerTjeneste(repositoryProvider, basisPersonopplysningTjeneste, inntektsmeldingTjeneste);
+        avklarteDatoerTjeneste = new AvklarteDatoerTjeneste(repositoryProvider.getUttaksperiodegrenseRepository(),
+            basisPersonopplysningTjeneste, inntektsmeldingTjeneste);
         grunnlagOppretter = new GrunnlagOppretter(repositoryProvider);
     }
 

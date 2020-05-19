@@ -22,7 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
@@ -45,7 +46,8 @@ public class EndringsresultatSjekker {
 
     private OpptjeningRepository opptjeningRepository;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     EndringsresultatSjekker() {
         // For CDI
@@ -66,7 +68,8 @@ public class EndringsresultatSjekker {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.opptjeningRepository = provider.getOpptjeningRepository();
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
-        this.uttakRepository = provider.getUttakRepository();
+        this.fpUttakRepository = provider.getFpUttakRepository();
+        this.uttaksperiodegrenseRepository = provider.getUttaksperiodegrenseRepository();
     }
 
     public EndringsresultatSnapshot opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(Long behandlingId) {
@@ -116,8 +119,8 @@ public class EndringsresultatSjekker {
 
         snapshot.leggTil(opptjeningRepository.finnAktivGrunnlagId(behandling));
         snapshot.leggTil(finnAktivBeregningsgrunnlagGrunnlagAggregatId(behandlingId));
-        snapshot.leggTil(uttakRepository.finnAktivAggregatId(behandling.getId()));
-        snapshot.leggTil(uttakRepository.finnAktivUttakPeriodeGrenseAggregatId(behandling.getId()));
+        snapshot.leggTil(fpUttakRepository.finnAktivAggregatId(behandling.getId()));
+        snapshot.leggTil(uttaksperiodegrenseRepository.finnAktivAggregatId(behandling.getId()));
 
         // Resultatstrukturene nedenfor støtter ikke paradigme med "aktivt" grunnlag som kan identifisere med id
         // Aksepterer her at endringssjekk heller utledes av deres tidsstempel forutsatt at metoden ikke brukes i

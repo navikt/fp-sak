@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.uttak.svp.FørsteLovligeUttaksdatoTjeneste;
 
 //TODO(SVP-team) rename steget.. skal ikke ha ytelsespsifikke stegnavn..
@@ -30,7 +30,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
 
     private SøktPeriodeTjeneste søktPeriodeTjeneste;
     private FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste;
-    private UttakRepository uttakRepository;
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
     private UttakInputTjeneste uttakInputTjeneste;
 
     public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg() {
@@ -45,7 +45,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.søktPeriodeTjeneste = søktPeriodeTjeneste;
         this.førsteLovligeUttaksdatoTjeneste = førsteLovligeUttaksdatoTjeneste;
-        this.uttakRepository = behandlingRepositoryProvider.getUttakRepository();
+        this.uttaksperiodegrenseRepository = behandlingRepositoryProvider.getUttaksperiodegrenseRepository();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
         if (!Objects.equals(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER, førsteSteg)) {
-            uttakRepository.ryddUttaksperiodegrense(kontekst.getBehandlingId());
+            uttaksperiodegrenseRepository.ryddUttaksperiodegrense(kontekst.getBehandlingId());
         }
     }
 }

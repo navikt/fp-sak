@@ -111,8 +111,8 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuil
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personstatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -742,7 +742,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         // opprett og lagre resulater på behandling
         lagreBehandlingsresultatOgVilkårResultat(repositoryProvider, lås);
-        lagreUttak(repositoryProvider.getUttakRepository());
+        lagreUttak(repositoryProvider.getFpUttakRepository());
         builder.medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
             .medAvslagsårsak(Avslagsårsak.ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR).buildFor(behandling);
 
@@ -896,7 +896,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         lagreSøknad(repositoryProvider);
         // opprett og lagre resulater på behandling
         lagreBehandlingsresultatOgVilkårResultat(repositoryProvider, lås);
-        lagreUttak(repositoryProvider.getUttakRepository());
+        lagreUttak(repositoryProvider.getFpUttakRepository());
 
         if (this.opplysningerOppdatertTidspunkt != null) {
             behandlingRepo.oppdaterSistOppdatertTidspunkt(this.behandling, this.opplysningerOppdatertTidspunkt);
@@ -1064,12 +1064,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         }
     }
 
-    private void lagreUttak(UttakRepository uttakRepository) {
+    private void lagreUttak(FpUttakRepository fpUttakRepository) {
         if (uttak == null) {
             return;
         }
 
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
     }
 
     @SuppressWarnings("unchecked")

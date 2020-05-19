@@ -25,12 +25,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -51,14 +51,14 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     private static final Logger log = LoggerFactory.getLogger(EndringsdatoRevurderingUtlederImpl.class);
     private static final Comparator<LocalDate> LOCAL_DATE_COMPARATOR = Comparator.comparing(LocalDate::toEpochDay);
 
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private DekningsgradTjeneste dekningsgradTjeneste;
 
     @Inject
     public EndringsdatoRevurderingUtlederImpl(UttakRepositoryProvider repositoryProvider,
                                               DekningsgradTjeneste dekningsgradTjeneste) {
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
@@ -86,7 +86,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         LocalDate endringsdato = finnFørsteDato(endringsdatoTypeEnumSet, ref, fpGrunnlag);
         // Sjekk om endringsdato overlapper med tidligere vedtak. Hvis periode i tidligere vedtak er manuelt behandling så skal endringsdato flyttes
         // start av perioden
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(finnForrigeBehandling(ref));
+        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(finnForrigeBehandling(ref));
         if (uttakResultat.isEmpty()) {
             return Optional.of(endringsdato);
         }
@@ -202,7 +202,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private boolean forrigeBehandlingHarUttaksresultat(BehandlingReferanse revurdering) {
-        return uttakRepository.hentUttakResultatHvisEksisterer(finnForrigeBehandling(revurdering)).isPresent();
+        return fpUttakRepository.hentUttakResultatHvisEksisterer(finnForrigeBehandling(revurdering)).isPresent();
     }
 
     private boolean fødselHarSkjeddSidenForrigeBehandling(ForeldrepengerGrunnlag fpGrunnlag) {
@@ -212,7 +212,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private Optional<LocalDate> finnFørsteUttaksdato(Long behandlingId) {
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
+        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
         if (uttakResultat.isEmpty()) {
             return Optional.empty();
         }
@@ -230,7 +230,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private Optional<LocalDate> finnSisteUttaksdatoGjeldendeVedtak(Long revurderingId) {
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(revurderingId);
+        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(revurderingId);
         if (uttakResultat.isEmpty()) {
             return Optional.empty();
         }
@@ -270,7 +270,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     private boolean arbeidsforholdRelevantForUttakErEndret(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         var forrigeBehandling = finnForrigeBehandling(ref);
-        var uttakForrigeBehandling = uttakRepository.hentUttakResultatHvisEksisterer(forrigeBehandling);
+        var uttakForrigeBehandling = fpUttakRepository.hentUttakResultatHvisEksisterer(forrigeBehandling);
         if (uttakForrigeBehandling.isEmpty()) {
             return false;
         }

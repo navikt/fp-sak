@@ -67,7 +67,7 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
             .medBegrunnelse(dto.getBegrunnelse(),param.erBegrunnelseEndret());
 
         if (dto.harGyldigGrunn()) {
-            Uttaksperiodegrense uttaksperiodegrense = repositoryProvider.getUttakRepository().hentUttaksperiodegrense(param.getBehandlingId());
+            Uttaksperiodegrense uttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository().hent(param.getBehandlingId());
             LocalDate lagretMottattDato = uttaksperiodegrense.getMottattDato();
             LocalDate tidligereAnseesMottattDato = søknad.getMottattDato().equals(lagretMottattDato) ? null : lagretMottattDato;
             LocalDate dtoMottattDato = dto.getAnsesMottattDato();

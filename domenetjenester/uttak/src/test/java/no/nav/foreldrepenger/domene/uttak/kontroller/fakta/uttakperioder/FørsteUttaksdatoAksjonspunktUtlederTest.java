@@ -23,8 +23,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -204,7 +204,7 @@ public class FørsteUttaksdatoAksjonspunktUtlederTest {
     private LocalDate getFørsteUttakDatoIGjeldendeBehandling(Behandling behandling) {
         Optional<Behandling> originalBehandling = behandling.getOriginalBehandling();
         if (originalBehandling.isPresent()) {
-            Optional<UttakResultatEntitet> gjeldendeUttakResultat = repositoryProvider.getUttakRepository().hentUttakResultatHvisEksisterer(originalBehandling.get().getId());
+            Optional<UttakResultatEntitet> gjeldendeUttakResultat = repositoryProvider.getFpUttakRepository().hentUttakResultatHvisEksisterer(originalBehandling.get().getId());
             if (gjeldendeUttakResultat.isPresent()) {
                 Optional<UttakResultatPeriodeEntitet> førsteUttaksdatoGjeldendeVedtak = gjeldendeUttakResultat.get().getGjeldendePerioder().getPerioder()
                     .stream()

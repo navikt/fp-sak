@@ -40,16 +40,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -83,7 +83,7 @@ public class ErEndringIUttakFraEndringsdatoTest {
 
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     private BeregningsresultatRepository beregningsresultatRepository;
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
     private EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(EndringsdatoRevurderingUtlederImpl.class);
 
     private Behandling behandlingSomSkalRevurderes;
@@ -92,7 +92,7 @@ public class ErEndringIUttakFraEndringsdatoTest {
 
     @Before
     public void setUp() {
-        uttakRepository = repositoryProvider.getUttakRepository();
+        fpUttakRepository = repositoryProvider.getFpUttakRepository();
         beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingVedtak()
@@ -129,7 +129,7 @@ public class ErEndringIUttakFraEndringsdatoTest {
             new LocalDateInterval(endringsdato, endringsdato.plusDays(5)),
             false, PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT, true, false, List.of(100), List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.FORELDREPENGER));
         UttakResultatEntitet uttakResultat = uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder).build();
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), uttakResultat.getGjeldendePerioder());
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), uttakResultat.getGjeldendePerioder());
 
         var holder = new UttakResultatHolderImpl(Optional.of(map(uttakResultat)), null);
         var uttaksperioder = UttakResultatHolderImpl.finnUttaksperioderEtterEndringsdato(endringsdato, holder);
@@ -158,7 +158,7 @@ public class ErEndringIUttakFraEndringsdatoTest {
             new LocalDateInterval(endringsdato.plusDays(10), endringsdato.plusDays(50)),
             false, PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT, true, false, List.of(100), List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.FORELDREPENGER));
         UttakResultatEntitet uttakResultat = uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder).build();
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), uttakResultat.getGjeldendePerioder());
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), uttakResultat.getGjeldendePerioder());
 
         var holder = new UttakResultatHolderImpl(Optional.of(map(uttakResultat)), null);
         var uttaksperioder = UttakResultatHolderImpl.finnUttaksperioderEtterEndringsdato(endringsdato, holder);
@@ -557,7 +557,7 @@ public class ErEndringIUttakFraEndringsdatoTest {
                 samtidigUttak.get(i), periodeResultatTyper.get(i), periodeResultatÅrsak.get(i), graderingInnvilget.get(i), erFlerbarnsdager.get(i), andelIArbeid, utbetalingsgrad, trekkdager, stønadskontoTyper);
         }
         UttakResultatEntitet uttakResultat = uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder).build();
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultat.getGjeldendePerioder());
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultat.getGjeldendePerioder());
         return uttakResultat;
 
     }

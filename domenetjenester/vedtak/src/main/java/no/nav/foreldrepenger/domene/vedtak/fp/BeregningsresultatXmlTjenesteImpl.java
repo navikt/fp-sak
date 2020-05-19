@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.xml.vedtak.v2.Beregningsresultat;
 @ApplicationScoped
 public class BeregningsresultatXmlTjenesteImpl extends BeregningsresultatXmlTjeneste {
 
-    private UttakXmlTjenesteImpl uttakXmlTjeneste;
+    private UttakXmlTjeneste uttakXmlTjeneste;
 
     public BeregningsresultatXmlTjenesteImpl() {
         //For CDI
@@ -23,7 +23,7 @@ public class BeregningsresultatXmlTjenesteImpl extends BeregningsresultatXmlTjen
     @Inject
     public BeregningsresultatXmlTjenesteImpl(@FagsakYtelseTypeRef("FP") BeregningsgrunnlagXmlTjeneste beregningsgrunnlagXmlTjeneste,
                                                        @FagsakYtelseTypeRef("FP") YtelseXmlTjeneste ytelseXmlTjeneste,
-                                                       @FagsakYtelseTypeRef("FP") UttakXmlTjenesteImpl uttakXmlTjeneste) {
+                                                       @FagsakYtelseTypeRef("FP") UttakXmlTjeneste uttakXmlTjeneste) {
         super(beregningsgrunnlagXmlTjeneste, ytelseXmlTjeneste);
         this.uttakXmlTjeneste = uttakXmlTjeneste;
     }

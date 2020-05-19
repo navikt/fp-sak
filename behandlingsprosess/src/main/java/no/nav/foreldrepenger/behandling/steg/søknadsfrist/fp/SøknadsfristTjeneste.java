@@ -38,7 +38,7 @@ public class SøknadsfristTjeneste {
      */
     @Inject
     public SøknadsfristTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                              @KonfigVerdi(value = "fp.søknadfrist.etter.første.uttaksdag", defaultVerdi = "P3M") Period søknadsfristEtterFørsteUttaksdag) {
+                                @KonfigVerdi(value = "fp.søknadfrist.etter.første.uttaksdag", defaultVerdi = "P3M") Period søknadsfristEtterFørsteUttaksdag) {
         this.repositoryProvider = repositoryProvider;
         this.søknadsfristEtterFørsteUttaksdag = søknadsfristEtterFørsteUttaksdag;
     }
@@ -48,7 +48,7 @@ public class SøknadsfristTjeneste {
         YtelseFordelingAggregat fordelingAggregat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
         List<OppgittPeriodeEntitet> oppgittePerioder = fordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder();
         //Ingen perioder betyr behandling ut ny søknad. Trenger ikke å sjekke søknadsfrist på nytt ettersom uttaksperiodegrense er kopiert fra forrige behandling
-        if (oppgittePerioder.isEmpty()){
+        if (oppgittePerioder.isEmpty()) {
             return Optional.empty();
         }
 
@@ -63,7 +63,7 @@ public class SøknadsfristTjeneste {
             .medSporingInput(resultat.getInnsendtGrunnlag())
             .medSporingRegel(resultat.getEvalueringResultat())
             .build();
-        repositoryProvider.getUttakRepository().lagreUttaksperiodegrense(behandling.getId(), uttaksperiodegrense);
+        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), uttaksperiodegrense);
 
 
         Optional<String> årsakKode = resultat.getÅrsakKodeIkkeVurdert();
@@ -84,7 +84,7 @@ public class SøknadsfristTjeneste {
             Uttaksperiodegrense.Builder uttaksperiodegrenseBuilder = new Uttaksperiodegrense.Builder(behandlingsresultat)
                 .medMottattDato(adapter.getMottattDato())
                 .medFørsteLovligeUttaksdag(førsteLovligeUttaksdag);
-            repositoryProvider.getUttakRepository().lagreUttaksperiodegrense(behandling.getId(), uttaksperiodegrenseBuilder.build());
+            repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), uttaksperiodegrenseBuilder.build());
         }
     }
 

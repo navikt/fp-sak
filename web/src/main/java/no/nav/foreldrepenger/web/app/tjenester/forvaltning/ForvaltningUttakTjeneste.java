@@ -18,31 +18,31 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.uttak.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 
 @ApplicationScoped
 public class ForvaltningUttakTjeneste {
 
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private VilkårResultatRepository vilkårResultatRepository;
 
     @Inject
-    public ForvaltningUttakTjeneste(UttakRepository uttakRepository,
+    public ForvaltningUttakTjeneste(FpUttakRepository fpUttakRepository,
                                     BehandlingRepository behandlingRepository,
                                     BehandlingsresultatRepository behandlingsresultatRepository,
                                     BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                     VilkårResultatRepository vilkårResultatRepository) {
-        this.uttakRepository = uttakRepository;
+        this.fpUttakRepository = fpUttakRepository;
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
@@ -71,7 +71,7 @@ public class ForvaltningUttakTjeneste {
             perioder.leggTilPeriode(opphørPeriode(behandling, uttaksperiode));
         }
 
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, perioder);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, perioder);
     }
 
     private void kopierBeregningsgrunnlag(Behandling behandling) {
@@ -130,6 +130,6 @@ public class ForvaltningUttakTjeneste {
 
     private UttakResultatEntitet hentForrigeUttaksresultat(Behandling behandling) {
         var originalBehandling = behandling.getOriginalBehandling().orElseThrow();
-        return uttakRepository.hentUttakResultat(originalBehandling.getId());
+        return fpUttakRepository.hentUttakResultat(originalBehandling.getId());
     }
 }

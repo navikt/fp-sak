@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -96,7 +96,7 @@ public class AksjonspunktOppdatererTest {
         totrinnRepository = new TotrinnRepository(entityManager);
         var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(entityManager);
         var ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
-        var uttakRepository = new UttakRepository(entityManager);
+        var uttakRepository = new FpUttakRepository(entityManager);
         TotrinnTjeneste totrinnTjeneste = new TotrinnTjeneste(totrinnRepository);
         opprettTotrinnsgrunnlag = new OpprettToTrinnsgrunnlag(
             beregningsgrunnlagTjeneste,

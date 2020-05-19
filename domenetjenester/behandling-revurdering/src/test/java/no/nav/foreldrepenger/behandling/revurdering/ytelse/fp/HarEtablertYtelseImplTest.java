@@ -33,10 +33,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -89,7 +89,7 @@ public class HarEtablertYtelseImplTest {
         repositoryProvider.getVirksomhetRepository().lagre(virksomhet);
         stønadskontoSaldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
         harEtablertYtelse = new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()), repositoryProvider.getBehandlingVedtakRepository());
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), repositoryProvider.getBehandlingVedtakRepository());
     }
 
     @Test
@@ -121,7 +121,7 @@ public class HarEtablertYtelseImplTest {
                 .lagre(repositoryProvider);
             repositoryProvider.getFagsakRepository().oppdaterFagsakStatus(behandlingAnnenpart.getFagsakId(), FagsakStatus.LØPENDE);
             repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(originalBehandling.getFagsak(), behandlingAnnenpart.getFagsak(), originalBehandling);
-            repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(behandlingAnnenpart.getId(), uttakAnnenpart.get().getOpprinneligPerioder());
+            repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandlingAnnenpart.getId(), uttakAnnenpart.get().getOpprinneligPerioder());
             behandlingAnnenpart.avsluttBehandling();
             repositoryProvider.getBehandlingRepository().lagre(behandlingAnnenpart, repositoryProvider.getBehandlingLåsRepository().taLås(behandlingAnnenpart.getId()));
         });
@@ -246,7 +246,7 @@ public class HarEtablertYtelseImplTest {
                                                                    List<Boolean> graderingInnvilget, List<Integer> andelIArbeid,
                                                                    List<Integer> utbetalingsgrad, List<Trekkdager> trekkdager, List<StønadskontoType> stønadskontoTyper) {
         UttakResultatEntitet uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanTjeneste(behandling, perioder, samtidigUttak, periodeResultatTyper, periodeResultatÅrsak, graderingInnvilget, andelIArbeid, utbetalingsgrad, trekkdager, stønadskontoTyper);
-        repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakresultat.getGjeldendePerioder());
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakresultat.getGjeldendePerioder());
         return uttakresultat;
 
     }

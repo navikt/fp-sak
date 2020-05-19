@@ -54,7 +54,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest {
 
     private FaktaUttakHistorikkTjeneste faktaUttakHistorikkTjeneste;
     private FaktaUttakToTrinnsTjeneste faktaUttakToTrinnsTjeneste = new FaktaUttakToTrinnsTjeneste(ytelseFordelingTjeneste);
-    private FørsteUttaksdatoTjenesteImpl førsteUttaksdatoTjeneste = new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste, new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()));
+    private FørsteUttaksdatoTjenesteImpl førsteUttaksdatoTjeneste = new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
     private KontrollerOppgittFordelingTjeneste kontrollerOppgittFordelingTjeneste = new KontrollerOppgittFordelingTjeneste(ytelseFordelingTjeneste, repositoryProvider, førsteUttaksdatoTjeneste);
 
     @Before
