@@ -27,7 +27,6 @@ public class SakOgBehandlingHendelseProducer {
 
     private static final Logger LOG = LoggerFactory.getLogger(SakOgBehandlingHendelseProducer.class);
 
-    private static final String CALLID_NAME = "Nav-CallId";
     private String topic;
     private Producer<String, String> producer;
 
@@ -68,29 +67,11 @@ public class SakOgBehandlingHendelseProducer {
         }
     }
 
-
     private Producer<String, String> createProducer(Properties properties) {
         LOG.info("Oppretter producer for topic='{}', keyClass='{}', valueClass='{}'", topic, StringSerializer.class.getName(), StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         return new KafkaProducer<>(properties);
-    }
-
-/*
-    public void sendJsonMedNøkkel(String nøkkel, String json) {
-        String callId = MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId();
-        runProducerWithSingleJson(new ProducerRecord<>(topic, null, nøkkel, json, new RecordHeaders().add(CALLID_NAME, callId.getBytes()))); // NOSONAR
-    }
-*/
-
-
-    private String generatePayload(BehandlingStatus hendelse) {
-        return JsonObjectMapper.toJson(hendelse, SakOgBehandlingHendelseProducerFeil.FACTORY::kanIkkeSerialisere);
-    }
-
-
-    public void sendJson(String json) {
-        runProducerWithSingleJson(new ProducerRecord<>(topic, json));
     }
 
     public void sendJsonMedNøkkel(String nøkkel, String json) {
@@ -100,14 +81,5 @@ public class SakOgBehandlingHendelseProducer {
     private String getProducerClientId(String topicName) {
         return "KP-" + topicName;
     }
-
-    private String createUniqueBehandlingsId(String behandlingsId) {
-        return String.format("%s_%s", Fagsystem.FPSAK.getOffisiellKode(), behandlingsId);
-    }
-
-    private String createUniqueKey(String behandlingsId, String event) {
-        return String.format("%s_%s_%s", Fagsystem.FPSAK.getOffisiellKode(), behandlingsId, event);
-    }
-
 
 }

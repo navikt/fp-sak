@@ -7,7 +7,9 @@ import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -32,6 +34,9 @@ import no.nav.vedtak.util.env.Environment;
 public class SakOgBehandlingTask implements ProsessTaskHandler {
 
     public static final String TASKTYPE = "behandlingskontroll.oppdatersakogbehandling";
+
+    private static final Logger LOG = LoggerFactory.getLogger(SakOgBehandlingTask.class);
+
 
     public static final String BEHANDLINGS_TYPE_KODE_KEY = "behandlingsTypeKode";
     public static final String SAKSTEMA_KEY = "sakstemaKode";
@@ -83,7 +88,6 @@ public class SakOgBehandlingTask implements ProsessTaskHandler {
             }
             var dto = BehandlingStatusDto.getBuilder()
                 .medAktørId(behandling.getAktørId())
-                .medBehandlingEksternRef(behandling.getUuid())
                 .medBehandlingId(behandlingId)
                 .medSaksnummer(behandling.getFagsak().getSaksnummer())
                 .medBehandlingStatus(behandling.getStatus())
@@ -91,11 +95,16 @@ public class SakOgBehandlingTask implements ProsessTaskHandler {
                 .medBehandlingTema(BehandlingTema.fraFagsak(behandling.getFagsak(), familieHendelseRepository
                     .hentAggregatHvisEksisterer(behandlingId).map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElse(null)))
                 .medEnhet(behandling.getBehandlendeOrganisasjonsEnhet())
-                .medOriginalBehandling(behandling.getOriginalBehandling().map(Behandling::getId).orElse(null))
+                // Diskuter verdier vs applikasjonBehandlingREF og sjekk om de må har tidligere verdier for denne
+                // .medOriginalBehandling(behandling.getOriginalBehandling().map(Behandling::getId).orElse(null))
                 .medHendelsesTidspunkt(tidspunkt)
                 .build();
-            sakOgBehandlingTjeneste.behandlingStatusEndret(dto);
-            return;
+            try {
+                sakOgBehandlingTjeneste.behandlingStatusEndret(dto);
+                return;
+            } catch (Exception e) {
+                LOG.info("SOBKAFKA noe gikk feil for behandling {}", behandlingId, e);
+            }
         }
 
         String behandlingStatusKode = prosessTaskData.getPropertyValue(BEHANDLING_STATUS_KEY);
