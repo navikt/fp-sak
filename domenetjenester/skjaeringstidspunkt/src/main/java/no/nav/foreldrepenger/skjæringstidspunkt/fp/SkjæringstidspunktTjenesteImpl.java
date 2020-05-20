@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.fp;
 
-import static no.nav.foreldrepenger.behandlingslager.uttak.IkkeOppfyltÅrsak.SØKNADSFRIST;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak.SØKNADSFRIST;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -30,10 +30,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktFeil;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -47,7 +47,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     private FamilieHendelseRepository familieGrunnlagRepository;
     private SkjæringstidspunktUtils utlederUtils;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
     private OpptjeningRepository opptjeningRepository;
     private SøknadRepository søknadRepository;
     private BehandlingRepository behandlingRepository;
@@ -63,7 +63,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
                                           SkjæringstidspunktUtils utlederUtils) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -177,7 +177,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     private Optional<LocalDate> finnFørsteDatoIUttakResultat(Behandling behandling) {
-        final Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(originalBehandling(behandling).getId());
+        final Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandling(behandling).getId());
         List<UttakResultatPeriodeEntitet> uttakResultatPerioder = uttakResultat.map(UttakResultatEntitet::getGjeldendePerioder)
             .map(UttakResultatPerioderEntitet::getPerioder)
             .orElse(Collections.emptyList());

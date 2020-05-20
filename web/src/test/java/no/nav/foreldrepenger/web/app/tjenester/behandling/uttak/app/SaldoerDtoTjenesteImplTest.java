@@ -36,18 +36,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.InnvilgetÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -88,7 +88,7 @@ public class SaldoerDtoTjenesteImplTest {
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
 
     @Inject
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
 
     @Inject @FagsakYtelseTypeRef("FP")
     private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
@@ -147,7 +147,7 @@ public class SaldoerDtoTjenesteImplTest {
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         repositoryRule.getRepository().lagre(behandlingsresultatForMor);
 
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
         morsBehandling.avsluttBehandling();
         repositoryRule.getRepository().lagre(morsBehandling);
 
@@ -223,7 +223,7 @@ public class SaldoerDtoTjenesteImplTest {
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         repositoryRule.getRepository().lagre(behandlingsresultatForMor);
 
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
         morsBehandling.avsluttBehandling();
         repositoryRule.getRepository().lagre(morsBehandling);
 
@@ -282,7 +282,7 @@ public class SaldoerDtoTjenesteImplTest {
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         repositoryRule.getRepository().lagre(behandlingsresultatForMor);
 
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
         morsBehandling.avsluttBehandling();
         repositoryRule.getRepository().lagre(morsBehandling);
 
@@ -339,7 +339,7 @@ public class SaldoerDtoTjenesteImplTest {
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         repositoryRule.getRepository().lagre(behandlingsresultatForMor);
 
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
         morsBehandling.avsluttBehandling();
         repositoryRule.getRepository().lagre(morsBehandling);
 
@@ -457,7 +457,7 @@ public class SaldoerDtoTjenesteImplTest {
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhetForMor2.getOrgnr())).thenReturn(new VirksomhetEntitet.Builder().medOrgnr(virksomhetForMor2.getOrgnr()).oppdatertOpplysningerNå().build());
 
         SaldoerDtoTjeneste tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste,
-            new MaksDatoUttakTjenesteImpl(repositoryProvider.getUttakRepository(), stønadskontoSaldoTjeneste),
+            new MaksDatoUttakTjenesteImpl(repositoryProvider.getFpUttakRepository(), stønadskontoSaldoTjeneste),
             new ArbeidsgiverDtoTjeneste(arbeidsgiverTjeneste),
             stønadskontoRegelAdapter,
             repositoryProvider,

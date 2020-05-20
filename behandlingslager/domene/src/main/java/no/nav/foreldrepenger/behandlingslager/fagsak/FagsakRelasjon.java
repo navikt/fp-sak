@@ -18,7 +18,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "FagsakRelasjon")

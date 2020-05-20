@@ -9,9 +9,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderRevurderingUtil;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Vedtak;
 public class RevurderingGrunnlagBygger {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
 
     RevurderingGrunnlagBygger() {
         // CDI
@@ -33,9 +33,9 @@ public class RevurderingGrunnlagBygger {
 
     @Inject
     public RevurderingGrunnlagBygger(YtelsesFordelingRepository ytelsesFordelingRepository,
-                                     UttakRepository uttakRepository) {
+                                     FpUttakRepository fpUttakRepository) {
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
-        this.uttakRepository = uttakRepository;
+        this.fpUttakRepository = fpUttakRepository;
     }
 
     public Optional<Revurdering.Builder> byggGrunnlag(UttakInput input) {
@@ -61,7 +61,7 @@ public class RevurderingGrunnlagBygger {
     private List<UttakResultatPeriodeEntitet> finnGjeldendeUttaksperioderFørEndringsdato(UttakInput input, LocalDate endringsdato) {
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         var originalBehandling = fpGrunnlag.getOriginalBehandling().orElseThrow();
-        var gjeldendeUttak = uttakRepository.hentUttakResultatHvisEksisterer(originalBehandling.getId());
+        var gjeldendeUttak = fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandling.getId());
 
         if (gjeldendeUttak.isEmpty()) {
             return List.of();

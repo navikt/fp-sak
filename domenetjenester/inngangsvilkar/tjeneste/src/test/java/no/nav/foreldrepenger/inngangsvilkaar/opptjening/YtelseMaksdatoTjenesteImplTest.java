@@ -24,18 +24,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -105,7 +105,7 @@ public class YtelseMaksdatoTjenesteImplTest {
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         repository.lagre(behandlingsresultat);
 
-        repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), perioder);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), perioder);
 
         morsBehandling.avsluttBehandling();
         repository.lagre(morsBehandling);
@@ -223,7 +223,7 @@ public class YtelseMaksdatoTjenesteImplTest {
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         repository.lagre(behandlingsresultat);
 
-        repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), perioder);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), perioder);
 
         morsBehandling.avsluttBehandling();
         repository.lagre(morsBehandling);

@@ -96,7 +96,7 @@ public enum PeriodeResultatType implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();

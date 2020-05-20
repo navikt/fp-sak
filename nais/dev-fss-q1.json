@@ -19,6 +19,7 @@
     "KAFKA_RISIKOKLASSIFISERING_TOPIC": "privat-foreldrepenger-fprisk-utfor-q1",
     "KAFKA_KONTROLL_RESULTAT_TOPIC": "privat-foreldrepenger-kontroll-resultat-q1",
     "KAFKA_DOKUMENTBESTILLING_TOPIC": "privat-foreldrepenger-dokumenthendelse-q1",
+    "KAFKA_SAKOGBEHANDLING_TOPIC": "aapen-sob-oppgaveHendelse-v1",
     "SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.preprod.local",
     "SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/",
     "BOOTSTRAP_SERVERS": "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",

@@ -11,7 +11,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
@@ -25,7 +26,8 @@ public class UttakRepositoryProvider {
     private FagsakRepository fagsakRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
 
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -49,7 +51,8 @@ public class UttakRepositoryProvider {
             new FagsakLåsRepository(entityManager));
 
         // behandling aggregater
-        this.uttakRepository = new UttakRepository(entityManager);
+        this.fpUttakRepository = new FpUttakRepository(entityManager);
+        this.uttaksperiodegrenseRepository = new UttaksperiodegrenseRepository(entityManager);
         this.behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
 
         this.svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
@@ -68,8 +71,8 @@ public class UttakRepositoryProvider {
         return fagsakRelasjonRepository;
     }
 
-    public UttakRepository getUttakRepository() {
-        return uttakRepository;
+    public FpUttakRepository getFpUttakRepository() {
+        return fpUttakRepository;
     }
 
     public YtelsesFordelingRepository getYtelsesFordelingRepository() {
@@ -82,5 +85,9 @@ public class UttakRepositoryProvider {
 
     public SvangerskapspengerUttakResultatRepository getSvangerskapspengerUttakResultatRepository() {
         return svangerskapspengerUttakResultatRepository;
+    }
+
+    public UttaksperiodegrenseRepository getUttaksperiodegrenseRepository() {
+        return uttaksperiodegrenseRepository;
     }
 }

@@ -26,6 +26,10 @@ public class FastsatteVerdierDto {
     @Max(Integer.MAX_VALUE)
     private Integer fastsattÅrsbeløp;
 
+    @Min(0)
+    @Max(Integer.MAX_VALUE)
+    private Integer fastsattÅrsbeløpInklNaturalytelse;
+
     private Inntektskategori inntektskategori;
 
     private Boolean skalHaBesteberegning;
@@ -90,7 +94,14 @@ public class FastsatteVerdierDto {
         return fastsattÅrsbeløp;
     }
 
+    public Integer getFastsattÅrsbeløpInklNaturalytelse() {
+        return fastsattÅrsbeløpInklNaturalytelse;
+    }
+
     public BigDecimal finnEllerUtregnFastsattBeløpPrÅr() {
+        if (fastsattÅrsbeløpInklNaturalytelse != null) {
+            return BigDecimal.valueOf(fastsattÅrsbeløpInklNaturalytelse);
+        }
         if (fastsattÅrsbeløp != null) {
             return BigDecimal.valueOf(fastsattÅrsbeløp);
         }

@@ -333,6 +333,7 @@ public class OppdatererDtoMapper {
             .medInntektskategori(fastsatteVerdier.getInntektskategori() == null ? null : Inntektskategori.fraKode(fastsatteVerdier.getInntektskategori().getKode()))
             .medFastsattBeløpPrMnd(fastsatteVerdier.getFastsattBeløp())
             .medFastsattBeløpPrÅr(fastsatteVerdier.getFastsattÅrsbeløp())
+            .medFastsattBeløpPrÅrInklNaturalytelse(fastsatteVerdier.getFastsattÅrsbeløpInklNaturalytelse())
             .build();
     }
 

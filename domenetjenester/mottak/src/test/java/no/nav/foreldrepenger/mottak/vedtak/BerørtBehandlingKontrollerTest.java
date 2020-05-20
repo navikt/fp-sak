@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
@@ -65,7 +65,7 @@ public class BerørtBehandlingKontrollerTest {
     @Mock
     private BehandlingsresultatRepository behandlingsresultatRepository;
     @Mock
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
     @Mock
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     @Mock
@@ -99,7 +99,7 @@ public class BerørtBehandlingKontrollerTest {
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getBehandlingRevurderingRepository()).thenReturn(behandlingRevurderingRepository);
         when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
-        when(repositoryProvider.getUttakRepository()).thenReturn(uttakRepository);
+        when(repositoryProvider.getFpUttakRepository()).thenReturn(fpUttakRepository);
         when(repositoryProvider.getFagsakLåsRepository()).thenReturn(fagsakLåsRepository);
         when(repositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
         when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);

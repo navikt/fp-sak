@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent.Be
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
+import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -32,7 +33,7 @@ public class OppdaterSakOgBehandlingEventObserver {
     private BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
 
-    static final String FORELDREPENGER_SAKSTEMA = "FOR";
+    static final String FORELDREPENGER_SAKSTEMA = Tema.FOR.getOffisiellKode();
 
     @Inject
     public OppdaterSakOgBehandlingEventObserver(BehandlingRepositoryProvider repositoryProvider,

@@ -41,22 +41,22 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.GraderingAvslagÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.InnvilgetÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.ManuellBehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
-import no.nav.foreldrepenger.behandlingslager.uttak.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakUtsettelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -688,7 +688,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medArbeidsprosent(BigDecimal.TEN)
             .build();
         farUttakresultat.leggTilPeriode(farPeriode);
-        repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(farBehandling.getId(), farUttakresultat);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(farBehandling.getId(), farUttakresultat);
 
         OppgittPeriodeEntitet morUtsettelseRevurdering = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
@@ -1639,7 +1639,7 @@ public class FastsettePerioderRegelAdapterTest {
     private void lagreUttaksperiodegrense(Behandling behandling) {
         Uttaksperiodegrense grense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
             .medFørsteLovligeUttaksdag(førsteLovligeUttaksdato).medMottattDato(mottattDato).build();
-        repositoryProvider.getUttakRepository().lagreUttaksperiodegrense(behandling.getId(), grense);
+        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), grense);
     }
 
     private Behandling setupMor(OppgittPeriodeEntitet oppgittPeriode,

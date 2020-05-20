@@ -12,9 +12,9 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 @ApplicationScoped
 public class FastsettUttakManueltAksjonspunktUtleder {
 
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
 
     FastsettUttakManueltAksjonspunktUtleder() {
         //CDI
@@ -31,7 +31,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
 
     @Inject
     FastsettUttakManueltAksjonspunktUtleder(UttakRepositoryProvider repositoryProvider){
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
     }
 
     public List<AksjonspunktResultat> utledAksjonspunkterFor(UttakInput input) {
@@ -48,7 +48,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
     }
 
     private Optional<AksjonspunktResultat> utledAksjonspunktForManuellBehandlingFraRegler(Long behandlingId) {
-        UttakResultatEntitet uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(behandlingId).orElseThrow();
+        UttakResultatEntitet uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId).orElseThrow();
         for (UttakResultatPeriodeEntitet periode : uttakResultat.getGjeldendePerioder().getPerioder()) {
             if (periode.getResultatType().equals(PeriodeResultatType.MANUELL_BEHANDLING)){
                 return Optional.of(fastsettUttakAksjonspunkt());
@@ -88,7 +88,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
 
     private boolean aktivitetErTilknyttetStortinget(Yrkesaktivitet yrkesaktivitet) {
         return yrkesaktivitet.getArbeidsgiver().getOrgnr() != null
-            && !uttakRepository.finnOrgManuellÅrsak(yrkesaktivitet.getArbeidsgiver().getOrgnr()).isEmpty();
+            && !fpUttakRepository.finnOrgManuellÅrsak(yrkesaktivitet.getArbeidsgiver().getOrgnr()).isEmpty();
     }
 
 }

@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 
 public class UttakDto {
     private final String stonadskontoType;

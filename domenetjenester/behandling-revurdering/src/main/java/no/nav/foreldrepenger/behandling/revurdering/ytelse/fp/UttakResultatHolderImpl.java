@@ -12,8 +12,8 @@ import org.jboss.weld.exceptions.UnsupportedOperationException;
 
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.uttak.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 

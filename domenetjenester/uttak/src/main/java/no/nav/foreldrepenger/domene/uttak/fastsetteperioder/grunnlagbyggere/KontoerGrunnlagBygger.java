@@ -8,7 +8,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Konto;

@@ -20,10 +20,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.InnvilgetÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
@@ -238,7 +238,7 @@ public class TapendeBehandlingTjenesteTest {
             .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         var uttak = new UttakResultatPerioderEntitet();
-        repositoryProvider.getUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
         uttak.leggTilPeriode(uttaksperiode);
         behandling.avsluttBehandling();
         var lås = repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId());
@@ -255,6 +255,6 @@ public class TapendeBehandlingTjenesteTest {
 
     private TapendeBehandlingTjeneste tjeneste() {
         return new TapendeBehandlingTjeneste(repositoryProvider.getSøknadRepository(), new RelatertBehandlingTjeneste(repositoryProvider),
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()));
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
     }
 }

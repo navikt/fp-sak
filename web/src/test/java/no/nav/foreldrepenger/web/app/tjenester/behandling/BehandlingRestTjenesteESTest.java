@@ -74,7 +74,7 @@ public class BehandlingRestTjenesteESTest {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         BehandlingDtoTjeneste behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste,
             tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()), null);
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), null);
 
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningApplikasjonTjeneste,
             behandlingsoppretterApplikasjonTjeneste,

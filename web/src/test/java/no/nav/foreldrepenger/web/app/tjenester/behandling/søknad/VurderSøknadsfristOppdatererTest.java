@@ -22,8 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -37,8 +37,7 @@ public class VurderSøknadsfristOppdatererTest {
     private SøknadsfristTjeneste tjeneste;
     private HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
     private ScenarioMorSøkerForeldrepenger scenario;
-    private BehandlingRepositoryProvider behandlingRepositoryProvider;
-    private UttakRepository uttakRepository;
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
     private VurderSøknadsfristOppdaterer oppdaterer;
 
 
@@ -55,9 +54,9 @@ public class VurderSøknadsfristOppdatererTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST,
             BehandlingStegType.SØKNADSFRIST_FORELDREPENGER);
 
-        behandlingRepositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        uttakRepository = mock(UttakRepository.class);
-        when(behandlingRepositoryProvider.getUttakRepository()).thenReturn(uttakRepository);
+        BehandlingRepositoryProvider behandlingRepositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        uttaksperiodegrenseRepository = mock(UttaksperiodegrenseRepository.class);
+        when(behandlingRepositoryProvider.getUttaksperiodegrenseRepository()).thenReturn(uttaksperiodegrenseRepository);
 
         tjeneste = mock(SøknadsfristTjeneste.class);
 
@@ -124,7 +123,7 @@ public class VurderSøknadsfristOppdatererTest {
         Uttaksperiodegrense uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
             .medFørsteLovligeUttaksdag(mottattDato.minusMonths(3).withDayOfMonth(1))
             .medMottattDato(mottattDato).build();
-        when(uttakRepository.hentUttaksperiodegrense(anyLong())).thenReturn(uttaksperiodegrense);
+        when(uttaksperiodegrenseRepository.hent(anyLong())).thenReturn(uttaksperiodegrense);
         return behandling;
     }
 }

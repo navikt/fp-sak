@@ -7,11 +7,6 @@ import static org.mockito.Mockito.verify;
 import org.junit.Before;
 import org.junit.Test;
 
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.AvsluttetBehandlingStatus;
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.OpprettetBehandlingStatus;
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.SakOgBehandlingAdapter;
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.SakOgBehandlingTjeneste;
-
 public class SakOgBehandlingTjenesteTest {
 
     private SakOgBehandlingTjeneste tjeneste; // objektet vi tester
@@ -20,7 +15,7 @@ public class SakOgBehandlingTjenesteTest {
     @Before
     public void setup() {
         mockAdapter = mock(SakOgBehandlingAdapter.class);
-        tjeneste = new SakOgBehandlingTjeneste(mockAdapter);
+        tjeneste = new SakOgBehandlingTjeneste(mockAdapter, null);
     }
 
     @Test

@@ -129,7 +129,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
             .medFørsteLovligeUttaksdag(LocalDate.now())
             .medMottattDato(LocalDate.now())
             .build();
-        repositoryProvider.getUttakRepository().lagreUttaksperiodegrense(originalBehandling.getId(), uttaksperiodegrense);
+        repositoryProvider.getUttaksperiodegrenseRepository().lagre(originalBehandling.getId(), uttaksperiodegrense);
         // Legg til Opptjeningsperidoe -> dessverre ikke tilgjengelig i scenariobygger
         repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(originalBehandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
         //Legg til fordelingsperiode

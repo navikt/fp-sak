@@ -13,9 +13,9 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 @FagsakYtelseTypeRef("FP")
 public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
 
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
 
     MaksDatoUttakTjenesteImpl() {
@@ -36,15 +36,15 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
     }
 
     @Inject
-    public MaksDatoUttakTjenesteImpl(UttakRepository uttakRepository,
+    public MaksDatoUttakTjenesteImpl(FpUttakRepository fpUttakRepository,
                                      StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
-        this.uttakRepository = uttakRepository;
+        this.fpUttakRepository = fpUttakRepository;
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
     }
 
     public Optional<LocalDate> beregnMaksDatoUttak(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
-        Optional<UttakResultatEntitet> uttakResultat = uttakRepository.hentUttakResultatHvisEksisterer(ref.getBehandlingId());
+        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(ref.getBehandlingId());
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         Optional<UttakResultatEntitet> annenpartResultat = annenPartUttak(foreldrepengerGrunnlag);
 
@@ -68,7 +68,7 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
     private Optional<UttakResultatEntitet> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         var annenpart = foreldrepengerGrunnlag.getAnnenpart();
         if (annenpart.isPresent()) {
-            return uttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
+            return fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
         }
         return Optional.empty();
     }
