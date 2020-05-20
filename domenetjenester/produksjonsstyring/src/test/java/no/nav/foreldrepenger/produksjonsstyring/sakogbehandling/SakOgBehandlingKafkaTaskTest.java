@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.JsonObjectMapper;
@@ -63,7 +64,7 @@ public class SakOgBehandlingKafkaTaskTest {
         String key = captorKey.getValue();
         String value = captorVal.getValue();
         BehandlingOpprettet roundtrip = JsonObjectMapper.fromJson(value, BehandlingOpprettet.class);
-        assertThat(roundtrip.getApplikasjonSakREF()).isEqualToIgnoringCase(fagsak.getSaksnummer().getVerdi());
+        assertThat(roundtrip.getBehandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
     }
 
     @Test
@@ -88,7 +89,7 @@ public class SakOgBehandlingKafkaTaskTest {
         String key = captorKey.getValue();
         String value = captorVal.getValue();
         BehandlingAvsluttet roundtrip = JsonObjectMapper.fromJson(value, BehandlingAvsluttet.class);
-        assertThat(roundtrip.getApplikasjonSakREF()).isEqualToIgnoringCase(fagsak.getSaksnummer().getVerdi());
+        assertThat(roundtrip.getBehandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
         assertThat(roundtrip.getAvslutningsstatus().getValue()).isEqualTo("ok");
     }
 

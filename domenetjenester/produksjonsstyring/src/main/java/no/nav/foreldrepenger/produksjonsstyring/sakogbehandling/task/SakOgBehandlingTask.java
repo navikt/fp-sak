@@ -122,7 +122,7 @@ public class SakOgBehandlingTask implements ProsessTaskHandler {
             .hendelsesTidspunkt(dto.getHendelsesTidspunkt());
 
         // OBS setter ikke feltet primaerBehandlingREF - etter diskusjon med SOB og Kvernstuen
-        // OBS applikasjonSakREF applikasjonBehandlingREF settes ikke - fordi de ikke var satt i MQ-tiden
+        // OBS applikasjonSakREF applikasjonBehandlingREF settes ikke - fordi de ikke var satt i MQ-tiden. Feedback fra SOB
 
         LOG.info("SOBKAFKA sender behandlingsstatus {}", dto);
 
