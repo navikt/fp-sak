@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.observer;
+package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -20,31 +20,27 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.SakOgBehandlingTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.JsonObjectMapper;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducer;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
-@SuppressWarnings("deprecation")
-public class OppdaterSakOgBehandlingEventObserverKafkaTest {
+public class SakOgBehandlingKafkaTaskTest {
 
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private SakOgBehandlingTask observer;
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
 
-    private SakOgBehandlingTjeneste sakOgBehandlingTjeneste;
     private SakOgBehandlingHendelseProducer producer;
 
     @Before
     public void setup() {
 
         producer = mock(SakOgBehandlingHendelseProducer.class);
-        sakOgBehandlingTjeneste = new SakOgBehandlingTjeneste(null, producer);
 
-        observer = new SakOgBehandlingTask(sakOgBehandlingTjeneste, repositoryProvider, true);
+        observer = new SakOgBehandlingTask(producer, repositoryProvider);
     }
 
     @Test

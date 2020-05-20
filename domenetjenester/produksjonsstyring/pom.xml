@@ -47,14 +47,6 @@
         </dependency>
         
         <dependency>
-            <groupId>no.nav.tjenestespesifikasjoner</groupId>
-            <artifactId>nav-virksomhet-hendelsehandterer-behandlingstatus-v1-meldingsdefinisjon</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>felles-integrasjon-jms</artifactId>
-        </dependency>
-        <dependency>
             <groupId>no.nav.virksomhetsstyring.sakogbehandling-kafka-dto</groupId>
             <artifactId>contract-sob-dto</artifactId>
         </dependency>
