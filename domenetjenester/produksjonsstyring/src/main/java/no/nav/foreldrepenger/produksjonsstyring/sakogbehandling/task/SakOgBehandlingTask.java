@@ -117,13 +117,12 @@ public class SakOgBehandlingTask implements ProsessTaskHandler {
             .behandlingsID(createUniqueBehandlingsId(String.valueOf(dto.getBehandlingId())))
             .aktoerREF(List.of(new Aktoer(dto.getAktørId().getId())))
             .ansvarligEnhetREF(dto.getEnhet().getEnhetId())
-            .applikasjonSakREF(dto.getSaksnummer().getVerdi())
-            .applikasjonBehandlingREF(String.valueOf(dto.getBehandlingId()))
             .hendelsesId(callId)
             .hendelsesprodusentREF(Applikasjoner.builder().value(Fagsystem.FPSAK.getOffisiellKode()).build())
             .hendelsesTidspunkt(dto.getHendelsesTidspunkt());
 
         // OBS setter ikke feltet primaerBehandlingREF - etter diskusjon med SOB og Kvernstuen
+        // OBS applikasjonSakREF applikasjonBehandlingREF settes ikke - fordi de ikke var satt i MQ-tiden
 
         LOG.info("SOBKAFKA sender behandlingsstatus {}", dto);
 
