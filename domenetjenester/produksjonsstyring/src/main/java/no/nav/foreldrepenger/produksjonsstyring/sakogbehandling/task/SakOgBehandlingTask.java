@@ -48,7 +48,8 @@ public class SakOgBehandlingTask implements ProsessTaskHandler {
     private SakOgBehandlingTjeneste sakOgBehandlingTjeneste;
     private BehandlingRepository behandlingRepository;
     private FamilieHendelseRepository familieHendelseRepository;
-    private boolean isDev;
+    private boolean brukKafka;
+    private boolean erProd;
 
     SakOgBehandlingTask() {
         //for CDI proxy
@@ -60,22 +61,24 @@ public class SakOgBehandlingTask implements ProsessTaskHandler {
         this.sakOgBehandlingTjeneste = sakOgBehandlingTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.isDev = Cluster.DEV_FSS.equals(Environment.current().getCluster());
+        this.brukKafka = !(Cluster.DEV_FSS.equals(Environment.current().getCluster()) && "T4".equalsIgnoreCase(Environment.current().getNamespace().getNamespace()));
+        this.erProd = Cluster.PROD_FSS.equals(Environment.current().getCluster());
     }
 
     public SakOgBehandlingTask(SakOgBehandlingTjeneste sakOgBehandlingTjeneste,
                                BehandlingRepositoryProvider repositoryProvider,
-                               boolean isDev) {
+                               boolean brukKafka) {
         this.sakOgBehandlingTjeneste = sakOgBehandlingTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.isDev = isDev;
+        this.brukKafka = brukKafka;
+        this.erProd = false;
     }
 
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        if (isDev) {
+        if (brukKafka) {
             var behandlingId = prosessTaskData.getBehandlingId();
             var behandling = behandlingRepository.hentBehandling(behandlingId);
             if (Set.of(BehandlingStatus.FATTER_VEDTAK, BehandlingStatus.IVERKSETTER_VEDTAK).contains(behandling.getStatus()))
@@ -95,8 +98,6 @@ public class SakOgBehandlingTask implements ProsessTaskHandler {
                 .medBehandlingTema(BehandlingTema.fraFagsak(behandling.getFagsak(), familieHendelseRepository
                     .hentAggregatHvisEksisterer(behandlingId).map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElse(null)))
                 .medEnhet(behandling.getBehandlendeOrganisasjonsEnhet())
-                // Diskuter verdier vs applikasjonBehandlingREF og sjekk om de må har tidligere verdier for denne
-                // .medOriginalBehandling(behandling.getOriginalBehandling().map(Behandling::getId).orElse(null))
                 .medHendelsesTidspunkt(tidspunkt)
                 .build();
             try {
@@ -104,6 +105,8 @@ public class SakOgBehandlingTask implements ProsessTaskHandler {
                 return;
             } catch (Exception e) {
                 LOG.info("SOBKAFKA noe gikk feil for behandling {}", behandlingId, e);
+                if (erProd)
+                    throw e;
             }
         }
 

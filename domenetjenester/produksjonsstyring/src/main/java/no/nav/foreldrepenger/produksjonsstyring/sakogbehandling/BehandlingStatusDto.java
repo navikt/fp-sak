@@ -18,7 +18,6 @@ public class BehandlingStatusDto {
     private BehandlingTema behandlingTema;
     private BehandlingStatus behandlingStatus;
     private OrganisasjonsEnhet enhet;
-    private Long originalBehandlingId;
     private LocalDateTime hendelsesTidspunkt;
 
     public Long getBehandlingId() {
@@ -51,10 +50,6 @@ public class BehandlingStatusDto {
 
     public OrganisasjonsEnhet getEnhet() {
         return enhet;
-    }
-
-    public Long getOriginalBehandlingId() {
-        return originalBehandlingId;
     }
 
     public LocalDateTime getHendelsesTidspunkt() {
@@ -114,11 +109,6 @@ public class BehandlingStatusDto {
 
         public B medEnhet(OrganisasjonsEnhet organisasjonsEnhet) {
             this.status.enhet = organisasjonsEnhet;
-            return this;
-        }
-
-        public B medOriginalBehandling(Long originalId) {
-            this.status.originalBehandlingId = originalId;
             return this;
         }
 
