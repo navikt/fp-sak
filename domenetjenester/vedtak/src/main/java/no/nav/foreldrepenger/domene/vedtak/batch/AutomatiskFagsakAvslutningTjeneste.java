@@ -8,6 +8,8 @@ import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import org.slf4j.Logger;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -28,6 +30,7 @@ public class AutomatiskFagsakAvslutningTjeneste {
 
     private ProsessTaskRepository prosessTaskRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRepository fagsakRepository;
 
     AutomatiskFagsakAvslutningTjeneste() {
         // For CDI?
@@ -35,12 +38,20 @@ public class AutomatiskFagsakAvslutningTjeneste {
 
     @Inject
     public AutomatiskFagsakAvslutningTjeneste(ProsessTaskRepository prosessTaskRepository,
-                                              FagsakRelasjonRepository fagsakRelasjonRepository) {
+                                              FagsakRelasjonRepository fagsakRelasjonRepository,
+                                              FagsakRepository fagsakRepository) {
         this.prosessTaskRepository = prosessTaskRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.fagsakRepository = fagsakRepository;
     }
 
     String avsluttFagsaker(String batchname, LocalDate date, int antDager) {
+        String resultat = avsluttFPFagsaker(batchname, date, antDager);
+        avsluttSVPFagsaker();
+        return resultat;
+    }
+
+    String avsluttFPFagsaker(String batchname, LocalDate date, int antDager) {
         List<FagsakRelasjon> fagsakRelasjons = fagsakRelasjonRepository.finnRelasjonerForAvsluttningAvFagsaker(date,antDager);
 
         String callId = MDCOperations.getCallId();
@@ -67,6 +78,27 @@ public class AutomatiskFagsakAvslutningTjeneste {
             }
         }
         return batchname + "-" + (UUID.randomUUID().toString());
+    }
+
+    void avsluttSVPFagsaker() {
+        List<Fagsak> fagsaker = fagsakRepository.hentForStatusOgYtelseType(FagsakStatus.LØPENDE, FagsakYtelseType.SVANGERSKAPSPENGER);
+
+        String callId = MDCOperations.getCallId();
+        callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
+
+        for (Fagsak fagsak : fagsaker) {
+            List<ProsessTaskData> tasks = new ArrayList<>();
+            String nyCallId = callId + fagsak.getId();
+            log.info("{} oppretter task med ny callId: {} ", getClass().getSimpleName(), nyCallId);
+            tasks.add(opprettFagsakAvslutningTask(fagsak, nyCallId));
+
+            if (!tasks.isEmpty()) {
+                tasks.forEach(t -> t.setPrioritet(100));
+                ProsessTaskGruppe gruppe = new ProsessTaskGruppe();
+                tasks.forEach(gruppe::addNesteSekvensiell);
+                prosessTaskRepository.lagre(gruppe);
+            }
+        }
     }
 
     private ProsessTaskData opprettFagsakAvslutningTask(Fagsak fagsak, String callId) {

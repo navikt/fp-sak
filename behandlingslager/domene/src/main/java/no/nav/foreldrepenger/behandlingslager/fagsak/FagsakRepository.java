@@ -144,6 +144,14 @@ public class FagsakRepository {
         return query.getResultList();
     }
 
+    public List<Fagsak> hentForStatusOgYtelseType(FagsakStatus fagsakStatus, FagsakYtelseType ytelseType) {
+        TypedQuery<Fagsak> query = entityManager.createQuery("select fagsak from Fagsak fagsak where fagsak.fagsakStatus=:fagsakStatus and fagsak.ytelseType=:ytelseType ", Fagsak.class);
+        query.setParameter("fagsakStatus", fagsakStatus); // NOSONAR
+        query.setParameter("ytelseType", ytelseType); // NOSONAR
+
+        return query.getResultList();
+    }
+
     public List<Saksnummer> hentÅpneFagsakerUtenBehandling() {
         Query query = entityManager.createNativeQuery(
             "select f.saksnummer from FAGSAK f where f.FAGSAK_STATUS<>'AVSLU' and not exists (select * from BEHANDLING b where b.FAGSAK_ID = f.ID)");

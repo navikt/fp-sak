@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,11 +38,13 @@ public class AutomatiskFagsakAvslutningTjenesteTest {
     private ProsessTaskRepository prosessTaskRepository;
     @Mock
     private FagsakRelasjonRepository fagsakRelasjonRepository = mock(FagsakRelasjonRepository.class);
+    @Mock
+    private FagsakRepository fagsakRepository = mock(FagsakRepository.class);
 
     @Before
     public void setUp() {
         prosessTaskRepository = spy(ProsessTaskRepository.class);
-        automatiskFagsakAvslutningTjeneste = new AutomatiskFagsakAvslutningTjeneste(prosessTaskRepository, fagsakRelasjonRepository);
+        automatiskFagsakAvslutningTjeneste = new AutomatiskFagsakAvslutningTjeneste(prosessTaskRepository, fagsakRelasjonRepository, fagsakRepository);
     }
 
     @Test
