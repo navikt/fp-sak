@@ -73,13 +73,6 @@ public class OppdaterSakOgBehandlingEventObserver {
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(SakOgBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setProperty(SakOgBehandlingTask.BEHANDLINGS_TYPE_KODE_KEY, behandling.getType().getOffisiellKode());
-        prosessTaskData.setProperty(SakOgBehandlingTask.SAKSTEMA_KEY, FORELDREPENGER_SAKSTEMA);
-        prosessTaskData.setProperty(SakOgBehandlingTask.ANSVARLIG_ENHET_KEY, behandling.getBehandlendeEnhet());
-        prosessTaskData.setProperty(SakOgBehandlingTask.BEHANDLING_STATUS_KEY, nyStatus.getKode());
-        prosessTaskData.setProperty(SakOgBehandlingTask.BEHANDLING_OPPRETTET_TIDSPUNKT_KEY, behandling.getOpprettetTidspunkt().toLocalDate().toString());
-        prosessTaskData.setProperty(SakOgBehandlingTask.BEHANDLINGSTEMAKODE, behandlingTema.getOffisiellKode());
-
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);
     }
