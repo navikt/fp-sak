@@ -44,7 +44,7 @@ public class MapTilLønnsendring {
             return lagLønnsendringForNyAndelFraAndelsreferanse(andel, periode, periodeForrigeGrunnlag, fastsatteVerdier);
         } else {
             BeregningsgrunnlagPrStatusOgAndel andelIAktivt = finnKorrektAndelIPeriode(periode, andel.getAndelsnr());
-            Optional<BeregningsgrunnlagPrStatusOgAndel> andelFraForrige = periodeForrigeGrunnlag.map(p -> finnKorrektAndelIPeriode(p, andel.getAndelsnr()));
+            Optional<BeregningsgrunnlagPrStatusOgAndel> andelFraForrige = periodeForrigeGrunnlag.flatMap(p -> finnKorrektAndelIPeriodeHvisFinnes(p, andel.getAndelsnr()));
             return new Lønnsendring.Builder()
                 .medGammelInntektskategori(andelFraForrige.map(BeregningsgrunnlagPrStatusOgAndel::getInntektskategori).orElse(null))
                 .medNyInntektskategori(fastsatteVerdier.getInntektskategori())
@@ -65,8 +65,9 @@ public class MapTilLønnsendring {
                                                                             Optional<BeregningsgrunnlagPeriode> periodeForrigeGrunnlag,
                                                                             FastsatteVerdierDto fastsatteVerdier) {
         Lønnsendring.Builder endringBuilder = new Lønnsendring.Builder();
-        if (!andel.getNyAndel() && periodeForrigeGrunnlag.isPresent()) {
-            BeregningsgrunnlagPrStatusOgAndel forrigeAndel = finnKorrektAndelIPeriode(periodeForrigeGrunnlag.get(), andel.getAndelsnr());
+        Optional<BeregningsgrunnlagPrStatusOgAndel> forrigeAndelOpt = periodeForrigeGrunnlag.flatMap(p -> finnKorrektAndelIPeriodeHvisFinnes(p, andel.getAndelsnr()));
+        if (!andel.getNyAndel() && forrigeAndelOpt.isPresent()) {
+            BeregningsgrunnlagPrStatusOgAndel forrigeAndel = forrigeAndelOpt.get();
             endringBuilder.medNyAndel(false)
                 .medAktivitetStatus(forrigeAndel.getAktivitetStatus())
                 .medArbeidsforholdRef(forrigeAndel.getArbeidsforholdRef().orElse(null))
@@ -165,7 +166,7 @@ public class MapTilLønnsendring {
 
     private static Integer finnGammelMånedsinntekt(Optional<BeregningsgrunnlagEntitet> forrigeBg, Long andelsnr) {
         return forrigeBg
-                .map(bg -> finnKorrektAndelIFørstePeriode(bg, andelsnr))
+                .flatMap(bg -> finnKorrektAndelIFørstePeriodeFraForrige(bg, andelsnr))
                 .filter(BeregningsgrunnlagPrStatusOgAndel::getFastsattAvSaksbehandler)
                 .map(BeregningsgrunnlagPrStatusOgAndel::getBeregnetPrÅr)
                 .map(MapTilLønnsendring::mapTilMånedsbeløp)
@@ -185,7 +186,7 @@ public class MapTilLønnsendring {
 
     private static Inntektskategori finnGammelInntektskategori(Optional<BeregningsgrunnlagEntitet> forrigeBg, Long andelsnr) {
         return forrigeBg
-            .map(bg -> finnKorrektAndelIFørstePeriode(bg, andelsnr))
+            .flatMap(bg -> finnKorrektAndelIFørstePeriodeFraForrige(bg, andelsnr))
             .filter(BeregningsgrunnlagPrStatusOgAndel::getFastsattAvSaksbehandler)
             .map(BeregningsgrunnlagPrStatusOgAndel::getInntektskategori)
             .orElse(null);
@@ -224,16 +225,24 @@ public class MapTilLønnsendring {
     }
 
     private static BeregningsgrunnlagPrStatusOgAndel finnKorrektAndelIPeriode(BeregningsgrunnlagPeriode periode, Long andelsnr) {
+        return finnKorrektAndelIPeriodeHvisFinnes(periode, andelsnr)
+            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Fant ikke andel for andelsnr i aktivt grunnlag" + andelsnr));
+    }
+
+    private static Optional<BeregningsgrunnlagPrStatusOgAndel> finnKorrektAndelIPeriodeHvisFinnes(BeregningsgrunnlagPeriode periode, Long andelsnr) {
         return periode
             .getBeregningsgrunnlagPrStatusOgAndelList()
             .stream()
             .filter(bgAndel -> andelsnr.equals(bgAndel.getAndelsnr()))
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Fant ikke andel for andelsnr " + andelsnr));
+            .findFirst();
     }
 
     private static BeregningsgrunnlagPrStatusOgAndel finnKorrektAndelIFørstePeriode(BeregningsgrunnlagEntitet bg, Long andelsnr) {
         return finnKorrektAndelIPeriode(bg.getBeregningsgrunnlagPerioder().get(0), andelsnr);
+    }
+
+    private static Optional<BeregningsgrunnlagPrStatusOgAndel> finnKorrektAndelIFørstePeriodeFraForrige(BeregningsgrunnlagEntitet bg, Long andelsnr) {
+        return finnKorrektAndelIPeriodeHvisFinnes(bg.getBeregningsgrunnlagPerioder().get(0), andelsnr);
     }
 
     private static Optional<BeregningsgrunnlagPrStatusOgAndel> finnKorrektAndelIFørstePeriode(BeregningsgrunnlagEntitet bg, AktivitetStatus aktivitetStatus) {
@@ -243,4 +252,5 @@ public class MapTilLønnsendring {
             .filter(bgAndel -> aktivitetStatus.equals(bgAndel.getAktivitetStatus()))
             .findFirst();
     }
+
 }
