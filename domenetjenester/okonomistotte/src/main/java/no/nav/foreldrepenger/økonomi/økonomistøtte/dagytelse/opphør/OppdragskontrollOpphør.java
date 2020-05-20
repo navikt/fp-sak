@@ -89,6 +89,9 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
             return Optional.empty();
         }
         List<Oppdragslinje150> tidligereGjeldendeOppdr150Liste = TidligereOppdragTjeneste.hentTidligereGjeldendeOppdragslinje150(behandlingInfo, false);
+        if (tidligereGjeldendeOppdr150Liste.isEmpty()) {
+            return Optional.empty();
+        }
         Oppdragslinje150 forrigeOpp150 = tidligereGjeldendeOppdr150Liste.get(0);
         Oppdrag110 forrigeOppdrag110 = forrigeOpp150.getOppdrag110();
         Oppdrag110.Builder nyOppdrag110Builder = OpprettOppdrag110Tjeneste.opprettOppdrag110MedRelaterteOppdragsmeldinger(behandlingInfo, forrigeOpp150, mottaker);
