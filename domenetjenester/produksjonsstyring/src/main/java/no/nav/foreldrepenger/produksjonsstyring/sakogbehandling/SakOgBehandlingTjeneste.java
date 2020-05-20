@@ -16,15 +16,12 @@ import contract.sob.dto.BehandlingOpprettet;
 import contract.sob.dto.BehandlingStatus;
 import contract.sob.dto.Behandlingstemaer;
 import contract.sob.dto.Behandlingstyper;
-import contract.sob.dto.PrimaerBehandling;
-import contract.sob.dto.PrimaerRelasjonstyper;
 import contract.sob.dto.Sakstemaer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.JsonObjectMapper;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducer;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducerFeil;
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @Dependent
@@ -67,19 +64,16 @@ public class SakOgBehandlingTjeneste {
             .ansvarligEnhetREF(dto.getEnhet().getEnhetId())
             .applikasjonSakREF(dto.getSaksnummer().getVerdi())
             .applikasjonBehandlingREF(String.valueOf(dto.getBehandlingId()))
+            .sekundaerBehandlingREF(List.of())
+            .styringsinformasjonListe(List.of())
             .hendelsesId(callId)
             .hendelsesprodusentREF(Applikasjoner.builder().value(Fagsystem.FPSAK.getOffisiellKode()).build())
             .hendelsesTidspunkt(dto.getHendelsesTidspunkt());
 
-        if (dto.getOriginalBehandlingId() != null) {
-            builder.primaerBehandlingREF(new PrimaerBehandling(String.valueOf(dto.getOriginalBehandlingId()),
-                PrimaerRelasjonstyper.builder().value("forrige").build()));
-        }
+        // Feltet primaerBehandlingREF er bevisst ikke satt - etter diskusjon med Register/Kvernstuen.
 
-        var hendelse = builder.build();
         LOG.info("SOBKAFKA sender behandlingsstatus {}", dto);
-
-        producer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(dto.getBehandlingId()), dto.getBehandlingStatusKode()), generatePayload(hendelse));
+        producer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(dto.getBehandlingId()), dto.getBehandlingStatusKode()), generatePayload(builder.build()));
     }
 
     private String createUniqueBehandlingsId(String behandlingsId) {
