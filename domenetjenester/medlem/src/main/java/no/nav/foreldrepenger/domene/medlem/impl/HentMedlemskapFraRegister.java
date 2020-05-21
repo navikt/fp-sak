@@ -6,6 +6,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
@@ -14,6 +17,9 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.medlem.api.FinnMedlemRequest;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.medlem.api.MedlemskapsperiodeKoder;
+import no.nav.foreldrepenger.domene.medlem.impl.rest.MedlemskapsunntakForGet;
+import no.nav.foreldrepenger.domene.medlem.impl.rest.MedlemsunntakRestKlient;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.tjeneste.virksomhet.medlemskap.v2.PersonIkkeFunnet;
 import no.nav.tjeneste.virksomhet.medlemskap.v2.Sikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.medlemskap.v2.informasjon.Foedselsnummer;
@@ -23,21 +29,37 @@ import no.nav.tjeneste.virksomhet.medlemskap.v2.meldinger.HentPeriodeListeReques
 import no.nav.tjeneste.virksomhet.medlemskap.v2.meldinger.HentPeriodeListeResponse;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.medl.MedlemConsumer;
+import no.nav.vedtak.util.env.Cluster;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class HentMedlemskapFraRegister {
 
+    private static final Logger LOG = LoggerFactory.getLogger(HentMedlemskapFraRegister.class);
+
     private MedlemConsumer medlemConsumer;
+    private MedlemsunntakRestKlient restKlient;
     private KodeverkRepository kodeverkRepository;
+    private boolean isProd;
 
     HentMedlemskapFraRegister() {
         // CDI
     }
 
     @Inject
-    public HentMedlemskapFraRegister(MedlemConsumer medlemConsumer, KodeverkRepository kodeverkRepository) {
+    public HentMedlemskapFraRegister(MedlemConsumer medlemConsumer,
+                                     MedlemsunntakRestKlient restKlient,
+                                     KodeverkRepository kodeverkRepository) {
         this.medlemConsumer = medlemConsumer;
+        this.restKlient = restKlient;
         this.kodeverkRepository = kodeverkRepository;
+        this.isProd = Cluster.PROD_FSS.equals(Environment.current().getCluster());
+    }
+
+    public List<Medlemskapsperiode> finnMedlemskapPerioder(FinnMedlemRequest finnMedlemRequest, AktørId aktørId) {
+        var perioder = finnMedlemskapPerioder(finnMedlemRequest);
+        sammenlignLoggWSRS(aktørId, finnMedlemRequest, perioder);
+        return perioder;
     }
 
     public List<Medlemskapsperiode> finnMedlemskapPerioder(FinnMedlemRequest finnMedlemRequest) {
@@ -82,6 +104,38 @@ public class HentMedlemskapFraRegister {
             .build();
     }
 
+    private void sammenlignLoggWSRS(AktørId aktørId, FinnMedlemRequest wsreq, List<Medlemskapsperiode> medlemskapsperioderWS) {
+        if (!isProd)
+            return;
+        try {
+            var mups = restKlient.finnMedlemsunntak(aktørId, wsreq.getFom(), wsreq.getTom()).stream()
+                .map(this::mapFraMedlemsunntak)
+                .collect(Collectors.toList());
+            if (mups.containsAll(medlemskapsperioderWS) && medlemskapsperioderWS.containsAll(mups)) {
+                LOG.info("MEDL2 REST likt svar WS RS");
+            } else {
+                LOG.info("MEDL2 REST avvik WS {} RS {}", medlemskapsperioderWS, mups);
+            }
+        } catch (Exception e) {
+            LOG.info("MEDL2 REST feil", e);
+        }
+    }
+
+    private Medlemskapsperiode mapFraMedlemsunntak(MedlemskapsunntakForGet medlemsperiode) {
+        return new Medlemskapsperiode.Builder()
+            .medFom(medlemsperiode.getFraOgMed())
+            .medTom(medlemsperiode.getTilOgMed())
+            .medDatoBesluttet(medlemsperiode.getSporingsinformasjon().getBesluttet())
+            .medErMedlem(medlemsperiode.isMedlem())
+            .medKilde(mapTilKilde(medlemsperiode.getSporingsinformasjon().getKilde()))
+            .medDekning(mapTilDekning(medlemsperiode.getDekning()))
+            .medLovvalg(mapTilLovvalg(medlemsperiode.getLovvalg()))
+            .medLovvalgsland(finnLovvalgsland(medlemsperiode.getLovvalgsland()))
+            .medStudieland(finnStudieland(medlemsperiode.getStudieinformasjon()))
+            .medMedlId(medlemsperiode.getUnntakId())
+            .build();
+    }
+
     private Landkoder finnStudieland(Medlemsperiode medlemsperiode) {
         if (medlemsperiode.getStudieinformasjon() != null
             && medlemsperiode.getStudieinformasjon().getStudieland() != null) {
@@ -96,6 +150,21 @@ public class HentMedlemskapFraRegister {
         }
         return null;
     }
+
+    private Landkoder finnStudieland(MedlemskapsunntakForGet.Studieinformasjon studieinformasjon) {
+        if (studieinformasjon != null && studieinformasjon.getStudieland() != null) {
+            return kodeverkRepository.finn(Landkoder.class, studieinformasjon.getStudieland());
+        }
+        return null;
+    }
+
+    private Landkoder finnLovvalgsland(String land) {
+        if (land != null) {
+            return kodeverkRepository.finn(Landkoder.class, land);
+        }
+        return null;
+    }
+
 
     private MedlemskapDekningType mapTilDekning(String trygdeDekning) {
         MedlemskapDekningType dekningType = MedlemskapDekningType.UDEFINERT;

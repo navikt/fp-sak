@@ -47,9 +47,9 @@ import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
 import no.nav.foreldrepenger.domene.medlem.impl.HentMedlemskapFraRegister;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.util.FPDateUtil;
 import no.nav.vedtak.util.Tuple;
 
@@ -105,6 +105,10 @@ public class MedlemTjeneste {
      */
     public List<Medlemskapsperiode> finnMedlemskapPerioder(FinnMedlemRequest finnMedlemRequest) {
         return hentMedlemskapFraRegister.finnMedlemskapPerioder(finnMedlemRequest);
+    }
+
+    public List<Medlemskapsperiode> finnMedlemskapPerioder(FinnMedlemRequest finnMedlemRequest, AktørId aktørId) {
+        return hentMedlemskapFraRegister.finnMedlemskapPerioder(finnMedlemRequest, aktørId);
     }
 
     public Optional<MedlemskapAggregat> hentMedlemskap(Long behandlingId) {
