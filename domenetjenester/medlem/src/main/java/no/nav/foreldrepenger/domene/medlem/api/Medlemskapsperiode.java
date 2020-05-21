@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.medlem.api;
 
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+import java.time.LocalDate;
+import java.util.Objects;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
-
-import java.time.LocalDate;
-import java.util.Objects;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 
 public class Medlemskapsperiode {
     private LocalDate fom;
@@ -123,6 +123,22 @@ public class Medlemskapsperiode {
     @Override
     public int hashCode() {
         return Objects.hash(fom, tom, datoBesluttet, erMedlem, trygdedekning, kilde, lovvalg, lovvalgsland, studieland, medlId);
+    }
+
+    @Override
+    public String toString() {
+        return "Medlemskapsperiode{" +
+            "fom=" + fom +
+            ", tom=" + tom +
+            ", datoBesluttet=" + datoBesluttet +
+            ", erMedlem=" + erMedlem +
+            ", trygdedekning=" + trygdedekning +
+            ", kilde=" + kilde +
+            ", lovvalg=" + lovvalg +
+            ", lovvalgsland=" + lovvalgsland +
+            ", studieland=" + studieland +
+            ", medlId=" + medlId +
+            '}';
     }
 
     public static class Builder {

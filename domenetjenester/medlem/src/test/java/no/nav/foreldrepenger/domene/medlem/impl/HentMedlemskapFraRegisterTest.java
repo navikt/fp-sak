@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.medlem.api.FinnMedlemRequest;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.medlem.api.MedlemskapsperiodeKoder;
+import no.nav.foreldrepenger.domene.medlem.impl.rest.MedlemsunntakRestKlient;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.tjeneste.felles.v1.informasjon.ForretningsmessigUnntaksdetaljer;
 import no.nav.tjeneste.virksomhet.medlemskap.v2.PersonIkkeFunnet;
@@ -64,7 +65,7 @@ public class HentMedlemskapFraRegisterTest {
 
     @Before
     public void before() {
-        medlemTjeneste = new HentMedlemskapFraRegister(medlemConsumer, kodeverkRepository);
+        medlemTjeneste = new HentMedlemskapFraRegister(medlemConsumer, mock(MedlemsunntakRestKlient.class), kodeverkRepository);
     }
 
     @Test

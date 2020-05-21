@@ -28,8 +28,8 @@ import org.threeten.extra.Interval;
 
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.Periode;
-import no.nav.abakus.iaygrunnlag.request.RegisterdataType;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
+import no.nav.abakus.iaygrunnlag.request.RegisterdataType;
 import no.nav.foreldrepenger.behandlingslager.abakus.logg.AbakusInnhentingGrunnlagLogg;
 import no.nav.foreldrepenger.behandlingslager.abakus.logg.AbakusInnhentingGrunnlagLoggRepository;
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
@@ -475,7 +475,7 @@ public class RegisterdataInnhenter {
         final Interval opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), behandling.getFagsakYtelseType());
         FinnMedlemRequest finnMedlemRequest = new FinnMedlemRequest(søkerInfo.getPersonIdent(), LocalDateTime.ofInstant(opplysningsperiode.getStart(), ZoneId.systemDefault()).toLocalDate(),
             LocalDateTime.ofInstant(opplysningsperiode.getEnd(), ZoneId.systemDefault()).toLocalDate());
-        List<Medlemskapsperiode> medlemskapsperioder = medlemTjeneste.finnMedlemskapPerioder(finnMedlemRequest);
+        List<Medlemskapsperiode> medlemskapsperioder = medlemTjeneste.finnMedlemskapPerioder(finnMedlemRequest, søkerInfo.getAktørId());
         ArrayList<MedlemskapPerioderEntitet> resultat = new ArrayList<>();
         for (Medlemskapsperiode medlemskapsperiode : medlemskapsperioder) {
             resultat.add(lagMedlemskapPeriode(medlemskapsperiode));
