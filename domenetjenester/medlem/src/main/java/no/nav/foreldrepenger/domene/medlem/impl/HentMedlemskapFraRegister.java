@@ -56,7 +56,7 @@ public class HentMedlemskapFraRegister {
         var perioder = finnMedlemskapPerioder(finnMedlemRequest);
         sammenlignLoggWSRS(aktørId, finnMedlemRequest, perioder);
         return perioder;
-        //return finnPerioderRest(aktørId, finnMedlemRequest);
+        // return finnPerioderRest(aktørId, finnMedlemRequest);
     }
 
     public List<Medlemskapsperiode> finnMedlemskapPerioder(FinnMedlemRequest finnMedlemRequest) {
