@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.medlem.api.FinnMedlemRequest;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.medlem.api.MedlemskapsperiodeKoder;
-import no.nav.foreldrepenger.domene.medlem.impl.rest.MedlemskapsunntakForGet;
+import no.nav.foreldrepenger.domene.medlem.impl.rest.Medlemskapsunntak;
 import no.nav.foreldrepenger.domene.medlem.impl.rest.MedlemsunntakRestKlient;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.tjeneste.virksomhet.medlemskap.v2.PersonIkkeFunnet;
@@ -29,8 +29,6 @@ import no.nav.tjeneste.virksomhet.medlemskap.v2.meldinger.HentPeriodeListeReques
 import no.nav.tjeneste.virksomhet.medlemskap.v2.meldinger.HentPeriodeListeResponse;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.medl.MedlemConsumer;
-import no.nav.vedtak.util.env.Cluster;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class HentMedlemskapFraRegister {
@@ -40,7 +38,6 @@ public class HentMedlemskapFraRegister {
     private MedlemConsumer medlemConsumer;
     private MedlemsunntakRestKlient restKlient;
     private KodeverkRepository kodeverkRepository;
-    private boolean isProd;
 
     HentMedlemskapFraRegister() {
         // CDI
@@ -53,13 +50,13 @@ public class HentMedlemskapFraRegister {
         this.medlemConsumer = medlemConsumer;
         this.restKlient = restKlient;
         this.kodeverkRepository = kodeverkRepository;
-        this.isProd = Cluster.PROD_FSS.equals(Environment.current().getCluster());
     }
 
     public List<Medlemskapsperiode> finnMedlemskapPerioder(FinnMedlemRequest finnMedlemRequest, AktørId aktørId) {
         var perioder = finnMedlemskapPerioder(finnMedlemRequest);
         sammenlignLoggWSRS(aktørId, finnMedlemRequest, perioder);
         return perioder;
+        //return finnPerioderRest(aktørId, finnMedlemRequest);
     }
 
     public List<Medlemskapsperiode> finnMedlemskapPerioder(FinnMedlemRequest finnMedlemRequest) {
@@ -104,9 +101,19 @@ public class HentMedlemskapFraRegister {
             .build();
     }
 
+    private  List<Medlemskapsperiode> finnPerioderRest(AktørId aktørId, FinnMedlemRequest wsreq) {
+        try {
+            var mups = restKlient.finnMedlemsunntak(aktørId, wsreq.getFom(), wsreq.getTom()).stream()
+                .map(this::mapFraMedlemsunntak)
+                .collect(Collectors.toList());
+            LOG.info("MEDL2 REST RS {}", mups);
+            return mups;
+        } catch (Exception e) {
+            throw MedlemFeil.FACTORY.feilVedKallTilMedlem(e).toException();
+        }
+    }
+
     private void sammenlignLoggWSRS(AktørId aktørId, FinnMedlemRequest wsreq, List<Medlemskapsperiode> medlemskapsperioderWS) {
-        if (!isProd)
-            return;
         try {
             var mups = restKlient.finnMedlemsunntak(aktørId, wsreq.getFom(), wsreq.getTom()).stream()
                 .map(this::mapFraMedlemsunntak)
@@ -121,7 +128,7 @@ public class HentMedlemskapFraRegister {
         }
     }
 
-    private Medlemskapsperiode mapFraMedlemsunntak(MedlemskapsunntakForGet medlemsperiode) {
+    private Medlemskapsperiode mapFraMedlemsunntak(Medlemskapsunntak medlemsperiode) {
         return new Medlemskapsperiode.Builder()
             .medFom(medlemsperiode.getFraOgMed())
             .medTom(medlemsperiode.getTilOgMed())
@@ -151,7 +158,7 @@ public class HentMedlemskapFraRegister {
         return null;
     }
 
-    private Landkoder finnStudieland(MedlemskapsunntakForGet.Studieinformasjon studieinformasjon) {
+    private Landkoder finnStudieland(Medlemskapsunntak.Studieinformasjon studieinformasjon) {
         if (studieinformasjon != null && studieinformasjon.getStudieland() != null) {
             return kodeverkRepository.finn(Landkoder.class, studieinformasjon.getStudieland());
         }

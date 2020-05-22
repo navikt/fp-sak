@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class MedlemskapsunntakForGet {
+public class Medlemskapsunntak {
 
     @JsonProperty("unntakId")
     private Long unntakId;
@@ -38,17 +38,17 @@ public class MedlemskapsunntakForGet {
     private Studieinformasjon studieinformasjon;
 
     @JsonCreator
-    public MedlemskapsunntakForGet( @JsonProperty("unntakId") Long unntakId,
-                                    @JsonProperty("fraOgMed") LocalDate fraOgMed,
-                                    @JsonProperty("tilOgMed") LocalDate tilOgMed,
-                                    @JsonProperty("dekning") String dekning,
-                                    @JsonProperty("grunnlag") String grunnlag,
-                                    @JsonProperty("lovvalg") String lovvalg,
-                                    @JsonProperty("lovvalgsland") String lovvalgsland,
-                                    @JsonProperty("helsedel") Boolean helsedel,
-                                    @JsonProperty("medlem") Boolean medlem,
-                                    @JsonProperty("sporingsinformasjon") Sporingsinformasjon sporingsinformasjon,
-                                    @JsonProperty("studieinformasjon") Studieinformasjon studieinformasjon) {
+    public Medlemskapsunntak(@JsonProperty("unntakId") Long unntakId,
+                             @JsonProperty("fraOgMed") LocalDate fraOgMed,
+                             @JsonProperty("tilOgMed") LocalDate tilOgMed,
+                             @JsonProperty("dekning") String dekning,
+                             @JsonProperty("grunnlag") String grunnlag,
+                             @JsonProperty("lovvalg") String lovvalg,
+                             @JsonProperty("lovvalgsland") String lovvalgsland,
+                             @JsonProperty("helsedel") Boolean helsedel,
+                             @JsonProperty("medlem") Boolean medlem,
+                             @JsonProperty("sporingsinformasjon") Sporingsinformasjon sporingsinformasjon,
+                             @JsonProperty("studieinformasjon") Studieinformasjon studieinformasjon) {
         this.unntakId = unntakId;
         this.fraOgMed = fraOgMed;
         this.tilOgMed = tilOgMed;
@@ -110,7 +110,7 @@ public class MedlemskapsunntakForGet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MedlemskapsunntakForGet that = (MedlemskapsunntakForGet) o;
+        Medlemskapsunntak that = (Medlemskapsunntak) o;
         return Objects.equals(unntakId, that.unntakId);
     }
 
@@ -121,7 +121,7 @@ public class MedlemskapsunntakForGet {
 
     @Override
     public String toString() {
-        return "MedlemskapsunntakForGet{" +
+        return "Medlemskapsunntak{" +
             "unntakId=" + unntakId +
             ", fraOgMed=" + fraOgMed +
             ", tilOgMed=" + tilOgMed +

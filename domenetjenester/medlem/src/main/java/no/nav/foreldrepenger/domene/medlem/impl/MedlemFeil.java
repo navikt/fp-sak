@@ -17,4 +17,7 @@ public interface MedlemFeil extends DeklarerteFeil {
 
     @IntegrasjonFeil(feilkode = "FP-085790", feilmelding = "Feil ved kall til medlemskap tjenesten.", logLevel = LogLevel.ERROR)
     Feil feilVedKallTilMedlem(PersonIkkeFunnet e);
+
+    @IntegrasjonFeil(feilkode = "FP-085791", feilmelding = "Feil ved kall til medlemskap tjenesten.", logLevel = LogLevel.ERROR)
+    Feil feilVedKallTilMedlem(Exception e);
 }

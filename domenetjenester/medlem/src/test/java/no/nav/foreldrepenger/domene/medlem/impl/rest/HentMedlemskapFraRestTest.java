@@ -18,7 +18,7 @@ public class HentMedlemskapFraRestTest {
 
     @Test
     public void roundtrip_rest_1()  {
-        var mrest = new MedlemskapsunntakForGet(MEDL_ID_1,
+        var mrest = new Medlemskapsunntak(MEDL_ID_1,
             LocalDate.of(2019, 8, 1),
             LocalDate.of(2019, 12, 31),
             "Full",
@@ -27,16 +27,16 @@ public class HentMedlemskapFraRestTest {
             "UZB",
             null,
             true,
-            new MedlemskapsunntakForGet.Sporingsinformasjon(LocalDate.of(2020, 5, 26), "AVGSYS"),
-            new MedlemskapsunntakForGet.Studieinformasjon("VUT"));
+            new Medlemskapsunntak.Sporingsinformasjon(LocalDate.of(2020, 5, 26), "AVGSYS"),
+            new Medlemskapsunntak.Studieinformasjon("VUT"));
         var json = JsonObjectMapper.toJson(mrest, null);
-        var dser = JsonObjectMapper.fromJson(json, MedlemskapsunntakForGet.class);
+        var dser = JsonObjectMapper.fromJson(json, Medlemskapsunntak.class);
         assertThat(mrest).isEqualTo(dser);
     }
 
     @Test
     public void roundtrip_rest_2()  {
-        var mrest = new MedlemskapsunntakForGet(MEDL_ID_2,
+        var mrest = new Medlemskapsunntak(MEDL_ID_2,
             LocalDate.of(2019, 8, 1),
             LocalDate.of(2019, 12, 31),
             MedlemskapDekningType.FTL_2_9_1_a.getKode(),
@@ -45,16 +45,16 @@ public class HentMedlemskapFraRestTest {
             null,
             null,
             true,
-            new MedlemskapsunntakForGet.Sporingsinformasjon(LocalDate.of(2020, 5, 26), MedlemskapKildeType.AVGSYS.getKode()),
+            new Medlemskapsunntak.Sporingsinformasjon(LocalDate.of(2020, 5, 26), MedlemskapKildeType.AVGSYS.getKode()),
             null);
         var json = JsonObjectMapper.toJson(mrest, null);
-        var dser = JsonObjectMapper.fromJson(json, MedlemskapsunntakForGet.class);
+        var dser = JsonObjectMapper.fromJson(json, Medlemskapsunntak.class);
         assertThat(mrest).isEqualTo(dser);
     }
 
     @Test
     public void roundtrip_rest_3()  {
-        var mrest = new MedlemskapsunntakForGet(MEDL_ID_3,
+        var mrest = new Medlemskapsunntak(MEDL_ID_3,
             LocalDate.of(2019, 1, 1),
             LocalDate.of(2019, 2, 28),
             MedlemskapDekningType.FULL.getKode(),
@@ -63,10 +63,10 @@ public class HentMedlemskapFraRestTest {
             null,
             null,
             true,
-            new MedlemskapsunntakForGet.Sporingsinformasjon(LocalDate.of(2019, 5, 26), MedlemskapKildeType.LAANEKASSEN.getKode()),
+            new Medlemskapsunntak.Sporingsinformasjon(LocalDate.of(2019, 5, 26), MedlemskapKildeType.LAANEKASSEN.getKode()),
             null);
         var json = JsonObjectMapper.toJson(mrest, null);
-        var dser = JsonObjectMapper.fromJson(json, MedlemskapsunntakForGet.class);
+        var dser = JsonObjectMapper.fromJson(json, Medlemskapsunntak.class);
         assertThat(mrest).isEqualTo(dser);
     }
 }

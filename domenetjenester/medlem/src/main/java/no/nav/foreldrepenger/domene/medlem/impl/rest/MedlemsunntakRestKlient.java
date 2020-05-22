@@ -14,6 +14,7 @@ import org.apache.http.Header;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicHeader;
 
+import no.nav.foreldrepenger.domene.medlem.api.MedlemskapsperiodeKoder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -24,9 +25,15 @@ public class MedlemsunntakRestKlient {
 
     private static final String ENDPOINT_KEY = "medl2.rs.url";
     private static final String DEFAULT_URI = "https://app.adeo.no/medl2/api/v1/medlemskapsunntak";
-    private static final String HEADER_CALL_ID = "Nav-Call-Id";
-    private static final String HEADER_PERSONIDENT = "Nav-Personident";
-    // "ARBEIDSFORDELING_RS_URL": "https://app.adeo.no/medl2/api/v1/medlemskapsunntak",
+    public static final String HEADER_NAV_CALL_ID = "Nav-Call-Id";
+    public static final String HEADER_NAV_PERSONIDENT = "Nav-Personident";
+    public static final String PARAM_FRA_OG_MED = "fraOgMed";
+    public static final String PARAM_TIL_OG_MED = "tilOgMed";
+    public static final String PARAM_STATUSER = "statuser";
+    public static final String PARAM_INKLUDER_SPORINGSINFO = "inkluderSporingsinfo";
+    // Fra kodeverk PeriodestatusMedl
+    public static final String KODE_PERIODESTATUS_GYLD = "GYLD";
+    public static final String KODE_PERIODESTATUS_UAVK = "UAVK";
 
     private OidcRestClient oidcRestClient;
     private URI endpoint;
@@ -41,18 +48,20 @@ public class MedlemsunntakRestKlient {
         this.endpoint = endpoint;
     }
 
-    public List<MedlemskapsunntakForGet> finnMedlemsunntak(AktørId aktørId, LocalDate fom, LocalDate tom) throws Exception {
+    public List<Medlemskapsunntak> finnMedlemsunntak(AktørId aktørId, LocalDate fom, LocalDate tom) throws Exception {
         URIBuilder builder = new URIBuilder(this.endpoint)
-            .addParameter("inkluderSporingsinfo", String.valueOf(true))
-            .addParameter("fraOgMed", d2s(fom))
-            .addParameter("tilOgMed", d2s(tom));
-        var match = this.oidcRestClient.get(builder.build(), this.lagHeader(aktørId), MedlemskapsunntakForGet[].class);
+            .addParameter(PARAM_INKLUDER_SPORINGSINFO, String.valueOf(true))
+            .addParameter(PARAM_FRA_OG_MED, d2s(fom))
+            .addParameter(PARAM_TIL_OG_MED, d2s(tom))
+            .addParameter(PARAM_STATUSER, KODE_PERIODESTATUS_GYLD)
+            .addParameter(PARAM_STATUSER, KODE_PERIODESTATUS_UAVK);
+        var match = this.oidcRestClient.get(builder.build(), this.lagHeader(aktørId), Medlemskapsunntak[].class);
         return Arrays.asList(match);
     }
 
     private Set<Header> lagHeader(AktørId aktørId) {
-        return Set.of(new BasicHeader(HEADER_CALL_ID, MDCOperations.getCallId()),
-            new BasicHeader(HEADER_PERSONIDENT, aktørId.getId()));
+        return Set.of(new BasicHeader(HEADER_NAV_CALL_ID, MDCOperations.getCallId()),
+            new BasicHeader(HEADER_NAV_PERSONIDENT, aktørId.getId()));
     }
 
     private static String d2s(LocalDate dato) {
