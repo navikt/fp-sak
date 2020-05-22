@@ -43,7 +43,18 @@ jobs:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           issue-number: ${{ github.event.client_payload.issue-number }}
           body: |
-            Testene kjørt av fpsak-autotest i Github Action feilet!
-            Resultatet kan være falsk negativt! Sammenlign resultatet med Jenkins før eventuell promote!
-            Ønsker du å rekjøre testene kan du gå til fpsak-autotest på github, finn jobben, og trykk rerun.
-            Deployer derfor IKKE fpsak til hverken t4 eller q1!
+            Testene kjørt av fpsak-autotest feilet!
+
+            Det er 4 kjente årsaker til at disse feiler:
+            1) Det er en feil i FPOPPDRAG.
+            2) Det er feil i en annen applikasjon. Autotest bruker siste versjon av alle applikasjonene utenom den som trigger testene.
+            3) Det er en feil i testene som må fikses.
+            4) Det er en midlertidig feil med Github Action. Ofte kan dette løses med en rekjøring av testene.
+
+            Ønsker du å sjekke loggene eller rekjøre testene kan du gå her: [GA-verdikjedetesten-log][1]
+            For å rekjøre testene finner du jobben, trykker "Utfør verdikjede-test" i venstre kollonne og derreter på "Re-run jobs" oppe i høyre hjørne.
+            Ønsker du å se loggene finne du gjeldende jobben og laster ned artifakten med navnet "logs"
+
+            På grunn av testfeil deployes IKKE fpsak til t4 eller q1!
+
+            [1]: https://github.com/navikt/fpsak-autotest/actions?query=workflow%3A%22Kjører+Autotestene+for+verdikjeden%22
