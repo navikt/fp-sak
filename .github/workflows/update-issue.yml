@@ -12,7 +12,7 @@ jobs:
       - name: Test success
         if: github.event.client_payload.success == 'true' && github.event.client_payload.issue-number != null
         id: success
-        uses: peter-evans/create-or-update-comment@v1.4.2
+        uses: peter-evans/create-or-update-comment@v1
         with:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           issue-number: ${{ github.event.client_payload.issue-number }}
@@ -22,7 +22,7 @@ jobs:
 
       - name: Trigger deploy til t4
         if: steps.success.outcome == 'success'
-        uses: peter-evans/create-or-update-comment@v1.4.2
+        uses: peter-evans/create-or-update-comment@v1
         with:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           issue-number: ${{ github.event.client_payload.issue-number }}
@@ -30,7 +30,7 @@ jobs:
 
       - name: Trigger deploy til q1
         if: steps.success.outcome == 'success'
-        uses: peter-evans/create-or-update-comment@v1.4.2
+        uses: peter-evans/create-or-update-comment@v1
         with:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           issue-number: ${{ github.event.client_payload.issue-number }}
@@ -38,7 +38,7 @@ jobs:
 
       - name: Test failure
         if: steps.success.outcome != 'success'
-        uses: peter-evans/create-or-update-comment@v1.4.2
+        uses: peter-evans/create-or-update-comment@v1
         with:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           issue-number: ${{ github.event.client_payload.issue-number }}
