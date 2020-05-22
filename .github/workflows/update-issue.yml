@@ -12,17 +12,17 @@ jobs:
       - name: Test success
         if: github.event.client_payload.success == 'true' && github.event.client_payload.issue-number != null
         id: success
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v1.4.2
         with:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           issue-number: ${{ github.event.client_payload.issue-number }}
           body: |
-            Alle autotestene gikk grønt!
+            Alle autotestene gikk grønne!
             Deployer fpsak til t4 og q1!
 
       - name: Trigger deploy til t4
         if: steps.success.outcome == 'success'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v1.4.2
         with:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           issue-number: ${{ github.event.client_payload.issue-number }}
@@ -30,7 +30,7 @@ jobs:
 
       - name: Trigger deploy til q1
         if: steps.success.outcome == 'success'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v1.4.2
         with:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           issue-number: ${{ github.event.client_payload.issue-number }}
@@ -38,16 +38,16 @@ jobs:
 
       - name: Test failure
         if: steps.success.outcome != 'success'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v1.4.2
         with:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           issue-number: ${{ github.event.client_payload.issue-number }}
           body: |
             Testene kjørt av fpsak-autotest feilet!
 
-            Det er 4 kjente årsaker til at disse feiler:
-            1) Det er en feil i FPSAK.
-            2) Det er feil i en annen applikasjon. Autotest bruker siste versjon av alle applikasjonene utenom den som trigger testene.
+            Det er 4 kjente grunner til at testene feiler:
+            1) Det er en feil i FPSAK som nettopp du har merget.
+            2) Det er feil i en annen applikasjon i verdikjeden. Autotest bruker siste versjon av alle applikasjonene utenom den som trigger testene.
             3) Det er en feil i testene som må fikses.
             4) Det er en midlertidig feil med Github Action. Ofte kan dette løses med en rekjøring av testene.
 
