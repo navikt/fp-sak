@@ -46,7 +46,7 @@ jobs:
             Testene kjørt av fpsak-autotest feilet!
 
             Det er 4 kjente årsaker til at disse feiler:
-            1) Det er en feil i FPOPPDRAG.
+            1) Det er en feil i FPSAK.
             2) Det er feil i en annen applikasjon. Autotest bruker siste versjon av alle applikasjonene utenom den som trigger testene.
             3) Det er en feil i testene som må fikses.
             4) Det er en midlertidig feil med Github Action. Ofte kan dette løses med en rekjøring av testene.
