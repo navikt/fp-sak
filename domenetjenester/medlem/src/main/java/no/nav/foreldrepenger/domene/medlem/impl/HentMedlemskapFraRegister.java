@@ -119,7 +119,7 @@ public class HentMedlemskapFraRegister {
                 .map(this::mapFraMedlemsunntak)
                 .collect(Collectors.toList());
             if (mups.containsAll(medlemskapsperioderWS) && medlemskapsperioderWS.containsAll(mups)) {
-                LOG.info("MEDL2 REST likt svar WS RS");
+                LOG.info("MEDL2 REST likt svar WS RS {}", mups);
             } else {
                 LOG.info("MEDL2 REST avvik WS {} RS {}", medlemskapsperioderWS, mups);
             }
