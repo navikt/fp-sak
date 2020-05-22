@@ -1,7 +1,7 @@
 Foreldrepenger Vedtaksløsning (FPSAK)
 ===============
 
-Dette er repository for kildkode som dekker applikasjonen bak Foreldrepenger og Engangsstønad
+Dette er repository for kildkode som dekker applikasjonen bak Foreldrepenger og Engangsstønad og Svangerskapspenger
 
 ### Struktur
 Dette er saksbehandlingsløsning på foreldrepengeområdet (Folketrygdloven kapittel 14).
