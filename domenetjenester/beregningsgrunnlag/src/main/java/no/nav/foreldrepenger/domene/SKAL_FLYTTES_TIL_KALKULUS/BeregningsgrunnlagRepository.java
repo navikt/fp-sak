@@ -382,8 +382,6 @@ public class BeregningsgrunnlagRepository {
     private void lagreSammenligningsgrunnlagPrStatus(SammenligningsgrunnlagPrStatus sammenligningsgrunnlagPrStatus) {
         if (sammenligningsgrunnlagPrStatus.getId() == null) {
             entityManager.persist(sammenligningsgrunnlagPrStatus);
-        } else {
-            throw new IllegalArgumentException("Kan ikke lagre en allerede persistert entitet");
         }
     }
 
