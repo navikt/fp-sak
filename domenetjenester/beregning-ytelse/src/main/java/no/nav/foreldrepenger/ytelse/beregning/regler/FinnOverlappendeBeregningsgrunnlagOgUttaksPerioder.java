@@ -233,7 +233,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         if (skalGjøreOverkompensasjon(uttakAktivitet)) {
             BigDecimal permisjonsProsent = finnPermisjonsprosent(uttakAktivitet);
             BigDecimal maksimalRefusjon = BigDecimal.ZERO.max(andelArbeidsgiver.multiply(permisjonsProsent));
-            BigDecimal utbetalingBruker = BigDecimal.ZERO.max(redusertAndelArb.subtract(maksimalRefusjon).add(redusertAndelBruker));
+            BigDecimal utbetalingBruker = redusertAndelArb.subtract(maksimalRefusjon).add(redusertAndelBruker);
 
             long dagsatsArbeidsgiver = årsbeløpTilDagsats(maksimalRefusjon);
             long dagsatsBruker = årsbeløpTilDagsats(utbetalingBruker);
@@ -256,7 +256,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
     }
 
     private static boolean skalGjøreOverkompensasjon(UttakAktivitet uttakAktivitet) {
-        if (uttakAktivitet.getStillingsgrad().compareTo(FULL_STILLING) >= 0) {
+        if (uttakAktivitet.getTotalStillingsgradHosAG().compareTo(FULL_STILLING) >= 0) {
             // Jobber mer enn 100%, skal aldri overkompenseres
             return false;
         }

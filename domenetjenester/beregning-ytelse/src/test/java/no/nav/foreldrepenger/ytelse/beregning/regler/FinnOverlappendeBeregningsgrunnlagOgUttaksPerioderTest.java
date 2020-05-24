@@ -5,9 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
@@ -518,7 +521,6 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         assertThat(andel.get(1).getDagsatsFraBg()).isEqualTo(dagsatsArbeidsgiver);
     }
 
-
     private BeregningsresultatRegelmodellMellomregning lagMellomregning(AktivitetStatus aktivitetStatus, BigDecimal stillingsgrad, BigDecimal arbeidstidsprosent, BigDecimal utbetalingsgrad, BigDecimal redusertBrukersAndel, boolean erGradering) {
         LocalDate fom = LocalDate.now();
         LocalDate tom = LocalDate.now().plusDays(14);
@@ -543,7 +545,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
 
     private List<UttakResultatPeriode> lagUttakResultatPeriode(LocalDate fom, LocalDate tom, BigDecimal stillingsgrad, BigDecimal arbeidstidsprosent, BigDecimal utbetalingsgrad, AktivitetStatus aktivitetStatus, boolean erGradering) {
 
-        List<UttakAktivitet> uttakAktiviter = Collections.singletonList(new UttakAktivitet(stillingsgrad, arbeidstidsprosent, utbetalingsgrad, arbeidsforhold, aktivitetStatus, erGradering));
+        List<UttakAktivitet> uttakAktiviter = Collections.singletonList(new UttakAktivitet(stillingsgrad, arbeidstidsprosent, utbetalingsgrad, arbeidsforhold, aktivitetStatus, erGradering, stillingsgrad));
         UttakResultatPeriode periode = new UttakResultatPeriode(fom, tom, uttakAktiviter, false);
         return List.of(periode);
     }
