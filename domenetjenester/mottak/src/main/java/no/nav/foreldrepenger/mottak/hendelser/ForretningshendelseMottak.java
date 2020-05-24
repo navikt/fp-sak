@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,10 +27,16 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Forretningshendelse;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.familiehendelse.dødsfall.DødForretningshendelse;
+import no.nav.foreldrepenger.familiehendelse.dødsfall.DødfødselForretningshendelse;
+import no.nav.foreldrepenger.familiehendelse.fødsel.FødselForretningshendelse;
+import no.nav.foreldrepenger.kontrakter.abonnent.HendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.tps.DødHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.tps.DødfødselHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.tps.FødselHendelseDto;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
 import no.nav.foreldrepenger.mottak.hendelser.håndterer.ForretningshendelseHåndtererProvider;
-import no.nav.foreldrepenger.mottak.hendelser.kontrakt.ForretningshendelseDto;
-import no.nav.foreldrepenger.mottak.hendelser.oversetter.ForretningshendelseOversetterProvider;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.ForretningshendelseSaksvelgerProvider;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -38,9 +46,15 @@ public class ForretningshendelseMottak {
 
     // Setter kjøring av mottak litt etter at Oppdrag har åpnet for business kl 06:00.
     private static final LocalTime OPPDRAG_VÅKNER = LocalTime.of(6, 30);
-    private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private ForretningshendelseOversetterProvider oversetterProvider;
+    private static final Map<ForretningshendelseType, Function<HendelseDto , ? extends Forretningshendelse>> OVERSETTER = Map.of(
+        ForretningshendelseType.DØD, d -> new DødForretningshendelse(mapToAktørIds(d), ((DødHendelseDto)d).getDødsdato()),
+        ForretningshendelseType.DØDFØDSEL, d -> new DødfødselForretningshendelse(mapToAktørIds(d), ((DødfødselHendelseDto)d).getDødfødselsdato()),
+        ForretningshendelseType.FØDSEL, f -> new FødselForretningshendelse(mapToAktørIds(f), ((FødselHendelseDto)f).getFødselsdato())
+    );
+
+    private Logger LOGGER = LoggerFactory.getLogger(getClass());
+
     private ForretningshendelseHåndtererProvider håndtererProvider;
     private ForretningshendelseSaksvelgerProvider saksvelgerProvider;
     private FagsakRepository fagsakRepository;
@@ -54,13 +68,11 @@ public class ForretningshendelseMottak {
     }
 
     @Inject
-    public ForretningshendelseMottak(ForretningshendelseOversetterProvider oversetterProvider,
-                                     ForretningshendelseHåndtererProvider håndtererProvider,
+    public ForretningshendelseMottak(ForretningshendelseHåndtererProvider håndtererProvider,
                                      ForretningshendelseSaksvelgerProvider saksvelgerProvider,
                                      BehandlingRepositoryProvider repositoryProvider,
                                      ProsessTaskRepository prosessTaskRepository,
                                      KøKontroller køKontroller) {
-        this.oversetterProvider = oversetterProvider;
         this.håndtererProvider = håndtererProvider;
         this.saksvelgerProvider = saksvelgerProvider;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
@@ -73,19 +85,13 @@ public class ForretningshendelseMottak {
     /**
     * 1. steg av håndtering av mottatt forretningshendelse. Identifiserer fagsaker som er kandidat for revurdering.
     */
-    public void mottaForretningshendelse(ForretningshendelseDto forretningshendelseDto) {
-        String hendelseKode = forretningshendelseDto.getForretningshendelseType();
-        ForretningshendelseType forretningshendelseType = ForretningshendelseType.fraKode(hendelseKode);
-        if (forretningshendelseType == null) {
-            FEILFACTORY.ukjentForretningshendelse(hendelseKode).log(logger);
-            return;
-        }
-        Forretningshendelse forretningshendelse = oversetterProvider.finnOversetter(forretningshendelseType).oversett(forretningshendelseDto);
-        ForretningshendelseSaksvelger<Forretningshendelse> saksvelger = saksvelgerProvider.finnSaksvelger(forretningshendelseType);
+    public void mottaForretningshendelse(ForretningshendelseType hendelseType, HendelseDto dto) {
+        Forretningshendelse forretningshendelse = OVERSETTER.get(hendelseType).apply(dto);
+        ForretningshendelseSaksvelger<Forretningshendelse> saksvelger = saksvelgerProvider.finnSaksvelger(hendelseType);
 
         Map<BehandlingÅrsakType, List<Fagsak>> fagsaker = saksvelger.finnRelaterteFagsaker(forretningshendelse);
         for (Map.Entry<BehandlingÅrsakType, List<Fagsak>> entry : fagsaker.entrySet()) {
-            entry.getValue().forEach(fagsak -> opprettProsesstaskForFagsak(fagsak, hendelseKode, entry.getKey()));
+            entry.getValue().forEach(fagsak -> opprettProsesstaskForFagsak(fagsak, hendelseType.getKode(), entry.getKey()));
         }
     }
 
@@ -133,7 +139,7 @@ public class ForretningshendelseMottak {
 
         // Case 4: Ytelsesbehandling finnes, men verken åpen eller innvilget. Antas å inntreffe sjelden
         if (!sisteInnvilgedeYtelsesbehandling.isPresent()) {
-            FEILFACTORY.finnesYtelsebehandlingSomVerkenErÅpenEllerInnvilget(hendelseType.getKode(), fagsakId).log(logger);
+            FEILFACTORY.finnesYtelsebehandlingSomVerkenErÅpenEllerInnvilget(hendelseType.getKode(), fagsakId).log(LOGGER);
             return;
         }
         Behandling innvilgetBehandling = sisteInnvilgedeYtelsesbehandling.get();
@@ -172,5 +178,9 @@ public class ForretningshendelseMottak {
     private boolean harAlleredeKøetBehandling(Behandling behandling) {
         Optional<Behandling> køetBehandling = revurderingRepository.finnKøetYtelsesbehandling(behandling.getFagsakId());
         return køetBehandling.isPresent();
+    }
+
+    private static List<AktørId> mapToAktørIds(HendelseDto hendelseDto) {
+        return hendelseDto.getAlleAktørId().stream().map(AktørId::new).collect(Collectors.toList());
     }
 }
