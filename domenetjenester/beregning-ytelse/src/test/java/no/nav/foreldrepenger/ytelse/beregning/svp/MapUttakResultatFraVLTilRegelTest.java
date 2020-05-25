@@ -50,6 +50,10 @@ public class MapUttakResultatFraVLTilRegelTest {
             protected BigDecimal finnStillingsprosent(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakAktivitet) {
                 return BigDecimal.valueOf(STILLING_70);
             }
+            @Override
+            protected BigDecimal finnTotalStillingsprosentHosAG(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakAktivitet) {
+                return BigDecimal.valueOf(STILLING_70);
+            }
         };
     }
 
