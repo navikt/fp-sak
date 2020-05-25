@@ -17,13 +17,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapsho
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
@@ -117,10 +120,10 @@ public class EndringsresultatSjekker {
         Long behandlingId = behandling.getId();
         EndringsresultatSnapshot snapshot = opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandlingId);
 
-        snapshot.leggTil(opptjeningRepository.finnAktivGrunnlagId(behandling));
-        snapshot.leggTil(finnAktivBeregningsgrunnlagGrunnlagAggregatId(behandlingId));
-        snapshot.leggTil(fpUttakRepository.finnAktivAggregatId(behandling.getId()));
-        snapshot.leggTil(uttaksperiodegrenseRepository.finnAktivAggregatId(behandling.getId()));
+        snapshot.leggTil(finnOpptjeningEndringsresultat(behandling.getId()));
+        snapshot.leggTil(finnBeregningsgrunnlagGrunnlagEndringsresultat(behandlingId));
+        snapshot.leggTil(finnFpUttakEndringsresultat(behandling));
+        snapshot.leggTil(finnUttaksperiodegrenseEndringsresultat(behandling));
 
         // Resultatstrukturene nedenfor støtter ikke paradigme med "aktivt" grunnlag som kan identifisere med id
         // Aksepterer her at endringssjekk heller utledes av deres tidsstempel forutsatt at metoden ikke brukes i
@@ -134,6 +137,20 @@ public class EndringsresultatSjekker {
     public EndringsresultatDiff finnIdEndringerPåBehandling(Behandling behandling, EndringsresultatSnapshot idSnapshotFør) {
         EndringsresultatSnapshot idSnapshotNå = opprettEndringsresultatIdPåBehandlingSnapshot(behandling);
         return idSnapshotNå.minus(idSnapshotFør);
+    }
+
+    private EndringsresultatSnapshot finnUttaksperiodegrenseEndringsresultat(Behandling behandling) {
+        var uttaksperiodegrenseId = uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId()).map(upg -> upg.getId());
+        return uttaksperiodegrenseId
+            .map(id-> EndringsresultatSnapshot.medSnapshot(Uttaksperiodegrense.class, id))
+            .orElse(EndringsresultatSnapshot.utenSnapshot(Uttaksperiodegrense.class));
+    }
+
+    private EndringsresultatSnapshot finnFpUttakEndringsresultat(Behandling behandling) {
+        var uttakId = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId()).map(u -> u.getId());
+        return uttakId
+            .map(id-> EndringsresultatSnapshot.medSnapshot(UttakResultatEntitet.class, id))
+            .orElse(EndringsresultatSnapshot.utenSnapshot(UttakResultatEntitet.class));
     }
 
     private EndringsresultatSnapshot lagVilkårResultatIdSnapshotAvTidsstempel(Behandling behandling) {
@@ -152,15 +169,12 @@ public class EndringsresultatSjekker {
             .orElse(EndringsresultatSnapshot.utenSnapshot(LegacyESBeregningsresultat.class));
     }
 
-
-    //Denne metoden bør legges i Tjeneste
-    public EndringsresultatSnapshot finnAktivBeregningsgrunnlagGrunnlagAggregatId(Long behandlingId) {
+    private EndringsresultatSnapshot finnBeregningsgrunnlagGrunnlagEndringsresultat(Long behandlingId) {
         Optional<Long> aktivBeregningsgrunnlagGrunnlagId = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId).map(BeregningsgrunnlagGrunnlagEntitet::getId);
         return aktivBeregningsgrunnlagGrunnlagId
             .map(id -> EndringsresultatSnapshot.medSnapshot(BeregningsgrunnlagEntitet.class, id))
             .orElse(EndringsresultatSnapshot.utenSnapshot(BeregningsgrunnlagEntitet.class));
     }
-
 
     private Long hentLongVerdiAvEndretTid(BaseEntitet entitet) {
        LocalDateTime endretTidspunkt = entitet.getOpprettetTidspunkt();
@@ -173,5 +187,13 @@ public class EndringsresultatSjekker {
     static Long mapFraLocalDateTimeTilLong(LocalDateTime ldt){
         ZonedDateTime zdt = ldt.atZone(ZoneId.of("Europe/Paris"));
         return zdt.toInstant().toEpochMilli();
+    }
+
+    private EndringsresultatSnapshot finnOpptjeningEndringsresultat(Long behandlingId) {
+        var opptjeningId = opptjeningRepository.finnOpptjening(behandlingId).map(Opptjening::getId);
+        return opptjeningId
+            .map(id -> EndringsresultatSnapshot.medSnapshot(Opptjening.class, id))
+            .orElse(EndringsresultatSnapshot.utenSnapshot(Opptjening.class));
+
     }
 }

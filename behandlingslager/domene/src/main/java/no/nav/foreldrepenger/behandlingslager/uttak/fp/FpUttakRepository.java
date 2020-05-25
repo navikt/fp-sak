@@ -152,18 +152,6 @@ public class FpUttakRepository {
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
-    private Optional<Long> finnAktivUttakId(Long behandlingId){
-        return hentUttakResultatHvisEksisterer(behandlingId).map(UttakResultatEntitet::getId);
-    }
-
-    //Denne metoden bør legges i Tjeneste
-    public EndringsresultatSnapshot finnAktivAggregatId(Long behandlingId){
-        Optional<Long> funnetId = finnAktivUttakId(behandlingId);
-        return funnetId
-            .map(id-> EndringsresultatSnapshot.medSnapshot(UttakResultatEntitet.class,id))
-            .orElse(EndringsresultatSnapshot.utenSnapshot(UttakResultatEntitet.class));
-    }
-
     public List<OrgManuellÅrsakEntitet> finnOrgManuellÅrsak(String virksomhetsnummer) {
         TypedQuery<OrgManuellÅrsakEntitet> query = entityManager
             .createQuery("select u from OrgManuellÅrsakEntitet u " +
