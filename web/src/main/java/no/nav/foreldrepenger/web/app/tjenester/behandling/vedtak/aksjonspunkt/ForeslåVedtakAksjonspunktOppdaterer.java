@@ -24,6 +24,7 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOverstyringshåndterer implements AksjonspunktOppdaterer<ForeslaVedtakAksjonspunktDto> {
 
     private BehandlingDokumentRepository behandlingDokumentRepository;
+    private OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag;
 
     ForeslåVedtakAksjonspunktOppdaterer() {
         // for CDI proxy
@@ -35,8 +36,9 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
                                                OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag,
                                                VedtakTjeneste vedtakTjeneste,
                                                BehandlingDokumentRepository behandlingDokumentRepository) {
-        super(repositoryProvider, historikkApplikasjonTjeneste, opprettToTrinnsgrunnlag, vedtakTjeneste, behandlingDokumentRepository);
+        super(repositoryProvider, historikkApplikasjonTjeneste, vedtakTjeneste, behandlingDokumentRepository);
         this.behandlingDokumentRepository = behandlingDokumentRepository;
+        this.opprettToTrinnsgrunnlag = opprettToTrinnsgrunnlag;
     }
 
     @Override
@@ -47,13 +49,13 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
 
         OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon();
         if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
-            oppdaterFritekstVedtaksbrev(dto, param, builder);
+            oppdaterFritekstVedtaksbrev(dto, param);
         } else {
-            opprettAksjonspunktForFatterVedtak(behandling, builder);
-            opprettToTrinnsgrunnlag.settNyttTotrinnsgrunnlag(behandling);
-            opprettHistorikkinnslag(behandling);
             fjernFritekstBrevHvisEksisterer(param.getBehandlingId());
         }
+        opprettAksjonspunktForFatterVedtak(behandling, builder);
+        opprettToTrinnsgrunnlag.settNyttTotrinnsgrunnlag(behandling);
+        opprettHistorikkinnslag(behandling);
         return builder.build();
     }
 
