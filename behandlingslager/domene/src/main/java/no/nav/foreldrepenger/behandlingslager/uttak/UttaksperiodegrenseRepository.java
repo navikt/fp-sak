@@ -81,27 +81,10 @@ public class UttaksperiodegrenseRepository {
         }
     }
 
-    //Bør ligge i egen tjeneste
-    public EndringsresultatSnapshot finnAktivAggregatId(Long behandlingId){
-        Optional<Long> funnetId = finnAktivUttakPeriodeGrenseId(behandlingId);
-        return funnetId
-            .map(id-> EndringsresultatSnapshot.medSnapshot(Uttaksperiodegrense.class,id))
-            .orElse(EndringsresultatSnapshot.utenSnapshot(Uttaksperiodegrense.class));
-    }
-
     private DiffEntity uttaksperiodegrenseAggregatDiffer() {
         TraverseGraph traverser = TraverseEntityGraphFactory.build(false);
         return new DiffEntity(traverser);
     }
-
-    private Optional<Long> finnAktivUttakPeriodeGrenseId(Long behandlingId){
-        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
-        if(behandlingsresultat.isEmpty()){
-            return Optional.empty();
-        }
-        return getAktivtUttaksperiodegrense(behandlingsresultat.get()).map(Uttaksperiodegrense::getId);
-    }
-    //Denne metoden bør legges i Tjeneste
 
     private Behandlingsresultat hentBehandlingsresultat(Long behandlingId) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId)
