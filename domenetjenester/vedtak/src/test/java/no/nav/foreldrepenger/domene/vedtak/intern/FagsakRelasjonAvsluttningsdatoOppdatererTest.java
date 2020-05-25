@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -66,6 +67,9 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
     @Mock
     private UttakInputTjeneste uttakInputTjeneste;
     @Mock
+    private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
+
+    @Mock
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
     private Fagsak fagsak;
@@ -84,7 +88,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepository);
 
         fagsakRelasjonAvsluttningsdatoOppdaterer = new FagsakRelasjonAvsluttningsdatoOppdaterer(repositoryProvider, stønadskontoSaldoTjeneste,
-            uttakInputTjeneste, fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste);
+            uttakInputTjeneste, maksDatoUttakTjeneste, fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste);
 
         behandling = lagBehandling();
         fagsak = behandling.getFagsak();
