@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
@@ -69,11 +70,12 @@ public class KontrollerFaktaBeregningStegTest {
         var skjæringstidspunktTjeneste = Mockito.mock(SkjæringstidspunktTjeneste.class);
         var opptjeningForBeregningTjeneste = Mockito.mock(OpptjeningForBeregningTjeneste.class);
         var inputProvider = Mockito.mock(BeregningsgrunnlagInputProvider.class);
+        var kalkuluskonfig = new KalkulusKonfigInjecter();
         behandling = scenario.lagre(repositoryProvider);
 
         InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
         var inputTjeneste = new BeregningsgrunnlagInputTjeneste(repositoryProvider, iayTjeneste, skjæringstidspunktTjeneste, andelGraderingTjeneste, opptjeningForBeregningTjeneste,
-            besteberegningFødendeKvinneTjeneste, inntektsmeldingTjeneste);
+            besteberegningFødendeKvinneTjeneste, inntektsmeldingTjeneste, kalkuluskonfig);
         when(inputProvider.getTjeneste(FagsakYtelseType.FORELDREPENGER)).thenReturn(inputTjeneste);
         steg = new KontrollerFaktaBeregningSteg(beregningsgrunnlagKopierOgLagreTjeneste, behandlingRepository, hentBeregningsgrunnlagTjeneste, inputProvider);
         lagreBeregningsgrunnlag(false, BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER);

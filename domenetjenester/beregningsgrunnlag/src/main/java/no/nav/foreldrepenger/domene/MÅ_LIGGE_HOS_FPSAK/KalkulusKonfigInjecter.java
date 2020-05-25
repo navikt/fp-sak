@@ -42,7 +42,7 @@ public class KalkulusKonfigInjecter {
         input.leggTilKonfigverdi(INNTEKT_RAPPORTERING_FRIST_DATO, inntektRapporteringFristDagIMåneden);
     }
 
-    void leggTilFeatureToggles(BeregningsgrunnlagInput input) {
+    public void leggTilFeatureToggles(BeregningsgrunnlagInput input) {
         Map<String, Boolean> toggleMap = new HashMap<>();
         TOGGLES.forEach(toggle -> toggleMap.put(toggle, unleash.isEnabled(toggle)));
         input.setToggles(toggleMap);
