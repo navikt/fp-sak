@@ -101,7 +101,7 @@ public class FaktaUttakOverstyringshåndtererTest {
 
         var dto = opprettOverstyringSøknadsperioderDto();
         faktaUttakOverstyringshåndterer.håndterAksjonspunktForOverstyringPrecondition(dto, behandling);
-        faktaUttakOverstyringshåndterer.håndterAksjonspunktForOverstyringHistorikk(dto, behandling, Boolean.FALSE);
+        faktaUttakOverstyringshåndterer.håndterAksjonspunktForOverstyringHistorikk(dto, behandling);
 
         // Verifiserer HistorikkinnslagDto
         ArgumentCaptor<Historikkinnslag> historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
