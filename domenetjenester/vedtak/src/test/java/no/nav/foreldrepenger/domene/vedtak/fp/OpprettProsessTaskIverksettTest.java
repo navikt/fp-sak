@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,7 +27,6 @@ import no.nav.foreldrepenger.domene.vedtak.ekstern.SettUtbetalingPåVentPrivatAr
 import no.nav.foreldrepenger.domene.vedtak.ekstern.VurderOppgaveArenaTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
-import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvsluttningsdatoTask;
 import no.nav.foreldrepenger.domene.vedtak.task.VurderOgSendØkonomiOppdragTask;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
@@ -71,7 +71,7 @@ public class OpprettProsessTaskIverksettTest {
         List<String> tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
         assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE,
             VurderOgSendØkonomiOppdragTask.TASKTYPE, SettUtbetalingPåVentPrivatArbeidsgiverTask.TASKTYPE,
-            VurderOppgaveArenaTask.TASKTYPE, VEDTAK_TIL_DATAVAREHUS_TASK, SettFagsakRelasjonAvsluttningsdatoTask.TASKTYPE);
+            VurderOppgaveArenaTask.TASKTYPE, VEDTAK_TIL_DATAVAREHUS_TASK, SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class OpprettProsessTaskIverksettTest {
         assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE,
             AvsluttOppgaveTaskProperties.TASKTYPE, VurderOgSendØkonomiOppdragTask.TASKTYPE,
             SettUtbetalingPåVentPrivatArbeidsgiverTask.TASKTYPE,
-            VurderOppgaveArenaTask.TASKTYPE, VEDTAK_TIL_DATAVAREHUS_TASK, SettFagsakRelasjonAvsluttningsdatoTask.TASKTYPE);
+            VurderOppgaveArenaTask.TASKTYPE, VEDTAK_TIL_DATAVAREHUS_TASK, SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
     }
 
     private void mockOpprettTaskAvsluttOppgave() {

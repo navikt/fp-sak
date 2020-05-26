@@ -58,9 +58,4 @@ public class OpprettProsessTaskIverksettImpl extends OpprettProsessTaskIverksett
         prosessTaskRepository.lagre(taskData);
     }
 
-    private ProsessTaskData getProsesstaskFor(String tasktype) {
-        var task = new ProsessTaskData(tasktype);
-        task.setPrioritet(50);
-        return task;
-    }
 }

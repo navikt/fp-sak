@@ -29,38 +29,16 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 
-@ApplicationScoped
-public class FagsakRelasjonAvsluttningsdatoOppdaterer {
+public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
 
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
-    private BehandlingRepository behandlingRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
-    private ForeldrepengerUttakTjeneste fpUttakTjeneste;
-    private FamilieHendelseRepository familieHendelseRepository;
-    private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
-    private UttakInputTjeneste uttakInputTjeneste;
-    private MaksDatoUttakTjeneste svpMaksDatoUttakTjeneste;
-
-    public FagsakRelasjonAvsluttningsdatoOppdaterer() {
-        // NOSONAR
-    }
-
-    @Inject
-    public FagsakRelasjonAvsluttningsdatoOppdaterer(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                                    StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
-                                                    UttakInputTjeneste uttakInputTjeneste,
-                                                    @FagsakYtelseTypeRef("SVP") MaksDatoUttakTjeneste svpMaksDatoUttakTjeneste,
-                                                    FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                                    ForeldrepengerUttakTjeneste fpUttakTjeneste) {
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
-        this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
-        this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
-        this.fpUttakTjeneste = fpUttakTjeneste;
-        this.familieHendelseRepository = behandlingRepositoryProvider.getFamilieHendelseRepository();
-        this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
-        this.uttakInputTjeneste = uttakInputTjeneste;
-        this.svpMaksDatoUttakTjeneste = svpMaksDatoUttakTjeneste;
-    }
+    protected FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    protected BehandlingRepository behandlingRepository;
+    protected BehandlingsresultatRepository behandlingsresultatRepository;
+    protected ForeldrepengerUttakTjeneste fpUttakTjeneste;
+    protected FamilieHendelseRepository familieHendelseRepository;
+    protected StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
+    protected UttakInputTjeneste uttakInputTjeneste;
+    protected MaksDatoUttakTjeneste maksDatoUttakTjeneste;
 
     void oppdaterFagsakRelasjonAvsluttningsdato(FagsakRelasjon relasjon,
                                                 Long fagsakId,
@@ -78,9 +56,8 @@ public class FagsakRelasjonAvsluttningsdatoOppdaterer {
             avsluttningsdato = avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(behandling.get(), avsluttningsdato);
             avsluttningsdato = avsluttningsdatoHvisDetIkkeErStønadsdagerIgjen(behandling.get(), avsluttningsdato);
             if(fagsakRelasjon.getFagsakNrTo().isEmpty()
-                && fagsakRelasjon.getFagsakNrEn().getYtelseType() == FagsakYtelseType.SVANGERSKAPSPENGER){
-                //TODO: Bør oppdateres til å handtere FP og evt andre ytelsestyper som har relasjon med en aktør
-                Optional<LocalDate> sisteUttaksdato = hentSisteUttaksdatoForSVPFagsak(behandling.get().getFagsakId());
+                && maksDatoUttakTjeneste != null){
+                Optional<LocalDate> sisteUttaksdato = hentSisteUttaksdatoForFagsak(behandling.get().getFagsakId());
                 if(sisteUttaksdato.isPresent() && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, sisteUttaksdato.get()))avsluttningsdato = sisteUttaksdato.get();
             }
             avsluttningsdato = avsluttningsdatoHvisDetErStønadsdagerIgjen(behandling.get(), avsluttningsdato);
@@ -92,11 +69,11 @@ public class FagsakRelasjonAvsluttningsdatoOppdaterer {
         return avsluttningsdato;
     }
 
-    private Optional<LocalDate> hentSisteUttaksdatoForSVPFagsak(Long fagsakId) {
+    private Optional<LocalDate> hentSisteUttaksdatoForFagsak(Long fagsakId) {
         Optional<Behandling> sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
         if (sisteYtelsesvedtak.isPresent()) {
             var uttakInput = uttakInputTjeneste.lagInput(sisteYtelsesvedtak.get());
-            return svpMaksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
+            return maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
         } else return Optional.empty();
     }
 

@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakRelasjonProsessTask;
@@ -33,7 +34,7 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
 
     private BehandlingRepository behandlingRepository;
     private Instance<OppdaterFagsakStatus> oppdaterFagsakStatuser;
-    private FagsakRelasjonAvsluttningsdatoOppdaterer fagsakRelasjonAvsluttningsdatoOppdaterer;
+    private Instance<FagsakRelasjonAvslutningsdatoOppdaterer> fagsakRelasjonAvslutningsdatoOppdaterer;
 
     AutomatiskFagsakAvslutningTask() {
         // for CDI proxy
@@ -42,11 +43,11 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
     @Inject
     public AutomatiskFagsakAvslutningTask(FagsakLåsRepository fagsakLåsRepository, FagsakRelasjonLåsRepository relasjonLåsRepository, BehandlingRepositoryProvider repositoryProvider,
                                           @Any Instance<OppdaterFagsakStatus> oppdaterFagsakStatuser,
-                                          FagsakRelasjonAvsluttningsdatoOppdaterer fagsakRelasjonAvsluttningsdatoOppdaterer) {
+                                          @Any Instance<FagsakRelasjonAvslutningsdatoOppdaterer> fagsakRelasjonAvslutningsdatoOppdaterer) {
         super(fagsakLåsRepository, relasjonLåsRepository, repositoryProvider.getFagsakRelasjonRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.oppdaterFagsakStatuser = oppdaterFagsakStatuser;
-        this.fagsakRelasjonAvsluttningsdatoOppdaterer = fagsakRelasjonAvsluttningsdatoOppdaterer;
+        this.fagsakRelasjonAvslutningsdatoOppdaterer = fagsakRelasjonAvslutningsdatoOppdaterer;
     }
 
     @Override
@@ -56,11 +57,16 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
         Optional<Behandling> behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
 
         if (behandling.isPresent()) {
-            OppdaterFagsakStatus oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, behandling.get().getFagsakYtelseType())
-                .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + behandling.get().getFagsakYtelseType().getKode()));
+            FagsakYtelseType ytelseType = behandling.get().getFagsakYtelseType();
+            OppdaterFagsakStatus oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, ytelseType)
+                .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner av oppdaterFagsakStatus funnet for ytelse: " + ytelseType.getKode()));
             var resultat = oppdaterFagsakStatus.oppdaterFagsakNårBehandlingEndret(behandling.get());
             if (resultat != FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET) {
-                relasjon.ifPresent(fr -> fagsakRelasjonAvsluttningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fr, fagsakId, relasjonLås, fagsak1Lås, fagsak2Lås));
+                if(relasjon.isPresent()) {
+                    FagsakRelasjonAvslutningsdatoOppdaterer fagsakRelasjonAvslutningsdatoOppdaterer = FagsakYtelseTypeRef.Lookup.find(this.fagsakRelasjonAvslutningsdatoOppdaterer, ytelseType)
+                        .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner av FagsakRelasjonAvslutningsdatoOppdaterer funnet for ytelse: " + ytelseType.getKode()));
+                    fagsakRelasjonAvslutningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(relasjon.get(), fagsakId, relasjonLås, fagsak1Lås, fagsak2Lås);
+                };
             }
         }
     }
