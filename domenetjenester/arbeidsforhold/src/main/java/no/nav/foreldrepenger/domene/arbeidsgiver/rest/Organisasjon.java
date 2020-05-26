@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.arbeidsgiver.rest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -47,7 +48,7 @@ public class Organisasjon {
     }
 
     public String getNavn() {
-        return navn != null ? navn.getRedigertnavn() : null;
+        return navn != null ? navn.getNavn() : null;
     }
 
     public LocalDate getRegistreringsdato() {
@@ -75,22 +76,39 @@ public class Organisasjon {
 
     static class Navn {
 
-        @JsonProperty("redigertnavn")
-        private String redigertnavn;
+        private String konstruertNavn;
+
+        @JsonProperty("navnelinje1")
+        private String navnelinje1;
+        @JsonProperty("navnelinje2")
+        private String navnelinje2;
+        @JsonProperty("navnelinje3")
+        private String navnelinje3;
+        @JsonProperty("navnelinje4")
+        private String navnelinje4;
+        @JsonProperty("navnelinje5")
+        private String navnelinje5;
 
         @JsonCreator
-        public Navn(@JsonProperty("redigertnavn") String redigertnavn) {
-            this.redigertnavn = redigertnavn;
+        public Navn(@JsonProperty("navnelinje1") String navnelinje1,
+                    @JsonProperty("navnelinje2") String navnelinje2,
+                    @JsonProperty("navnelinje3") String navnelinje3,
+                    @JsonProperty("navnelinje4") String navnelinje4,
+                    @JsonProperty("navnelinje5") String navnelinje5) {
+            this.konstruertNavn = List.of(navnelinje1, navnelinje2, navnelinje3, navnelinje4, navnelinje5).stream()
+                .filter(n -> n != null && !n.isEmpty())
+                .reduce("", (a, b) -> a + " " + b).trim()
+            ;
         }
 
-        public String getRedigertnavn() {
-            return redigertnavn;
+        public String getNavn() {
+            return konstruertNavn;
         }
 
         @Override
         public String toString() {
             return "Navn{" +
-                "redigertnavn='" + redigertnavn + '\'' +
+                "navn='" + konstruertNavn + '\'' +
                 '}';
         }
     }
