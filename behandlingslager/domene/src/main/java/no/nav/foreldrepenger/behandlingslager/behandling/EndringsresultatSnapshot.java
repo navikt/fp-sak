@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -93,13 +92,6 @@ public class EndringsresultatSnapshot {
         return Objects.hash(grunnlagId, grunnlagKlasse);
     }
 
-    public Optional<EndringsresultatSnapshot> hentDelresultat(Class<?> aggregatKlasse) {
-        return getChildren().stream()
-            .filter(it -> it.getGrunnlag().equals(aggregatKlasse))
-            .findFirst();
-    }
-
-    // Sammenstill grunnlagenes snapshot av id, dvs tupple av (grunnlagKlasse, grunnlagId1, grunnlagId2)
     public EndringsresultatDiff minus(EndringsresultatSnapshot etter) {
         EndringsresultatSnapshot før = this;
         EndringsresultatDiff idDiff = EndringsresultatDiff.opprett();
