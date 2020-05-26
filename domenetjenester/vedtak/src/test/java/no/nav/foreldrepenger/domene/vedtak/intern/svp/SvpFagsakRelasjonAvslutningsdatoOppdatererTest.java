@@ -35,12 +35,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
@@ -120,7 +118,7 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
         LocalDate avslutningdato = fagsakRelasjonAvslutningsdatoOppdaterer.finnAvslutningsdato(fagsak.getId(),fagsakRelasjon);
 
         // Assert
-        assertEquals(sisteUttaksdato, avslutningdato);
+        assertThat(avslutningdato).isEqualTo(sisteUttaksdato);
 
     }
 
@@ -140,7 +138,7 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
         LocalDate avslutningdato = fagsakRelasjonAvslutningsdatoOppdaterer.finnAvslutningsdato(fagsak.getId(),fagsakRelasjon);
 
         // Assert
-        assertEquals(LocalDate.now().plusDays(1), avslutningdato);
+        assertThat(avslutningdato).isEqualTo(LocalDate.now().plusDays(1));
 
     }
 
