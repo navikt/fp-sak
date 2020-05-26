@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -28,7 +27,6 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     protected HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     BehandlingsresultatRepository behandlingsresultatRepository;
-    protected OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag;
     private VedtakTjeneste vedtakTjeneste;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private BehandlingRepository behandlingRepository;
@@ -39,21 +37,18 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
     AbstractVedtaksbrevOverstyringshåndterer(BehandlingRepositoryProvider repositoryProvider,
                                              HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
-                                             OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag,
                                              VedtakTjeneste vedtakTjeneste,
                                              BehandlingDokumentRepository behandlingDokumentRepository) {
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        this.opprettToTrinnsgrunnlag = opprettToTrinnsgrunnlag;
         this.vedtakTjeneste = vedtakTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
     }
 
-    void oppdaterFritekstVedtaksbrev(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param, OppdateringResultat.Builder builder) {
+    void oppdaterFritekstVedtaksbrev(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param) {
         Behandling behandling = param.getBehandling();
         settFritekstBrev(behandling, dto.getOverskrift(), dto.getFritekstBrev());
-        opprettToTrinnsKontrollpunktForFritekstBrev(dto, behandling, builder);
         opprettHistorikkinnslag(behandling);
     }
 
@@ -97,37 +92,12 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         return Behandlingsresultat.builderEndreEksisterende(eksisterendeBehandlingsresultat);
     }
 
-    private void opprettToTrinnsKontrollpunktForFritekstBrev(BekreftetAksjonspunktDto dto, Behandling behandling, OppdateringResultat.Builder builder) {
-        behandling.setToTrinnsBehandling();
-        builder.medTotrinn();
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
-        if (!AksjonspunktDefinisjon.FORESLÅ_VEDTAK.equals(aksjonspunktDefinisjon)) {
-            ekskluderOriginaltAksjonspunktFraTotrinnsVurdering(dto, behandling, builder);
-            registrerNyttKontrollpunktIAksjonspunktRepo(behandling, builder);
-        }
-        opprettToTrinnsgrunnlag.settNyttTotrinnsgrunnlag(behandling);
-        opprettAksjonspunktForFatterVedtak(behandling, builder);
-    }
-
     void opprettAksjonspunktForFatterVedtak(Behandling behandling, OppdateringResultat.Builder builder) {
         if (BehandlingType.INNSYN.equals(behandling.getType())) {
             return; //vedtak for innsynsbehanding fattes automatisk
         }
 
         builder.medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.FATTER_VEDTAK, AksjonspunktStatus.OPPRETTET);
-    }
-
-    private void ekskluderOriginaltAksjonspunktFraTotrinnsVurdering(BekreftetAksjonspunktDto dto, Behandling behandling, OppdateringResultat.Builder builder) {
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
-        behandling.getÅpentAksjonspunktMedDefinisjonOptional(aksjonspunktDefinisjon)
-            .ifPresent(ap -> builder.medAvbruttAksjonspunkt());
-    }
-
-    private void registrerNyttKontrollpunktIAksjonspunktRepo(Behandling behandling, OppdateringResultat.Builder builder) {
-        AksjonspunktDefinisjon foreslaVedtak = AksjonspunktDefinisjon.FORESLÅ_VEDTAK;
-        AksjonspunktStatus target = behandling.getAksjonspunktMedDefinisjonOptional(foreslaVedtak)
-            .map(ap -> AksjonspunktStatus.AVBRUTT.equals(ap.getStatus()) ? AksjonspunktStatus.OPPRETTET : ap.getStatus()).orElse(AksjonspunktStatus.UTFØRT);
-        builder.medEkstraAksjonspunktResultat(foreslaVedtak, target);
     }
 
     void opprettHistorikkinnslag(Behandling behandling) {

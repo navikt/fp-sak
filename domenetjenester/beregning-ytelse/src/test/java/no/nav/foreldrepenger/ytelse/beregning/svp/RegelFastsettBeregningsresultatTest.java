@@ -124,7 +124,7 @@ public class RegelFastsettBeregningsresultatTest {
 
     private List<UttakAktivitet> lagUttakAktiviteter(BigDecimal stillingsgrad, BigDecimal utbetalingsgrad, List<Arbeidsforhold> arbeidsforholdList) {
         return arbeidsforholdList.stream()
-            .map(arb -> new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, arb, AktivitetStatus.ATFL, false))
+            .map(arb -> new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, arb, AktivitetStatus.ATFL, false, stillingsgrad))
             .collect(Collectors.toList());
     }
 }

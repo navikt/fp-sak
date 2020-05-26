@@ -84,7 +84,7 @@ public class FatterVedtakAksjonspunkt {
         totrinnTjeneste.settNyeTotrinnaksjonspunktvurderinger(behandling, totrinnsvurderinger);
         vedtakTjeneste.lagHistorikkinnslagFattVedtak(behandling);
         // Noe spesialhåndtering ifm totrinn og tilbakeføring fra FVED
-        behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, skalReåpnes, Optional.of(Boolean.TRUE));
+        behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, skalReåpnes, false, true);
     }
 
     private boolean erKlageGodkjentHosMedunderskriver(Behandling behandling, boolean erAksjonspunktGodkjent) {

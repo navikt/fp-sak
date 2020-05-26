@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -24,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
+import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.json.JacksonJsonConfig;
+import no.nav.foreldrepenger.mottak.vedtak.LoggOverlappendeEksternYtelseTjeneste;
 import no.nav.foreldrepenger.mottak.vedtak.VurderOpphørAvYtelser;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -59,6 +60,7 @@ public class VedtaksHendelseHåndterer {
 
     private FagsakTjeneste fagsakTjeneste;
     private VurderOpphørAvYtelser vurderOpphørAvYtelser;
+    private LoggOverlappendeEksternYtelseTjeneste eksternOverlappLogger;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository tilkjentYtelseRepository;
     private Validator validator;
@@ -69,9 +71,11 @@ public class VedtaksHendelseHåndterer {
     @Inject
     public VedtaksHendelseHåndterer(FagsakTjeneste fagsakTjeneste,
                                     VurderOpphørAvYtelser vurderOpphørAvYtelser,
+                                    LoggOverlappendeEksternYtelseTjeneste eksternOverlappLogger,
                                     BehandlingRepositoryProvider repositoryProvider) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.vurderOpphørAvYtelser = vurderOpphørAvYtelser;
+        this.eksternOverlappLogger = eksternOverlappLogger;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.tilkjentYtelseRepository = repositoryProvider.getBeregningsresultatRepository();
         @SuppressWarnings("resource")
@@ -123,6 +127,13 @@ public class VedtaksHendelseHåndterer {
 
         var minYtelseDato = ytelsesegments.stream().map(LocalDateSegment::getFom).min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
         var ytelseTidslinje = new LocalDateTimeline<>(ytelsesegments, StandardCombinators::alwaysTrueForMatch).compress();
+
+        // Flytt flere ytelser hit. Frisinn må logges ugradert. Vurder egen metode for de som kan sjekkes mot gradert overlapp - bruk da LDTL / BigDecmial
+        if (YtelseType.FRISINN.equals(ytelse.getType())) {
+            eksternOverlappLogger.loggOverlappUtenGradering(ytelse, minYtelseDato, ytelseTidslinje, fagsaker);
+            return;
+        }
+
         List<Behandling> behandlinger = fagsaker.stream()
             .map(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()))
             .flatMap(Optional::stream)
@@ -132,9 +143,9 @@ public class VedtaksHendelseHåndterer {
 
         if (!behandlinger.isEmpty()) {
             var overlappsaker = behandlinger.stream().map(Behandling::getFagsak).map(Fagsak::getSaksnummer).map(Saksnummer::getVerdi).collect(Collectors.joining(", "));
-            var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL; %s", ytelse.getType().getNavn(), ytelse.getSaksnummer(), overlappsaker);
-            LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER UMIDDELBART - {}", beskrivelse);
-            // TODO (jol): enable VKY etter avklaring. Deretter vurder å opprette revurdering ....
+            var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL: %s", ytelse.getType().getNavn(), ytelse.getSaksnummer(), overlappsaker);
+            LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER UMIDDELBART! - {}", beskrivelse);
+            // TODO (jol): enable VKY etter avklaring. Deretter vurder å opprette revurdering .... Behovet tilstede for PSB, øvrige uklare
             // vurderOpphørAvYtelser.opprettTaskForÅVurdereKonsekvens(behandlinger.get(0).getFagsakId(), behandlinger.get(0).getBehandlendeEnhet(),
             //    beskrivelse, Optional.of(ytelse.getAktør().getVerdi()));
         }

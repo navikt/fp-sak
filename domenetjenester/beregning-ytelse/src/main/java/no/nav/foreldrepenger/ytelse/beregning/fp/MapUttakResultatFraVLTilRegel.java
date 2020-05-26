@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -51,6 +52,7 @@ public class MapUttakResultatFraVLTilRegel {
     private UttakAktivitet mapAktivitet(UttakInput input, ForeldrepengerUttakPeriodeAktivitet uttakResultatPeriodeAktivitet, LocalDate periodeFom, boolean periodeGraderingInvilget) {
         BigDecimal utbetalingsgrad = uttakResultatPeriodeAktivitet.getUtbetalingsgrad();
         BigDecimal stillingsprosent = mapStillingsprosent(input, uttakResultatPeriodeAktivitet, periodeFom);
+        BigDecimal totalStillingsprosent = finnTotalStillingsprosentHosAG(input, uttakResultatPeriodeAktivitet, periodeFom);
 
         UttakYrkesaktiviteter uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
         BigDecimal arbeidstidsprosent = finnArbeidsprosent(uttakResultatPeriodeAktivitet, uttakYrkesaktiviteter, periodeFom);
@@ -58,7 +60,21 @@ public class MapUttakResultatFraVLTilRegel {
         Arbeidsforhold arbeidsforhold = mapArbeidsforhold(uttakResultatPeriodeAktivitet.getUttakAktivitet());
         AktivitetStatus aktivitetStatus = MapUttakArbeidTypeTilAktivitetStatus.map(uttakResultatPeriodeAktivitet.getUttakArbeidType());
 
-        return new UttakAktivitet(stillingsprosent, arbeidstidsprosent, utbetalingsgrad, arbeidsforhold, aktivitetStatus, periodeGraderingInvilget && uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode());
+        boolean skalGraderes = periodeGraderingInvilget && uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode();
+        return new UttakAktivitet(stillingsprosent,
+            arbeidstidsprosent,
+            utbetalingsgrad,
+            arbeidsforhold,
+            aktivitetStatus,
+            skalGraderes,
+            totalStillingsprosent);
+    }
+
+    private BigDecimal finnTotalStillingsprosentHosAG(UttakInput input, ForeldrepengerUttakPeriodeAktivitet uttakAktivitet, LocalDate periodeFom) {
+        Optional<Arbeidsgiver> arbeidsgiver = uttakAktivitet.getArbeidsgiver();
+        return arbeidsgiver.isPresent()?
+            input.getYrkesaktiviteter().finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(), InternArbeidsforholdRef.nullRef(), periodeFom):
+            BigDecimal.valueOf(100);
     }
 
     private BigDecimal finnArbeidsprosent(ForeldrepengerUttakPeriodeAktivitet uttakResultatPeriodeAktivitet,

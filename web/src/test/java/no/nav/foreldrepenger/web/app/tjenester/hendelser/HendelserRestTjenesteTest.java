@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.hendelser;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,17 +22,10 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.kontrakter.abonnent.tps.DødfødselHendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.tps.FødselHendelseDto;
-import no.nav.foreldrepenger.mottak.hendelser.HendelseSorteringTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.JsonMapper;
 import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
-import no.nav.foreldrepenger.mottak.hendelser.MottattHendelseTjeneste;
-import no.nav.foreldrepenger.mottak.hendelser.kontrakt.DødfødselHendelse;
-import no.nav.foreldrepenger.mottak.hendelser.kontrakt.FødselHendelse;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacAktørIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacHendelseWrapperDto;
-import no.nav.foreldrepenger.web.app.tjenester.hendelser.impl.DødfødselForretningshendelseRegistrerer;
-import no.nav.foreldrepenger.web.app.tjenester.hendelser.impl.ForretningshendelseRegistrererProvider;
-import no.nav.foreldrepenger.web.app.tjenester.hendelser.impl.FødselForretningshendelseRegistrerer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -54,16 +45,7 @@ public class HendelserRestTjenesteTest {
 
     @Before
     public void before() {
-        MottattHendelseTjeneste mottattHendelseTjeneste = new MottattHendelseTjeneste(hendelsemottakRepository, prosessTaskRepository);
-        HendelseSorteringTjeneste sorteringTjeneste = new HendelseSorteringTjeneste(sorteringRepository);
-
-        FødselForretningshendelseRegistrerer fødselRegistrerer = new FødselForretningshendelseRegistrerer(mottattHendelseTjeneste);
-        DødfødselForretningshendelseRegistrerer dødfødselRegistrerer = new DødfødselForretningshendelseRegistrerer(mottattHendelseTjeneste);
-        ForretningshendelseRegistrererProvider provider = mock(ForretningshendelseRegistrererProvider.class);
-        doReturn(fødselRegistrerer).when(provider).finnRegistrerer(any(FødselHendelseDto.class));
-        doReturn(dødfødselRegistrerer).when(provider).finnRegistrerer(any(DødfødselHendelseDto.class));
-
-        hendelserRestTjeneste = new HendelserRestTjeneste(mottattHendelseTjeneste, sorteringTjeneste, provider);
+        hendelserRestTjeneste = new HendelserRestTjeneste(sorteringRepository, hendelsemottakRepository, prosessTaskRepository);
     }
 
     @Test
@@ -71,9 +53,10 @@ public class HendelserRestTjenesteTest {
         // Arrange
         List<AktørId> aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
         LocalDate fødselsdato = LocalDate.now();
+        var hendelse = lagFødselHendelse(aktørIdForeldre, fødselsdato);
 
         // Act
-        hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(lagFødselHendelse(aktørIdForeldre, fødselsdato)));
+        hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(hendelse));
         repoRule.getEntityManager().flush();
 
         // Assert
@@ -81,7 +64,7 @@ public class HendelserRestTjenesteTest {
         List<ProsessTaskData> tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         ProsessTaskData task = tasks.stream().filter(d -> Objects.equals(KlargjørHendelseTask.TASKTYPE, d.getTaskType())).findFirst().orElseThrow();
         assertThat(task.getTaskType()).isEqualTo(KlargjørHendelseTask.TASKTYPE);
-        assertThat(task.getPayloadAsString()).isEqualTo(JsonMapper.toJson(new FødselHendelse(aktørIdForeldre.stream().map(AktørId::getId).collect(Collectors.toList()), fødselsdato)));
+        assertThat(task.getPayloadAsString()).isEqualTo(JsonMapper.toJson(hendelse));
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE)).isEqualTo("FØDSEL");
     }
@@ -91,9 +74,10 @@ public class HendelserRestTjenesteTest {
         // Arrange
         List<AktørId> aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
         LocalDate dødfødseldato = LocalDate.now();
+        var hendelse = lagDødfødselHendelse(aktørIdForeldre, dødfødseldato);
 
         // Act
-        hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(lagDødfødselHendelse(aktørIdForeldre, dødfødseldato)));
+        hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(hendelse));
         repoRule.getEntityManager().flush();
 
         // Assert
@@ -101,7 +85,7 @@ public class HendelserRestTjenesteTest {
         List<ProsessTaskData> tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         ProsessTaskData task = tasks.stream().filter(d -> Objects.equals(KlargjørHendelseTask.TASKTYPE, d.getTaskType())).findFirst().orElseThrow();
         assertThat(task.getTaskType()).isEqualTo(KlargjørHendelseTask.TASKTYPE);
-        assertThat(task.getPayloadAsString()).isEqualTo(JsonMapper.toJson(new DødfødselHendelse(aktørIdForeldre.stream().map(AktørId::getId).collect(Collectors.toList()), dødfødseldato)));
+        assertThat(task.getPayloadAsString()).isEqualTo(JsonMapper.toJson(hendelse));
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE)).isEqualTo("DØDFØDSEL");
     }

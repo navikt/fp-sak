@@ -353,12 +353,15 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     }
 
     @Override
-    public void lagreAksjonspunkterReåpnet(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter, Optional<Boolean> setTotrinn) {
+    public void lagreAksjonspunkterReåpnet(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter, boolean beholdToTrinnVurdering, boolean setTotrinn) {
         Behandling behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
         List<Aksjonspunkt> reåpnet = new ArrayList<>();
-        boolean totrinn = setTotrinn.orElse(Boolean.FALSE);
         aksjonspunkter.stream().filter(ap -> !ap.erOpprettet()).forEach(ap -> {
-            aksjonspunktKontrollRepository.setReåpnetMedTotrinn(ap, totrinn);
+            if (beholdToTrinnVurdering) {
+                aksjonspunktKontrollRepository.setReåpnet(ap);
+            } else {
+                aksjonspunktKontrollRepository.setReåpnetMedTotrinn(ap, setTotrinn);
+            }
             reåpnet.add(ap);
         });
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());

@@ -256,7 +256,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
     }
 
     private static boolean skalGjøreOverkompensasjon(UttakAktivitet uttakAktivitet) {
-        if (uttakAktivitet.getStillingsgrad().compareTo(FULL_STILLING) >= 0) {
+        if (uttakAktivitet.getTotalStillingsgradHosAG().compareTo(FULL_STILLING) >= 0) {
             // Jobber mer enn 100%, skal aldri overkompenseres
             return false;
         }

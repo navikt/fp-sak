@@ -141,7 +141,7 @@ public class BerørtBehandlingKontroller {
                 BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(køetBehandling);
                 behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, køetBehandling.getAktivtBehandlingSteg(),
                     køetBehandling.getAksjonspunktFor(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING), "Berørt behandling er fullført");
-                behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, List.of(køetBehandling.getAksjonspunktFor(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)), Optional.empty());
+                behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, List.of(køetBehandling.getAksjonspunktFor(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)), true, false);
                 berørtBehandlingTjeneste.opprettHistorikkinnslagForVenteFristRelaterteInnslag(køetBehandling, HistorikkinnslagType.BEH_VENT,
                     køetBehandling.getAksjonspunktFor(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD).getFristTid(), Venteårsak.FOR_TIDLIG_SOKNAD);
                 behandlingProsesseringTjeneste.opprettTasksForStartBehandling(køetBehandling);

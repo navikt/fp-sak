@@ -29,7 +29,7 @@ public abstract class AbstractOverstyringshåndterer<T extends OverstyringAksjon
     }
 
     @Override
-    public void håndterAksjonspunktForOverstyringHistorikk(T dto, Behandling behandling, boolean endretBegrunnese) {
+    public void håndterAksjonspunktForOverstyringHistorikk(T dto, Behandling behandling) {
         lagHistorikkInnslag(behandling, dto);
     }
 

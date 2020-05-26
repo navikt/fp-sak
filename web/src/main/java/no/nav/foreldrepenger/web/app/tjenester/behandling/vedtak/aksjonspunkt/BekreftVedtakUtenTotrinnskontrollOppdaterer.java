@@ -24,17 +24,16 @@ class BekreftVedtakUtenTotrinnskontrollOppdaterer extends AbstractVedtaksbrevOve
     @Inject
     public BekreftVedtakUtenTotrinnskontrollOppdaterer(BehandlingRepositoryProvider repositoryProvider,
                                                        HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
-                                                       OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag,
                                                        VedtakTjeneste vedtakTjeneste,
                                                        BehandlingDokumentRepository behandlingDokumentRepository) {
-        super(repositoryProvider, historikkApplikasjonTjeneste, opprettToTrinnsgrunnlag, vedtakTjeneste, behandlingDokumentRepository);
+        super(repositoryProvider, historikkApplikasjonTjeneste, vedtakTjeneste, behandlingDokumentRepository);
     }
 
     @Override
     public OppdateringResultat oppdater(BekreftVedtakUtenTotrinnskontrollDto dto, AksjonspunktOppdaterParameter param) {
         OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon();
         if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
-            oppdaterFritekstVedtaksbrev(dto, param, builder);
+            oppdaterFritekstVedtaksbrev(dto, param);
             builder.medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FATTE_VEDTAK);
         } else {
             fjernFritekstBrevHvisEksisterer(param.getBehandlingId());

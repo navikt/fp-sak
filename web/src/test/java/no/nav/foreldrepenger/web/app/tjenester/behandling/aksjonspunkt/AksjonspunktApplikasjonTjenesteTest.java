@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -39,7 +38,6 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.AvklarSaksopplysningerDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.aksjonspunkt.VurderFeilutbetalingDto;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 import no.nav.vedtak.util.FPDateUtil;
@@ -183,63 +181,6 @@ public class AksjonspunktApplikasjonTjenesteTest {
         assertThat(oppdatertBehandling.getBehandlingsresultat().getVilkårResultat().getVilkårene()).hasSize(1);
         assertThat(oppdatertBehandling.getBehandlingsresultat().getVilkårResultat().getVilkårene().iterator().next().getAvslagsårsak())
             .isEqualTo(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
-    }
-
-    @Test
-    public void skal_sette_totrinn_når_revurdering_ap_har_endring_i_begrunnelse() {
-        // Arrange
-        Behandling førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS);
-        var dto1 = new AvklarSaksopplysningerDto(BEGRUNNELSE, "BOSA", true);
-        aksjonspunktApplikasjonTjeneste.bekreftAksjonspunkter(singletonList(dto1), førstegangsbehandling.getId());
-
-        Behandling revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling, AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS);
-        var dto2 = new AvklarSaksopplysningerDto(BEGRUNNELSE + "2", "BOSA", true);
-
-        // Act
-        aksjonspunktApplikasjonTjeneste.bekreftAksjonspunkter(singletonList(dto2), revurdering.getId());
-
-        // Assert
-        Behandling oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());
-        Aksjonspunkt aksjonspunkt = oppdatertBehandling.getAksjonspunkter().iterator().next();
-        assertThat(aksjonspunkt.isToTrinnsBehandling()).isTrue();
-    }
-
-    @Test
-    public void skal_sette_totrinn_når_revurdering_ap_verken_har_endring_i_grunnlag_eller_begrunnelse_men_et_bekreftet_ap_i_førstegangsbehandling() {
-        // Arrange
-        Behandling førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS);
-        var dto1 = new AvklarSaksopplysningerDto(BEGRUNNELSE, "BOSA", true);
-        aksjonspunktApplikasjonTjeneste.bekreftAksjonspunkter(singletonList(dto1), førstegangsbehandling.getId());
-
-        Behandling revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling, AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS);
-        var dto2 = new AvklarSaksopplysningerDto(BEGRUNNELSE, "BOSA", true);
-
-        // Act
-        aksjonspunktApplikasjonTjeneste.bekreftAksjonspunkter(singletonList(dto2), revurdering.getId());
-
-        // Assert
-        Behandling oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());
-        Aksjonspunkt aksjonspunkt = oppdatertBehandling.getAksjonspunkter().iterator().next();
-        assertThat(aksjonspunkt.isToTrinnsBehandling()).isTrue();
-    }
-
-    @Test
-    public void skal_ikke_sette_totrinn_når_aksjonspunktet_mangler_skjermlenke_selv_om_det_har_endring_i_begrunnelse() {
-        // Arrange
-        Behandling førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
-        var dto1 = new VurderFeilutbetalingDto(BEGRUNNELSE, TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, null);
-        aksjonspunktApplikasjonTjeneste.bekreftAksjonspunkter(singletonList(dto1), førstegangsbehandling.getId());
-
-        Behandling revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling, AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
-        var dto2 = new VurderFeilutbetalingDto(BEGRUNNELSE + "2", TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, null);
-
-        // Act
-        aksjonspunktApplikasjonTjeneste.bekreftAksjonspunkter(singletonList(dto2), revurdering.getId());
-
-        // Assert
-        Behandling oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());
-        Aksjonspunkt aksjonspunkt = oppdatertBehandling.getAksjonspunkter().iterator().next();
-        assertThat(aksjonspunkt.isToTrinnsBehandling()).isFalse();
     }
 
     private Behandling opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {

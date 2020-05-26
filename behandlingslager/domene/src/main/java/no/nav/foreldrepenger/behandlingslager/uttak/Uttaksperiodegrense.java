@@ -53,7 +53,9 @@ public class Uttaksperiodegrense extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    Long getId(){return id;}
+    public Long getId(){
+        return id;
+    }
 
     public boolean getErAktivt() {
         return aktiv;

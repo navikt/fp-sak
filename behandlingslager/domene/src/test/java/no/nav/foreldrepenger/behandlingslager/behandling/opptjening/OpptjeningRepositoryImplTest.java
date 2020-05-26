@@ -16,7 +16,6 @@ import org.junit.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -34,7 +33,7 @@ public class OpptjeningRepositoryImplTest {
     private final OpptjeningRepository opptjeningRepository = new OpptjeningRepository(em, repositoryProvider.getBehandlingRepository());
 
     @Test
-    public void skal_lagre_opptjeningsperiode() throws Exception {
+    public void skal_lagre_opptjeningsperiode() {
         // Arrange
         LocalDate today = LocalDate.now();
         LocalDate tomorrow = today.plusDays(1);
@@ -121,26 +120,11 @@ public class OpptjeningRepositoryImplTest {
         assertThat(aktivitet.getAktivitetReferanse()).isEqualTo("abc");
     }
 
-    @Test
-    public void finnAktivGrunnlagId() {
-        // Arrange
-        LocalDate today = LocalDate.now();
-        LocalDate tomorrow = today.plusDays(1);
-        Behandling behandling = opprettBehandling();
-        Opptjening opptjening = opptjeningRepository.lagreOpptjeningsperiode(behandling, today, tomorrow, false);
-
-        // Act
-        EndringsresultatSnapshot endringsresultatSnapshot = opptjeningRepository.finnAktivGrunnlagId(behandling);
-
-        // Assert
-        assertThat(endringsresultatSnapshot.getGrunnlagId()).isEqualTo(opptjening.getId());
-    }
-
     private Behandling opprettBehandling() {
         Behandling behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
         var resultat = Behandlingsresultat.builder().build();
         behandlingBuilder.lagreBehandlingsresultat(behandling.getId(), resultat);
-        
+
         var vilkårResultat = VilkårResultat.builder().build();
         behandlingBuilder.lagreVilkårResultat(behandling.getId(), vilkårResultat);
         return behandling;

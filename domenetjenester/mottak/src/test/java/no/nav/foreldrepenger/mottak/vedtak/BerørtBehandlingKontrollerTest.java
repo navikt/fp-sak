@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.vedtak;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -172,7 +173,7 @@ public class BerørtBehandlingKontrollerTest {
 
         // Assert
         verify(behandlingskontrollTjeneste).lagreAksjonspunkterUtført(any(), any(), any(), anyString());
-        verify(behandlingskontrollTjeneste).lagreAksjonspunkterReåpnet(any(), any(), eq(Optional.empty()));
+        verify(behandlingskontrollTjeneste).lagreAksjonspunkterReåpnet(any(), any(), eq(Boolean.TRUE), anyBoolean());
         verify(berørtBehandlingTjeneste).opprettHistorikkinnslagForVenteFristRelaterteInnslag(any(), any(), any(), any());
         verify(behandlingProsesseringTjeneste).opprettTasksForStartBehandling(any());
     }

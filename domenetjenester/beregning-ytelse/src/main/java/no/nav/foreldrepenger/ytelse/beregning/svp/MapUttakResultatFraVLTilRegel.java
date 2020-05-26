@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.ArbeidsforholdIkkeOppfyl
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.ArbeidsforholdMapper;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapUttakArbeidTypeTilAktivitetStatus;
@@ -96,10 +97,20 @@ public class MapUttakResultatFraVLTilRegel {
     private UttakAktivitet mapAktivitet(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakArbeidsforhold, SvangerskapspengerUttakResultatPeriodeEntitet periode) {
         BigDecimal utbetalingsgrad = periode.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : BigDecimal.valueOf(100);
         BigDecimal stillingsprosent = mapStillingsprosent(input, uttakArbeidsforhold);
+        BigDecimal totalStillingsprosent = finnTotalStillingsprosentHosAG(input, uttakArbeidsforhold);
         var arbeidsforhold = mapArbeidsforhold(uttakArbeidsforhold);
         var aktivitetStatus = MapUttakArbeidTypeTilAktivitetStatus.map(uttakArbeidsforhold.getUttakArbeidType());
 
-        return new UttakAktivitet(stillingsprosent, null, utbetalingsgrad, arbeidsforhold, aktivitetStatus, false);
+        return new UttakAktivitet(stillingsprosent, null, utbetalingsgrad, arbeidsforhold, aktivitetStatus, false, totalStillingsprosent);
+    }
+
+    protected BigDecimal finnTotalStillingsprosentHosAG(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold) {
+        if (!arbeidsforhold.getUttakArbeidType().equals(UttakArbeidType.ORDINÆRT_ARBEID)) {
+            return BigDecimal.valueOf(100);
+        }
+        var identifikator = arbeidsforhold.getArbeidsgiver();
+        var fom = arbeidsforhold.getPerioder().get(0).getFom();
+        return input.getYrkesaktiviteter().finnStillingsprosentOrdinærtArbeid(identifikator, InternArbeidsforholdRef.nullRef(), fom);
     }
 
     private BigDecimal mapStillingsprosent(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold) {
