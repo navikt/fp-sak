@@ -37,7 +37,7 @@ public class FpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAvs
         this.uttakInputTjeneste = uttakInputTjeneste;
     }
 
-    protected LocalDate finnAvsluttningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon) {
+    protected LocalDate finnAvslutningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon) {
         LocalDate avsluttningsdato = avsluttningsdatoFraEksisterendeFagsakRelasjon(fagsakRelasjon);
 
         Optional<Behandling> behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);

@@ -18,21 +18,21 @@ import java.util.Optional;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("SVP")
-public class SvpFagsakRelasjonAvslutningsdatoOppdater extends FagsakRelasjonAvslutningsdatoOppdaterer {
+public class SvpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAvslutningsdatoOppdaterer {
 
     private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
 
-    public SvpFagsakRelasjonAvslutningsdatoOppdater() {
+    public SvpFagsakRelasjonAvslutningsdatoOppdaterer() {
         // NOSONAR
     }
 
     @Inject
-    public SvpFagsakRelasjonAvslutningsdatoOppdater(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                                    StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
-                                                    UttakInputTjeneste uttakInputTjeneste,
-                                                    @FagsakYtelseTypeRef("SVP") MaksDatoUttakTjeneste svpMaksDatoUttakTjeneste,
-                                                    FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                                    ForeldrepengerUttakTjeneste fpUttakTjeneste) {
+    public SvpFagsakRelasjonAvslutningsdatoOppdaterer(BehandlingRepositoryProvider behandlingRepositoryProvider,
+                                                      StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
+                                                      UttakInputTjeneste uttakInputTjeneste,
+                                                      @FagsakYtelseTypeRef("SVP") MaksDatoUttakTjeneste svpMaksDatoUttakTjeneste,
+                                                      FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                                      ForeldrepengerUttakTjeneste fpUttakTjeneste) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
@@ -43,15 +43,14 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdater extends FagsakRelasjonAvsl
         this.maksDatoUttakTjeneste = svpMaksDatoUttakTjeneste;
     }
 
-    protected LocalDate finnAvsluttningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon) {
+    protected LocalDate finnAvslutningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon) {
         LocalDate avsluttningsdato = avsluttningsdatoFraEksisterendeFagsakRelasjon(fagsakRelasjon);
 
         Optional<Behandling> behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
         if (behandling.isPresent()) {
             avsluttningsdato = avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(behandling.get(), avsluttningsdato);
             avsluttningsdato = avsluttningsdatoHvisDetIkkeErStønadsdagerIgjen(behandling.get(), avsluttningsdato);
-            if(fagsakRelasjon.getFagsakNrTo().isEmpty()
-                && maksDatoUttakTjeneste != null){
+            if(fagsakRelasjon.getFagsakNrTo().isEmpty()){
                 Optional<LocalDate> sisteUttaksdato = hentSisteUttaksdatoForFagsak(behandling.get().getFagsakId());
                 if(sisteUttaksdato.isPresent() && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, sisteUttaksdato.get()))avsluttningsdato = sisteUttaksdato.get();
             }

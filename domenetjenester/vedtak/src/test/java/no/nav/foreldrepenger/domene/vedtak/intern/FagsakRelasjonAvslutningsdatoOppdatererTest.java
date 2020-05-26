@@ -67,8 +67,6 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     @Mock
     private UttakInputTjeneste uttakInputTjeneste;
-    @Mock
-    private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
 
     @Mock
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
