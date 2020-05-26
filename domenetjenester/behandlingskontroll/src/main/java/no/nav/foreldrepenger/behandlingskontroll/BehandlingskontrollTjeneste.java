@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingskontroll;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -138,8 +137,7 @@ public interface BehandlingskontrollTjeneste {
     /**
      * Lagrer og håndterer reåpning av aksjonspunkt
      */
-    void lagreAksjonspunkterReåpnet(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter, Optional<Boolean> setTotrinn);
-
+    void lagreAksjonspunkterReåpnet(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter, boolean beholdToTrinnVurdering, boolean setTotrinn);
     /**
      * Lagrer og håndterer aksjonspunktresultater fra utledning utenom steg
      */
