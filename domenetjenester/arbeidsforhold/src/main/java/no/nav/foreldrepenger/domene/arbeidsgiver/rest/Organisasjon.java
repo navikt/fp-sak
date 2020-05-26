@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.domene.arbeidsgiver.rest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -76,8 +76,6 @@ public class Organisasjon {
 
     static class Navn {
 
-        private String konstruertNavn;
-
         @JsonProperty("navnelinje1")
         private String navnelinje1;
         @JsonProperty("navnelinje2")
@@ -89,26 +87,17 @@ public class Organisasjon {
         @JsonProperty("navnelinje5")
         private String navnelinje5;
 
-        @JsonCreator
-        public Navn(@JsonProperty("navnelinje1") String navnelinje1,
-                    @JsonProperty("navnelinje2") String navnelinje2,
-                    @JsonProperty("navnelinje3") String navnelinje3,
-                    @JsonProperty("navnelinje4") String navnelinje4,
-                    @JsonProperty("navnelinje5") String navnelinje5) {
-            this.konstruertNavn = List.of(navnelinje1, navnelinje2, navnelinje3, navnelinje4, navnelinje5).stream()
-                .filter(n -> n != null && !n.isEmpty())
-                .reduce("", (a, b) -> a + " " + b).trim()
-            ;
-        }
-
         public String getNavn() {
-            return konstruertNavn;
+            return Stream.of(navnelinje1, navnelinje2, navnelinje3, navnelinje4, navnelinje5)
+                .filter(n -> n != null && !n.isEmpty())
+                .map(String::trim)
+                .reduce("", (a, b) -> a + " " + b).trim();
         }
 
         @Override
         public String toString() {
             return "Navn{" +
-                "navn='" + konstruertNavn + '\'' +
+                "navn='" + getNavn() + '\'' +
                 '}';
         }
     }
