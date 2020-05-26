@@ -151,7 +151,7 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
         OppdragskontrollManagerFactoryProvider factoryProviderMock = mock(OppdragskontrollManagerFactoryProvider.class);
         when(factoryProviderMock.getTjeneste(any(FagsakYtelseType.class))).thenReturn(oppdragskontrollManagerFactory);
 
-        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, factoryProviderMock);
+        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, factoryProviderMock, unleash);
 
         behandling = opprettOgLagreBehandling(FamilieYtelseType.FØDSEL);
 

@@ -17,6 +17,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import no.finn.unleash.FakeUnleash;
+import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -86,6 +88,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
     private Fagsak fagsak;
     private Personinfo personInfo;
     private RevurderingEndring revurderingEndring;
+    private Unleash unleash = new FakeUnleash();
 
     @Before
     public void setUp() {
@@ -103,7 +106,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
         var providerMock = mock(OppdragskontrollManagerFactoryProvider.class);
         when(providerMock.getTjeneste(any(FagsakYtelseType.class))).thenReturn(oppdragskontrollManagerFactory);
 
-        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, providerMock);
+        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, providerMock, unleash);
         personInfo = OpprettBehandlingForOppdrag.opprettPersonInfo();
         when(tpsTjeneste.hentFnrForAktør(any(AktørId.class))).thenReturn(personInfo.getPersonIdent());
 
