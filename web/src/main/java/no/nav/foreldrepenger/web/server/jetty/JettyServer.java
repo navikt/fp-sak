@@ -92,7 +92,6 @@ public class JettyServer extends AbstractJettyServer {
 
     protected void konfigurerJms() throws JMSException, NamingException {
         JmsKonfig.settOppJndiConnectionfactory("jms/ConnectionFactory", "mqGateway02", "fpsak.channel");
-        JmsKonfig.settOppJndiMessageQueue("jms/QueueSakOgBehandling", "sbeh.saksbehandling");
         JmsKonfig.settOppJndiMessageQueue("jms/QueueFpsakOkonomiOppdragSend", "fpsak.okonomi.oppdrag.send");
         JmsKonfig.settOppJndiMessageQueue("jms/QueueFpsakOkonomiOppdragMotta", "fpsak.okonomi.oppdrag.mottak");
         JmsKonfig.settOppJndiMessageQueue("jms/QueueFpsakGrensesnittavstemmingSend", "ray.avstem.data", true);

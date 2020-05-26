@@ -18,8 +18,6 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import contract.sob.dto.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped

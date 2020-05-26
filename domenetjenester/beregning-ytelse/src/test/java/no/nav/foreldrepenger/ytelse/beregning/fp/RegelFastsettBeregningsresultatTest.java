@@ -351,13 +351,13 @@ public class RegelFastsettBeregningsresultatTest {
     private List<UttakAktivitet> lagUttakAktiviteter(BigDecimal stillingsgrad, BigDecimal arbeidstidsgrad, BigDecimal utbetalingsgrad, AktivitetStatus aktivitetsStatus, List<Arbeidsforhold> arbeidsforholdList) {
         boolean erGradering = false;
         if (arbeidsforholdList.isEmpty()) {
-            return Collections.singletonList(new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, aktivitetsStatus.equals(AktivitetStatus.ATFL) ? ARBEIDSFORHOLD_1 : null, aktivitetsStatus, erGradering));
+            return Collections.singletonList(new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, aktivitetsStatus.equals(AktivitetStatus.ATFL) ? ARBEIDSFORHOLD_1 : null, aktivitetsStatus, erGradering, stillingsgrad));
         }
         return arbeidsforholdList.stream()
             .map(arb ->
             {
                 Arbeidsforhold arbeidsforhold = aktivitetsStatus.equals(AktivitetStatus.ATFL) ? arb : null;
-                return new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, arbeidsforhold, aktivitetsStatus, erGradering);
+                return new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, arbeidsforhold, aktivitetsStatus, erGradering, stillingsgrad);
             }).collect(Collectors.toList());
     }
 }

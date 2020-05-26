@@ -92,7 +92,7 @@ public class VirksomhetEntitet extends BaseEntitet implements Virksomhet, IndexK
     public LocalDate getAvslutt() {
         return avsluttet;
     }
-    
+
     @Override
     public boolean erKunstig() {
         return Organisasjonstype.KUNSTIG.equals(getOrganisasjonstype());
@@ -137,6 +137,30 @@ public class VirksomhetEntitet extends BaseEntitet implements Virksomhet, IndexK
             "navn=" + navn +
             ", orgnr=" + orgnr +
             '}';
+    }
+
+    public String tilString() {
+        return "VirksomhetEntitet{" +
+            "orgnr='" + orgnr + '\'' +
+            ", navn='" + navn + '\'' +
+            ", registrert=" + registrert +
+            ", avsluttet=" + avsluttet +
+            ", oppstart=" + oppstart +
+            ", organisasjonstype=" + organisasjonstype +
+            '}';
+    }
+
+    public boolean erLik(VirksomhetEntitet that) {
+        if (this == that)
+            return true;
+        if (that == null)
+            return false;
+        return Objects.equals(this.orgnr, that.orgnr)
+            && Objects.equals(this.navn, that.navn)
+            && Objects.equals(this.registrert, that.registrert)
+            && Objects.equals(this.avsluttet, that.avsluttet)
+            && Objects.equals(this.oppstart, that.oppstart)
+            && Objects.equals(this.organisasjonstype, that.organisasjonstype);
     }
 
     public static class Builder {

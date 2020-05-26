@@ -12,14 +12,22 @@ public class UttakAktivitet {
     private Arbeidsforhold arbeidsforhold;
     private AktivitetStatus aktivitetStatus;
     private boolean erGradering;
+    private BigDecimal totalStillingsgradHosAG;
 
-    public UttakAktivitet(BigDecimal stillingsgrad, BigDecimal arbeidstidsprosent, BigDecimal utbetalingsgrad, Arbeidsforhold arbeidsforhold, AktivitetStatus aktivitetStatus, boolean erGradering) {
+    public UttakAktivitet(BigDecimal stillingsgrad,
+                          BigDecimal arbeidstidsprosent,
+                          BigDecimal utbetalingsgrad,
+                          Arbeidsforhold arbeidsforhold,
+                          AktivitetStatus aktivitetStatus,
+                          boolean erGradering,
+                          BigDecimal totalStillingsgradHosAG) {
         this.stillingsgrad = stillingsgrad;
         this.arbeidstidsprosent = arbeidstidsprosent;
         this.utbetalingsgrad = utbetalingsgrad;
         this.arbeidsforhold = arbeidsforhold;
         this.aktivitetStatus = aktivitetStatus;
         this.erGradering = erGradering;
+        this.totalStillingsgradHosAG = totalStillingsgradHosAG;
     }
 
     public BigDecimal getStillingsgrad() {
@@ -44,6 +52,10 @@ public class UttakAktivitet {
 
     public boolean isErGradering() {
         return erGradering;
+    }
+
+    public BigDecimal getTotalStillingsgradHosAG() {
+        return totalStillingsgradHosAG;
     }
 
     @Override

@@ -41,7 +41,6 @@
     "LDAP_DOMAIN": "TEST.LOCAL",
     "LDAP_USER_BASEDN": "ou=NAV,ou=BusinessUnits,dc=test,dc=local",
     "LDAP_SERVICEUSER_BASEDN": "ou=ServiceAccounts,dc=test,dc=local",
-    "SBEH_SAKSBEHANDLING_QUEUENAME": "QA.T4_SBEH.SAKSBEHANDLING",
     "FPSAK_OKONOMI_OPPDRAG_MOTTAK_QUEUENAME": "QA.T4_FPSAK.OB04_OPPDRAG_FP_XML_KVITT",
     "FPSAK_OKONOMI_OPPDRAG_MOTTAK_QUEUEMANAGER": "mq://d26apvl258.test.local:1412/MTXLSC02",
     "RAY_AVSTEM_DATA_QUEUENAME": "QA.T4_234.OB29_AVSTEMMING_XML",
@@ -58,7 +57,7 @@
     "JOURNAL_V3_URL": "https://dokarkiv-t4.nais.preprod.local/services/journal/v3",
     "ORGANISASJON_V4_URL": "https://modapp-t4.adeo.no/ereg/ws/OrganisasjonService/v4",
     "OPPGAVE_RS_URI": "http://oppgave.t4/api/v1/oppgaver",
-    "MEDLEM_V2_URL": "https://app-t4.adeo.no/medl2/ws/Medlemskap/v2",
+    "MEDL2_RS_URL": "https://app-t4.adeo.no/medl2/api/v1/medlemskapsunntak",
     "ARBEIDSFORDELING_RS_URL": "https://app-t1.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
     "PERSON_V3_URL": "https://wasapp-t4.adeo.no/tpsws/ws/Person/v3",
     "KODEVERK_V2_URL": "https://kodeverk.nais.preprod.local/ws/kodeverk/v2"

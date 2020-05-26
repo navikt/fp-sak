@@ -16,7 +16,7 @@ public interface Overstyringshåndterer<T extends OverstyringAksjonspunkt> {
     /**
      * Opprett Aksjonspunkt for Overstyring og håndter lagre historikk.
      */
-    void håndterAksjonspunktForOverstyringHistorikk(T dto, Behandling behandling, boolean endretBegrunnelse);
+    void håndterAksjonspunktForOverstyringHistorikk(T dto, Behandling behandling);
 
     AksjonspunktDefinisjon aksjonspunktForInstans();
 }

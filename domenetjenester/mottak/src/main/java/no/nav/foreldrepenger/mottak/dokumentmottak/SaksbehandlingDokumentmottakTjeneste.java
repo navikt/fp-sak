@@ -1,9 +1,5 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -11,9 +7,7 @@ import org.slf4j.Logger;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -37,41 +31,14 @@ public class SaksbehandlingDokumentmottakTjeneste {
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
     }
 
-    public void dokumentAnkommet(InngåendeSaksdokument saksdokument) {
-        boolean erElektroniskSøknad = saksdokument.getPayloadXml() != null;
-
-        MottattDokument.Builder builder = new MottattDokument.Builder()
-            .medDokumentType(saksdokument.getDokumentTypeId())
-            .medDokumentKategori(saksdokument.getDokumentKategori() != null ? saksdokument.getDokumentKategori() : DokumentKategori.UDEFINERT)
-            .medMottattDato(LocalDate.parse(saksdokument.getForsendelseMottatt().toString()))
-            .medXmlPayload(saksdokument.getPayloadXml())
-            .medElektroniskRegistrert(erElektroniskSøknad)
-            .medFagsakId(saksdokument.getFagsakId())
-            .medJournalFørendeEnhet(saksdokument.getJournalEnhet());
-
-        if (saksdokument.getForsendelseMottattTidspunkt() == null) {
-            builder.medMottattTidspunkt(LocalDateTime.now());
-        } else {
-            builder.medMottattTidspunkt(LocalDateTime.parse(saksdokument.getForsendelseMottattTidspunkt().toString()));
-        }
-        if (saksdokument.getKanalreferanse() != null) {
-            builder.medKanalreferanse(saksdokument.getKanalreferanse());
-        }
-
-        if (saksdokument.getJournalpostId() != null) {
-            builder.medJournalPostId(new JournalpostId(saksdokument.getJournalpostId().getVerdi()));
-        }
-        if (saksdokument.getForsendelseId() != null) {
-            builder.medForsendelseId(UUID.fromString(saksdokument.getForsendelseId().toString()));
-        }
-        MottattDokument mottattDokument = builder.build();
+    public void dokumentAnkommet(MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) {
 
         Long mottattDokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
-        prosessTaskData.setFagsakId(saksdokument.getFagsakId());
+        prosessTaskData.setFagsakId(mottattDokument.getFagsakId());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokumentId.toString());
-        settÅrsakHvisDefinert(saksdokument.getBehandlingÅrsakType(), prosessTaskData);
+        settÅrsakHvisDefinert(behandlingÅrsakType, prosessTaskData);
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);
     }

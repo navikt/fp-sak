@@ -19,6 +19,7 @@ import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Mmel;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragSkjemaConstants;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje150;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.BehandleØkonomioppdragKvittering;
@@ -71,13 +72,33 @@ public class ØkonomioppdragAsyncJmsConsumerImpl extends InternalQueueConsumer i
     public void handle(String message) {
         try {
             Oppdrag kvitteringsmelding = unmarshalOgKorriger(message);
-            ØkonomiKvittering kvittering = fraKvitteringsmelding(kvitteringsmelding);
-            behandleØkonomioppdragKvittering.behandleKvittering(kvittering);
+            if (inneholderOppdragslinjer(kvitteringsmelding)) {
+                ØkonomiKvittering kvittering = fraKvitteringsmelding(kvitteringsmelding);
+                behandleØkonomioppdragKvittering.behandleKvittering(kvittering);
+            } else {
+                loggKvitteringUtenLinjer(kvitteringsmelding);
+            }
         } catch (SAXException | JAXBException e) { // NOSONAR
             throw ØkonomioppdragMeldingFeil.FACTORY.uventetFeilVedProsesseringAvForsendelsesInfoXMLMedJaxb(message, e).toException();
         } catch (XMLStreamException e) { // NOSONAR
             throw ØkonomioppdragMeldingFeil.FACTORY.uventetFeilVedProsesseringAvForsendelsesInfoXML(e).toException();
         }
+    }
+
+    private void loggKvitteringUtenLinjer(Oppdrag kvitteringsmelding) {
+        Oppdrag110 oppdrag110 = kvitteringsmelding.getOppdrag110();
+        Mmel mmel = kvitteringsmelding.getMmel();
+        String fagsystemId = oppdrag110.getFagsystemId();
+        String fagområde = oppdrag110.getKodeFagomraade();
+        String alvorlighetsgrad = mmel.getAlvorlighetsgrad();
+        String beskrivendeMelding = mmel.getBeskrMelding();
+        String kodeMelding = mmel.getKodeMelding();
+        Feil feil = FeilFactory.create(Feilene.class).kvitteringUtenLinjer(fagsystemId, alvorlighetsgrad, kodeMelding, beskrivendeMelding, fagområde);
+        feil.log(log);
+    }
+
+    private boolean inneholderOppdragslinjer(Oppdrag kvitteringsmelding) {
+        return !kvitteringsmelding.getOppdrag110().getOppdragsLinje150().isEmpty();
     }
 
     private Oppdrag unmarshalOgKorriger(String message) throws JAXBException, XMLStreamException, SAXException {
@@ -128,7 +149,12 @@ public class ØkonomioppdragAsyncJmsConsumerImpl extends InternalQueueConsumer i
     }
 
     interface Feilene extends DeklarerteFeil {
+
         @TekniskFeil(feilkode = "FP-832935", feilmelding = "Mottok på ikkestøttet message av klasse %s. Kø-elementet ble ignorert", logLevel = WARN)
         Feil ikkestøttetMessage(Class<? extends Message> klasse);
+
+        @TekniskFeil(feilkode = "FP-951679", feilmelding = "Mottok og ignorerte kvitteringsmelding uten oppdragslinjer, kan ikke direkte identifisere behandling. Gjelder fagsystemId=%s. Innhold i kvittering: alvorlighetsgrad=%s meldingKode='%s' beskrivendeMelding='%s', fagomraade=%s. Skal følges opp manuelt", logLevel = WARN)
+        Feil kvitteringUtenLinjer(String fagsystemId, String alvorlighetsgrad, String kodeMelding, String beskrivendeMelding, String fagområde);
+
     }
 }

@@ -68,7 +68,7 @@ public class OpptjeningRepository {
         }
         return vilkårResultat;
     }
-    
+
     /**
      * Finn gjeldende opptjening for denne behandlingen.
      */
@@ -224,19 +224,6 @@ public class OpptjeningRepository {
                 "Utvikler-feil: har duplikate opptjeningsaktiviteter: [" + duplikater + "] i input: " + opptjeningAktiviteter); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return kopiListe;
-    }
-
-    private Optional<Long> finnAktivOptjeningId(Long behandlingId) {
-        return finnOpptjening(behandlingId).map(Opptjening::getId);
-    }
-
-    //Denne metoden bør legges i Tjeneste
-    public EndringsresultatSnapshot finnAktivGrunnlagId(Behandling behandling) {
-        Optional<Long> funnetId = finnAktivOptjeningId(behandling.getId());
-        return funnetId
-            .map(id -> EndringsresultatSnapshot.medSnapshot(Opptjening.class, id))
-            .orElse(EndringsresultatSnapshot.utenSnapshot(Opptjening.class));
-
     }
 
 }

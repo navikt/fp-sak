@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -12,6 +11,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.MapBehandlingRef;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.OpptjeningMapperTilKalkulus;
@@ -31,6 +31,7 @@ public abstract class BeregningsgrunnlagInputFelles {
     private AndelGraderingTjeneste andelGraderingTjeneste;
     private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private KalkulusKonfigInjecter kalkulusKonfigInjecter;
 
 
     @Inject
@@ -39,13 +40,15 @@ public abstract class BeregningsgrunnlagInputFelles {
                                          SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                          AndelGraderingTjeneste andelGraderingTjeneste,
                                          OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
-                                         InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+                                         InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                         KalkulusKonfigInjecter kalkulusKonfigInjecter) {
         this.behandlingRepository = Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
         this.andelGraderingTjeneste = Objects.requireNonNull(andelGraderingTjeneste, "andelGrderingTjeneste");
         this.opptjeningForBeregningTjeneste = Objects.requireNonNull(opptjeningForBeregningTjeneste, "opptjeningForBeregningTjeneste");
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.kalkulusKonfigInjecter = kalkulusKonfigInjecter;
     }
 
     protected BeregningsgrunnlagInputFelles() {
@@ -92,13 +95,14 @@ public abstract class BeregningsgrunnlagInputFelles {
         List<RefusjonskravDato> refusjonskravDatoer = inntektsmeldingTjeneste.hentAlleRefusjonskravDatoerForFagsak(ref.getSaksnummer());
 
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
-
-        return new BeregningsgrunnlagInput(
-            MapBehandlingRef.mapRef(ref),
-            IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag),
-            OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow()),
-            aktivitetGradering,
-            IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
-            ytelseGrunnlag);
+        var beregningsgrunnlagInput = new BeregningsgrunnlagInput(
+                MapBehandlingRef.mapRef(ref),
+                IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag),
+                OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow()),
+                aktivitetGradering,
+                IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
+                ytelseGrunnlag);
+        kalkulusKonfigInjecter.leggTilFeatureToggles(beregningsgrunnlagInput);
+        return beregningsgrunnlagInput;
     }
 }

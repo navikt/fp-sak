@@ -87,17 +87,17 @@ public class MottattDokument extends BaseEntitet {
 
     MottattDokument(MottattDokument mottatteDokument) {
         this.journalpostId = mottatteDokument.journalpostId;
+        this.forsendelseId = mottatteDokument.forsendelseId;
+        this.journalEnhet = mottatteDokument.journalEnhet;
         this.dokumentTypeId = mottatteDokument.dokumentTypeId;
         this.dokumentKategori = mottatteDokument.dokumentKategori;
         this.behandlingId = mottatteDokument.behandlingId;
-        this.elektroniskRegistrert = mottatteDokument.elektroniskRegistrert;
-        this.fagsakId = mottatteDokument.fagsakId;
-        this.forsendelseId = mottatteDokument.forsendelseId;
         this.mottattDato = mottatteDokument.mottattDato;
         this.mottattTidspunkt = mottatteDokument.mottattTidspunkt;
         this.kanalreferanse = mottatteDokument.kanalreferanse;
         this.xmlPayload = mottatteDokument.xmlPayload;
-        this.journalEnhet = mottatteDokument.journalEnhet;
+        this.elektroniskRegistrert = mottatteDokument.elektroniskRegistrert;
+        this.fagsakId = mottatteDokument.fagsakId;
     }
 
     public Long getId() {
@@ -221,7 +221,7 @@ public class MottattDokument extends BaseEntitet {
         }
 
         public Builder medDokumentType(DokumentType dokumentTypeId) {
-            mottatteDokumentMal.dokumentTypeId = dokumentTypeId==null?DokumentTypeId.UDEFINERT.getKode() : dokumentTypeId.getKode();
+            mottatteDokumentMal.dokumentTypeId = dokumentTypeId==null ? DokumentTypeId.UDEFINERT.getKode() : dokumentTypeId.getKode();
             return this;
         }
 

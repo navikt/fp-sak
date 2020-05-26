@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -22,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.mottak.dokumentmottak.InngåendeSaksdokument;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
@@ -39,40 +37,39 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
     private static final Boolean ELEKTRONISK_SØKNAD = Boolean.TRUE;
     private static final String PAYLOAD_XML = "<test></test>";
 
-    private BehandlingTema behandlingTema = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
-
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private ProsessTaskRepository prosessTaskRepository;
     private SaksbehandlingDokumentmottakTjeneste saksbehandlingDokumentmottakTjeneste;
+    private MottatteDokumentTjeneste mottatteDokumentTjeneste;
 
     @Before
     public void before() {
         prosessTaskRepository = mock(ProsessTaskRepository.class);
-        MottatteDokumentTjeneste mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
+        mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
         saksbehandlingDokumentmottakTjeneste = new SaksbehandlingDokumentmottakTjeneste(prosessTaskRepository, mottatteDokumentTjeneste);
     }
 
     @Test
     public void skal_ta_imot_ankommet_saksdokument_og_opprette_prosesstask() {
         // Arrange
-        InngåendeSaksdokument saksdokument = InngåendeSaksdokument.builder()
+        var saksdokument = new MottattDokument.Builder()
                 .medFagsakId(FAGSAK_ID)
-                .medJournalpostId(JOURNALPOST_ID)
-                .medBehandlingTema(behandlingTema)
-                .medDokumentTypeId(DOKUMENTTYPE.getKode())
+                .medJournalPostId(JOURNALPOST_ID)
+                .medDokumentType(DOKUMENTTYPE.getKode())
                 .medDokumentKategori(DOKUMENTKATEGORI)
-                .medForsendelseMottatt(FORSENDELSE_MOTTATT)
-            .medForsendelseMottatt(LocalDateTime.now())
-                .medElektroniskSøknad(ELEKTRONISK_SØKNAD)
-                .medPayloadXml(PAYLOAD_XML)
+                .medMottattDato(FORSENDELSE_MOTTATT)
+                .medMottattTidspunkt(LocalDateTime.now())
+                .medElektroniskRegistrert(ELEKTRONISK_SØKNAD)
+                .medXmlPayload(PAYLOAD_XML)
                 .build();
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
-        saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument);
+        saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument, null);
 
         // Assert
+        verify(mottatteDokumentTjeneste).lagreMottattDokumentPåFagsak(saksdokument);
         verify(prosessTaskRepository).lagre(captor.capture());
         ProsessTaskData prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.getTaskType()).isEqualTo(HåndterMottattDokumentTask.TASKTYPE);
@@ -82,21 +79,20 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
     @Test
     public void skal_støtte_at_journalpostId_er_null() {
         // Arrange
-        InngåendeSaksdokument saksdokument = InngåendeSaksdokument.builder()
+        var saksdokument = new MottattDokument.Builder()
                 .medFagsakId(FAGSAK_ID)
-                .medJournalpostId(null)
-                .medBehandlingTema(behandlingTema)
-                .medDokumentTypeId(DOKUMENTTYPE.getKode())
+                .medJournalPostId(null)
+                .medDokumentType(DOKUMENTTYPE.getKode())
                 .medDokumentKategori(DOKUMENTKATEGORI)
-                .medForsendelseMottatt(FORSENDELSE_MOTTATT)
-            .medForsendelseMottatt(LocalDateTime.now())
-                .medElektroniskSøknad(ELEKTRONISK_SØKNAD)
-                .medPayloadXml(PAYLOAD_XML)
+                .medMottattDato(FORSENDELSE_MOTTATT)
+                .medMottattTidspunkt(LocalDateTime.now())
+                .medXmlPayload(PAYLOAD_XML)
                 .build();
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
-        saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument);
+        saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument, null);
+        verify(mottatteDokumentTjeneste).lagreMottattDokumentPåFagsak(saksdokument);
 
         // Assert
         verify(prosessTaskRepository).lagre(captor.capture());

@@ -11,9 +11,5 @@
 |jms/QueueFpsakGrensesnittavstemmingSend
 |RAY.AVSTEM_DATA
 |GrensesnittavstemmingJmsProducer
-
-|jms/QueueSakOgBehandling
-|SBEH_SAKSBEHANDLING
-|felles/SakOgBehandlingClientImpl
 |===
 

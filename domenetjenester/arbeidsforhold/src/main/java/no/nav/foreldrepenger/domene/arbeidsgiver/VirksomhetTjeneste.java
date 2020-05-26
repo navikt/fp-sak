@@ -6,6 +6,9 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
@@ -13,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetAlleredeLagretException;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
+import no.nav.foreldrepenger.domene.arbeidsgiver.rest.EregOrganisasjonRestKlient;
 import no.nav.tjeneste.virksomhet.organisasjon.v4.binding.HentOrganisasjonOrganisasjonIkkeFunnet;
 import no.nav.tjeneste.virksomhet.organisasjon.v4.binding.HentOrganisasjonUgyldigInput;
 import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.JuridiskEnhet;
@@ -22,13 +26,17 @@ import no.nav.tjeneste.virksomhet.organisasjon.v4.meldinger.HentOrganisasjonResp
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonConsumer;
 import no.nav.vedtak.felles.integrasjon.organisasjon.hent.HentOrganisasjonRequest;
+import no.nav.vedtak.util.env.Cluster;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class VirksomhetTjeneste {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(VirksomhetTjeneste.class);
     private static final String TJENESTE = "Organisasjon";
     private OrganisasjonConsumer organisasjonConsumer;
+    private EregOrganisasjonRestKlient eregRestKlient;
     private VirksomhetRepository virksomhetRepository;
+    private boolean isProd = Cluster.PROD_FSS.equals(Environment.current().getCluster());
 
     public VirksomhetTjeneste() {
         // CDI
@@ -36,7 +44,15 @@ public class VirksomhetTjeneste {
 
     @Inject
     public VirksomhetTjeneste(OrganisasjonConsumer organisasjonConsumer,
+                              EregOrganisasjonRestKlient eregRestKlient,
                                   VirksomhetRepository virksomhetRepository) {
+        this.organisasjonConsumer = organisasjonConsumer;
+        this.virksomhetRepository = virksomhetRepository;
+        this.eregRestKlient = eregRestKlient;
+    }
+
+    public VirksomhetTjeneste(OrganisasjonConsumer organisasjonConsumer,
+                              VirksomhetRepository virksomhetRepository) {
         this.organisasjonConsumer = organisasjonConsumer;
         this.virksomhetRepository = virksomhetRepository;
     }
@@ -52,7 +68,10 @@ public class VirksomhetTjeneste {
         final Optional<Virksomhet> virksomhetOptional = virksomhetRepository.hent(orgNummer);
         if (virksomhetOptional.isEmpty() || virksomhetOptional.get().skalRehentes()) {
             HentOrganisasjonResponse response = hentOrganisasjon(orgNummer);
-            return lagreVirksomhet(virksomhetOptional, response);
+            final Virksomhet virksomhet = mapOrganisasjonResponseToOrganisasjon(response.getOrganisasjon(), virksomhetOptional);
+            if (isProd)
+                sammenlignLoggRest(orgNummer, (VirksomhetEntitet)virksomhet);
+            return lagreVirksomhet(virksomhetOptional, virksomhet);
         }
         return virksomhetOptional.orElseThrow(() -> new IllegalArgumentException("Fant ikke virksomhet for orgNummer=" + orgNummer));
     }
@@ -77,8 +96,7 @@ public class VirksomhetTjeneste {
         return OrganisasjonsNummerValidator.erGyldig(orgNummer) ? Optional.of(hentOgLagreOrganisasjon(orgNummer)) : Optional.empty();
     }
 
-    private Virksomhet lagreVirksomhet(Optional<Virksomhet> virksomhetOptional, HentOrganisasjonResponse response) {
-        final Virksomhet virksomhet = mapOrganisasjonResponseToOrganisasjon(response.getOrganisasjon(), virksomhetOptional);
+    private Virksomhet lagreVirksomhet(Optional<Virksomhet> virksomhetOptional, Virksomhet virksomhet) {
         try {
             virksomhetRepository.lagre(virksomhet);
             return virksomhet;
@@ -125,6 +143,31 @@ public class VirksomhetTjeneste {
             //
         }
         return builder.oppdatertOpplysningerNå().build();
+    }
+
+    private void sammenlignLoggRest(String orgNummer, VirksomhetEntitet virksomhet) {
+        try {
+            var org = eregRestKlient.hentOrganisasjon(orgNummer);
+            var builder = getBuilder(Optional.empty())
+                .medNavn(org.getNavn())
+                .medRegistrert(org.getRegistreringsdato())
+                .medOrgnr(org.getOrganisasjonsnummer());
+            if ("Virksomhet".equalsIgnoreCase(org.getType())) {
+                builder.medOrganisasjonstype(Organisasjonstype.VIRKSOMHET)
+                    .medOppstart(org.getOppstartsdato())
+                    .medAvsluttet(org.getNedleggelsesdato());
+            } else if ("JuridiskEnhet".equalsIgnoreCase(org.getType())) {
+                builder.medOrganisasjonstype(Organisasjonstype.JURIDISK_ENHET);
+            }
+            var rest = builder.build();
+            if (virksomhet.erLik(rest)) {
+                LOGGER.info("FPSAK EREG REST likt svar");
+            } else {
+                LOGGER.info("FPSAK EREG REST avvik WS {} RS {}", virksomhet.tilString(), rest.tilString());
+            }
+        } catch (Exception e) {
+            LOGGER.info("FPSAK EREG REST noe gikk feil", e);
+        }
     }
 
     private VirksomhetEntitet.Builder getBuilder(Optional<Virksomhet> virksomhetOptional) {

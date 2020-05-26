@@ -1,6 +1,5 @@
-package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.observer;
+package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema.ENGANGSSTØNAD_FØDSEL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -25,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.observer.OppdaterSakOgBehandlingEventObserver;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -101,15 +101,6 @@ public class OppdaterSakOgBehandlingEventObserverTest {
             .isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
         assertThat(prosessTaskData.getBehandlingId())
             .isEqualTo(scenario.getBehandling().getId());
-        assertThat(prosessTaskData.getPropertyValue(SakOgBehandlingTask.ANSVARLIG_ENHET_KEY))
-            .isEqualTo(scenario.getBehandling().getBehandlendeEnhet());
-        assertThat(prosessTaskData.getPropertyValue(SakOgBehandlingTask.SAKSTEMA_KEY))
-            .isEqualTo(OppdaterSakOgBehandlingEventObserver.FORELDREPENGER_SAKSTEMA);
-        assertThat(prosessTaskData.getPropertyValue(SakOgBehandlingTask.BEHANDLINGS_TYPE_KODE_KEY))
-            .isEqualTo(scenario.getBehandling().getType().getOffisiellKode());
-        assertThat(prosessTaskData.getPropertyValue(SakOgBehandlingTask.BEHANDLINGSTEMAKODE))
-            .isEqualTo(ENGANGSSTØNAD_FØDSEL.getOffisiellKode());
-        assertThat(prosessTaskData.getPropertyValue(SakOgBehandlingTask.BEHANDLING_STATUS_KEY)).isEqualTo(behandlingStatusKode);
     }
 
 }
