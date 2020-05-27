@@ -22,10 +22,6 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAv
 
     private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
 
-    public SvpFagsakRelasjonAvslutningsdatoOppdaterer() {
-        // NOSONAR
-    }
-
     @Inject
     public SvpFagsakRelasjonAvslutningsdatoOppdaterer(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                                       StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,

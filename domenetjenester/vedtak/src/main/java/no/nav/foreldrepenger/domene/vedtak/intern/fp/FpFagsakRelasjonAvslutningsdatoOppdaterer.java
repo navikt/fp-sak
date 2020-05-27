@@ -18,9 +18,6 @@ import java.util.Optional;
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")
 public class FpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAvslutningsdatoOppdaterer {
-    public FpFagsakRelasjonAvslutningsdatoOppdaterer() {
-        // NOSONAR
-    }
 
     @Inject
     public FpFagsakRelasjonAvslutningsdatoOppdaterer(BehandlingRepositoryProvider behandlingRepositoryProvider,
