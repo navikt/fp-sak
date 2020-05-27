@@ -6,6 +6,10 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -15,9 +19,11 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 @ApplicationScoped
 public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
 
+    private static final Logger logger = LoggerFactory.getLogger(OppdragskontrollTjenesteImpl.class);
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandlingRepository behandlingRepository;
     private OppdragskontrollManagerFactoryProvider oppdragskontrollManagerFactoryProvider;
+    private Unleash unleash;
 
     OppdragskontrollTjenesteImpl() {
         // For CDI
@@ -26,10 +32,11 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
     @Inject
     public OppdragskontrollTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
                                         ØkonomioppdragRepository økonomioppdragRepository,
-                                        OppdragskontrollManagerFactoryProvider oppdragskontrollManagerFactoryProvider) {
+                                        OppdragskontrollManagerFactoryProvider oppdragskontrollManagerFactoryProvider, Unleash unleash) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.oppdragskontrollManagerFactoryProvider = oppdragskontrollManagerFactoryProvider;
         this.økonomioppdragRepository = økonomioppdragRepository;
+        this.unleash = unleash;
     }
 
     @Override
@@ -44,9 +51,18 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
         Oppdragskontroll oppdragskontroll = FastsettOppdragskontroll.finnEllerOpprett(tidligereOppdragListe, behandlingId, prosessTaskId, saksnummer);
 
         OppdragskontrollManagerFactory factory = oppdragskontrollManagerFactoryProvider.getTjeneste(behandling.getFagsakYtelseType());
-        Optional<OppdragskontrollManager> managerOpt = factory.getManager(behandling, tidligereOppdragFinnes);
-
-        return managerOpt.map(manager -> manager.opprettØkonomiOppdrag(behandling, oppdragskontroll));
+        Optional<OppdragskontrollManager> manager = factory.getManager(behandling, tidligereOppdragFinnes);
+        if (manager.isPresent()) {
+            Oppdragskontroll oppdrag = manager.get().opprettØkonomiOppdrag(behandling, oppdragskontroll);
+            boolean postconditionEnabled = unleash.isEnabled("fpsak.oppdragskontroll.postcondition", true);
+            logger.info("fpsak.oppdragskontroll.postcondition er " + (postconditionEnabled ? "på" : "av"));
+            if (postconditionEnabled) {
+                OppdragskontrollPostConditionCheck.valider(oppdrag);
+            }
+            return Optional.of(oppdrag);
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
