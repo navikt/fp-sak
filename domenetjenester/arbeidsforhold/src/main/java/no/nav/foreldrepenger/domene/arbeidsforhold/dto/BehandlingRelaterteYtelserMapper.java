@@ -43,7 +43,7 @@ public class BehandlingRelaterteYtelserMapper {
 
     public static List<TilgrensendeYtelserDto> mapFraBehandlingRelaterteYtelser(Collection<Ytelse> ytelser) {
         return ytelser.stream()
-            .map(ytelse -> lagTilgrensendeYtelse(ytelse))
+            .map(BehandlingRelaterteYtelserMapper::lagTilgrensendeYtelse)
             .collect(Collectors.toList());
     }
 

@@ -104,7 +104,7 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
         LocalDate vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
         List<TilgrensendeYtelserDto> ytelser = ytelseTjeneste.utledAnnenPartsYtelserRelatertTilBehandling(aktørId, grunnlag, Optional.of(RELEVANTE_YTELSE_TYPER));
         boolean senerevedtak = ytelser.stream()
-            .map(TilgrensendeYtelserDto::getPeriodeFraDato)
+            .map(y -> y.getPeriodeTilDato() != null ? y.getPeriodeTilDato() : y.getPeriodeFraDato())
             .anyMatch(vedtakEtterDato::isBefore);
         return senerevedtak ? JA : NEI;
     }
