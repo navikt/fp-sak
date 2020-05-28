@@ -90,8 +90,8 @@ public class ForeslåBehandlingsresultatTjenesteTest {
         StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(new UttakRepositoryProvider(repoRule.getEntityManager()));
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
         AndelGraderingTjeneste andelGraderingTjeneste = new AndelGraderingTjeneste(uttakTjeneste,
-            repositoryProvider.getYtelsesFordelingRepository(),
-            beregningsgrunnlagTjeneste);
+            repositoryProvider.getYtelsesFordelingRepository()
+        );
         UttakInputTjeneste uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, new AbakusInMemoryInntektArbeidYtelseTjeneste(),
             skjæringstidspunktTjeneste, medlemTjeneste, andelGraderingTjeneste);
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
