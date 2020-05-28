@@ -46,9 +46,7 @@ public class AndelGraderingTjenesteImplTest {
 
     private ForeldrepengerUttakTjeneste uttakTjeneste = Mockito.mock(ForeldrepengerUttakTjeneste.class);
     private YtelsesFordelingRepository ytelsesRepo = Mockito.mock(YtelsesFordelingRepository.class);
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste = Mockito.mock(HentOgLagreBeregningsgrunnlagTjeneste.class);
-
-    private AndelGraderingTjeneste tjeneste = new AndelGraderingTjeneste(uttakTjeneste, ytelsesRepo, beregningsgrunnlagTjeneste);
+    private AndelGraderingTjeneste tjeneste = new AndelGraderingTjeneste(uttakTjeneste, ytelsesRepo);
 
     private ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
