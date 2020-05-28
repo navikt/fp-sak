@@ -4,9 +4,6 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -18,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
@@ -26,74 +22,40 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 
-@ApplicationScoped
-public class FagsakRelasjonAvsluttningsdatoOppdaterer {
+public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
 
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
-    private BehandlingRepository behandlingRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
-    private ForeldrepengerUttakTjeneste fpUttakTjeneste;
-    private FamilieHendelseRepository familieHendelseRepository;
-    private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
-    private UttakInputTjeneste uttakInputTjeneste;
-
-    public FagsakRelasjonAvsluttningsdatoOppdaterer() {
-        // NOSONAR
-    }
-
-    @Inject
-    public FagsakRelasjonAvsluttningsdatoOppdaterer(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                                    StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
-                                                    UttakInputTjeneste uttakInputTjeneste,
-                                                    FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                                    ForeldrepengerUttakTjeneste fpUttakTjeneste) {
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
-        this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
-        this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
-        this.fpUttakTjeneste = fpUttakTjeneste;
-        this.familieHendelseRepository = behandlingRepositoryProvider.getFamilieHendelseRepository();
-        this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
-        this.uttakInputTjeneste = uttakInputTjeneste;
-    }
+    protected FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    protected BehandlingRepository behandlingRepository;
+    protected BehandlingsresultatRepository behandlingsresultatRepository;
+    protected ForeldrepengerUttakTjeneste fpUttakTjeneste;
+    protected FamilieHendelseRepository familieHendelseRepository;
+    protected StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
+    protected UttakInputTjeneste uttakInputTjeneste;
 
     void oppdaterFagsakRelasjonAvsluttningsdato(FagsakRelasjon relasjon,
                                                 Long fagsakId,
                                                 FagsakRelasjonLås lås,
                                                 Optional<FagsakLås> fagsak1Lås,
                                                 Optional<FagsakLås> fagsak2Lås) {
-        fagsakRelasjonTjeneste.oppdaterMedAvsluttningsdato(relasjon, finnAvsluttningsdato(fagsakId, relasjon), lås, fagsak1Lås, fagsak2Lås);
+        fagsakRelasjonTjeneste.oppdaterMedAvsluttningsdato(relasjon, finnAvslutningsdato(fagsakId, relasjon), lås, fagsak1Lås, fagsak2Lås);
     }
 
-    private LocalDate finnAvsluttningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon) {
-        LocalDate avsluttningsdato = avsluttningsdatoFraEksisterendeFagsakRelasjon(fagsakRelasjon);
+    protected abstract LocalDate finnAvslutningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon);
 
-        Optional<Behandling> behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
-        if (behandling.isPresent()) {
-            avsluttningsdato = avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(behandling.get(), avsluttningsdato);
-            avsluttningsdato = avsluttningsdatoHvisDetIkkeErStønadsdagerIgjen(behandling.get(), avsluttningsdato);
-            avsluttningsdato = avsluttningsdatoHvisDetErStønadsdagerIgjen(behandling.get(), avsluttningsdato);
-        }
-
-        if (avsluttningsdato == null) {
-            avsluttningsdato = LocalDate.now().plusDays(1);
-        }
-        return avsluttningsdato;
-    }
-
-    private LocalDate avsluttningsdatoFraEksisterendeFagsakRelasjon(FagsakRelasjon fagsakRelasjon) {
+    protected LocalDate avsluttningsdatoFraEksisterendeFagsakRelasjon(FagsakRelasjon fagsakRelasjon) {
         if (fagsakRelasjon.getAvsluttningsdato() != null && fagsakRelasjon.getAvsluttningsdato().isAfter(LocalDate.now())) {
             return fagsakRelasjon.getAvsluttningsdato();
         }
         return null;
     }
 
-    private LocalDate avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(Behandling behandling, LocalDate avsluttningsdato) {
+    protected LocalDate avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(Behandling behandling, LocalDate avsluttningsdato) {
         Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         return behandlingsresultat.isPresent() && behandlingsresultat.get().isBehandlingsresultatAvslåttOrOpphørt()
-            && erAvsluttningsdatoSattEllerEtter(avsluttningsdato, LocalDate.now()) ? LocalDate.now().plusDays(1) : avsluttningsdato;
+            && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, LocalDate.now()) ? LocalDate.now().plusDays(1) : avsluttningsdato;
     }
 
-    private LocalDate avsluttningsdatoHvisDetIkkeErStønadsdagerIgjen(Behandling behandling,
+    protected LocalDate avsluttningsdatoHvisDetIkkeErStønadsdagerIgjen(Behandling behandling,
                                                                      LocalDate avsluttningsdato) {
         var uttakResultatEntitet = fpUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
         if (uttakResultatEntitet.isPresent()) {
@@ -103,13 +65,13 @@ public class FagsakRelasjonAvsluttningsdatoOppdaterer {
                 .map(ForeldrepengerUttakPeriode::getTom);
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
             var sluttPåStønadsdager = stønadskontoSaldoTjeneste.erSluttPåStønadsdager(uttakInput);
-            return sisteUttaksdato.isPresent() && sisteUttaksdato.get().isAfter(LocalDate.now()) && erAvsluttningsdatoSattEllerEtter(avsluttningsdato, sisteUttaksdato.get())
+            return sisteUttaksdato.isPresent() && sisteUttaksdato.get().isAfter(LocalDate.now()) && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, sisteUttaksdato.get())
                 && sluttPåStønadsdager ? sisteUttaksdato.get() : avsluttningsdato;
         }
         return avsluttningsdato;
     }
 
-    private LocalDate avsluttningsdatoHvisDetErStønadsdagerIgjen(Behandling behandling, LocalDate avsluttningsdato) {
+    protected LocalDate avsluttningsdatoHvisDetErStønadsdagerIgjen(Behandling behandling, LocalDate avsluttningsdato) {
         Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         Optional<LocalDate> fødselsdato = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .flatMap(FamilieHendelseEntitet::getFødselsdato);
@@ -119,13 +81,13 @@ public class FagsakRelasjonAvsluttningsdatoOppdaterer {
         Optional<LocalDate> termindato = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .flatMap(FamilieHendelseEntitet::getTerminbekreftelse)
             .map(TerminbekreftelseEntitet::getTermindato);
-        return omsorgsovertalsesdato.map(localDate -> (erAvsluttningsdatoSattEllerEtter(avsluttningsdato, localDate.plusYears(3))
+        return omsorgsovertalsesdato.map(localDate -> (erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, localDate.plusYears(3))
             ? localDate.plusYears(3) : avsluttningsdato)).orElseGet(() -> (fødselsdato.isPresent()
-            && erAvsluttningsdatoSattEllerEtter(avsluttningsdato, fødselsdato.get().plusYears(3)) ? fødselsdato.get().plusYears(3) : termindato.isPresent()
-            && erAvsluttningsdatoSattEllerEtter(avsluttningsdato, termindato.get().plusYears(3)) ? termindato.get().plusYears(3) : avsluttningsdato));
+            && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, fødselsdato.get().plusYears(3)) ? fødselsdato.get().plusYears(3) : termindato.isPresent()
+            && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, termindato.get().plusYears(3)) ? termindato.get().plusYears(3) : avsluttningsdato));
     }
 
-    private boolean erAvsluttningsdatoSattEllerEtter(LocalDate avsluttningsdato, LocalDate nyAvsluttningsdato) {
+    protected boolean erAvsluttningsdatoIkkeSattEllerEtter(LocalDate avsluttningsdato, LocalDate nyAvsluttningsdato) {
         return avsluttningsdato == null || nyAvsluttningsdato.isBefore(avsluttningsdato);
     }
 }

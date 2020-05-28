@@ -17,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import no.finn.unleash.FakeUnleash;
+import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -56,6 +58,7 @@ public class SimulerOppdragApplikasjonTjenesteImplTest {
     private FamilieHendelseRepository familieHendelseRepository = new FamilieHendelseRepository(entityManager);
 
     private SimulerOppdragApplikasjonTjeneste simulerOppdragApplikasjonTjeneste;
+    private Unleash unleash = new FakeUnleash();
 
     @Mock
     private TpsTjeneste tpsTjeneste;
@@ -70,14 +73,14 @@ public class SimulerOppdragApplikasjonTjenesteImplTest {
         OppdragskontrollManagerFactory oppdragskontrollManagerFactory = mockFactoryES();
         OppdragskontrollManagerFactoryProvider providerMock = mock(OppdragskontrollManagerFactoryProvider.class);
         when(providerMock.getTjeneste(any(FagsakYtelseType.class))).thenReturn(oppdragskontrollManagerFactory);
-        OppdragskontrollTjeneste oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, providerMock);
+        OppdragskontrollTjeneste oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, providerMock, unleash);
         return oppdragskontrollTjeneste;
     }
 
     private OppdragskontrollManagerFactory mockFactoryES() {
         MapBehandlingInfoES mapBehandlingInfo = new MapBehandlingInfoES(finnNyesteOppdragForSak, tpsTjeneste,
             beregningRepository, behandlingVedtakRepository, familieHendelseRepository
-            );
+        );
         var manager = new OppdragskontrollEngangsstønad(mapBehandlingInfo);
         OppdragskontrollManagerFactory oppdragskontrollManagerFactory = mock(OppdragskontrollManagerFactory.class);
         when(oppdragskontrollManagerFactory.getManager(any(), anyBoolean())).thenReturn(Optional.of(manager));

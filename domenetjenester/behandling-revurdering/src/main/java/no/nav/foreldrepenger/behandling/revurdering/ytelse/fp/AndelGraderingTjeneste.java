@@ -27,9 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -39,7 +36,6 @@ public class AndelGraderingTjeneste {
 
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
 
     AndelGraderingTjeneste() {
         //CDI
@@ -47,11 +43,9 @@ public class AndelGraderingTjeneste {
 
     @Inject
     public AndelGraderingTjeneste(ForeldrepengerUttakTjeneste uttakTjeneste,
-                                  YtelsesFordelingRepository ytelsesFordelingRepository,
-                                  HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste) {
+                                  YtelsesFordelingRepository ytelsesFordelingRepository) {
         this.uttakTjeneste = uttakTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
     }
 
     public AktivitetGradering utled(BehandlingReferanse ref) {
@@ -74,10 +68,10 @@ public class AndelGraderingTjeneste {
             perioderMedGradering.addAll(perioderMedGraderingFraVedtak);
         }
 
-        return map(perioderMedGradering, ref);
+        return map(perioderMedGradering);
     }
 
-    private List<AndelGradering> map(List<PeriodeMedGradering> perioderMedGradering, BehandlingReferanse ref) {
+    private List<AndelGradering> map(List<PeriodeMedGradering> perioderMedGradering) {
         Map<AndelGradering, AndelGradering.Builder> map = new HashMap<>();
         perioderMedGradering.forEach(periodeMedGradering -> {
             AktivitetStatus aktivitetStatus = periodeMedGradering.aktivitetStatus;
@@ -96,30 +90,9 @@ public class AndelGraderingTjeneste {
                 map.put(andelGradering, nyBuilder);
             }
 
-            if (aktivitetStatus.erSelvstendigNæringsdrivende()) {
-                settAndelsnrForStatus(ref, builder, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
-            } else if (aktivitetStatus.erFrilanser()) {
-                settAndelsnrForStatus(ref, builder, AktivitetStatus.FRILANSER);
-            }
-
             builder.leggTilGradering(mapGradering(periodeMedGradering));
         });
         return new ArrayList<>(map.keySet());
-    }
-
-    private void settAndelsnrForStatus(BehandlingReferanse ref, AndelGradering.Builder builder, AktivitetStatus status) {
-        Optional<BeregningsgrunnlagPrStatusOgAndel> matchetAndel = finnAndelIGrunnlag(status, ref);
-        matchetAndel.ifPresent(beregningsgrunnlagPrStatusOgAndel -> builder.medAndelsnr(beregningsgrunnlagPrStatusOgAndel.getAndelsnr()));
-    }
-
-    private Optional<BeregningsgrunnlagPrStatusOgAndel> finnAndelIGrunnlag(AktivitetStatus aktivitetstatus, BehandlingReferanse ref) {
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(ref.getBehandlingId());
-        if (!beregningsgrunnlag.isPresent()) {
-            return Optional.empty();
-        }
-        BeregningsgrunnlagPeriode periode = beregningsgrunnlag.get().getBeregningsgrunnlagPerioder().get(0);
-        List<BeregningsgrunnlagPrStatusOgAndel> andeler = periode.getBeregningsgrunnlagPrStatusOgAndelList();
-        return andeler.stream().filter(andel -> andel.getAktivitetStatus().equals(aktivitetstatus)).findFirst();
     }
 
     private AndelGradering.Gradering mapGradering(PeriodeMedGradering periodeMedGradering) {

@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.domene.vedtak.ekstern.SettUtbetalingPåVentPrivatAr
 import no.nav.foreldrepenger.domene.vedtak.ekstern.VurderOppgaveArenaTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
-import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvsluttningsdatoTask;
+import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
 import no.nav.foreldrepenger.domene.vedtak.task.VurderOgSendØkonomiOppdragTask;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
@@ -47,7 +47,7 @@ public abstract class OpprettProsessTaskIverksettFelles implements OpprettProses
         ProsessTaskData vedtakTilDatavarehus = getProsesstaskFor(VEDTAK_TIL_DATAVAREHUS_TASK);
         ProsessTaskData vurderOppgaveArena = getProsesstaskFor(VurderOppgaveArenaTask.TASKTYPE);
         ProsessTaskData vurderSettPåVentUtbetalingPrivat = getProsesstaskFor(SettUtbetalingPåVentPrivatArbeidsgiverTask.TASKTYPE);
-        ProsessTaskData settFagsakRelasjonAvsluttningsdato = getProsesstaskFor(SettFagsakRelasjonAvsluttningsdatoTask.TASKTYPE);
+        ProsessTaskData settFagsakRelasjonAvsluttningsdato = getProsesstaskFor(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
 
         ProsessTaskGruppe taskData = new ProsessTaskGruppe();
         initiellTasker.forEach(taskData::addNesteSekvensiell);
@@ -71,7 +71,7 @@ public abstract class OpprettProsessTaskIverksettFelles implements OpprettProses
         prosessTaskRepository.lagre(taskData);
     }
 
-    private ProsessTaskData getProsesstaskFor(String tasktype) {
+    protected ProsessTaskData getProsesstaskFor(String tasktype) {
         var task = new ProsessTaskData(tasktype);
         task.setPrioritet(50);
         return task;

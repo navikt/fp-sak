@@ -90,7 +90,10 @@ public class VurderOpphørAvYtelserTest {
 
     @Mock
     @FagsakYtelseTypeRef("FP")
-    private RevurderingTjeneste revurderingTjenesteMock;
+    private RevurderingTjeneste revurderingTjenesteMockFP;
+    @Mock
+    @FagsakYtelseTypeRef("SVP")
+    private RevurderingTjeneste revurderingTjenesteMockSVP;
     @Mock
     private BehandlingProsesseringTjeneste behandlingProsesseringTjenesteMock;
 
@@ -99,7 +102,7 @@ public class VurderOpphørAvYtelserTest {
     @Before
     public void setUp() {
         initMocks(this);
-        vurderOpphørAvYtelser = new VurderOpphørAvYtelser(repositoryProvider, revurderingTjenesteMock, null,
+        vurderOpphørAvYtelser = new VurderOpphørAvYtelser(repositoryProvider, revurderingTjenesteMockFP, revurderingTjenesteMockSVP,
             prosessTaskRepository, behandlendeEnhetTjeneste, behandlingProsesseringTjenesteMock, sjekkInfotrygdTjeneste, mock(KøKontroller.class) );
     }
 
@@ -117,7 +120,7 @@ public class VurderOpphørAvYtelserTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyAvsBehandlingMor.getId());
 
-        verify(revurderingTjenesteMock, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
         verify(sjekkInfotrygdTjeneste, times(0)).harForeldrepengerInfotrygdSomOverlapper(any(), any());
     }
 
@@ -140,8 +143,7 @@ public class VurderOpphørAvYtelserTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(),nyAvsBehandlingMor.getId());
 
-        verify(revurderingTjenesteMock, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
-        verify(revurderingTjenesteMock, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
         verify(sjekkInfotrygdTjeneste, times(1)).harForeldrepengerInfotrygdSomOverlapper(fsavsluttetBehFar.getAktørId(),SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1 );
     }
 
@@ -161,7 +163,7 @@ public class VurderOpphørAvYtelserTest {
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fsavsluttetBehMor.getId(),avsluttetBehMor.getId());
 
         // OBS: Dette vil vi helst ikke. Trenger sjekk på om sak gjelder samme barn
-        verify(revurderingTjenesteMock, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
     }
 
     @Test
@@ -178,7 +180,7 @@ public class VurderOpphørAvYtelserTest {
         Fagsak fagsakNy = nyBehMorSomIkkeOverlapper.getFagsak();
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehMorSomIkkeOverlapper.getId());
-        verify(revurderingTjenesteMock, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        verify(revurderingTjenesteMockFP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
         verify(sjekkInfotrygdTjeneste, times(0)).harForeldrepengerInfotrygdSomOverlapper(any(),any() );
     }
 
@@ -201,7 +203,7 @@ public class VurderOpphørAvYtelserTest {
         Fagsak fsavsluttetBehFar = avslBehFarMedOverlappMor.getFagsak();
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehMorSomIkkeOverlapper.getId());
-        verify(revurderingTjenesteMock, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
         verify(sjekkInfotrygdTjeneste, times(1)).harForeldrepengerInfotrygdSomOverlapper(fsavsluttetBehFar.getAktørId(),SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1 );
 
     }
@@ -221,7 +223,7 @@ public class VurderOpphørAvYtelserTest {
         Fagsak fagsakNy = nyBehFar.getFagsak();
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehFar.getId());
-        verify(revurderingTjenesteMock, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
         verify(sjekkInfotrygdTjeneste, times(1)).harForeldrepengerInfotrygdSomOverlapper(fagsakNy.getAktørId(),SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1 );
     }
 
@@ -238,7 +240,7 @@ public class VurderOpphørAvYtelserTest {
         Fagsak fagsakNy = nyAvsBehandlingMor.getFagsak();
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyAvsBehandlingMor.getId());
-        verify(revurderingTjenesteMock, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
         verify(sjekkInfotrygdTjeneste, times(0)).harForeldrepengerInfotrygdSomOverlapper(any(),any() );
     }
 
@@ -257,7 +259,7 @@ public class VurderOpphørAvYtelserTest {
         lagRevurdering(avsluttetBehMor);
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyAvsBehandlingMor.getId());
-        verify(revurderingTjenesteMock, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        verify(revurderingTjenesteMockFP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
         verify(sjekkInfotrygdTjeneste, times(0)).harForeldrepengerInfotrygdSomOverlapper(any(),any() );
     }
 
@@ -290,8 +292,23 @@ public class VurderOpphørAvYtelserTest {
     }
 
     @Test
-    public void opphørOverlappFPNårInnvilgerSVP() {
-        //Har FP som overlapper med ny SVP sak og det er ikke gradering
+    public void opprettRevNårOverlappMedFPNårInnvSVPPåSammeBarn() {
+        Behandling avsluttetFPBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
+        BeregningsresultatEntitet berResMorBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
+        beregningsresultatRepository.lagre(avsluttetFPBehMor, berResMorBeh1);
+
+        Behandling nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
+        BeregningsresultatEntitet berResMedOverlapp = lagBeregningsresultat(FØDSELS_DATO_1.minusWeeks(3), FØDSELS_DATO_1.plusDays(4), Inntektskategori.ARBEIDSTAKER);
+        beregningsresultatRepository.lagre(nyBehSVPOverlapper, berResMedOverlapp);
+        Fagsak fagsakNy = nyBehSVPOverlapper.getFagsak();
+
+        vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehSVPOverlapper.getId());
+        verify(revurderingTjenesteMockSVP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        //verify(revurderingTjenesteMockSVP, times(1)).opprettAutomatiskRevurdering(eq(fagsakNy), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+    }
+
+    @Test
+    public void opprettRevNårOverlappMedFPNårInnvilgerSVPPåNyttBarn() {
         Behandling avsluttetFPBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
         BeregningsresultatEntitet berResMorBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(avsluttetFPBehMor, berResMorBeh1);
@@ -303,8 +320,8 @@ public class VurderOpphørAvYtelserTest {
         Fagsak fagsakNy = nyBehSVPOverlapper.getFagsak();
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehSVPOverlapper.getId());
-
-        verify(revurderingTjenesteMock, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        verify(revurderingTjenesteMockFP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        //verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(avsluttetFPSakMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
     }
 
     @Test
@@ -323,7 +340,7 @@ public class VurderOpphørAvYtelserTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehSVPOverlapper.getId());
 
-        verify(revurderingTjenesteMock, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        verify(revurderingTjenesteMockFP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
     }
 
     @Test
@@ -336,12 +353,14 @@ public class VurderOpphørAvYtelserTest {
 
         Behandling nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
         BeregningsresultatEntitet berResMedOverlapp = lagBeregningsresultat(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP, Inntektskategori.ARBEIDSTAKER);
+        leggTilBRAndel(berResMedOverlapp.getBeregningsresultatPerioder().stream().findFirst().orElse(null));
         beregningsresultatRepository.lagre(nyBehSVPOverlapper, berResMedOverlapp);
         Fagsak fagsakNy = nyBehSVPOverlapper.getFagsak();
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehSVPOverlapper.getId());
 
-        verify(revurderingTjenesteMock, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        verify(revurderingTjenesteMockSVP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        //verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(avsluttetFPSakMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
     }
 
     @Test
@@ -358,7 +377,7 @@ public class VurderOpphørAvYtelserTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehSVPOverlapper.getId());
 
-        verify(revurderingTjenesteMock, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        verify(revurderingTjenesteMockSVP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
     }
 
     private Behandling lagBehandlingMor( LocalDate fødselsDato, AktørId aktørId, AktørId medfAktørId)
@@ -433,18 +452,28 @@ public class VurderOpphørAvYtelserTest {
 
         if (gradering) {
             BeregningsresultatAndel.builder()
-                .medDagsatsFraBg(DAGSATS_GRADERING)
                 .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
                 .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medDagsats(DAGSATS_GRADERING)
+                .medDagsats(gradering ? DAGSATS_GRADERING : DAGSATS)
                 .medDagsatsFraBg(DAGSATS)
                 .medBrukerErMottaker(true)
-                .medUtbetalingsgrad(BigDecimal.valueOf(50))
-                .medStillingsprosent(BigDecimal.valueOf(100))
+                .medUtbetalingsgrad(gradering ? BigDecimal.valueOf(50) : BigDecimal.valueOf(100))
+                .medStillingsprosent(BigDecimal.valueOf(50))
                 .build(beregningsresultatPeriode);
         }
-
         beregningsresultatEntitet.addBeregningsresultatPeriode(beregningsresultatPeriode);
+    }
+
+    private void leggTilBRAndel(BeregningsresultatPeriode beregningsresultatPeriode) {
+        BeregningsresultatAndel.builder()
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medDagsats(DAGSATS+50)
+            .medDagsatsFraBg(DAGSATS+50)
+            .medBrukerErMottaker(true)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medStillingsprosent(BigDecimal.valueOf(50))
+            .build(beregningsresultatPeriode);
     }
 
     private void avsluttBehandlingOgFagsak(Behandling behandling) {

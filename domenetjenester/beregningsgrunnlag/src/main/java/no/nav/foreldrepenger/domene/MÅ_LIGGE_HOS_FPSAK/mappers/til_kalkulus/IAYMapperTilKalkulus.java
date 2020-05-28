@@ -133,7 +133,6 @@ public class IAYMapperTilKalkulus {
 
     private static OppgittOpptjeningDtoBuilder.OppgittArbeidsforholdBuilder mapOppgittArbeidsforhold(OppgittArbeidsforhold oppgittArbeidsforhold) {
         return OppgittOpptjeningDtoBuilder.OppgittArbeidsforholdBuilder.ny()
-            .medArbeidType(ArbeidType.fraKode(oppgittArbeidsforhold.getArbeidType().getKode()))
             .medPeriode(mapDatoIntervall(oppgittArbeidsforhold.getPeriode()));
     }
 

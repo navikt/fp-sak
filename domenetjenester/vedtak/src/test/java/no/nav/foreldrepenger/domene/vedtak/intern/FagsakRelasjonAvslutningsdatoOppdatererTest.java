@@ -12,6 +12,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
+import no.nav.foreldrepenger.domene.vedtak.intern.fp.FpFagsakRelasjonAvslutningsdatoOppdaterer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -45,9 +47,9 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 
-public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
+public class FagsakRelasjonAvslutningsdatoOppdatererTest {
 
-    private FagsakRelasjonAvsluttningsdatoOppdaterer fagsakRelasjonAvsluttningsdatoOppdaterer;
+    private FagsakRelasjonAvslutningsdatoOppdaterer fagsakRelasjonAvslutningsdatoOppdaterer;
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -65,6 +67,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     @Mock
     private UttakInputTjeneste uttakInputTjeneste;
+
     @Mock
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
@@ -83,7 +86,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         when(repositoryProvider.getFagsakLåsRepository()).thenReturn(fagsakLåsRepository);
         when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepository);
 
-        fagsakRelasjonAvsluttningsdatoOppdaterer = new FagsakRelasjonAvsluttningsdatoOppdaterer(repositoryProvider, stønadskontoSaldoTjeneste,
+        fagsakRelasjonAvslutningsdatoOppdaterer = new FpFagsakRelasjonAvslutningsdatoOppdaterer(repositoryProvider, stønadskontoSaldoTjeneste,
             uttakInputTjeneste, fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste);
 
         behandling = lagBehandling();
@@ -105,7 +108,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.empty());
 
         // Act
-        fagsakRelasjonAvsluttningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
+        fagsakRelasjonAvslutningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
 
         // Assert
         verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().plusDays(1), null, Optional.empty(), Optional.empty());
@@ -124,7 +127,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.empty());
 
         // Act
-        fagsakRelasjonAvsluttningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
+        fagsakRelasjonAvslutningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
 
         // Assert
         verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().plusDays(10), null, Optional.empty(), Optional.empty());
@@ -147,7 +150,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(familieHendelseGrunnlag));
 
         // Act
-        fagsakRelasjonAvsluttningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
+        fagsakRelasjonAvslutningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
 
         // Assert
         verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().minusDays(5).plusYears(3), null, Optional.empty(), Optional.empty());
@@ -172,7 +175,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(familieHendelseGrunnlag));
 
         // Act
-        fagsakRelasjonAvsluttningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
+        fagsakRelasjonAvslutningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
 
         // Assert
         verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().plusDays(5).plusYears(3), null, Optional.empty(), Optional.empty());
@@ -197,7 +200,7 @@ public class FagsakRelasjonAvsluttningsdatoOppdatererTest {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(familieHendelseGrunnlag));
 
         // Act
-        fagsakRelasjonAvsluttningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
+        fagsakRelasjonAvslutningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
 
         // Assert
         verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().minusMonths(1).plusYears(3), null, Optional.empty(), Optional.empty());
