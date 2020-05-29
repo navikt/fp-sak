@@ -113,7 +113,7 @@ public class VedtaksHendelseHåndterer {
     private void sjekkVedtakOverlapp(YtelseV1 ytelse) {
         List<LocalDateSegment<Boolean>> ytelsesegments = ytelse.getAnvist().stream()
             // .filter(p -> p.getUtbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) > 0)
-            .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getPeriode().getFom()), VirkedagUtil.tomVirkedag(p.getPeriode().getTom()), Boolean.TRUE))
+            .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), Boolean.TRUE))
             .collect(Collectors.toList());
         if (ytelsesegments.isEmpty())
             return;
