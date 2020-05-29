@@ -10,22 +10,24 @@ import java.math.BigDecimal;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
 
 @ApplicationScoped
 public class ForvaltningUttakTjeneste {
@@ -35,18 +37,24 @@ public class ForvaltningUttakTjeneste {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private VilkårResultatRepository vilkårResultatRepository;
+    private BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste;
+    private UttakInputTjeneste uttakInputTjeneste;
 
     @Inject
     public ForvaltningUttakTjeneste(FpUttakRepository fpUttakRepository,
                                     BehandlingRepository behandlingRepository,
                                     BehandlingsresultatRepository behandlingsresultatRepository,
                                     BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                                    VilkårResultatRepository vilkårResultatRepository) {
+                                    VilkårResultatRepository vilkårResultatRepository,
+                                    BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste,
+                                    UttakInputTjeneste uttakInputTjeneste) {
         this.fpUttakRepository = fpUttakRepository;
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.vilkårResultatRepository = vilkårResultatRepository;
+        this.beregnStønadskontoerTjeneste = beregnStønadskontoerTjeneste;
+        this.uttakInputTjeneste = uttakInputTjeneste;
     }
 
     ForvaltningUttakTjeneste() {
@@ -131,5 +139,10 @@ public class ForvaltningUttakTjeneste {
     private UttakResultatEntitet hentForrigeUttaksresultat(Behandling behandling) {
         var originalBehandling = behandling.getOriginalBehandling().orElseThrow();
         return fpUttakRepository.hentUttakResultat(originalBehandling.getId());
+    }
+
+    public void beregnKontoer(long behandlingId) {
+        var input = uttakInputTjeneste.lagInput(behandlingId);
+        beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
     }
 }
