@@ -4,6 +4,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREAT
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.POST;
@@ -14,13 +15,12 @@ import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @Path("/forvaltningUttak")
 @ApplicationScoped
-@Transaction
+@Transactional
 public class ForvaltningUttakRestTjeneste {
 
     private ForvaltningUttakTjeneste forvaltningUttakTjeneste;
@@ -49,6 +49,18 @@ public class ForvaltningUttakRestTjeneste {
         }
 
         forvaltningUttakTjeneste.lagOpphørtUttaksresultat(behandlingId);
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/beregn-kontoer")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Operation(description = "Beregner kontoer basert på data fra behandlingen. Husk å revurdere begge foreldre", tags = "FORVALTNING-uttak")
+    @BeskyttetRessurs(action = CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    public Response beregnKontoer(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        long behandlingId = dto.getBehandlingId();
+
+        forvaltningUttakTjeneste.beregnKontoer(behandlingId);
         return Response.noContent().build();
     }
 }

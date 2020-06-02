@@ -30,16 +30,16 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.YtelserKonsolidertTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.OffentligYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.util.FPDateUtil;
 
 public class AksjonspunktUtlederForTidligereMottattYtelseTest {
@@ -51,7 +51,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest {
     private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private AksjonspunktUtlederForTidligereMottattYtelse utleder = new AksjonspunktUtlederForTidligereMottattYtelse(
         iayTjeneste,
-        new YtelserKonsolidertTjeneste(repositoryProvider.getFagsakRepository()),
+        new YtelserKonsolidertTjeneste(repositoryProvider),
         new PersonopplysningRepository(repoRule.getEntityManager()));
 
     private Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(FPDateUtil.iDag()).build();
