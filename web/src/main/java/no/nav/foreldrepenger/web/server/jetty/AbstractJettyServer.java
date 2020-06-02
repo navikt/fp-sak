@@ -111,7 +111,8 @@ abstract class AbstractJettyServer {
     protected void start(AppKonfigurasjon appKonfigurasjon) throws Exception {
         Server server = new Server(appKonfigurasjon.getServerPort());
         server.setConnectors(createConnectors(appKonfigurasjon, server).toArray(new Connector[] {}));
-        server.setHandler(createContext(appKonfigurasjon));
+        var handlers = new HandlerList(new ResetLogContextHandler(), createContext(appKonfigurasjon));
+        server.setHandler(handlers);
         server.start();
         server.join();
     }
