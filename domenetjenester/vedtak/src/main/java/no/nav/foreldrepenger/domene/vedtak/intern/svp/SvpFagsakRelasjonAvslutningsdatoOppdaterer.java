@@ -20,8 +20,6 @@ import java.util.Optional;
 @FagsakYtelseTypeRef("SVP")
 public class SvpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAvslutningsdatoOppdaterer {
 
-    private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
-
     @Inject
     public SvpFagsakRelasjonAvslutningsdatoOppdaterer(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                                       StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
@@ -39,31 +37,4 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAv
         this.maksDatoUttakTjeneste = svpMaksDatoUttakTjeneste;
     }
 
-    protected LocalDate finnAvslutningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon) {
-        LocalDate avsluttningsdato = avsluttningsdatoFraEksisterendeFagsakRelasjon(fagsakRelasjon);
-
-        Optional<Behandling> behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
-        if (behandling.isPresent()) {
-            avsluttningsdato = avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(behandling.get(), avsluttningsdato);
-            avsluttningsdato = avsluttningsdatoHvisDetIkkeErStønadsdagerIgjen(behandling.get(), avsluttningsdato);
-            if(fagsakRelasjon.getFagsakNrTo().isEmpty()){
-                Optional<LocalDate> sisteUttaksdato = hentSisteUttaksdatoForFagsak(behandling.get().getFagsakId());
-                if(sisteUttaksdato.isPresent() && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, sisteUttaksdato.get()))avsluttningsdato = sisteUttaksdato.get();
-            }
-            avsluttningsdato = avsluttningsdatoHvisDetErStønadsdagerIgjen(behandling.get(), avsluttningsdato);
-        }
-
-        if (avsluttningsdato == null) {
-            avsluttningsdato = LocalDate.now().plusDays(1);
-        }
-        return avsluttningsdato;
-    }
-
-    private Optional<LocalDate> hentSisteUttaksdatoForFagsak(Long fagsakId) {
-        Optional<Behandling> sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
-        if (sisteYtelsesvedtak.isPresent()) {
-            var uttakInput = uttakInputTjeneste.lagInput(sisteYtelsesvedtak.get());
-            return maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
-        } else return Optional.empty();
-    }
 }

@@ -67,6 +67,8 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     @Mock
     private UttakInputTjeneste uttakInputTjeneste;
+    @Mock
+    private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
 
     @Mock
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
@@ -87,7 +89,7 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
         when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepository);
 
         fagsakRelasjonAvslutningsdatoOppdaterer = new FpFagsakRelasjonAvslutningsdatoOppdaterer(repositoryProvider, stønadskontoSaldoTjeneste,
-            uttakInputTjeneste, fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste);
+            uttakInputTjeneste, maksDatoUttakTjeneste, fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste);
 
         behandling = lagBehandling();
         fagsak = behandling.getFagsak();

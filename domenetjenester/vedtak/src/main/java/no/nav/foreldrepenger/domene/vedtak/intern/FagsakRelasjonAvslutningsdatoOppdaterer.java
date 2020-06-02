@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 
 public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
@@ -31,6 +32,7 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
     protected FamilieHendelseRepository familieHendelseRepository;
     protected StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     protected UttakInputTjeneste uttakInputTjeneste;
+    protected MaksDatoUttakTjeneste maksDatoUttakTjeneste;
 
     void oppdaterFagsakRelasjonAvsluttningsdato(FagsakRelasjon relasjon,
                                                 Long fagsakId,
@@ -40,7 +42,25 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
         fagsakRelasjonTjeneste.oppdaterMedAvsluttningsdato(relasjon, finnAvslutningsdato(fagsakId, relasjon), lås, fagsak1Lås, fagsak2Lås);
     }
 
-    protected abstract LocalDate finnAvslutningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon);
+    protected LocalDate finnAvslutningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon) {
+        LocalDate avsluttningsdato = avsluttningsdatoFraEksisterendeFagsakRelasjon(fagsakRelasjon);
+
+        Optional<Behandling> behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
+        if (behandling.isPresent()) {
+            avsluttningsdato = avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(behandling.get(), avsluttningsdato);
+            avsluttningsdato = avsluttningsdatoHvisDetIkkeErStønadsdagerIgjen(behandling.get(), avsluttningsdato);
+            if(fagsakRelasjon.getFagsakNrTo().isEmpty()){
+                Optional<LocalDate> sisteUttaksdato = hentSisteUttaksdatoForFagsak(behandling.get().getFagsakId());
+                if(sisteUttaksdato.isPresent() && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, sisteUttaksdato.get()))avsluttningsdato = sisteUttaksdato.get();
+            }
+            avsluttningsdato = avsluttningsdatoHvisDetErStønadsdagerIgjen(behandling.get(), avsluttningsdato);
+        }
+
+        if (avsluttningsdato == null) {
+            avsluttningsdato = LocalDate.now().plusDays(1);
+        }
+        return avsluttningsdato;
+    }
 
     protected LocalDate avsluttningsdatoFraEksisterendeFagsakRelasjon(FagsakRelasjon fagsakRelasjon) {
         if (fagsakRelasjon.getAvsluttningsdato() != null && fagsakRelasjon.getAvsluttningsdato().isAfter(LocalDate.now())) {
@@ -85,6 +105,14 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
             ? localDate.plusYears(3) : avsluttningsdato)).orElseGet(() -> (fødselsdato.isPresent()
             && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, fødselsdato.get().plusYears(3)) ? fødselsdato.get().plusYears(3) : termindato.isPresent()
             && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, termindato.get().plusYears(3)) ? termindato.get().plusYears(3) : avsluttningsdato));
+    }
+
+    protected Optional<LocalDate> hentSisteUttaksdatoForFagsak(Long fagsakId) {
+        Optional<Behandling> sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
+        if (sisteYtelsesvedtak.isPresent()) {
+            var uttakInput = uttakInputTjeneste.lagInput(sisteYtelsesvedtak.get());
+            return maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
+        } else return Optional.empty();
     }
 
     protected boolean erAvsluttningsdatoIkkeSattEllerEtter(LocalDate avsluttningsdato, LocalDate nyAvsluttningsdato) {
