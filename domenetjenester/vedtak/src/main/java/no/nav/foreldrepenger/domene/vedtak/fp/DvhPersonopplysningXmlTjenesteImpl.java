@@ -226,8 +226,10 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
     private void setFamilierelasjoner(PersonopplysningerDvhForeldrepenger personopplysninger, PersonopplysningerAggregat aggregat) {
         final Map<AktørId, PersonopplysningEntitet> aktørPersonopplysningMap = aggregat.getAktørPersonopplysningMap();
-        final List<PersonRelasjonEntitet> tilPersoner = aggregat.getSøkersRelasjoner();
-        if (tilPersoner != null && !tilPersoner.isEmpty()) {
+        final List<PersonRelasjonEntitet> tilPersoner = aggregat.getSøkersRelasjoner().stream()
+            .filter(r -> aktørPersonopplysningMap.get(r.getTilAktørId()) != null)
+            .collect(Collectors.toList());
+        if (!tilPersoner.isEmpty()) {
             PersonopplysningerDvhForeldrepenger.Familierelasjoner familierelasjoner = personopplysningDvhObjectFactory
                 .createPersonopplysningerDvhForeldrepengerFamilierelasjoner();
             personopplysninger.setFamilierelasjoner(familierelasjoner);

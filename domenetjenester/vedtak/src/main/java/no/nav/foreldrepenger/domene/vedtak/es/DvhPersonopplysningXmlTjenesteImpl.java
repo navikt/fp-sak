@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -116,8 +117,10 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
     private void setFamilierelasjoner(PersonopplysningerDvhEngangsstoenad personopplysninger, PersonopplysningerAggregat aggregat) {
         final Map<AktørId, PersonopplysningEntitet> aktørPersonopplysningMap = aggregat.getAktørPersonopplysningMap();
-        final List<PersonRelasjonEntitet> tilPersoner = aggregat.getSøkersRelasjoner();
-        if (tilPersoner != null && !tilPersoner.isEmpty()) {
+        final List<PersonRelasjonEntitet> tilPersoner = aggregat.getSøkersRelasjoner().stream()
+            .filter(r -> aktørPersonopplysningMap.get(r.getTilAktørId()) != null)
+            .collect(Collectors.toList());
+        if (!tilPersoner.isEmpty()) {
             PersonopplysningerDvhEngangsstoenad.Familierelasjoner familierelasjoner = personopplysningDvhObjectFactory
                 .createPersonopplysningerDvhEngangsstoenadFamilierelasjoner();
             personopplysninger.setFamilierelasjoner(familierelasjoner);

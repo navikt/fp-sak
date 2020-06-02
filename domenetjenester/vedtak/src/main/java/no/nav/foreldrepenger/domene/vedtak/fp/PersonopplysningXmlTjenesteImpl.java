@@ -224,8 +224,10 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private void setFamilierelasjoner(PersonopplysningerForeldrepenger personopplysninger, PersonopplysningerAggregat aggregat) {
         final Map<AktørId, PersonopplysningEntitet> aktørPersonopplysningMap = aggregat.getAktørPersonopplysningMap();
-        final List<PersonRelasjonEntitet> tilPersoner = aggregat.getSøkersRelasjoner();
-        if (tilPersoner != null && !tilPersoner.isEmpty()) {
+        final List<PersonRelasjonEntitet> tilPersoner = aggregat.getSøkersRelasjoner().stream()
+            .filter(r -> aktørPersonopplysningMap.get(r.getTilAktørId()) != null)
+            .collect(Collectors.toList());
+        if (!tilPersoner.isEmpty()) {
             PersonopplysningerForeldrepenger.Familierelasjoner familierelasjoner = personopplysningObjectFactory
                 .createPersonopplysningerForeldrepengerFamilierelasjoner();
             personopplysninger.setFamilierelasjoner(familierelasjoner);
