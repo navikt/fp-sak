@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.domene.arbeidsforhold.dto.BehandlingRelatert
 import static no.nav.foreldrepenger.domene.arbeidsforhold.dto.BehandlingRelaterteYtelserMapper.RELATERT_YTELSE_TYPER_FOR_SØKER;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,8 +20,8 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.ArbeidsforholdWrapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.YtelserKonsolidertTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.SakInntektsmeldinger;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste.UtledArbeidsforholdParametere;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.SakInntektsmeldinger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
@@ -153,13 +152,12 @@ public class InntektArbeidYtelseDtoMapper {
     private void mapRelaterteYtelser(InntektArbeidYtelseDto dto, BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag, Optional<AktørId> aktørIdAnnenPart) {
         dto.setRelatertTilgrensendeYtelserForSoker(mapTilDtoSøker(hentRelaterteYtelser(grunnlag, ref.getAktørId())));
         aktørIdAnnenPart.ifPresent(annenPartAktørId -> {
-            List<TilgrensendeYtelserDto> hentRelaterteYtelser = hentRelaterteYtelser(grunnlag, annenPartAktørId);
+            List<TilgrensendeYtelserDto> hentRelaterteYtelser = hentRelaterteYtelserAnnenPart(grunnlag, annenPartAktørId);
             List<RelaterteYtelserDto> relaterteYtelser = mapTilDtoAnnenPart(hentRelaterteYtelser);
             dto.setRelatertTilgrensendeYtelserForAnnenForelder(relaterteYtelser);
             // TODO Termitt. Trengs denne måten å skille på? For å evt. få til dette må det filtreres her etter at det hentes.(bare innvilget)
             dto.setInnvilgetRelatertTilgrensendeYtelserForAnnenForelder(relaterteYtelser);
         });
-
     }
 
     private List<RelaterteYtelserDto> mapTilDtoAnnenPart(List<TilgrensendeYtelserDto> tilgrensendeYtelserDtos) {
@@ -171,15 +169,11 @@ public class InntektArbeidYtelseDtoMapper {
     }
 
     private List<TilgrensendeYtelserDto> hentRelaterteYtelser(InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
-        final List<TilgrensendeYtelserDto> relatertYtelser = new ArrayList<>();
         // Relaterte yteleser fra InntektArbeidYtelseAggregatet
-        relatertYtelser.addAll(mapYtelseForAktørTilTilgrensedeYtelser(grunnlag, aktørId));
-
-        return relatertYtelser;
+        return ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag, Optional.empty());
     }
 
-    private List<TilgrensendeYtelserDto> mapYtelseForAktørTilTilgrensedeYtelser(InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, AktørId aktørId) {
-        return ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, inntektArbeidYtelseGrunnlag, Optional.empty());
+    private List<TilgrensendeYtelserDto> hentRelaterteYtelserAnnenPart(InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
+        return ytelseTjeneste.utledAnnenPartsYtelserRelatertTilBehandling(aktørId, grunnlag, Optional.empty());
     }
-
 }
