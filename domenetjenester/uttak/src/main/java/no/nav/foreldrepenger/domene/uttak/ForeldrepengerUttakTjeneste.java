@@ -6,20 +6,20 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
 public class ForeldrepengerUttakTjeneste {
 
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
 
     @Inject
-    public ForeldrepengerUttakTjeneste(UttakRepository uttakRepository) {
-        this.uttakRepository = uttakRepository;
+    public ForeldrepengerUttakTjeneste(FpUttakRepository fpUttakRepository) {
+        this.fpUttakRepository = fpUttakRepository;
     }
 
     ForeldrepengerUttakTjeneste() {
@@ -27,7 +27,7 @@ public class ForeldrepengerUttakTjeneste {
     }
 
     public Optional<ForeldrepengerUttak> hentUttakHvisEksisterer(long behandlingId) {
-        return uttakRepository.hentUttakResultatHvisEksisterer(behandlingId).map(entitet -> map(entitet));
+        return fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId).map(entitet -> map(entitet));
     }
 
     public ForeldrepengerUttak hentUttak(long behandlingId) {

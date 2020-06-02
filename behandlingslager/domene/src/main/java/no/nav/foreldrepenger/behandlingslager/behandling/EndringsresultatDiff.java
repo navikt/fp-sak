@@ -62,10 +62,6 @@ public class EndringsresultatDiff {
         return new EndringsresultatDiff(diff.grunnlagKlasse, diff.grunnlagId1, diff.grunnlagId2, støtterSporingsendringer, erSporedeFeltEndret, diffResultat);
     }
 
-    public boolean erIdEndret() {
-        return !Objects.equals(grunnlagId1, grunnlagId2)  || getChildren().stream().anyMatch(EndringsresultatDiff::erIdEndret);
-    }
-
     public boolean erSporedeFeltEndret() {
         if(!støtterSporingsendringer) {
             throw new IllegalArgumentException("Utviklerfeil: ikke satt opp til å støtte sporing på felter");

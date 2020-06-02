@@ -40,17 +40,15 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.domene.medlem.api.EndringsresultatPersonopplysningerForMedlemskap;
 import no.nav.foreldrepenger.domene.medlem.api.EndringsresultatPersonopplysningerForMedlemskap.EndretAttributt;
-import no.nav.foreldrepenger.domene.medlem.api.FinnMedlemRequest;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.medlem.api.VurderMedlemskap;
 import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
 import no.nav.foreldrepenger.domene.medlem.impl.HentMedlemskapFraRegister;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.vedtak.util.FPDateUtil;
 import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
@@ -99,12 +97,10 @@ public class MedlemTjeneste {
 
     /**
      * Finn medlemskapsperioder i MEDL2 register for en person.
-     *
-     * @param finnMedlemRequest Inneholder fødselsnummer, start-/slutt- dato for søket, og behandling-/fagsak- ID.
      * @return Liste av medlemsperioder funnet
      */
-    public List<Medlemskapsperiode> finnMedlemskapPerioder(FinnMedlemRequest finnMedlemRequest) {
-        return hentMedlemskapFraRegister.finnMedlemskapPerioder(finnMedlemRequest);
+    public List<Medlemskapsperiode> finnMedlemskapPerioder(AktørId aktørId, LocalDate fom, LocalDate tom) {
+        return hentMedlemskapFraRegister.finnMedlemskapPerioder(aktørId, fom, tom);
     }
 
     public Optional<MedlemskapAggregat> hentMedlemskap(Long behandlingId) {
@@ -133,7 +129,7 @@ public class MedlemTjeneste {
         if (revurderingBehandling.erRevurdering() && revurderingBehandling.getFagsakYtelseType().gjelderForeldrepenger()) {
             AktørId aktørId = revurderingBehandling.getAktørId();
             Long behandlingId = revurderingBehandling.getId();
-            DatoIntervallEntitet intervall = DatoIntervallEntitet.fraOgMedTilOgMed(finnStartdato(revurderingBehandling), FPDateUtil.iDag());
+            DatoIntervallEntitet intervall = DatoIntervallEntitet.fraOgMedTilOgMed(finnStartdato(revurderingBehandling), LocalDate.now());
             Optional<PersonopplysningerAggregat> historikkAggregat = personopplysningTjeneste
                 .hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(behandlingId, aktørId, intervall);
 
@@ -247,8 +243,8 @@ public class MedlemTjeneste {
 
     private LocalDate finnStartdato(Behandling revurderingBehandling) {
 
-        Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> medlemskapsvilkårPeriodeGrunnlag = medlemskapVilkårPeriodeRepository
-            .hentAggregatHvisEksisterer(revurderingBehandling.getOriginalBehandling().get());
+        Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> medlemskapsvilkårPeriodeGrunnlag = revurderingBehandling.getOriginalBehandling()
+            .flatMap(medlemskapVilkårPeriodeRepository::hentAggregatHvisEksisterer);
 
         LocalDate startDato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurderingBehandling.getId()).getUtledetSkjæringstidspunkt();
         if (medlemskapsvilkårPeriodeGrunnlag.isPresent()) {
@@ -264,7 +260,7 @@ public class MedlemTjeneste {
             }
         }
 
-        return startDato.isAfter(FPDateUtil.iDag()) ? FPDateUtil.iDag() : startDato;
+        return startDato.isAfter(LocalDate.now()) ? LocalDate.now() : startDato;
     }
 
     public Tuple<VilkårUtfallType, Avslagsårsak> utledVilkårUtfall(Behandling revurdering) {

@@ -28,8 +28,8 @@ import org.threeten.extra.Interval;
 
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.Periode;
-import no.nav.abakus.iaygrunnlag.request.RegisterdataType;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
+import no.nav.abakus.iaygrunnlag.request.RegisterdataType;
 import no.nav.foreldrepenger.behandlingslager.abakus.logg.AbakusInnhentingGrunnlagLogg;
 import no.nav.foreldrepenger.behandlingslager.abakus.logg.AbakusInnhentingGrunnlagLoggRepository;
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
@@ -66,7 +66,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.medlem.api.FinnMedlemRequest;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.tps.TpsFødselUtil;
@@ -218,8 +217,7 @@ public class RegisterdataInnhenter {
         Long behandlingId = behandling.getId();
 
         // Innhent medl for søker
-        Personinfo søkerInfo = innhentSaksopplysningerForSøker(behandling.getNavBruker().getAktørId());
-        List<MedlemskapPerioderEntitet> medlemskapsperioder = innhentMedlemskapsopplysninger(søkerInfo, behandling);
+        List<MedlemskapPerioderEntitet> medlemskapsperioder = innhentMedlemskapsopplysninger(behandling);
         medlemskapRepository.lagreMedlemskapRegisterOpplysninger(behandlingId, medlemskapsperioder);
     }
 
@@ -467,15 +465,11 @@ public class RegisterdataInnhenter {
             .collect(Collectors.toList());
     }
 
-    private List<MedlemskapPerioderEntitet> innhentMedlemskapsopplysninger(Personinfo søkerInfo, Behandling behandling) {
-        return innhentMedlemskapsopplysningerFor(søkerInfo, behandling);
-    }
-
-    private List<MedlemskapPerioderEntitet> innhentMedlemskapsopplysningerFor(Personinfo søkerInfo, Behandling behandling) {
+    private List<MedlemskapPerioderEntitet> innhentMedlemskapsopplysninger(Behandling behandling) {
         final Interval opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), behandling.getFagsakYtelseType());
-        FinnMedlemRequest finnMedlemRequest = new FinnMedlemRequest(søkerInfo.getPersonIdent(), LocalDateTime.ofInstant(opplysningsperiode.getStart(), ZoneId.systemDefault()).toLocalDate(),
-            LocalDateTime.ofInstant(opplysningsperiode.getEnd(), ZoneId.systemDefault()).toLocalDate());
-        List<Medlemskapsperiode> medlemskapsperioder = medlemTjeneste.finnMedlemskapPerioder(finnMedlemRequest);
+        var fom = LocalDateTime.ofInstant(opplysningsperiode.getStart(), ZoneId.systemDefault()).toLocalDate();
+        var tom = LocalDateTime.ofInstant(opplysningsperiode.getEnd(), ZoneId.systemDefault()).toLocalDate();
+        List<Medlemskapsperiode> medlemskapsperioder = medlemTjeneste.finnMedlemskapPerioder(behandling.getAktørId(), fom, tom);
         ArrayList<MedlemskapPerioderEntitet> resultat = new ArrayList<>();
         for (Medlemskapsperiode medlemskapsperiode : medlemskapsperioder) {
             resultat.add(lagMedlemskapPeriode(medlemskapsperiode));

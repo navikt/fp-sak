@@ -55,7 +55,7 @@ public class YtelseFordelingDtoTjenesteImplTest {
     private FaktaUttakToTrinnsTjeneste faktaUttakToTrinnsTjeneste = new FaktaUttakToTrinnsTjeneste(ytelseFordelingTjeneste);
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste =  mock(ArbeidsgiverHistorikkinnslag.class);
     private FaktaUttakHistorikkTjeneste faktaUttakHistorikkTjeneste;
-    private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste = new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste, new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()));
+    private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste = new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
     private KontrollerOppgittFordelingTjeneste kontrollerOppgittFordelingTjeneste = new KontrollerOppgittFordelingTjeneste(ytelseFordelingTjeneste,
         repositoryProvider, førsteUttaksdatoTjeneste);
     private YtelsesFordelingRepository fordelingRepository = new YtelsesFordelingRepository(repoRule.getEntityManager());

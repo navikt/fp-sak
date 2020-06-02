@@ -59,12 +59,13 @@ public class GjenopptaBehandlingTask implements ProsessTaskHandler {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
 
-        if (behandling.erYtelseBehandling() && behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP)) {
+        if (behandling.erYtelseBehandling()
+            && behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP)
+            && registerdataOppdaterer.skalInnhenteRegisteropplysningerPåNytt(behandling)) {
             registerdataOppdaterer.oppdaterRegisteropplysningerOgReposisjonerBehandlingVedEndringer(behandling);
+            behandlendeEnhetTjeneste.sjekkEnhetEtterEndring(behandling)
+                .ifPresent(enhet -> behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, enhet, HistorikkAktør.VEDTAKSLØSNINGEN, ""));
         }
-
-        behandlendeEnhetTjeneste.sjekkEnhetEtterEndring(behandling)
-            .ifPresent(enhet -> behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, enhet, HistorikkAktør.VEDTAKSLØSNINGEN, ""));
 
         behandlingskontrollTjeneste.prosesserBehandling(kontekst);
     }

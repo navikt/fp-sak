@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 import static no.nav.vedtak.feil.LogLevel.WARN;
 
 import java.nio.charset.Charset;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
@@ -30,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -49,7 +51,6 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
-import no.nav.foreldrepenger.mottak.dokumentmottak.InngåendeSaksdokument;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
@@ -65,7 +66,6 @@ import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * Mottar dokumenter fra f.eks. FPFORDEL og håndterer dispatch internt for saksbehandlingsløsningen.
@@ -189,8 +189,8 @@ public class FordelRestTjeneste {
     @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
     public void mottaJournalpost(@Parameter(description = "Krever saksnummer, journalpostId og behandlingstemaOffisiellKode") @Valid AbacJournalpostMottakDto mottattJournalpost) {
-        InngåendeSaksdokument saksdokument = map(mottattJournalpost);
-        dokumentmottakTjeneste.dokumentAnkommet(saksdokument);
+        var dokument = mapTilMottattDokument(mottattJournalpost);
+        dokumentmottakTjeneste.dokumentAnkommet(dokument, null);
     }
 
     private VurderFagsystem map(VurderFagsystemDto dto) {
@@ -256,42 +256,31 @@ public class FordelRestTjeneste {
         return dto;
     }
 
-    private InngåendeSaksdokument map(AbacJournalpostMottakDto mottattJournalpost) {
-        BehandlingTema behandlingTema = BehandlingTema.finnForKodeverkEiersKode(mottattJournalpost.getBehandlingstemaOffisiellKode());
+    private MottattDokument mapTilMottattDokument(AbacJournalpostMottakDto journalpostMottakDto) {
 
-        Saksnummer saksnummer = new Saksnummer(mottattJournalpost.getSaksnummer());
-        Optional<Fagsak> fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false);
-        if (fagsak.isEmpty()) {
-            // FIXME (u139158): PK- hvordan skal dette håndteres?
-            throw new IllegalStateException("Finner ingen fagsak for saksnummer " + saksnummer);
-        }
-
-        DokumentType dokumentTypeId = mottattJournalpost.getDokumentTypeIdOffisiellKode()
+        Saksnummer saksnummer = new Saksnummer(journalpostMottakDto.getSaksnummer());
+        Fagsak fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false)
+            .orElseThrow(() -> new IllegalStateException("Finner ingen fagsak for saksnummer " + saksnummer));
+        DokumentType dokumentTypeId = journalpostMottakDto.getDokumentTypeIdOffisiellKode()
             .map(DokumentTypeId::finnForKodeverkEiersKode).orElse(DokumentTypeId.UDEFINERT);
+        var dokumentKategori = utledDokumentKategori(journalpostMottakDto.getDokumentKategoriOffisiellKode(), dokumentTypeId);
 
-        DokumentKategori dokumentKategori = utledDokumentKategori(mottattJournalpost.getDokumentKategoriOffisiellKode(), dokumentTypeId);
-
-        Optional<String> payloadXml = mottattJournalpost.getPayloadXml();
-        InngåendeSaksdokument.Builder builder = InngåendeSaksdokument.builder()
-            .medFagsakId(fagsak.get().getId())
-            .medBehandlingTema(behandlingTema)
-            .medElektroniskSøknad(payloadXml.isPresent())
-            .medJournalpostId(new JournalpostId(mottattJournalpost.getJournalpostId()))
-            .medDokumentTypeId(dokumentTypeId.getKode())
+        var builder = new MottattDokument.Builder()
+            .medJournalPostId(new JournalpostId(journalpostMottakDto.getJournalpostId()))
+            .medDokumentType(dokumentTypeId.getKode())
             .medDokumentKategori(dokumentKategori)
-            .medJournalførendeEnhet(mottattJournalpost.getJournalForendeEnhet());
+            .medMottattDato(journalpostMottakDto.getForsendelseMottatt().orElse(LocalDate.now()))
+            .medMottattTidspunkt(journalpostMottakDto.getForsendelseMottattTidspunkt() != null ?
+                journalpostMottakDto.getForsendelseMottattTidspunkt() : LocalDateTime.now())
+            .medElektroniskRegistrert(journalpostMottakDto.getPayloadXml().isPresent())
+            .medFagsakId(fagsak.getId())
+            .medJournalFørendeEnhet(journalpostMottakDto.getJournalForendeEnhet());
 
+        journalpostMottakDto.getForsendelseId().ifPresent(builder::medForsendelseId);
+        journalpostMottakDto.getPayloadXml().ifPresent(builder::medXmlPayload);
         if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
-            mottattJournalpost.getEksternReferanseId().ifPresent(builder::medKanalreferanse);
+            journalpostMottakDto.getEksternReferanseId().ifPresent(builder::medKanalreferanse);
         }
-
-        mottattJournalpost.getForsendelseId().ifPresent(builder::medForsendelseId);
-
-        // NOSONAR
-        payloadXml.ifPresent(builder::medPayloadXml);
-
-        builder.medForsendelseMottatt(mottattJournalpost.getForsendelseMottatt().orElse(FPDateUtil.iDag())); // NOSONAR
-        builder.medForsendelseMottatt(mottattJournalpost.getForsendelseMottattTidspunkt()); // NOSONAR
 
         return builder.build();
     }

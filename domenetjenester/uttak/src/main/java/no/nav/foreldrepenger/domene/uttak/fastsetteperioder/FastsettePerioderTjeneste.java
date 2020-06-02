@@ -8,11 +8,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
@@ -27,7 +27,7 @@ public class FastsettePerioderTjeneste {
 
     private OverstyrUttakResultatValidator uttakResultatValidator;
     private FastsettePerioderRegelAdapter regelAdapter;
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
@@ -36,21 +36,21 @@ public class FastsettePerioderTjeneste {
     }
 
     @Inject
-    public FastsettePerioderTjeneste(UttakRepository uttakRepository,
+    public FastsettePerioderTjeneste(FpUttakRepository fpUttakRepository,
                                      YtelsesFordelingRepository ytelsesfordelingRepository,
                                      OverstyrUttakResultatValidator uttakResultatValidator,
                                      FastsettePerioderRegelAdapter regelAdapter,
                                      ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.uttakResultatValidator = uttakResultatValidator;
         this.regelAdapter = regelAdapter;
-        this.uttakRepository = uttakRepository;
+        this.fpUttakRepository = fpUttakRepository;
         this.ytelsesFordelingRepository = ytelsesfordelingRepository;
         this.uttakTjeneste = uttakTjeneste;
     }
 
     public void fastsettePerioder(UttakInput input) {
         UttakResultatPerioderEntitet resultat = regelAdapter.fastsettePerioder(input);
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(input.getBehandlingReferanse().getBehandlingId(), resultat);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(input.getBehandlingReferanse().getBehandlingId(), resultat);
     }
 
     public void manueltFastsettePerioder(UttakInput uttakInput, List<ForeldrepengerUttakPeriode> perioder) {
@@ -73,14 +73,14 @@ public class FastsettePerioderTjeneste {
 
         UttakResultatPerioderEntitet overstyrtEntitet = new UttakResultatPerioderEntitet();
         Long behandlingId = uttakInput.getBehandlingReferanse().getBehandlingId();
-        UttakResultatEntitet opprinnelig = uttakRepository.hentUttakResultat(behandlingId);
+        UttakResultatEntitet opprinnelig = fpUttakRepository.hentUttakResultat(behandlingId);
         for (var periode : perioder) {
             UttakResultatPeriodeEntitet matchendeOpprinneligPeriode = matchendeOpprinneligPeriode(periode, opprinnelig.getOpprinneligPerioder());
             UttakResultatPeriodeEntitet periodeEntitet = map(matchendeOpprinneligPeriode, periode);
             overstyrtEntitet.leggTilPeriode(periodeEntitet);
         }
 
-        uttakRepository.lagreOverstyrtUttakResultatPerioder(behandlingId, overstyrtEntitet);
+        fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandlingId, overstyrtEntitet);
     }
 
     private UttakResultatPeriodeEntitet matchendeOpprinneligPeriode(ForeldrepengerUttakPeriode periode,

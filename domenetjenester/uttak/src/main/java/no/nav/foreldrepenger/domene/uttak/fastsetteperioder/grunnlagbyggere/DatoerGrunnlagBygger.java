@@ -8,8 +8,8 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -21,15 +21,16 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Dødsdatoer;
 public class DatoerGrunnlagBygger {
 
     private PersonopplysningTjeneste personopplysningTjeneste;
-    private UttakRepository uttakRepository;
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     DatoerGrunnlagBygger() {
         // CDI
     }
 
     @Inject
-    public DatoerGrunnlagBygger(UttakRepository uttakRepository, PersonopplysningTjeneste personopplysningTjeneste) {
-        this.uttakRepository = uttakRepository;
+    public DatoerGrunnlagBygger(UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
+                                PersonopplysningTjeneste personopplysningTjeneste) {
+        this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
         this.personopplysningTjeneste = personopplysningTjeneste;
     }
 
@@ -46,7 +47,7 @@ public class DatoerGrunnlagBygger {
     }
 
     private LocalDate førsteLovligeUttaksdag(BehandlingReferanse ref) {
-        Uttaksperiodegrense uttaksperiodegrense = uttakRepository.hentUttaksperiodegrense(ref.getBehandlingId());
+        Uttaksperiodegrense uttaksperiodegrense = uttaksperiodegrenseRepository.hent(ref.getBehandlingId());
         return uttaksperiodegrense.getFørsteLovligeUttaksdag();
     }
 

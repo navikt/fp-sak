@@ -29,19 +29,19 @@
     <sequence-generator name="SEQ_YF_DOKUMENTASJON_PERIODER" allocation-size="50" sequence-name="SEQ_YF_DOKUMENTASJON_PERIODER"/>
 
     <!-- Uttak av FP -->
-    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakAktivitetEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeSøknadEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatDokRegelEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.OrgManuellÅrsakEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatDokRegelEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.OrgManuellÅrsakEntitet"/>
 
     <!-- Uttak av FP kodeverk-->
-    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning"/>
 
     <!-- Uttak av SVP -->
     <entity class="no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet" />

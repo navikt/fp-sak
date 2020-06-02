@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
 import java.math.BigDecimal;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.SammenligningsgrunnlagType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
@@ -14,6 +16,7 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Sammenligningsgrunnlag;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagPrStatus;
 import no.nav.vedtak.util.Tuple;
 
 class BeregningsgrunnlagDiffSjekker {
@@ -54,8 +57,10 @@ class BeregningsgrunnlagDiffSjekker {
         if (aktivt.getRegelinputPeriodisering() != null && !aktivt.getRegelinputPeriodisering().equals(forrige.getRegelinputPeriodisering())) {
             return true;
         }
-
         if (harSammenligningsgrunnlagDiff(aktivt.getSammenligningsgrunnlag(), forrige.getSammenligningsgrunnlag())) {
+            return true;
+        }
+        if (harSammenligningsgrunnlagPrStatusDiff(aktivt.getSammenligningsgrunnlagPrStatusListe(), forrige.getSammenligningsgrunnlagPrStatusListe())) {
             return true;
         }
 
@@ -79,6 +84,31 @@ class BeregningsgrunnlagDiffSjekker {
         }
         if (!Objects.equals(aktivt.getSammenligningsperiodeTom(), forrige.getSammenligningsperiodeTom())) {
             return true;
+        }
+        return false;
+    }
+
+    private static boolean harSammenligningsgrunnlagPrStatusDiff(List<SammenligningsgrunnlagPrStatus> aktivt, List<SammenligningsgrunnlagPrStatus> forrige) {
+        if(aktivt.isEmpty() != forrige.isEmpty()){
+            return true;
+        }
+        if(!inneholderLikeSammenligningstyper(aktivt, forrige)){
+            return true;
+        }
+        for(SammenligningsgrunnlagPrStatus aktivSgPrStatus : aktivt){
+            SammenligningsgrunnlagPrStatus forrigeSgPrStatus = forrige.stream().filter(s -> aktivSgPrStatus.getSammenligningsgrunnlagType().equals(s.getSammenligningsgrunnlagType())).findFirst().get();
+            if(!erLike(aktivSgPrStatus.getAvvikPromille(), forrigeSgPrStatus.getAvvikPromille())){
+                return true;
+            }
+            if (!erLike(aktivSgPrStatus.getRapportertPrÅr(), forrigeSgPrStatus.getRapportertPrÅr())) {
+                return true;
+            }
+            if (!Objects.equals(aktivSgPrStatus.getSammenligningsperiodeFom(), forrigeSgPrStatus.getSammenligningsperiodeFom())) {
+                return true;
+            }
+            if (!Objects.equals(aktivSgPrStatus.getSammenligningsperiodeTom(), forrigeSgPrStatus.getSammenligningsperiodeTom())) {
+                return true;
+            }
         }
         return false;
     }
@@ -180,6 +210,18 @@ class BeregningsgrunnlagDiffSjekker {
             return true;
         }
         return false;
+    }
+
+    private static boolean inneholderLikeSammenligningstyper(List<SammenligningsgrunnlagPrStatus> aktivt, List<SammenligningsgrunnlagPrStatus> forrige){
+        EnumSet<SammenligningsgrunnlagType> sammenligningsgrunnlagTyper = EnumSet.allOf(SammenligningsgrunnlagType.class);
+
+        for(SammenligningsgrunnlagType sgType : sammenligningsgrunnlagTyper){
+            if(forrige.stream().anyMatch(s -> sgType.getKode().equals(s.getSammenligningsgrunnlagType().getKode())) !=
+                    aktivt.stream().anyMatch(s -> sgType.getKode().equals(s.getSammenligningsgrunnlagType().getKode()))){
+                return false;
+            }
+        }
+        return true;
     }
 
     private static List<AktivitetStatus> hentStatuser(BeregningsgrunnlagEntitet aktivt) {

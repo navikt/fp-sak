@@ -46,8 +46,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -298,7 +298,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         lagreYtelseFordelingOpplysninger(repositoryProvider, behandling);
         // opprett og lagre resulater på behandling
         lagreBehandlingsresultatOgVilkårResultat(repositoryProvider, lås);
-        lagreUttak(repositoryProvider.getUttakRepository());
+        lagreUttak(repositoryProvider.getFpUttakRepository());
 
         // få med behandlingsresultat etc.
         behandlingRepo.lagre(behandling, lås);
@@ -402,12 +402,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         repoProvider.getBehandlingsresultatRepository().lagre(behandling.getId(), behandlingsresultat);
     }
 
-    private void lagreUttak(UttakRepository uttakRepository) {
+    private void lagreUttak(FpUttakRepository fpUttakRepository) {
         if (uttak == null) {
             return;
         }
 
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
     }
 
     public AktørId getDefaultBrukerAktørId() {

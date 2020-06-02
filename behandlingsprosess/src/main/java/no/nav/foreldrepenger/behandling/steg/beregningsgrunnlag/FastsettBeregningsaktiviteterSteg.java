@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,12 +18,8 @@ import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
-import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 
 @FagsakYtelseTypeRef("*")
 @BehandlingStegRef(kode = "FASTSETT_STP_BER")
@@ -33,7 +28,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg {
 
     private BehandlingRepository behandlingRepository;
-    private InngangsvilkårTjeneste inngangsvilkårTjeneste;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
 
@@ -43,11 +37,9 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
 
     @Inject
     public FastsettBeregningsaktiviteterSteg(BehandlingRepository behandlingRepository,
-                                             InngangsvilkårTjeneste inngangsvilkårTjeneste,
                                              BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                              BeregningsgrunnlagInputProvider inputTjenesteProvider) {
         this.behandlingRepository = behandlingRepository;
-        this.inngangsvilkårTjeneste = inngangsvilkårTjeneste;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.beregningsgrunnlagInputTjeneste = Objects.requireNonNull(inputTjenesteProvider, "inputTjenestene");
     }
@@ -56,7 +48,6 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         Long behandlingId = kontekst.getBehandlingId();
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        preconditions(behandling);
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling);
         List<BeregningAksjonspunktResultat> aksjonspunktResultater = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
         if (aksjonspunktResultater == null) {
@@ -74,17 +65,6 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         } else {
             beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddFastsettSkjæringstidspunktVedTilbakeføring();
         }
-    }
-
-    private void preconditions(Behandling behandling) {
-        VilkårResultat vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
-        Optional<Vilkår> ikkeOppfyltVilkår = vilkårResultat.getVilkårene().stream()
-            .filter(vilkår -> !vilkår.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT))
-            .filter(vilkår -> inngangsvilkårTjeneste.erInngangsvilkår(vilkår.getVilkårType()))
-            .findFirst();
-        ikkeOppfyltVilkår.ifPresent(vilkår -> {
-            throw new IllegalStateException("Utvikler-feil: Det finnes vilkår som ikke er oppfylt " + vilkår.getVilkårType());
-        });
     }
 
     private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {

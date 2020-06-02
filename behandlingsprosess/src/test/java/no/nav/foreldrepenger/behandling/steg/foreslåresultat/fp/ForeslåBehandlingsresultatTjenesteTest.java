@@ -48,10 +48,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
@@ -79,7 +79,7 @@ public class ForeslåBehandlingsresultatTjenesteTest {
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
     private ForeslåBehandlingsresultatTjenesteImpl tjeneste;
     private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private UttakRepository uttakRepository = repositoryProvider.getUttakRepository();
+    private FpUttakRepository fpUttakRepository = repositoryProvider.getFpUttakRepository();
     private final BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     private MedlemTjeneste medlemTjeneste = mock(MedlemTjeneste.class);
 
@@ -88,10 +88,10 @@ public class ForeslåBehandlingsresultatTjenesteTest {
         AvslagsårsakTjeneste avslagsårsakTjeneste = new AvslagsårsakTjeneste();
         when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new Tuple<>(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
         StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(new UttakRepositoryProvider(repoRule.getEntityManager()));
-        var uttakTjeneste = new ForeldrepengerUttakTjeneste(uttakRepository);
+        var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
         AndelGraderingTjeneste andelGraderingTjeneste = new AndelGraderingTjeneste(uttakTjeneste,
-            repositoryProvider.getYtelsesFordelingRepository(),
-            beregningsgrunnlagTjeneste);
+            repositoryProvider.getYtelsesFordelingRepository()
+        );
         UttakInputTjeneste uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, new AbakusInMemoryInntektArbeidYtelseTjeneste(),
             skjæringstidspunktTjeneste, medlemTjeneste, andelGraderingTjeneste);
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
@@ -105,7 +105,7 @@ public class ForeslåBehandlingsresultatTjenesteTest {
             medlemTjeneste,
             uttakTjeneste));
         tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getUttakRepository()),
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()),
             avslagsårsakTjeneste,
             dokumentBehandlingTjeneste,
             revurderingBehandlingsresultatutleder);
@@ -287,7 +287,7 @@ public class ForeslåBehandlingsresultatTjenesteTest {
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         uttakResultatPerioder.leggTilPeriode(uttakResultatPeriode);
-        uttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder);
     }
 
     private void lagBehandlingsresultat(Behandling behandling) {

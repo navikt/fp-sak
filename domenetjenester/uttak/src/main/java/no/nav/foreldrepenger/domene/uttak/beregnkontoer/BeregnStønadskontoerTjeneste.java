@@ -6,16 +6,13 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -29,7 +26,6 @@ public class BeregnStønadskontoerTjeneste {
     private StønadskontoRegelAdapter stønadskontoRegelAdapter;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private FagsakRepository fagsakRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
 
@@ -41,7 +37,6 @@ public class BeregnStønadskontoerTjeneste {
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.stønadskontoRegelAdapter = new StønadskontoRegelAdapter(repositoryProvider);
         this.uttakTjeneste = uttakTjeneste;
     }
@@ -50,13 +45,11 @@ public class BeregnStønadskontoerTjeneste {
         //For CDI
     }
 
-    public Stønadskontoberegning beregnStønadskontoer(UttakInput uttakInput) {
+    public void opprettStønadskontoer(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
-        var fagsak = finnFagsak(ref);
-        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(fagsak);
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.getSaksnummer());
         var stønadskontoberegning = beregn(uttakInput, fagsakRelasjon);
-        fagsakRelasjonTjeneste.lagre(fagsak,fagsakRelasjon, ref.getBehandlingId(), stønadskontoberegning);
-        return stønadskontoberegning;
+        fagsakRelasjonTjeneste.lagre(ref.getFagsakId(), fagsakRelasjon, ref.getBehandlingId(), stønadskontoberegning);
     }
 
     public void overstyrStønadskontoberegning(UttakInput uttakInput) {
@@ -65,17 +58,20 @@ public class BeregnStønadskontoerTjeneste {
         var eksisterende = fagsakRelasjon.getGjeldendeStønadskontoberegning().orElseThrow();
         var ny = beregn(uttakInput, fagsakRelasjon);
         if (inneholderEndringer(eksisterende, ny)) {
-            var fagsak = finnFagsak(ref);
-            fagsakRelasjonTjeneste.overstyrStønadskontoberegning(fagsak, ref.getBehandlingId(), ny);
+            fagsakRelasjonTjeneste.overstyrStønadskontoberegning(ref.getFagsakId(), ref.getBehandlingId(), ny);
             oppdaterBehandlingsresultat(ref.getBehandlingId());
         }
     }
 
-    private Fagsak finnFagsak(BehandlingReferanse ref) {
-        return fagsakRepository.hentSakGittSaksnummer(ref.getSaksnummer()).orElseThrow();
+    public Stønadskontoberegning beregn(UttakInput uttakInput, FagsakRelasjon fagsakRelasjon) {
+        var ref = uttakInput.getBehandlingReferanse();
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
+        ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+        var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
+        return stønadskontoRegelAdapter.beregnKontoer(ref, ytelseFordelingAggregat, fagsakRelasjon, annenpartsGjeldendeUttaksplan, fpGrunnlag);
     }
 
-    private boolean inneholderEndringer(Stønadskontoberegning eksisterende, Stønadskontoberegning ny) {
+    public boolean inneholderEndringer(Stønadskontoberegning eksisterende, Stønadskontoberegning ny) {
         for (Stønadskonto eksisterendeStønadskonto : eksisterende.getStønadskontoer()) {
             Optional<Stønadskonto> likNyStønadskonto = finnKontoIStønadskontoberegning(ny, eksisterendeStønadskonto);
             if (likNyStønadskonto.isEmpty()) {
@@ -98,18 +94,10 @@ public class BeregnStønadskontoerTjeneste {
         behandlingsresultatRepository.lagre(behandlingId, oppdaterBehandlingsresultat);
     }
 
-    private Stønadskontoberegning beregn(UttakInput uttakInput, FagsakRelasjon fagsakRelasjon) {
-        var ref = uttakInput.getBehandlingReferanse();
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
-        ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
-        return stønadskontoRegelAdapter.beregnKontoer(ref, ytelseFordelingAggregat, fagsakRelasjon, annenpartsGjeldendeUttaksplan, fpGrunnlag);
-    }
-
     private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(ForeldrepengerGrunnlag fpGrunnlag) {
         var annenpart = fpGrunnlag.getAnnenpart();
         if (annenpart.isPresent()) {
-            return uttakTjeneste.hentUttakHvisEksisterer(fpGrunnlag.getAnnenpart().get().getGjeldendeVedtakBehandlingId());
+            return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
         }
         return Optional.empty();
     }

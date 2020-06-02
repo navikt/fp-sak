@@ -68,9 +68,10 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskontoberegning;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -128,7 +129,10 @@ public class UttakStegImplTest {
     private SøknadRepository søknadRepository;
 
     @Inject
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
+
+    @Inject
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     @Inject
     private BehandlingRepository behandlingRepository;
@@ -425,7 +429,7 @@ public class UttakStegImplTest {
         steg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, BehandlingStegType.VURDER_UTTAK, BehandlingStegType.FATTE_VEDTAK);
 
         // assert
-        Optional<UttakResultatEntitet> resultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        Optional<UttakResultatEntitet> resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         assertThat(resultat.isPresent()).isTrue();
     }
 
@@ -441,7 +445,7 @@ public class UttakStegImplTest {
             BehandlingStegType.FATTE_VEDTAK);
 
         // assert
-        Optional<UttakResultatEntitet> resultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        Optional<UttakResultatEntitet> resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         assertThat(resultat.isPresent()).isFalse();
     }
 
@@ -457,7 +461,7 @@ public class UttakStegImplTest {
             BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
 
         // assert
-        Optional<UttakResultatEntitet> resultat = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        Optional<UttakResultatEntitet> resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         assertThat(resultat.isPresent()).isFalse();
     }
 
@@ -654,6 +658,6 @@ public class UttakStegImplTest {
             .medFørsteLovligeUttaksdag(mottattDato.withDayOfMonth(1).minusMonths(3))
             .build();
 
-        uttakRepository.lagreUttaksperiodegrense(behandling.getId(), uttaksperiodegrense);
+        uttaksperiodegrenseRepository.lagre(behandling.getId(), uttaksperiodegrense);
     }
 }

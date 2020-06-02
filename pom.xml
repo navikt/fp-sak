@@ -60,18 +60,19 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <fp-uttak.version>3.1-20200507090812-657acb6</fp-uttak.version>
+        <fp-uttak.version>3.2-20200525091423-10d212c</fp-uttak.version>
 
         <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
 
-        <felles.version>1.6-20200428190214-d59d308</felles.version>
-        <prosesstask.version>2.3-20200507113916-e25f352</prosesstask.version>
+        <felles.version>1.8-20200525115735-89cb933</felles.version>
 
         <metrics.version>3.2.5</metrics.version>
 
-        <fp-kontrakter.version>5.1-20200430102838-bbe5ceb</fp-kontrakter.version>
+        <prosesstask.version>2.3-20200507113916-e25f352</prosesstask.version>
 
-        <kalkulus.version>1.0-2020.04.21.160835-513dab9</kalkulus.version>
+        <fp-kontrakter.version>5.1-20200523185736-199c1db</fp-kontrakter.version>
+
+        <kalkulus.version>1.0-2020.05.28.122719-db9ace4</kalkulus.version>
     </properties>
 
     <prerequisites>
@@ -242,13 +243,6 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>okonomistotte-jms</artifactId>
-                <version>${felles.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>sakogbehandling-klient</artifactId>
                 <version>${felles.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
@@ -543,6 +537,13 @@
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-streams</artifactId>
                 <version>2.5.0</version>
+            </dependency>
+
+            <!-- SoB -->
+            <dependency>
+                <groupId>no.nav.virksomhetsstyring.sakogbehandling-kafka-dto</groupId>
+                <artifactId>contract-sob-dto</artifactId>
+                <version>1.0.1</version>
             </dependency>
 
             <!-- Transitive avhengighet resolution for å sikre bestemt versjon -->

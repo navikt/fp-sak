@@ -43,10 +43,7 @@ public class HistorikkInnslagKonverterTest {
         lenke.setJournalpostId(journalpostId);
         Historikkinnslag historikkinnslag = new Historikkinnslag();
         historikkinnslag.setDokumentLinker(Collections.singletonList(lenke));
-        ArkivJournalPost ikkeMatchendeArkivJournalPost = ArkivJournalPost.Builder.ny()
-            .medJournalpostId(new JournalpostId(2L))
-            .build();
-        HistorikkinnslagDto resultat = konverterer.mapFra(historikkinnslag, Collections.singletonList(ikkeMatchendeArkivJournalPost));
+        HistorikkinnslagDto resultat = konverterer.mapFra(historikkinnslag, Collections.singletonList(new JournalpostId(2L)));
         assertThat(resultat.getDokumentLinks().get(0).isUtgått()).isTrue();
     }
 
@@ -59,10 +56,7 @@ public class HistorikkInnslagKonverterTest {
         lenke.setJournalpostId(journalpostId);
         Historikkinnslag historikkinnslag = new Historikkinnslag();
         historikkinnslag.setDokumentLinker(Collections.singletonList(lenke));
-        ArkivJournalPost ikkeMatchendeArkivJournalPost = ArkivJournalPost.Builder.ny()
-            .medJournalpostId(journalpostId)
-            .build();
-        HistorikkinnslagDto resultat = konverterer.mapFra(historikkinnslag, Collections.singletonList(ikkeMatchendeArkivJournalPost));
+        HistorikkinnslagDto resultat = konverterer.mapFra(historikkinnslag, Collections.singletonList(journalpostId));
         assertThat(resultat.getDokumentLinks().get(0).isUtgått()).isFalse();
     }
 

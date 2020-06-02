@@ -18,10 +18,8 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -29,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDoku
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.vedtak.innsyn.InnsynTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentmottak.InngåendeSaksdokument;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.feil.Feil;
@@ -97,7 +94,8 @@ public class BehandlingsoppretterApplikasjonTjeneste {
         if (sisteMottatteSøknad.getBehandlingId() != null) {
             if (sisteMottatteSøknad.getPayloadXml() == null) {
                 // For å registrere papirsøknad på nytt ....
-                saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(tilSaksdokument(sisteMottatteSøknad, behandlingÅrsakType));
+                var nyMottatt = new MottattDokument.Builder(sisteMottatteSøknad).build();
+                saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(nyMottatt, behandlingÅrsakType);
             } else {
                 Behandling sisteBehandling = behandlingRepository.hentBehandling(sisteMottatteSøknad.getBehandlingId());
                 saksbehandlingDokumentmottakTjeneste.opprettFraTidligereBehandling(sisteMottatteSøknad, sisteBehandling, behandlingÅrsakType);
@@ -177,20 +175,6 @@ public class BehandlingsoppretterApplikasjonTjeneste {
             .orElse(null);
     }
 
-    private InngåendeSaksdokument tilSaksdokument(MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) {
-        return InngåendeSaksdokument.builder()
-            .medFagsakId(mottattDokument.getFagsakId())
-            .medBehandlingTema(utledBehandlingTema(mottattDokument.getDokumentType()))
-            .medDokumentTypeId(mottattDokument.getDokumentType().getKode())
-            .medForsendelseMottatt(mottattDokument.getMottattDato())
-            .medElektroniskSøknad(mottattDokument.getElektroniskRegistrert()) // Alltid papirsøknad når registrert fra GUI
-            .medJournalpostId(mottattDokument.getJournalpostId())
-            .medPayloadXml(mottattDokument.getPayloadXml())
-            .medBehandlingÅrsak(behandlingÅrsakType)
-            .medDokumentKategori(mottattDokument.getDokumentKategori())
-            .build();
-    }
-
     private boolean erLovÅOppretteNyBehandling(List<Behandling> behandlinger) {
         boolean ingenApenYtelsesBeh = behandlinger.stream()
             .noneMatch(b -> (b.getType().equals(BehandlingType.REVURDERING) && !b.erAvsluttet())
@@ -211,22 +195,6 @@ public class BehandlingsoppretterApplikasjonTjeneste {
 
         // Vurdere å differensiere på KlageVurderingResultat (er tilstede) eller henlagt (resultat ikke tilstede)
         return klage != null && klage.erAvsluttet();
-    }
-
-    private BehandlingTema utledBehandlingTema(DokumentTypeId dokumentTypeId) {
-        final BehandlingTema behandlingTemaKonst;
-        if (dokumentTypeId.equals(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL)) {
-            behandlingTemaKonst = BehandlingTema.ENGANGSSTØNAD_FØDSEL;
-        } else if (dokumentTypeId.equals(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON)) {
-            behandlingTemaKonst = BehandlingTema.ENGANGSSTØNAD_ADOPSJON;
-        } else if (dokumentTypeId.equals(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)) {
-            behandlingTemaKonst = BehandlingTema.FORELDREPENGER_FØDSEL;
-        } else if (dokumentTypeId.equals(DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON)) {
-            behandlingTemaKonst = BehandlingTema.FORELDREPENGER_ADOPSJON;
-        } else {
-            behandlingTemaKonst = BehandlingTema.UDEFINERT;
-        }
-        return behandlingTemaKonst;
     }
 
     interface BehandlingsoppretterApplikasjonTjenesteFeil extends DeklarerteFeil {

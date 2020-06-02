@@ -45,7 +45,7 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
     @Inject
     public OppdaterFagsakStatusImpl(BehandlingRepositoryProvider repositoryProvider,
                                     OppdaterFagsakStatusFelles oppdaterFagsakStatusFelles,
-                                    MaksDatoUttakTjeneste maksDatoUttakTjeneste,
+                                    @FagsakYtelseTypeRef("FP") MaksDatoUttakTjeneste maksDatoUttakTjeneste,
                                     UttakInputTjeneste uttakInputTjeneste,
                                     @KonfigVerdi(value = "fp.foreldelsesfrist", defaultVerdi = "P3Y") Period foreldelsesfrist) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();

@@ -12,11 +12,11 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.Stønadskonto;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.AnnenPartGrunnlagBygger;
@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 public class StønadskontoSaldoTjeneste {
 
     private FagsakRelasjonRepository fagsakRelasjonRepository;
-    private UttakRepository uttakRepository;
+    private FpUttakRepository fpUttakRepository;
 
     StønadskontoSaldoTjeneste() {
         //For CDI
@@ -45,7 +45,7 @@ public class StønadskontoSaldoTjeneste {
     @Inject
     public StønadskontoSaldoTjeneste(UttakRepositoryProvider repositoryProvider) {
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
-        this.uttakRepository = repositoryProvider.getUttakRepository();
+        this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
     }
 
     public SaldoUtregning finnSaldoUtregning(UttakInput uttakInput) {
@@ -102,13 +102,13 @@ public class StønadskontoSaldoTjeneste {
     private Optional<UttakResultatEntitet> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         var annenpart = foreldrepengerGrunnlag.getAnnenpart();
         if (annenpart.isPresent()) {
-            return uttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
+            return fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
         }
         return Optional.empty();
     }
 
     private List<UttakResultatPeriodeEntitet> perioderSøker(Long behandlingId) {
-        Optional<UttakResultatEntitet> opt = uttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
+        Optional<UttakResultatEntitet> opt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
         if (opt.isPresent()) {
             return opt.get().getGjeldendePerioder().getPerioder();
         }

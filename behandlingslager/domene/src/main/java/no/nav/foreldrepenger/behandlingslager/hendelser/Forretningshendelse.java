@@ -1,13 +1,17 @@
 package no.nav.foreldrepenger.behandlingslager.hendelser;
 
-public abstract class Forretningshendelse {
-    private ForretningshendelseType forretningshendelseType;
+import java.util.List;
 
-    protected Forretningshendelse(ForretningshendelseType forretningshendelseType) {
-        this.forretningshendelseType = forretningshendelseType;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+
+public abstract class Forretningshendelse {
+    private List<AktørId> aktørIdListe;
+
+    protected Forretningshendelse(List<AktørId> aktørIdListe) {
+        this.aktørIdListe = aktørIdListe;
     }
 
-    public ForretningshendelseType getForretningshendelseType() {
-        return forretningshendelseType;
+    public List<AktørId> getAktørIdListe() {
+        return aktørIdListe;
     }
 }

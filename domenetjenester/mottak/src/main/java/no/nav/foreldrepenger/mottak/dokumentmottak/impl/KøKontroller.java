@@ -133,11 +133,11 @@ public class KøKontroller {
     }
 
     private boolean medforelderHarÅpentApForTidligSøknad(Behandling behandling) {
-        return behandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD).isPresent();
+        return behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD);
     }
 
     private boolean medforelderHarÅpentApVentPåSøknad(Behandling behandling) {
-        return behandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD).isPresent();
+        return behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD);
     }
 
     private void settAksjonspunktForTidligSøknadUtført(Behandling åpenBehandlingPåMedforelder) {

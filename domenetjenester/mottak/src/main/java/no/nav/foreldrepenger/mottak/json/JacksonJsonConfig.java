@@ -5,13 +5,10 @@ import java.util.function.Function;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.StringSerializer;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
@@ -25,7 +22,6 @@ public final class JacksonJsonConfig {
     static {
         OM.registerModule(new Jdk8Module());
         OM.registerModule(new JavaTimeModule());
-        OM.registerModule(createModule());
         OM.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         OM.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         OM.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
@@ -53,18 +49,6 @@ public final class JacksonJsonConfig {
         } catch (JsonProcessingException e) {
             throw feilFactory.apply(e).toException();
         }
-    }
-
-    private static SimpleModule createModule() {
-        SimpleModule module = new SimpleModule("VL-REST", new Version(1, 0, 0, null, null, null));
-
-        addSerializers(module);
-
-        return module;
-    }
-
-    private static void addSerializers(SimpleModule module) {
-        module.addSerializer(new StringSerializer());
     }
 }
 

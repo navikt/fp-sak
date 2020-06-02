@@ -7,8 +7,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.soknadsfrist.SøknadsfristRegelOrkestrering;
@@ -20,7 +20,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @ApplicationScoped
 public class FørsteLovligeUttaksdatoTjeneste {
 
-    private UttakRepository uttakRepository;
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private Period søknadsfristEtterFørsteUttaksdag;
 
@@ -34,7 +34,7 @@ public class FørsteLovligeUttaksdatoTjeneste {
     @Inject
     public FørsteLovligeUttaksdatoTjeneste(UttakRepositoryProvider uttakRepositoryProvider,
                                            @KonfigVerdi(value = "svp.søknadfrist.etter.første.uttaksdag", defaultVerdi = "P3M") Period søknadsfristEtterFørsteUttaksdag) {
-        this.uttakRepository = uttakRepositoryProvider.getUttakRepository();
+        this.uttaksperiodegrenseRepository = uttakRepositoryProvider.getUttaksperiodegrenseRepository();
         this.behandlingsresultatRepository = uttakRepositoryProvider.getBehandlingsresultatRepository();
         this.søknadsfristEtterFørsteUttaksdag = søknadsfristEtterFørsteUttaksdag;
     }
@@ -46,7 +46,6 @@ public class FørsteLovligeUttaksdatoTjeneste {
         //Sjekk søknadsfristregel
         var søknadsfristGrunnlag = new SøknadsfristGrunnlag.Builder()
             .medAntallMånederSøknadsfrist(søknadsfristEtterFørsteUttaksdag.getMonths()) // TODO, broken må rette uttak-regler den dagen det ikke er heltall antall måneder her.
-            .medErSøknadOmUttak(true)
             .medFørsteUttaksdato(uttaksgrenser.getFomDato())
             .medSøknadMottattDato(søknadMottattDato)
             .build();
@@ -59,7 +58,7 @@ public class FørsteLovligeUttaksdatoTjeneste {
             .medSporingInput(resultat.getInnsendtGrunnlag())
             .medSporingRegel(resultat.getEvalueringResultat())
             .build();
-        uttakRepository.lagreUttaksperiodegrense(behandlingId, uttaksperiodegrense);
+        uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
         return resultat;
     }
 
