@@ -24,6 +24,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapsho
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
@@ -83,7 +85,7 @@ public class RegisterdataEndringshåndterer {
     }
 
     public boolean skalInnhenteRegisteropplysningerPåNytt(Behandling behandling) {
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+        if (erAvslag(behandling) || behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
             return false;
         }
         LocalDateTime midnatt = LocalDate.now().atStartOfDay();
@@ -139,7 +141,7 @@ public class RegisterdataEndringshåndterer {
     }
 
     public void oppdaterRegisteropplysningerOgReposisjonerBehandlingVedEndringer(Behandling behandling) {
-        if (!endringskontroller.erRegisterinnhentingPassert(behandling)) {
+        if (!endringskontroller.erRegisterinnhentingPassert(behandling) || erAvslag(behandling)) {
             return;
         }
         boolean skalOppdatereRegisterdata = skalInnhenteRegisteropplysningerPåNytt(behandling);
@@ -171,6 +173,12 @@ public class RegisterdataEndringshåndterer {
 
     private EndringsresultatDiff opprettDiffUtenEndring() {
         return EndringsresultatDiff.opprettForSporingsendringer();
+    }
+
+    private boolean erAvslag(Behandling behandling) {
+        return behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene().stream()
+            .map(Vilkår::getGjeldendeVilkårUtfall)
+            .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
     }
 
     private void lagBehandlingÅrsakerOgHistorikk(Behandling behandling, EndringsresultatDiff endringsresultat) {
