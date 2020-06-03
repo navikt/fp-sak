@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -17,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
@@ -25,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
@@ -44,6 +48,7 @@ public class RegisterdataEndringshåndterer {
     private RegisterdataInnhenter registerdataInnhenter;
     private TemporalAmount oppdatereRegisterdataTidspunkt;
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private Endringskontroller endringskontroller;
     private EndringsresultatSjekker endringsresultatSjekker;
     private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;
@@ -74,6 +79,7 @@ public class RegisterdataEndringshåndterer {
         this.registerdataInnhenter = registerdataInnhenter;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.endringskontroller = endringskontroller;
         this.endringsresultatSjekker = endringsresultatSjekker;
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
@@ -176,7 +182,9 @@ public class RegisterdataEndringshåndterer {
     }
 
     private boolean erAvslag(Behandling behandling) {
-        return behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene().stream()
+        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
+            .map(Behandlingsresultat::getVilkårResultat)
+            .map(VilkårResultat::getVilkårene).orElse(Collections.emptyList()).stream()
             .map(Vilkår::getGjeldendeVilkårUtfall)
             .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
     }

@@ -127,7 +127,7 @@ public class FagsakApplikasjonTjeneste {
     }
 
     private LocalDate hentBarnsFødselsdato(Fagsak fagsak) {
-        final Optional<Behandling> behandling = behandlingRepository.hentSisteBehandlingForFagsakId(fagsak.getId());
+        final Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
         if (behandling.isPresent()) {
             final Optional<FamilieHendelseEntitet> bekreftetFødsel = familieHendelseTjeneste.finnAggregat(behandling.get().getId())
                 .flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)

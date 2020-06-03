@@ -132,7 +132,7 @@ public class SendVedtaksbrev {
 
     private boolean skalSendeVedtaksbrevEtterKlage(Behandling behandling) {
 
-        Behandling klage = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.KLAGE).orElse(null);
+        Behandling klage = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(behandling.getFagsakId(), BehandlingType.KLAGE).orElse(null);
 
         if (klage == null) {
             return true;
