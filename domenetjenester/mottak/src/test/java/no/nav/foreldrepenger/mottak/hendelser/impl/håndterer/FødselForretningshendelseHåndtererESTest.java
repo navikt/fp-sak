@@ -136,7 +136,7 @@ public class FødselForretningshendelseHåndtererESTest {
         behandling = behandlingRepository.hentBehandling(behandling.getId());
         assertThat(behandling.erUnderIverksettelse()).isTrue();
 
-        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingForFagsakId(behandling.getFagsakId());
+        Optional<Behandling> revurdering = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId());
         assertThat(revurdering.get().erRevurdering()).isTrue();
     }
 

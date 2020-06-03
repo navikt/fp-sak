@@ -125,13 +125,6 @@ public class BehandlingRepository {
     /**
      * Hent siste behandling for angitt {@link Fagsak#id}
      */
-    public Optional<Behandling> hentSisteBehandlingForFagsakId(Long fagsakId) {
-        return finnSisteBehandling(fagsakId, false);
-    }
-
-    /**
-     * Hent siste behandling for angitt {@link Fagsak#id}
-     */
     public Optional<Behandling> hentSisteYtelsesBehandlingForFagsakId(Long fagsakId) {
         return finnSisteBehandling(fagsakId, BehandlingType.getYtelseBehandlingTyper(), false);
     }
@@ -390,13 +383,21 @@ public class BehandlingRepository {
         return optionalFirst(query.getResultList());
     }
 
-    public Optional<Behandling> finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(Long fagsakId, BehandlingType behandlingType) {
-        Objects.requireNonNull(fagsakId, FAGSAK_ID);
+    public Optional<Behandling> finnSisteIkkeHenlagteYtelseBehandlingFor(Long fagsakId) {
+        return finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(fagsakId, BehandlingType.getYtelseBehandlingTyper());
+    }
+
+    public Optional<Behandling> finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(Long fagsakId, BehandlingType behandlingType) {
         Objects.requireNonNull(behandlingType, "behandlingType");
+        return finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(fagsakId, Set.of(behandlingType));
+    }
+
+    private Optional<Behandling> finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(Long fagsakId, Set<BehandlingType> behandlingTyper) {
+        Objects.requireNonNull(fagsakId, FAGSAK_ID);
 
         TypedQuery<Behandling> query = getEntityManager().createQuery(
             " FROM Behandling b WHERE b.fagsak.id=:fagsakId " +
-                " AND b.behandlingType=:behandlingType " +
+                " AND b.behandlingType IN :behandlingTyper " +
                 " AND NOT EXISTS (SELECT r FROM Behandlingsresultat r" +
                 "    WHERE r.behandling=b " +
                 "    AND r.behandlingResultatType IN :henlagtKoder)" +
@@ -404,7 +405,7 @@ public class BehandlingRepository {
             Behandling.class);
 
         query.setParameter(FAGSAK_ID, fagsakId);
-        query.setParameter("behandlingType", behandlingType);
+        query.setParameter("behandlingTyper", behandlingTyper);
         query.setParameter("henlagtKoder", BehandlingResultatType.getAlleHenleggelseskoder());
 
         return optionalFirst(query.getResultList());

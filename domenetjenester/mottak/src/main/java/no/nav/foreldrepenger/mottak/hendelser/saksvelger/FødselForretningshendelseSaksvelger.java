@@ -15,7 +15,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -82,15 +81,14 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
             if (fagsak.erÅpen()) {
                 return true;
             } else {
-                Optional<Behandling> sisteYtelsesbehandling = hentBehandling(fagsak);
-                return sisteYtelsesbehandling.flatMap(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId())).map(Behandlingsresultat::isBehandlingsresultatInnvilget).orElse(Boolean.FALSE);
+                return behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId()).isPresent();
             }
         }
         return false;
     }
 
     private boolean fagsakErRelevantSvangerskapspengersak(Fagsak fagsak, FødselForretningshendelse forretningshendelse) {
-        Optional<Behandling> behandling = hentBehandling(fagsak);
+        Optional<Behandling> behandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId());
         LocalDate fødselsdato = forretningshendelse.getFødselsdato();
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsak.getYtelseType())) {
             Optional<BeregningsresultatEntitet> beregningsresultat = behandling.flatMap(b -> beregningsresultatRepository
@@ -103,12 +101,9 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
         return false;
     }
 
-    private Optional<Behandling> hentBehandling(Fagsak fagsak) {
-        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
-    }
-
     private boolean erFagsakPassendeForFamilieHendelse(LocalDate fødsel, Fagsak fagsak) {
-        Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag = hentBehandling(fagsak).flatMap(b -> familieHendelseRepository.hentAggregatHvisEksisterer(b.getId()));
+        Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+            .flatMap(b -> familieHendelseRepository.hentAggregatHvisEksisterer(b.getId()));
         return erFødselPassendeForFamilieHendelseGrunnlag(fødsel, fhGrunnlag);
     }
 
