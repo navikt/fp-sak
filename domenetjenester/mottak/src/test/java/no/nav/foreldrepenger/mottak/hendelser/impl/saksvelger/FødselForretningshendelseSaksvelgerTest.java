@@ -147,6 +147,7 @@ public class FødselForretningshendelseSaksvelgerTest {
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
+        when(behandlingRepository.finnSisteInnvilgetBehandling(any())).thenReturn(Optional.of(behandling));
         Behandlingsresultat behandlingsresultat = new Behandlingsresultat.Builder()
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
         when(behandlingsresultatRepository.hentHvisEksisterer(any())).thenReturn(Optional.of(behandlingsresultat));
