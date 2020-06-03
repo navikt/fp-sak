@@ -117,6 +117,9 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     @Convert(converter = FordelingPeriodeKilde.KodeverdiConverter.class)
     private FordelingPeriodeKilde periodeKilde = FordelingPeriodeKilde.SØKNAD;
 
+    @Column(name = "mottatt_dato")
+    private LocalDate mottattDato;
+
     protected OppgittPeriodeEntitet() {
         // Hibernate
     }
@@ -269,6 +272,15 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return getArbeidsprosent() != null && getArbeidsprosent().compareTo(BigDecimal.ZERO) > 0;
     }
 
+
+    public LocalDate getMottattDato() {
+        return mottattDato;
+    }
+
+    public void setMottattDato(LocalDate mottattDato) {
+        this.mottattDato = mottattDato;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -288,12 +300,14 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
                 Objects.equals(morsAktivitet, that.morsAktivitet) &&
                 Objects.equals(samtidigUttak, that.samtidigUttak) &&
                 Objects.equals(periodeKilde, that.periodeKilde) &&
+                Objects.equals(mottattDato, that.mottattDato) &&
                 Objects.equals(samtidigUttaksprosent, that.samtidigUttaksprosent);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uttakPeriodeType, årsakType, årsak, periode, arbeidsprosent, morsAktivitet, erArbeidstaker, arbeidsgiver, periodeKilde, samtidigUttaksprosent);
+        return Objects.hash(uttakPeriodeType, årsakType, årsak, periode, arbeidsprosent, morsAktivitet, erArbeidstaker,
+            arbeidsgiver, periodeKilde, samtidigUttaksprosent, mottattDato);
     }
 
     @Override

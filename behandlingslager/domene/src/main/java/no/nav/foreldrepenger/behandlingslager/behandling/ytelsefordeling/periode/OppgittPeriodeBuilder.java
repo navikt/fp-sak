@@ -33,6 +33,7 @@ public class OppgittPeriodeBuilder {
                 .medErFrilanser(oppgittPeriode.getErFrilanser())
                 .medErSelvstendig(oppgittPeriode.getErSelvstendig())
                 .medVurdering(oppgittPeriode.getPeriodeVurderingType())
+                .medMottattDato(oppgittPeriode.getMottattDato())
                 .medPeriodeKilde(oppgittPeriode.getPeriodeKilde());
 
         if (oppgittPeriode.getArbeidsprosent() != null) {
@@ -117,6 +118,11 @@ public class OppgittPeriodeBuilder {
 
     public OppgittPeriodeBuilder medPeriodeKilde(FordelingPeriodeKilde periodeKilde) {
         kladd.setPeriodeKilde(periodeKilde);
+        return this;
+    }
+
+    public OppgittPeriodeBuilder medMottattDato(LocalDate mottattDato) {
+        kladd.setMottattDato(mottattDato);
         return this;
     }
 

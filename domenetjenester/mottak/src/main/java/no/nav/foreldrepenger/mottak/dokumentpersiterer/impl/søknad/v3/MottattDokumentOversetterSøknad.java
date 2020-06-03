@@ -208,7 +208,10 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         return søknadBuilder;
     }
 
-    private void persisterEndringssøknad(MottattDokumentWrapperSøknad wrapper, MottattDokument mottattDokument, Behandling behandling, Optional<LocalDate> gjelderFra) {
+    private void persisterEndringssøknad(MottattDokumentWrapperSøknad wrapper,
+                                         MottattDokument mottattDokument,
+                                         Behandling behandling,
+                                         Optional<LocalDate> gjelderFra) {
         LocalDate mottattDato = mottattDokument.getMottattDato();
         boolean elektroniskSøknad = mottattDokument.getElektroniskRegistrert();
 
@@ -222,7 +225,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
         if (wrapper.getOmYtelse() instanceof Endringssoeknad) { // NOSONAR
             final Endringssoeknad omYtelse = (Endringssoeknad) wrapper.getOmYtelse();
-            byggYtelsesSpesifikkeFelterForEndringssøknad(omYtelse, behandling);
+            byggYtelsesSpesifikkeFelterForEndringssøknad(omYtelse, behandling, gjelderFra.orElse(mottattDato));
         }
         søknadBuilder.medErEndringssøknad(true);
         final SøknadEntitet søknad = søknadBuilder.build();
@@ -315,8 +318,9 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         return mottattDokument.getDokumentType().equals(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD);
     }
 
-    private void byggYtelsesSpesifikkeFelterForEndringssøknad(Endringssoeknad omYtelse, Behandling behandling) {
-        oversettOgLagreEndringssøknadPerioder(behandling, omYtelse);
+    private void byggYtelsesSpesifikkeFelterForEndringssøknad(Endringssoeknad omYtelse, Behandling behandling, LocalDate mottattDato) {
+        final List<LukketPeriodeMedVedlegg> perioder = omYtelse.getFordeling().getPerioder();
+        lagreFordeling(behandling.getId(), perioder, hentAnnenForelderErInformert(behandling), mottattDato);
     }
 
     private void byggYtelsesSpesifikkeFelter(MottattDokumentWrapperSøknad skjemaWrapper, Behandling behandling, SøknadEntitet.Builder søknadBuilder) {
@@ -326,7 +330,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             Long behandlingId = behandling.getId();
             oversettOgLagreRettighet(behandlingId, omYtelse);
             oversettOgLagreDekningsgrad(behandlingId, omYtelse);
-            oversettOgLagreFordeling(behandlingId, omYtelse);
+            oversettOgLagreFordeling(behandlingId, omYtelse, skjemaWrapper.getSkjema().getMottattDato());
         } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger) {
 
             final Svangerskapspenger svangerskapspenger = (Svangerskapspenger) skjemaWrapper.getOmYtelse();
@@ -461,21 +465,19 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         }
     }
 
-    private void oversettOgLagreFordeling(Long behandlingId, Foreldrepenger omYtelse) {
+    private void oversettOgLagreFordeling(Long behandlingId, Foreldrepenger omYtelse, LocalDate mottattDato) {
         final List<LukketPeriodeMedVedlegg> perioder = new ArrayList<>(omYtelse.getFordeling().getPerioder());
         boolean annenForelderErInformert = omYtelse.getFordeling().isAnnenForelderErInformert();
-        lagreFordeling(behandlingId, perioder, annenForelderErInformert);
+        lagreFordeling(behandlingId, perioder, annenForelderErInformert, mottattDato);
     }
 
-    private void oversettOgLagreEndringssøknadPerioder(Behandling behandling, Endringssoeknad omYtelse) {
-        final List<LukketPeriodeMedVedlegg> perioder = omYtelse.getFordeling().getPerioder();
-        lagreFordeling(behandling.getId(), perioder, hentAnnenForelderErInformert(behandling));
-    }
-
-    private void lagreFordeling(Long behandlingId, List<LukketPeriodeMedVedlegg> perioder, boolean annenForelderErInformert) {
+    private void lagreFordeling(Long behandlingId,
+                                List<LukketPeriodeMedVedlegg> perioder,
+                                boolean annenForelderErInformert,
+                                LocalDate mottattDato) {
         final List<OppgittPeriodeEntitet> oppgittPerioder = new ArrayList<>();
         for (LukketPeriodeMedVedlegg lukketPeriode : perioder) {
-            final OppgittPeriodeBuilder oppgittPeriodeBuilder = oversettPeriode(lukketPeriode);
+            final OppgittPeriodeBuilder oppgittPeriodeBuilder = oversettPeriode(lukketPeriode, mottattDato);
             oppgittPerioder.add(oppgittPeriodeBuilder.build());
         }
         if (!inneholderVirkedager(oppgittPerioder)) {
@@ -508,9 +510,10 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         }
     }
 
-    private OppgittPeriodeBuilder oversettPeriode(LukketPeriodeMedVedlegg lukketPeriode) {
+    private OppgittPeriodeBuilder oversettPeriode(LukketPeriodeMedVedlegg lukketPeriode, LocalDate mottattDato) {
         final OppgittPeriodeBuilder oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
-            .medPeriode(lukketPeriode.getFom(), lukketPeriode.getTom());
+            .medPeriode(lukketPeriode.getFom(), lukketPeriode.getTom())
+            .medMottattDato(mottattDato);
         if (lukketPeriode instanceof Uttaksperiode) { // NOSONAR
             final Uttaksperiode periode = (Uttaksperiode) lukketPeriode;
             oversettUttakperiode(oppgittPeriodeBuilder, periode);
@@ -836,7 +839,11 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         return Språkkode.UDEFINERT;
     }
 
-    private SøknadEntitet.Builder byggFelleselementerForSøknad(SøknadEntitet.Builder søknadBuilder, MottattDokumentWrapperSøknad skjemaWrapper, Boolean elektroniskSøknad, LocalDate forsendelseMottatt, Optional<LocalDate> gjelderFra) {
+    private SøknadEntitet.Builder byggFelleselementerForSøknad(SøknadEntitet.Builder søknadBuilder,
+                                                               MottattDokumentWrapperSøknad skjemaWrapper,
+                                                               Boolean elektroniskSøknad,
+                                                               LocalDate forsendelseMottatt,
+                                                               Optional<LocalDate> gjelderFra) {
         søknadBuilder.medElektroniskRegistrert(elektroniskSøknad)
             .medMottattDato(forsendelseMottatt)
             .medBegrunnelseForSenInnsending(skjemaWrapper.getBegrunnelseForSenSoeknad())
