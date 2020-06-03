@@ -85,10 +85,7 @@ public class RegisterdataEndringshåndterer {
     }
 
     public boolean skalInnhenteRegisteropplysningerPåNytt(Behandling behandling) {
-        var erAvslag = behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene().stream()
-            .map(Vilkår::getGjeldendeVilkårUtfall)
-            .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
-        if (erAvslag || behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+        if (erAvslag(behandling) || behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
             return false;
         }
         LocalDateTime midnatt = LocalDate.now().atStartOfDay();
@@ -144,7 +141,7 @@ public class RegisterdataEndringshåndterer {
     }
 
     public void oppdaterRegisteropplysningerOgReposisjonerBehandlingVedEndringer(Behandling behandling) {
-        if (!endringskontroller.erRegisterinnhentingPassert(behandling)) {
+        if (!endringskontroller.erRegisterinnhentingPassert(behandling) || erAvslag(behandling)) {
             return;
         }
         boolean skalOppdatereRegisterdata = skalInnhenteRegisteropplysningerPåNytt(behandling);
@@ -176,6 +173,12 @@ public class RegisterdataEndringshåndterer {
 
     private EndringsresultatDiff opprettDiffUtenEndring() {
         return EndringsresultatDiff.opprettForSporingsendringer();
+    }
+
+    private boolean erAvslag(Behandling behandling) {
+        return behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene().stream()
+            .map(Vilkår::getGjeldendeVilkårUtfall)
+            .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
     }
 
     private void lagBehandlingÅrsakerOgHistorikk(Behandling behandling, EndringsresultatDiff endringsresultat) {
