@@ -118,7 +118,7 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
         LocalDate avslutningdato = fagsakRelasjonAvslutningsdatoOppdaterer.finnAvslutningsdato(fagsak.getId(),fagsakRelasjon);
 
         // Assert
-        assertThat(avslutningdato).isEqualTo(sisteUttaksdato);
+        assertThat(avslutningdato).isEqualTo(sisteUttaksdato.plusDays(1));
 
     }
 

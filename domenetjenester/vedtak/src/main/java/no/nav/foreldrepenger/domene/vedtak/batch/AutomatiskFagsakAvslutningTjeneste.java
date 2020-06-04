@@ -40,25 +40,19 @@ public class AutomatiskFagsakAvslutningTjeneste {
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
     }
 
-    String avsluttFagsaker(String batchname, LocalDate date, int antDager) {
-        List<FagsakRelasjon> fagsakRelasjons = fagsakRelasjonRepository.finnRelasjonerForAvsluttningAvFagsaker(date,antDager);
+    String avsluttFagsaker(String batchname, LocalDate date) {
+        List<Fagsak> fagsaker = fagsakRelasjonRepository.finnFagsakerForAvsluttning(date);
 
         String callId = MDCOperations.getCallId();
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
 
-        for (FagsakRelasjon fagsakRelasjon : fagsakRelasjons) {
+        for (Fagsak fagsak : fagsaker) {
             List<ProsessTaskData> tasks = new ArrayList<>();
-            if (fagsakRelasjon.getFagsakNrEn().getStatus().getKode().equals(FagsakStatus.LØPENDE.getKode())) {
-                String nyCallId = callId + fagsakRelasjon.getFagsakNrEn().getId();
-                log.info("{} oppretter task med ny callId: {} ", getClass().getSimpleName(), nyCallId);
-                tasks.add(opprettFagsakAvslutningTask(fagsakRelasjon.getFagsakNrEn(), nyCallId));
-            }
-            if (fagsakRelasjon.getFagsakNrTo().isPresent()
-                && fagsakRelasjon.getFagsakNrTo().get().getStatus().getKode().equals(FagsakStatus.LØPENDE.getKode())) {
-                String nyCallId = callId + fagsakRelasjon.getFagsakNrTo().get().getId();
-                log.info("{} oppretter task med ny callId: {} ", getClass().getSimpleName(), nyCallId);
-                tasks.add(opprettFagsakAvslutningTask(fagsakRelasjon.getFagsakNrTo().get(), nyCallId));
-            }
+
+            String nyCallId = callId + fagsak.getId();
+            log.info("{} oppretter task med ny callId: {} ", getClass().getSimpleName(), nyCallId);
+            tasks.add(opprettFagsakAvslutningTask(fagsak, nyCallId));
+
             if (!tasks.isEmpty()) {
                 tasks.forEach(t -> t.setPrioritet(100));
                 ProsessTaskGruppe gruppe = new ProsessTaskGruppe();
