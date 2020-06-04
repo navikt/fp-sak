@@ -234,40 +234,4 @@ public class FagsakRelasjonRepositoryImplTest {
         assertThat(fagsakRelasjon2.getAvsluttningsdato()).isEqualTo(LocalDate.now());
     }
 
-    @Test
-    public void skal_hente_relasjoner_med_avsluttningsdato_i_dag_eller_tidligere(){
-        // Arrange
-        final Personinfo personinfo1 = opprettPerson(AktørId.dummy());
-        final Personinfo personinfo2 = opprettPerson(AktørId.dummy());
-        final Personinfo personinfo3 = opprettPerson(AktørId.dummy());
-        final Personinfo personinfo4 = opprettPerson(AktørId.dummy());
-        final Personinfo personinfo5 = opprettPerson(AktørId.dummy());
-        final Personinfo personinfo6 = opprettPerson(AktørId.dummy());
-        final Fagsak fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(personinfo1));
-        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(personinfo2));
-        final Fagsak fagsak3 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(personinfo3));
-        final Fagsak fagsak4 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(personinfo4));
-        final Fagsak fagsak5 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(personinfo5));
-        final Fagsak fagsak6 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(personinfo6));
-        fagsakRepository.opprettNy(fagsak1);
-        fagsakRepository.opprettNy(fagsak2);
-        fagsakRepository.opprettNy(fagsak3);
-        fagsakRepository.opprettNy(fagsak4);
-        fagsakRepository.opprettNy(fagsak5);
-        fagsakRepository.opprettNy(fagsak6);
-        relasjonRepository.opprettRelasjon(fagsak1, Dekningsgrad._100);
-        relasjonRepository.opprettRelasjon(fagsak3, Dekningsgrad._100);
-        relasjonRepository.opprettRelasjon(fagsak5, Dekningsgrad._100);
-        relasjonRepository.kobleFagsaker(fagsak1, fagsak2, null);
-        relasjonRepository.kobleFagsaker(fagsak3, fagsak4, null);
-        relasjonRepository.kobleFagsaker(fagsak5, fagsak6, null);
-        relasjonRepository.oppdaterMedAvsluttningsdato(relasjonRepository.finnRelasjonFor(fagsak1), LocalDate.now(), null, Optional.empty(), Optional.empty());
-        relasjonRepository.oppdaterMedAvsluttningsdato(relasjonRepository.finnRelasjonFor(fagsak3), LocalDate.now().minusDays(5), null, Optional.empty(), Optional.empty());
-        relasjonRepository.oppdaterMedAvsluttningsdato(relasjonRepository.finnRelasjonFor(fagsak5), LocalDate.now().plusDays(5), null, Optional.empty(), Optional.empty());
-        // Act
-        List<FagsakRelasjon> fagsakRelasjoner = relasjonRepository.finnRelasjonerForAvsluttningAvFagsaker(null,0);
-        // Assert
-        assertThat(fagsakRelasjoner).hasSize(1);
-        assertThat(fagsakRelasjoner.get(0).getAvsluttningsdato()).isBeforeOrEqualTo(LocalDate.now());
-    }
 }

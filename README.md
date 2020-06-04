@@ -17,10 +17,8 @@ Dette er saksbehandlingsløsning på foreldrepengeområdet (Folketrygdloven kapi
 - Du har installert kubectl konfigurert kubectl for NAV cluster. Se [Prosjekt med Config](https://github.com/navikt/kubeconfigs).
 
 ### Kjør opp avhengigheter for lokal utvikling:
-- Kjør `./update-versions.sh` og verifiser at .env-fil er satt med versjonsnummer.
-- Kjør `docker-compose pull` for å hente ned siste versjoner.
-- Kjør `docker-compose up` for å sette opp infrastruktur og avhengigheter. 
-- Dersom du har DB satt opp lokalt spesifiser med `docker compose up abakus` for å kun starte Abakus med avhengigheter.
+Dette gjøres nå i _fpsak-autotest_-prosjektet. Her finnes det en felles docker-compose som skal brukes for lokalt utvikling.
+Vennligst se dokumentasjonen her: [Link til lokal utvikling i fpsak-autotest](https://github.com/navikt/fpsak-autotest/tree/master/docs).
 
 ### Spørsmål
 - Slack for oppsett og utvikling på laptop: \#teamforeldrepenger-utvikling-på-laptop

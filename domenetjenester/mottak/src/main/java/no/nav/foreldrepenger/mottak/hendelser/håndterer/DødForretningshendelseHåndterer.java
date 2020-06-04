@@ -49,7 +49,7 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
         if (BehandlingÅrsakType.RE_HENDELSE_DØD_BARN.equals(behandlingÅrsakType)) {
             Optional<Fagsak> fagsakPåMedforelder = behandlingRevurderingRepository.finnFagsakPåMedforelder(avsluttetBehandling.getFagsak());
             Optional<Behandling> behandlingPåMedforelder = fagsakPåMedforelder.isPresent()?
-                behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakPåMedforelder.get().getId())
+                behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakPåMedforelder.get().getId())
                 : Optional.empty();
             if (behandlingPåMedforelder.isPresent()
                 && !behandlingPåMedforelder.get().erKøet()

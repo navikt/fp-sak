@@ -94,7 +94,7 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     }
 
     @Override
-    public List<FagsakRelasjon> finnRelasjonerForAvsluttningAvFagsaker(LocalDate avsluttningsdato, int antDager) {
+    public List<Fagsak> finnFagsakerForAvsluttning(LocalDate localDate) {
         throw new UnsupportedOperationException(IKKE_STOTTET);
     }
 

@@ -381,15 +381,12 @@ public class FagsakRelasjonRepository {
         return Optional.of(nyFagsakRelasjon);
     }
 
-    public List<FagsakRelasjon> finnRelasjonerForAvsluttningAvFagsaker(LocalDate localDate, int antDager) {
-        TypedQuery<FagsakRelasjon> query = entityManager.createQuery("from FagsakRelasjon where aktiv = true and avsluttningsdato>=:avsluttningsdatoStart and avsluttningsdato<=:avsluttningsdatoStopp",
-            FagsakRelasjon.class);
+    public List<Fagsak> finnFagsakerForAvsluttning(LocalDate localDate) {
+        TypedQuery<Fagsak> query = entityManager.createQuery("from Fagsak f inner join FagsakRelasjon fr on f.id  in (fr.fagsakNrEn, fr.fagsakNrTo) and fr.aktiv=true) where f.fagsak_status = 'LOP' and fr.avsluttningsdato<=:datogrense",
+            Fagsak.class);
 
-        LocalDate localDateStop = localDate != null ? localDate : LocalDate.now();
-        LocalDate localDateStart = localDateStop.minusDays(antDager);
-
-        query.setParameter("avsluttningsdatoStart", localDateStart); // NOSONAR $NON-NLS-1$
-        query.setParameter("avsluttningsdatoStopp", localDateStop); // NOSONAR $NON-NLS-1$
+        LocalDate datogrense = localDate != null ? localDate : LocalDate.now();
+        query.setParameter("datogrense", datogrense); // NOSONAR $NON-NLS-1$
 
         return query.getResultList();
     }

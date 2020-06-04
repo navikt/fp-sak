@@ -30,7 +30,7 @@ public class BatchSchedulerTaskTest {
     }
 
     @Test
-    public void normal_dag_skal_ha_8_tasks_med_antalldager() {
+    public void normal_dag_skal_ha_7_tasks_med_antalldager() {
         // Arrange
         task.doTask(taskData);
         var props = testsupport.getTaskDataList();
@@ -41,7 +41,7 @@ public class BatchSchedulerTaskTest {
             .collect(Collectors.toList());
         if (props.size() > 1) {
             System.out.println(matches);
-            assertThat(matches.size()).isEqualTo(8); // Antall dagsensitive batcher.
+            assertThat(matches.size()).isEqualTo(7); // Antall dagsensitive batcher.
         }
     }
 

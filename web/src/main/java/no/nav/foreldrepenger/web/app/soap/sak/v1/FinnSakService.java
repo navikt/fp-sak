@@ -23,14 +23,14 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Behandlingstema;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.meldinger.FinnSakListeResponse;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.binding.FinnSakListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.binding.ForeldrepengesakV1;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Aktoer;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Behandlingstema;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Sak;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Saksstatus;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.meldinger.FinnSakListeRequest;
+import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.meldinger.FinnSakListeResponse;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -143,7 +143,7 @@ public class FinnSakService implements ForeldrepengesakV1 {
     }
 
     private BehandlingTema getBehandlingsTemaForFagsak(Fagsak s) {
-        Optional<Behandling> behandling = behandlingRepository.hentSisteBehandlingForFagsakId(s.getId());
+        Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(s.getId());
         if (!behandling.isPresent()) {
             return BehandlingTema.fraFagsak(s, null);
         }

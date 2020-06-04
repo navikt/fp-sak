@@ -12,7 +12,9 @@ boksen og CURL ikke er installert på utviklerimaget. Tungvint, men da slipper v
 ```bash
 mvnk -B -Dfile.encoding=UTF-8 -DinstallAtEnd=true -DdeployAtEnd=true  -DskipTests clean install
 
-docker build -t fpsak . --build-arg DOWNLOAD_SCRIPT=getmqclients-curl.sh
+docker build -t <NAVN_PÅ_DOCKER_IMAGE> .
+ 
+docker build -f vtp/Dockerfile --build-arg DOWNLOAD_SCRIPT=getmqclients-GA.sh --build-arg TOKEN_CARRIER=<GYLDIG_TOKEN> --build-arg REPO=<NAVN_PÅ_DOCKER_IMAGE_FRA_FORRIGE_STEG> --tag <NAVN_PÅ_DETTE_DOCKER_IMAGET> .
 ```
 
 ## Kjøre opp FPSAK med VTP-vennlige biblioteker

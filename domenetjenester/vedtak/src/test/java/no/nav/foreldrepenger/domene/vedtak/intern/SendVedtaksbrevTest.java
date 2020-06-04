@@ -127,7 +127,7 @@ public class SendVedtaksbrevTest {
     @Test
     public void testIkkeSendVedtaksbrevEtterKlagebehandlingMedholdNFP() {
         when(behandlingMock.harBehandlingÅrsak(BehandlingÅrsakType.ETTER_KLAGE)).thenReturn(true);
-        when(behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(fagsakMock.getId(), BehandlingType.KLAGE)).thenReturn(Optional.of(behandlingMock));
+        when(behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakMock.getId(), BehandlingType.KLAGE)).thenReturn(Optional.of(behandlingMock));
         testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType.KLAGE_MEDHOLD, KlageVurdering.MEDHOLD_I_KLAGE, KlageVurdertAv.NFP, false);
     }
 

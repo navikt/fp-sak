@@ -59,7 +59,6 @@ public class AutomatiskFagsakAvslutningBatchTjenesteTest {
 
     @Test
     public void skal_kjøre_batch_uten_feil() {
-        final BatchArguments batchArguments = new AutomatiskFagsakAvsluttningBatchArguments(new HashMap<>());
         Fagsak fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         fagsak1.setId(1L);
         Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
@@ -73,9 +72,9 @@ public class AutomatiskFagsakAvslutningBatchTjenesteTest {
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(2L)).thenReturn(Optional.of(behandling));
         Mockito.when(oppdaterFagsakStatusFelles.ingenLøpendeYtelsesvedtak(behandling)).thenReturn(true);
 
-        final String batchId = tjeneste.launch(batchArguments);
+        final String batchId = tjeneste.launch(null);
 
-        Mockito.verify(fagsakAvslutningTjeneste, Mockito.times(1)).avsluttFagsaker("BVL006", LocalDate.now(),0);
+        Mockito.verify(fagsakAvslutningTjeneste, Mockito.times(1)).avsluttFagsaker("BVL006", LocalDate.now());
         Assertions.assertThat(batchId.substring(0, 6)).isEqualTo("BVL006");
     }
 }
