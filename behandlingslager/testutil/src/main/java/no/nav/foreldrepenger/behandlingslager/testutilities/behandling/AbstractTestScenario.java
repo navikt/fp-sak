@@ -570,10 +570,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 BehandlingType type = a.getArgument(1);
                 return behandlingMap.values().stream().filter(b -> type.equals(b.getType()) && b.getFagsakId().equals(id)).sorted().findFirst();
             });
-        when(behandlingRepository.hentSisteBehandlingForFagsakId(Mockito.any()))
+        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(Mockito.any()))
             .thenAnswer(a -> {
                 Long id = a.getArgument(0);
-                return behandlingMap.values().stream().filter(b -> b.getFagsakId().equals(id)).sorted().findFirst();
+                return behandlingMap.values().stream().filter(b -> BehandlingType.getYtelseBehandlingTyper().contains(b.getType())).filter(b -> b.getFagsakId().equals(id)).sorted().findFirst();
             });
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(Mockito.any()))
             .thenAnswer(a -> {

@@ -159,7 +159,7 @@ public class BehandlingRepositoryImplTest {
 
         lagreBehandling(builder);
 
-        Optional<Behandling> sisteBehandling = behandlingRepository.hentSisteBehandlingForFagsakId(fagsak.getId());
+        Optional<Behandling> sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
 
         assertThat(sisteBehandling).isPresent();
         assertThat(sisteBehandling.get().getFagsakId()).isEqualTo(fagsak.getId());
@@ -172,7 +172,7 @@ public class BehandlingRepositoryImplTest {
 
         lagreBehandling(builder);
 
-        Optional<Behandling> sisteBehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(fagsak.getId(), BehandlingType.KLAGE);
+        Optional<Behandling> sisteBehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(), BehandlingType.KLAGE);
 
         assertThat(sisteBehandling).isEmpty();
 
@@ -182,7 +182,7 @@ public class BehandlingRepositoryImplTest {
         BehandlingLås lås = behandlingRepository.taSkriveLås(klage);
         behandlingRepository.lagre(klage, lås);
 
-        Optional<Behandling> sisteKlage = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(fagsak.getId(), BehandlingType.KLAGE);
+        Optional<Behandling> sisteKlage = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(), BehandlingType.KLAGE);
 
         assertThat(sisteKlage).isPresent();
         assertThat(sisteKlage.get().getFagsakId()).isEqualTo(fagsak.getId());

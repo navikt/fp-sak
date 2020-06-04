@@ -207,31 +207,6 @@ public class VurderArbeidsforholdTjenesteImplTest {
         assertThat(vurder).isEmpty();
     }
 
-    private void opprettAktørArbeidMedYrkesaktivitet(Behandling behandling, EksternArbeidsforholdRef ref, Arbeidsgiver arbeidsgiver) {
-        InntektArbeidYtelseAggregatBuilder builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
-
-        InternArbeidsforholdRef internRef = builder.medNyInternArbeidsforholdRef(arbeidsgiver, ref);
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
-        YrkesaktivitetBuilder yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
-        AktivitetsAvtaleBuilder aktivitetsAvtale = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMed(skjæringstidspunkt.minusYears(2)))
-            .medProsentsats(BigDecimal.TEN)
-            .medAntallTimer(BigDecimal.valueOf(20.4d))
-            .medAntallTimerFulltid(BigDecimal.valueOf(10.2d));
-        AktivitetsAvtaleBuilder arbeidsperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMed(skjæringstidspunkt.minusYears(2)));
-        yrkesaktivitetBuilder
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(arbeidsgiver)
-            .leggTilAktivitetsAvtale(aktivitetsAvtale)
-            .leggTilAktivitetsAvtale(arbeidsperiode)
-            .medArbeidsforholdId(internRef);
-
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeid = aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
-        builder.leggTilAktørArbeid(aktørArbeid);
-        iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
-    }
-
     private void sendNyInntektsmelding(Behandling behandling, Arbeidsgiver arbeidsgiver,  EksternArbeidsforholdRef ref) {
         MottattDokument mottattDokument = new MottattDokument.Builder()
             .medFagsakId(behandling.getFagsakId())

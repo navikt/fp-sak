@@ -12,8 +12,6 @@ public class JettyTestApplication extends Application {
     public Set<Class<?>> getClasses() {
         Set<Class<?>> classes = new HashSet<>();
         classes.add(JettyLoginResource.class);
-        classes.add(DummyRestTjeneste.class);
-        classes.add(DummyFptilbakeRestTjeneste.class);
         return classes;
     }
 }
