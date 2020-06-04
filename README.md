@@ -18,7 +18,7 @@ Dette er saksbehandlingsløsning på foreldrepengeområdet (Folketrygdloven kapi
 
 ### Kjør opp avhengigheter for lokal utvikling:
 Dette gjøres nå i _fpsak-autotest_-prosjektet. Her finnes det en felles docker-compose som skal brukes for lokalt utvikling.
-Vennligst se dokumentasjonen her: [Link til lokal utvikling i fpsak-autotest](https://github.com/navikt/fpsak-autotest/docs).
+Vennligst se dokumentasjonen her: [Link til lokal utvikling i fpsak-autotest](https://github.com/navikt/fpsak-autotest/tree/master/docs).
 
 ### Spørsmål
 - Slack for oppsett og utvikling på laptop: \#teamforeldrepenger-utvikling-på-laptop
