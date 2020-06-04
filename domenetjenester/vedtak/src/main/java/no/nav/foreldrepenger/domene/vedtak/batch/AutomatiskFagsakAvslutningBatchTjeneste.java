@@ -38,8 +38,7 @@ public class AutomatiskFagsakAvslutningBatchTjeneste implements BatchTjeneste {
     public String launch(BatchArguments arguments) {
         AutomatiskFagsakAvsluttningBatchArguments batchArguments = (AutomatiskFagsakAvsluttningBatchArguments) arguments; // NOSONAR
         LocalDate localDate = batchArguments != null ? batchArguments.getDate() : LocalDate.now();
-        int antallDager = batchArguments != null ? batchArguments.getAntallDager() : 0;
-        final String avsluttFagsakGruppe = automatiskFagsakAvslutningTjeneste.avsluttFagsaker(BATCHNAME, localDate,antallDager);
+        final String avsluttFagsakGruppe = automatiskFagsakAvslutningTjeneste.avsluttFagsaker(BATCHNAME, localDate);
         return BATCHNAME + "-" + (avsluttFagsakGruppe != null ? avsluttFagsakGruppe : UUID.randomUUID().toString());
     }
 

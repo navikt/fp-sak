@@ -75,7 +75,7 @@ public class AutomatiskFagsakAvslutningBatchTjenesteTest {
 
         final String batchId = tjeneste.launch(batchArguments);
 
-        Mockito.verify(fagsakAvslutningTjeneste, Mockito.times(1)).avsluttFagsaker("BVL006", LocalDate.now(),0);
+        Mockito.verify(fagsakAvslutningTjeneste, Mockito.times(1)).avsluttFagsaker("BVL006", LocalDate.now());
         Assertions.assertThat(batchId.substring(0, 6)).isEqualTo("BVL006");
     }
 }
