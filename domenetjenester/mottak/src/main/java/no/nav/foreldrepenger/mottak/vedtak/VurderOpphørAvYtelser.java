@@ -204,9 +204,8 @@ public class VurderOpphørAvYtelser  {
 
             opprettTaskForÅVurdereKonsekvens(sakOpphør.getId(), behandling.getBehandlendeEnhet(),
                 "Overlapp identfisert: Vurder ytelse", Optional.empty());
-            var harÅpenOrdinærBehandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(sakOpphør.getId()).stream()
-                .anyMatch(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
 
+            var harÅpenOrdinærBehandling = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(sakOpphør.getId());
             if (!harÅpenOrdinærBehandling) {
                 var skalKøes = !behandling.erAvsluttet() && behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING);
                 Behandling revurderingOpphør = opprettRevurdering(sakOpphør, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN, skalKøes);

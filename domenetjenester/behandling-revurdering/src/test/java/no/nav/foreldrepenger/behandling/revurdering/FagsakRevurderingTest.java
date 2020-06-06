@@ -76,7 +76,7 @@ public class FagsakRevurderingTest {
     @Test
     public void kanIkkeOppretteRevurderingNårÅpenBehandling() throws Exception {
         Behandlingsresultat.opprettFor(behandling);
-        when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(anyLong())).thenReturn(Arrays.asList(behandling));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(anyLong())).thenReturn(Arrays.asList(behandling));
 
         FagsakRevurdering tjeneste = new FagsakRevurdering(behandlingRepository);
         Boolean kanRevurderingOpprettes = tjeneste.kanRevurderingOpprettes(fagsak);

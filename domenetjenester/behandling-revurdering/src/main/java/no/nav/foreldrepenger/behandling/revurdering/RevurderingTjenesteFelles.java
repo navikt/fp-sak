@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -29,6 +32,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 
 @ApplicationScoped
 public class RevurderingTjenesteFelles {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RevurderingTjenesteFelles.class);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
@@ -58,8 +63,9 @@ public class RevurderingTjenesteFelles {
             .medOriginalBehandling(opprinneligBehandling)
             .medManueltOpprettet(manueltOpprettet);
         if (revurderingÅrsakType.equals(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
-            behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(opprinneligBehandling.getFagsak())
+            var basis = behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(opprinneligBehandling.getFagsak())
                 .orElseThrow(() -> new IllegalStateException("Berørt behandling må ha en tilhørende avlsuttet behandling for medforelder - skal ikke skje")); // NOSONAR
+            LOG.info("Revurderingtjeneste oppretter berørt pga id {} med resultat {}", basis.getId(), basis.getBehandlingsresultat().getBehandlingResultatType().getKode());
         }
         Behandling revurdering = Behandling.fraTidligereBehandling(opprinneligBehandling, behandlingType)
             .medBehandlendeEnhet(enhet)

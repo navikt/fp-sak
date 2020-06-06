@@ -103,7 +103,7 @@ public class BehandlingRepositoryProvider {
         // behandling støtte repositories
         this.mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
         this.historikkRepository = new HistorikkRepository(entityManager);
-        this.behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager, behandlingRepository);
+        this.behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
         this.behandlingRevurderingRepository = new BehandlingRevurderingRepository(entityManager, behandlingRepository, fagsakRelasjonRepository,
             søknadRepository, behandlingLåsRepository);
 

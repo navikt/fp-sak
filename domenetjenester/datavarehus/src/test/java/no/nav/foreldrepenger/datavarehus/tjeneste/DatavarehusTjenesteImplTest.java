@@ -267,14 +267,14 @@ public class DatavarehusTjenesteImplTest {
     @Test
     public void lagreNedVedtak() {
         BehandlingVedtak vedtak = byggBehandlingVedtak();
-        Long behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
+        var behandling = vedtak.getBehandlingsresultat().getBehandling();
         ArgumentCaptor<BehandlingVedtakDvh> captor = ArgumentCaptor.forClass(BehandlingVedtakDvh.class);
         DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(repositoryProvider);
         // Act
-        datavarehusTjeneste.lagreNedVedtak(vedtak, behandlingId);
+        datavarehusTjeneste.lagreNedVedtak(vedtak, behandling);
 
         verify(datavarehusRepository).lagre(captor.capture());
-        assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandlingId);
+        assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandling.getId());
     }
 
     @Test

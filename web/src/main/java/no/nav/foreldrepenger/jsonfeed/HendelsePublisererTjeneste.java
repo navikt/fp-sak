@@ -11,8 +11,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
-import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.KontrollType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -20,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
@@ -43,7 +40,6 @@ public class HendelsePublisererTjeneste {
     private static final Logger log = LoggerFactory.getLogger(HendelsePublisererTjeneste.class);
     private static final String VEDTAK_PREFIX = "VT";
 
-    private EtterkontrollRepository etterkontrollRepository;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private FeedRepository feedRepository;
@@ -53,10 +49,8 @@ public class HendelsePublisererTjeneste {
     }
 
     @Inject
-    public HendelsePublisererTjeneste(EtterkontrollRepository etterkontrollRepository,
-                                      BehandlingRepositoryProvider behandlingRepositoryProvider,
+    public HendelsePublisererTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                       FeedRepository feedRepository) {
-        this.etterkontrollRepository = etterkontrollRepository;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.beregningsresultatRepository = behandlingRepositoryProvider.getBeregningsresultatRepository();
         this.feedRepository = feedRepository;
@@ -70,10 +64,6 @@ public class HendelsePublisererTjeneste {
         if (hendelseEksistererAllerede(vedtak, behandling.getFagsakYtelseType())) {
             log.debug("Skipper lagring av hendelse av vedtakId {} fordi den allerede eksisterer", vedtak.getId());
             return;
-        }
-
-        if (vedtak.getVedtakResultatType().equals(VedtakResultatType.AVSLAG) || vedtak.getVedtakResultatType().equals(VedtakResultatType.OPPHØR)){
-            etterkontrollRepository.avflaggDersomEksisterer(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
         }
 
         //Disse trigger ikke hendelser

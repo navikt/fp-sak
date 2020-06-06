@@ -8,12 +8,8 @@ import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.domene.vedtak.intern.AutomatiskFagsakAvslutningTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -23,8 +19,6 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
 public class AutomatiskFagsakAvslutningTjeneste {
-
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(AutomatiskFagsakAvslutningTjeneste.class);
 
     private ProsessTaskRepository prosessTaskRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -50,7 +44,6 @@ public class AutomatiskFagsakAvslutningTjeneste {
             List<ProsessTaskData> tasks = new ArrayList<>();
 
             String nyCallId = callId + fagsak.getId();
-            log.info("{} oppretter task med ny callId: {} ", getClass().getSimpleName(), nyCallId);
             tasks.add(opprettFagsakAvslutningTask(fagsak, nyCallId));
 
             if (!tasks.isEmpty()) {

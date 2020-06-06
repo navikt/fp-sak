@@ -29,17 +29,12 @@ public class BehandlingVedtakRepository {
     }
 
     @Inject
-    public BehandlingVedtakRepository(@VLPersistenceUnit EntityManager entityManager,
-                                          BehandlingRepository behandlingRepository) {
+    public BehandlingVedtakRepository(@VLPersistenceUnit EntityManager entityManager) {
         this.entityManager = entityManager;
-        this.behandlingRepository = behandlingRepository;
+        this.behandlingRepository = new BehandlingRepository(entityManager);
     }
 
-    public BehandlingVedtakRepository(EntityManager entityManager) {
-        this(entityManager, new BehandlingRepository(entityManager));
-    }
-
-    protected EntityManager getEntityManager() {
+    private EntityManager getEntityManager() {
         return entityManager;
     }
 

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 
@@ -55,7 +56,7 @@ public class DummyDatavarehustjeneste implements DatavarehusTjeneste {
     }
 
     @Override
-    public void lagreNedVedtak(BehandlingVedtak vedtak, Long behandlingId) {
+    public void lagreNedVedtak(BehandlingVedtak vedtak, Behandling behandling) {
 
     }
 

@@ -186,8 +186,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     }
 
     @Override
-    public void lagreNedVedtak(BehandlingVedtak vedtak, Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+    public void lagreNedVedtak(BehandlingVedtak vedtak, Behandling behandling) {
         BehandlingVedtakDvh behandlingVedtakDvh = new BehandlingVedtakDvhMapper().map(vedtak, behandling);
         datavarehusRepository.lagre(behandlingVedtakDvh);
 

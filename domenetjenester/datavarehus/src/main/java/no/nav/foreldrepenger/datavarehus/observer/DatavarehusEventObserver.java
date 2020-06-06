@@ -85,7 +85,7 @@ public class DatavarehusEventObserver {
     public void observerBehandlingVedtakEvent(@Observes BehandlingVedtakEvent event) {
         if (IverksettingStatus.IVERKSATT.equals(event.getVedtak().getIverksettingStatus())) {
             log.debug("Lagrer vedtak {} for behandling {} i DVH datavarehus", event.getVedtak().getId(), event.getBehandlingId());//NOSONAR
-            tjeneste.lagreNedVedtak(event.getVedtak(), event.getBehandlingId());
+            tjeneste.lagreNedVedtak(event.getVedtak(), event.getBehandling());
         }
     }
 

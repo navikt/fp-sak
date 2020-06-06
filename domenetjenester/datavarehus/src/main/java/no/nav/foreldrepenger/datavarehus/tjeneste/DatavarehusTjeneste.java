@@ -25,7 +25,7 @@ public interface DatavarehusTjeneste {
 
     void lagreNedBehandling(Behandling behandling);
 
-    void lagreNedVedtak(BehandlingVedtak vedtak, Long behandlingId);
+    void lagreNedVedtak(BehandlingVedtak vedtak, Behandling behandling);
 
     void opprettOgLagreVedtakXml(Long behandlingId);
 

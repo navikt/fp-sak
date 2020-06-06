@@ -51,9 +51,9 @@ public class EtterkontrollEventObserver {
      * @param etterkontrollTidTilbake - Tid etter innvilgelsesdato før en fagsak vurderes for etterkontroll
      */
     @Inject
-    public EtterkontrollEventObserver(EtterkontrollRepository etterkontrollRepository, 
-                                      FamilieHendelseRepository familieHendelseRepository, 
-                                      BehandlingRepository behandlingRepository, 
+    public EtterkontrollEventObserver(EtterkontrollRepository etterkontrollRepository,
+                                      FamilieHendelseRepository familieHendelseRepository,
+                                      BehandlingRepository behandlingRepository,
                                       @KonfigVerdi(value = "etterkontroll.tid.tilbake", defaultVerdi = "P60D") Period etterkontrollTidTilbake) {
         this.etterkontrollRepository = etterkontrollRepository;
         this.familieHendelseRepository = familieHendelseRepository;
@@ -70,16 +70,16 @@ public class EtterkontrollEventObserver {
     }
 
     public void observerBehandlingVedtakEvent(@Observes BehandlingVedtakEvent event) {
-        if (!IverksettingStatus.IVERKSATT.equals(event.getVedtak().getIverksettingStatus())) {
+        Behandling behandling = event.getBehandling();
+        if (!IverksettingStatus.IVERKSATT.equals(event.getVedtak().getIverksettingStatus()) || !behandling.erYtelseBehandling()) {
             return;
         }
-        log.debug("Markerer behandling {} for etterkontroll på bakgrunn av opprettet vedtak {} om ytelse knyttet til termin", event.getBehandlingId(), event.getVedtak().getId());//NOSONAR
-        Behandling behandling = behandlingRepository.hentBehandling(event.getBehandlingId());
 
+        log.debug("Markerer behandling {} for etterkontroll på bakgrunn av opprettet vedtak {} om ytelse knyttet til termin", event.getBehandlingId(), event.getVedtak().getId());//NOSONAR
         final Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         if (grunnlag.isPresent()) {
-            final FamilieHendelseType hendelseType = grunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
-
+            final FamilieHendelseType hendelseType = grunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+                .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
             if (Set.of(TERMIN, FØDSEL).contains(hendelseType)) {
                 markerForEtterkontroll(behandling, grunnlag.get());
             }
@@ -90,30 +90,30 @@ public class EtterkontrollEventObserver {
     }
 
     private void markerForEtterkontroll(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag) {
-        Optional<LocalDate> etterkontrollDato = skalEtterkontrolleresMedDato(behandling, grunnlag);
-        if (etterkontrollDato.isPresent()) {
+        skalEtterkontrolleresMedDato(behandling, grunnlag).ifPresent(ekDato -> {
+            var ekTid = ekDato.plus(etterkontrollTidTilbake).atStartOfDay();
             List<Etterkontroll> ekListe = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
             if (ekListe.isEmpty()) {
                 Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId())
                     .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                     .medErBehandlet(false)
-                    .medKontrollTidspunkt(etterkontrollDato.get().plus(etterkontrollTidTilbake).atStartOfDay())
+                    .medKontrollTidspunkt(ekTid)
                     .build();
                 etterkontrollRepository.lagre(etterkontroll);
             } else {
-                for (Etterkontroll ek : ekListe) {
-                    ek.setKontrollTidspunktt(etterkontrollDato.get().plus(etterkontrollTidTilbake).atStartOfDay());
+                ekListe.forEach(ek -> {
+                    ek.setKontrollTidspunktt(ekTid);
                     ek.setErBehandlet(false);
                     etterkontrollRepository.lagre(ek);
-                }
+                });
             }
-        }
+        });
     }
 
 
     private Optional<LocalDate> skalEtterkontrolleresMedDato(Behandling behandling, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         // Markerer for etterkontroll alle som mangler register-data, bekreftet. Etterkontroll-batch håndterer logikk for overstyring og ES vs FP
-        if (!behandling.erYtelseBehandling() || !Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.ENGANGSTØNAD).contains(behandling.getFagsak().getYtelseType())) {
+        if (!Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.ENGANGSTØNAD).contains(behandling.getFagsak().getYtelseType())) {
             return Optional.empty();
         }
         if (familieHendelseGrunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).map(FamilieHendelseType.FØDSEL::equals).orElse(false)) {

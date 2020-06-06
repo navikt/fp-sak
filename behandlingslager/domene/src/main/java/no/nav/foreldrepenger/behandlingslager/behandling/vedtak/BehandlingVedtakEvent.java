@@ -31,4 +31,8 @@ public class BehandlingVedtakEvent implements BehandlingEvent {
     public BehandlingVedtak getVedtak() {
         return vedtak;
     }
+
+    public Behandling getBehandling() {
+        return behandling;
+    }
 }
