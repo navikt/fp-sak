@@ -24,7 +24,7 @@ public class EtterkontrollRepository {
     private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
 
-    private EtterkontrollRepository() {
+    EtterkontrollRepository() {
         // for CDI proxy
     }
 

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -22,10 +22,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
-/**
- * @Dependent scope for å hente konfig ved hver kjøring.
- */
-@Dependent
+@ApplicationScoped
 @ProsessTask(AutomatiskGrunnbelopReguleringTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
