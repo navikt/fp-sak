@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.svp;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -36,26 +35,17 @@ class UttakResultatHolderImpl implements UttakResultatHolder {
 
     @Override
     public LocalDate getSisteDagAvSistePeriode() {
-        if (!uttakresultat.isPresent() || (!uttakresultat.get().finnSisteUttaksdato().isPresent() )) {
-            return LocalDate.MIN;
-        }
-        return uttakresultat.get().finnSisteUttaksdato().get();
+        return uttakresultat.flatMap(SvangerskapspengerUttakResultatEntitet::finnSisteUttaksdato).orElse(LocalDate.MIN);
     }
 
     @Override
     public LocalDate getFørsteDagAvFørstePeriode() {
-        if (!uttakresultat.isPresent() ) {
-            return LocalDate.MIN;
-        }
-        return uttakresultat.get().finnFørsteUttaksdato().get();
+        return uttakresultat.flatMap(SvangerskapspengerUttakResultatEntitet::finnFørsteUttaksdato).orElse(LocalDate.MAX);
     }
 
     @Override
     public Optional<BehandlingVedtak> getBehandlingVedtak() {
-        if (uttakresultat.isPresent()) {
-            return Optional.ofNullable(uttakresultat.get().getBehandlingsresultat().getBehandlingVedtak());
-        }
-        return Optional.empty();
+        return uttakresultat.map(svangerskapspengerUttakResultatEntitet -> svangerskapspengerUttakResultatEntitet.getBehandlingsresultat().getBehandlingVedtak());
     }
 
     @Override
@@ -103,100 +93,49 @@ class UttakResultatHolderImpl implements UttakResultatHolder {
             return true;
         }
 
-
         if (!uttakresultatSammenligneMed.getFørsteDagAvFørstePeriode().isEqual(this.getFørsteDagAvFørstePeriode()) ) {
             return true;
         }
-
 
         List<SvangerskapspengerUttakResultatArbeidsforholdEntitet>  listeMedArbeidsforhold_1 =uttakresultat.get().getUttaksResultatArbeidsforhold();
         SvangerskapspengerUttakResultatEntitet resultatSammenligne = (SvangerskapspengerUttakResultatEntitet) uttakresultatSammenligneMed.getUttakResultat();
         List<SvangerskapspengerUttakResultatArbeidsforholdEntitet>  listeMedArbeidsforhold_2 = resultatSammenligne.getUttaksResultatArbeidsforhold();
 
-        return !erUttaksResultatArbeidsforholdLike(listeMedArbeidsforhold_1,listeMedArbeidsforhold_2);
+        return !erLikresultat(listeMedArbeidsforhold_1,listeMedArbeidsforhold_2);
 
     }
 
-    private boolean erUttaksResultatArbeidsforholdLike(List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> listeMedArbeidsforhold1, List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> listeMedArbeidsforhold2) {
-        // Sjekk på Ny/fjernet
-        if (listeMedArbeidsforhold1.size() != listeMedArbeidsforhold2.size()) {
+    private boolean erLikresultat(List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> r1, List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> r2) {
+        if (r1.size() != r2.size())
             return false;
-        }
-        int antallPerioder = listeMedArbeidsforhold1.size();
-        for (int i = 0; i < antallPerioder; i++) {
-            SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakResultatArbeidsforhold1 = listeMedArbeidsforhold1.get(i);
-            SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakResultatArbeidsforhold2 = listeMedArbeidsforhold2.get(i);
-
-            if (!uttakResultatArbeidsforhold1.getArbeidsforholdIkkeOppfyltÅrsak().equals(uttakResultatArbeidsforhold2.getArbeidsforholdIkkeOppfyltÅrsak())) {
-                return false;
-            }
-
-            if (!Objects.equals(uttakResultatArbeidsforhold1.getArbeidsgiver(), uttakResultatArbeidsforhold2.getArbeidsgiver())) {
-                return false;
-            }
-
-            if (!Objects.equals(uttakResultatArbeidsforhold1.getArbeidsforholdRef(), uttakResultatArbeidsforhold2.getArbeidsforholdRef())) {
-                return false;
-            }
-
-            if (!erUttakresultatperiodeneLike(uttakResultatArbeidsforhold1.getPerioder(), uttakResultatArbeidsforhold2.getPerioder())) {
-                return false;
-            }
-        }
-        return true;
+        return r1.stream().allMatch(a1 -> r2.stream().anyMatch(a2 -> erLikArbeid(a1, a2)));
     }
 
-    private boolean erUttakresultatperiodeneLike(List<SvangerskapspengerUttakResultatPeriodeEntitet>  perioder1, List<SvangerskapspengerUttakResultatPeriodeEntitet>  perioder2) {
-
-        if (perioder1.size() != perioder2.size()) {
+    private boolean erLikArbeid(SvangerskapspengerUttakResultatArbeidsforholdEntitet a1, SvangerskapspengerUttakResultatArbeidsforholdEntitet a2) {
+        if (a1.getPerioder().size() != a2.getPerioder().size())
             return false;
-        }
-        int antallPerioder = perioder1.size();
-        for (int i = 0; i < antallPerioder; i++) {
-
-            SvangerskapspengerUttakResultatPeriodeEntitet periode1 = perioder1.get(i);
-            SvangerskapspengerUttakResultatPeriodeEntitet periode2 = perioder2.get(i);
-
-            if (periode1.getUtbetalingsgrad().compareTo(periode2.getUtbetalingsgrad())!=0) {
-                return false;
-            }
-
-            if (!periode1.getTidsperiode().equals(periode2.getTidsperiode())) {
-                return false;
-            }
-
-            if (!periode1.getFom().equals(periode2.getFom())) {
-                return false;
-            }
-            if (!periode1.getTom().equals(periode2.getTom())) {
-                return false;
-            }
-
-            if (!periode1.getPeriodeIkkeOppfyltÅrsak().equals(periode2.getPeriodeIkkeOppfyltÅrsak())) {
-                return false;
-            }
-
-            if (!periode1.getPeriodeResultatType().equals(periode2.getPeriodeResultatType())) {
-                return false;
-            }
-
-        }
-        return true;
+        var likeperioder = a1.getPerioder().stream().allMatch(p1 -> a2.getPerioder().stream().anyMatch(p2 -> erLikResPeriode(p1, p2)));
+        return Objects.equals(a1.getArbeidsforholdIkkeOppfyltÅrsak(), a2.getArbeidsforholdIkkeOppfyltÅrsak()) &&
+            Objects.equals(a1.getArbeidsgiver(), a2.getArbeidsgiver()) &&
+            Objects.equals(a1.getArbeidsforholdRef(), a2.getArbeidsforholdRef()) &&
+            likeperioder;
     }
+
+    private boolean erLikResPeriode(SvangerskapspengerUttakResultatPeriodeEntitet r1, SvangerskapspengerUttakResultatPeriodeEntitet r2) {
+        return Objects.equals(r1.getTidsperiode(), r2.getTidsperiode()) &&
+            Objects.equals(r1.getPeriodeIkkeOppfyltÅrsak(), r2.getPeriodeIkkeOppfyltÅrsak()) &&
+            Objects.equals(r1.getPeriodeResultatType(), r2.getPeriodeResultatType()) &&
+            (Objects.equals(r1.getUtbetalingsgrad(), r2.getUtbetalingsgrad()) || r1.getUtbetalingsgrad().compareTo(r2.getUtbetalingsgrad()) == 0);
+    }
+
 
     private List<SvangerskapspengerUttakResultatPeriodeEntitet> finnSisteUttaksperiodePrArbeidsforhold() {
-        if (uttakresultat.isPresent()) {
-            List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> arbeidsforholdListe = uttakresultat.get().getUttaksResultatArbeidsforhold();
-            List<SvangerskapspengerUttakResultatPeriodeEntitet> sistePerioder = new ArrayList<>();
-            for (SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold : arbeidsforholdListe) {
-                List<SvangerskapspengerUttakResultatPeriodeEntitet> perioder = arbeidsforhold.getPerioder();
-                if (perioder.size() > 0) {
-                    perioder.sort(Comparator.comparing(SvangerskapspengerUttakResultatPeriodeEntitet::getTom).reversed());
-                    sistePerioder.add(perioder.get(0));
-                }
-            }
-            return sistePerioder;
-        }
-        return Collections.emptyList();
+        List<SvangerskapspengerUttakResultatPeriodeEntitet> sistePerioder = new ArrayList<>();
+        uttakresultat.ifPresent(ur -> ur.getUttaksResultatArbeidsforhold()
+                .forEach(arbeidsforhold -> arbeidsforhold.getPerioder().stream()
+                    .max(Comparator.comparing(SvangerskapspengerUttakResultatPeriodeEntitet::getTom))
+                    .ifPresent(sistePerioder::add)));
+
+        return sistePerioder;
     }
 }

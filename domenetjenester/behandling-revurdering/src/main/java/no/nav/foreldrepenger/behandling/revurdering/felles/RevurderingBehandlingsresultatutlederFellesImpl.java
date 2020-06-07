@@ -113,10 +113,6 @@ public abstract class RevurderingBehandlingsresultatutlederFellesImpl implements
             return OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(revurdering);
         }
 
-        LocalDate endringsdato = finnEndringsdato(revurderingRef);
-
-
-
         Tuple<VilkårUtfallType, Avslagsårsak> utfall = medlemTjeneste.utledVilkårUtfall(revurdering);
         if (!utfall.getElement1().equals(VilkårUtfallType.OPPFYLT)) {
             Behandlingsresultat behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
@@ -129,6 +125,7 @@ public abstract class RevurderingBehandlingsresultatutlederFellesImpl implements
             return behandlingsresultatBuilder.buildFor(revurdering);
         }
 
+        LocalDate endringsdato = finnEndringsdato(revurderingRef);
         boolean erEndringIUttakFraEndringstidspunkt = erEndringIUttakFraEndringsdato.vurder(endringsdato, uttakresultatRevurderingOpt,
             uttakresultatOriginalOpt);
         if (erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak.vurder(uttakresultatRevurderingOpt, erEndringIUttakFraEndringstidspunkt)) {

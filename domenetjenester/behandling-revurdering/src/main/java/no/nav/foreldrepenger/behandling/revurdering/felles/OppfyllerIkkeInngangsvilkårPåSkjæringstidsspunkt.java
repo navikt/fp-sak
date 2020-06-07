@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.revurdering.felles;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -20,9 +19,9 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt {
 
     //TODO(OJR) burde kanskje innfører en egenskap som tilsier at MEDLEMSKAPSVILKÅRET_LØPENDE ikke er et inngangsvilkår?
     public static boolean vurder(Behandling revurdering) {
-        List<Vilkår> vilkårene = revurdering.getBehandlingsresultat().getVilkårResultat().getVilkårene()
-            .stream().filter(v -> !v.getVilkårType().equals(MEDLEMSKAPSVILKÅRET_LØPENDE)).collect(Collectors.toList());
-        return vilkårene.stream().anyMatch(v -> !VilkårUtfallType.OPPFYLT.equals(v.getGjeldendeVilkårUtfall()));
+        return revurdering.getBehandlingsresultat().getVilkårResultat().getVilkårene().stream()
+            .filter(v -> !MEDLEMSKAPSVILKÅRET_LØPENDE.equals(v.getVilkårType()))
+            .anyMatch(v -> !VilkårUtfallType.OPPFYLT.equals(v.getGjeldendeVilkårUtfall()));
     }
 
     public static Behandlingsresultat fastsett(Behandling revurdering) {
