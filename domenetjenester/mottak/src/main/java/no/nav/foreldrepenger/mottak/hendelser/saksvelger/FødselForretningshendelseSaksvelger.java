@@ -77,14 +77,8 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
     }
 
     private boolean fagsakErRelevantEngangsstønadsak(Fagsak fagsak) {
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            if (fagsak.erÅpen()) {
-                return true;
-            } else {
-                return behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId()).isPresent();
-            }
-        }
-        return false;
+        return FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()) &&
+            (fagsak.erÅpen() || behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId()).isPresent());
     }
 
     private boolean fagsakErRelevantSvangerskapspengersak(Fagsak fagsak, FødselForretningshendelse forretningshendelse) {

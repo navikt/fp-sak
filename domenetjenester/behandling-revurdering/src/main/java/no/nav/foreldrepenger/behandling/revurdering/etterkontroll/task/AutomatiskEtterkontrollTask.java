@@ -5,7 +5,7 @@ import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -32,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
@@ -43,10 +43,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-/**
- * @Dependent scope for å hente konfig ved hver kjøring.
- */
-@Dependent
+@ApplicationScoped
 @ProsessTask(AutomatiskEtterkontrollTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
@@ -102,11 +99,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 
         Behandling behandlingForRevurdering = behandlingRepository.hentBehandling(behandlingId);
 
-        List<Behandling> åpneBehandlinger = behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId);
-        if (åpneBehandlinger.stream().map(Behandling::getType).anyMatch(BehandlingType.REVURDERING::equals)) {
-            return;
-        }
-        if (åpneBehandlinger.stream().map(Behandling::getType).anyMatch(BehandlingType.FØRSTEGANGSSØKNAD::equals)) {
+        if (behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId)) {
             opprettTaskForÅVurdereKonsekvens(fagsakId, behandlingForRevurdering.getBehandlendeEnhet());
             return;
         }
@@ -125,18 +118,17 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
             int antallBarnTps = barnFødtIPeriode.size();
 
             Optional<BehandlingÅrsakType> utledetÅrsak = utledRevurderingsÅrsak(behandlingForRevurdering, familieHendelseGrunnlag, antallBarnTps);
-            if (!utledetÅrsak.isPresent()) {
+            if (utledetÅrsak.isEmpty()) {
                 return;
             }
             revurderingsÅrsak = utledetÅrsak.get();
-            if (BehandlingÅrsakType.RE_MANGLER_FØDSEL.equals(revurderingsÅrsak)) {
-                if (tpsFamilieTjeneste.harBrukerDnr(behandlingForRevurdering)) { // Disse har ikke registrert barn-relasjon i TPS - ikke send brev
-                    revurderingsÅrsak = BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE;
-                }
+            if (BehandlingÅrsakType.RE_MANGLER_FØDSEL.equals(revurderingsÅrsak) && tpsFamilieTjeneste.harBrukerDnr(behandlingForRevurdering)) {
+                // Disse har ikke registrert barn-relasjon i TPS - ikke send brev
+                revurderingsÅrsak = BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE;
             }
         }
 
-        Behandling opprettetRevurdering = opprettRevurdering(behandlingForRevurdering, revurderingTjeneste, revurderingsÅrsak);
+        Behandling opprettetRevurdering = opprettRevurdering(behandlingForRevurdering.getFagsak(), revurderingTjeneste, revurderingsÅrsak);
         if (opprettetRevurdering != null) {
             log.info("Etterkontroll har opprettet revurdering med id {} på fagsak med id = {} for behandling med id {}",opprettetRevurdering.getId(), fagsakId, behandlingForRevurdering.getId());
             etterkontrollTjeneste.utfør(behandlingForRevurdering, opprettetRevurdering);
@@ -204,13 +196,10 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         return grunnlag.getOverstyrtVersjon().filter(fh -> FamilieHendelseType.FØDSEL.equals(fh.getType())).map(FamilieHendelseEntitet::getAntallBarn).orElse(0);
     }
 
-    private Behandling opprettRevurdering(Behandling behandlingForRevurdering, RevurderingTjeneste revurderingTjeneste, BehandlingÅrsakType behandlingÅrsakType) {
-        Behandling revurdering;
-        OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandlingForRevurdering.getFagsak());
+    private Behandling opprettRevurdering(Fagsak fagsakForRevurdering, RevurderingTjeneste revurderingTjeneste, BehandlingÅrsakType behandlingÅrsakType) {
+        OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsakForRevurdering);
 
-        revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(behandlingForRevurdering.getFagsak(), behandlingÅrsakType, enhet);
-
-        return revurdering;
+        return revurderingTjeneste.opprettAutomatiskRevurdering(fagsakForRevurdering, behandlingÅrsakType, enhet);
     }
 
     private void opprettTaskForÅVurdereKonsekvens(Long fagsakId, String behandlendeEnhetsId) {

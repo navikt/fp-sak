@@ -118,7 +118,7 @@ public class KøKontroller {
     }
 
     public boolean skalSnikeIKø(Fagsak brukersFagsak, Behandling åpenBehandlingPåMedforelder) {
-        Optional<Behandling> innvilgetBehandling = behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(brukersFagsak);
+        Optional<Behandling> innvilgetBehandling = behandlingRevurderingRepository.finnSisteInnvilgetBehandlingForMedforelder(brukersFagsak);
         if (innvilgetBehandling.isEmpty() && medforelderHarÅpentApForTidligSøknad(åpenBehandlingPåMedforelder)
             && BehandlingType.FØRSTEGANGSSØKNAD.equals(åpenBehandlingPåMedforelder.getType())) {
 

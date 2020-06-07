@@ -136,7 +136,7 @@ public class DokumentRestTjeneste {
                 return new ArrayList<>();
             }
 
-            Set<Long> åpneBehandlinger = behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId).stream().map(Behandling::getId).collect(Collectors.toSet());
+            Set<Long> åpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream().map(Behandling::getId).collect(Collectors.toSet());
 
             Map<JournalpostId, List<Inntektsmelding>> inntektsMeldinger = inntektsmeldingTjeneste
                 .hentAlleInntektsmeldingerForAngitteBehandlinger(åpneBehandlinger).stream()
@@ -148,9 +148,8 @@ public class DokumentRestTjeneste {
 
             List<ArkivJournalPost> journalPostList = dokumentArkivTjeneste.hentAlleDokumenterForVisning(saksnummer);
             List<DokumentDto> dokumentResultat = new ArrayList<>();
-            journalPostList.forEach(arkivJournalPost -> {
-                dokumentResultat.addAll(mapFraArkivJournalPost(arkivJournalPost, mottatteIMDokument, inntektsMeldinger));
-            });
+            journalPostList.forEach(arkivJournalPost ->
+                dokumentResultat.addAll(mapFraArkivJournalPost(arkivJournalPost, mottatteIMDokument, inntektsMeldinger)));
             dokumentResultat.sort(Comparator.comparing(DokumentDto::getTidspunkt, Comparator.nullsFirst(Comparator.reverseOrder())));
 
             return dokumentResultat;

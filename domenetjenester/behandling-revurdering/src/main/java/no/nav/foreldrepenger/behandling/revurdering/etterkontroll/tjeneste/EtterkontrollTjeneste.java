@@ -46,9 +46,7 @@ public class EtterkontrollTjeneste {
     public EtterkontrollTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                  ProsessTaskRepository prosessTaskRepository,
                                  BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste
-    ) {
-
+                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.prosessTaskRepository = prosessTaskRepository;
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
@@ -59,30 +57,29 @@ public class EtterkontrollTjeneste {
 
     public void utfør(Behandling behandlingForRevurdering, Behandling opprettetRevurdering) {
 
-            Optional<Behandling> behandlingMedforelder = behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(behandlingForRevurdering.getFagsak());
+        Optional<Behandling> behandlingMedforelder = behandlingRevurderingRepository.finnSisteInnvilgetBehandlingForMedforelder(behandlingForRevurdering.getFagsak());
 
-            if (behandlingMedforelder.isPresent()) {
-                // TODO (PJV): Skal man revurdere medforelder dersom siste behandling har gitt AVSLAG eller OPPHØR??
-                // hvem av behandlingForRevurdering  og berørtBehandling  starter uttak  sist ? Den skal køes
-                log.info("Etterkontroll har funnet fagsak (id={}) på medforelder for fagsak med fagsakId={}", behandlingMedforelder.get().getFagsakId(), opprettetRevurdering.getFagsakId());
-                boolean berørtBehandlingStarterUttakSist = false;
-                Optional<LocalDate> førsteUttaksdato = finnFørsteUttaksdato(behandlingForRevurdering.getId());
-                Optional<LocalDate> førsteUttaksdatoMedforelder = finnFørsteUttaksdato(behandlingMedforelder.get().getId());
-                if ((førsteUttaksdatoMedforelder.isPresent() && førsteUttaksdato.isPresent() && førsteUttaksdatoMedforelder.get().isAfter(førsteUttaksdato.get()))
-                    || (førsteUttaksdatoMedforelder.isPresent() && førsteUttaksdato.isEmpty())) {
-                    berørtBehandlingStarterUttakSist = true;
-                }
-
-                if (berørtBehandlingStarterUttakSist) {
-                    opprettTaskForProsesserBehandling(opprettetRevurdering);
-                } else {
-                    enkøBehandling(opprettetRevurdering);
-                    revurderingHistorikk.opprettHistorikkinnslagForVenteFristRelaterteInnslag(opprettetRevurdering.getId(), opprettetRevurdering.getFagsakId(), HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
-                }
-            } else {
-                opprettTaskForProsesserBehandling(opprettetRevurdering);
+        if (behandlingMedforelder.isPresent()) {
+            // hvem av behandlingForRevurdering  og berørtBehandling  starter uttak  sist ? Den skal køes
+            log.info("Etterkontroll har funnet fagsak (id={}) på medforelder for fagsak med fagsakId={}", behandlingMedforelder.get().getFagsakId(), opprettetRevurdering.getFagsakId());
+            boolean berørtBehandlingStarterUttakSist = false;
+            Optional<LocalDate> førsteUttaksdato = finnFørsteUttaksdato(behandlingForRevurdering.getId());
+            Optional<LocalDate> førsteUttaksdatoMedforelder = finnFørsteUttaksdato(behandlingMedforelder.get().getId());
+            if ((førsteUttaksdatoMedforelder.isPresent() && førsteUttaksdato.isPresent() && førsteUttaksdatoMedforelder.get().isAfter(førsteUttaksdato.get()))
+                || (førsteUttaksdatoMedforelder.isPresent() && førsteUttaksdato.isEmpty())) {
+                berørtBehandlingStarterUttakSist = true;
             }
-          }
+
+            if (berørtBehandlingStarterUttakSist) {
+                opprettTaskForProsesserBehandling(opprettetRevurdering);
+            } else {
+                enkøBehandling(opprettetRevurdering);
+                revurderingHistorikk.opprettHistorikkinnslagForVenteFristRelaterteInnslag(opprettetRevurdering.getId(), opprettetRevurdering.getFagsakId(), HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+            }
+        } else {
+            opprettTaskForProsesserBehandling(opprettetRevurdering);
+        }
+    }
 
     private Optional<LocalDate> finnFørsteUttaksdato(Long behandling) {
         var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling);

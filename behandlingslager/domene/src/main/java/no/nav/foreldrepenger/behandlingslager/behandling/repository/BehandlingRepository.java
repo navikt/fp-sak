@@ -197,6 +197,11 @@ public class BehandlingRepository {
         return query.getResultList();
     }
 
+    public boolean harÅpenOrdinærYtelseBehandlingerForFagsakId(Long fagsakId) {
+        return hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream()
+            .anyMatch(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
+    }
+
     public List<Behandling> hentÅpneYtelseBehandlingerForFagsakId(Long fagsakId) {
         Objects.requireNonNull(fagsakId, FAGSAK_ID); //$NON-NLS-1$
 
@@ -293,7 +298,7 @@ public class BehandlingRepository {
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("avsluttetOgIverkKode", BehandlingStatus.getFerdigbehandletStatuser());
         query.setParameter("ekskluderteTyper", BehandlingType.getAndreBehandlingTyper());
-        query.setParameter("innvilgetKoder", BehandlingResultatType.getInnvilgetKoder());
+        query.setParameter("innvilgetKoder", BehandlingResultatType.getAlleInnvilgetKoder());
 
         return optionalFirst(query.getResultList());
     }

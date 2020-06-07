@@ -41,7 +41,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 @ProsessTask(OpprettInformasjonsFagsakTask.TASKTYPE)
@@ -141,7 +140,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
         return behandlingskontrollTjeneste.opprettNyBehandling(fagsak, behandlingType, (beh) -> {
             BehandlingÅrsak.builder(behandlingÅrsakType).buildFor(beh);
-            beh.setBehandlingstidFrist(FPDateUtil.iDag().plusWeeks(behandlingType.getBehandlingstidFristUker()));
+            beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()));
             beh.setBehandlendeEnhet(enhet);
         }); // NOSONAR
     }
@@ -156,8 +155,8 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     private List<Fagsak> hentBrukersRelevanteSaker(AktørId aktørId, LocalDate opprettetEtter, LocalDate familieHendelse) {
         return fagsakRepository.hentForBruker(aktørId).stream()
             .filter(sak -> FagsakYtelseType.FORELDREPENGER.equals(sak.getYtelseType()))
-            .filter(sak -> sak.getOpprettetTidspunkt().toLocalDate().isAfter(opprettetEtter))
-            .filter(Fagsak::erÅpen) // TODO: Bør man ha med denne???
+            .filter(sak -> sak.getOpprettetTidspunkt().toLocalDate().isAfter(opprettetEtter.minusDays(1)))
+            .filter(Fagsak::erÅpen)
             .filter(sak -> erRelevantFagsak(sak, familieHendelse))
             .collect(Collectors.toList());
     }
@@ -165,22 +164,19 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     private boolean erRelevantFagsak(Fagsak fagsak, LocalDate fhDato) {
         if (erUkoblet(fagsak)) {
             Optional<LocalDate> fagsakFhDato = finnSakensFHDato(fagsak);
-            return !fagsakFhDato.isPresent() || erSammeFH(fhDato, fagsakFhDato.get());
+            return fagsakFhDato.isEmpty() || erSammeFH(fhDato, fagsakFhDato.get());
         }
         return false;
     }
 
     private boolean erUkoblet(Fagsak fagsak) {
         Optional<FagsakRelasjon> relasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
-        return !relasjon.isPresent() || (relasjon.get().getFagsakNrEn().equals(fagsak) && !relasjon.get().getFagsakNrTo().isPresent());
+        return relasjon.isEmpty() || (relasjon.get().getFagsakNrEn().equals(fagsak) && relasjon.get().getFagsakNrTo().isEmpty());
     }
 
     private Optional<LocalDate> finnSakensFHDato(Fagsak fagsak) {
-        Optional<Behandling> siste = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
-        if (!siste.isPresent()) {
-            return Optional.empty();
-        }
-        return familieHendelseRepository.hentAggregatHvisEksisterer(siste.get().getId()).map(FamilieHendelseGrunnlagEntitet::finnGjeldendeFødselsdato);
+        Optional<Behandling> siste = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
+        return siste.flatMap(behandling -> familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId()).map(FamilieHendelseGrunnlagEntitet::finnGjeldendeFødselsdato));
     }
 
     private boolean erSammeFH(LocalDate fhDato, LocalDate fagsakFhDato) {
