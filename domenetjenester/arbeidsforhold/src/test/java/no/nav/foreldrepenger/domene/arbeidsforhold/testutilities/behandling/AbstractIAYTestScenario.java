@@ -60,7 +60,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -138,7 +137,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         FagsakRepository mockFagsakRepository = mockFagsakRepository();
         PersonopplysningRepository mockPersonopplysningRepository = lagMockPersonopplysningRepository();
         SøknadRepository søknadRepository = mockSøknadRepository();
-        VirksomhetRepository virksomhetRepository = InntektArbeidYtelseScenario.mockVirksomhetRepository();
         MottatteDokumentRepository mottatteDokumentRepository = mockMottatteDokumentRepository();
         OpptjeningRepository opptjeningRepository = Mockito.mock(OpptjeningRepository.class);
         FamilieHendelseRepository familieHendelseRepository = mockFamilieHendelseGrunnlagRepository();
@@ -151,7 +149,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         when(repositoryProvider.getFagsakRepository()).thenReturn(mockFagsakRepository);
         when(repositoryProvider.getPersonopplysningRepository()).thenReturn(mockPersonopplysningRepository);
         when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
-        when(repositoryProvider.getVirksomhetRepository()).thenReturn(virksomhetRepository);
         when(repositoryProvider.getMottatteDokumentRepository()).thenReturn(mottatteDokumentRepository);
         when(repositoryProvider.getOpptjeningRepository()).thenReturn(opptjeningRepository);
         when(repositoryProvider.getFamilieGrunnlagRepository()).thenReturn(familieHendelseRepository);

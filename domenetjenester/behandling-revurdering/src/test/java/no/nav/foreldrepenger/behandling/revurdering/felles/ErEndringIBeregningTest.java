@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.felles;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -36,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
@@ -94,8 +92,6 @@ public class ErEndringIBeregningTest {
             iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         revurdering = revurderingTjeneste
             .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(), BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
-        VirksomhetEntitet virksomhet = new VirksomhetEntitet.Builder().medOrgnr(KUNSTIG_ORG).medNavn("Virksomheten").oppdatertOpplysningerNå().build();
-        repositoryProvider.getVirksomhetRepository().lagre(virksomhet);
         LocalDate endringsdato = LocalDate.now().minusMonths(3);
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
     }

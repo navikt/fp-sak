@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -33,8 +32,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
@@ -79,7 +78,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
     private MedlemskapRepository medlemskapRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private InntektArbeidYtelseTjeneste iayTjeneste;
-    private VirksomhetRepository virksomhetRepository;
+    private VirksomhetTjeneste virksomhetTjeneste;
     private PersonopplysningXmlFelles personopplysningFellesTjeneste;
 
 
@@ -92,7 +91,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
                                               FamilieHendelseRepository familieHendelseRepository,
                                               VergeRepository vergeRepository,
                                               MedlemskapRepository medlemskapRepository,
-                                              VirksomhetRepository virksomhetRepository,
+                                              VirksomhetTjeneste virksomhetTjeneste,
                                               PersonopplysningTjeneste personopplysningTjeneste,
                                               InntektArbeidYtelseTjeneste iayTjeneste,
                                               YtelseFordelingTjeneste ytelseFordelingTjeneste) {
@@ -103,7 +102,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         this.vergeRepository = vergeRepository;
         this.medlemskapRepository = medlemskapRepository;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.virksomhetRepository = virksomhetRepository;
+        this.virksomhetTjeneste = virksomhetTjeneste;
     }
 
     @Override
@@ -173,8 +172,8 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
     private YtelseStorrelse konverterFraDomene(YtelseStørrelse domene) {
         YtelseStorrelse kontrakt = personopplysningDvhObjectFactory.createYtelseStorrelse();
-        var virk = domene.getOrgnr().flatMap(orgnr -> virksomhetRepository.hent(orgnr));
-        virk.ifPresent(virksomhet -> kontrakt.setVirksomhet(tilVirksomhet(virksomhet)));
+        domene.getOrgnr().flatMap(virksomhetTjeneste::finnOrganisasjon)
+            .ifPresent(virksomhet -> kontrakt.setVirksomhet(tilVirksomhet(virksomhet)));
         kontrakt.setBeloep(VedtakXmlUtil.lagDecimalOpplysning(domene.getBeløp().getVerdi()));
         kontrakt.setHyppighet(VedtakXmlUtil.lagKodeverksOpplysning(domene.getHyppighet()));
         return kontrakt;
@@ -189,10 +188,8 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
     private void setYtelsesgrunnlag(RelatertYtelse relatertYtelseKontrakt, Optional<YtelseGrunnlag> ytelseGrunnlagDomene) {
         Optional<no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.YtelseGrunnlag> ytelseGrunnlagOptional = ytelseGrunnlagDomene
-            .map(yg -> konverterFraDomene(yg));
-        ytelseGrunnlagOptional.ifPresent(ytelseGrunnlag -> {
-            relatertYtelseKontrakt.setYtelsesgrunnlag(ytelseGrunnlag);
-        });
+            .map(this::konverterFraDomene);
+        ytelseGrunnlagOptional.ifPresent(relatertYtelseKontrakt::setYtelsesgrunnlag);
     }
 
     private no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.YtelseGrunnlag konverterFraDomene(YtelseGrunnlag domene) {
@@ -211,7 +208,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
     private void setYtelseAnvist(RelatertYtelse relatertYtelseKontrakt, Collection<YtelseAnvist> ytelseAnvistDomene) {
         List<no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.YtelseAnvist> alleYtelserAnvist = ytelseAnvistDomene.stream()
-            .map(ytelseAnvist -> konverterFraDomene(ytelseAnvist)).collect(Collectors.toList());
+            .map(this::konverterFraDomene).collect(Collectors.toList());
         relatertYtelseKontrakt.getYtelseanvist().addAll(alleYtelserAnvist);
     }
 
@@ -243,10 +240,8 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         AnnenForelder annenForelder = personopplysningDvhObjectFactory.createAnnenForelder();
         Optional<OppgittAnnenPartEntitet> oppgittAnnenPart = aggregat.getOppgittAnnenPart();
         if (oppgittAnnenPart.isPresent()) {
-            AktørId aktørId = oppgittAnnenPart.get().getAktørId();
-            if (!Objects.isNull(aktørId)) {
-                annenForelder.setAktoerId(VedtakXmlUtil.lagStringOpplysning(aktørId.getId()));
-            }
+            oppgittAnnenPart.map(OppgittAnnenPartEntitet::getAktørId)
+                .ifPresent(a -> annenForelder.setAktoerId(VedtakXmlUtil.lagStringOpplysning(a.getId())));
 
             annenForelder.setNavn(VedtakXmlUtil.lagStringOpplysning(oppgittAnnenPart.get().getNavn()));
             if (oppgittAnnenPart.get().getUtenlandskPersonident() != null && !oppgittAnnenPart.get().getUtenlandskPersonident().isEmpty()) {
@@ -303,7 +298,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
     private List<? extends DokumentasjonPeriode> lagDokumentasjonPerioder(List<? extends no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet<?>> perioder) {
         List<DokumentasjonPeriode> result = new ArrayList<>();
-        perioder.stream().forEach(periode -> {
+        perioder.forEach(periode -> {
             DokumentasjonPeriode dokumentasjonPeriode = personopplysningDvhObjectFactory.createDokumentasjonPeriode();
             dokumentasjonPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(periode.getDokumentasjonType()));
             dokumentasjonPeriode.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periode.getPeriode().getFomDato(), periode.getPeriode().getTomDato()));
@@ -426,7 +421,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
     private void setAdresse(PersonopplysningerDvhForeldrepenger personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
         final PersonopplysningEntitet personopplysning = personopplysningerAggregat.getSøker();
-        personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId()).stream()
+        personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId())
             .forEach(adresse -> personopplysninger.getAdresse().add(lagAdresse(adresse)));
     }
 

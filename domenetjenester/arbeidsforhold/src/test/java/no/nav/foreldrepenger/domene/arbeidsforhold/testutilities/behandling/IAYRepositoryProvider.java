@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
@@ -31,7 +30,6 @@ public class IAYRepositoryProvider {
     private FamilieHendelseRepository familieHendelseRepository;
     private SøknadRepository søknadRepository;
     private LegacyESBeregningRepository beregningRepository;
-    private VirksomhetRepository virksomhetRepository;
     private OpptjeningRepository opptjeningRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private BehandlingRepository behandlingRepository;
@@ -54,9 +52,6 @@ public class IAYRepositoryProvider {
         this.opptjeningRepository = new OpptjeningRepository(entityManager, this.behandlingRepository);
         this.personopplysningRepository = new PersonopplysningRepository(entityManager);
         this.søknadRepository = new SøknadRepository(entityManager, this.behandlingRepository);
-
-        // inntekt arbeid ytelser
-        this.virksomhetRepository = new VirksomhetRepository();
 
         // behandling resultat aggregater
         this.beregningRepository = new LegacyESBeregningRepository(entityManager, getBehandlingRepository());
@@ -90,10 +85,6 @@ public class IAYRepositoryProvider {
 
     public SøknadRepository getSøknadRepository() {
         return søknadRepository;
-    }
-
-    public VirksomhetRepository getVirksomhetRepository() {
-        return virksomhetRepository;
     }
 
     protected EntityManager getEntityManager() {

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.testutilities.behandling;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
-import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,7 +9,6 @@ import java.util.Optional;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
@@ -30,10 +28,6 @@ import no.nav.vedtak.util.FPDateUtil;
 public class InntektArbeidYtelseScenario {
 
     private InntektArbeidYtelseScenarioTestBuilder inntektArbeidYtelseScenarioTestBuilder;
-
-    static VirksomhetRepository mockVirksomhetRepository() {
-        return mock(VirksomhetRepository.class);
-    }
 
     public InntektArbeidYtelseAggregatBuilder medDefaultInntektArbeidYtelse() {
         inntektArbeidYtelseScenarioTestBuilder = getInntektArbeidYtelseScenarioTestBuilder();

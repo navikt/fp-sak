@@ -22,8 +22,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +52,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -74,11 +72,6 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.GraderingDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OppholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OverføringsperiodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtsettelseDto;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.Organisasjon;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.OrganisasjonsDetaljer;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.UstrukturertNavn;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.meldinger.HentOrganisasjonResponse;
-import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonConsumer;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Rettigheter;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Dekningsgrad;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Fordeling;
@@ -100,16 +93,14 @@ public class SøknadMapperTest {
     }
 
     private static final AktørId STD_KVINNE_AKTØR_ID = AktørId.dummy();
-    private static final String virksomhetsNummer = KUNSTIG_ORG;
-    private final OrganisasjonConsumer organisasjonConsumer = mock(OrganisasjonConsumer.class);
+    private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
+
     @Rule
     public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
     private InntektArbeidYtelseTjeneste iayTjeneste = Mockito.mock(InntektArbeidYtelseTjeneste.class);
-    private VirksomhetRepository virksomhetRepository = new VirksomhetRepository();
     private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
     private TpsTjeneste tpsTjeneste;
-    private VirksomhetTjeneste virksomhetTjeneste;
     private DatavarehusTjeneste datavarehusTjeneste = mock(DatavarehusTjeneste.class);
     private SvangerskapspengerRepository svangerskapspengerRepository = new SvangerskapspengerRepository(repositoryRule.getEntityManager());
 
@@ -129,26 +120,12 @@ public class SøknadMapperTest {
             .medFødselsdato(LocalDate.now().minusYears(20));
         final Optional<Personinfo> build = Optional.ofNullable(builder.build());
         when(tpsTjeneste.hentBrukerForAktør(any(AktørId.class))).thenReturn(build);
-        when(organisasjonConsumer.hentOrganisasjon(any())).thenReturn(opprettVirksomhetResponse());
         when(iayTjeneste.hentGrunnlag(any(Long.class))).thenReturn(Mockito.mock(InntektArbeidYtelseGrunnlag.class));
-        virksomhetTjeneste = new VirksomhetTjeneste(organisasjonConsumer, virksomhetRepository);
+        when(virksomhetTjeneste.finnOrganisasjon(any()))
+            .thenReturn(Optional.of(Virksomhet.getBuilder().medOrgnr(KUNSTIG_ORG).medNavn("Ukjent Firma").medRegistrert(LocalDate.now().minusYears(1)).medRegistrert(LocalDate.now().minusYears(1)).build()));
+        when(virksomhetTjeneste.hentOgLagreOrganisasjon(any()))
+            .thenReturn(Virksomhet.getBuilder().medOrgnr(KUNSTIG_ORG).medNavn("Ukjent Firma").medRegistrert(LocalDate.now().minusYears(1)).medRegistrert(LocalDate.now().minusYears(1)).build());
         ytelseSøknadMapper = new YtelseSøknadMapper(tpsTjeneste, virksomhetTjeneste);
-    }
-
-    private HentOrganisasjonResponse opprettVirksomhetResponse() throws Exception {
-        final HentOrganisasjonResponse hentOrganisasjonResponse = new HentOrganisasjonResponse();
-        final Organisasjon value = new Organisasjon();
-        final UstrukturertNavn navn = new UstrukturertNavn();
-        navn.getNavnelinje().add("Color Line");
-        value.setNavn(navn);
-        value.setOrgnummer(virksomhetsNummer);
-        final OrganisasjonsDetaljer detaljer = new OrganisasjonsDetaljer();
-        GregorianCalendar c = new GregorianCalendar();
-        c.setTime(new Date());
-        detaljer.setRegistreringsDato(DATATYPE_FACTORY.newXMLGregorianCalendar(c));
-        value.setOrganisasjonDetaljer(detaljer);
-        hentOrganisasjonResponse.setOrganisasjon(value);
-        return hentOrganisasjonResponse;
     }
 
     @Test

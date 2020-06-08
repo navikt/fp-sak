@@ -68,7 +68,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
@@ -168,12 +167,10 @@ public class RegisterdataEndringshåndtererImplTest {
             .thenReturn(EndringsresultatDiff.opprettForSporingsendringer());
         when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(true);
 
-        Virksomhet virksomhet = new VirksomhetEntitet.Builder()
+        Virksomhet virksomhet = new Virksomhet.Builder()
             .medOrgnr(KUNSTIG_ORG)
             .medNavn("Arbeidsplassen AS")
-            .oppdatertOpplysningerNå()
             .build();
-        em.persist(virksomhet);
 
         when(abakusTjeneste.innhentRegisterdata(any())).thenReturn(new UuidDto(UUID.randomUUID()));
         when(virksomhetTjeneste.hentOgLagreOrganisasjon(any())).thenReturn(virksomhet);

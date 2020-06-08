@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
@@ -25,8 +25,8 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Sammenligningsgrun
 public class BeregningsgrunnlagDiffSjekkerTest {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-    private static final Arbeidsgiver ARBEIDSGIVER1 = Arbeidsgiver.fra(new VirksomhetEntitet.Builder().medOrgnr("238201321").build());
-    private static final Arbeidsgiver ARBEIDSGIVER2 = Arbeidsgiver.fra(new VirksomhetEntitet.Builder().medOrgnr("490830958").build());
+    private static final Arbeidsgiver ARBEIDSGIVER1 = Arbeidsgiver.fra(new Virksomhet.Builder().medOrgnr("238201321").build());
+    private static final Arbeidsgiver ARBEIDSGIVER2 = Arbeidsgiver.fra(new Virksomhet.Builder().medOrgnr("490830958").build());
 
     @Test
     public void skalReturnereTrueOmUlikeAktivitetstatuser() {

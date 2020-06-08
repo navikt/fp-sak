@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.ArbeidsforholdKilde;
@@ -50,7 +50,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministra
 import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjenesteImpl;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
@@ -102,19 +101,17 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
 
     @Before
     public void setUp() {
-        VirksomhetEntitet virksomhet1 = lagVirksomhet();
-        VirksomhetEntitet virksomhet2 = lagAndreVirksomheten();
-
-        var virksomhetRepository = repositoryProvider.getVirksomhetRepository();
-        virksomhetRepository.lagre(virksomhet1);
-        virksomhetRepository.lagre(virksomhet2);
+        Virksomhet virksomhet1 = lagVirksomhet();
+        Virksomhet virksomhet2 = lagAndreVirksomheten();
 
         arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet1.getOrgnr());
 
         PersonIdentTjeneste tpsTjeneste = mock(PersonIdentTjeneste.class);
         final PersonIdent t = new PersonIdent("12345678901");
         when(tpsTjeneste.hentFnrForAktør(Mockito.any(AktørId.class))).thenReturn(t);
-        var virksomhetTjeneste = new VirksomhetTjeneste(null, virksomhetRepository);
+        var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
+        when(virksomhetTjeneste.hentOgLagreOrganisasjon(virksomhet1.getOrgnr())).thenReturn(virksomhet1);
+        when(virksomhetTjeneste.hentOgLagreOrganisasjon(virksomhet2.getOrgnr())).thenReturn(virksomhet2);
 
         VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste = mock(VurderArbeidsforholdTjeneste.class);
 
@@ -125,7 +122,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         arbeidsgiverSetMap.put(arbeidsgiver, arbeidsforholdRefSet);
         when(vurderArbeidsforholdTjeneste.vurder(any(), any(), any(), Mockito.anyBoolean())).thenReturn(arbeidsgiverSetMap);
 
-        ArbeidsgiverTjeneste arbeidsgiverTjeneste = new ArbeidsgiverTjenesteImpl(tpsTjeneste, virksomhetTjeneste);
+        ArbeidsgiverTjeneste arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(tpsTjeneste, virksomhetTjeneste);
         arbeidsforholdTjeneste = new ArbeidsforholdAdministrasjonTjeneste(vurderArbeidsforholdTjeneste,
             arbeidsgiverTjeneste, inntektsmeldingTjeneste, iayTjeneste);
     }
@@ -564,23 +561,21 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         return builder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
     }
 
-    private VirksomhetEntitet lagVirksomhet() {
-        return new VirksomhetEntitet.Builder()
+    private Virksomhet lagVirksomhet() {
+        return new Virksomhet.Builder()
         .medOrgnr(ORG1)
         .medNavn("Virksomheten")
         .medRegistrert(I_DAG.minusYears(2L))
         .medOppstart(I_DAG.minusYears(1L))
-        .oppdatertOpplysningerNå()
         .build();
     }
 
-    private VirksomhetEntitet lagAndreVirksomheten() {
-        return new VirksomhetEntitet.Builder()
+    private Virksomhet lagAndreVirksomheten() {
+        return new Virksomhet.Builder()
         .medOrgnr(ORG2)
         .medNavn("OrgA")
         .medRegistrert(I_DAG.minusYears(2L))
         .medOppstart(I_DAG.minusYears(1L))
-        .oppdatertOpplysningerNå()
         .build();
     }
 

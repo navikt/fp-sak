@@ -82,7 +82,7 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
         andelDomene.getArbeidsgiver().map(Arbeidsgiver::getOrgnr).ifPresent(orgNr -> {
             kontrakt.setOrgnr(VedtakXmlUtil.lagStringOpplysning(orgNr));
             if (!OrgNummer.erKunstig(orgNr)) {
-                var virksomhet = virksomhetTjeneste.hentVirksomhet(orgNr);
+                var virksomhet = virksomhetTjeneste.finnOrganisasjon(orgNr);
                 kontrakt.setNavn(VedtakXmlUtil.lagStringOpplysning(virksomhet.orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + orgNr)).getNavn()));
             } else {
                 kontrakt.setNavn(VedtakXmlUtil.lagStringOpplysning("Kunstig virksomhet"));

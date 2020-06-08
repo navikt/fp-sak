@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -209,8 +208,8 @@ public class DokumentRestTjeneste {
                 .map((Inntektsmelding inn) -> {
                     var t = inn.getArbeidsgiver();
                     if (t.getErVirksomhet()) {
-                        Optional<Virksomhet> virksomhet = virksomhetTjeneste.hentVirksomhet(t.getOrgnr());
-                        return virksomhet.orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + t.getOrgnr())).getNavn();
+                        return virksomhetTjeneste.finnOrganisasjon(t.getOrgnr())
+                            .orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + t.getOrgnr())).getNavn();
                     } else {
                         return "Privatperson";
                     }

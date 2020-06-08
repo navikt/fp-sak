@@ -63,22 +63,19 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -98,6 +95,7 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
@@ -187,8 +185,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     @Inject
     private MedlemskapRepository medlemskapRepository;
 
-    @Inject
-    private VirksomhetRepository virksomhetRepository;
+    private VirksomhetTjeneste virksomhetTjeneste;
 
     @Inject
     private KodeverkRepository kodeverkRepository;
@@ -200,14 +197,14 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
-
+        virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste, kodeverkRepository);
 
         DvhPersonopplysningXmlTjenesteImpl dvhPersonopplysningXmlTjenesteImpl = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
             familieHendelseRepository,
             vergeRepository,
             medlemskapRepository,
-            virksomhetRepository,
+            virksomhetTjeneste,
             personopplysningTjeneste,
             iayTjeneste,
             ytelseFordelingTjeneste);
@@ -270,8 +267,6 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
         scenario.medFordeling(opprettOppgittFordeling());
         opprettPeriodeAleneomsorg(scenario);
-
-        opprettVirksomhet(selvstendigNæringsdrivendeOrgnr);
 
         Behandling behandling = lagre(scenario);
         Behandlingsresultat behandlingsresultat = opprettBehandlingsresultatMedVilkårResultatForBehandling(behandling);
@@ -408,19 +403,6 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
-    }
-
-    private Virksomhet opprettVirksomhet(String orgnr) {
-        Optional<Virksomhet> optional = repositoryProvider.getVirksomhetRepository().hent(orgnr);
-        if (optional.isPresent()) {
-            return optional.get();
-        }
-        Virksomhet virksomhet = new VirksomhetEntitet.Builder()
-            .medOrgnr(orgnr)
-            .oppdatertOpplysningerNå()
-            .build();
-        repositoryProvider.getVirksomhetRepository().lagre(virksomhet);
-        return virksomhet;
     }
 
     private OppgittFordelingEntitet opprettOppgittFordeling() {
