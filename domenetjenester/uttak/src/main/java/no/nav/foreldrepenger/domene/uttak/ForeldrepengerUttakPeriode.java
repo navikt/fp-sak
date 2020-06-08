@@ -37,7 +37,7 @@ public class ForeldrepengerUttakPeriode {
 
     }
 
-    public boolean erLik(ForeldrepengerUttakPeriode periode) {
+    public boolean erLikBortsettFraTrekkdager(ForeldrepengerUttakPeriode periode) {
         return Objects.equals(periode.getTidsperiode(), getTidsperiode())
             && Objects.equals(periode.getResultatType(), getResultatType())
             && Objects.equals(periode.getResultatÅrsak(), getResultatÅrsak())
@@ -46,7 +46,7 @@ public class ForeldrepengerUttakPeriode {
             && Objects.equals(periode.isFlerbarnsdager(), isFlerbarnsdager())
             && Objects.equals(periode.getUtsettelseType(), getUtsettelseType())
             && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak())
-            && aktiviteterErLike(periode.getAktiviteter());
+            && aktiviteterErLikeBortsettFraTrekkdager(periode.getAktiviteter());
     }
 
     public LocalDateInterval getTidsperiode() {
@@ -85,16 +85,16 @@ public class ForeldrepengerUttakPeriode {
         return oppholdÅrsak == null ? OppholdÅrsak.UDEFINERT : oppholdÅrsak;
     }
 
-    private boolean aktiviteterErLike(List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
+    private boolean aktiviteterErLikeBortsettFraTrekkdager(List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
         for (ForeldrepengerUttakPeriodeAktivitet aktivitet : aktiviteter) {
-            if (!harLikAktivitet(aktivitet)) {
+            if (!harLikAktivitetBortsettFraTrekkdager(aktivitet)) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean harLikAktivitet(ForeldrepengerUttakPeriodeAktivitet aktivitet1) {
+    private boolean harLikAktivitetBortsettFraTrekkdager(ForeldrepengerUttakPeriodeAktivitet aktivitet1) {
         for (ForeldrepengerUttakPeriodeAktivitet aktivitet2 : getAktiviteter()) {
             if (aktivitet1.likBortsettFraTrekkdager(aktivitet2)) {
                 return true;
