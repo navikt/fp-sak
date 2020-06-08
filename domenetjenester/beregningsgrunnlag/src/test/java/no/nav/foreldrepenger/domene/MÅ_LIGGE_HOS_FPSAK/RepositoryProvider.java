@@ -8,7 +8,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
@@ -18,13 +17,11 @@ import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
  */
 public class RepositoryProvider {
 
-    private final VirksomhetRepository virksomhetRepository;
     private EntityManager entityManager;
 
     public RepositoryProvider(@VLPersistenceUnit EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
-        this.virksomhetRepository = new VirksomhetRepository();
     }
 
     public BehandlingRepository getBehandlingRepository() {
@@ -46,10 +43,6 @@ public class RepositoryProvider {
 
     public BeregningsgrunnlagRepository getBeregningsgrunnlagRepository() {
         return new BeregningsgrunnlagRepository(entityManager);
-    }
-
-    public VirksomhetRepository getVirksomhetRepository() {
-        return virksomhetRepository;
     }
 
 }

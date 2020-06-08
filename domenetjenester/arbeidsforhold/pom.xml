@@ -56,10 +56,6 @@
 		</dependency>
 		<dependency>
 			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-			<artifactId>organisasjon-klient</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
 			<artifactId>aktoer-klient</artifactId>
 		</dependency>
 		<dependency>

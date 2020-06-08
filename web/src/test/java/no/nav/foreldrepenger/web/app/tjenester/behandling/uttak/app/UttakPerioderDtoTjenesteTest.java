@@ -24,17 +24,17 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
@@ -61,7 +61,7 @@ public class UttakPerioderDtoTjenesteTest {
     @Before
     public void setUp() {
         arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
-        when(arbeidsgiverTjeneste.hentVirksomhet(orgnr)).thenReturn(new VirksomhetEntitet.Builder().medOrgnr(orgnr).medNavn("navn").build());
+        when(arbeidsgiverTjeneste.hentVirksomhet(orgnr)).thenReturn(new Virksomhet.Builder().medOrgnr(orgnr).medNavn("navn").build());
         inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
     }
@@ -174,7 +174,7 @@ public class UttakPerioderDtoTjenesteTest {
         UttakResultatPeriodeEntitet periode2 = periodeBuilder(periode2Fom, periode2Tom).build();
 
         String nyOrgnr = "123";
-        when(arbeidsgiverTjeneste.hentVirksomhet(nyOrgnr)).thenReturn(new VirksomhetEntitet.Builder().medOrgnr(nyOrgnr).build());
+        when(arbeidsgiverTjeneste.hentVirksomhet(nyOrgnr)).thenReturn(new Virksomhet.Builder().medOrgnr(nyOrgnr).build());
 
         periode1.leggTilAktivitet(periodeAktivitet(periode1, orgnr));
         periode1.leggTilAktivitet(periodeAktivitet(periode1, nyOrgnr));

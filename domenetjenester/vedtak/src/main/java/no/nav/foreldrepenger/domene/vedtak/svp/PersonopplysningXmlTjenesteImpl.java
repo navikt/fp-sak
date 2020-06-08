@@ -27,8 +27,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelse;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.vedtak.xml.PersonopplysningXmlFelles;
 import no.nav.foreldrepenger.domene.vedtak.xml.PersonopplysningXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlUtil;
@@ -68,7 +69,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     private MedlemskapRepository medlemskapRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private InntektArbeidYtelseTjeneste iayTjeneste;
-    private VirksomhetRepository virksomhetRepository;
+    private VirksomhetTjeneste virksomhetTjeneste;
     private PersonopplysningXmlFelles personopplysningFellesTjeneste;
     private VergeRepository vergeRepository;
 
@@ -78,17 +79,17 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     @Inject
     public PersonopplysningXmlTjenesteImpl(PersonopplysningXmlFelles fellesTjeneste,
-                                                         BehandlingRepositoryProvider provider,
-                                                         KodeverkRepository kodeverkRepository,
-                                                         PersonopplysningTjeneste personopplysningTjeneste,
-                                                         InntektArbeidYtelseTjeneste iayTjeneste,
-                                                         YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                                         VergeRepository vergeRepository,
-                                                         VirksomhetRepository virksomhetRepository) {
+                                           BehandlingRepositoryProvider provider,
+                                           KodeverkRepository kodeverkRepository,
+                                           PersonopplysningTjeneste personopplysningTjeneste,
+                                           InntektArbeidYtelseTjeneste iayTjeneste,
+                                           YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                           VergeRepository vergeRepository,
+                                           VirksomhetTjeneste virksomhetTjeneste) {
         super(personopplysningTjeneste, kodeverkRepository);
         this.personopplysningFellesTjeneste = fellesTjeneste;
         this.iayTjeneste = iayTjeneste;
-        this.virksomhetRepository = virksomhetRepository;
+        this.virksomhetTjeneste = virksomhetTjeneste;
         this.familieHendelseRepository = provider.getFamilieHendelseRepository();
         this.medlemskapRepository = provider.getMedlemskapRepository();
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
@@ -163,8 +164,8 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private YtelseStorrelse konverterFraDomene(YtelseStørrelse domene) {
         YtelseStorrelse kontrakt = personopplysningObjectFactory.createYtelseStorrelse();
-        var virk = domene.getOrgnr().flatMap(orgnr -> virksomhetRepository.hent(orgnr));
-        virk.ifPresent(virksomhet -> kontrakt.setVirksomhet(tilVirksomhet(virksomhet)));
+        domene.getOrgnr().flatMap(virksomhetTjeneste::finnOrganisasjon)
+            .ifPresent(virksomhet -> kontrakt.setVirksomhet(tilVirksomhet(virksomhet)));
         kontrakt.setBeloep(VedtakXmlUtil.lagDecimalOpplysning(domene.getBeløp().getVerdi()));
         kontrakt.setHyppighet(VedtakXmlUtil.lagKodeverksOpplysning(domene.getHyppighet()));
         return kontrakt;
@@ -179,10 +180,8 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private void setYtelsesgrunnlag(RelatertYtelse relatertYtelseKontrakt, Optional<YtelseGrunnlag> ytelseGrunnlagDomene) {
         Optional<no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.YtelseGrunnlag> ytelseGrunnlagOptional = ytelseGrunnlagDomene
-            .map(yg -> konverterFraDomene(yg));
-        ytelseGrunnlagOptional.ifPresent(ytelseGrunnlag -> {
-            relatertYtelseKontrakt.setYtelsesgrunnlag(ytelseGrunnlag);
-        });
+            .map(this::konverterFraDomene);
+        ytelseGrunnlagOptional.ifPresent(relatertYtelseKontrakt::setYtelsesgrunnlag);
     }
 
     private no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.YtelseGrunnlag konverterFraDomene(YtelseGrunnlag domene) {
@@ -193,16 +192,15 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
         domene.getGraderingProsent()
             .ifPresent(graderingsProsent -> kontrakt.setGraderingprosent(VedtakXmlUtil.lagDecimalOpplysning(graderingsProsent.getVerdi())));
-        if (domene.getInntektsgrunnlagProsent().isPresent() && domene.getInntektsgrunnlagProsent().get().getVerdi() != null) {
-            kontrakt.setInntektsgrunnlagprosent(VedtakXmlUtil.lagDecimalOpplysning(domene.getInntektsgrunnlagProsent().get().getVerdi()));
-        }
+        domene.getInntektsgrunnlagProsent().map(Stillingsprosent::getVerdi)
+            .ifPresent(v -> kontrakt.setInntektsgrunnlagprosent(VedtakXmlUtil.lagDecimalOpplysning(v)));
 
         return kontrakt;
     }
 
     private void setYtelseAnvist(RelatertYtelse relatertYtelseKontrakt, Collection<YtelseAnvist> ytelseAnvistDomene) {
         List<no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.YtelseAnvist> alleYtelserAnvist = ytelseAnvistDomene.stream()
-            .map(ytelseAnvist -> konverterFraDomene(ytelseAnvist)).collect(Collectors.toList());
+            .map(this::konverterFraDomene).collect(Collectors.toList());
         relatertYtelseKontrakt.getYtelseanvist().addAll(alleYtelserAnvist);
     }
 
@@ -242,7 +240,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private List<? extends DokumentasjonPeriode> lagDokumentasjonPerioder(List<? extends no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet<?>> perioder) {
         List<DokumentasjonPeriode> result = new ArrayList<>();
-        perioder.stream().forEach(periode -> {
+        perioder.forEach(periode -> {
             DokumentasjonPeriode dokumentasjonPeriode = personopplysningObjectFactory.createDokumentasjonPeriode();
             dokumentasjonPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(periode.getDokumentasjonType()));
             dokumentasjonPeriode.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periode.getPeriode().getFomDato(), periode.getPeriode().getTomDato()));
@@ -327,7 +325,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         if (Arrays.asList(FamilieHendelseType.FØDSEL, FamilieHendelseType.TERMIN).contains(gjeldendeFamiliehendelse.getType())) {
             Foedsel fødsel = personopplysningBaseObjectFactory.createFoedsel();
             fødsel.setAntallBarn(VedtakXmlUtil.lagIntOpplysning(gjeldendeFamiliehendelse.getAntallBarn()));
-            gjeldendeFamiliehendelse.getFødselsdato().ifPresent(fDato -> VedtakXmlUtil.lagDateOpplysning(fDato).ifPresent(fødsel::setFoedselsdato));
+            gjeldendeFamiliehendelse.getFødselsdato().flatMap(VedtakXmlUtil::lagDateOpplysning).ifPresent(fødsel::setFoedselsdato);
             familieHendelse.setFoedsel(fødsel);
         }
     }
@@ -364,9 +362,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
                 }
                 else {
                     Optional<AktørId> aktørId = vergeAggregat.getAktørId();
-                    if (aktørId.isPresent()) {
-                        verge.setNavn(VedtakXmlUtil.lagStringOpplysning(personopplysningFellesTjeneste.hentVergeNavn(aktørId.get())));
-                    }
+                    aktørId.ifPresent(id -> verge.setNavn(VedtakXmlUtil.lagStringOpplysning(personopplysningFellesTjeneste.hentVergeNavn(id))));
                 }
                 verge.setVergetype(VedtakXmlUtil.lagKodeverksOpplysning(vergeFraBehandling.getVergeType()));
                 verge.setGyldighetsperiode(VedtakXmlUtil.lagPeriodeOpplysning(vergeFraBehandling.getGyldigFom(), vergeFraBehandling.getGyldigTom()));

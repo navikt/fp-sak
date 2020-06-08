@@ -2,10 +2,10 @@ package no.nav.foreldrepenger.domene.arbeidsgiver.rest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,12 +13,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class Organisasjon {
+public class OrganisasjonEReg {
 
     @JsonProperty("organisasjonsnummer")
     private String organisasjonsnummer;
     @JsonProperty("type")
-    private String type;
+    private OrganisasjonstypeEReg type;
     @JsonProperty("navn")
     private Navn navn;
     @JsonProperty("organisasjonDetaljer")
@@ -26,24 +26,14 @@ public class Organisasjon {
     @JsonProperty("virksomhetDetaljer")
     private VirksomhetDetaljer virksomhetDetaljer;
 
-    @JsonCreator
-    public Organisasjon(@JsonProperty("organisasjonsnummer") String organisasjonsnummer,
-                          @JsonProperty("type") String type,
-                          @JsonProperty("navn") Navn navn,
-                          @JsonProperty("organisasjonDetaljer") OrganisasjonDetaljer organisasjonDetaljer,
-                          @JsonProperty("virksomhetDetaljer") VirksomhetDetaljer virksomhetDetaljer) {
-        this.organisasjonsnummer = organisasjonsnummer;
-        this.type = type;
-        this.navn = navn;
-        this.organisasjonDetaljer = organisasjonDetaljer;
-        this.virksomhetDetaljer = virksomhetDetaljer;
+    private OrganisasjonEReg() {
     }
 
     public String getOrganisasjonsnummer() {
         return organisasjonsnummer;
     }
 
-    public String getType() {
+    public OrganisasjonstypeEReg getType() {
         return type;
     }
 
@@ -53,6 +43,10 @@ public class Organisasjon {
 
     public LocalDate getRegistreringsdato() {
         return organisasjonDetaljer != null ? organisasjonDetaljer.getRegistreringsdato().toLocalDate() : null;
+    }
+
+    public LocalDate getOpphørsdato() {
+        return organisasjonDetaljer != null ? organisasjonDetaljer.getOpphoersdato() : null;
     }
 
     public LocalDate getOppstartsdato() {
@@ -74,7 +68,7 @@ public class Organisasjon {
             '}';
     }
 
-    static class Navn {
+    private static class Navn {
 
         @JsonProperty("navnelinje1")
         private String navnelinje1;
@@ -87,10 +81,14 @@ public class Organisasjon {
         @JsonProperty("navnelinje5")
         private String navnelinje5;
 
-        public String getNavn() {
+        private Navn() {
+        }
+
+        private String getNavn() {
             return Stream.of(navnelinje1, navnelinje2, navnelinje3, navnelinje4, navnelinje5)
-                .filter(n -> n != null && !n.isEmpty())
+                .filter(Objects::nonNull)
                 .map(String::trim)
+                .filter(n -> !n.isEmpty())
                 .reduce("", (a, b) -> a + " " + b).trim();
         }
 
@@ -102,18 +100,22 @@ public class Organisasjon {
         }
     }
 
-    static class OrganisasjonDetaljer {
+    private static class OrganisasjonDetaljer {
 
         @JsonProperty("registreringsdato")
         private LocalDateTime registreringsdato;
+        @JsonProperty("opphoersdato")
+        private LocalDate opphoersdato;
 
-        @JsonCreator
-        public OrganisasjonDetaljer(@JsonProperty("registreringsdato") LocalDateTime registreringsdato) {
-            this.registreringsdato = registreringsdato;
+        private OrganisasjonDetaljer() {
         }
 
-        public LocalDateTime getRegistreringsdato() {
+        private LocalDateTime getRegistreringsdato() {
             return registreringsdato;
+        }
+
+        private LocalDate getOpphoersdato() {
+            return opphoersdato;
         }
 
         @Override
@@ -124,25 +126,21 @@ public class Organisasjon {
         }
     }
 
-    static class VirksomhetDetaljer {
+    private static class VirksomhetDetaljer {
 
         @JsonProperty("oppstartsdato")
         private LocalDate oppstartsdato;
         @JsonProperty("nedleggelsesdato")
         private LocalDate nedleggelsesdato;
 
-        @JsonCreator
-        public VirksomhetDetaljer(@JsonProperty("oppstartsdato") LocalDate oppstartsdato,
-                                  @JsonProperty("nedleggelsesdato") LocalDate nedleggelsesdato) {
-            this.oppstartsdato = oppstartsdato;
-            this.nedleggelsesdato = nedleggelsesdato;
+        private VirksomhetDetaljer() {
         }
 
-        public LocalDate getOppstartsdato() {
+        private LocalDate getOppstartsdato() {
             return oppstartsdato;
         }
 
-        public LocalDate getNedleggelsesdato() {
+        private LocalDate getNedleggelsesdato() {
             return nedleggelsesdato;
         }
 

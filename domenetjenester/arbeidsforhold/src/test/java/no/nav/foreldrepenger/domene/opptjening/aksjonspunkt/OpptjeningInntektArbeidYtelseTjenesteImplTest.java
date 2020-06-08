@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 import static no.nav.foreldrepenger.domene.arbeidsforhold.YtelseTestHelper.leggTilYtelse;
 import static no.nav.foreldrepenger.domene.arbeidsforhold.YtelseTestHelper.opprettInntektArbeidYtelseAggregatForYrkesaktivitet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -34,8 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
@@ -72,7 +72,7 @@ public class OpptjeningInntektArbeidYtelseTjenesteImplTest {
     private FagsakRepository fagsakRepository = new FagsakRepository(repoRule.getEntityManager());
     private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private OpptjeningRepository opptjeningRepository = repositoryProvider.getOpptjeningRepository();
-    private VirksomhetTjeneste virksomhetTjeneste = new VirksomhetTjeneste(null, repositoryProvider.getVirksomhetRepository());
+    private VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
     private AksjonspunktutlederForVurderOppgittOpptjening apoOpptjening = new AksjonspunktutlederForVurderOppgittOpptjening(opptjeningRepository, iayTjeneste, virksomhetTjeneste);
     private AksjonspunktutlederForVurderBekreftetOpptjening apbOpptjening = new AksjonspunktutlederForVurderBekreftetOpptjening(opptjeningRepository, iayTjeneste);
     private OpptjeningsperioderTjeneste asdf = new OpptjeningsperioderTjeneste(iayTjeneste, repositoryProvider.getOpptjeningRepository(),
@@ -88,16 +88,13 @@ public class OpptjeningInntektArbeidYtelseTjenesteImplTest {
 
         DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt.minusMonths(2));
 
-        Virksomhet virksomhet = new VirksomhetEntitet.Builder()
+        Virksomhet virksomhet = new Virksomhet.Builder()
             .medOrgnr(NAV_ORG_NUMMER)
             .medNavn("Virksomheten")
             .medRegistrert(LocalDate.now())
             .medOppstart(LocalDate.now())
-            .oppdatertOpplysningerNå()
             .build();
-
-        VirksomhetRepository virksomhetRepository = repositoryProvider.getVirksomhetRepository();
-        virksomhetRepository.lagre(virksomhet);
+        when(virksomhetTjeneste.finnOrganisasjon(NAV_ORG_NUMMER)).thenReturn(Optional.of(virksomhet));
 
         OppgittOpptjeningBuilder oppgitt = OppgittOpptjeningBuilder.ny();
         oppgitt.leggTilEgneNæringer(Collections.singletonList(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()

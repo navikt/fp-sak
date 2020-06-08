@@ -18,7 +18,7 @@ public class EregRestTest {
             " \"virksomhetDetaljer\":null\n" +
             "}";
 
-        var org = JsonMapper.fromJson(json, Organisasjon.class);
+        var org = JsonMapper.fromJson(json, OrganisasjonEReg.class);
         var navn = org.getNavn();
         var orgnr = org.getOrganisasjonsnummer();
     }

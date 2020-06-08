@@ -1,60 +1,45 @@
 package no.nav.foreldrepenger.domene.arbeidsgiver;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetAlleredeLagretException;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
-import no.nav.foreldrepenger.domene.arbeidsgiver.rest.EregOrganisasjonRestKlient;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.binding.HentOrganisasjonOrganisasjonIkkeFunnet;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.binding.HentOrganisasjonUgyldigInput;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.JuridiskEnhet;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.Organisasjon;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.UstrukturertNavn;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.meldinger.HentOrganisasjonResponse;
-import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
-import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonConsumer;
-import no.nav.vedtak.felles.integrasjon.organisasjon.hent.HentOrganisasjonRequest;
-import no.nav.vedtak.util.env.Cluster;
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.domene.arbeidsgiver.rest.OrganisasjonRestKlient;
+import no.nav.foreldrepenger.domene.arbeidsgiver.rest.OrganisasjonstypeEReg;
+import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
 public class VirksomhetTjeneste {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VirksomhetTjeneste.class);
-    private static final String TJENESTE = "Organisasjon";
-    private OrganisasjonConsumer organisasjonConsumer;
-    private EregOrganisasjonRestKlient eregRestKlient;
-    private VirksomhetRepository virksomhetRepository;
-    private boolean isProd = Cluster.PROD_FSS.equals(Environment.current().getCluster());
+
+    private static final long CACHE_ELEMENT_LIVE_TIME_MS = TimeUnit.MILLISECONDS.convert(24, TimeUnit.HOURS);
+
+    private static final Virksomhet KUNSTIG_VIRKSOMHET = new Virksomhet.Builder()
+        .medNavn("Kunstig virksomhet")
+        .medOrganisasjonstype(Organisasjonstype.KUNSTIG)
+        .medOrgnr(OrgNummer.KUNSTIG_ORG)
+        .medRegistrert(LocalDate.of(1978, 01, 01))
+        .medOppstart(LocalDate.of(1978, 01, 01))
+        .build();
+
+    private LRUCache<String, Virksomhet> cache = new LRUCache<>(2000, CACHE_ELEMENT_LIVE_TIME_MS);
+
+    private OrganisasjonRestKlient eregRestKlient;
 
     public VirksomhetTjeneste() {
         // CDI
     }
 
     @Inject
-    public VirksomhetTjeneste(OrganisasjonConsumer organisasjonConsumer,
-                              EregOrganisasjonRestKlient eregRestKlient,
-                                  VirksomhetRepository virksomhetRepository) {
-        this.organisasjonConsumer = organisasjonConsumer;
-        this.virksomhetRepository = virksomhetRepository;
+    public VirksomhetTjeneste(OrganisasjonRestKlient eregRestKlient) {
         this.eregRestKlient = eregRestKlient;
-    }
-
-    public VirksomhetTjeneste(OrganisasjonConsumer organisasjonConsumer,
-                              VirksomhetRepository virksomhetRepository) {
-        this.organisasjonConsumer = organisasjonConsumer;
-        this.virksomhetRepository = virksomhetRepository;
     }
 
     /**
@@ -65,113 +50,54 @@ public class VirksomhetTjeneste {
      * @throws IllegalArgumentException ved forespørsel om orgnr som ikke finnes i enhetsreg
      */
     public Virksomhet hentOgLagreOrganisasjon(String orgNummer) {
-        final Optional<Virksomhet> virksomhetOptional = virksomhetRepository.hent(orgNummer);
-        if (virksomhetOptional.isEmpty() || virksomhetOptional.get().skalRehentes()) {
-            HentOrganisasjonResponse response = hentOrganisasjon(orgNummer);
-            final Virksomhet virksomhet = mapOrganisasjonResponseToOrganisasjon(response.getOrganisasjon(), virksomhetOptional);
-            if (isProd)
-                sammenlignLoggRest(orgNummer, (VirksomhetEntitet)virksomhet);
-            return lagreVirksomhet(virksomhetOptional, virksomhet);
+        final Optional<Virksomhet> virksomhetOptional = hent(orgNummer);
+        if (virksomhetOptional.isEmpty()) {
+            final Virksomhet virksomhet = hentOrganisasjonRest(orgNummer);
+            lagre(virksomhet);
+            return virksomhet;
         }
         return virksomhetOptional.orElseThrow(() -> new IllegalArgumentException("Fant ikke virksomhet for orgNummer=" + orgNummer));
-    }
-
-    public Optional<Virksomhet> hentVirksomhet(String orgNummer) {
-        if (orgNummer == null)
-            return Optional.empty();
-        if(OrgNummer.erKunstig(orgNummer)) {
-            return virksomhetRepository.hent(orgNummer);
-        }
-        // forsøker å hente/lagre uansett om orgnummer er gyldig eller ikke.
-        return OrganisasjonsNummerValidator.erGyldig(orgNummer) ? Optional.of(hentOgLagreOrganisasjon(orgNummer)) : Optional.empty();
     }
 
     public Optional<Virksomhet> finnOrganisasjon(String orgNummer) {
         if (orgNummer == null)
             return Optional.empty();
         if(OrgNummer.erKunstig(orgNummer)) {
-            return virksomhetRepository.hent(orgNummer);
+            return hent(orgNummer);
         }
-        // etter endring til abakus må vi uansett forsøke å hente på nytt
         return OrganisasjonsNummerValidator.erGyldig(orgNummer) ? Optional.of(hentOgLagreOrganisasjon(orgNummer)) : Optional.empty();
     }
 
-    private Virksomhet lagreVirksomhet(Optional<Virksomhet> virksomhetOptional, Virksomhet virksomhet) {
-        try {
-            virksomhetRepository.lagre(virksomhet);
-            return virksomhet;
-        } catch (VirksomhetAlleredeLagretException exception) {
-            return virksomhetOptional.orElseThrow(IllegalStateException::new);
-        }
-    }
-
-    private HentOrganisasjonResponse hentOrganisasjon(String orgNummer) {
+    private Virksomhet hentOrganisasjonRest(String orgNummer) {
         Objects.requireNonNull(orgNummer, "orgNummer"); // NOSONAR
-        HentOrganisasjonRequest request = new HentOrganisasjonRequest(orgNummer);
-        try {
-            return organisasjonConsumer.hentOrganisasjon(request);
-        } catch (HentOrganisasjonOrganisasjonIkkeFunnet e) {
-            throw OrganisasjonTjenesteFeil.FACTORY.organisasjonIkkeFunnet(orgNummer, e).toException();
-        } catch (HentOrganisasjonUgyldigInput e) {
-            throw OrganisasjonTjenesteFeil.FACTORY.ugyldigInput(TJENESTE, orgNummer, e).toException();
-        }
-    }
-
-    private Virksomhet mapOrganisasjonResponseToOrganisasjon(Organisasjon responsOrganisasjon, Optional<Virksomhet> virksomhetOptional) {
-        var builder = getBuilder(virksomhetOptional)
-            .medNavn(((UstrukturertNavn) responsOrganisasjon.getNavn()).getNavnelinje().stream().filter(it -> !it.isEmpty())
-                .reduce("", (a, b) -> a + " " + b).trim())
-            .medRegistrert(DateUtil.convertToLocalDate(responsOrganisasjon.getOrganisasjonDetaljer().getRegistreringsDato()));
-        if (!virksomhetOptional.isPresent()) {
-            builder.medOrgnr(responsOrganisasjon.getOrgnummer());
-        }
-
-        if (responsOrganisasjon instanceof no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.Virksomhet) {
-            no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.Virksomhet virksomhet = (no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.Virksomhet) responsOrganisasjon;
-
-            if (virksomhet.getVirksomhetDetaljer().getOppstartsdato() != null) {
-                builder.medOppstart(DateUtil.convertToLocalDate(virksomhet.getVirksomhetDetaljer().getOppstartsdato()));
-            }
-            if (virksomhet.getVirksomhetDetaljer().getNedleggelsesdato() != null) {
-                builder.medAvsluttet(DateUtil.convertToLocalDate(virksomhet.getVirksomhetDetaljer().getNedleggelsesdato()));
-            }
-            builder.medOrganisasjonstype(Organisasjonstype.VIRKSOMHET);
-        } else if (responsOrganisasjon instanceof JuridiskEnhet) {
+        var org = eregRestKlient.hentOrganisasjon(orgNummer);
+        var builder = Virksomhet.getBuilder()
+            .medNavn(org.getNavn())
+            .medRegistrert(org.getRegistreringsdato())
+            .medOrgnr(org.getOrganisasjonsnummer());
+        if (OrganisasjonstypeEReg.VIRKSOMHET.equals(org.getType())) {
+            builder.medOrganisasjonstype(Organisasjonstype.VIRKSOMHET)
+                .medOppstart(org.getOppstartsdato())
+                .medAvsluttet(org.getNedleggelsesdato());
+        } else if (OrganisasjonstypeEReg.JURIDISK_ENHET.equals(org.getType())) {
             builder.medOrganisasjonstype(Organisasjonstype.JURIDISK_ENHET);
-        } else {
-            // OrgLedd
-            //
+        } else if (OrganisasjonstypeEReg.ORGLEDD.equals(org.getType())) {
+            builder.medOrganisasjonstype(Organisasjonstype.ORGLEDD);
         }
-        return builder.oppdatertOpplysningerNå().build();
+        return builder.build();
     }
 
-    private void sammenlignLoggRest(String orgNummer, VirksomhetEntitet virksomhet) {
-        try {
-            var org = eregRestKlient.hentOrganisasjon(orgNummer);
-            var builder = getBuilder(Optional.empty())
-                .medNavn(org.getNavn())
-                .medRegistrert(org.getRegistreringsdato())
-                .medOrgnr(org.getOrganisasjonsnummer());
-            if ("Virksomhet".equalsIgnoreCase(org.getType())) {
-                builder.medOrganisasjonstype(Organisasjonstype.VIRKSOMHET)
-                    .medOppstart(org.getOppstartsdato())
-                    .medAvsluttet(org.getNedleggelsesdato());
-            } else if ("JuridiskEnhet".equalsIgnoreCase(org.getType())) {
-                builder.medOrganisasjonstype(Organisasjonstype.JURIDISK_ENHET);
-            }
-            var rest = builder.build();
-            if (virksomhet.erLik(rest)) {
-                LOGGER.info("FPSAK EREG REST likt svar");
-            } else {
-                LOGGER.info("FPSAK EREG REST avvik WS {} RS {}", virksomhet.tilString(), rest.tilString());
-            }
-        } catch (Exception e) {
-            LOGGER.info("FPSAK EREG REST noe gikk feil", e);
+    private Optional<Virksomhet> hent(String orgnr) {
+        if (Objects.equals(KUNSTIG_VIRKSOMHET.getOrgnr(), orgnr)) {
+            return Optional.of(KUNSTIG_VIRKSOMHET);
         }
+        return Optional.ofNullable(cache.get(orgnr));
     }
 
-    private VirksomhetEntitet.Builder getBuilder(Optional<Virksomhet> virksomhetOptional) {
-        return virksomhetOptional.map(VirksomhetEntitet.Builder::new).orElseGet(VirksomhetEntitet.Builder::new);
+    private void lagre(Virksomhet virksomhet) {
+        cache.put(virksomhet.getOrgnr(), virksomhet);
     }
+
+
 
 }

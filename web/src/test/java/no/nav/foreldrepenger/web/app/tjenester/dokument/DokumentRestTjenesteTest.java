@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuil
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavPersoninfoBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -125,12 +125,12 @@ public class DokumentRestTjenesteTest {
         when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId)).thenReturn(List.of(mdim, mds));
 
         String vnavn = "Sinsen Septik og Snarmat";
-        VirksomhetEntitet sinsen = new VirksomhetEntitet.Builder().medNavn(vnavn).medOrgnr(ORGNR).build();
+        Virksomhet sinsen = new Virksomhet.Builder().medNavn(vnavn).medOrgnr(ORGNR).build();
         Inntektsmelding imelda = InntektsmeldingBuilder.builder().medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR)).medJournalpostId(mdim.getJournalpostId()).medInnsendingstidspunkt(LocalDateTime.now()).build();
 
         when(inntektsmeldingTjeneste.hentAlleInntektsmeldingerForAngitteBehandlinger(any())).thenReturn(Collections.singletonList(imelda));
 
-        when(virksomhetTjeneste.hentVirksomhet(any())).thenReturn(Optional.of(sinsen));
+        when(virksomhetTjeneste.finnOrganisasjon(any())).thenReturn(Optional.of(sinsen));
 
         final Collection<DokumentDto> response = tjeneste.hentAlleDokumenterForSak(new SaksnummerDto("123456"));
         assertThat(response).hasSize(3);
