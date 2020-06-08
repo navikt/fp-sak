@@ -45,7 +45,7 @@ public abstract class RevurderingBehandlingsresultatutlederFellesImpl implements
     private OpphørUttakTjeneste opphørUttakTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private ErEndringIUttakFraEndringsdato erEndringIUttakFraEndringsdato;
+    private ErEndringIUttak erEndringIUttak;
     private ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
@@ -57,7 +57,7 @@ public abstract class RevurderingBehandlingsresultatutlederFellesImpl implements
                                                            HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                                            MedlemTjeneste medlemTjeneste,
                                                            OpphørUttakTjeneste opphørUttakTjeneste,
-                                                           ErEndringIUttakFraEndringsdato erEndringIUttakFraEndringsdato,
+                                                           ErEndringIUttak erEndringIUttak,
                                                            ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
                                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
 
@@ -68,7 +68,7 @@ public abstract class RevurderingBehandlingsresultatutlederFellesImpl implements
         this.opphørUttakTjeneste = opphørUttakTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
-        this.erEndringIUttakFraEndringsdato = erEndringIUttakFraEndringsdato;
+        this.erEndringIUttak = erEndringIUttak;
         this.erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak = erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
@@ -125,9 +125,7 @@ public abstract class RevurderingBehandlingsresultatutlederFellesImpl implements
             return behandlingsresultatBuilder.buildFor(revurdering);
         }
 
-        LocalDate endringsdato = finnEndringsdato(revurderingRef);
-        boolean erEndringIUttakFraEndringstidspunkt = erEndringIUttakFraEndringsdato.vurder(endringsdato, uttakresultatRevurderingOpt,
-            uttakresultatOriginalOpt);
+        boolean erEndringIUttakFraEndringstidspunkt = erEndringIUttak.vurder(uttakresultatRevurderingOpt, uttakresultatOriginalOpt);
         if (erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak.vurder(uttakresultatRevurderingOpt, erEndringIUttakFraEndringstidspunkt)) {
             return erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak.fastsett(revurdering);
         }
@@ -148,8 +146,6 @@ public abstract class RevurderingBehandlingsresultatutlederFellesImpl implements
     }
 
     protected abstract HarEtablertYtelse harEtablertYtelse();
-
-    protected abstract LocalDate finnEndringsdato(BehandlingReferanse revurderingRef);
 
     private Optional<Behandlingsresultat> finnBehandlingsresultatPåOriginalBehandling(Behandling originalBehandling) {
         Optional<Behandlingsresultat> behandlingsresultatOriginal = behandlingsresultatRepository.hentHvisEksisterer(originalBehandling.getId());

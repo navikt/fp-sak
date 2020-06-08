@@ -80,7 +80,7 @@ class UttakResultatHolderImpl implements UttakResultatHolder {
     }
 
     @Override
-    public boolean vurderOmErEndringIUttakFraEndringsdato(LocalDate endringsdato, UttakResultatHolder uttakresultatSammenligneMed){
+    public boolean vurderOmErEndringIUttak(UttakResultatHolder uttakresultatSammenligneMed){
 
         if(uttakresultatSammenligneMed.eksistererUttakResultat() != this.eksistererUttakResultat() ){
             return true;

@@ -1,17 +1,13 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.svp;
 
-import java.time.LocalDate;
-
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIUttakFraEndringsdato;
+import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIUttak;
 import no.nav.foreldrepenger.behandling.revurdering.felles.ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak;
 import no.nav.foreldrepenger.behandling.revurdering.felles.HarEtablertYtelse;
 import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFellesImpl;
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -28,30 +24,25 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 public class RevurderingBehandlingsresultatutleder extends RevurderingBehandlingsresultatutlederFellesImpl {
 
     private SvangerskapspengerUttakResultatRepository uttakRepository;
-    private EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder;
-    private UttakInputTjeneste uttakInputTjeneste;
 
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
-                                                    HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                                    @FagsakYtelseTypeRef("SVP") EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder,
-                                                    OpphørUttakTjeneste opphørUttakTjeneste,
-                                                    UttakInputTjeneste uttakInputTjeneste,
-                                                    @FagsakYtelseTypeRef("SVP") ErEndringIUttakFraEndringsdato erEndringIUttakFraEndringsdato,
-                                                    @FagsakYtelseTypeRef("SVP") ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
-                                                    @FagsakYtelseTypeRef("SVP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                                    MedlemTjeneste medlemTjeneste) {
+                                                 HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+                                                 @FagsakYtelseTypeRef("SVP") EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder,
+                                                 OpphørUttakTjeneste opphørUttakTjeneste,
+                                                 @FagsakYtelseTypeRef("SVP") ErEndringIUttak erEndringIUttak,
+                                                 @FagsakYtelseTypeRef("SVP") ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
+                                                 @FagsakYtelseTypeRef("SVP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                 MedlemTjeneste medlemTjeneste) {
         super(repositoryProvider,
             beregningsgrunnlagTjeneste,
             medlemTjeneste,
             opphørUttakTjeneste,
-            erEndringIUttakFraEndringsdato,
+            erEndringIUttak,
             erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
             skjæringstidspunktTjeneste
         );
-        this.uttakInputTjeneste = uttakInputTjeneste;
         this.uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
-        this.endringsdatoRevurderingUtleder = endringsdatoRevurderingUtleder;
     }
 
     @Override
@@ -62,10 +53,5 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
     @Override
     protected HarEtablertYtelse harEtablertYtelse() {
         return new HarEtablertYtelseImpl();
-    }
-
-    @Override
-    protected LocalDate finnEndringsdato(BehandlingReferanse ref) {
-        return endringsdatoRevurderingUtleder.utledEndringsdato(uttakInputTjeneste.lagInput(ref.getBehandlingId()));
     }
 }

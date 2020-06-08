@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
-import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIUttakFraEndringsdato;
+import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIUttak;
 import no.nav.foreldrepenger.behandling.revurdering.felles.ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagAndelTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagBeregningsgrunnlagTjeneste;
@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.behandling.revurdering.felles.LagEnAndelTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagToAndelerMotsattRekkefølgeTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagToAndelerTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagUttakResultatPlanTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
@@ -124,9 +123,8 @@ public class RevurderingBehandlingsresultatutlederTest {
     private EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(EndringsdatoRevurderingUtlederImpl.class);
     private OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-    private ErEndringIUttakFraEndringsdato erEndringIUttakFraEndringsdato;
+    private ErEndringIUttak erEndringIUttak;
     private ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak;
-    private UttakInputTjeneste uttakInputTjeneste = mock(UttakInputTjeneste.class);
 
     @Before
     public void setUp() {
@@ -136,17 +134,16 @@ public class RevurderingBehandlingsresultatutlederTest {
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
         behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
-        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(),false);
+        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(), false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
-        erEndringIUttakFraEndringsdato = new ErEndringIUttakFraEndringsdatoImpl();
+        erEndringIUttak = new ErEndringIUttakImpl();
         erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl();
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
             hentBeregningsgrunnlagTjeneste,
             endringsdatoRevurderingUtlederImpl,
             opphørUttakTjeneste,
-            uttakInputTjeneste,
-            erEndringIUttakFraEndringsdato,
+            erEndringIUttak,
             erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
             skjæringstidspunktTjeneste,
             medlemTjeneste);

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.jboss.weld.exceptions.UnsupportedOperationException;
 import org.slf4j.Logger;
@@ -60,7 +59,10 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
 
     @Override
     public List<ForeldrepengerUttakPeriode> getGjeldendePerioder() {
-        return uttakresultat.orElseThrow().getGjeldendePerioder();
+        if (uttakresultat.isEmpty()) {
+            return List.of();
+        }
+        return uttakresultat.get().getGjeldendePerioder();
     }
 
     private Optional<ForeldrepengerUttakPeriode> finnSisteUttaksperiode() {
@@ -75,25 +77,15 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
     }
 
     @Override
-    public boolean vurderOmErEndringIUttakFraEndringsdato(LocalDate endringsdato,UttakResultatHolder uttakresultatSammenligneMed){
-        List<ForeldrepengerUttakPeriode> uttaksPerioderEtterEndringTP = finnUttaksperioderEtterEndringsdato(endringsdato, uttakresultatSammenligneMed);
-        List<ForeldrepengerUttakPeriode> originaleUttaksPerioderEtterEndringTP = finnUttaksperioderEtterEndringsdato(endringsdato, this);
-        return !erUttakresultatperiodeneLike(uttaksPerioderEtterEndringTP, originaleUttaksPerioderEtterEndringTP);
+    public boolean vurderOmErEndringIUttak(UttakResultatHolder uttakresultatSammenligneMed){
+        List<ForeldrepengerUttakPeriode> uttaksPerioderTP = uttakresultatSammenligneMed.getGjeldendePerioder();
+        List<ForeldrepengerUttakPeriode> originaleUttaksPerioderTP = getGjeldendePerioder();
+        return !erUttakresultatperiodeneLike(uttaksPerioderTP, originaleUttaksPerioderTP);
     }
 
     @Override
     public Optional<BehandlingVedtak> getBehandlingVedtak() {
         return Optional.ofNullable(vedtak);
-    }
-
-    public static List<ForeldrepengerUttakPeriode> finnUttaksperioderEtterEndringsdato(LocalDate endringsdato, UttakResultatHolder uttak) {
-        if (!uttak.eksistererUttakResultat()) {
-            return Collections.emptyList();
-        }
-        return uttak.getGjeldendePerioder().stream()
-            .filter(periode -> !periode.getFom().isBefore(endringsdato))
-            .sorted(Comparator.comparing(ForeldrepengerUttakPeriode::getFom))
-            .collect(Collectors.toList());
     }
 
     private boolean erUttakresultatperiodeneLike(List<ForeldrepengerUttakPeriode> listeMedPerioder1, List<ForeldrepengerUttakPeriode> listeMedPerioder2) {
@@ -118,13 +110,15 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
         }
         var likeAktivitieter = p1.getAktiviteter().stream().allMatch(a1 -> p2.getAktiviteter().stream().anyMatch(a2 -> erLikAktivitet(a1, a2)));
         var sammenlign = p1.getTidsperiode().equals(p2.getTidsperiode()) &&
-            Objects.equals(p1.isSamtidigUttak(), p2.isSamtidigUttak()) &&
             Objects.equals(p1.isFlerbarnsdager(), p2.isFlerbarnsdager()) &&
             Objects.equals(p1.getResultatType(), p2.getResultatType()) &&
+            Objects.equals(p1.getResultatÅrsak(), p2.getResultatÅrsak()) &&
             Objects.equals(p1.isGraderingInnvilget(), p2.isGraderingInnvilget()) &&
+            Objects.equals(p1.getUtsettelseType(), p2.getUtsettelseType()) &&
+            Objects.equals(p1.getGraderingAvslagÅrsak(), p2.getGraderingAvslagÅrsak()) &&
             likeAktivitieter;
         if (!sammenlign)
-            LOG.info("BEHRES avvik i periodedata");
+            LOG.info("BEHRES avvik i periodedata, like aktiviteter {}", likeAktivitieter);
         return sammenlign;
     }
 
@@ -135,4 +129,5 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
             (Objects.equals(a1.getArbeidsprosent(), a2.getArbeidsprosent()) || a1.getArbeidsprosent().compareTo(a2.getArbeidsprosent()) == 0) &&
             (Objects.equals(a1.getUtbetalingsgrad(), a2.getUtbetalingsgrad()) || a1.getUtbetalingsgrad().compareTo(a2.getUtbetalingsgrad()) == 0);
     }
+
 }

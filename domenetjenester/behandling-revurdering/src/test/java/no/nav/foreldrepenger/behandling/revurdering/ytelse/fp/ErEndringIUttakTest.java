@@ -61,7 +61,7 @@ import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
 @RunWith(CdiRunner.class)
-public class ErEndringIUttakFraEndringsdatoTest {
+public class ErEndringIUttakTest {
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private static final String ORGNR = OrgNummer.KUNSTIG_ORG;
     @Rule
@@ -84,11 +84,11 @@ public class ErEndringIUttakFraEndringsdatoTest {
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     private BeregningsresultatRepository beregningsresultatRepository;
     private FpUttakRepository fpUttakRepository;
-    private EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(EndringsdatoRevurderingUtlederImpl.class);
+    private EndringsdatoRevurderingUtlederImpl datoRevurderingUtlederImpl = mock(EndringsdatoRevurderingUtlederImpl.class);
 
     private Behandling behandlingSomSkalRevurderes;
     private Behandling revurdering;
-    private ErEndringIUttakFraEndringsdatoImpl erEndringIUttakFraEndringsdato;
+    private ErEndringIUttakImpl erEndringIUttak;
 
     @Before
     public void setUp() {
@@ -108,129 +108,74 @@ public class ErEndringIUttakFraEndringsdatoTest {
             iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         revurdering = revurderingTjeneste
             .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(), BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
-        LocalDate endringsdato = LocalDate.now().minusMonths(3);
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
-        erEndringIUttakFraEndringsdato = new ErEndringIUttakFraEndringsdatoImpl();
+        LocalDate dato = LocalDate.now().minusMonths(3);
+        when(datoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(dato);
+        erEndringIUttak = new ErEndringIUttakImpl();
     }
 
     @Test
-    public void skal_finne_en_uttaksperiode_etter_endringstidspunkt() {
-        LocalDate endringsdato = LocalDate.now();
-
-        UttakResultatEntitet.Builder uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(revurdering.getBehandlingsresultat());
-        UttakResultatPerioderEntitet uttakResultatPerioder = new UttakResultatPerioderEntitet();
-        lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder,
-            new LocalDateInterval(endringsdato.minusDays(10), endringsdato.minusDays(6)),
-            false, PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT, true, false, List.of(100), List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.FORELDREPENGER));
-        lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder,
-            new LocalDateInterval(endringsdato.minusDays(5), endringsdato.minusDays(1)),
-            false, PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT, true, false, List.of(100), List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.FORELDREPENGER));
-        lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder,
-            new LocalDateInterval(endringsdato, endringsdato.plusDays(5)),
-            false, PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT, true, false, List.of(100), List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.FORELDREPENGER));
-        UttakResultatEntitet uttakResultat = uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder).build();
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), uttakResultat.getGjeldendePerioder());
-
-        var holder = new UttakResultatHolderImpl(Optional.of(map(uttakResultat)), null);
-        var uttaksperioder = UttakResultatHolderImpl.finnUttaksperioderEtterEndringsdato(endringsdato, holder);
-
-        // Assert
-        assertThat(uttaksperioder).hasSize(1);
-
-    }
-
-    @Test
-    public void skal_finne_to_uttaksperiode_etter_endringstidspunkt() {
-        LocalDate endringsdato = LocalDate.now();
-
-        UttakResultatEntitet.Builder uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(revurdering.getBehandlingsresultat());
-        UttakResultatPerioderEntitet uttakResultatPerioder = new UttakResultatPerioderEntitet();
-        lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder,
-            new LocalDateInterval(endringsdato.minusDays(10), endringsdato.minusDays(6)),
-            false, PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT, true, false, List.of(100), List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.FORELDREPENGER));
-        lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder,
-            new LocalDateInterval(endringsdato.minusDays(5), endringsdato.minusDays(1)),
-            false, PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT, true, false, List.of(100), List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.FORELDREPENGER));
-        lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder,
-            new LocalDateInterval(endringsdato, endringsdato.plusDays(5)),
-            false, PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT, true, false, List.of(100), List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.FORELDREPENGER));
-        lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder,
-            new LocalDateInterval(endringsdato.plusDays(10), endringsdato.plusDays(50)),
-            false, PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT, true, false, List.of(100), List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.FORELDREPENGER));
-        UttakResultatEntitet uttakResultat = uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder).build();
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), uttakResultat.getGjeldendePerioder());
-
-        var holder = new UttakResultatHolderImpl(Optional.of(map(uttakResultat)), null);
-        var uttaksperioder = UttakResultatHolderImpl.finnUttaksperioderEtterEndringsdato(endringsdato, holder);
-
-        // Assert
-        assertThat(uttaksperioder).hasSize(2);
-
-    }
-
-    @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_perioder_etter_endringstidspunktet() {
+    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_perioder() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
-        lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
+        LocalDate dato = LocalDate.now();
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))), StønadskontoType.FORELDREPENGER);
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))), StønadskontoType.FORELDREPENGER);
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10)),
-                new LocalDateInterval(endringsdato.plusDays(11), endringsdato.plusDays(20))), StønadskontoType.FEDREKVOTE);
+            List.of(new LocalDateInterval(dato, dato.plusDays(10)),
+                new LocalDateInterval(dato.plusDays(11), dato.plusDays(20))), StønadskontoType.FEDREKVOTE);
 
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder,  originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder,  originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_aktiviteter_etter_endringstidspunktet() {
+    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_aktiviteter() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
-        lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
+        LocalDate dato = LocalDate.now();
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), Collections.nCopies(2, 100), Collections.nCopies(2, 100), List.of(new Trekkdager(2), new Trekkdager(10)), Collections.nCopies(2, StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder,  originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder,  originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_trekkdager_i_aktivitet_etter_endringstidspunktet() {
+    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_trekkdager_i_aktivitet() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
-        lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
+        LocalDate dato = LocalDate.now();
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(10)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder,  originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder,  originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -239,134 +184,134 @@ public class ErEndringIUttakFraEndringsdatoTest {
     @Test
     public void skal_gi_endring_i_uttak_om_det_er_avvik_i_arbeidsprosent_i_aktivitet_etter_endringstidspunktet() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
-        lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
+        LocalDate dato = LocalDate.now();
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(50), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_utbetatlingsgrad_i_aktivitet_etter_endringstidspunktet() {
+    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_utbetatlingsgrad_i_aktivitet() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
-        lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
+        LocalDate dato = LocalDate.now();
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(50), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_stønadskonto_etter_endringstidspunktet() {
+    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_stønadskonto() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
-        lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
+        LocalDate dato = LocalDate.now();
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))), StønadskontoType.FORELDREPENGER);
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))), StønadskontoType.FORELDREPENGER);
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))), StønadskontoType.FEDREKVOTE);
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))), StønadskontoType.FEDREKVOTE);
 
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_resultatType_etter_endringstidspunktet() {
+    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_resultatType() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
-        lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
+        LocalDate dato = LocalDate.now();
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))), List.of(PeriodeResultatType.AVSLÅTT));
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(PeriodeResultatType.AVSLÅTT));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))), List.of(PeriodeResultatType.INNVILGET));
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(PeriodeResultatType.INNVILGET));
 
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_samtidig_uttak_etter_endringstidspunktet() {
+    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_samtidig_uttak() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
-        lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
+        LocalDate dato = LocalDate.now();
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false),
             StønadskontoType.FORELDREPENGER);
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(true),
             StønadskontoType.FORELDREPENGER);
 
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_gradering_utfall_i_aktivitet_etter_endringstidspunktet() {
+    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_gradering_utfall_i_aktivitet() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
-        lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
+        LocalDate dato = LocalDate.now();
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -374,11 +319,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
 
     @Test
     public void skal_gi_ingen_endring_dersom_begge_uttak_mangler() {
-        // Arrange
-        LocalDate endringsdato = LocalDate.now();
-
         // Act
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, new UttakResultatHolderImpl( Optional.empty(), null),new UttakResultatHolderImpl( Optional.empty(), null));
+        boolean endringIUttak = erEndringIUttak.vurder(new UttakResultatHolderImpl( Optional.empty(), null),
+            new UttakResultatHolderImpl( Optional.empty(), null));
 
         // Assert
         assertThat(endringIUttak).isFalse();
@@ -388,20 +331,20 @@ public class ErEndringIUttakFraEndringsdatoTest {
     @Test
     public void skal_gi_endring_i_uttak_dersom_uttakene_har_forskjellig_antall_aktiviteter() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        LocalDate dato = LocalDate.now();
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), Collections.emptyList());
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false),List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), Collections.nCopies(2, 100), Collections.nCopies(2, 100), List.of(new Trekkdager(2), new Trekkdager(10)), Collections.nCopies(2, StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -410,20 +353,20 @@ public class ErEndringIUttakFraEndringsdatoTest {
     @Test
     public void skal_gi_endring_i_uttak_dersom_uttakene_har_like_aktiviteter_men_forskjellig_uttakskonto() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        LocalDate dato = LocalDate.now();
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FELLESPERIODE));
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -432,20 +375,20 @@ public class ErEndringIUttakFraEndringsdatoTest {
     @Test
     public void skal_gi_endring_i_uttak_dersom_uttakene_har_samme_antall_perioder_men_med_ulik_fom_og_tom() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        LocalDate dato = LocalDate.now();
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FELLESPERIODE));
 
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato.plusDays(1), endringsdato.plusDays(11))),
+            List.of(new LocalDateInterval(dato.plusDays(1), dato.plusDays(11))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FELLESPERIODE));
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -454,20 +397,20 @@ public class ErEndringIUttakFraEndringsdatoTest {
     @Test
     public void skal_gi_endring_i_uttak_dersom_kun_et_av_uttakene_har_periode_med_flerbarnsdager() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        LocalDate dato = LocalDate.now();
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(true), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -475,23 +418,23 @@ public class ErEndringIUttakFraEndringsdatoTest {
 
 
     @Test
-    public void skal_ikkje_gi_endring_i_uttak_om_det_ikkje_er_avvik_etter_endringstidspunktet() {
+    public void skal_ikkje_gi_endring_i_uttak_om_det_ikkje_er_avvik() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
-        lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
+        LocalDate dato = LocalDate.now();
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(endringsdato, endringsdato.plusDays(10))),
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
             List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
-        boolean endringIUttak = erEndringIUttakFraEndringsdato.vurder(endringsdato, revurderingHolder, originalBehandlingHolder);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder, originalBehandlingHolder);
 
         // Assert
         assertThat(endringIUttak).isFalse();
@@ -571,9 +514,9 @@ public class ErEndringIUttakFraEndringsdatoTest {
             .build();
     }
 
-    private void lagBeregningsresultatperiodeMedEndringstidspunkt(LocalDate endringsdato) {
-        BeregningsresultatEntitet originaltresultat = LagBeregningsresultatTjeneste.lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato, true, ORGNR);
-        BeregningsresultatEntitet revurderingsresultat = LagBeregningsresultatTjeneste.lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato, false, ORGNR);
+    private void lagBeregningsresultatperiodeMedEndringstidspunkt(LocalDate dato) {
+        BeregningsresultatEntitet originaltresultat = LagBeregningsresultatTjeneste.lagBeregningsresultatperiodeMedEndringstidspunkt(dato, true, ORGNR);
+        BeregningsresultatEntitet revurderingsresultat = LagBeregningsresultatTjeneste.lagBeregningsresultatperiodeMedEndringstidspunkt(dato, false, ORGNR);
         beregningsresultatRepository.lagre(revurdering, revurderingsresultat);
         beregningsresultatRepository.lagre(behandlingSomSkalRevurderes, originaltresultat);
     }
