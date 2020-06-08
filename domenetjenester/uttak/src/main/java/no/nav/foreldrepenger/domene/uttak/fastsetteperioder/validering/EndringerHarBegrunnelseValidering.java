@@ -29,7 +29,7 @@ class EndringerHarBegrunnelseValidering implements OverstyrUttakPerioderValideri
 
     private boolean harEndring(ForeldrepengerUttakPeriode periode) {
         for (ForeldrepengerUttakPeriode opprinneligPeriode : opprinnelig) {
-            if (periode.erLik(opprinneligPeriode)) {
+            if (periode.erLikBortsettFraTrekkdager(opprinneligPeriode)) {
                 return false;
             }
         }
