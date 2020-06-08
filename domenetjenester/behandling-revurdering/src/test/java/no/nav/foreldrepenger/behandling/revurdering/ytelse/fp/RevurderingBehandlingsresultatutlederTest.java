@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
-import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIUttakFraEndringsdato;
+import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIUttak;
 import no.nav.foreldrepenger.behandling.revurdering.felles.ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak;
 import no.nav.foreldrepenger.behandling.revurdering.felles.HarEtablertYtelse;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagAndelTjeneste;
@@ -159,13 +159,13 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         HarEtablertYtelse harEtablertYtelse = new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
             foreldrepengerUttakTjeneste, repositoryProvider.getBehandlingVedtakRepository());
-        ErEndringIUttakFraEndringsdato erEndringIUttakFraEndringsdato = new ErEndringIUttakFraEndringsdatoImpl();
+        ErEndringIUttak erEndringIUttak = new ErEndringIUttakImpl();
         ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl();
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
             hentBeregningsgrunnlagTjeneste,
             opphørUttakTjeneste,
             harEtablertYtelse,
-            erEndringIUttakFraEndringsdato,
+            erEndringIUttak,
             erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
             skjæringstidspunktTjeneste,
             medlemTjeneste,
