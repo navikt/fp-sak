@@ -42,10 +42,11 @@ public class ForeldrepengerUttakPeriode {
             && Objects.equals(periode.getResultatType(), getResultatType())
             && Objects.equals(periode.getResultatÅrsak(), getResultatÅrsak())
             && Objects.equals(periode.isSamtidigUttak(), isSamtidigUttak())
-            && Objects.equals(periode.getSamtidigUttaksprosent(), getSamtidigUttaksprosent())
+            && (Objects.equals(periode.getSamtidigUttaksprosent(), getSamtidigUttaksprosent()) || periode.getSamtidigUttaksprosent().compareTo(getSamtidigUttaksprosent()) == 0)
             && Objects.equals(periode.isFlerbarnsdager(), isFlerbarnsdager())
             && Objects.equals(periode.getUtsettelseType(), getUtsettelseType())
             && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak())
+            && Objects.equals(periode.getGraderingAvslagÅrsak(), getGraderingAvslagÅrsak())
             && aktiviteterErLikeBortsettFraTrekkdager(periode.getAktiviteter());
     }
 
@@ -86,21 +87,14 @@ public class ForeldrepengerUttakPeriode {
     }
 
     private boolean aktiviteterErLikeBortsettFraTrekkdager(List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
-        for (ForeldrepengerUttakPeriodeAktivitet aktivitet : aktiviteter) {
-            if (!harLikAktivitetBortsettFraTrekkdager(aktivitet)) {
-                return false;
-            }
+        if (getAktiviteter().size() != aktiviteter.size()) {
+            return false;
         }
-        return true;
+        return aktiviteter.stream().allMatch(a -> harLikAktivitetBortsettFraTrekkdager(a));
     }
 
-    private boolean harLikAktivitetBortsettFraTrekkdager(ForeldrepengerUttakPeriodeAktivitet aktivitet1) {
-        for (ForeldrepengerUttakPeriodeAktivitet aktivitet2 : getAktiviteter()) {
-            if (aktivitet1.likBortsettFraTrekkdager(aktivitet2)) {
-                return true;
-            }
-        }
-        return false;
+    private boolean harLikAktivitetBortsettFraTrekkdager(ForeldrepengerUttakPeriodeAktivitet aktivitet) {
+        return getAktiviteter().stream().anyMatch(a -> a.likBortsettFraTrekkdager(aktivitet));
     }
 
     public boolean isSamtidigUttak() {

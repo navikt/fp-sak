@@ -119,15 +119,15 @@ public class ForeldrepengerUttakPeriodeAktivitet {
             return false;
         }
         ForeldrepengerUttakPeriodeAktivitet that = (ForeldrepengerUttakPeriodeAktivitet) o;
-        return trekkdager == that.trekkdager &&
-            likBortsettFraTrekkdager(that);
+        return trekkdager.equals(that.trekkdager) && likBortsettFraTrekkdager(that);
     }
 
     public boolean likBortsettFraTrekkdager(ForeldrepengerUttakPeriodeAktivitet that) {
         return Objects.equals(trekkonto, that.trekkonto) &&
-            Objects.equals(arbeidsprosent, that.arbeidsprosent) &&
-            Objects.equals(utbetalingsgrad, that.utbetalingsgrad) &&
-            Objects.equals(aktivitet, that.aktivitet);
+            (Objects.equals(arbeidsprosent, that.arbeidsprosent) || arbeidsprosent.compareTo(that.arbeidsprosent) == 0) &&
+            (Objects.equals(utbetalingsgrad, that.utbetalingsgrad) || utbetalingsgrad.compareTo(that.utbetalingsgrad) == 0) &&
+            Objects.equals(aktivitet, that.aktivitet) &&
+            Objects.equals(søktGraderingForAktivitetIPeriode, that.søktGraderingForAktivitetIPeriode);
     }
 
     @Override
