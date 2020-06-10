@@ -126,8 +126,7 @@ public class ForeldrepengerUttakPeriodeAktivitet {
         return Objects.equals(trekkonto, that.trekkonto) &&
             (Objects.equals(arbeidsprosent, that.arbeidsprosent) || arbeidsprosent.compareTo(that.arbeidsprosent) == 0) &&
             (Objects.equals(utbetalingsgrad, that.utbetalingsgrad) || utbetalingsgrad.compareTo(that.utbetalingsgrad) == 0) &&
-            Objects.equals(aktivitet, that.aktivitet) &&
-            Objects.equals(søktGraderingForAktivitetIPeriode, that.søktGraderingForAktivitetIPeriode);
+            Objects.equals(aktivitet, that.aktivitet);
     }
 
     @Override
