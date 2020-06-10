@@ -105,6 +105,22 @@ jobs:
             <tr><td>prod-fss</td><td>default</td></tr>
             </table>
 
+      - name: Hent ut versjon fra forrige issue
+        shell: bash
+        run: |
+          echo ${{ steps.my_step_id.outputs.id }}
+          echo ${{ steps.my_step_id.outputs.id-1 }}
+
+          echo "::set-env name=PREVIOUS_VERSION::$( \
+            curl -s GET https://api.github.com/repos/navikt/fp-sak/issues/${{ steps.createdeployissue.outputs.number-1 }} \
+              -H "Accept: application/vnd.github.everest-preview+json" \
+              -H "Content-Type: application/json"  \
+              | grep '"title": "' \
+              | cut -d '"' -f 4 | cut -d ' ' -f 3)"
+
+          echo "::set-env name=DIFF::$(git log --pretty=format:"%s; author: %an;" ${{ env.TAG }}...${{ env.PREVIOUS_VERSION }})"
+
+
       - name: Trigger fpsak-autotest til å kjøre tester
         if: success()
         uses: peter-evans/repository-dispatch@v1
@@ -112,4 +128,4 @@ jobs:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           repository: navikt/fpsak-autotest
           event-type: fpsak-autotest
-          client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
+          client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "diff": "${{ env.DIFF }}", ""issue-number": "${{ steps.createdeployissue.outputs.number }}" }'

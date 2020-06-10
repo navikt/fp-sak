@@ -53,6 +53,22 @@ jobs:
         run: |
           echo "::set-env name=BUILD_VERSION::$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)"
 
+
+      - name: Hent ut versjon fra forrige issue
+        shell: bash
+        run: |
+          echo ${{ 642 }}
+          echo ${{ 642-1 }}
+
+          echo "::set-env name=PREVIOUS_VERSION::$( \
+            curl -s GET https://api.github.com/repos/navikt/fp-sak/issues/${{ 642-1 }} \
+              -H "Accept: application/vnd.github.everest-preview+json" \
+              -H "Content-Type: application/json"  \
+              | grep '"title": "' \
+              | cut -d '"' -f 4 | cut -d ' ' -f 3)"
+
+          echo "::set-env name=DIFF::$(git log --pretty=format:"%s; author: %an;" ${{ env.TAG }}...${{ env.PREVIOUS_VERSION }})"
+
       - name: Build
         env:
           GITHUB_USERNAME: x-access-token
