@@ -65,7 +65,7 @@ public class BeregningTilInputTjeneste {
     private BeregningsgrunnlagInput lagBeregningsgrunnlagHistorikk(BeregningsgrunnlagInput input) {
         BeregningsgrunnlagTilstand[] tilstander = BeregningsgrunnlagTilstand.values();
         for (BeregningsgrunnlagTilstand tilstand : tilstander) {
-            Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(input.getBehandlingReferanse().getBehandlingId(), tilstand);
+            Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(input.getBehandlingReferanse().getBehandlingId(), input.getBehandlingReferanse().getOriginalBehandlingId(), tilstand);
             sisteBg.ifPresent(gr -> input.leggTilBeregningsgrunnlagIHistorikk(BehandlingslagerTilKalkulusMapper.mapGrunnlag(gr, input.getInntektsmeldinger()),
                 no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand.fraKode(tilstand.getKode())));
         }
