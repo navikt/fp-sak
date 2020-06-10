@@ -58,10 +58,10 @@ jobs:
         shell: bash
         run: |
           echo ${{ 642 }}
-          echo ${{ 642-1 }}
+          echo ${{ 642 - 1 }}
 
           echo "::set-env name=PREVIOUS_VERSION::$( \
-            curl -s GET https://api.github.com/repos/navikt/fp-sak/issues/${{ 642-1 }} \
+            curl -s GET https://api.github.com/repos/navikt/fp-sak/issues/${{ 642 - 1 }} \
               -H "Accept: application/vnd.github.everest-preview+json" \
               -H "Content-Type: application/json"  \
               | grep '"title": "' \
