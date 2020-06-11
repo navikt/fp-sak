@@ -16,7 +16,7 @@ interface FeltValideringFeil extends DeklarerteFeil {
     FeltValideringFeil FACTORY = FeilFactory.create(FeltValideringFeil.class);
 
     @FunksjonellFeil(feilkode = "FP-328673",
-        feilmelding = "Det oppstod en valideringsfeil på felt %s ved interaktiv bruk. Vennligst kontroller at alle feltverdier er korrekte.",
+        feilmelding = "Det oppstod en valideringsfeil på felt %s. Vennligst kontroller at alle feltverdier er korrekte.",
         løsningsforslag = "Kontroller at alle feltverdier er korrekte", logLevel = LogLevel.INFO)
     Feil feltverdiKanIkkeValideres(List<String> feltnavn);
 
