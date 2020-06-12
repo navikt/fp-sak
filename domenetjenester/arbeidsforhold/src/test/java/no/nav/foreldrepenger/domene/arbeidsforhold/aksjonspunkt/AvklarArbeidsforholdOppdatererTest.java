@@ -489,7 +489,7 @@ public class AvklarArbeidsforholdOppdatererTest {
             .medOrgnr(NAV_ORGNR)
             .build();
         when(virksomhetTjeneste.finnOrganisasjon(any())).thenReturn(Optional.of(virksomhet));
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(any())).thenReturn(virksomhet);
+        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet);
     }
 
 }

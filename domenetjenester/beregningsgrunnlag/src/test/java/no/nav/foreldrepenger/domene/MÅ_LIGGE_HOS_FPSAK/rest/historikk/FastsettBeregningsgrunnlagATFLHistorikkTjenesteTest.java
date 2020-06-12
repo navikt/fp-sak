@@ -77,7 +77,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
             .medOrgnr(NAV_ORGNR)
             .medNavn("AF1")
             .build();
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(NAV_ORGNR)).thenReturn(virk);
+        when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(virk);
     }
     @Test
     public void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_AT() {

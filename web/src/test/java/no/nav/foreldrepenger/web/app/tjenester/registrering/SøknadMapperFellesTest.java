@@ -65,7 +65,7 @@ public class SøknadMapperFellesTest {
         tpsTjeneste = mock(TpsTjeneste.class);
         virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         Virksomhet virksomhetEntitet = new Virksomhet.Builder().medOrgnr("123").medRegistrert(LocalDate.now()).build();
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(anyString())).thenReturn(virksomhetEntitet);
+        when(virksomhetTjeneste.hentOrganisasjon(anyString())).thenReturn(virksomhetEntitet);
     }
 
     @Test

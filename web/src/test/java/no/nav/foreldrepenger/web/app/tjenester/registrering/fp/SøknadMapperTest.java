@@ -123,7 +123,7 @@ public class SøknadMapperTest {
         when(iayTjeneste.hentGrunnlag(any(Long.class))).thenReturn(Mockito.mock(InntektArbeidYtelseGrunnlag.class));
         when(virksomhetTjeneste.finnOrganisasjon(any()))
             .thenReturn(Optional.of(Virksomhet.getBuilder().medOrgnr(KUNSTIG_ORG).medNavn("Ukjent Firma").medRegistrert(LocalDate.now().minusYears(1)).medRegistrert(LocalDate.now().minusYears(1)).build()));
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(any()))
+        when(virksomhetTjeneste.hentOrganisasjon(any()))
             .thenReturn(Virksomhet.getBuilder().medOrgnr(KUNSTIG_ORG).medNavn("Ukjent Firma").medRegistrert(LocalDate.now().minusYears(1)).medRegistrert(LocalDate.now().minusYears(1)).build());
         ytelseSøknadMapper = new YtelseSøknadMapper(tpsTjeneste, virksomhetTjeneste);
     }

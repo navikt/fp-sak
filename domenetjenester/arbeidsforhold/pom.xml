@@ -62,6 +62,10 @@
 			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
 			<artifactId>person-klient</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>ereg-klient</artifactId>
+        </dependency>
 
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>

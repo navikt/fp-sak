@@ -173,7 +173,7 @@ public class RegisterdataEndringshåndtererImplTest {
             .build();
 
         when(abakusTjeneste.innhentRegisterdata(any())).thenReturn(new UuidDto(UUID.randomUUID()));
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(any())).thenReturn(virksomhet);
+        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet);
 
         familieHendelseTjeneste = new FamilieHendelseTjeneste(personopplysningTjeneste, familiehendelseEventPubliserer, repositoryProvider);
 

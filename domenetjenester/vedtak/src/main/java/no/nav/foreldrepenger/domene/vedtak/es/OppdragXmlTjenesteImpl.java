@@ -34,7 +34,7 @@ public class OppdragXmlTjenesteImpl implements OppdragXmlTjeneste {
 
     @Override
     public void setOppdrag(Vedtak vedtak, Behandling behandling) {
-        List<Oppdrag110> oppdrag110PositivKvittering = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(behandling);
+        List<Oppdrag110> oppdrag110PositivKvittering = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling);
         if (!oppdrag110PositivKvittering.isEmpty()) {
             Oppdrag oppdragXml = oppdragObjectFactory.createOppdrag();
 

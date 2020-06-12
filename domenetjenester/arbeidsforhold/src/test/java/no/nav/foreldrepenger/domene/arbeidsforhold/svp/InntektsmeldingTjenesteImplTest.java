@@ -111,7 +111,7 @@ public class InntektsmeldingTjenesteImplTest {
         this.arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet1.getOrgnr());
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(any())).thenReturn(virksomhet1);
+        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet1);
         arbeidsforholdTjenesteMock = new ArbeidsforholdTjenesteMock(false);
         var vurderArbeidsforholdTjeneste = mock(VurderArbeidsforholdTjeneste.class);
         var arbeidsgiver2 = Arbeidsgiver.virksomhet(virksomhet2.getOrgnr());
@@ -147,7 +147,7 @@ public class InntektsmeldingTjenesteImplTest {
         when(tpsTjeneste.hentFnrForAktør(Mockito.any(AktørId.class))).thenReturn(t);
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(any())).thenReturn(virksomhet1);
+        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet1);
 
         var vurderArbeidsforholdTjeneste = mock(VurderArbeidsforholdTjeneste.class);
         var arbeidsgiver2 = Arbeidsgiver.virksomhet(virksomhet2.getOrgnr());
