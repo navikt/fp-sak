@@ -50,7 +50,7 @@ public class ArbeidsgiverHistorikkinnslagTjenesteImplTest {
         when(tpsTjeneste.hentBrukerForAktør(any(AktørId.class))).thenReturn(Optional.of(lagPersoninfo()));
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(any())).thenReturn(VIRKSOMHET);
+        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(VIRKSOMHET);
         ArbeidsgiverTjeneste arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(tpsTjeneste, virksomhetTjeneste);
         arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste);
     }

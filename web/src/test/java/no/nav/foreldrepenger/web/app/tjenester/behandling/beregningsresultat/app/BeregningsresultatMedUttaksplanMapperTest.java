@@ -170,7 +170,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
             .medOrgnr(orgnr)
             .medNavn("Virknavn " + orgnr)
             .build();
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(orgnr)).thenReturn(virksomhet);
+        when(virksomhetTjeneste.hentOrganisasjon(orgnr)).thenReturn(virksomhet);
 
         return virksomhet;
     }

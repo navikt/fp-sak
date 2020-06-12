@@ -110,8 +110,8 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         final PersonIdent t = new PersonIdent("12345678901");
         when(tpsTjeneste.hentFnrForAktør(Mockito.any(AktørId.class))).thenReturn(t);
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(virksomhet1.getOrgnr())).thenReturn(virksomhet1);
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(virksomhet2.getOrgnr())).thenReturn(virksomhet2);
+        when(virksomhetTjeneste.hentOrganisasjon(virksomhet1.getOrgnr())).thenReturn(virksomhet1);
+        when(virksomhetTjeneste.hentOrganisasjon(virksomhet2.getOrgnr())).thenReturn(virksomhet2);
 
         VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste = mock(VurderArbeidsforholdTjeneste.class);
 

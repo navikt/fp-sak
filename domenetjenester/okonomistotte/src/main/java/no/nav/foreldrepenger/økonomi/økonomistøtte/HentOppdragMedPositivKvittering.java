@@ -35,6 +35,17 @@ public class HentOppdragMedPositivKvittering {
             .collect(Collectors.toList());
     }
 
+    public List<Oppdrag110> hentOppdragMedPositivKvitteringFeilHvisVenter(Behandling behandling) {
+        Optional<Oppdragskontroll> oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
+        List<Oppdrag110> oppdrag110List = oppdragskontroll.map(Oppdragskontroll::getOppdrag110Liste)
+            .orElse(Collections.emptyList());
+        if (oppdrag110List.stream().anyMatch(Oppdrag110::venterKvittering))
+            throw new IllegalStateException("Utviklerfeil har ikke ventet på at oppdrag er kvittert");
+        return oppdrag110List.stream()
+            .filter(OppdragKvitteringTjeneste::harPositivKvittering)
+            .collect(Collectors.toList());
+    }
+
     public List<Oppdrag110> hentOppdragMedPositivKvittering(Saksnummer saksnummer) {
         List<Oppdragskontroll> oppdragskontrollList = økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
         return oppdragskontrollList.stream().map(Oppdragskontroll::getOppdrag110Liste)

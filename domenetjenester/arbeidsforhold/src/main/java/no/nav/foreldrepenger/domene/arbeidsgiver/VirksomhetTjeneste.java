@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.domene.arbeidsgiver.rest.OrganisasjonRestKlient;
-import no.nav.foreldrepenger.domene.arbeidsgiver.rest.OrganisasjonstypeEReg;
+import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonRestKlient;
+import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonstypeEReg;
 import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
@@ -49,23 +49,26 @@ public class VirksomhetTjeneste {
      * @return relevant informasjon om virksomheten.
      * @throws IllegalArgumentException ved forespørsel om orgnr som ikke finnes i enhetsreg
      */
-    public Virksomhet hentOgLagreOrganisasjon(String orgNummer) {
-        final Optional<Virksomhet> virksomhetOptional = hent(orgNummer);
-        if (virksomhetOptional.isEmpty()) {
-            final Virksomhet virksomhet = hentOrganisasjonRest(orgNummer);
-            lagre(virksomhet);
-            return virksomhet;
-        }
-        return virksomhetOptional.orElseThrow(() -> new IllegalArgumentException("Fant ikke virksomhet for orgNummer=" + orgNummer));
+    public Virksomhet hentOrganisasjon(String orgNummer) {
+        return hent(orgNummer);
     }
 
     public Optional<Virksomhet> finnOrganisasjon(String orgNummer) {
         if (orgNummer == null)
             return Optional.empty();
         if(OrgNummer.erKunstig(orgNummer)) {
-            return hent(orgNummer);
+            return Optional.of(hent(orgNummer));
         }
-        return OrganisasjonsNummerValidator.erGyldig(orgNummer) ? Optional.of(hentOgLagreOrganisasjon(orgNummer)) : Optional.empty();
+        return OrganisasjonsNummerValidator.erGyldig(orgNummer) ? Optional.of(hent(orgNummer)) : Optional.empty();
+    }
+
+    private Virksomhet hent(String orgnr) {
+        if (Objects.equals(KUNSTIG_VIRKSOMHET.getOrgnr(), orgnr)) {
+            return KUNSTIG_VIRKSOMHET;
+        }
+        var response =Optional.ofNullable(cache.get(orgnr)).orElse(hentOrganisasjonRest(orgnr));
+        cache.put(orgnr, response);
+        return response;
     }
 
     private Virksomhet hentOrganisasjonRest(String orgNummer) {
@@ -86,18 +89,5 @@ public class VirksomhetTjeneste {
         }
         return builder.build();
     }
-
-    private Optional<Virksomhet> hent(String orgnr) {
-        if (Objects.equals(KUNSTIG_VIRKSOMHET.getOrgnr(), orgnr)) {
-            return Optional.of(KUNSTIG_VIRKSOMHET);
-        }
-        return Optional.ofNullable(cache.get(orgnr));
-    }
-
-    private void lagre(Virksomhet virksomhet) {
-        cache.put(virksomhet.getOrgnr(), virksomhet);
-    }
-
-
 
 }

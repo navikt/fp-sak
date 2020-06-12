@@ -14,7 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
-import no.nav.foreldrepenger.domene.arbeidsgiver.rest.OrganisasjonRestKlient;
+import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonRestKlient;
+
 
 public class VirksomhetTjenesteImplTest {
     private static final String ORGNR = KUNSTIG_ORG;
@@ -37,14 +38,14 @@ public class VirksomhetTjenesteImplTest {
         VirksomhetTjeneste organisasjonTjeneste = new VirksomhetTjeneste(organisasjonConsumer);
 
         // Act
-        Virksomhet organisasjon = organisasjonTjeneste.hentOgLagreOrganisasjon(ORGNR);
+        Virksomhet organisasjon = organisasjonTjeneste.hentOrganisasjon(ORGNR);
 
         // Assert
         assertThat(organisasjon.getOrgnr()).isEqualTo(ORGNR);
         assertThat(organisasjon.getNavn()).isEqualTo(NAVN);
         assertThat(organisasjon.getRegistrert()).isEqualTo(REGISTRERTDATO);
 
-        organisasjon = organisasjonTjeneste.hentOgLagreOrganisasjon(ORGNR);
+        organisasjon = organisasjonTjeneste.hentOrganisasjon(ORGNR);
         // Assert
         assertThat(organisasjon.getOrgnr()).isEqualTo(ORGNR);
         assertThat(organisasjon.getNavn()).isEqualTo(NAVN);

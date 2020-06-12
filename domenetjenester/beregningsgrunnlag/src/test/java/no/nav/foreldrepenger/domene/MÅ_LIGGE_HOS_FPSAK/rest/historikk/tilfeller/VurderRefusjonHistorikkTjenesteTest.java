@@ -71,7 +71,7 @@ public class VurderRefusjonHistorikkTjenesteTest {
         HistorikkInnslagKonverter historikkinnslagKonverter = new HistorikkInnslagKonverter();
         historikkTjenesteAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(em), historikkinnslagKonverter, dokumentArkivTjeneste);
         VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(VIRKSOMHET.getIdentifikator()))
+        when(virksomhetTjeneste.hentOrganisasjon(VIRKSOMHET.getIdentifikator()))
             .thenReturn(new Virksomhet.Builder().medOrgnr(VIRKSOMHET.getOrgnr()).build());
         ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslag = new ArbeidsgiverHistorikkinnslag(new ArbeidsgiverTjeneste(null, virksomhetTjeneste));
         vurderRefusjonHistorikkTjeneste = new VurderRefusjonHistorikkTjeneste(arbeidsgiverHistorikkinnslag);
