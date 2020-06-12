@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.tid;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -66,4 +67,17 @@ public class DatoIntervallEntitet extends AbstractLocalDateInterval {
         return fraOgMedTilOgMed(fomDato, tomDato);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DatoIntervallEntitet that = (DatoIntervallEntitet) o;
+        return Objects.equals(getFomDato(), that.getFomDato()) &&
+            Objects.equals(getTomDato(), that.getTomDato());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getFomDato(), getTomDato());
+    }
 }
