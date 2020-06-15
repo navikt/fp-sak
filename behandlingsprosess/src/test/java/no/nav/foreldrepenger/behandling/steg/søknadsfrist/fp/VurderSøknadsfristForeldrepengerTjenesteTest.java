@@ -3,52 +3,45 @@ package no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.time.Period;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
+import javax.inject.Inject;
+
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
+@RunWith(CdiRunner.class)
 public class VurderSøknadsfristForeldrepengerTjenesteTest {
 
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private Repository repository = repoRule.getRepository();
+
+    @Inject
     private SøknadsfristTjeneste tjeneste;
-    private BehandlingRepositoryProvider behandlingRepositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private BehandlingRepository behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
 
+    @Inject
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
-    private Behandling behandling;
-
-    private static final Period MND_SØKNADSFRIST_ETTER_FØRSTE_UTTAK = Period.ofMonths(3);
-
-
-    @Before
-    public void oppsett() {
-        tjeneste = new SøknadsfristTjeneste(behandlingRepositoryProvider, MND_SØKNADSFRIST_ETTER_FØRSTE_UTTAK);
-        behandling = byggBehandlingMedBehandlingsresultat();
-    }
+    @Inject
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
 
     @Test
@@ -57,18 +50,13 @@ public class VurderSøknadsfristForeldrepengerTjenesteTest {
         LocalDate nyMottattDato = LocalDate.of(2018,1,15);
         LocalDate førsteLovligeUttaksdag = LocalDate.of(2017,10,1);
         VurderSøknadsfristAksjonspunktDto adapter = new VurderSøknadsfristAksjonspunktDto(nyMottattDato, "Begrunnelse");
+        var behandling = byggBehandlingMedYf();
 
         // Act
         tjeneste.lagreVurderSøknadsfristResultat(behandling, adapter);
 
         // Assert
-        behandling = behandlingRepository.hentBehandling(behandling.getId());
-        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
-
-        Set<Uttaksperiodegrense> uttaksperiodegrenseList =  behandlingsresultat.getAlleUttaksperiodegrenser();
-        assertThat(uttaksperiodegrenseList).hasSize(1);
-
-        Uttaksperiodegrense uttaksperiodegrense = uttaksperiodegrenseList.iterator().next();
+        var uttaksperiodegrense =  uttaksperiodegrenseRepository.hent(behandling.getId());
         assertThat(uttaksperiodegrense.getErAktivt()).isTrue();
         assertThat(uttaksperiodegrense.getMottattDato()).isEqualTo(nyMottattDato);
         assertThat(uttaksperiodegrense.getFørsteLovligeUttaksdag()).isEqualTo(førsteLovligeUttaksdag);
@@ -80,6 +68,7 @@ public class VurderSøknadsfristForeldrepengerTjenesteTest {
         LocalDate gammelMottatDato = LocalDate.of(2018,3,15);
         String begrunnelse = "Begrunnelse";
         VurderSøknadsfristAksjonspunktDto gammelSøknadsfristGrense = new VurderSøknadsfristAksjonspunktDto(gammelMottatDato, begrunnelse);
+        var behandling = byggBehandlingMedYf();
         tjeneste.lagreVurderSøknadsfristResultat(behandling, gammelSøknadsfristGrense);
 
         LocalDate nyMottattDato = LocalDate.of(2018,2,28);
@@ -90,22 +79,7 @@ public class VurderSøknadsfristForeldrepengerTjenesteTest {
         tjeneste.lagreVurderSøknadsfristResultat(behandling, nySøknadsfristGrense);
 
         // Assert
-        behandling = behandlingRepository.hentBehandling(behandling.getId());
-        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
-
-        List<Uttaksperiodegrense> inaktivUttaksperiodegrenseList =  behandlingsresultat.getAlleUttaksperiodegrenser().stream()
-            .filter(uttaksperiodegrense ->  !uttaksperiodegrense.getErAktivt()).collect(Collectors.toList());
-        assertThat(inaktivUttaksperiodegrenseList).hasSize(1);
-
-        Uttaksperiodegrense inaktivUttaksperiodegrense = inaktivUttaksperiodegrenseList.get(0);
-        assertThat(inaktivUttaksperiodegrense.getErAktivt()).isFalse();
-        assertThat(inaktivUttaksperiodegrense.getMottattDato()).isEqualTo(gammelMottatDato);
-
-        List<Uttaksperiodegrense> aktivUttaksperiodegrenseList =  behandlingsresultat.getAlleUttaksperiodegrenser().stream()
-            .filter(uttaksperiodegrense ->  uttaksperiodegrense.getErAktivt()).collect(Collectors.toList());
-        assertThat(aktivUttaksperiodegrenseList).hasSize(1);
-
-        Uttaksperiodegrense uttaksperiodegrense = aktivUttaksperiodegrenseList.get(0);
+        Uttaksperiodegrense uttaksperiodegrense = uttaksperiodegrenseRepository.hent(behandling.getId());
         assertThat(uttaksperiodegrense.getErAktivt()).isTrue();
         assertThat(uttaksperiodegrense.getMottattDato()).isEqualTo(nyMottattDato);
         assertThat(uttaksperiodegrense.getFørsteLovligeUttaksdag()).isEqualTo(førsteLovligeUttaksdag);
@@ -124,31 +98,39 @@ public class VurderSøknadsfristForeldrepengerTjenesteTest {
         assertThat(søknadsfrist).isEqualTo(forventetSøknadsfrist);
     }
 
+    @Test
+    public void skal_oppdatere_mottatt_dato_i_oppgitte_perioder() {
+        LocalDate nyMottattDato = LocalDate.of(2018,1,15);
+        VurderSøknadsfristAksjonspunktDto adapter = new VurderSøknadsfristAksjonspunktDto(nyMottattDato, "Begrunnelse");
 
-    private Behandling byggBehandlingMedBehandlingsresultat() {
-        Fagsak fagsak = FagsakBuilder.nyForeldrepengerForMor().medBrukerPersonInfo(new Personinfo.Builder()
-            .medNavn("Navn navnesen")
-            .medAktørId(AktørId.dummy())
-            .medFødselsdato(LocalDate.now().minusYears(20))
-            .medLandkode(Landkoder.NOR)
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medPersonIdent(PersonIdent.fra("123"))
-            .medForetrukketSpråk(Språkkode.nb)
-            .build()).build();
+        var behandling = byggBehandlingMedYf();
+        tjeneste.lagreVurderSøknadsfristResultat(behandling, adapter);
 
-        repository.lagre(fagsak.getNavBruker());
-        repository.lagre(fagsak);
-
-        Behandling nyBehandling = Behandling.forFørstegangssøknad(fagsak).build();
-        nyBehandling.setAnsvarligSaksbehandler("VL");
-        repository.lagre(nyBehandling);
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(nyBehandling);
-        repository.lagre(behandlingsresultat);
-        repository.lagre(nyBehandling);
-        repository.flushAndClear();
-
-        return nyBehandling;
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
+        var justertFordelingSortert = ytelseFordelingAggregat.getJustertFordeling().orElseThrow().getOppgittePerioder().stream()
+            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
+            .collect(Collectors.toList());
+        //Skal ikke oppdatere vedtaksperioder
+        assertThat(justertFordelingSortert.get(0).getMottattDato()).isNotEqualTo(nyMottattDato);
+        assertThat(justertFordelingSortert.get(1).getMottattDato()).isEqualTo(nyMottattDato);
     }
 
-
+    private Behandling byggBehandlingMedYf() {
+        var mødrekvote = OppgittPeriodeBuilder.ny()
+            .medPeriodeKilde(FordelingPeriodeKilde.TIDLIGERE_VEDTAK)
+            .medMottattDato(LocalDate.of(2020, 1, 1))
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 2, 2))
+            .build();
+        var fellesperiode = OppgittPeriodeBuilder.ny()
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medMottattDato(LocalDate.of(2020, 1, 1))
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .medPeriode(LocalDate.of(2020, 2, 3), LocalDate.of(2020, 3, 3))
+            .build();
+        return ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(mødrekvote.getFom()).build())
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(mødrekvote, fellesperiode), true))
+            .lagre(new BehandlingRepositoryProvider(repoRule.getEntityManager()));
+    }
 }
