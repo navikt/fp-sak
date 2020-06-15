@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -43,13 +44,12 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
 @Path(KlageRestTjeneste.BASE_PATH)
-@Transaction
+@Transactional
 public class KlageRestTjeneste {
 
     static final String BASE_PATH = "/behandling";

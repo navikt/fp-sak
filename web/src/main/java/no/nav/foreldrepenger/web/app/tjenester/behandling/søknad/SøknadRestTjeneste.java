@@ -5,6 +5,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAG
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -25,13 +26,12 @@ import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path(SøknadRestTjeneste.BASE_PATH)
 @ApplicationScoped
-@Transaction
+@Transactional
 public class SøknadRestTjeneste {
 
     static final String BASE_PATH = "/behandling";

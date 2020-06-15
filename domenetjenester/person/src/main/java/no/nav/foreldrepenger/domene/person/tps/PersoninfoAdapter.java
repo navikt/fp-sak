@@ -9,7 +9,6 @@ import javax.xml.ws.soap.SOAPFaultException;
 
 import org.threeten.extra.Interval;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
@@ -68,21 +67,12 @@ public class PersoninfoAdapter {
         return Optional.empty();
     }
 
-    public Adresseinfo innhentAdresseopplysningerForDokumentsending(AktørId aktørId) {
-        Optional<PersonIdent> optFnr = tpsAdapter.hentIdentForAktørId(aktørId);
-        if (optFnr.isPresent()) {
-            return tpsAdapter.hentAdresseinformasjon(optFnr.get());
-        }
-        return null;
-    }
-
     private Optional<Personinfo> hentKjerneinformasjonForBarn(AktørId aktørId, PersonIdent personIdent) {
         if(personIdent.erFdatNummer()) {
             return Optional.empty();
         }
         try {
-            return Optional.of(
-                hentKjerneinformasjon(aktørId, personIdent)
+            return Optional.of(hentKjerneinformasjon(aktørId, personIdent)
             );
             // TODO Lag en skikkelig fiks på dette
             //Her sorterer vi ut dødfødte barn

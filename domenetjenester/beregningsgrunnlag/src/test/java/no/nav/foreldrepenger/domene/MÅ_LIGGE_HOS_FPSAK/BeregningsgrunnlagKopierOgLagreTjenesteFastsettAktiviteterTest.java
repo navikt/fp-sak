@@ -15,7 +15,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import no.finn.unleash.FakeUnleash;import no.nav.folketrygdloven.beregningsgrunnlag.regelmodell.Periode;
+import no.finn.unleash.FakeUnleash;
+import no.nav.folketrygdloven.beregningsgrunnlag.regelmodell.Periode;
 import no.nav.folketrygdloven.kalkulator.BeregningsgrunnlagTjeneste;
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.ForeldrepengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.gradering.AktivitetGradering;
@@ -59,8 +60,6 @@ import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 @RunWith(CdiRunner.class)
 public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
 
-
-    private static final String TOGGLE_KOPIER_FASTSETT_AKTIVITETER = "fpsak.kopierFastsettAktiviteter";
 
     private static final String ORG_NUMMER = "915933149";
     private static final String ORG_NUMMER2 = "915933148";
@@ -234,7 +233,6 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
     @Test
     public void skal_ta_vare_på_overstyringer_for_andre_kjøring_uten_endringer_i_input() {
         // Arrange
-        unleash.enable(TOGGLE_KOPIER_FASTSETT_AKTIVITETER);
         InntektArbeidYtelseGrunnlag iayGr = lagIAYGrunnlagForToArbeidsforhold();
         BeregningsgrunnlagInput input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr, lagOpptjeningAktiviteterMedToArbeidsforhold());
 

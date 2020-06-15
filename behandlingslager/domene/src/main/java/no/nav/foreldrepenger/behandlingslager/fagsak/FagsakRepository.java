@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -12,6 +13,7 @@ import javax.persistence.LockModeType;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -59,6 +61,13 @@ public class FagsakRepository {
         return query.getResultList();
     }
 
+    public List<Fagsak> hentForBrukerMulti(Set<AktørId> aktørId) {
+        TypedQuery<Fagsak> query = entityManager.createQuery("from Fagsak where navBruker.aktørId in (:aktørId) and skalTilInfotrygd=:ikkestengt", Fagsak.class);
+        query.setParameter("aktørId", aktørId); // NOSONAR
+        query.setParameter("ikkestengt", false); // NOSONAR
+        return query.getResultList();
+    }
+
     public Optional<Journalpost> hentJournalpost(JournalpostId journalpostId) {
         TypedQuery<Journalpost> query = entityManager.createQuery("from Journalpost where journalpostId=:journalpost",
             Journalpost.class);
@@ -101,7 +110,22 @@ public class FagsakRepository {
         fagsak.setSaksnummer(saksnummer);
         entityManager.persist(fagsak);
         entityManager.flush();
+    }
 
+    public void oppdaterBruker(Long fagsakId, NavBruker bruker) {
+        Fagsak fagsak = finnEksaktFagsak(fagsakId);
+        fagsak.setNavBruker(bruker);
+        entityManager.persist(fagsak);
+        entityManager.flush();
+    }
+
+    public void oppdaterBrukerMedAktørId(Long fagsakId, AktørId aktørId) {
+        Fagsak fagsak = finnEksaktFagsak(fagsakId);
+        Query query = entityManager.createNativeQuery("UPDATE BRUKER SET AKTOER_ID = :aktoer WHERE ID=:id"); //$NON-NLS-1$
+        query.setParameter("aktoer", aktørId.getId()); //$NON-NLS-1$
+        query.setParameter("id", fagsak.getNavBruker().getId()); //$NON-NLS-1$
+        query.executeUpdate();
+        entityManager.flush();
     }
 
     public Optional<Fagsak> hentSakGittSaksnummer(Saksnummer saksnummer, boolean taSkriveLås) {

@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -42,7 +43,6 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjenest
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BehandlingAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SøknadGrunnlagManglerDto;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -52,7 +52,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @Path("/forvaltningTeknisk")
 @ApplicationScoped
-@Transaction
+@Transactional
 public class ForvaltningTekniskRestTjeneste {
 
     private static final Logger logger = LoggerFactory.getLogger(ForvaltningTekniskRestTjeneste.class);

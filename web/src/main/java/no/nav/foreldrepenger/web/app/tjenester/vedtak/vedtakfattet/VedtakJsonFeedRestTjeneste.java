@@ -5,6 +5,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAG
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DefaultValue;
@@ -29,12 +30,11 @@ import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.AktørPar
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.HendelseTypeParam;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.MaxAntallParam;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.SekvensIdParam;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path(VedtakJsonFeedRestTjeneste.BASE_PATH)
 @ApplicationScoped
-@Transaction
+@Transactional
 public class VedtakJsonFeedRestTjeneste {
 
     static final String BASE_PATH = "/feed/vedtak";

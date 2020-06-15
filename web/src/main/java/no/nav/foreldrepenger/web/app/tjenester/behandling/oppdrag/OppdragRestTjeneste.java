@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
@@ -25,13 +26,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path(OppdragRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-@Transaction
+@Transactional
 public class OppdragRestTjeneste {
 
     static final String BASE_PATH = "/behandling/oppdrag";

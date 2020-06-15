@@ -7,6 +7,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRI
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -30,13 +31,12 @@ import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.batch.feil.BatchFeil;
 import no.nav.foreldrepenger.web.app.tjenester.batch.args.BatchArgumentsDto;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/batch")
 @ApplicationScoped
-@Transaction
+@Transactional
 public class BatchRestTjeneste {
 
     private static final Logger logger = LoggerFactory.getLogger(BatchRestTjeneste.class);

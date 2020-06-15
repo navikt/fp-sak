@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -32,7 +33,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.BeregningDtoTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 /**
@@ -41,7 +41,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @ApplicationScoped
 @Path(BeregningsgrunnlagRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
-@Transaction
+@Transactional
 public class BeregningsgrunnlagRestTjeneste {
 
     static final String BASE_PATH = "/behandling";

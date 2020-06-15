@@ -76,6 +76,15 @@ public class OpprettSakTjeneste {
         return personinfoOptional.get();
     }
 
+    public AktørId hentGjeldendeAktørId(AktørId aktørId) {
+        return tpsTjeneste.hentFnr(aktørId).flatMap(tpsTjeneste::hentAktørForFnr)
+            .orElseThrow(() -> new IllegalStateException("Kan ikke mappe aktørId - ident - aktørId" + aktørId));
+    }
+
+    public Optional<NavBruker> hentNavBrukerFor(AktørId aktørId) {
+        return brukerTjeneste.hentBrukerForAktørId(aktørId);
+    }
+
     public FagsakYtelseType utledYtelseType(BehandlingTema behandlingTema) {
 
         FagsakYtelseType fagsakYtelseType = behandlingTema.getFagsakYtelseType();
