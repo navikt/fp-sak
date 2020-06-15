@@ -173,6 +173,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private OppgittRettighetEntitet oppgittRettighet;
     private OppgittDekningsgradEntitet oppgittDekningsgrad;
     private OppgittFordelingEntitet oppgittFordeling;
+    private OppgittFordelingEntitet justertFordeling;
     private AvklarteUttakDatoerEntitet avklarteUttakDatoer;
 
     // Registret og overstyrt personinfo
@@ -945,6 +946,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         if (oppgittFordeling != null) {
             ytelsesFordelingRepository.lagre(behandlingId, oppgittFordeling);
         }
+        if (justertFordeling != null) {
+            ytelsesFordelingRepository.lagreJustertFordeling(behandlingId, justertFordeling, avklarteUttakDatoer);
+        }
         if (avklarteUttakDatoer != null) {
             ytelsesFordelingRepository.lagre(behandlingId, avklarteUttakDatoer);
         }
@@ -1352,6 +1356,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medFordeling(OppgittFordelingEntitet oppgittFordeling) {
         this.oppgittFordeling = oppgittFordeling;
+        return (S) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public S medJustertFordeling(OppgittFordelingEntitet justertFordeling) {
+        this.justertFordeling = justertFordeling;
         return (S) this;
     }
 
