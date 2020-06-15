@@ -1,12 +1,16 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jboss.weld.exceptions.UnsupportedOperationException;
 import org.slf4j.Logger;
@@ -16,9 +20,14 @@ import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 
 public class UttakResultatHolderImpl implements UttakResultatHolder {
@@ -80,7 +89,9 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
     public boolean vurderOmErEndringIUttak(UttakResultatHolder uttakresultatSammenligneMed){
         List<ForeldrepengerUttakPeriode> uttaksPerioderTP = uttakresultatSammenligneMed.getGjeldendePerioder();
         List<ForeldrepengerUttakPeriode> originaleUttaksPerioderTP = getGjeldendePerioder();
-        return !erUttakresultatperiodeneLike(uttaksPerioderTP, originaleUttaksPerioderTP);
+        var gammelImpl = !erUttakresultatperiodeneLike(uttaksPerioderTP, originaleUttaksPerioderTP);
+        nySammenlignLogg(uttaksPerioderTP, originaleUttaksPerioderTP, gammelImpl);
+        return gammelImpl;
     }
 
     @Override
@@ -128,6 +139,114 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
             Objects.equals(a1.getTrekkdager(), a2.getTrekkdager()) &&
             (Objects.equals(a1.getArbeidsprosent(), a2.getArbeidsprosent()) || a1.getArbeidsprosent().compareTo(a2.getArbeidsprosent()) == 0) &&
             (Objects.equals(a1.getUtbetalingsgrad(), a2.getUtbetalingsgrad()) || a1.getUtbetalingsgrad().compareTo(a2.getUtbetalingsgrad()) == 0);
+    }
+
+    private void nySammenlignLogg(List<ForeldrepengerUttakPeriode> uttaksPerioderTP, List<ForeldrepengerUttakPeriode> originaleUttaksPerioderTP, boolean gammelImpl) {
+        LocalDateTimeline<WrapFUP> uttaksTL = new LocalDateTimeline<>(uttaksPerioderTP.stream()
+            .map(p -> new WrapFUP(p.getTidsperiode(), p))
+            .map(w -> new LocalDateSegment<>(w.getI(), w))
+            .collect(Collectors.toList()))
+            .compress(WrapFUP::erLikeNaboer, this::kombinerLikeNaboer);
+        LocalDateTimeline<WrapFUP> originalTL = new LocalDateTimeline<>(originaleUttaksPerioderTP.stream()
+            .map(p -> new WrapFUP(p.getTidsperiode(), p))
+            .map(w -> new LocalDateSegment<>(w.getI(), w))
+            .collect(Collectors.toList()))
+            .compress(WrapFUP::erLikeNaboer, this::kombinerLikeNaboer);
+        LocalDateTimeline<WrapFUP> kombinert = uttaksTL.combine(originalTL, this::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN);
+        var nyImpl = !kombinert.filterValue(Objects::nonNull).getDatoIntervaller().isEmpty();
+        if (gammelImpl != nyImpl)
+            LOG.info("BEHRES TIMELINE behresId {} avvik gammel {} ny {} timeline {} original {}", vedtak.getBehandlingsresultat().getId(), gammelImpl, nyImpl, uttaksTL, originalTL);
+    }
+
+    private LocalDateSegment<WrapFUP> kombinerLikeNaboer(LocalDateInterval i, LocalDateSegment<WrapFUP> lhs, LocalDateSegment<WrapFUP> rhs) {
+        if (lhs == null)
+            return rhs;
+        if (rhs == null)
+            return lhs;
+        return new LocalDateSegment<>(i, new WrapFUP(i, lhs.getValue(), rhs.getValue()));
+    }
+
+    private LocalDateSegment<WrapFUP> fjernLikePerioder(LocalDateInterval i, LocalDateSegment<WrapFUP> lhs, LocalDateSegment<WrapFUP> rhs) {
+        if (lhs == null)
+            return rhs;
+        if (rhs == null)
+            return lhs;
+        if (lhs.getValue().erLikePerioderTrekkdager(rhs.getValue()))
+            return null;
+        return lhs;
+    }
+
+    static class WrapFUP {
+        private final LocalDateInterval i;
+        private final ForeldrepengerUttakPeriode p;
+        private final Map<ForeldrepengerUttakAktivitet, Trekkdager> t;
+
+        WrapFUP(LocalDateInterval i, ForeldrepengerUttakPeriode p) {
+            this.i = i;
+            this.p = p;
+            this.t = p.getAktiviteter().stream()
+                .collect(Collectors.groupingBy(ForeldrepengerUttakPeriodeAktivitet::getUttakAktivitet,
+                    Collectors.reducing(Trekkdager.ZERO, ForeldrepengerUttakPeriodeAktivitet::getTrekkdager, Trekkdager::add)));
+        }
+
+        WrapFUP(LocalDateInterval i, WrapFUP p1, WrapFUP p2) {
+            this.i = i;
+            this.p = p1.getP();
+            this.t = Stream.of(p1.getP().getAktiviteter(), p2.getP().getAktiviteter()).flatMap(Collection::stream)
+                .collect(Collectors.groupingBy(ForeldrepengerUttakPeriodeAktivitet::getUttakAktivitet,
+                    Collectors.reducing(Trekkdager.ZERO, ForeldrepengerUttakPeriodeAktivitet::getTrekkdager, Trekkdager::add)));
+        }
+
+        public LocalDateInterval getI() {
+            return i;
+        }
+
+        public ForeldrepengerUttakPeriode getP() {
+            return p;
+        }
+
+        public Map<ForeldrepengerUttakAktivitet, Trekkdager> getT() {
+            return t;
+        }
+
+        public boolean erLikeNaboer(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            WrapFUP wrapFUP = (WrapFUP) o;
+            return erLikeNaboPerioder(this.getP(), wrapFUP.getP());
+        }
+
+        public boolean erLikePerioderTrekkdager(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            WrapFUP wrapFUP = (WrapFUP) o;
+            return erLikeNaboPerioder(this.getP(), wrapFUP.getP()) &&
+                Objects.equals(t, wrapFUP.t);
+        }
+
+    }
+
+    private static boolean erLikeNaboPerioder(ForeldrepengerUttakPeriode p1, ForeldrepengerUttakPeriode p2) {
+        if (p1.getAktiviteter().size() != p2.getAktiviteter().size()) {
+            LOG.info("BEHRES avvik antall aktiviteter");
+            return false;
+        }
+        var likeAktivitieter = p1.getAktiviteter().stream().allMatch(a1 -> p2.getAktiviteter().stream().anyMatch(a2 -> erLikNaboAktivitet(a1, a2)));
+        return Objects.equals(p1.isFlerbarnsdager(), p2.isFlerbarnsdager()) &&
+            Objects.equals(p1.getResultatType(), p2.getResultatType()) &&
+            Objects.equals(p1.getResultatÅrsak(), p2.getResultatÅrsak()) &&
+            Objects.equals(p1.isGraderingInnvilget(), p2.isGraderingInnvilget()) &&
+            Objects.equals(p1.getUtsettelseType(), p2.getUtsettelseType()) &&
+            Objects.equals(p1.getGraderingAvslagÅrsak(), p2.getGraderingAvslagÅrsak()) &&
+            likeAktivitieter;
+    }
+
+    private static boolean erLikNaboAktivitet(ForeldrepengerUttakPeriodeAktivitet a1, ForeldrepengerUttakPeriodeAktivitet a2) {
+        if (Objects.equals(a1.getTrekkdager(), Trekkdager.ZERO) && Objects.equals(a2.getTrekkdager(), Trekkdager.ZERO))
+            return Objects.equals(a1.getUttakAktivitet(), a2.getUttakAktivitet());
+        if (Objects.equals(a1.getTrekkdager(), Trekkdager.ZERO) || Objects.equals(a2.getTrekkdager(), Trekkdager.ZERO))
+            return false;
+        return a1.likBortsettFraTrekkdager(a2);
     }
 
 }
