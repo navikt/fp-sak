@@ -180,7 +180,7 @@ public class DatavarehusEventObserverTest {
         BehandlingVedtakEvent event = new BehandlingVedtakEvent(vedtak, behandling);
 
         datavarehusEventObserver.observerBehandlingVedtakEvent(event);
-        verify(datavarehusTjeneste).lagreNedVedtak(eq(vedtak), eq(behandling.getId()));
+        verify(datavarehusTjeneste).lagreNedVedtak(eq(vedtak), eq(behandling));
     }
 
     private BehandlingVedtak byggVedtak() {

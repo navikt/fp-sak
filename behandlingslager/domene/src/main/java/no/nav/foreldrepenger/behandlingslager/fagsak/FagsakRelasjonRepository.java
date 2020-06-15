@@ -382,7 +382,9 @@ public class FagsakRelasjonRepository {
     }
 
     public List<Fagsak> finnFagsakerForAvsluttning(LocalDate localDate) {
-        TypedQuery<Fagsak> query = entityManager.createQuery("select f from Fagsak f inner join FagsakRelasjon fr on (f.id in (fr.fagsakNrEn, fr.fagsakNrTo) and fr.aktiv=true) where f.fagsakStatus = 'LOP' and fr.avsluttningsdato<=:datogrense",
+        TypedQuery<Fagsak> query = entityManager.createQuery("select f from Fagsak f " +
+                "inner join FagsakRelasjon fr on (f.id in (fr.fagsakNrEn, fr.fagsakNrTo) and fr.aktiv=true) " +
+                "where f.fagsakStatus = 'LOP' and fr.avsluttningsdato<=:datogrense",
             Fagsak.class);
 
         LocalDate datogrense = localDate != null ? localDate : LocalDate.now();

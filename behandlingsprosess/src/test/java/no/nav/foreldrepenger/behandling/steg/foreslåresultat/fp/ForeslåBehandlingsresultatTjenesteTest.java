@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.ErEndringIUttakFraEndringsdatoImpl;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.ErEndringIUttakImpl;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.HarEtablertYtelseImpl;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingBehandlingsresultatutleder;
@@ -99,7 +99,7 @@ public class ForeslåBehandlingsresultatTjenesteTest {
             opphørUttakTjeneste,
             new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
                 uttakTjeneste, repositoryProvider.getBehandlingVedtakRepository()),
-            new ErEndringIUttakFraEndringsdatoImpl(),
+            new ErEndringIUttakImpl(),
             new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl(),
             skjæringstidspunktTjeneste,
             medlemTjeneste,

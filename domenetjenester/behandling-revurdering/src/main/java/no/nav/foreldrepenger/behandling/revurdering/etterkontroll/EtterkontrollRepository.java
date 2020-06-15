@@ -1,24 +1,20 @@
 package no.nav.foreldrepenger.behandling.revurdering.etterkontroll;
 
 import java.time.LocalDate;
-import java.time.Period;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
-import no.nav.vedtak.util.FPDateUtil;
 /**
  * Oppdatering av tilstand for etterkontroll av behandling.
  */
@@ -26,31 +22,25 @@ import no.nav.vedtak.util.FPDateUtil;
 public class EtterkontrollRepository {
 
     private EntityManager entityManager;
+    private BehandlingRepository behandlingRepository;
 
-    protected EtterkontrollRepository() {
+    EtterkontrollRepository() {
         // for CDI proxy
     }
 
     @Inject
     public EtterkontrollRepository(@VLPersistenceUnit EntityManager entityManager) {
         this.entityManager = entityManager;
+        this.behandlingRepository = new BehandlingRepository(entityManager);
     }
-
-    protected EntityManager getEntityManager() {
-        return entityManager;
-    }
-
 
     public List<Etterkontroll> finnEtterkontrollForFagsak(long fagsakId,KontrollType kontrollType ) {
-        List<Etterkontroll> resultList = entityManager.createQuery(
+        return entityManager.createQuery(
             "from Etterkontroll " +
                 "where fagsakId = :fagsakId and kontrollType = :kontrollType", Etterkontroll.class)//$NON-NLS-1$
             .setParameter("fagsakId", fagsakId)
             .setParameter("kontrollType",kontrollType)
             .getResultList();
-
-        return resultList;
-
     }
 
 
@@ -60,71 +50,37 @@ public class EtterkontrollRepository {
      * @return id for {@link Etterkontroll} opprettet
      */
     public Long lagre(Etterkontroll etterkontroll) {
-        getEntityManager().persist(etterkontroll);
-        getEntityManager().flush();
+        entityManager.persist(etterkontroll);
+        entityManager.flush();
         return etterkontroll.getId();
     }
-
 
     /**
      * Setter sak til behandlet=Y i etterkontroll slik at batch ikke plukker saken opp for revurdering
      *
      * @param fagsakId id i databasen
      */
-    public int avflaggDersomEksisterer(Long fagsakId,KontrollType kontrollType){
-        int antall=0;
-        List<Etterkontroll> etterkontroll=  finnEtterkontrollForFagsak( fagsakId, kontrollType );
-        for(Etterkontroll ek : etterkontroll){
+    public void avflaggDersomEksisterer(Long fagsakId,KontrollType kontrollType){
+        finnEtterkontrollForFagsak(fagsakId, kontrollType).forEach(ek -> {
             ek.setErBehandlet(true);
             lagre(ek);
-            antall++;
-        }
-        return antall;
+        });
     }
 
-    public List<Behandling> finnKandidaterForAutomatiskEtterkontroll(Period etterkontrollTidTilbake) {
+    public List<Behandling> finnKandidaterForAutomatiskEtterkontroll() {
 
-        LocalDate datoTilbakeITid = FPDateUtil.iDag().minus(etterkontrollTidTilbake);
-        java.time.LocalDateTime datoTidTilbake = datoTilbakeITid.atStartOfDay();
+        LocalDateTime datoTidTilbake = LocalDate.now().atStartOfDay().plusHours(1);
 
-        Query query1 = getEntityManager().createQuery(
-            " FROM Behandling b WHERE " +
-                "  behandlingType in (:ytelsetyper) " +
-                "  AND EXISTS (SELECT k FROM Etterkontroll k" +
-                "    WHERE k.fagsakId=b.fagsak.id  " +
-                "    AND k.erBehandlet = false" +
-                "    AND k.kontrollTidspunkt <= :periodeTilbake)" +
-                "  AND NOT EXISTS (SELECT r FROM Behandlingsresultat r" +
-                "    WHERE r.behandling=b " +
-                "    AND r.behandlingResultatType IN :henlagtKoder)" +
-                " ORDER BY b.opprettetTidspunkt DESC" //$NON-NLS-1$
-        );
-        query1.setParameter("ytelsetyper", BehandlingType.getYtelseBehandlingTyper());
-        query1.setParameter("periodeTilbake", datoTidTilbake);
-        query1.setParameter("henlagtKoder", BehandlingResultatType.getAlleHenleggelseskoder());
-        @SuppressWarnings("unchecked")
-        List<Behandling> result = query1.getResultList();
+        TypedQuery<Fagsak> query = entityManager.createQuery(
+            "select f from Fagsak f inner join Etterkontroll k on f.id = k.fagsakId " +
+                "where k.erBehandlet = false and k.kontrollTidspunkt <= :periodeTilbake",
+            Fagsak.class);
+        query.setParameter("periodeTilbake", datoTidTilbake);
 
-        Collection<Behandling> ret = getSisteBehandlingPerFagsak(result);
-
-        if (ret.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return new ArrayList<>(ret);
+        return query.getResultList().stream()
+            .map(Fagsak::getId)
+            .map(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling)
+            .flatMap(Optional::stream)
+            .collect(Collectors.toList());
     }
-
-
-    private Collection<Behandling> getSisteBehandlingPerFagsak(List<Behandling> behandlinger) {
-        Map<Long, Behandling> fagsakIdToBehandling = new LinkedHashMap<>();
-        for (Behandling b :behandlinger ) {
-            Long fagsakId = b.getFagsakId(); // NOSONAR
-            Behandling tb = fagsakIdToBehandling.get(fagsakId);
-            if(tb == null || (b.getOpprettetTidspunkt().compareTo(tb.getOpprettetTidspunkt())) > 0 ) {
-                fagsakIdToBehandling.put(fagsakId, b);
-            }
-        }
-        return fagsakIdToBehandling.values();
-    }
-
-
 }

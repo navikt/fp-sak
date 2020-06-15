@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjenesteImpl;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -55,7 +54,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningDtoTjeneste;
-import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonConsumer;
 
 public class MedlemDtoTjenesteTest {
 
@@ -251,8 +249,7 @@ public class MedlemDtoTjenesteTest {
 
         PersonIdentTjeneste tpsTjeneste = mock(PersonIdentTjeneste.class);
         when(tpsTjeneste.hentBrukerForAktør(AktørId.dummy())).thenReturn(Optional.ofNullable(person));
-        var virksomhetTjeneste = new VirksomhetTjeneste(Mockito.mock(OrganisasjonConsumer.class), repositoryProvider.getVirksomhetRepository());
-        ArbeidsgiverTjenesteImpl tjeneste = new ArbeidsgiverTjenesteImpl(tpsTjeneste, virksomhetTjeneste);
+        ArbeidsgiverTjeneste tjeneste = new ArbeidsgiverTjeneste(tpsTjeneste, mock(VirksomhetTjeneste.class));
 
         MedlemTjeneste medlemTjenesteMock = mock(MedlemTjeneste.class);
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any())).thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());

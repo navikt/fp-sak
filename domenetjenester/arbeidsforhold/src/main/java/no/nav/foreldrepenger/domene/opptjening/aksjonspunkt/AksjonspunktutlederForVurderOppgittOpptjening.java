@@ -40,8 +40,8 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
@@ -209,7 +209,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
             return lagretVirksomhet.get().getRegistrert().getYear() > sistFerdiglignetÅr;
         } else {
             // Virksomhetsinformasjonen er ikke hentet, henter vi den fra ereg. Innført etter feil som oppstod i https://jira.adeo.no/browse/TFP-1484
-            Virksomhet hentetVirksomhet = virksomhetTjeneste.hentOgLagreOrganisasjon(eg.getOrgnr());
+            Virksomhet hentetVirksomhet = virksomhetTjeneste.hentOrganisasjon(eg.getOrgnr());
             return hentetVirksomhet.getRegistrert().getYear() > sistFerdiglignetÅr;
         }
     }

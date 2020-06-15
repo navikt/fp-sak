@@ -143,7 +143,7 @@ public class InntektArbeidYtelseDtoMapper {
         List<Inntektsmelding> inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref.getAktørId(), dato, iayGrunnlag);
         return inntektsmeldinger.stream()
             .map(inntektsmelding -> {
-                Optional<Virksomhet> virksomhet = virksomhetTjeneste.hentVirksomhet(inntektsmelding.getArbeidsgiver().getOrgnr());
+                Optional<Virksomhet> virksomhet = virksomhetTjeneste.finnOrganisasjon(inntektsmelding.getArbeidsgiver().getOrgnr());
                 return new InntektsmeldingDto(inntektsmelding, virksomhet);
             })
             .collect(Collectors.toList());

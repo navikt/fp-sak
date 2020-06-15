@@ -20,9 +20,8 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.ErEndringIUttakFraEndringsdatoImpl;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.ErEndringIUttakImpl;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.RevurderingBehandlingsresultatutleder;
 import no.nav.foreldrepenger.behandling.steg.foreslåresultat.AvslagsårsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -78,7 +77,6 @@ public class ForeslåBehandlingsresultatTjenesteTest {
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
     private ForeslåBehandlingsresultatTjenesteImpl tjeneste;
     private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private UttakInputTjeneste uttakInputTjeneste = mock(UttakInputTjeneste.class);
     private MedlemTjeneste medlemTjeneste = mock(MedlemTjeneste.class);
 
     private final BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -91,8 +89,7 @@ public class ForeslåBehandlingsresultatTjenesteTest {
             beregningsgrunnlagTjeneste,
             endringsdatoRevurderingUtlederImpl,
             opphørUttakTjeneste,
-            uttakInputTjeneste,
-            new ErEndringIUttakFraEndringsdatoImpl(),
+            new ErEndringIUttakImpl(),
             new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl(),
             skjæringstidspunktTjeneste,
             medlemTjeneste));

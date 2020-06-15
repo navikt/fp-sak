@@ -64,7 +64,7 @@
 
         <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
 
-        <felles.version>1.8-20200525115735-89cb933</felles.version>
+        <felles.version>1.9-20200611133813-b2fa736</felles.version>
         <prosesstask.version>2.0.0-20200118083448-d87fd6d</prosesstask.version>
 
         <metrics.version>3.2.5</metrics.version>
@@ -414,7 +414,7 @@
             <dependency>
                 <groupId>no.nav.fpsak.tidsserie</groupId>
                 <artifactId>fpsak-tidsserie</artifactId>
-                <version>2.0_20180831125757_006dad2</version>
+                <version>2.3-20200608173530-61c51da</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.fpsak.nare</groupId>
@@ -765,7 +765,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.6.0</version>
+                    <version>3.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>

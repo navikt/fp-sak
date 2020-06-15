@@ -23,8 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
@@ -39,7 +37,6 @@ public class FaktaUttakArbeidsforholdTjenesteImplTest {
 
     @Rule
     public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private VirksomhetRepository virksomhetRepository = new VirksomhetRepository();
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
 
     @Test
@@ -49,8 +46,8 @@ public class FaktaUttakArbeidsforholdTjenesteImplTest {
 
         String virksomhetOrgnr1 = "123";
         String virksomhetOrgnr2 = "456";
-        Virksomhet virksomhet1 = lagreVirksomhet(virksomhetOrgnr1, "navn");
-        Virksomhet virksomhet2 = lagreVirksomhet(virksomhetOrgnr2, "navn2");
+        Virksomhet virksomhet1 = lagVirksomhet(virksomhetOrgnr1, "navn");
+        Virksomhet virksomhet2 = lagVirksomhet(virksomhetOrgnr2, "navn2");
 
         AktørId aktørId = AktørId.dummy();
         Personinfo personinfo = lagrePerson(aktørId, "Person Navn", LocalDate.of(2000, 1, 1));
@@ -144,14 +141,11 @@ public class FaktaUttakArbeidsforholdTjenesteImplTest {
             .build();
     }
 
-    private Virksomhet lagreVirksomhet(String orgnr, String navn) {
-        Virksomhet virksomhet = new VirksomhetEntitet.Builder()
+    private Virksomhet lagVirksomhet(String orgnr, String navn) {
+        return new Virksomhet.Builder()
             .medOrgnr(orgnr)
             .medNavn(navn)
-            .oppdatertOpplysningerNå()
             .build();
-        virksomhetRepository.lagre(virksomhet);
-        return virksomhet;
     }
 
     private FaktaUttakArbeidsforholdTjeneste tjeneste() {

@@ -13,7 +13,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 
 public class Kopimaskin {
     private static final Set<String> COMMON_FIELD_NAMES = Set.of("id", "versjon", "opprettetAv", "opprettetTidspunkt", "endretAv", "endretTidspunkt");
@@ -35,7 +35,7 @@ public class Kopimaskin {
             Map map = (Map) object;
             return deepCopyMap(map, parent);
         }
-        if (!(object instanceof BaseEntitet) || object instanceof VirksomhetEntitet) {
+        if (!(object instanceof BaseEntitet) || object instanceof Virksomhet) {
             return object;
         }
         try {

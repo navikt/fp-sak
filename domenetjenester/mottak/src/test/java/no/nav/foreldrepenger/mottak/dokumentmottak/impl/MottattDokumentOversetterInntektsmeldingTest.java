@@ -13,8 +13,6 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -49,11 +47,6 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.MottattDokumentOversetterInntektsmelding;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.MottattDokumentWrapperInntektsmelding;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.xml.MottattDokumentXmlParser;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.Organisasjon;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.OrganisasjonsDetaljer;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.informasjon.UstrukturertNavn;
-import no.nav.tjeneste.virksomhet.organisasjon.v4.meldinger.HentOrganisasjonResponse;
-import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonConsumer;
 
 public class MottattDokumentOversetterInntektsmeldingTest {
     private static final DatatypeFactory DATATYPE_FACTORY;
@@ -68,7 +61,7 @@ public class MottattDokumentOversetterInntektsmeldingTest {
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
-    private final OrganisasjonConsumer organisasjonConsumer = mock(OrganisasjonConsumer.class);
+    private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
     private final FileToStringUtil fileToStringUtil = new FileToStringUtil();
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
 
@@ -79,21 +72,8 @@ public class MottattDokumentOversetterInntektsmeldingTest {
 
     @Before
     public void setUp() throws Exception {
-        final HentOrganisasjonResponse hentOrganisasjonResponse = new HentOrganisasjonResponse();
-        final Organisasjon value = new Organisasjon();
-        final UstrukturertNavn navn = new UstrukturertNavn();
-        navn.getNavnelinje().add("Ukjent Firma");
-        value.setNavn(navn);
-        value.setOrgnummer(KUNSTIG_ORG);
-        final OrganisasjonsDetaljer detaljer = new OrganisasjonsDetaljer();
-        GregorianCalendar c = new GregorianCalendar();
-        c.setTime(new Date());
-        detaljer.setRegistreringsDato(DATATYPE_FACTORY.newXMLGregorianCalendar(c));
-        value.setOrganisasjonDetaljer(detaljer);
-        hentOrganisasjonResponse.setOrganisasjon(value);
-        when(organisasjonConsumer.hentOrganisasjon(any())).thenReturn(hentOrganisasjonResponse);
-        VirksomhetTjeneste virksomhetTjeneste = new VirksomhetTjeneste(organisasjonConsumer, new VirksomhetRepository());
-
+        when(virksomhetTjeneste.finnOrganisasjon(any()))
+            .thenReturn(Optional.of(Virksomhet.getBuilder().medOrgnr(KUNSTIG_ORG).medNavn("Ukjent Firma").medRegistrert(LocalDate.now().minusDays(1)).build()));
         oversetter = new MottattDokumentOversetterInntektsmelding(inntektsmeldingTjeneste, virksomhetTjeneste);
     }
 

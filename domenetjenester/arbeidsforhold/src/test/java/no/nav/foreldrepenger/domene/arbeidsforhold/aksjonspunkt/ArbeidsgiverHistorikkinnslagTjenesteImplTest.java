@@ -20,10 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjenesteImpl;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -52,8 +50,8 @@ public class ArbeidsgiverHistorikkinnslagTjenesteImplTest {
         when(tpsTjeneste.hentBrukerForAktør(any(AktørId.class))).thenReturn(Optional.of(lagPersoninfo()));
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(any())).thenReturn(VIRKSOMHET);
-        ArbeidsgiverTjeneste arbeidsgiverTjeneste = new ArbeidsgiverTjenesteImpl(tpsTjeneste, virksomhetTjeneste);
+        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(VIRKSOMHET);
+        ArbeidsgiverTjeneste arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(tpsTjeneste, virksomhetTjeneste);
         arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste);
     }
 
@@ -116,7 +114,7 @@ public class ArbeidsgiverHistorikkinnslagTjenesteImplTest {
     }
 
     private static Virksomhet lagVirksomhet(String orgnr) {
-        VirksomhetEntitet.Builder b = new VirksomhetEntitet.Builder();
+        Virksomhet.Builder b = new Virksomhet.Builder();
         b.medOrgnr(orgnr).medNavn(ORG_NAVN);
         return b.build();
     }

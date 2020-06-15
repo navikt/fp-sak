@@ -13,12 +13,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.HentOppdragMedPositivKvittering;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 
 public class HentOppdragMedPositivKvitteringTest {
 
@@ -88,6 +86,49 @@ public class HentOppdragMedPositivKvitteringTest {
 
         // Assert
         assertThat(resultater).isEmpty();
+    }
+
+    @Test
+    public void skalHenteOppdrag110MedPositivKvitteringForBehandlingFeilHvisVenter() {
+        // Arrange
+        OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
+
+        // Act
+        var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling);
+
+        // Assert
+        assertThat(resultater).hasSize(1);
+    }
+
+    @Test
+    public void skalHenteOppdrag110MedNegativOgPositivKvitteringForBehandlingFeilHvisVenter() {
+        // Arrange
+        lagToOppdrag110MedPositivOgNegativKvittering();
+
+        // Act
+        var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling);
+
+        // Assert
+        assertThat(resultater).hasSize(1);
+    }
+
+    @Test
+    public void skalIkkeHenteOppdrag110MedNegativKvitteringForBehandlingFeilHvisVenter() {
+        // Arrange
+        OppdragKvitteringTestUtil.lagNegativeKvitteringer(oppdragskontroll);
+
+        // Act
+        var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling);
+
+        // Assert
+        assertThat(resultater).isEmpty();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void skalIkkeHenteOppdrag110UtenKvitteringForBehandlingFeilHvisVenter() {
+        // Act
+        var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling);
+
     }
 
     @Test

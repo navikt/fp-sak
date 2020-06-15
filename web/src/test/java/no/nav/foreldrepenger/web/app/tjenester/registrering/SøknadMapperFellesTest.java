@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
@@ -64,8 +64,8 @@ public class SøknadMapperFellesTest {
     public void setUp() {
         tpsTjeneste = mock(TpsTjeneste.class);
         virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        VirksomhetEntitet virksomhetEntitet = new VirksomhetEntitet.Builder().medOrgnr("123").medRegistrert(LocalDate.now()).build();
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(anyString())).thenReturn(virksomhetEntitet);
+        Virksomhet virksomhetEntitet = new Virksomhet.Builder().medOrgnr("123").medRegistrert(LocalDate.now()).build();
+        when(virksomhetTjeneste.hentOrganisasjon(anyString())).thenReturn(virksomhetEntitet);
     }
 
     @Test

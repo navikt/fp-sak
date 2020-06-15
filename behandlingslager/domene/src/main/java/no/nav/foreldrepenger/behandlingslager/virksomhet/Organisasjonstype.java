@@ -4,9 +4,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -23,6 +20,7 @@ public enum Organisasjonstype implements Kodeverdi {
 
     JURIDISK_ENHET("JURIDISK_ENHET", "Juridisk enhet"),
     VIRKSOMHET("VIRKSOMHET", "Virksomhet"),
+    ORGLEDD("ORGANISASJONSLEDD", "Organisasjonsledd"),
     KUNSTIG("KUNSTIG", "Kunstig arbeidsforhold lagt til av saksbehandler"),
     UDEFINERT("-", "Udefinert"),
     ;
@@ -88,30 +86,17 @@ public enum Organisasjonstype implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     public static boolean erKunstig(String orgNr) {
         return OrgNummer.KUNSTIG_ORG.equals(orgNr);
     }
 
     public static void main(String[] args) {
         System.out.println(KODER.keySet());
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<Organisasjonstype, String> {
-        @Override
-        public String convertToDatabaseColumn(Organisasjonstype attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public Organisasjonstype convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
     }
 }

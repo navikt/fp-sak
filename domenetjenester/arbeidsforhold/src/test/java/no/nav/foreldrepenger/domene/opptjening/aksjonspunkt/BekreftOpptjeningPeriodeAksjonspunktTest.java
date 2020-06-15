@@ -34,8 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -63,7 +62,6 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
 
     private BehandlingRepository behandlingRepository = new BehandlingRepository(repoRule.getEntityManager());
     private FagsakRepository fagsakRepository = new FagsakRepository(repoRule.getEntityManager());
-    private VirksomhetRepository virksomhetRepository = new VirksomhetRepository();
     private VirksomhetTjeneste tjeneste;
 
     private BekreftOpptjeningPeriodeAksjonspunkt bekreftOpptjeningPeriodeAksjonspunkt;
@@ -75,12 +73,10 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
     @Before
     public void oppsett() {
         tjeneste = mock(VirksomhetTjeneste.class);
-        VirksomhetEntitet.Builder builder = new VirksomhetEntitet.Builder();
-        VirksomhetEntitet børreAs = builder.medOrgnr(KUNSTIG_ORG)
-            .oppdatertOpplysningerNå()
+        Virksomhet.Builder builder = new Virksomhet.Builder();
+        Virksomhet børreAs = builder.medOrgnr(KUNSTIG_ORG)
             .medNavn("Børre AS")
             .build();
-        virksomhetRepository.lagre(børreAs);
         Mockito.when(tjeneste.finnOrganisasjon(Mockito.any())).thenReturn(Optional.of(børreAs));
         bekreftOpptjeningPeriodeAksjonspunkt = new BekreftOpptjeningPeriodeAksjonspunkt(iayTjeneste, vurderOpptjening);
     }

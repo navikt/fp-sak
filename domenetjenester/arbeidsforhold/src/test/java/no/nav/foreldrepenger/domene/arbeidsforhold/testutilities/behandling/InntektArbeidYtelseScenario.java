@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
-import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,9 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
@@ -24,8 +20,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
@@ -44,16 +38,11 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class InntektArbeidYtelseScenario {
 
     private InntektArbeidYtelseScenarioTestBuilder inntektArbeidYtelseScenarioTestBuilder;
     private OppgittOpptjeningBuilder oppgittOpptjeningBuilder;
-
-    static VirksomhetRepository mockVirksomhetRepository() {
-        return mock(VirksomhetRepository.class);
-    }
 
     public InntektArbeidYtelseScenarioTestBuilder getInntektArbeidYtelseScenarioTestBuilder() {
         if (inntektArbeidYtelseScenarioTestBuilder == null) {
@@ -103,22 +92,6 @@ public class InntektArbeidYtelseScenario {
 
     void lagreOppgittOpptjening(IAYRepositoryProvider repositoryProvider, Behandling behandling) {
         if (oppgittOpptjeningBuilder != null) {
-            VirksomhetRepository virksomhetRepository = repositoryProvider.getVirksomhetRepository();
-            OppgittOpptjening oppgittOpptjening = oppgittOpptjeningBuilder.build();
-            oppgittOpptjening.getEgenNæring().stream()
-                .filter(egenNæring -> egenNæring.getOrgnr() != null)
-                .map(OppgittEgenNæring::getOrgnr)
-                .forEach(orgnr -> {
-                    var virk = virksomhetRepository.hent(orgnr);
-                    if (!virk.isPresent()) {
-                        virksomhetRepository.lagre(new VirksomhetEntitet.Builder()
-                            .medOrgnr(orgnr)
-                            .medOrganisasjonstype(Organisasjonstype.erKunstig(orgnr) ? Organisasjonstype.KUNSTIG : Organisasjonstype.VIRKSOMHET)
-                            .medNavn("Virksomhet-" + orgnr)
-                            .build());
-                    }
-                });
-
             repositoryProvider.getInntektArbeidYtelseTjeneste().lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
         }
     }
@@ -127,14 +100,14 @@ public class InntektArbeidYtelseScenario {
         private InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder;
 
         // Permisjon
-        private LocalDate permisjonFom = FPDateUtil.iDag().minusWeeks(9L);
-        private LocalDate permisjonTom = FPDateUtil.iDag().minusWeeks(2L);
+        private LocalDate permisjonFom = LocalDate.now().minusWeeks(9L);
+        private LocalDate permisjonTom = LocalDate.now().minusWeeks(2L);
         private BigDecimal permisjonsprosent = BigDecimal.valueOf(100);
         private PermisjonsbeskrivelseType permisjonsbeskrivelseType = PermisjonsbeskrivelseType.UDEFINERT;
 
         // AktivitetsAvtale
-        private LocalDate aktivitetsAvtaleFom = FPDateUtil.iDag().minusYears(3L);
-        private LocalDate aktivitetsAvtaleTom = FPDateUtil.iDag();
+        private LocalDate aktivitetsAvtaleFom = LocalDate.now().minusYears(3L);
+        private LocalDate aktivitetsAvtaleTom = LocalDate.now();
         private BigDecimal aktivitetsAvtaleProsentsats = BigDecimal.TEN;
         private BigDecimal aktivitetsAvtaleAntallTimer = BigDecimal.valueOf(20.4d);
         private BigDecimal aktivitetsAvtaleAntallTimerFulltid = BigDecimal.valueOf(10.2d);
@@ -153,13 +126,13 @@ public class InntektArbeidYtelseScenario {
         // Inntektspost
         private InntektspostType inntektspostType = InntektspostType.UDEFINERT;
         private BigDecimal inntektspostBeløp = BigDecimal.TEN;
-        private LocalDate inntektspostFom = FPDateUtil.iDag().minusYears(3L);
-        private LocalDate inntektspostTom = FPDateUtil.iDag();
+        private LocalDate inntektspostFom = LocalDate.now().minusYears(3L);
+        private LocalDate inntektspostTom = LocalDate.now();
         private YtelseType inntektspostYtelseType = OffentligYtelseType.UDEFINERT;
 
         // RelaterteYtelser
         private RelatertYtelseType ytelseType = null;
-        private LocalDate iverksettelsesDato = FPDateUtil.iDag().minusYears(5L);
+        private LocalDate iverksettelsesDato = LocalDate.now().minusYears(5L);
         private RelatertYtelseTilstand relatertYtelseTilstand = RelatertYtelseTilstand.AVSLUTTET;
         private TemaUnderkategori ytelseBehandlingstema = TemaUnderkategori.FORELDREPENGER_SVANGERSKAPSPENGER;
         private LocalDate tomDato;

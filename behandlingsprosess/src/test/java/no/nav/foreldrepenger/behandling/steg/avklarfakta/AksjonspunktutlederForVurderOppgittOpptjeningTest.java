@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.steg.avklarfakta;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.math.BigDecimal;
@@ -27,8 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -59,7 +58,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest {
 
     private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
-    private VirksomhetTjeneste virksomhetTjeneste = new VirksomhetTjeneste(null, repositoryProvider.getVirksomhetRepository());
+    private VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
 
     @Spy
     private AksjonspunktutlederForVurderOppgittOpptjening utleder = new AksjonspunktutlederForVurderOppgittOpptjening(
@@ -199,16 +198,6 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest {
         LocalDate tilOgMed = LocalDate.now().plusMonths(1);
         DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
 
-        String orgnr = KUNSTIG_ORG;
-        Virksomhet virksomhet = new VirksomhetEntitet.Builder()
-            .medOrgnr(orgnr)
-            .medNavn("Virksomhet")
-            .medRegistrert(LocalDate.now())
-            .medOppstart(LocalDate.now())
-            .oppdatertOpplysningerNå()
-            .build();
-        repositoryProvider.getVirksomhetRepository().lagre(virksomhet);
-
         Behandling behandling = lagre(scenario);
 
         OppgittOpptjeningBuilder.EgenNæringBuilder egenNæringBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny();
@@ -221,7 +210,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest {
             .medRegnskapsførerNavn("Jacob")
             .medRegnskapsførerTlf("+46678456345")
             .medVirksomhetType(VirksomhetType.FISKE)
-            .medVirksomhet(orgnr);
+            .medVirksomhet(KUNSTIG_ORG);
         OppgittOpptjeningBuilder oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
         oppgittOpptjeningBuilder
             .leggTilEgneNæringer(Collections.singletonList(egenNæringBuilder));

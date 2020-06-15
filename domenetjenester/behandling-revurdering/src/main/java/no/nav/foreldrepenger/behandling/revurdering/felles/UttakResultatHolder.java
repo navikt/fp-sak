@@ -23,7 +23,7 @@ public interface UttakResultatHolder {
 
     boolean kontrollerErSisteUttakAvslåttMedÅrsak();
 
-    boolean vurderOmErEndringIUttakFraEndringsdato(LocalDate endringsdato, UttakResultatHolder uttakresultatSammenligneMed);
+    boolean vurderOmErEndringIUttak(UttakResultatHolder uttakresultatSammenligneMed);
 
     Optional<BehandlingVedtak> getBehandlingVedtak();
 }

@@ -12,7 +12,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -62,15 +61,14 @@ public class HendelsePublisererTjenesteTest {
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     private FeedRepository feedRepository = new FeedRepository(repoRule.getEntityManager());
     private BehandlingRepository behandlingRepository = new BehandlingRepository(repoRule.getEntityManager());
-    private BehandlingVedtakRepository vedtakRepo = new BehandlingVedtakRepository(repoRule.getEntityManager(), behandlingRepository);
+    private BehandlingVedtakRepository vedtakRepo = new BehandlingVedtakRepository(repoRule.getEntityManager());
     private BeregningsresultatRepository beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
-    private EtterkontrollRepository etterkontrollRepository = new EtterkontrollRepository(repoRule.getEntityManager());
 
     private HendelsePublisererTjeneste tjeneste;
 
     @Before
     public void setUp() {
-        tjeneste = new HendelsePublisererTjeneste(etterkontrollRepository, repositoryProvider, feedRepository );
+        tjeneste = new HendelsePublisererTjeneste(repositoryProvider, feedRepository );
     }
 
     @Test

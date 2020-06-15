@@ -402,7 +402,7 @@ public class SøknadMapperFelles {
             NorskOrganisasjon norskOrganisasjon = new NorskOrganisasjon();
             norskOrganisasjon.setOrganisasjonsnummer(virksomhetDto.getOrganisasjonsnummer());
             norskOrganisasjon.setNavn(virksomhetDto.getNavn());
-            Virksomhet virksomhet = virksomhetTjeneste.hentOgLagreOrganisasjon(virksomhetDto.getOrganisasjonsnummer());
+            Virksomhet virksomhet = virksomhetTjeneste.hentOrganisasjon(virksomhetDto.getOrganisasjonsnummer());
             Periode periode = new Periode();
             periode.setFom(virksomhet.getRegistrert());
             periode.setTom(virksomhet.getAvslutt() != null ? virksomhet.getAvslutt() : Tid.TIDENES_ENDE);

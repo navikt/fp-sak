@@ -30,14 +30,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjenesteImpl;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -63,7 +62,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
 
     private VirksomhetTjeneste virksomhetTjeneste = Mockito.mock(VirksomhetTjeneste.class);
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjenesteMock = Mockito.mock(InntektArbeidYtelseTjeneste.class);
-    private ArbeidsgiverTjenesteImpl arbeidsgiverTjeneste = new ArbeidsgiverTjenesteImpl(null, virksomhetTjeneste);
+    private ArbeidsgiverTjeneste arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(null, virksomhetTjeneste);
     private BeregningsresultatMedUttaksplanMapper beregningsresultatMedUttaksplanMapper = new BeregningsresultatMedUttaksplanMapper(arbeidsgiverTjeneste, inntektArbeidYtelseTjenesteMock);
 
     @Test
@@ -167,12 +166,11 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     private Virksomhet lagVirksomhet(String orgnr) {
-        var virksomhet = new VirksomhetEntitet.Builder()
+        var virksomhet = new Virksomhet.Builder()
             .medOrgnr(orgnr)
             .medNavn("Virknavn " + orgnr)
-            .oppdatertOpplysningerNå()
             .build();
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(orgnr)).thenReturn(virksomhet);
+        when(virksomhetTjeneste.hentOrganisasjon(orgnr)).thenReturn(virksomhet);
 
         return virksomhet;
     }

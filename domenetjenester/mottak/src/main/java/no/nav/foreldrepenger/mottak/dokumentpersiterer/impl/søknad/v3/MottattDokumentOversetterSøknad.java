@@ -411,7 +411,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
             if (arbeidsforhold instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet) {
                 String orgnr = ((no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet) arbeidsforhold).getIdentifikator();
-                virksomhetTjeneste.hentOgLagreOrganisasjon(orgnr);
+                virksomhetTjeneste.hentOrganisasjon(orgnr);
                 arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
             } else {
                 PersonIdent arbeidsgiverIdent = new PersonIdent(((no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver) arbeidsforhold).getIdentifikator());
@@ -590,7 +590,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             return Arbeidsgiver.person(aktørId.get());
         } else if (arbeidsgiverFraSøknad instanceof no.nav.vedtak.felles.xml.soeknad.uttak.v3.Virksomhet) { // NOSONAR
             String orgnr = arbeidsgiverFraSøknad.getIdentifikator();
-            virksomhetTjeneste.hentOgLagreOrganisasjon(orgnr);
+            virksomhetTjeneste.hentOrganisasjon(orgnr);
             return Arbeidsgiver.virksomhet(orgnr);
         } else {
             throw new IllegalStateException("Ukjent arbeidsgiver type " + arbeidsgiverFraSøknad.getClass());
@@ -660,7 +660,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         if (egenNæring instanceof NorskOrganisasjon) {
             NorskOrganisasjon norskOrganisasjon = (NorskOrganisasjon) egenNæring;
             String orgNr = norskOrganisasjon.getOrganisasjonsnummer();
-            virksomhetTjeneste.hentOgLagreOrganisasjon(orgNr);
+            virksomhetTjeneste.hentOrganisasjon(orgNr);
             egenNæringBuilder.medVirksomhet(orgNr);
         } else {
             UtenlandskOrganisasjon utenlandskOrganisasjon = (UtenlandskOrganisasjon) egenNæring;

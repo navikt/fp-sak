@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjenesteMock;
@@ -111,7 +111,7 @@ public class InntektsmeldingTjenesteImplTest {
         this.arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet1.getOrgnr());
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(any())).thenReturn(virksomhet1);
+        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet1);
         arbeidsforholdTjenesteMock = new ArbeidsforholdTjenesteMock(false);
         var vurderArbeidsforholdTjeneste = mock(VurderArbeidsforholdTjeneste.class);
         var arbeidsgiver2 = Arbeidsgiver.virksomhet(virksomhet2.getOrgnr());
@@ -147,7 +147,7 @@ public class InntektsmeldingTjenesteImplTest {
         when(tpsTjeneste.hentFnrForAktør(Mockito.any(AktørId.class))).thenReturn(t);
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        when(virksomhetTjeneste.hentOgLagreOrganisasjon(any())).thenReturn(virksomhet1);
+        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet1);
 
         var vurderArbeidsforholdTjeneste = mock(VurderArbeidsforholdTjeneste.class);
         var arbeidsgiver2 = Arbeidsgiver.virksomhet(virksomhet2.getOrgnr());
@@ -306,23 +306,21 @@ public class InntektsmeldingTjenesteImplTest {
         return aktørInntekt;
     }
 
-    private VirksomhetEntitet lagVirksomhet() {
-        return new VirksomhetEntitet.Builder()
+    private Virksomhet lagVirksomhet() {
+        return new Virksomhet.Builder()
             .medOrgnr(KUNSTIG_ORG)
             .medNavn("Virksomheten")
             .medRegistrert(I_DAG.minusYears(2L))
             .medOppstart(I_DAG.minusYears(1L))
-            .oppdatertOpplysningerNå()
             .build();
     }
 
-    private VirksomhetEntitet lagAndreVirksomhet() {
-        return new VirksomhetEntitet.Builder()
+    private Virksomhet lagAndreVirksomhet() {
+        return new Virksomhet.Builder()
             .medOrgnr("52")
             .medNavn("OrgA")
             .medRegistrert(I_DAG.minusYears(2L))
             .medOppstart(I_DAG.minusYears(1L))
-            .oppdatertOpplysningerNå()
             .build();
     }
 

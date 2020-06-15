@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -65,12 +63,13 @@ public enum BehandlingResultatType implements Kodeverdi {
 
     ;
 
-    private static final Set<BehandlingResultatType> HENLEGGELSESKODER_FOR_SØKNAD = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(HENLAGT_SØKNAD_TRUKKET, HENLAGT_FEILOPPRETTET, HENLAGT_BRUKER_DØD, HENLAGT_SØKNAD_MANGLER, MANGLER_BEREGNINGSREGLER)));
-    private static final Set<BehandlingResultatType> ALLE_HENLEGGELSESKODER = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(HENLAGT_SØKNAD_TRUKKET, HENLAGT_FEILOPPRETTET, HENLAGT_BRUKER_DØD, HENLAGT_KLAGE_TRUKKET, MERGET_OG_HENLAGT, HENLAGT_SØKNAD_MANGLER, HENLAGT_INNSYN_TRUKKET, MANGLER_BEREGNINGSREGLER)));
-    private static final Set<BehandlingResultatType> KLAGE_KODER = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(KLAGE_MEDHOLD, KLAGE_YTELSESVEDTAK_STADFESTET, KLAGE_YTELSESVEDTAK_STADFESTET, KLAGE_AVVIST, DELVIS_MEDHOLD_I_KLAGE, HJEMSENDE_UTEN_OPPHEVE, UGUNST_MEDHOLD_I_KLAGE)));
-    private static final Set<BehandlingResultatType> ANKE_KODER = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(ANKE_AVVIST, ANKE_OMGJOER, ANKE_OPPHEVE_OG_HJEMSENDE, ANKE_YTELSESVEDTAK_STADFESTET, ANKE_DELVIS_OMGJOERING_TIL_GUNST, ANKE_TIL_UGUNST)));
-    private static final Set<BehandlingResultatType> INNSYN_KODER = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(INNSYN_INNVILGET, INNSYN_DELVIS_INNVILGET, INNSYN_AVVIST)));
-    private static final Set<BehandlingResultatType> INNVILGET_KODER = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(INNVILGET, FORELDREPENGER_ENDRET)));
+    private static final Set<BehandlingResultatType> HENLEGGELSESKODER_FOR_SØKNAD = Set.of(HENLAGT_SØKNAD_TRUKKET, HENLAGT_FEILOPPRETTET, HENLAGT_BRUKER_DØD, HENLAGT_SØKNAD_MANGLER, MANGLER_BEREGNINGSREGLER);
+    private static final Set<BehandlingResultatType> ALLE_HENLEGGELSESKODER = Set.of(HENLAGT_SØKNAD_TRUKKET, HENLAGT_FEILOPPRETTET, HENLAGT_BRUKER_DØD, HENLAGT_KLAGE_TRUKKET, MERGET_OG_HENLAGT, HENLAGT_SØKNAD_MANGLER, HENLAGT_INNSYN_TRUKKET, MANGLER_BEREGNINGSREGLER);
+    private static final Set<BehandlingResultatType> KLAGE_KODER = Set.of(KLAGE_MEDHOLD, KLAGE_YTELSESVEDTAK_STADFESTET, KLAGE_YTELSESVEDTAK_OPPHEVET, KLAGE_AVVIST, DELVIS_MEDHOLD_I_KLAGE, HJEMSENDE_UTEN_OPPHEVE, UGUNST_MEDHOLD_I_KLAGE);
+    private static final Set<BehandlingResultatType> ANKE_KODER = Set.of(ANKE_AVVIST, ANKE_OMGJOER, ANKE_OPPHEVE_OG_HJEMSENDE, ANKE_YTELSESVEDTAK_STADFESTET, ANKE_DELVIS_OMGJOERING_TIL_GUNST, ANKE_TIL_UGUNST);
+    private static final Set<BehandlingResultatType> INNSYN_KODER = Set.of(INNSYN_INNVILGET, INNSYN_DELVIS_INNVILGET, INNSYN_AVVIST);
+    private static final Set<BehandlingResultatType> INNVILGET_KODER = Set.of(INNVILGET, FORELDREPENGER_ENDRET);
+    private static final Set<BehandlingResultatType> ALLE_INNVILGET_KODER = Set.of(INNVILGET, FORELDREPENGER_ENDRET, INGEN_ENDRING);
 
     private static final Map<String, BehandlingResultatType> KODER = new LinkedHashMap<>();
 
@@ -162,6 +161,10 @@ public enum BehandlingResultatType implements Kodeverdi {
 
     public static Set<BehandlingResultatType> getInnvilgetKoder() {
         return INNVILGET_KODER;
+    }
+
+    public static Set<BehandlingResultatType> getAlleInnvilgetKoder() {
+        return ALLE_INNVILGET_KODER;
     }
 
     public boolean erHenlagt() {

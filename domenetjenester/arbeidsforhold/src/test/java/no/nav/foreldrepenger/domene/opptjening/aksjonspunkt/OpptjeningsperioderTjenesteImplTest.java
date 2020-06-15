@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -83,7 +84,7 @@ public class OpptjeningsperioderTjenesteImplTest {
     private OpptjeningRepository opptjeningRepository = repositoryProvider.getOpptjeningRepository();
 
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private final VirksomhetTjeneste virksomhetTjeneste = new VirksomhetTjeneste(null, repositoryProvider.getVirksomhetRepository());
+    private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
     private final AksjonspunktutlederForVurderOppgittOpptjening aksjonspunktutlederForVurderOpptjening = new AksjonspunktutlederForVurderOppgittOpptjening(
         opptjeningRepository, iayTjeneste, virksomhetTjeneste);
     private AksjonspunktutlederForVurderBekreftetOpptjening apbOpptjening = new AksjonspunktutlederForVurderBekreftetOpptjening(

@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.VirksomhetRepository;
 import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 /**
@@ -46,7 +45,6 @@ public class BehandlingRepositoryProvider {
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private FpUttakRepository fpUttakRepository;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
-    private VirksomhetRepository virksomhetRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private OpptjeningRepository opptjeningRepository;
@@ -94,16 +92,13 @@ public class BehandlingRepositoryProvider {
         this.behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
         this.opptjeningIUtlandDokStatusRepository = new OpptjeningIUtlandDokStatusRepository(entityManager);
 
-        // inntekt arbeid ytelser
-        this.virksomhetRepository = new VirksomhetRepository();
-
         // behandling resultat aggregater
         this.beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
 
         // behandling støtte repositories
         this.mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
         this.historikkRepository = new HistorikkRepository(entityManager);
-        this.behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager, behandlingRepository);
+        this.behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
         this.behandlingRevurderingRepository = new BehandlingRevurderingRepository(entityManager, behandlingRepository, fagsakRelasjonRepository,
             søknadRepository, behandlingLåsRepository);
 
@@ -162,10 +157,6 @@ public class BehandlingRepositoryProvider {
 
     public FpUttakRepository getFpUttakRepository() {
         return fpUttakRepository;
-    }
-
-    public VirksomhetRepository getVirksomhetRepository() {
-        return virksomhetRepository;
     }
 
     public YtelsesFordelingRepository getYtelsesFordelingRepository() {

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import javax.enterprise.context.RequestScoped;
@@ -29,7 +30,6 @@ import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * Tester Behandlingskontroll synkront.
@@ -97,11 +97,10 @@ public class BehandlingskontrollRestTjeneste {
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
         Optional<BehandlingStegTilstand> tilstand = behandling.getBehandlingStegTilstand();
-        if (!tilstand.isPresent()) {
-            return Response.ok().build();
-        }
-        if (BehandlingStegType.IVERKSETT_VEDTAK.equals(tilstand.get().getBehandlingSteg()) && BehandlingStegStatus.VENTER.equals(tilstand.get().getBehandlingStegStatus())) {
-            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingGjenopptaStegNesteKjøring(behandling, tilstand.get().getBehandlingSteg(), FPDateUtil.nå());
+        if (tilstand.isEmpty()) {
+            behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
+        } else if (BehandlingStegType.IVERKSETT_VEDTAK.equals(tilstand.get().getBehandlingSteg()) && BehandlingStegStatus.VENTER.equals(tilstand.get().getBehandlingStegStatus())) {
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingGjenopptaStegNesteKjøring(behandling, tilstand.get().getBehandlingSteg(), LocalDateTime.now());
         } else {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
         }
