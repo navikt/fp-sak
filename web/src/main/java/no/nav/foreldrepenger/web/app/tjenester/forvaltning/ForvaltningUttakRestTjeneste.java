@@ -14,7 +14,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.domene.uttak.OppdaterSøknadMottattDatoTask;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
@@ -24,10 +26,12 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 public class ForvaltningUttakRestTjeneste {
 
     private ForvaltningUttakTjeneste forvaltningUttakTjeneste;
+    private ProsessTaskRepository prosessTaskRepository;
 
     @Inject
-    public ForvaltningUttakRestTjeneste(ForvaltningUttakTjeneste forvaltningUttakTjeneste) {
+    public ForvaltningUttakRestTjeneste(ForvaltningUttakTjeneste forvaltningUttakTjeneste, ProsessTaskRepository prosessTaskRepository) {
         this.forvaltningUttakTjeneste = forvaltningUttakTjeneste;
+        this.prosessTaskRepository = prosessTaskRepository;
     }
 
     public ForvaltningUttakRestTjeneste() {
@@ -61,6 +65,16 @@ public class ForvaltningUttakRestTjeneste {
         long behandlingId = dto.getBehandlingId();
 
         forvaltningUttakTjeneste.beregnKontoer(behandlingId);
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/start-oppdater-mottatt-dato-task")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Operation(description = "Ikke bruk - Engangsjobb for å oppdatere mottatt dato på søknadsperioder.", tags = "FORVALTNING-uttak")
+    @BeskyttetRessurs(action = CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    public Response startMottattDatoTask() {
+        OppdaterSøknadMottattDatoTask.startTask(prosessTaskRepository);
         return Response.noContent().build();
     }
 }
