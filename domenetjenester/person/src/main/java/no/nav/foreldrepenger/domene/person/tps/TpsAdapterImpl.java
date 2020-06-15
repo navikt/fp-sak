@@ -11,7 +11,6 @@ import javax.inject.Inject;
 
 import org.threeten.extra.Interval;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
@@ -76,7 +75,7 @@ public class TpsAdapterImpl implements TpsAdapter {
 
     @Override
     public Optional<PersonIdent> hentIdentForAktørId(AktørId aktørId) {
-        return aktørConsumer.hentPersonIdentForAktørId(aktørId.getId()).map(f -> new PersonIdent(f));
+        return aktørConsumer.hentPersonIdentForAktørId(aktørId.getId()).map(PersonIdent::new);
     }
 
     private Personinfo håndterPersoninfoRespons(AktørId aktørId, HentPersonRequest request)
@@ -134,22 +133,6 @@ public class TpsAdapterImpl implements TpsAdapter {
     }
 
     @Override
-    public Adresseinfo hentAdresseinformasjon(PersonIdent personIdent) {
-        HentPersonRequest request = new HentPersonRequest();
-        request.getInformasjonsbehov().add(Informasjonsbehov.ADRESSE);
-        request.setAktoer(TpsUtil.lagPersonIdent(personIdent.getIdent()));
-        try {
-            HentPersonResponse response = personConsumer.hentPersonResponse(request);
-            Person person = response.getPerson();
-            return tpsOversetter.tilAdresseInfo(person);
-        } catch (HentPersonPersonIkkeFunnet e) {
-            throw TpsFeilmeldinger.FACTORY.fantIkkePerson(e).toException();
-        } catch (HentPersonSikkerhetsbegrensning e) {
-            throw TpsFeilmeldinger.FACTORY.tpsUtilgjengeligSikkerhetsbegrensning(e).toException();
-        }
-    }
-
-    @Override
     public GeografiskTilknytning hentGeografiskTilknytning(PersonIdent personIdent) {
         HentGeografiskTilknytningRequest request = new HentGeografiskTilknytningRequest();
         request.setAktoer(TpsUtil.lagPersonIdent(personIdent.getIdent()));
@@ -162,23 +145,6 @@ public class TpsAdapterImpl implements TpsAdapter {
             throw TpsFeilmeldinger.FACTORY.geografiskTilknytningIkkeFunnet(e).toException();
         }
     }
-
-    @Override
-    public List<GeografiskTilknytning> hentDiskresjonskoderForFamilierelasjoner(PersonIdent personIdent) {
-        HentPersonRequest request = new HentPersonRequest();
-        request.setAktoer(TpsUtil.lagPersonIdent(personIdent.getIdent()));
-        request.getInformasjonsbehov().add(Informasjonsbehov.FAMILIERELASJONER);
-        try {
-            HentPersonResponse response = personConsumer.hentPersonResponse(request);
-            Person person = response.getPerson();
-            return tpsOversetter.tilDiskresjonsKoder(person);
-        } catch (HentPersonPersonIkkeFunnet e) {
-            throw TpsFeilmeldinger.FACTORY.fantIkkePerson(e).toException();
-        } catch (HentPersonSikkerhetsbegrensning e) {
-            throw TpsFeilmeldinger.FACTORY.tpsUtilgjengeligSikkerhetsbegrensning(e).toException();
-        }
-    }
-
 
     @Override
     public List<FødtBarnInfo> hentFødteBarn(AktørId aktørId) {

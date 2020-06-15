@@ -5,6 +5,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAG
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
@@ -25,11 +26,10 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoForBackendTjeneste;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @ApplicationScoped
-@Transaction
+@Transactional
 @Path(BehandlingBackendRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 public class BehandlingBackendRestTjeneste {

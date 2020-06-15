@@ -119,6 +119,24 @@ public class PersonopplysningRepository {
         });
     }
 
+    public void oppdaterAktørIdFor(AktørId gammel, AktørId gjeldende) {
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_ADRESSE SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_PERSONOPPLYSNING SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_PERSONSTATUS SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_STATSBORGERSKAP SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_RELASJON SET FRA_AKTOER_ID = :gjeldende WHERE FRA_AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_RELASJON SET TIL_AKTOER_ID = :gjeldende WHERE TIL_AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
+        utførUpdate(entityManager.createNativeQuery("UPDATE SO_ANNEN_PART SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
+        entityManager.flush();
+    }
+
+    private void utførUpdate(Query query, AktørId gammel, AktørId gjeldende) {
+        query.setParameter("gjeldende", gjeldende.getId()); //$NON-NLS-1$
+        query.setParameter("gammel", gammel.getId()); //$NON-NLS-1$
+        query.executeUpdate();
+        entityManager.flush();
+    }
+
     private void lagreOgFlush(Long behandlingId, PersonopplysningGrunnlagBuilder grunnlagBuilder) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
         Objects.requireNonNull(grunnlagBuilder, "grunnlagBuilder"); // NOSONAR //$NON-NLS-1$
@@ -222,7 +240,7 @@ public class PersonopplysningRepository {
             "SELECT pbg FROM PersonopplysningGrunnlagEntitet pbg WHERE pbg.behandlingId = :behandling_id order by pbg.opprettetTidspunkt, pbg.id", //$NON-NLS-1$
             PersonopplysningGrunnlagEntitet.class)
                 .setParameter("behandling_id", behandlingId) // NOSONAR
-                .setMaxResults(1); 
+                .setMaxResults(1);
 
         Optional<PersonopplysningGrunnlagEntitet> resultat = query.getResultStream().findFirst();
 

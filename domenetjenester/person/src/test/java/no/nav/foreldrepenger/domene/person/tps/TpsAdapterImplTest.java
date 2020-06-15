@@ -14,15 +14,11 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
-import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingsgrunnlagKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
@@ -171,45 +167,4 @@ public class TpsAdapterImplTest {
         tpsAdapterImpl.hentGeografiskTilknytning(fnr);
     }
 
-    @Test
-    public void test_hentAdresseinformasjon_normal() throws HentPersonSikkerhetsbegrensning, HentPersonPersonIkkeFunnet {
-        HentPersonResponse response = new HentPersonResponse();
-        Bruker person = new Bruker();
-        response.setPerson(person);
-
-        ArgumentCaptor<HentPersonRequest> captor = ArgumentCaptor.forClass(HentPersonRequest.class);
-        when(personProxyServiceMock.hentPersonResponse(captor.capture())).thenReturn(response);
-
-        final String addresse = "Veien 17";
-
-        TpsOversetter tpsOversetterMock = Mockito.mock(TpsOversetter.class);
-        Adresseinfo.Builder builder = new Adresseinfo.Builder(AdresseType.BOSTEDSADRESSE,
-            new PersonIdent(new FiktiveFnr().nesteKvinneFnr()),
-            "Tjoms",
-            PersonstatusType.BOSA);
-        Adresseinfo adresseinfoExpected = builder.medAdresselinje1(addresse).build();
-
-        when(tpsOversetterMock.tilAdresseInfo(eq(person))).thenReturn(adresseinfoExpected);
-        tpsAdapterImpl = new TpsAdapterImpl(aktørConsumerMock, personProxyServiceMock, tpsOversetterMock);
-
-        Adresseinfo adresseinfoActual = tpsAdapterImpl.hentAdresseinformasjon(fnr);
-
-        assertThat(adresseinfoActual).isNotNull();
-        assertThat(adresseinfoActual).isEqualTo(adresseinfoExpected);
-        assertThat(adresseinfoActual.getAdresselinje1()).isEqualTo(adresseinfoExpected.getAdresselinje1());
-    }
-
-    @Test(expected = TekniskException.class)
-    public void test_hentAdresseinformasjon_personIkkeFunnet() throws Exception {
-        when(personProxyServiceMock.hentPersonResponse(any())).thenThrow(new HentPersonPersonIkkeFunnet(null, null));
-
-        tpsAdapterImpl.hentAdresseinformasjon(fnr);
-    }
-
-    @Test(expected = ManglerTilgangException.class)
-    public void test_hentAdresseinformasjon_manglende_tilgang() throws Exception {
-        when(personProxyServiceMock.hentPersonResponse(any())).thenThrow(new HentPersonSikkerhetsbegrensning(null, null));
-
-        tpsAdapterImpl.hentAdresseinformasjon(fnr);
-    }
 }

@@ -19,20 +19,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.threeten.extra.Interval;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
-import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
-import no.nav.foreldrepenger.domene.person.tps.TpsFeilmeldinger;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjenesteImpl;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningPersonIkkeFunnet;
@@ -158,18 +151,6 @@ public class TpsTjenesteTest {
         }
 
         @Override
-        public Adresseinfo hentAdresseinformasjon(PersonIdent fnr) {
-            return new Adresseinfo.Builder(AdresseType.BOSTEDSADRESSE, fnr, NAVN, PersonstatusType.BOSA)
-                .medAdresselinje1(ADR1)
-                .medAdresselinje2(ADR2)
-                .medAdresselinje3(ADR3)
-                .medPostNr(POSTNR)
-                .medPoststed(POSTSTED)
-                .medLand(LAND)
-                .build();
-        }
-
-        @Override
         public GeografiskTilknytning hentGeografiskTilknytning(PersonIdent fnr) {
             if (FNR.equals(fnr)) {
                 return new GeografiskTilknytning("0219", "KLIE");
@@ -188,10 +169,5 @@ public class TpsTjenesteTest {
                 .build());
         }
 
-
-        @Override
-        public List<GeografiskTilknytning> hentDiskresjonskoderForFamilierelasjoner(PersonIdent fnr) {
-            return Collections.emptyList();
-        }
     }
 }

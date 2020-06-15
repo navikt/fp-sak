@@ -107,8 +107,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet1.getOrgnr());
 
         PersonIdentTjeneste tpsTjeneste = mock(PersonIdentTjeneste.class);
-        final PersonIdent t = new PersonIdent("12345678901");
-        when(tpsTjeneste.hentFnrForAktør(Mockito.any(AktørId.class))).thenReturn(t);
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(virksomhet1.getOrgnr())).thenReturn(virksomhet1);
         when(virksomhetTjeneste.hentOrganisasjon(virksomhet2.getOrgnr())).thenReturn(virksomhet2);

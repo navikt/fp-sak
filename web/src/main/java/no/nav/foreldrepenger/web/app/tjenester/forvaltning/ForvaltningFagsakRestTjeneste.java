@@ -11,6 +11,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -34,6 +35,7 @@ import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggFlyttFagsak
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -49,14 +51,13 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.KobleFagsakerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.OverstyrDekningsgradDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltningFagsak")
 @ApplicationScoped
-@Transaction
+@Transactional
 public class ForvaltningFagsakRestTjeneste {
 
     private static final Logger logger = LoggerFactory.getLogger(ForvaltningFagsakRestTjeneste.class);
@@ -64,6 +65,7 @@ public class ForvaltningFagsakRestTjeneste {
     private FagsakRepository fagsakRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private BehandlingRepository behandlingRepository;
+    private PersonopplysningRepository personopplysningRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private Instance<OppdaterFagsakStatus> oppdaterFagsakStatuser;
     private OpprettSakTjeneste opprettSakTjeneste;
@@ -84,6 +86,7 @@ public class ForvaltningFagsakRestTjeneste {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.prosessTaskRepository = prosessTaskRepository;
         this.oppdaterFagsakStatuser = oppdaterFagsakStatuser;
         this.overstyrDekningsgradTjeneste = overstyrDekningsgradTjeneste;
@@ -351,6 +354,40 @@ public class ForvaltningFagsakRestTjeneste {
         JournalpostId journalpostId = new JournalpostId(dto.getJournalpostId());
         Saksnummer saksnummer = new Saksnummer(dto.getSaksnummer());
         opprettSakTjeneste.flyttJournalpostTilSak(journalpostId, saksnummer);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/fagsak/oppdaterAktoerId")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Henter ny aktørid for bruker og oppdaterer nødvendige tabeller",
+        tags = "FORVALTNING-fagsak",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Task satt til ferdig."),
+            @ApiResponse(responseCode = "400", description = "AktørId er uendret."),
+            @ApiResponse(responseCode = "400", description = "Saksnummer er ugyldig."),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+        })
+    @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
+    public Response oppdaterAktoerId(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+        Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
+        if (fagsak == null || fagsak.getSkalTilInfotrygd()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        var eksisterendeAktørId = fagsak.getAktørId();
+        var gjeldendeAktørId = opprettSakTjeneste.hentGjeldendeAktørId(fagsak.getAktørId());
+        if (gjeldendeAktørId.equals(eksisterendeAktørId)) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        var brukerForGjeldendeAktørId = opprettSakTjeneste.hentNavBrukerFor(gjeldendeAktørId);
+        if (brukerForGjeldendeAktørId.isPresent()) {
+            fagsakRepository.oppdaterBruker(fagsak.getId(), brukerForGjeldendeAktørId.orElse(null));
+        } else {
+            fagsakRepository.oppdaterBrukerMedAktørId(fagsak.getNavBruker().getId(), gjeldendeAktørId);
+        }
+        personopplysningRepository.oppdaterAktørIdFor(eksisterendeAktørId, gjeldendeAktørId);
         return Response.ok().build();
     }
 }

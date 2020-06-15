@@ -125,6 +125,10 @@ public class Fagsak extends BaseEntitet {
         return navBruker;
     }
 
+    public void setNavBruker(NavBruker navBruker) {
+        this.navBruker = navBruker;
+    }
+
     public boolean erÅpen() {
         return !getFagsakStatus().equals(FagsakStatus.AVSLUTTET);
     }

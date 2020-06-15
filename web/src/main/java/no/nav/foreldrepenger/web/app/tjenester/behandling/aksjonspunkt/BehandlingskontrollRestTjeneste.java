@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -26,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
@@ -36,7 +36,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
  */
 @Path("/behandlingskontroll")
 @RequestScoped // må være RequestScoped fordi BehandlingskontrollTjeneste er det
-@Transaction
+@Transactional
 @Produces(MediaType.APPLICATION_JSON)
 public class BehandlingskontrollRestTjeneste {
 

@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
@@ -23,14 +24,13 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 /**
  * @see BehandlingRestTjenestePathHack1
  */
 @ApplicationScoped
-@Transaction
+@Transactional
 @Path(BehandlingRestTjenestePathHack2.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 public class BehandlingRestTjenestePathHack2 {

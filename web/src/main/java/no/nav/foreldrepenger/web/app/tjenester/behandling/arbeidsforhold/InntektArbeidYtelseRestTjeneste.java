@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -40,14 +41,13 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.util.FPDateUtil;
 
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
 @Path(InntektArbeidYtelseRestTjeneste.BASE_PATH)
-@Transaction
+@Transactional
 public class InntektArbeidYtelseRestTjeneste {
 
     static final String BASE_PATH = "/behandling";

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -51,7 +52,6 @@ import no.nav.foreldrepenger.domene.vedtak.observer.VedtattYtelseTjeneste;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.AktørParam;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -199,8 +199,8 @@ public class VedtakRestTjeneste {
     @Operation(description = "Generer vedtaksxmler som ikke er gyldige på nytt", tags = "vedtak")
     @Path(REGENERER_PART_PATH)
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
-    @Transaction
-    public Response regenererIkkeGyldigeVedtaksXml(@Parameter(description = "Datointervall i vedtak tabell for hvor det skal genereres ny vedtaksxml og maksAntall som behandles")
+    @Transactional
+public Response regenererIkkeGyldigeVedtaksXml(@Parameter(description = "Datointervall i vedtak tabell for hvor det skal genereres ny vedtaksxml og maksAntall som behandles")
                                                    @NotNull @Valid GenererVedtaksXmlDto genererVedtaksXmlDto) {
 
         log.info("Skal sjekke maks {} vedtaksXMLer og regenerere ikke gyldige vedtaksXMLer for perioden [{}] - [{}]", genererVedtaksXmlDto.getMaksAntall(), genererVedtaksXmlDto.getFom(), genererVedtaksXmlDto.getTom());
@@ -230,8 +230,8 @@ public class VedtakRestTjeneste {
     @Operation(description = "Validerer vedtaksxml", tags = "vedtak")
     @Path(VALIDATE_PART_PATH)
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
-    @Transaction
-    public Response validerVedtaksXml(@Parameter(description = "Datointervall i vedtak tabell for hvilke vedtakxml som skal valideres og maksAntall som behandles")
+    @Transactional
+public Response validerVedtaksXml(@Parameter(description = "Datointervall i vedtak tabell for hvilke vedtakxml som skal valideres og maksAntall som behandles")
                                       @NotNull @Valid GenererVedtaksXmlDto genererVedtaksXmlDto) {
 
         log.info("Skal validere maks {} vedtaksXMLer for perioden [{}] - [{}]", genererVedtaksXmlDto.getMaksAntall(), genererVedtaksXmlDto.getFom(), genererVedtaksXmlDto.getTom());

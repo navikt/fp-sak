@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.RegenererVedtaksXmlTask;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -126,7 +125,6 @@ public class DatavarehusAdminRestTjeneste {
     @Operation(description = "Generer vedtaksxml på nytt for gitt behandlingid.", tags = "datavarehus")
     @Path("/regenerer_vedtaksdokument")
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
-    @Transaction
     public Response regenererVedtaksXml(@Parameter(description = "Behandlingid")
                                         @QueryParam("BehandlingId") @NotNull @Valid BehandlingIdDto behandlingIdDto) {
 

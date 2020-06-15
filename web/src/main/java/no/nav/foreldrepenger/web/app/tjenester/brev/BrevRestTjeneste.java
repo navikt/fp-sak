@@ -6,6 +6,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAG
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -31,12 +32,11 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjene
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentProdusertDto;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path(BrevRestTjeneste.BASE_PATH)
 @ApplicationScoped
-@Transaction
+@Transactional
 public class BrevRestTjeneste {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BrevRestTjeneste.class);

@@ -36,11 +36,12 @@ import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.opptjening.dto.AvklarAktivitetsPerioderDto;
 import no.nav.foreldrepenger.domene.opptjening.dto.AvklarOpptjeningAktivitetDto;
 import no.nav.foreldrepenger.domene.opptjening.dto.BekreftOpptjeningPeriodeDto;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
@@ -190,7 +191,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         } else if (Organisasjonstype.erKunstig(arbeidsgiverIdentifikator)) {
             return hentNavnTilManueltArbeidsforhold(overstyringer);
         } else if (arbeidsgiverIdentifikator != null && AKTØRID_VALIDATOR.matcher(arbeidsgiverIdentifikator).matches()) {
-            final Optional<Personinfo> personinfo = tpsTjeneste.hentBrukerForAktør(new AktørId(arbeidsgiverIdentifikator));
+            final Optional<Personinfo> personinfo = hentInformasjonFraTps(new AktørId(arbeidsgiverIdentifikator));
             return OpptjeningAktivitetType.ARBEID.getNavn() + " for " + personinfo.map(Personinfo::getNavn).orElse("N/A");
         } else {
             return OpptjeningAktivitetType.ARBEID.getNavn() + " for organisasjonsnr. " + arbeidsgiverIdentifikator;
@@ -285,7 +286,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         } else if (Organisasjonstype.erKunstig(arbeidsgiverIdentifikator)) {
             adapter.setArbeidsgiverNavn(hentNavnTilManueltArbeidsforhold(overstyringer));
         } else if (arbeidsgiverIdentifikator != null && AKTØRID_VALIDATOR.matcher(arbeidsgiverIdentifikator).matches()) {
-            final Optional<Personinfo> personinfo = tpsTjeneste.hentBrukerForAktør(new AktørId(arbeidsgiverIdentifikator));
+            final Optional<Personinfo> personinfo = hentInformasjonFraTps(new AktørId(arbeidsgiverIdentifikator));
             adapter.setArbeidsgiverNavn(personinfo.map(Personinfo::getNavn).orElse("N/A"));
         } else {
             adapter.setArbeidsgiverNavn("N/A");
@@ -344,5 +345,14 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         return FinnNavnForManueltLagtTilArbeidsforholdTjeneste.finnNavnTilManueltLagtTilArbeidsforhold(overstyringer)
             .map(ArbeidsgiverOpplysninger::getNavn)
             .orElseThrow(() -> new IllegalStateException("Fant ikke forventet informasjon om manuelt arbeidsforhold"));
+    }
+
+    private Optional<Personinfo> hentInformasjonFraTps(AktørId aktørId) {
+        try {
+            return tpsTjeneste.hentBrukerForAktør(aktørId);
+        } catch (VLException feil) {
+            // Ønsker ikke å gi GUI problemer ved å eksponere exceptions
+            return Optional.empty();
+        }
     }
 }

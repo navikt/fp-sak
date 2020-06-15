@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
@@ -28,7 +29,6 @@ import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 /**
@@ -40,7 +40,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
  * Langsiktig løsning som fjerner hacket er skissert i TFP-2237
  * */
 @ApplicationScoped
-@Transaction
+@Transactional
 @Path(BehandlingRestTjenestePathHack1.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 public class BehandlingRestTjenestePathHack1 {

@@ -7,7 +7,6 @@ import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
@@ -52,18 +51,8 @@ public class TpsTjenesteMock implements TpsTjeneste {
     }
 
     @Override
-    public List<GeografiskTilknytning> hentDiskresjonskoderForFamilierelasjoner(PersonIdent fnr) {
-        return null;
-    }
-
-    @Override
     public Optional<PersonIdent> hentFnr(AktørId aktørId) {
         return Optional.empty();
-    }
-
-    @Override
-    public Adresseinfo hentAdresseinformasjon(PersonIdent personIdent) {
-        return null;
     }
 
     @Override

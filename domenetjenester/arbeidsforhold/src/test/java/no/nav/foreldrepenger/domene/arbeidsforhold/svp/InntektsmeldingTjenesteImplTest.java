@@ -49,7 +49,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
@@ -141,10 +140,6 @@ public class InntektsmeldingTjenesteImplTest {
         var virksomhet2 = lagAndreVirksomhet();
 
         this.arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet1.getOrgnr());
-
-        var tpsTjeneste = mock(PersonIdentTjeneste.class);
-        var t = new PersonIdent("12345678901");
-        when(tpsTjeneste.hentFnrForAktør(Mockito.any(AktørId.class))).thenReturn(t);
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet1);
