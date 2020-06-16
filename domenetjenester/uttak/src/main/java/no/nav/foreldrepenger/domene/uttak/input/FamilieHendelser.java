@@ -39,6 +39,12 @@ public class FamilieHendelser {
         return gjeldendeFamilieHendelse.getOmsorgsovertakelse().isEmpty();
     }
 
+    public boolean erSøktTermin() {
+        return søknadFamilieHendelse != null
+            && søknadFamilieHendelse.getTermindato().isPresent()
+            && søknadFamilieHendelse.getFødselsdato().isEmpty();
+    }
+
     public FamilieHendelse getSøknadFamilieHendelse() {
         return søknadFamilieHendelse;
     }
