@@ -156,7 +156,12 @@ public class FamilieHendelseRepository {
         if (erFørsteFødselRegistreringHarTidligereOverstyrtFødsel(aggregatBuilder.getKladd())) {
             aggregatBuilder.medOverstyrtVersjon(null);
         }
+        var tidligereRegister = aggregatBuilder.getKladd().getBekreftetVersjon().orElse(null);
         aggregatBuilder.medBekreftetVersjon(hendelse);
+        // Nullstill tidligere overstyringer dersom realendring i registerversjon
+        if (!skalBeholdeOverstyrtVedEndring(aggregatBuilder.getKladd(), tidligereRegister)) {
+            aggregatBuilder.medOverstyrtVersjon(null);
+        }
         // nullstill overstyring ved overgang fra termin til fødsel
         if (harOverstyrtTerminOgOvergangTilFødsel(aggregatBuilder.getKladd())) {
             aggregatBuilder.medOverstyrtVersjon(null);
@@ -164,17 +169,26 @@ public class FamilieHendelseRepository {
         lagreOgFlush(behandling.getId(), aggregatBuilder.build());
     }
 
+    private boolean skalBeholdeOverstyrtVedEndring(FamilieHendelseGrunnlagEntitet kladd, FamilieHendelseEntitet forrige) {
+        var overstyrtType = kladd.getOverstyrtVersjon().map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
+        var nyeste = kladd.getBekreftetVersjon().orElse(null);
+        if (!kladd.getHarOverstyrteData() || !FamilieHendelseType.FØDSEL.equals(overstyrtType) || forrige == null || nyeste == null)
+            return true;
+        return Objects.equals(forrige.getAntallBarn(), nyeste.getAntallBarn()) &&
+            Objects.equals(forrige.getFødselsdato(), nyeste.getFødselsdato()) &&
+            Objects.equals(forrige.getInnholderDøfødtBarn(), nyeste.getInnholderDøfødtBarn()) &&
+            Objects.equals(forrige.getInnholderDødtBarn(), nyeste.getInnholderDødtBarn());
+    }
+
     private boolean erFørsteFødselRegistreringHarTidligereOverstyrtFødsel(FamilieHendelseGrunnlagEntitet kladd) {
-        final FamilieHendelseType overstyrtHendelseType = kladd.getOverstyrtVersjon()
-            .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
+        var overstyrtHendelseType = kladd.getOverstyrtVersjon().map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
         return !kladd.getHarRegisterData() && kladd.getHarOverstyrteData() && FamilieHendelseType.FØDSEL.equals(overstyrtHendelseType);
     }
 
     private boolean harOverstyrtTerminOgOvergangTilFødsel(FamilieHendelseGrunnlagEntitet kladd) {
-        final FamilieHendelseType overstyrtHendelseType = kladd.getOverstyrtVersjon()
-            .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
-        return kladd.getHarOverstyrteData() && FamilieHendelseType.TERMIN.equals(overstyrtHendelseType)
-            && FamilieHendelseType.FØDSEL.equals(kladd.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT));
+        var overstyrtType = kladd.getOverstyrtVersjon().map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
+        var registerType = kladd.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
+        return kladd.getHarOverstyrteData() && FamilieHendelseType.TERMIN.equals(overstyrtType) && FamilieHendelseType.FØDSEL.equals(registerType);
     }
 
     public void lagreOverstyrtHendelse(Behandling behandling, FamilieHendelseBuilder hendelse) {
