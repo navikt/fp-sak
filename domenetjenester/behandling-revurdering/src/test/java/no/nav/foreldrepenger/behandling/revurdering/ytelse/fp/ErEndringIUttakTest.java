@@ -184,6 +184,31 @@ public class ErEndringIUttakTest {
     @Test
     public void skal_ikke_gi_endring_i_uttak_null_trekkdager_ulik_konto() {
         // Arrange
+        LocalDate dato = LocalDate.now();
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato);
+
+        UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
+            List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(100), List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.UDEFINERT));
+
+        UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
+            List.of(new LocalDateInterval(dato, dato.plusDays(10))),
+            List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(100), List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.FORELDREPENGER));
+
+        // Act
+        var revurderingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderImpl(Optional.of(map(uttakResultatOriginal)), null);
+        boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder,  originalBehandlingHolder);
+
+        // Assert
+        assertThat(endringIUttak).isTrue(); // TODO: skal være false
+    }
+
+
+
+    @Test
+    public void case_fra_prod_bør_gi_ingen_endring() {
+        // Arrange
         LocalDate dato = LocalDate.of(2020,4,9);
         LocalDateInterval orig1 = new LocalDateInterval(dato, LocalDate.of(2020,4,30));
         LocalDateInterval orig2 = new LocalDateInterval(LocalDate.of(2020,5,1), LocalDate.of(2020,9,10));
@@ -215,7 +240,7 @@ public class ErEndringIUttakTest {
         boolean endringIUttak = erEndringIUttak.vurder(revurderingHolder,  originalBehandlingHolder);
 
         // Assert
-        assertThat(endringIUttak).isTrue();
+        assertThat(endringIUttak).isTrue(); // TODO: skal være false
     }
 
     @Test
