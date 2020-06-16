@@ -125,8 +125,11 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
             Objects.equals(p1.getResultatType(), p2.getResultatType()) &&
             Objects.equals(p1.getResultatÅrsak(), p2.getResultatÅrsak()) &&
             Objects.equals(p1.isGraderingInnvilget(), p2.isGraderingInnvilget()) &&
+            Objects.equals(p1.isSamtidigUttak(), p2.isSamtidigUttak()) &&
             Objects.equals(p1.getUtsettelseType(), p2.getUtsettelseType()) &&
             Objects.equals(p1.getGraderingAvslagÅrsak(), p2.getGraderingAvslagÅrsak()) &&
+            (Objects.equals(p1.getSamtidigUttaksprosent(), p2.getSamtidigUttaksprosent()) || p1.getSamtidigUttaksprosent().compareTo(p2.getSamtidigUttaksprosent()) == 0) &&
+            Objects.equals(p1.getOppholdÅrsak(), p2.getOppholdÅrsak()) &&
             likeAktivitieter;
         if (!sammenlign)
             LOG.info("BEHRES avvik i periodedata, like aktiviteter {}", likeAktivitieter);
@@ -235,9 +238,12 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
         return Objects.equals(p1.isFlerbarnsdager(), p2.isFlerbarnsdager()) &&
             Objects.equals(p1.getResultatType(), p2.getResultatType()) &&
             Objects.equals(p1.getResultatÅrsak(), p2.getResultatÅrsak()) &&
+            Objects.equals(p1.isSamtidigUttak(), p2.isSamtidigUttak()) &&
             Objects.equals(p1.isGraderingInnvilget(), p2.isGraderingInnvilget()) &&
             Objects.equals(p1.getUtsettelseType(), p2.getUtsettelseType()) &&
             Objects.equals(p1.getGraderingAvslagÅrsak(), p2.getGraderingAvslagÅrsak()) &&
+            (Objects.equals(p1.getSamtidigUttaksprosent(), p2.getSamtidigUttaksprosent()) || p1.getSamtidigUttaksprosent().compareTo(p2.getSamtidigUttaksprosent()) == 0) &&
+            Objects.equals(p1.getOppholdÅrsak(), p2.getOppholdÅrsak()) &&
             likeAktivitieter;
     }
 
