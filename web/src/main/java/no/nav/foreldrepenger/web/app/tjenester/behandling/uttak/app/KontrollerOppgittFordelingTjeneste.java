@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
@@ -45,10 +46,7 @@ public class KontrollerOppgittFordelingTjeneste {
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
-
-    KontrollerOppgittFordelingTjeneste() {
-        //For CDI proxy
-    }
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     @Inject
     public KontrollerOppgittFordelingTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
@@ -57,6 +55,11 @@ public class KontrollerOppgittFordelingTjeneste {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.førsteUttaksdatoTjeneste = førsteUttaksdatoTjeneste;
+        this.uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
+    }
+
+    KontrollerOppgittFordelingTjeneste() {
+        //For CDI proxy
     }
 
     /**
@@ -78,11 +81,22 @@ public class KontrollerOppgittFordelingTjeneste {
             if (bekreftetPeriode.getÅrsak().isPresent()) {
                 dokumentasjonsperioder.addAll(oversettDokumentasjonsperioder(bekreftetPeriode.getÅrsak().get(), bekreftetPeriode.getDokumentertePerioder()));
             }
+            leggTilMottattDatoPåNyPeriode(behandling, oppgittPeriodeBuilder, bekreftetPeriode);
             overstyrtPerioder.add(oppgittPeriodeBuilder.build());
         }
 
         ytelseFordelingTjeneste.overstyrSøknadsperioder(behandling.getId(), overstyrtPerioder, dokumentasjonsperioder);
         oppdaterEndringsdato(bekreftedePerioder, behandling);
+    }
+
+    private void leggTilMottattDatoPåNyPeriode(Behandling behandling, OppgittPeriodeBuilder oppgittPeriodeBuilder, KontrollerFaktaPeriodeLagreDto bekreftetPeriode) {
+        if (bekreftetPeriode.getMottattDato() != null) {
+            //Ikke ny
+            return;
+        }
+
+        var mottattDato = uttaksperiodegrenseRepository.hent(behandling.getId()).getMottattDato();
+        oppgittPeriodeBuilder.medMottattDato(mottattDato);
     }
 
     private void valider(List<BekreftetOppgittPeriodeDto> bekreftedePerioder, Behandling behandling) {
@@ -153,6 +167,7 @@ public class KontrollerOppgittFordelingTjeneste {
         }
 
         periodeBuilder.medPeriodeKilde(faktaPeriodeDto.getPeriodeKilde());
+        periodeBuilder.medMottattDato(faktaPeriodeDto.getMottattDato());
 
         return periodeBuilder;
     }
