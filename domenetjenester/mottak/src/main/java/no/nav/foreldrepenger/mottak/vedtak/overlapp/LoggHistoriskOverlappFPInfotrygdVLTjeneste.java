@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp;
+package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 
 import java.time.LocalDate;
@@ -27,8 +27,8 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdFPGrunnlag;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.rest.InfotrygdSVPGrunnlag;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdFPGrunnlag;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSVPGrunnlag;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;

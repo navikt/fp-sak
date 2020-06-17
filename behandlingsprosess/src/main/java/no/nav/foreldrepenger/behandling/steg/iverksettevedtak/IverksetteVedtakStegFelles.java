@@ -58,7 +58,7 @@ public abstract class IverksetteVedtakStegFelles implements IverksetteVedtakSteg
         }
         etterInngangFørIverksetting(behandling, vedtak);
         log.info("Behandling {}: Iverksetter vedtak", behandlingId);
-        opprettProsessTaskIverksett.opprettIverksettingstasker(behandling, getInitielleTasks());
+        opprettProsessTaskIverksett.opprettIverksettingstasker(behandling);
         return BehandleStegResultat.settPåVent();
     }
 

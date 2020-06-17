@@ -15,6 +15,8 @@ import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.SjekkOverlappForeldrepengerInfotrygdTjeneste;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelser;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,7 +52,6 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesser
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.SjekkOverlappForeldrepengerInfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;

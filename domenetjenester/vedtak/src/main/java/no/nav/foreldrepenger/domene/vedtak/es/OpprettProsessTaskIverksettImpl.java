@@ -33,7 +33,7 @@ public class OpprettProsessTaskIverksettImpl extends OpprettProsessTaskIverksett
     }
 
     @Override
-    public void opprettIverksettingstasker(Behandling behandling, List<String> inititellTaskNavn) {
+    public void opprettIverksettingstasker(Behandling behandling) {
         ProsessTaskGruppe taskData;
         ProsessTaskData avsluttBehandling = getProsesstaskFor(AvsluttBehandlingTask.TASKTYPE);
         Optional<ProsessTaskData> avsluttOppgave = oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling, behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK, false);

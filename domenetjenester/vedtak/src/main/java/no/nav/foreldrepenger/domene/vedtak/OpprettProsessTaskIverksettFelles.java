@@ -35,13 +35,10 @@ public abstract class OpprettProsessTaskIverksettFelles implements OpprettProses
 
 
     @Override
-    public void opprettIverksettingstasker(Behandling behandling, List<String> initiellTaskNavn) {
+    public void opprettIverksettingstasker(Behandling behandling) {
         ProsessTaskData avsluttBehandling = getProsesstaskFor(AvsluttBehandlingTask.TASKTYPE);
         Optional<ProsessTaskData> avsluttOppgave = oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling, behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK, false);
         ProsessTaskData sendVedtaksbrev = getProsesstaskFor(SendVedtaksbrevTask.TASKTYPE);
-
-        List<ProsessTaskData> initiellTasker = new ArrayList<>();
-        initiellTaskNavn.forEach(tn -> initiellTasker.add(new ProsessTaskData(tn)));
 
         ProsessTaskData vurderOgSendØkonomiOppdrag = getProsesstaskFor(VurderOgSendØkonomiOppdragTask.TASKTYPE);
         ProsessTaskData vedtakTilDatavarehus = getProsesstaskFor(VEDTAK_TIL_DATAVAREHUS_TASK);
@@ -50,7 +47,6 @@ public abstract class OpprettProsessTaskIverksettFelles implements OpprettProses
         ProsessTaskData settFagsakRelasjonAvsluttningsdato = getProsesstaskFor(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
 
         ProsessTaskGruppe taskData = new ProsessTaskGruppe();
-        initiellTasker.forEach(taskData::addNesteSekvensiell);
 
         List<ProsessTaskData> parallelle = new ArrayList<>();
         parallelle.add(sendVedtaksbrev);

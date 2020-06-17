@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.vedtak.infotrygd.rest;
+package no.nav.foreldrepenger.mottak.vedtak.rest;
 
 import java.net.URI;
 import java.time.LocalDate;
@@ -19,23 +19,24 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-public class InfotrygdPSGrunnlag {
-    private static final String DEFAULT_URI = "http://infotrygd-grunnlag-paaroerende-sykdom.default/paaroerendeSykdom/grunnlag";
+public class InfotrygdSVPGrunnlag {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InfotrygdPSGrunnlag.class);
+    private static final String DEFAULT_URI = "http://infotrygd-svangerskapspenger.default/grunnlag";
+
+    private static final Logger LOG = LoggerFactory.getLogger(InfotrygdSVPGrunnlag.class);
 
     private OidcRestClient restClient;
     private URI uri;
     private String uriString;
 
     @Inject
-    public InfotrygdPSGrunnlag(OidcRestClient restClient, @KonfigVerdi(value = "fpsak.it.ps.grunnlag.url", defaultVerdi = DEFAULT_URI) URI uri) {
+    public InfotrygdSVPGrunnlag(OidcRestClient restClient, @KonfigVerdi(value = "fpsak.it.svp.grunnlag.url", defaultVerdi = DEFAULT_URI) URI uri) {
         this.restClient = restClient;
         this.uri = uri;
         this.uriString = uri.toString();
     }
 
-    public InfotrygdPSGrunnlag() {
+    public InfotrygdSVPGrunnlag() {
         // CDI
     }
 
@@ -49,7 +50,8 @@ public class InfotrygdPSGrunnlag {
             var grunnlag = restClient.get(request, Grunnlag[].class);
             return Arrays.asList(grunnlag);
         } catch (Exception e) {
-            LOG.info("FPSAK Infotrygd Grunnlag BS - Feil ved oppslag mot {}, returnerer ingen grunnlag", uriString, e);
+            LOG.info("FPSAK Infotrygd Grunnlag SVP - Feil ved oppslag mot {}, returnerer ingen grunnlag", uriString, e);
+            //throw InfotrygdRestFeil.FACTORY.feilfratjeneste(uriString).toException();
             return Collections.emptyList();
         }
     }

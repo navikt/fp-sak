@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.vedtak.impl;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -47,7 +46,7 @@ public class OpprettProsessTaskIverksettKlage implements OpprettProsessTaskIverk
     }
 
     @Override
-    public void opprettIverksettingstasker(Behandling behandling, @SuppressWarnings("unused") List<String> inititellTaskNavn) {
+    public void opprettIverksettingstasker(Behandling behandling) {
         ProsessTaskData avsluttBehandling = new ProsessTaskData(AvsluttBehandlingTask.TASKTYPE);
         Optional<ProsessTaskData> avsluttOppgave = oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling, behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK, false);
         ProsessTaskData sendVedtaksbrev = new ProsessTaskData(SendVedtaksbrevTask.TASKTYPE);

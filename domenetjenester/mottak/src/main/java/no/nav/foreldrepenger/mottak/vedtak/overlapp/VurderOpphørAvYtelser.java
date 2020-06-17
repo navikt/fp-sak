@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.vedtak;
+package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesser
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.SjekkOverlappForeldrepengerInfotrygdTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
@@ -102,7 +101,7 @@ public class VurderOpphørAvYtelser  {
         this.køKontroller = køKontroller;
     }
 
-    void vurderOpphørAvYtelser(Long fagsakId, Long behandlingId) {
+    public void vurderOpphørAvYtelser(Long fagsakId, Long behandlingId) {
 
         Fagsak gjeldendeFagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
 
