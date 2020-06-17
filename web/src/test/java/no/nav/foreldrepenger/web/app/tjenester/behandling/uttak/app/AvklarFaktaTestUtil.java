@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Rule;
 
@@ -9,16 +9,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.KontrollerFaktaPeriode;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaPeriodeLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringFaktaUttakDto;
 
@@ -42,7 +44,7 @@ public class AvklarFaktaTestUtil {
         bekreftetOppgittPeriodeDto2.setOrginalTom(LocalDate.now());
         bekreftetOppgittPeriodeDto2.setOriginalResultat(UttakPeriodeVurderingType.PERIODE_OK);
         BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto3 = getBekreftetUttakPeriodeDto(LocalDate.now().plusDays(1), LocalDate.now().plusDays(10), false);
-        dto.setBekreftedePerioder(Arrays.asList(bekreftetOppgittPeriodeDto1, bekreftetOppgittPeriodeDto2, bekreftetOppgittPeriodeDto3));
+        dto.setBekreftedePerioder(List.of(bekreftetOppgittPeriodeDto1, bekreftetOppgittPeriodeDto2, bekreftetOppgittPeriodeDto3));
         return dto;
     }
 
@@ -57,7 +59,7 @@ public class AvklarFaktaTestUtil {
         bekreftetOppgittPeriodeDto2.setOrginalTom(LocalDate.now());
         bekreftetOppgittPeriodeDto2.setOriginalResultat(UttakPeriodeVurderingType.PERIODE_OK);
         BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto3 = getBekreftetUttakPeriodeDto(LocalDate.now().plusDays(1), LocalDate.now().plusDays(10), false);
-        dto.setBekreftedePerioder(Arrays.asList(bekreftetOppgittPeriodeDto1, bekreftetOppgittPeriodeDto2, bekreftetOppgittPeriodeDto3));
+        dto.setBekreftedePerioder(List.of(bekreftetOppgittPeriodeDto1, bekreftetOppgittPeriodeDto2, bekreftetOppgittPeriodeDto3));
         return dto;
     }
 
@@ -79,7 +81,12 @@ public class AvklarFaktaTestUtil {
             .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
-        fordelingRepository.lagre(behandling.getId(), new OppgittFordelingEntitet(Arrays.asList(periode_1, periode_2), true));
+        fordelingRepository.lagre(behandling.getId(), new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
+        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
+            .medMottattDato(LocalDate.now().minusMonths(1))
+            .medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1))
+            .build();
+        new UttaksperiodegrenseRepository(repositoryRule.getEntityManager()).lagre(behandling.getId(), uttaksperiodegrense);
         return behandling;
     }
 

@@ -370,6 +370,7 @@ public class VedtaksperioderHelperTest {
         LocalDate tom = fom.plusWeeks(1).minusDays(1);
         UttakResultatPeriodeEntitet periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medUtsettelseType(UttakUtsettelseType.FERIE)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.UDEFINERT).build())
             .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT)
             .build();
 
@@ -393,6 +394,7 @@ public class VedtaksperioderHelperTest {
         UttakResultatPeriodeEntitet periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medUtsettelseType(UttakUtsettelseType.FERIE)
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.MØDREKVOTE).build())
             .build();
 
         periodeEntitet.leggTilAktivitet(UttakResultatPeriodeAktivitetEntitet
@@ -717,6 +719,10 @@ public class VedtaksperioderHelperTest {
             LocalDate.of(2018, Month.JULY, 10))
             .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medOverføringÅrsak(OverføringÅrsak.SYKDOM_ANNEN_FORELDER)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
+                .medMottattDatoTemp(LocalDate.of(2017, 1, 1))
+                .medUttakPeriodeType(UttakPeriodeType.FEDREKVOTE)
+                .build())
             .build();
         uttaksperiode.leggTilAktivitet(UttakResultatPeriodeAktivitetEntitet
             .builder(uttaksperiode, opprettArbeidstakerUttakAktivitet("123"))
@@ -727,6 +733,28 @@ public class VedtaksperioderHelperTest {
 
         OppgittPeriodeEntitet konvertetPeriode = vedtaksperioderHelper.konverter(uttaksperiode);
         assertThat(konvertetPeriode.getÅrsak()).isEqualTo(uttaksperiode.getOverføringÅrsak());
+    }
+
+    @Test
+    public void skalKonvertereMottattDato() {
+        var mottattDato = LocalDate.of(2017, 1, 1);
+        UttakResultatPeriodeEntitet uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, Month.JULY, 3),
+            LocalDate.of(2018, Month.JULY, 10))
+            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
+                .medUttakPeriodeType(UttakPeriodeType.FEDREKVOTE)
+                .medMottattDatoTemp(mottattDato)
+                .build())
+            .build();
+        uttaksperiode.leggTilAktivitet(UttakResultatPeriodeAktivitetEntitet
+            .builder(uttaksperiode, opprettArbeidstakerUttakAktivitet("123"))
+            .medTrekkonto(StønadskontoType.FEDREKVOTE)
+            .medTrekkdager(new Trekkdager(2))
+            .medArbeidsprosent(BigDecimal.TEN)
+            .build());
+
+        OppgittPeriodeEntitet konvertetPeriode = vedtaksperioderHelper.konverter(uttaksperiode);
+        assertThat(konvertetPeriode.getMottattDato()).isEqualTo(uttaksperiode.getPeriodeSøknad().orElseThrow().getMottattDatoTemp());
     }
 
     private UttakAktivitetEntitet opprettArbeidstakerUttakAktivitet(String arbeidsgiverIdentifikator) {

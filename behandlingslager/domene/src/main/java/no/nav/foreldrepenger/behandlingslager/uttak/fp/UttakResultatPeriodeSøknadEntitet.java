@@ -47,6 +47,9 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     @Column(name = "mottatt_dato")
     private LocalDate mottattDato;
 
+    @Column(name = "mottatt_dato_2")
+    private LocalDate mottattDatoTemp;
+
     @Column(name = "MORS_AKTIVITET", updatable = false, nullable = false)
     @Convert(converter = MorsAktivitet.KodeverdiConverter.class)
     private MorsAktivitet morsAktivitet = MorsAktivitet.UDEFINERT;
@@ -73,6 +76,10 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
 
     public LocalDate getMottattDato() {
         return mottattDato;
+    }
+
+    public LocalDate getMottattDatoTemp() {
+        return mottattDatoTemp;
     }
 
     public MorsAktivitet getMorsAktivitet() {
@@ -119,6 +126,11 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
 
         public Builder medMottattDato(LocalDate mottattDato) {
             kladd.mottattDato = mottattDato;
+            return this;
+        }
+
+        public Builder medMottattDatoTemp(LocalDate mottattDatoTemp) {
+            kladd.mottattDatoTemp = mottattDatoTemp;
             return this;
         }
 
