@@ -40,7 +40,7 @@ public class HoppTilbakeTil5080OgSlettInntektsmeldingDto implements AbacDto {
             abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
         }
         if (journalpostId != null) {
-            abac.leggTil(AppAbacAttributtType.EKSISTERENDE_JOURNALPOST_ID, journalpostId);
+            abac.leggTil(AppAbacAttributtType.JOURNALPOST_ID, journalpostId);
         }
         return abac;
     }

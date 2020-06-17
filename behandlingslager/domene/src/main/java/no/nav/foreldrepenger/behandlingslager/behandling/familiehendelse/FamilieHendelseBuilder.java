@@ -178,6 +178,10 @@ public class FamilieHendelseBuilder {
         return type;
     }
 
+    Integer getAntallBarn() {
+        return this.hendelse.getAntallBarn() != null ? this.hendelse.getAntallBarn() : this.hendelse.getBarna().size();
+    }
+
     void setType(HendelseVersjonType overgrippendeType) {
         this.overgrippendeType = overgrippendeType;
     }

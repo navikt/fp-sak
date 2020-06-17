@@ -32,9 +32,9 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 public class UttakResultatHolderImpl implements UttakResultatHolder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UttakResultatHolder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UttakResultatHolderImpl.class);
 
-    private Optional<ForeldrepengerUttak> uttakresultat;
+    private final Optional<ForeldrepengerUttak> uttakresultat;
     private BehandlingVedtak vedtak;
 
 
