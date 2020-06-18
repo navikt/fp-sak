@@ -35,8 +35,8 @@ public class OppdragPatchDto implements AbacDto {
     private String kodeEndring;
 
     @NotNull
-    @DecimalMin("100000000000")
-    @DecimalMax("300000000000")
+    @Min(100000000000L)
+    @Max(300000000000L)
     private Long fagsystemId;
 
     @Valid

@@ -7,6 +7,8 @@ import javax.validation.constraints.AssertFalse;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -29,8 +31,8 @@ public class OppdragslinjePatchDto {
     private LocalDate tom;
 
     @NotNull
-    @DecimalMin("1")
-    @DecimalMax("100000")
+    @Min(1)
+    @Max(100000)
     private Long sats;
 
     @NotNull
@@ -38,16 +40,16 @@ public class OppdragslinjePatchDto {
     private String satsType;
 
     @NotNull
-    @DecimalMin("100000000000000")
-    @DecimalMax("300000000000000")
+    @Min(100000000000000L)
+    @Max(300000000000000L)
     private Long delytelseId;
 
-    @DecimalMin("100000000000000")
-    @DecimalMax("300000000000000")
+    @Min(100000000000000L)
+    @Max(300000000000000L)
     private Long refDelytelseId;
 
-    @DecimalMin("100000000000")
-    @DecimalMax("300000000000")
+    @Min(100000000000L)
+    @Max(300000000000L)
     private Long refFagsystemId;
 
     @AssertTrue
