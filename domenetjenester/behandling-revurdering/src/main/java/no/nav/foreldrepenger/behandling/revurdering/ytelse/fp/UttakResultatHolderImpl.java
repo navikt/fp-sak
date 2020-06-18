@@ -155,8 +155,13 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
             .map(w -> new LocalDateSegment<>(w.getI(), w))
             .collect(Collectors.toList()))
             .compress(WrapFUP::erLikeNaboer, this::kombinerLikeNaboer);
-        LocalDateTimeline<WrapFUP> kombinert = uttaksTL.combine(originalTL, this::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN);
-        var nyImpl = !kombinert.filterValue(Objects::nonNull).getDatoIntervaller().isEmpty();
+        final boolean nyImpl;
+        if (uttaksTL.getDatoIntervaller().size() != originalTL.getDatoIntervaller().size()) {
+            nyImpl = false;
+        } else {
+            LocalDateTimeline<WrapFUP> kombinert = uttaksTL.combine(originalTL, this::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN);
+            nyImpl = !kombinert.filterValue(Objects::nonNull).getDatoIntervaller().isEmpty();
+        }
         if (gammelImpl != nyImpl && vedtak != null)
             LOG.info("BEHRES TIMELINE behresId {} avvik gammel {} ny {} timeline {} original {}", vedtak.getBehandlingsresultat().getId(), gammelImpl, nyImpl, uttaksTL, originalTL);
     }
@@ -173,6 +178,9 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
         if (lhs == null)
             return rhs;
         if (rhs == null)
+            return lhs;
+        // Kan ikke sammenligne splittede intervaller pga trekkdager - må være like for å eliminere
+        if (!Objects.equals(lhs.getValue().getI(),rhs.getValue().getI()))
             return lhs;
         if (lhs.getValue().erLikePerioderTrekkdager(rhs.getValue()))
             return null;

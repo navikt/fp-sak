@@ -135,6 +135,45 @@ public class ErKunEndringIFordelingAvYtelsenTest {
 
 
     @Test
+    public void case_fra_prod_skal_oppdage_endring_fordeling() {
+        // Arrange
+        List<Integer> dagsatserBR = List.of(2304, 0, 2304);
+        List<Integer> dagsatserAG = List.of(0, 2304, 0);
+        LocalDate basis = LocalDate.of(2020, 4, 18);
+        LocalDate tom1 = LocalDate.of(2020, 4, 22);
+        LocalDate tom2 = LocalDate.of(2020, 6, 10);
+
+        List<LocalDateInterval> originaleBGPerioder = new ArrayList<>();
+        originaleBGPerioder.add(new LocalDateInterval(basis, null));
+
+
+        List<LocalDateInterval> revurderingBGPerioder = new ArrayList<>();
+        revurderingBGPerioder.add(new LocalDateInterval(basis, tom1));
+        revurderingBGPerioder.add(new LocalDateInterval(tom1.plusDays(1), tom2));
+        revurderingBGPerioder.add(new LocalDateInterval(tom2.plusDays(1), null));
+
+        BeregningsgrunnlagEntitet originalGrunnlag = forProdCase(originaleBGPerioder, List.of(2304), List.of(0));
+        BeregningsgrunnlagEntitet revurderingGrunnlag = forProdCase(revurderingBGPerioder, dagsatserBR, dagsatserAG);
+
+        // Act
+        boolean endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
+            Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag), false);
+
+        // Assert
+        assertThat(endring).isTrue();
+    }
+
+    private BeregningsgrunnlagEntitet forProdCase(List<LocalDateInterval> perioder, List<Integer> dagsatserBR, List<Integer> dagsatserAG) {
+        BeregningsgrunnlagEntitet grunnlag = BeregningsgrunnlagEntitet.builder()
+            .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_BEREGNING)
+            .medGrunnbeløp(BigDecimal.valueOf(91425L))
+            .build();
+        byggBeregningsgrunnlagPeriodeOgAndeler(grunnlag, perioder, dagsatserBR, dagsatserAG);
+
+        return grunnlag;
+    }
+
+    @Test
     public void skal_gi_ingen_endring_i_ytelse_ved_lik_fordeling_av_andeler_ved_ulike_perioder() {
         // Arrange
         List<Integer> dagsatser = List.of(123, 5781, 5781);
