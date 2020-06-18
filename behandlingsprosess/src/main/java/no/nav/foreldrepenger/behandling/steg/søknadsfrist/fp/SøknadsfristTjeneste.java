@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.regler.soknadsfrist.SøknadsfristResultat;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -93,7 +94,10 @@ public class SøknadsfristTjeneste {
                 .medMottattDato(adapter.getMottattDato())
                 .medFørsteLovligeUttaksdag(førsteLovligeUttaksdag);
             repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), uttaksperiodegrenseBuilder.build());
-            oppdaterYtelseFordelingMedMottattDato(behandling.getId(), adapter.getMottattDato());
+            //quickfix, må dele tjenesten i FP og SVP
+            if (Objects.equals(behandling.getFagsak().getYtelseType(), FagsakYtelseType.FORELDREPENGER)) {
+                oppdaterYtelseFordelingMedMottattDato(behandling.getId(), adapter.getMottattDato());
+            }
         }
     }
 
