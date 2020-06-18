@@ -39,7 +39,6 @@ public class OppdragPatchDto implements AbacDto {
     @DecimalMax("300000000000")
     private Long fagsystemId;
 
-
     @Valid
     @NotNull
     @Size(min = 1, max = 30)
