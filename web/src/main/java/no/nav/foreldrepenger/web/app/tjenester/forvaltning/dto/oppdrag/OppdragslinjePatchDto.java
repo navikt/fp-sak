@@ -5,8 +5,6 @@ import java.time.temporal.ChronoUnit;
 
 import javax.validation.constraints.AssertFalse;
 import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
