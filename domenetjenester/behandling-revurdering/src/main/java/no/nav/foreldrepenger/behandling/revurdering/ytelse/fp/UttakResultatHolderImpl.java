@@ -259,7 +259,9 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
     private static boolean erDesimaltallLike(BigDecimal d1, BigDecimal d2) {
         if (Objects.equals(d1, d2))
             return true;
-        return d1 != null ? d1.compareTo(d2) == 0 : d2.compareTo(d1) == 0;
+        if (d1 == null || d2 == null)
+            return false;
+        return d1.compareTo(d2) == 0;
     }
 
     private static boolean erLikNaboAktivitet(ForeldrepengerUttakPeriodeAktivitet a1, ForeldrepengerUttakPeriodeAktivitet a2) {
