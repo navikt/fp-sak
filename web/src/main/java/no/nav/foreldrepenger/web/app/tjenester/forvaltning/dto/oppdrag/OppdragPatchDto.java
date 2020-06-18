@@ -12,6 +12,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
@@ -21,27 +23,33 @@ public class OppdragPatchDto implements AbacDto {
     @Min(0)
     @Max(Long.MAX_VALUE)
     @NotNull
+    @JsonProperty("behandingId")
     private Long behandlingId;
 
     @NotNull
+    @JsonProperty("brukerErMottaker")
     private Boolean brukerErMottaker;
 
     @Size(min = 9, max = 9)
     @Pattern(regexp = "^\\d*$")
+    @JsonProperty("arbeidsgiverOrgnr")
     private String arbeidsgiverOrgNr;
 
     @NotNull
     @Pattern(regexp = "^UEND|ENDR|NY$")
+    @JsonProperty("kodeEndring")
     private String kodeEndring;
 
     @NotNull
     @Min(100000000000L)
     @Max(300000000000L)
+    @JsonProperty("fagsystemId")
     private Long fagsystemId;
 
     @Valid
     @NotNull
     @Size(min = 1, max = 30)
+    @JsonProperty("oppdragslinjer")
     private List<OppdragslinjePatchDto> oppdragslinjer;
 
     @AssertTrue

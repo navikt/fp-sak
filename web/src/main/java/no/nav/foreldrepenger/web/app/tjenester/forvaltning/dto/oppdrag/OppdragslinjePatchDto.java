@@ -12,44 +12,56 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class OppdragslinjePatchDto {
 
     @NotNull
     @Pattern(regexp = "^NY|ENDR$")
+    @JsonProperty("kodeEndring")
     private String kodeEndring;
 
+    @JsonProperty("opphoerFom")
     private LocalDate opphørFom;
 
     @NotNull
     @Pattern(regexp = "^(FP(AD|SV)(ATORD|ATFRI|SND-OP|ATAL|ATSJO|SNDDM-OP|SNDJB-OP|SNDFI|REFAG-IOP|REFAGFER-IOP))|FPENFOD-OP|FPENAD-OP?|$")
+    @JsonProperty("kodeKlassifik")
     private String kodeKlassifik;
 
     @NotNull
+    @JsonProperty("fom")
     private LocalDate fom;
 
     @NotNull
+    @JsonProperty("tom")
     private LocalDate tom;
 
     @NotNull
     @Min(1)
     @Max(100000)
+    @JsonProperty("sats")
     private Long sats;
 
     @NotNull
     @Pattern(regexp = "^ENG|DAG$")
+    @JsonProperty("satsType")
     private String satsType;
 
     @NotNull
     @Min(100000000000000L)
     @Max(300000000000000L)
+    @JsonProperty("delytelseId")
     private Long delytelseId;
 
     @Min(100000000000000L)
     @Max(300000000000000L)
+    @JsonProperty("refDelytelseId")
     private Long refDelytelseId;
 
     @Min(100000000000L)
     @Max(300000000000L)
+    @JsonProperty("refFagsystemId")
     private Long refFagsystemId;
 
     @AssertTrue
