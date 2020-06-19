@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,8 +28,8 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity
 @Table(name = "UTTAK_RESULTAT_PERIODE")
@@ -107,7 +106,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     private boolean samtidigUttak;
 
     @Column(name = "samtidig_uttaksprosent")
-    private BigDecimal samtidigUttaksprosent;
+    private SamtidigUttaksprosent samtidigUttaksprosent;
 
     @ManyToOne
     @JoinColumn(name = "periode_soknad_id", updatable = false)
@@ -186,7 +185,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
         return samtidigUttak;
     }
 
-    public BigDecimal getSamtidigUttaksprosent() {
+    public SamtidigUttaksprosent getSamtidigUttaksprosent() {
         return isSamtidigUttak() ? samtidigUttaksprosent : null;
     }
 
@@ -290,7 +289,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
             return this;
         }
 
-        public Builder medSamtidigUttaksprosent(BigDecimal samtidigUttaksprosent) {
+        public Builder medSamtidigUttaksprosent(SamtidigUttaksprosent samtidigUttaksprosent) {
             kladd.samtidigUttaksprosent = samtidigUttaksprosent;
             return this;
         }

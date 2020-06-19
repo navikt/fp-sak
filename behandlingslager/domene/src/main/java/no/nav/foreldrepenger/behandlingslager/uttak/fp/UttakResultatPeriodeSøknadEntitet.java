@@ -42,7 +42,7 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     private boolean samtidigUttak;
 
     @Column(name = "samtidig_uttaksprosent")
-    private BigDecimal samtidigUttaksprosent;
+    private SamtidigUttaksprosent samtidigUttaksprosent;
 
     @Column(name = "mottatt_dato")
     private LocalDate mottattDato;
@@ -70,7 +70,7 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
         return samtidigUttak;
     }
 
-    public BigDecimal getSamtidigUttaksprosent() {
+    public SamtidigUttaksprosent getSamtidigUttaksprosent() {
         return isSamtidigUttak() ? samtidigUttaksprosent : null;
     }
 
@@ -119,7 +119,7 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
             return this;
         }
 
-        public Builder medSamtidigUttaksprosent(BigDecimal samtidigUttaksprosent) {
+        public Builder medSamtidigUttaksprosent(SamtidigUttaksprosent samtidigUttaksprosent) {
             kladd.samtidigUttaksprosent = samtidigUttaksprosent;
             return this;
         }

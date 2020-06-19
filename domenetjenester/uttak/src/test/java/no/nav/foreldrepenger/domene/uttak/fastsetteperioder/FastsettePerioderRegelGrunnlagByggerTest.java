@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
@@ -401,7 +402,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             .medArbeidsgiver(virksomhet)
             .medErArbeidstaker(true)
             .medSamtidigUttak(true)
-            .medSamtidigUttaksprosent(BigDecimal.TEN)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .build();
 
         Behandling behandling = setupScenario(Collections.singletonList(oppgittPeriode));
@@ -419,7 +420,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         var oppittePerioder = grunnlag.getSøknad().getOppgittePerioder();
 
         assertThat(oppittePerioder).isNotEmpty();
-        assertThat(oppittePerioder.get(0).getSamtidigUttaksprosent()).isEqualTo(BigDecimal.TEN);
+        assertThat(oppittePerioder.get(0).getSamtidigUttaksprosent()).isEqualTo(SamtidigUttaksprosent.TEN.decimalValue());
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {

@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
@@ -318,7 +319,7 @@ public class UttakPeriodeEndringDtoTjenesteTest {
             .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medGraderingArbeidsprosent(graderingArbeidsprosent)
             .medSamtidigUttak(true)
-            .medSamtidigUttaksprosent(BigDecimal.TEN)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .build();
         UttakResultatDokRegelEntitet dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
             .medRegelInput(" ")

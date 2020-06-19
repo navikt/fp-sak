@@ -1,16 +1,16 @@
 package no.nav.foreldrepenger.domene.uttak;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
@@ -19,7 +19,7 @@ public class ForeldrepengerUttakPeriode {
     private List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter = List.of();
     private LocalDateInterval tidsperiode;
     private boolean samtidigUttak;
-    private BigDecimal samtidigUttaksprosent;
+    private SamtidigUttaksprosent samtidigUttaksprosent;
     private boolean flerbarnsdager;
     private boolean graderingInnvilget;
     private UttakUtsettelseType utsettelseType = UttakUtsettelseType.UDEFINERT;
@@ -42,7 +42,7 @@ public class ForeldrepengerUttakPeriode {
             && Objects.equals(periode.getResultatType(), getResultatType())
             && Objects.equals(periode.getResultatÅrsak(), getResultatÅrsak())
             && Objects.equals(periode.isSamtidigUttak(), isSamtidigUttak())
-            && (Objects.equals(periode.getSamtidigUttaksprosent(), getSamtidigUttaksprosent()) || periode.getSamtidigUttaksprosent().compareTo(getSamtidigUttaksprosent()) == 0)
+            && Objects.equals(periode.getSamtidigUttaksprosent(), getSamtidigUttaksprosent())
             && Objects.equals(periode.isFlerbarnsdager(), isFlerbarnsdager())
             && Objects.equals(periode.getUtsettelseType(), getUtsettelseType())
             && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak())
@@ -101,7 +101,7 @@ public class ForeldrepengerUttakPeriode {
         return samtidigUttak;
     }
 
-    public BigDecimal getSamtidigUttaksprosent() {
+    public SamtidigUttaksprosent getSamtidigUttaksprosent() {
         return samtidigUttaksprosent;
     }
 
@@ -208,7 +208,7 @@ public class ForeldrepengerUttakPeriode {
             return this;
         }
 
-        public Builder medSamtidigUttaksprosent(BigDecimal samtidigUttaksprosent) {
+        public Builder medSamtidigUttaksprosent(SamtidigUttaksprosent samtidigUttaksprosent) {
             kladd.samtidigUttaksprosent = samtidigUttaksprosent;
             return this;
         }

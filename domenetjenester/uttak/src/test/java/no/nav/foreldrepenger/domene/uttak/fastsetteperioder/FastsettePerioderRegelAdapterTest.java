@@ -47,6 +47,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
@@ -1112,7 +1113,7 @@ public class FastsettePerioderRegelAdapterTest {
         LocalDate slutt = start.plusWeeks(5).minusDays(1);
         assertThat(start.getDayOfWeek()).isEqualTo(DayOfWeek.MONDAY);
         assertThat(slutt.getDayOfWeek()).isEqualTo(DayOfWeek.SUNDAY);
-        BigDecimal samtidigUttaksprosent = BigDecimal.valueOf(53.33);
+        var samtidigUttaksprosent = new SamtidigUttaksprosent(53.33);
         Arbeidsgiver arbeidsgiver = virksomhet();
         OppgittPeriodeEntitet oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
@@ -1133,7 +1134,7 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(uttakResultatPerioder).hasSize(1);
 
         UttakResultatPeriodeEntitet fkPeriode = finnPeriode(uttakResultatPerioder, start, slutt);
-        assertThat(fkPeriode.getSamtidigUttaksprosent()).isEqualTo(new BigDecimal("53.33"));
+        assertThat(fkPeriode.getSamtidigUttaksprosent()).isEqualTo(new SamtidigUttaksprosent(53.33));
     }
 
     @Test
@@ -1325,13 +1326,13 @@ public class FastsettePerioderRegelAdapterTest {
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(fødselsdato, fødselsdato.plusWeeks(7))
             .medSamtidigUttak(true)
-            .medSamtidigUttaksprosent(BigDecimal.ZERO)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.ZERO)
             .build();
         OppgittPeriodeEntitet periodeMedSamtidigUttak = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(fødselsdato.plusWeeks(7).plusDays(1), fødselsdato.plusWeeks(8))
             .medSamtidigUttak(true)
-            .medSamtidigUttaksprosent(BigDecimal.ZERO)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.ZERO)
             .build();
         Behandling behandling = setupMor(List.of(mk, periodeMedSamtidigUttak), virksomhet(), fødselsdato.minusYears(1), fødselsdato.plusWeeks(10));
         UttakBeregningsandelTjenesteTestUtil beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
@@ -1344,7 +1345,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         UttakResultatPeriodeEntitet fkPeriode = finnPeriode(uttakResultatPerioder, periodeMedSamtidigUttak.getFom(), periodeMedSamtidigUttak.getTom());
 
-        assertThat(fkPeriode.getSamtidigUttaksprosent()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(fkPeriode.getSamtidigUttaksprosent()).isEqualTo(new SamtidigUttaksprosent(100));
         assertThat(fkPeriode.getAktiviteter().get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
         assertThat(fkPeriode.getAktiviteter().get(0).getTrekkdager()).isEqualTo(new Trekkdager(5));
     }

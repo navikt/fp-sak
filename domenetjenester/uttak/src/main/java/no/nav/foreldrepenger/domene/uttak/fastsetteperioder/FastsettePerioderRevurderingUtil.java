@@ -103,9 +103,15 @@ public final class FastsettePerioderRevurderingUtil {
 
     private static Trekkdager regnUtTrekkdager(UttakResultatPeriodeAktivitetEntitet aktivitet, LocalDate tom) {
         if (aktivitet.getTrekkdager().merEnn0()) {
+            BigDecimal samtidigUttaksprosent = samtidigUttaksprosent(aktivitet);
             return new Trekkdager(TrekkdagerUtregningUtil.trekkdagerFor(new Periode(aktivitet.getFom(), tom),
-                aktivitet.isGraderingInnvilget(), aktivitet.getArbeidsprosent(), aktivitet.getPeriode().getSamtidigUttaksprosent()).decimalValue());
+                aktivitet.isGraderingInnvilget(), aktivitet.getArbeidsprosent(), samtidigUttaksprosent).decimalValue());
         }
         return new Trekkdager(BigDecimal.ZERO);
+    }
+
+    private static BigDecimal samtidigUttaksprosent(UttakResultatPeriodeAktivitetEntitet aktivitet) {
+        var samtidigUttaksprosent = aktivitet.getPeriode().getSamtidigUttaksprosent();
+        return samtidigUttaksprosent == null ? null : samtidigUttaksprosent.decimalValue();
     }
 }

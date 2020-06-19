@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -144,7 +145,7 @@ public class VedtaksperioderHelper {
         return !OverføringÅrsak.UDEFINERT.equals(up.getOverføringÅrsak());
     }
 
-    private Optional<BigDecimal> finnSamtidigUttaksprosent(UttakResultatPeriodeEntitet up) {
+    private Optional<SamtidigUttaksprosent> finnSamtidigUttaksprosent(UttakResultatPeriodeEntitet up) {
         if (up.getPeriodeSøknad().isPresent()) {
             return Optional.ofNullable(up.getPeriodeSøknad().get().getSamtidigUttaksprosent());
         }

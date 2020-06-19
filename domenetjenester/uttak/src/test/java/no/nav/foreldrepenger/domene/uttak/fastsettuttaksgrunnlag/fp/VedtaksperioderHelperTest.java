@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
@@ -538,7 +539,7 @@ public class VedtaksperioderHelperTest {
         UttakResultatPeriodeSøknadEntitet søknadPeriode = new UttakResultatPeriodeSøknadEntitet.Builder()
             .medUttakPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medSamtidigUttak(true)
-            .medSamtidigUttaksprosent(BigDecimal.TEN)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .build();
 
         UttakResultatPeriodeEntitet periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom)
@@ -668,7 +669,7 @@ public class VedtaksperioderHelperTest {
         LocalDate tom = fom.plusWeeks(1).minusDays(1);
 
         UttakResultatPeriodeSøknadEntitet periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
-            .medSamtidigUttaksprosent(BigDecimal.TEN)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build();
         UttakResultatPeriodeEntitet periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom)
@@ -801,7 +802,7 @@ public class VedtaksperioderHelperTest {
                 .medUttakPeriodeType(toUttakPeriodeType(stønadskontoType))
                 .medGraderingArbeidsprosent(BigDecimal.valueOf(100.00))
                 .medSamtidigUttak(true)
-                .medSamtidigUttaksprosent(BigDecimal.TEN)
+                .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
                 .build();
             uttakResultatPeriodeBuilder.medPeriodeSoknad(periodeSøknad);
         }

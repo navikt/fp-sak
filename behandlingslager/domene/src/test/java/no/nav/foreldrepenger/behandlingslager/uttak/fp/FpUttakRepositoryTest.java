@@ -205,7 +205,7 @@ public class FpUttakRepositoryTest {
             .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medGraderingArbeidsprosent(graderingArbeidsprosent)
             .medSamtidigUttak(true)
-            .medSamtidigUttaksprosent(BigDecimal.TEN)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .build();
         UttakResultatDokRegelEntitet dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
             .medRegelInput(" ")

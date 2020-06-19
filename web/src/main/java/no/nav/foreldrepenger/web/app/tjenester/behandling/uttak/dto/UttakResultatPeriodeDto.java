@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +9,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 
 public class UttakResultatPeriodeDto {
@@ -28,7 +28,7 @@ public class UttakResultatPeriodeDto {
     private GraderingAvslagÅrsak graderingAvslagÅrsak;
     private boolean flerbarnsdager;
     private boolean samtidigUttak;
-    private BigDecimal samtidigUttaksprosent;
+    private SamtidigUttaksprosent samtidigUttaksprosent;
     private boolean graderingInnvilget;
     private UttakPeriodeType periodeType;
     private UttakUtsettelseType utsettelseType;
@@ -99,7 +99,7 @@ public class UttakResultatPeriodeDto {
         return utsettelseType;
     }
 
-    public BigDecimal getSamtidigUttaksprosent() {
+    public SamtidigUttaksprosent getSamtidigUttaksprosent() {
         return samtidigUttaksprosent;
     }
 
@@ -152,7 +152,7 @@ public class UttakResultatPeriodeDto {
             return this;
         }
 
-        public Builder medSamtidigUttaksprosent(BigDecimal samtidigUttaksprosent) {
+        public Builder medSamtidigUttaksprosent(SamtidigUttaksprosent samtidigUttaksprosent) {
             kladd.samtidigUttaksprosent = samtidigUttaksprosent;
             return this;
         }
