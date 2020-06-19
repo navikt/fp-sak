@@ -55,7 +55,7 @@ public class VedtaksHendelseHåndtererTest {
     }
 
     @Test
-    public void testOprettRiktigeTasksForFpsakVedtakForeldrepenger() {
+    public void opprettRiktigeTasksForFpsakVedtakForeldrepenger() {
         Behandling fpBehandling = lagBehandlingFP();
         YtelseV1 fpYtelse = genererYtelse(fpBehandling);
 
@@ -68,7 +68,7 @@ public class VedtaksHendelseHåndtererTest {
     }
 
     @Test
-    public void testOprettRiktigeTasksForFpsakVedtakSvangerskapspenger() {
+    public void opprettRiktigeTasksForFpsakVedtakSvangerskapspenger() {
         Behandling svpBehandling = lagBehandlingSVP();
         YtelseV1 svpYtelse = genererYtelse(svpBehandling);
 

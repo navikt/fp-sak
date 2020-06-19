@@ -64,6 +64,12 @@ public class VedtaksHendelseHåndterer {
     private Validator validator;
     private ProsessTaskRepository prosessTaskRepository;
 
+    private static final Map<YtelseType, FagsakYtelseType > YTELSE_TYPE_MAP = Map.of(
+        YtelseType.ENGANGSTØNAD, FagsakYtelseType.ENGANGSTØNAD,
+        YtelseType.FORELDREPENGER, FagsakYtelseType.FORELDREPENGER,
+        YtelseType.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER
+        );
+
     public VedtaksHendelseHåndterer() {
     }
 
@@ -114,7 +120,14 @@ public class VedtaksHendelseHåndterer {
     }
 
     void oprettTasksForFpsakVedtak(YtelseV1 ytelse) {
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(map(ytelse.getType()))) {
+        FagsakYtelseType fagsakYtelseType = YTELSE_TYPE_MAP.getOrDefault(ytelse.getType(), FagsakYtelseType.UDEFINERT);
+
+        if (FagsakYtelseType.UDEFINERT.equals(fagsakYtelseType)) {
+            LOG.error("Utviklerfeil: ukjent ytelsestype for innkommende vedtak {}", ytelse.getType());
+            return;
+        }
+
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
             return;
         }
 
@@ -126,7 +139,7 @@ public class VedtaksHendelseHåndterer {
             return;
         }
 
-        if (FagsakYtelseType.FORELDREPENGER.equals(map(ytelse.getType()))) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             opprettTaskForBerørtBehandling(behandling);
             opprettTaskForOpphørAvYtelser(behandling);
         } //SVP
@@ -215,16 +228,4 @@ public class VedtaksHendelseHåndterer {
         vurderOpphør.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(vurderOpphør);
     }
-
-    private FagsakYtelseType map(YtelseType type) {
-        if (YtelseType.ENGANGSTØNAD.equals(type)) {
-            return FagsakYtelseType.ENGANGSTØNAD;
-        } else if (YtelseType.FORELDREPENGER.equals(type)) {
-            return FagsakYtelseType.FORELDREPENGER;
-        } else if (YtelseType.SVANGERSKAPSPENGER.equals(type)) {
-            return FagsakYtelseType.SVANGERSKAPSPENGER;
-        }
-        throw new IllegalStateException("Ukjent fagsakytelse " + type);
-    }
-
 }
