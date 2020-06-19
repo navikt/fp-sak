@@ -65,12 +65,15 @@ public class OppdaterYFSøknadMottattDatoTask implements ProsessTaskHandler {
     }
 
     private void oppdaterMottattDatoForBehandling(Behandling behandling) {
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
+        if (ytelseFordelingAggregat.isEmpty()) {
+            return;
+        }
         var behandlingLås = behandlingLåsRepository.taLås(behandling.getId());
-        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
 
-        var oppgittFordeling = ytelseFordelingAggregat.getOppgittFordeling();
-        var justertFordeling = ytelseFordelingAggregat.getJustertFordeling();
-        var overstyrtFordeling = ytelseFordelingAggregat.getOverstyrtFordeling();
+        var oppgittFordeling = ytelseFordelingAggregat.get().getOppgittFordeling();
+        var justertFordeling = ytelseFordelingAggregat.get().getJustertFordeling();
+        var overstyrtFordeling = ytelseFordelingAggregat.get().getOverstyrtFordeling();
 
         oppgittFordeling.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling));
         justertFordeling.ifPresent(f -> f.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling)));
