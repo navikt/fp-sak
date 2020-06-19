@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,7 +16,10 @@ import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
@@ -32,12 +36,15 @@ public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste 
 
     private OppdaterMottattDatoRepositoryRepository repository;
     private ProsessTaskRepository prosessTaskRepository;
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     public OppdaterYFSøknadMottattDatoBatchTjeneste(OppdaterMottattDatoRepositoryRepository repository,
-                                                    ProsessTaskRepository prosessTaskRepository) {
+                                                    ProsessTaskRepository prosessTaskRepository,
+                                                    BehandlingRepository behandlingRepository) {
         this.repository = repository;
         this.prosessTaskRepository = prosessTaskRepository;
+        this.behandlingRepository = behandlingRepository;
     }
 
     OppdaterYFSøknadMottattDatoBatchTjeneste() {
@@ -51,11 +58,11 @@ public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste 
         String callId = MDCOperations.getCallId();
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
 
-        var behandlinger = repository.hentBehandlingerSomManglerSøknadMottattDato(args.getAntall());
+        var fagsaker = repository.hentFagsakerSomManglerSøknadMottattDato(args.getAntall());
         var kjøres = LocalDateTime.now();
-        for (var behandling : behandlinger) {
-            opprettRekjøringsTask(behandling, callId, kjøres);
-            kjøres = kjøres.plus(250, ChronoUnit.MILLIS);
+        for (var fagsak : fagsaker) {
+            opprettTaskGruppe(fagsak, callId, kjøres);
+            kjøres = kjøres.plus(500, ChronoUnit.MILLIS);
         }
 
         return BATCHNAME + "-" + UUID.randomUUID();
@@ -66,18 +73,27 @@ public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste 
         return new YfMottattDatoBatchArguments(jobArguments);
     }
 
-    private void opprettRekjøringsTask(Behandling behandling, String callId, LocalDateTime kjøres) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(OppdaterYFSøknadMottattDatoTask.TASKTYPE);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+    private void opprettTaskGruppe(Fagsak fagsak, String callId, LocalDateTime kjøres) {
 
-        // unik per task da det er ulike tasks for hver behandling
-        String nyCallId = callId + behandling.getId();
-        prosessTaskData.setCallId(nyCallId);
-        prosessTaskData.setAntallFeiledeForsøk(1);
-        prosessTaskData.setPrioritet(999);
-        prosessTaskData.setNesteKjøringEtter(kjøres);
+        var behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()).stream()
+            .filter(b -> b.erYtelseBehandling())
+            .collect(Collectors.toSet());
 
-        prosessTaskRepository.lagre(prosessTaskData);
+        var prosessTaskGruppe = new ProsessTaskGruppe();
+        for (Behandling behandling : behandlinger) {
+            ProsessTaskData prosessTaskData = new ProsessTaskData(OppdaterYFSøknadMottattDatoTask.TASKTYPE);
+            prosessTaskData.setBehandling(fagsak.getId(), behandling.getId(), behandling.getAktørId().getId());
+
+            String nyCallId = callId + behandling.getId();
+            prosessTaskData.setCallId(nyCallId);
+            prosessTaskData.setAntallFeiledeForsøk(1);
+            prosessTaskData.setPrioritet(999);
+            prosessTaskData.setNesteKjøringEtter(kjøres);
+
+            prosessTaskGruppe.addNesteSekvensiell(prosessTaskData);
+        }
+
+        prosessTaskRepository.lagre(prosessTaskGruppe);
     }
 
     @Override
@@ -104,19 +120,19 @@ public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste 
             //CDI
         }
 
-        public List<Behandling> hentBehandlingerSomManglerSøknadMottattDato(long antall) {
+        public List<Fagsak> hentFagsakerSomManglerSøknadMottattDato(long antall) {
             var sql = "select * from " +
-                "(select distinct b.* from behandling b " +
+                "(select distinct f.* from fagsak f " +
+                "join behandling b on f.id = b.fagsak_id " +
                 "join GR_YTELSES_FORDELING gryf on gryf.behandling_id = b.id and gryf.aktiv = 'J'" +
                 "join YF_FORDELING yf on yf.id in (gryf.SO_FORDELING_ID, gryf.JUSTERT_FORDELING_ID, gryf.OVERSTYRT_FORDELING_ID) " +
                 "join YF_FORDELING_PERIODE yfp on yfp.FORDELING_ID = yf.ID " +
-                "where b.id = gryf.behandling_id and yfp.mottatt_dato_temp is null " +
-                "order by fagsak_id) " +
+                "where b.id = gryf.behandling_id and yfp.mottatt_dato_temp is null) " +
                 "where ROWNUM <= :antall";
 
-            Query query = entityManager.createNativeQuery(sql, Behandling.class);
+            Query query = entityManager.createNativeQuery(sql, Fagsak.class);
             query.setParameter("antall", antall);
-            return ((List<Behandling>) query.getResultList());
+            return ((List<Fagsak>) query.getResultList());
         }
     }
 
@@ -124,7 +140,7 @@ public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste 
 
         private static final long DEFAULT = 1000;
 
-        //Antall behandlinger
+        //Antall fagsaker
          private Long antall;
 
         public YfMottattDatoBatchArguments(Map<String, String> arguments) {

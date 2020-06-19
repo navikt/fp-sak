@@ -24,7 +24,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
 @ProsessTask(OppdaterYFSøknadMottattDatoTask.TASKTYPE)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
+@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class OppdaterYFSøknadMottattDatoTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(OppdaterYFSøknadMottattDatoTask.class);
