@@ -10,12 +10,16 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
+@JsonInclude(value = JsonInclude.Include.NON_ABSENT, content = JsonInclude.Include.NON_EMPTY)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE)
 public class OppdragPatchDto implements AbacDto {
 
     @Min(0)
@@ -39,7 +43,7 @@ public class OppdragPatchDto implements AbacDto {
     private String kodeEndring;
 
     @NotNull
-    @Min(100000000000L)
+    @Min(10000000000L)
     @Max(300000000000L)
     @JsonProperty("fagsystemId")
     private Long fagsystemId;
@@ -51,7 +55,7 @@ public class OppdragPatchDto implements AbacDto {
     private List<OppdragslinjePatchDto> oppdragslinjer;
 
     @AssertTrue
-    public boolean isEntenBrukerMottakerEllerArbeidsgiverOppgitt() {
+    boolean isEntenBrukerMottakerEllerArbeidsgiverOppgitt() {
         boolean arbeidsgiverOppgitt = arbeidsgiverOrgNr != null;
         return brukerErMottaker != arbeidsgiverOppgitt;
     }

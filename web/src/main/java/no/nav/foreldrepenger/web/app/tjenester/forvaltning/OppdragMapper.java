@@ -77,7 +77,6 @@ class OppdragMapper {
                 .medMaksDato(finnSisteDato())
                 .build();
         }
-        builder.build();
     }
 
     private Oppdrag110 mapOppdrag110(Oppdragskontroll oppdragskontroll) {

@@ -4,7 +4,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRIFT;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -183,7 +183,7 @@ public class ForvaltningOppdragRestTjeneste {
         if (status != ProsessTaskStatus.VENTER_SVAR && status != ProsessTaskStatus.FEILET) {
             throw new IllegalArgumentException("Kan ikke patche oppdrag som er ferdig. Kan kun brukes når prosesstask er FEILET eller VENTER_SVAR");
         }
-        if (status == ProsessTaskStatus.VENTER_SVAR && ChronoUnit.MINUTES.between(task.getSistKjørt(), LocalDate.now()) > 120) {
+        if (status == ProsessTaskStatus.VENTER_SVAR && ChronoUnit.MINUTES.between(task.getSistKjørt(), LocalDateTime.now()) > 120) {
             throw new IllegalArgumentException("Skal ikke patche oppdrag uten at OS har fått rimelig tid til å svare (sanity check). Prøv igjen senere.");
         }
     }
@@ -193,26 +193,26 @@ public class ForvaltningOppdragRestTjeneste {
         if (status != ProsessTaskStatus.FERDIG) {
             throw new IllegalArgumentException("Denne skal kun brukes for FERDIG prosesstask. Se om du heller skal bruke endepunktet /patch-oppdrag");
         }
-        if (ChronoUnit.DAYS.between(task.getSistKjørt(), LocalDate.now()) > 30) {
+        if (ChronoUnit.DAYS.between(task.getSistKjørt(), LocalDateTime.now()) > 30) {
             throw new IllegalArgumentException("Skal ikke patche oppdrag som er så gamle som dette (sanity check). Endre grensen i java-koden hvis det er strengt nødvendig.");
         }
     }
 
     private void validerFagsystemId(Behandling behandling, long fagsystemId) {
-        if (!Long.toString(fagsystemId / 100).equals(behandling.getFagsak().getSaksnummer().getVerdi())) {
+        if (!Long.toString(fagsystemId / 1000).equals(behandling.getFagsak().getSaksnummer().getVerdi())) {
             throw new IllegalArgumentException("FagsystemId=" + fagsystemId + " passer ikke med saksnummer for behandlingId=" + behandling.getId());
         }
     }
 
     private void validerDelytelseId(OppdragPatchDto dto) {
         for (OppdragslinjePatchDto linje : dto.getOppdragslinjer()) {
-            if (dto.getFagsystemId() != linje.getDelytelseId() / 100) {
+            if (dto.getFagsystemId() != linje.getDelytelseId() / 1000) {
                 throw new IllegalArgumentException("FagsystemId=" + dto.getFagsystemId() + " matcher ikke med delytelseId=" + linje.getDelytelseId());
             }
             if (linje.getRefFagsystemId() != null && dto.getFagsystemId() != linje.getRefFagsystemId()) {
                 throw new IllegalArgumentException("FagsystemId=" + dto.getFagsystemId() + " matcher ikke med refFagsystemId=" + linje.getRefFagsystemId());
             }
-            if (linje.getRefDelytelseId() != null && dto.getFagsystemId() != linje.getRefDelytelseId() / 100) {
+            if (linje.getRefDelytelseId() != null && dto.getFagsystemId() != linje.getRefDelytelseId() / 1000) {
                 throw new IllegalArgumentException("FagsystemId=" + dto.getFagsystemId() + " matcher ikke med refDelytelseId=" + linje.getRefDelytelseId());
             }
         }

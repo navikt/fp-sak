@@ -10,8 +10,14 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(value = JsonInclude.Include.NON_ABSENT, content = JsonInclude.Include.NON_EMPTY)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE)
 public class OppdragslinjePatchDto {
 
     @NotNull
@@ -23,7 +29,7 @@ public class OppdragslinjePatchDto {
     private LocalDate opphørFom;
 
     @NotNull
-    @Pattern(regexp = "^(FP(AD|SV)(ATORD|ATFRI|SND-OP|ATAL|ATSJO|SNDDM-OP|SNDJB-OP|SNDFI|REFAG-IOP|REFAGFER-IOP))|FPENFOD-OP|FPENAD-OP?|$")
+    @Pattern(regexp = "^(FP(AD|SV)?(ATORD|ATFRI|SND-OP|ATAL|ATSJO|SNDDM-OP|SNDJB-OP|SNDFI|REFAG-IOP|REFAGFER-IOP))|FPENFOD-OP|FPENAD-OP$")
     @JsonProperty("kodeKlassifik")
     private String kodeKlassifik;
 
@@ -47,37 +53,33 @@ public class OppdragslinjePatchDto {
     private String satsType;
 
     @NotNull
-    @Min(100000000000000L)
+    @Min(10000000000000L)
     @Max(300000000000000L)
     @JsonProperty("delytelseId")
     private Long delytelseId;
 
-    @Min(100000000000000L)
+    @Min(10000000000000L)
     @Max(300000000000000L)
     @JsonProperty("refDelytelseId")
     private Long refDelytelseId;
 
-    @Min(100000000000L)
+    @Min(10000000000L)
     @Max(300000000000L)
     @JsonProperty("refFagsystemId")
     private Long refFagsystemId;
 
     @AssertTrue
-    public boolean isBeggeEllerIngenRefSatt() {
+    private boolean isBeggeEllerIngenRefSatt() {
         return (refDelytelseId == null) == (refFagsystemId == null);
     }
 
-    public long getDelytelseId() {
-        return delytelseId;
-    }
-
     @AssertFalse
-    public boolean isPeriodeUgyldig() {
+    boolean isPeriodeUgyldig() {
         return tom.isBefore(fom);
     }
 
     @AssertTrue
-    public boolean isPeriodeSannsynlig() {
+    boolean isPeriodeSannsynlig() {
         long antallDager = ChronoUnit.DAYS.between(fom, tom);
         switch (satsType) {
             case "ENG":
@@ -86,20 +88,24 @@ public class OppdragslinjePatchDto {
                 int maxSannsynligLengdeDager = 20 * 7;
                 return antallDager < maxSannsynligLengdeDager;
             default:
-                throw new IllegalArgumentException("Ikke-støttet satsType: " + satsType);
+                return false;
         }
     }
 
     @AssertTrue
-    public boolean isSatsSannsynlig() {
+    boolean isSatsSannsynlig() {
         switch (satsType) {
             case "ENG":
                 return sats < 100000;
             case "DAG":
                 return sats < 3000;
             default:
-                throw new IllegalArgumentException("Ikke-støttet satsType: " + satsType);
+                return false;
         }
+    }
+
+    public long getDelytelseId() {
+        return delytelseId;
     }
 
     public Long getRefDelytelseId() {
