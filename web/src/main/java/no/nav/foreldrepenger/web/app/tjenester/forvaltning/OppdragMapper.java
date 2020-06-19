@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import java.time.LocalDate;
 
+import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -23,15 +24,18 @@ class OppdragMapper {
 
     private final Behandling behandling;
     private final String fnrBruker;
+    private final String ansvarligSaksbehandler;
 
     public OppdragMapper(OppdragPatchDto dto, Behandling behandling, String fnrBruker) {
         this.dto = dto;
         this.behandling = behandling;
         this.fnrBruker = fnrBruker;
+        ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
     }
 
     public void mapTil(Oppdragskontroll oppdragskontroll) {
         Oppdrag110 oppdrag110 = mapOppdrag110(oppdragskontroll);
+        OpprettOppdragTjeneste.opprettOppdragsenhet120(oppdrag110);
         for (OppdragslinjePatchDto linje : dto.getOppdragslinjer()) {
             mapOppdragslinje(oppdrag110, linje);
         }
@@ -50,7 +54,7 @@ class OppdragMapper {
             .medOppdrag110(oppdrag110)
             .medFradragTillegg(OppdragskontrollConstants.FRADRAG_TILLEGG)
             .medBrukKjoreplan(OppdragskontrollConstants.BRUK_KJOREPLAN)
-            .medSaksbehId(behandling.getAnsvarligSaksbehandler())
+            .medSaksbehId(ansvarligSaksbehandler)
             .medHenvisning(behandling.getId())
             .medVedtakFomOgTom(linje.getFom(), linje.getTom())
             .medSats(linje.getSats())
@@ -77,6 +81,7 @@ class OppdragMapper {
                 .medMaksDato(finnSisteDato())
                 .build();
         }
+        OpprettOppdragTjeneste.opprettAttestant180(oppdragslinje, ansvarligSaksbehandler);
     }
 
     private Oppdrag110 mapOppdrag110(Oppdragskontroll oppdragskontroll) {
@@ -89,7 +94,7 @@ class OppdragMapper {
             .medKodeFagomrade(utledFagområde(behandling, dto.erBrukerMottaker()).name())
             .medOppdragGjelderId(fnrBruker)
             .medFagSystemId(dto.getFagsystemId())
-            .medSaksbehId(behandling.getAnsvarligSaksbehandler())
+            .medSaksbehId(ansvarligSaksbehandler)
             .medUtbetFrekvens(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens())
             .build();
     }

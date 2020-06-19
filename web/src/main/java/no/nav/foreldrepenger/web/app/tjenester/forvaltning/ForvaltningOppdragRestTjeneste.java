@@ -147,6 +147,7 @@ public class ForvaltningOppdragRestTjeneste {
 
         OppdragMapper mapper = new OppdragMapper(dto, behandling, fnrBruker);
         mapper.mapTil(oppdragskontroll);
+        oppdragskontroll.setVenterKvittering(true);
         økonomioppdragRepository.lagre(oppdragskontroll);
     }
 
