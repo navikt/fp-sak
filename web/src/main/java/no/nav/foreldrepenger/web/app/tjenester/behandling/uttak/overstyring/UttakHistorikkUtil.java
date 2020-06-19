@@ -205,7 +205,9 @@ public final class UttakHistorikkUtil {
             nyPeriode.getPeriodeResultatÅrsak());
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_TREKKDAGER_FLERBARN_KVOTE, gjeldendePeriode.isFlerbarnsdager(), nyPeriode.isFlerbarnsdager());
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_SAMTIDIG_UTTAK, gjeldendePeriode.isSamtidigUttak(), nyPeriode.isSamtidigUttak());
-        builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_SAMTIDIG_UTTAK, gjeldendePeriode.getSamtidigUttaksprosent(), nyPeriode.getSamtidigUttaksprosent());
+        var fraVerdiSamtidigUttaksprosent = gjeldendePeriode.getSamtidigUttaksprosent() == null ? null : gjeldendePeriode.getSamtidigUttaksprosent().decimalValue();
+        var tilVerdiSamtidigUttaksprosent = nyPeriode.getSamtidigUttaksprosent() == null ? null : nyPeriode.getSamtidigUttaksprosent().decimalValue();
+        builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_SAMTIDIG_UTTAK, fraVerdiSamtidigUttaksprosent, tilVerdiSamtidigUttaksprosent);
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_GRADERING_ARBEIDSFORHOLD,
             gjeldendePeriode.isGraderingInnvilget() ? HistorikkEndretFeltVerdiType.GRADERING_OPPFYLT : HistorikkEndretFeltVerdiType.GRADERING_IKKE_OPPFYLT,
             nyPeriode.isGraderingInnvilget() ? HistorikkEndretFeltVerdiType.GRADERING_OPPFYLT : HistorikkEndretFeltVerdiType.GRADERING_IKKE_OPPFYLT);

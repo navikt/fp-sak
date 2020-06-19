@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -111,7 +112,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
 
     @Column(name = "samtidig_uttaksprosent")
     @ChangeTracked
-    private BigDecimal samtidigUttaksprosent;
+    private SamtidigUttaksprosent samtidigUttaksprosent;
 
     @Column(name = "FORDELING_PERIODE_KILDE", nullable = false, updatable = false)
     @Convert(converter = FordelingPeriodeKilde.KodeverdiConverter.class)
@@ -247,11 +248,11 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         this.samtidigUttak = samtidigUttak;
     }
 
-    public BigDecimal getSamtidigUttaksprosent() {
+    public SamtidigUttaksprosent getSamtidigUttaksprosent() {
         return isSamtidigUttak() ? samtidigUttaksprosent : null;
     }
 
-    void setSamtidigUttaksprosent(BigDecimal samtidigUttaksprosent) {
+    void setSamtidigUttaksprosent(SamtidigUttaksprosent samtidigUttaksprosent) {
         this.samtidigUttaksprosent = samtidigUttaksprosent;
     }
 

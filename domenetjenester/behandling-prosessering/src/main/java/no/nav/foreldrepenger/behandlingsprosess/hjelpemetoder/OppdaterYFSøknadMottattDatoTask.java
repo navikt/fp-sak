@@ -127,8 +127,7 @@ public class OppdaterYFSøknadMottattDatoTask implements ProsessTaskHandler {
             && periode1.getErArbeidstaker() == periode2.getErArbeidstaker()
             && Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver())
             && Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType())
-            && (Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent())
-            || periode1.getSamtidigUttaksprosent().compareTo(periode2.getSamtidigUttaksprosent()) == 0)
+            && Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent())
             ;
     }
 }

@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -273,9 +274,13 @@ public class FastsettePerioderRegelResultatKonverterer {
             .medOverføringÅrsak(tilOverføringÅrsak(uttakPeriode))
             .medPeriodeSoknad(periodeSøknad)
             .medSamtidigUttak(uttakPeriode.erSamtidigUttak())
-            .medSamtidigUttaksprosent(uttakPeriode.getSamtidigUttaksprosent())
+            .medSamtidigUttaksprosent(samtidigUttaksprosent(uttakPeriode))
             .medFlerbarnsdager(uttakPeriode.isFlerbarnsdager())
             .build();
+    }
+
+    private SamtidigUttaksprosent samtidigUttaksprosent(UttakPeriode uttakPeriode) {
+        return uttakPeriode.getSamtidigUttaksprosent() == null ? null : new SamtidigUttaksprosent(uttakPeriode.getSamtidigUttaksprosent());
     }
 
     private OppholdÅrsak tilOppholdÅrsak(UttakPeriode uttakPeriode) {

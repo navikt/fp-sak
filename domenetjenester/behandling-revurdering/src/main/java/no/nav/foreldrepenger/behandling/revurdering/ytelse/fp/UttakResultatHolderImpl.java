@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
@@ -129,7 +128,7 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
             Objects.equals(p1.isSamtidigUttak(), p2.isSamtidigUttak()) &&
             Objects.equals(p1.getUtsettelseType(), p2.getUtsettelseType()) &&
             Objects.equals(p1.getGraderingAvslagÅrsak(), p2.getGraderingAvslagÅrsak()) &&
-            erDesimaltallLike(p1.getSamtidigUttaksprosent(), p2.getSamtidigUttaksprosent()) &&
+            Objects.equals(p1.getSamtidigUttaksprosent(), p2.getSamtidigUttaksprosent()) &&
             Objects.equals(p1.getOppholdÅrsak(), p2.getOppholdÅrsak()) &&
             likeAktivitieter;
         if (!sammenlign)
@@ -251,17 +250,9 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
             Objects.equals(p1.isGraderingInnvilget(), p2.isGraderingInnvilget()) &&
             Objects.equals(p1.getUtsettelseType(), p2.getUtsettelseType()) &&
             Objects.equals(p1.getGraderingAvslagÅrsak(), p2.getGraderingAvslagÅrsak()) &&
-            erDesimaltallLike(p1.getSamtidigUttaksprosent(), p2.getSamtidigUttaksprosent()) &&
+            Objects.equals(p1.getSamtidigUttaksprosent(), p2.getSamtidigUttaksprosent()) &&
             Objects.equals(p1.getOppholdÅrsak(), p2.getOppholdÅrsak()) &&
             likeAktivitieter;
-    }
-
-    private static boolean erDesimaltallLike(BigDecimal d1, BigDecimal d2) {
-        if (Objects.equals(d1, d2))
-            return true;
-        if (d1 == null || d2 == null)
-            return false;
-        return d1.compareTo(d2) == 0;
     }
 
     private static boolean erLikNaboAktivitet(ForeldrepengerUttakPeriodeAktivitet a1, ForeldrepengerUttakPeriodeAktivitet a2) {

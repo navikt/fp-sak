@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.KontrollerFaktaPeriode;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
@@ -77,10 +78,8 @@ public class KontrollerFaktaPeriodeLagreDto {
     private boolean erSelvstendig;
     private boolean samtidigUttak;
 
-    @Min(0)
-    @Max(100)
-    @Digits(integer = 3, fraction = 2)
-    private BigDecimal samtidigUttaksprosent;
+    @Valid
+    private SamtidigUttaksprosent samtidigUttaksprosent;
 
     private boolean flerbarnsdager;
 
@@ -161,7 +160,7 @@ public class KontrollerFaktaPeriodeLagreDto {
         return samtidigUttak;
     }
 
-    public BigDecimal getSamtidigUttaksprosent() {
+    public SamtidigUttaksprosent getSamtidigUttaksprosent() {
         return samtidigUttaksprosent;
     }
 
@@ -300,7 +299,7 @@ public class KontrollerFaktaPeriodeLagreDto {
             return this;
         }
 
-        public Builder medSamtidigUttaksprosent(BigDecimal samtidigUttaksprosent) {
+        public Builder medSamtidigUttaksprosent(SamtidigUttaksprosent samtidigUttaksprosent) {
             kladd.samtidigUttaksprosent = samtidigUttaksprosent;
             return this;
         }

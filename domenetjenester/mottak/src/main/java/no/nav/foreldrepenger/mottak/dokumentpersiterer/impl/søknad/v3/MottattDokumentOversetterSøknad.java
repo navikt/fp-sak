@@ -57,6 +57,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
@@ -551,7 +552,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         //Støtter nå enten samtidig uttak eller gradering. Mulig dette endres senere
         if (erSamtidigUttak(periode)) {
             oppgittPeriodeBuilder.medSamtidigUttak(true);
-            oppgittPeriodeBuilder.medSamtidigUttaksprosent(BigDecimal.valueOf(periode.getSamtidigUttakProsent()));
+            oppgittPeriodeBuilder.medSamtidigUttaksprosent(new SamtidigUttaksprosent(periode.getSamtidigUttakProsent()));
         } else if (periode instanceof Gradering) {
             oversettGradering(oppgittPeriodeBuilder, (Gradering) periode);
         }
