@@ -51,6 +51,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -284,7 +285,7 @@ public class FastsettePerioderTjenesteTest {
         assertThat(uttakResultat).isPresent();
         List<UttakResultatPeriodeEntitet> uttakResultatPerioder = uttakResultat.get().getOpprinneligPerioder().getPerioder();
         assertThat(uttakResultatPerioder.get(3).getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(arbeidsprosent);
-        assertThat(uttakResultatPerioder.get(3).getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(new BigDecimal("49.45"));
+        assertThat(uttakResultatPerioder.get(3).getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(new Utbetalingsgrad(49.45));
     }
 
     @Test
@@ -686,7 +687,7 @@ public class FastsettePerioderTjenesteTest {
         return new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medTrekkonto(fellesperiode)
             .medArbeidsprosent(BigDecimal.TEN)
-            .medUtbetalingsgrad(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
             .medTrekkdager(new Trekkdager(2))
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, virksomhet(), null))
             .build();

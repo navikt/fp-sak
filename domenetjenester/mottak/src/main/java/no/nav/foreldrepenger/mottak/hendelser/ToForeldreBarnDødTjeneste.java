@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.hendelser;
 
 import static no.nav.vedtak.util.FPDateUtil.iDag;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,13 +60,9 @@ public class ToForeldreBarnDødTjeneste {
     private List<ForeldrepengerUttakPeriode> finnPerioderMedUtbetaling(Behandling behandling) {
         return uttakTjeneste.hentUttakHvisEksisterer(behandling.getId())
             .map(uttakResultat -> uttakResultat
-                .getGjeldendePerioder().stream().filter(this::uttakPeriodeHarUtbetaling)
+                .getGjeldendePerioder().stream().filter(periode -> periode.harUtbetaling())
                 .collect(Collectors.toList()))
             .orElse(Collections.emptyList());
-    }
-
-    private boolean uttakPeriodeHarUtbetaling(ForeldrepengerUttakPeriode periode) {
-        return periode.getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) > 0);
     }
 
     private Optional<ForeldrepengerUttakPeriode> hentAktivPeriodeHvisFinnes(List<ForeldrepengerUttakPeriode> perioder) {

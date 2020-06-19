@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -171,7 +172,7 @@ public class FastsettePerioderRegelResultatKonverterer {
         return UttakResultatPeriodeAktivitetEntitet.builder(periode, uttakAktivitet)
             .medTrekkonto(UttakEnumMapper.map(uttakPeriode.getStønadskontotype()))
             .medTrekkdager(map(aktivitet))
-            .medUtbetalingsgrad(aktivitet.getUtbetalingsgrad())
+            .medUtbetalingsgrad(new Utbetalingsgrad(aktivitet.getUtbetalingsgrad()))
             .medArbeidsprosent(finnArbeidsprosent(uttakPeriode, aktivitet, uttakYrkesaktiviteter))
             .medErSøktGradering(aktivitet.isSøktGradering())
             .build();

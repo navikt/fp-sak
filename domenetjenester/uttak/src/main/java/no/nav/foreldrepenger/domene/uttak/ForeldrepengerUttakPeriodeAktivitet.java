@@ -7,6 +7,7 @@ import java.util.Optional;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
@@ -16,7 +17,7 @@ public class ForeldrepengerUttakPeriodeAktivitet {
     private StønadskontoType trekkonto = StønadskontoType.UDEFINERT;
     private Trekkdager trekkdager = Trekkdager.ZERO;
     private BigDecimal arbeidsprosent;
-    private BigDecimal utbetalingsgrad;
+    private Utbetalingsgrad utbetalingsgrad;
     private boolean søktGraderingForAktivitetIPeriode;
 
     private ForeldrepengerUttakPeriodeAktivitet() {
@@ -34,7 +35,7 @@ public class ForeldrepengerUttakPeriodeAktivitet {
         return arbeidsprosent;
     }
 
-    public BigDecimal getUtbetalingsgrad() {
+    public Utbetalingsgrad getUtbetalingsgrad() {
         return utbetalingsgrad;
     }
 
@@ -93,7 +94,7 @@ public class ForeldrepengerUttakPeriodeAktivitet {
             return this;
         }
 
-        public Builder medUtbetalingsgrad(BigDecimal utbetalingsgrad) {
+        public Builder medUtbetalingsgrad(Utbetalingsgrad utbetalingsgrad) {
             kladd.utbetalingsgrad = utbetalingsgrad;
             return this;
         }
@@ -125,7 +126,7 @@ public class ForeldrepengerUttakPeriodeAktivitet {
     public boolean likBortsettFraTrekkdager(ForeldrepengerUttakPeriodeAktivitet that) {
         return Objects.equals(trekkonto, that.trekkonto) &&
             (Objects.equals(arbeidsprosent, that.arbeidsprosent) || arbeidsprosent.compareTo(that.arbeidsprosent) == 0) &&
-            (Objects.equals(utbetalingsgrad, that.utbetalingsgrad) || utbetalingsgrad.compareTo(that.utbetalingsgrad) == 0) &&
+            Objects.equals(utbetalingsgrad, that.utbetalingsgrad) &&
             Objects.equals(aktivitet, that.aktivitet);
     }
 

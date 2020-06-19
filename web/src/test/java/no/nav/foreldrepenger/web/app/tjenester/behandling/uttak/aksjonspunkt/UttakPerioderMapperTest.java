@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -66,13 +67,13 @@ public class UttakPerioderMapperTest {
         UttakResultatPeriodeAktivitetLagreDto frilans = new UttakResultatPeriodeAktivitetLagreDto.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)
             .medStønadskontoType(StønadskontoType.FELLESPERIODE)
-            .medUtbetalingsgrad(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
             .medTrekkdager(BigDecimal.ZERO)
             .build();
         UttakResultatPeriodeAktivitetLagreDto annet = new UttakResultatPeriodeAktivitetLagreDto.Builder()
             .medUttakArbeidType(UttakArbeidType.ANNET)
             .medStønadskontoType(StønadskontoType.FELLESPERIODE)
-            .medUtbetalingsgrad(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
             .medTrekkdager(BigDecimal.ZERO)
             .build();
         UttakResultatPeriodeLagreDto periode = new UttakResultatPeriodeLagreDto.Builder()
@@ -110,7 +111,7 @@ public class UttakPerioderMapperTest {
         UttakResultatPeriodeAktivitetLagreDto aktivitetDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)
             .medStønadskontoType(StønadskontoType.FELLESPERIODE)
-            .medUtbetalingsgrad(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
             .medTrekkdager(BigDecimal.ZERO)
             .build();
         UttakResultatPeriodeLagreDto periode = new UttakResultatPeriodeLagreDto.Builder()
@@ -145,7 +146,7 @@ public class UttakPerioderMapperTest {
             .medArbeidsforholdId(ARBEIDSFORHOLD_REF)
             .medStønadskontoType(StønadskontoType.FELLESPERIODE)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .medUtbetalingsgrad(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
             .medTrekkdager(BigDecimal.ZERO);
     }
 

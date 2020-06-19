@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -107,7 +108,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest {
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
             .medTrekkdager(new Trekkdager(5))
-            .medUtbetalingsgrad(BigDecimal.TEN)
+            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         uttak.leggTilPeriode(periode);
@@ -210,7 +211,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest {
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
             .medTrekkdager(new Trekkdager(5))
-            .medUtbetalingsgrad(BigDecimal.TEN)
+            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         uttak.leggTilPeriode(periode);
@@ -225,7 +226,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest {
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
             .medTrekkdager(Trekkdager.ZERO)
-            .medUtbetalingsgrad(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         uttak.leggTilPeriode(periode);
