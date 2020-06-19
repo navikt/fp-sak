@@ -85,7 +85,8 @@ public class OppdragslinjePatchDto {
             case "ENG":
                 return antallDager == 1;
             case "DAG":
-                int maxSannsynligLengdeDager = 20 * 7;
+                //vanligvis begrenset til 17-18 uker, men kan være lenger ved gradert uttak
+                int maxSannsynligLengdeDager = 38 * 7;
                 return antallDager < maxSannsynligLengdeDager;
             default:
                 return false;

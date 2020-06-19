@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -52,7 +53,7 @@ public class OppdragPatchDto implements AbacDto {
 
     @Valid
     @NotNull
-    @Size(min = 1, max = 30)
+    @Size(min = 1, max = 20)
     @JsonProperty("oppdragslinjer")
     private List<OppdragslinjePatchDto> oppdragslinjer;
 
@@ -71,6 +72,26 @@ public class OppdragPatchDto implements AbacDto {
     @AssertFalse(message = "må sette bruk-ompostering116 for å bruke omposter-fom")
     boolean isOmposteringFomSattUtenBrukOmpostering116Satt() {
         return omposterFom != null && !brukOmpostering116;
+    }
+
+    @AssertTrue
+    boolean isAntallDagerSannsynlig() {
+        long sum = 0;
+        for (OppdragslinjePatchDto dto : oppdragslinjer) {
+            sum += ChronoUnit.DAYS.between(dto.getFom(), dto.getTom()) + 1;
+        }
+        return sum < 365;
+    }
+
+    @AssertTrue
+    boolean isSumBeløpSannsynlig() {
+        long estimertSum = 0;
+        for (OppdragslinjePatchDto dto : oppdragslinjer) {
+            long dager = ChronoUnit.DAYS.between(dto.getFom(), dto.getTom()) + 1;
+            estimertSum += dager * dto.getSats();
+        }
+        //beløp for FP kan være opptil 6G over ett år
+        return estimertSum < 600000;
     }
 
     public Long getBehandlingId() {
