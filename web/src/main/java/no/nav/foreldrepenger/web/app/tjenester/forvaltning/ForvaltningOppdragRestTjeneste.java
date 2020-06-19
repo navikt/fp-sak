@@ -4,11 +4,16 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRIFT;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -55,18 +60,20 @@ public class ForvaltningOppdragRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private AktørConsumerMedCache aktørConsumer;
     private ProsessTaskRepository prosessTaskRepository;
+    private EntityManager entityManager;
 
     public ForvaltningOppdragRestTjeneste() {
         // For CDI
     }
 
     @Inject
-    public ForvaltningOppdragRestTjeneste(BehandleØkonomioppdragKvittering økonomioppdragKvitteringTjeneste, ØkonomioppdragRepository økonomioppdragRepository, BehandlingRepository behandlingRepository, AktørConsumerMedCache aktørConsumer, ProsessTaskRepository prosessTaskRepository) {
+    public ForvaltningOppdragRestTjeneste(BehandleØkonomioppdragKvittering økonomioppdragKvitteringTjeneste, ØkonomioppdragRepository økonomioppdragRepository, BehandlingRepository behandlingRepository, AktørConsumerMedCache aktørConsumer, ProsessTaskRepository prosessTaskRepository, EntityManager entityManager) {
         this.økonomioppdragKvitteringTjeneste = økonomioppdragKvitteringTjeneste;
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.behandlingRepository = behandlingRepository;
         this.aktørConsumer = aktørConsumer;
         this.prosessTaskRepository = prosessTaskRepository;
+        this.entityManager = entityManager;
     }
 
     @POST
@@ -107,7 +114,7 @@ public class ForvaltningOppdragRestTjeneste {
 
         validerUferdigProsesstask(vurderØkonomiTask);
         utførPatching(dto, behandlingId, behandling, oppdragskontroll);
-        lagSendØkonomioppdragTask(vurderØkonomiTask);
+        lagSendØkonomioppdragTask(vurderØkonomiTask, false);
 
         logger.warn("Patchet oppdrag for behandling={} fagsystemId={}. Ta kontakt med Team Ukelønn for å avsjekke resultatet når prosesstask er kjørt.", behandlingId, dto.getFagsystemId());
         return Response.ok("Patchet oppdrag for behandling=" + behandlingId).build();
@@ -130,13 +137,14 @@ public class ForvaltningOppdragRestTjeneste {
 
         utførPatching(dto, behandlingId, behandling, oppdragskontroll);
         byttStatusTilVenterPåKvittering(vurderØkonomiTask);
-        lagSendØkonomioppdragTask(vurderØkonomiTask);
+        lagSendØkonomioppdragTask(vurderØkonomiTask, true);
 
         logger.warn("Patchet oppdrag for behandling={} og kjører prosesstask for å sende. Ta kontakt med Team Ukelønn for å avsjekke resultatet.", behandlingId);
         return Response.ok("Patchet oppdrag for behandling=" + behandlingId).build();
     }
 
     private void utførPatching(OppdragPatchDto dto, Long behandlingId, Behandling behandling, Oppdragskontroll oppdragskontroll) {
+        validerHyppighet();
         validerFagsystemId(behandling, dto.getFagsystemId());
         validerDelytelseId(dto);
 
@@ -149,6 +157,15 @@ public class ForvaltningOppdragRestTjeneste {
         mapper.mapTil(oppdragskontroll);
         oppdragskontroll.setVenterKvittering(true);
         økonomioppdragRepository.lagre(oppdragskontroll);
+    }
+
+    private void validerHyppighet() {
+        //denne tjenesten skal kun brukes i antatt svært sjeldne tilfeller
+        //begrenser derfor hvor ofte den kan brukes for å hindre feil bruk
+        int antallPatchedeINærFortid = finnAntallPatchedeSistePeriode(entityManager, Period.ofWeeks(4));
+        if (antallPatchedeINærFortid > 10) {
+            throw new IllegalArgumentException("Ikke klar for patching enda. Vurder å øke tillatt hyppighet i ForvaltningOppdragRestTjeneste ved behov");
+        }
     }
 
     private void kvitterBortEksisterendeOppdrag(OppdragPatchDto dto, Oppdragskontroll oppdragskontroll) {
@@ -169,14 +186,24 @@ public class ForvaltningOppdragRestTjeneste {
         prosessTaskRepository.lagre(task);
     }
 
-    private void lagSendØkonomioppdragTask(ProsessTaskData hovedProsessTask) {
+    private void lagSendØkonomioppdragTask(ProsessTaskData hovedProsessTask, boolean hardPatch) {
         ProsessTaskData sendØkonomiOppdrag = new ProsessTaskData(SendØkonomiOppdragTask.TASKTYPE);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallId(MDCOperations.getCallId());
+        sendØkonomiOppdrag.setProperty("patchet", hardPatch ? "hardt" : "vanlig"); //for sporing
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
             hovedProsessTask.getBehandlingId(),
             hovedProsessTask.getAktørId());
         prosessTaskRepository.lagre(sendØkonomiOppdrag);
+    }
+
+    private int finnAntallPatchedeSistePeriode(EntityManager entityManager, Period periode) {
+        Query query = entityManager.createNativeQuery("select count(*) from PROSESS_TASK where TASK_TYPE=:task_type AND OPPRETTET_TID > cast(:opprettet_fom as timestamp(0)) AND TASK_PARAMETERE like '%patchet%'")
+            .setParameter("task_type", SendØkonomiOppdragTask.TASKTYPE)
+            .setParameter("opprettet_fom", ZonedDateTime.now().minus(periode));
+
+        BigDecimal result = (BigDecimal) query.getSingleResult();
+        return result.intValue();
     }
 
     private void validerUferdigProsesstask(ProsessTaskData task) {
