@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.AssertFalse;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -54,10 +56,21 @@ public class OppdragPatchDto implements AbacDto {
     @JsonProperty("oppdragslinjer")
     private List<OppdragslinjePatchDto> oppdragslinjer;
 
+    @JsonProperty("bruk-ompostering116")
+    private boolean brukOmpostering116 = false;
+
+    @JsonProperty("omposter-fom")
+    private LocalDate omposterFom;
+
     @AssertTrue
     boolean isEntenBrukerMottakerEllerArbeidsgiverOppgitt() {
         boolean arbeidsgiverOppgitt = arbeidsgiverOrgNr != null;
         return brukerErMottaker != arbeidsgiverOppgitt;
+    }
+
+    @AssertFalse(message = "må sette bruk-ompostering116 for å bruke omposter-fom")
+    boolean isOmposteringFomSattUtenBrukOmpostering116Satt() {
+        return omposterFom != null && !brukOmpostering116;
     }
 
     public Long getBehandlingId() {
@@ -82,6 +95,14 @@ public class OppdragPatchDto implements AbacDto {
 
     public List<OppdragslinjePatchDto> getOppdragslinjer() {
         return oppdragslinjer;
+    }
+
+    public LocalDate getOmposterFom() {
+        return omposterFom;
+    }
+
+    public boolean taMedOmpostering116() {
+        return brukOmpostering116;
     }
 
     @Override

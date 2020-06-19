@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -17,6 +19,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.Oppdragsl
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettOppdragTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 
 class OppdragMapper {
 
@@ -96,7 +99,23 @@ class OppdragMapper {
             .medFagSystemId(dto.getFagsystemId())
             .medSaksbehId(ansvarligSaksbehandler)
             .medUtbetFrekvens(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens())
+            .medOmpostering116(mapOmpostering116())
             .build();
+    }
+
+    private Ompostering116 mapOmpostering116() {
+        if (dto.taMedOmpostering116()) {
+            boolean erAvslåttInntrekk = dto.getOmposterFom() == null;
+            Ompostering116.Builder builder = new Ompostering116.Builder()
+                .medSaksbehId(ansvarligSaksbehandler)
+                .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
+                .medOmPostering(erAvslåttInntrekk ? OppdragskontrollConstants.OMPOSTERING_N : OppdragskontrollConstants.OMPOSTERING_J);
+            if (!erAvslåttInntrekk) {
+                builder.medDatoOmposterFom(dto.getOmposterFom());
+            }
+            return builder.build();
+        }
+        return null;
     }
 
     private ØkonomiKodeFagområde utledFagområde(Behandling behandling, boolean erBrukerMottaker) {
