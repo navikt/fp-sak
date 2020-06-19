@@ -15,6 +15,7 @@ import javax.validation.constraints.Size;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
@@ -38,10 +39,8 @@ public class UttakResultatPeriodeAktivitetLagreDto {
     @Size(max = 200)
     private String arbeidsforholdId;
 
-    @Min(0)
-    @Max(100)
-    @Digits(integer = 3, fraction = 2)
-    private BigDecimal utbetalingsgrad;
+    @Valid
+    private Utbetalingsgrad utbetalingsgrad;
 
     @ValidKodeverk
     private UttakArbeidType uttakArbeidType;
@@ -58,7 +57,7 @@ public class UttakResultatPeriodeAktivitetLagreDto {
         return new Trekkdager(trekkdagerDesimaler);
     }
 
-    public BigDecimal getUtbetalingsgrad() {
+    public Utbetalingsgrad getUtbetalingsgrad() {
         return utbetalingsgrad;
     }
 
@@ -94,7 +93,7 @@ public class UttakResultatPeriodeAktivitetLagreDto {
             return this;
         }
 
-        public Builder medUtbetalingsgrad(BigDecimal utbetalingsgrad) {
+        public Builder medUtbetalingsgrad(Utbetalingsgrad utbetalingsgrad) {
             kladd.utbetalingsgrad = utbetalingsgrad;
             return this;
         }

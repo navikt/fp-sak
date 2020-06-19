@@ -46,6 +46,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -604,7 +605,7 @@ public class ErEndringIUttakTest {
             .medTrekkonto(stønadskontoType)
             .medTrekkdager(trekkdager)
             .medArbeidsprosent(BigDecimal.valueOf(andelIArbeid))
-            .medUtbetalingsgrad(new BigDecimal(utbetalingsgrad))
+            .medUtbetalingsgrad(new Utbetalingsgrad(utbetalingsgrad))
             .build();
     }
 

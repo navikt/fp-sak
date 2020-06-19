@@ -145,14 +145,14 @@ public class FpUttakRepositoryTest {
         //Arrange
         UttakResultatPerioderEntitet opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET,
             LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER,
-            new BigDecimal("10.55"), new BigDecimal("20.57"));
+            new BigDecimal("10.55"), new Utbetalingsgrad(20.57));
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingsresultat.getBehandlingId(), opprinnelig);
 
         //Assert
         Optional<UttakResultatEntitet> hentetUttakResultatOpt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingsresultat.getBehandlingId());
 
-        UttakResultatPeriodeAktivitetEntitet aktivitet = hentetUttakResultatOpt.get().getGjeldendePerioder().getPerioder().get(0).getAktiviteter().get(0);
-        assertThat(aktivitet.getUtbetalingsgrad()).isEqualTo(new BigDecimal("20.57"));
+        UttakResultatPeriodeAktivitetEntitet aktivitet = hentetUttakResultatOpt.orElseThrow().getGjeldendePerioder().getPerioder().get(0).getAktiviteter().get(0);
+        assertThat(aktivitet.getUtbetalingsgrad().decimalValue()).isEqualTo(new BigDecimal("20.57"));
         assertThat(aktivitet.getArbeidsprosent()).isEqualTo(new BigDecimal("10.55"));
     }
 
@@ -186,7 +186,7 @@ public class FpUttakRepositoryTest {
                                                                      LocalDate tom,
                                                                      StønadskontoType stønadskontoType,
                                                                      BigDecimal graderingArbeidsprosent) {
-        return opprettUttakResultatPeriode(resultat, fom, tom, stønadskontoType, graderingArbeidsprosent, BigDecimal.valueOf(100));
+        return opprettUttakResultatPeriode(resultat, fom, tom, stønadskontoType, graderingArbeidsprosent, new Utbetalingsgrad(100));
     }
 
     private UttakResultatPerioderEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,
@@ -194,7 +194,7 @@ public class FpUttakRepositoryTest {
                                                                      LocalDate tom,
                                                                      StønadskontoType stønadskontoType,
                                                                      BigDecimal graderingArbeidsprosent,
-                                                                     BigDecimal utbetalingsgrad) {
+                                                                     Utbetalingsgrad utbetalingsgrad) {
 
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medArbeidsforhold(Arbeidsgiver.virksomhet(ORGNR), InternArbeidsforholdRef.nyRef())

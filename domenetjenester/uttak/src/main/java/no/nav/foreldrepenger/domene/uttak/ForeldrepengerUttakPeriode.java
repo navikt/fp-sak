@@ -141,6 +141,10 @@ public class ForeldrepengerUttakPeriode {
         return manueltBehandlet;
     }
 
+    public boolean harUtbetaling() {
+        return getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getUtbetalingsgrad().harUtbetaling());
+    }
+
     @Override
     public String toString() {
         return "ForeldrepengerUttakPeriode{" +

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class UttakResultatPeriodeAktivitetDto {
@@ -17,7 +18,7 @@ public class UttakResultatPeriodeAktivitetDto {
     private String arbeidsforholdId;
     private String eksternArbeidsforholdId;
     private ArbeidsgiverDto arbeidsgiver;
-    private BigDecimal utbetalingsgrad;
+    private Utbetalingsgrad utbetalingsgrad;
     private UttakArbeidType uttakArbeidType;
     private boolean gradering;
 
@@ -45,7 +46,7 @@ public class UttakResultatPeriodeAktivitetDto {
         return eksternArbeidsforholdId;
     }
 
-    public BigDecimal getUtbetalingsgrad() {
+    public Utbetalingsgrad getUtbetalingsgrad() {
         return utbetalingsgrad;
     }
 
@@ -80,7 +81,7 @@ public class UttakResultatPeriodeAktivitetDto {
             return this;
         }
 
-        public Builder medUtbetalingsgrad(BigDecimal utbetalingsgrad) {
+        public Builder medUtbetalingsgrad(Utbetalingsgrad utbetalingsgrad) {
             kladd.utbetalingsgrad = utbetalingsgrad;
             return this;
         }

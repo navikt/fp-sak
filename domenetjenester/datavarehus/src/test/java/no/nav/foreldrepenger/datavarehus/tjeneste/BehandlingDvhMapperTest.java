@@ -45,6 +45,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -344,7 +345,7 @@ public class BehandlingDvhMapperTest {
                                                                      LocalDate tom,
                                                                      StønadskontoType stønadskontoType,
                                                                      BigDecimal graderingArbeidsprosent) {
-        return opprettUttakResultatPeriode(resultat, fom, tom, stønadskontoType, graderingArbeidsprosent, BigDecimal.valueOf(100));
+        return opprettUttakResultatPeriode(resultat, fom, tom, stønadskontoType, graderingArbeidsprosent, new Utbetalingsgrad(100));
     }
 
     private UttakResultatPerioderEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,
@@ -352,7 +353,7 @@ public class BehandlingDvhMapperTest {
                                                                      LocalDate tom,
                                                                      StønadskontoType stønadskontoType,
                                                                      BigDecimal graderingArbeidsprosent,
-                                                                     BigDecimal utbetalingsgrad) {
+                                                                     Utbetalingsgrad utbetalingsgrad) {
 
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())

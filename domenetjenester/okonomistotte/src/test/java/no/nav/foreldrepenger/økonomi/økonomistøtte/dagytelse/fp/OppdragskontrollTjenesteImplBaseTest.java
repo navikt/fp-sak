@@ -53,6 +53,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -717,7 +718,7 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
             .medTrekkonto(StønadskontoType.FORELDREPENGER)
             .medArbeidsprosent(BigDecimal.ZERO)
             .medTrekkdager(new Trekkdager(1))
-            .medUtbetalingsgrad(BigDecimal.TEN)
+            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
             .build();
         periode.leggTilAktivitet(periodeAktivitet);
         opprinneligPerioder.leggTilPeriode(periode);

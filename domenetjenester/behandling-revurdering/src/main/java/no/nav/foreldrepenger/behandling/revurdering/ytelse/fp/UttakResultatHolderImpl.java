@@ -141,7 +141,7 @@ public class UttakResultatHolderImpl implements UttakResultatHolder {
             Objects.equals(a1.getTrekkonto(), a2.getTrekkonto()) &&
             Objects.equals(a1.getTrekkdager(), a2.getTrekkdager()) &&
             (Objects.equals(a1.getArbeidsprosent(), a2.getArbeidsprosent()) || a1.getArbeidsprosent().compareTo(a2.getArbeidsprosent()) == 0) &&
-            (Objects.equals(a1.getUtbetalingsgrad(), a2.getUtbetalingsgrad()) || a1.getUtbetalingsgrad().compareTo(a2.getUtbetalingsgrad()) == 0);
+            Objects.equals(a1.getUtbetalingsgrad(), a2.getUtbetalingsgrad());
     }
 
     private void nySammenlignLogg(List<ForeldrepengerUttakPeriode> uttaksPerioderTP, List<ForeldrepengerUttakPeriode> originaleUttaksPerioderTP, boolean gammelImpl) {
