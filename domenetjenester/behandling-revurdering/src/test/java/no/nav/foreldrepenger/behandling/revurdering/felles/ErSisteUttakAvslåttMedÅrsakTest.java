@@ -22,9 +22,8 @@ import org.junit.runner.RunWith;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingTjenesteImpl;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.UttakResultatHolderImpl;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.UttakResultatHolderFP;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
@@ -37,15 +36,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -118,25 +117,12 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
 
             // Act
 
-            var holder = new UttakResultatHolderImpl(Optional.of(ForeldrepengerUttakTjeneste.map(uttakresultatRevurdering)), null);
-            boolean harOpphørsårsak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl().vurder(holder, true);
+            var holder = new UttakResultatHolderFP(Optional.of(ForeldrepengerUttakTjeneste.map(uttakresultatRevurdering)), null);
+            boolean harOpphørsårsak = holder.kontrollerErSisteUttakAvslåttMedÅrsak();
 
             // Assert
             assertThat(harOpphørsårsak).isTrue();
         });
-    }
-
-    @Test
-    public void skal_sjekke_at_siste_periode_ikke_gir_opphør_når_det_ikke_har_vært_endring_i_uttak() {
-        // Arrange
-        UttakResultatEntitet uttakresultatRevurdering = lagUttaksplanMedIkkeOppfyltÅrsak(IkkeOppfyltÅrsak.SØKER_ER_DØD);
-
-        // Act
-        var holder = new UttakResultatHolderImpl(Optional.of(ForeldrepengerUttakTjeneste.map(uttakresultatRevurdering)), null);
-        boolean harOpphørsårsak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl().vurder(holder, false);
-
-        // Assert
-        assertThat(harOpphørsårsak).isFalse();
     }
 
     @Test
@@ -145,8 +131,8 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
         UttakResultatEntitet uttakresultatRevurdering = lagUttaksplanMedIkkeOppfyltÅrsak(IkkeOppfyltÅrsak.UTSETTELSE_SØKERS_INNLEGGELSE_IKKE_DOKUMENTERT);
 
         // Act
-        var holder = new UttakResultatHolderImpl(Optional.of(ForeldrepengerUttakTjeneste.map(uttakresultatRevurdering)), null);
-        boolean harOpphørsårsak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl().vurder(holder, true);
+        var holder = new UttakResultatHolderFP(Optional.of(ForeldrepengerUttakTjeneste.map(uttakresultatRevurdering)), null);
+        boolean harOpphørsårsak = holder.kontrollerErSisteUttakAvslåttMedÅrsak();
 
         // Assert
         assertThat(harOpphørsårsak).isFalse();

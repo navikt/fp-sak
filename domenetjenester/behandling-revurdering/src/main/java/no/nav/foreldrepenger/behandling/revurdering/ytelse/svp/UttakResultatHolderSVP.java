@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.jboss.weld.exceptions.UnsupportedOperationException;
-
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.ArbeidsforholdIkkeOppfyltÅrsak;
@@ -16,20 +14,18 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 
 
-class UttakResultatHolderImpl implements UttakResultatHolder {
+class UttakResultatHolderSVP implements UttakResultatHolder {
 
     private Optional<SvangerskapspengerUttakResultatEntitet> uttakresultat;
 
 
-    public UttakResultatHolderImpl(Optional<SvangerskapspengerUttakResultatEntitet> uttakresultat) {
+    public UttakResultatHolderSVP(Optional<SvangerskapspengerUttakResultatEntitet> uttakresultat) {
         this.uttakresultat = uttakresultat;
     }
 
-    @Override
-    public Object getUttakResultat(){
+    public SvangerskapspengerUttakResultatEntitet getUttakResultat(){
         return uttakresultat.orElse(null);
     }
 
@@ -54,11 +50,6 @@ class UttakResultatHolderImpl implements UttakResultatHolder {
     }
 
     @Override
-    public List<ForeldrepengerUttakPeriode> getGjeldendePerioder() {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
     public boolean kontrollerErSisteUttakAvslåttMedÅrsak() {
         if (uttakresultat.isEmpty()) {
             return false;
@@ -80,7 +71,8 @@ class UttakResultatHolderImpl implements UttakResultatHolder {
     }
 
     @Override
-    public boolean vurderOmErEndringIUttak(UttakResultatHolder uttakresultatSammenligneMed){
+    public boolean harUlikUttaksplan(UttakResultatHolder other){
+        var uttakresultatSammenligneMed = (UttakResultatHolderSVP) other;
 
         if(uttakresultatSammenligneMed.eksistererUttakResultat() != this.eksistererUttakResultat() ){
             return true;
@@ -98,7 +90,7 @@ class UttakResultatHolderImpl implements UttakResultatHolder {
         }
 
         List<SvangerskapspengerUttakResultatArbeidsforholdEntitet>  listeMedArbeidsforhold_1 =uttakresultat.get().getUttaksResultatArbeidsforhold();
-        SvangerskapspengerUttakResultatEntitet resultatSammenligne = (SvangerskapspengerUttakResultatEntitet) uttakresultatSammenligneMed.getUttakResultat();
+        SvangerskapspengerUttakResultatEntitet resultatSammenligne = uttakresultatSammenligneMed.getUttakResultat();
         List<SvangerskapspengerUttakResultatArbeidsforholdEntitet>  listeMedArbeidsforhold_2 = resultatSammenligne.getUttaksResultatArbeidsforhold();
 
         return !erLikresultat(listeMedArbeidsforhold_1,listeMedArbeidsforhold_2);

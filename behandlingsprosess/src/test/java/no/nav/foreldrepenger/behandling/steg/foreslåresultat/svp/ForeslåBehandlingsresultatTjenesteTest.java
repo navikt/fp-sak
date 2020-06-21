@@ -20,8 +20,6 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.ErEndringIUttakImpl;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.RevurderingBehandlingsresultatutleder;
 import no.nav.foreldrepenger.behandling.steg.foreslåresultat.AvslagsårsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -89,9 +87,7 @@ public class ForeslåBehandlingsresultatTjenesteTest {
             beregningsgrunnlagTjeneste,
             endringsdatoRevurderingUtlederImpl,
             opphørUttakTjeneste,
-            new ErEndringIUttakImpl(),
-            new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl(),
-            skjæringstidspunktTjeneste,
+                skjæringstidspunktTjeneste,
             medlemTjeneste));
 
         tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,

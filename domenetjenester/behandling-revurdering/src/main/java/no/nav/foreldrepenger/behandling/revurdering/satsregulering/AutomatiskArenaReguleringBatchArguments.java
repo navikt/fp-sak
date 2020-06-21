@@ -7,11 +7,10 @@ import java.util.Map;
 
 import no.nav.foreldrepenger.batch.BatchArgument;
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class AutomatiskArenaReguleringBatchArguments extends BatchArguments {
 
-    static final LocalDate DATO = LocalDate.of(FPDateUtil.iDag().getYear(), 5, 1);
+    static final LocalDate DATO = LocalDate.of(LocalDate.now().getYear(), 5, 1);
     private static final int MAX_DIFF = 28;
     static final String REVURDER_KEY = "revurder";
     static final String SATS_DATO_KEY = "satsDato";

@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.svp;
 
+import java.time.LocalDate;
+
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIUttak;
-import no.nav.foreldrepenger.behandling.revurdering.felles.ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak;
-import no.nav.foreldrepenger.behandling.revurdering.felles.HarEtablertYtelse;
-import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFellesImpl;
+import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFelles;
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @Dependent
 @FagsakYtelseTypeRef("SVP")
 @BehandlingTypeRef("BT-004")
-public class RevurderingBehandlingsresultatutleder extends RevurderingBehandlingsresultatutlederFellesImpl {
+public class RevurderingBehandlingsresultatutleder extends RevurderingBehandlingsresultatutlederFelles {
 
     private SvangerskapspengerUttakResultatRepository uttakRepository;
 
@@ -30,16 +30,12 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
                                                  HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                                  @FagsakYtelseTypeRef("SVP") EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder,
                                                  OpphørUttakTjeneste opphørUttakTjeneste,
-                                                 @FagsakYtelseTypeRef("SVP") ErEndringIUttak erEndringIUttak,
-                                                 @FagsakYtelseTypeRef("SVP") ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
                                                  @FagsakYtelseTypeRef("SVP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                  MedlemTjeneste medlemTjeneste) {
         super(repositoryProvider,
             beregningsgrunnlagTjeneste,
             medlemTjeneste,
             opphørUttakTjeneste,
-            erEndringIUttak,
-            erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
             skjæringstidspunktTjeneste
         );
         this.uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
@@ -47,11 +43,15 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
 
     @Override
     protected UttakResultatHolder getUttakResultat(Long behandlingId) {
-        return new UttakResultatHolderImpl(uttakRepository.hentHvisEksisterer(behandlingId));
+        return new UttakResultatHolderSVP(uttakRepository.hentHvisEksisterer(behandlingId));
     }
 
     @Override
-    protected HarEtablertYtelse harEtablertYtelse() {
-        return new HarEtablertYtelseImpl();
+    protected boolean harEtablertYtelse(Behandling revurdering, boolean finnesInnvilgetIkkeOpphørtVedtak,
+                                                  UttakResultatHolder uttakresultatOriginal) {
+        if (LocalDate.now().isAfter(uttakresultatOriginal.getSisteDagAvSistePeriode())) {
+            return false;
+        }
+        return finnesInnvilgetIkkeOpphørtVedtak;
     }
 }

@@ -38,16 +38,35 @@ public class ForeldrepengerUttakPeriode {
     }
 
     public boolean erLikBortsettFraTrekkdager(ForeldrepengerUttakPeriode periode) {
+        if (getAktiviteter().size() != aktiviteter.size()) {
+            return false;
+        }
+        var likeAktivitieter = periode.getAktiviteter().stream()
+            .allMatch(a1 -> getAktiviteter().stream().anyMatch(a1::likBortsettFraTrekkdager));
         return Objects.equals(periode.getTidsperiode(), getTidsperiode())
-            && Objects.equals(periode.getResultatType(), getResultatType())
+            && harLikeVerdier(periode)
+            && likeAktivitieter;
+    }
+
+    public boolean erLikBortsettFraPeriode(ForeldrepengerUttakPeriode periode) {
+        if (periode.getAktiviteter().size() != getAktiviteter().size()) {
+            return false;
+        }
+        var likeAktivitieter = periode.getAktiviteter().stream()
+            .allMatch(a1 -> getAktiviteter().stream().anyMatch(a1::likEllerSammeAktivitetZeroTrekkdager));
+        return harLikeVerdier(periode) && likeAktivitieter;
+    }
+
+    private boolean harLikeVerdier(ForeldrepengerUttakPeriode periode) {
+        return Objects.equals(periode.getResultatType(), getResultatType())
             && Objects.equals(periode.getResultatÅrsak(), getResultatÅrsak())
             && Objects.equals(periode.isSamtidigUttak(), isSamtidigUttak())
             && Objects.equals(periode.getSamtidigUttaksprosent(), getSamtidigUttaksprosent())
+            && Objects.equals(periode.isGraderingInnvilget(), isGraderingInnvilget())
+            && Objects.equals(periode.getGraderingAvslagÅrsak(), getGraderingAvslagÅrsak())
             && Objects.equals(periode.isFlerbarnsdager(), isFlerbarnsdager())
             && Objects.equals(periode.getUtsettelseType(), getUtsettelseType())
-            && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak())
-            && Objects.equals(periode.getGraderingAvslagÅrsak(), getGraderingAvslagÅrsak())
-            && aktiviteterErLikeBortsettFraTrekkdager(periode.getAktiviteter());
+            && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak());
     }
 
     public LocalDateInterval getTidsperiode() {
@@ -84,17 +103,6 @@ public class ForeldrepengerUttakPeriode {
 
     public OppholdÅrsak getOppholdÅrsak() {
         return oppholdÅrsak == null ? OppholdÅrsak.UDEFINERT : oppholdÅrsak;
-    }
-
-    private boolean aktiviteterErLikeBortsettFraTrekkdager(List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
-        if (getAktiviteter().size() != aktiviteter.size()) {
-            return false;
-        }
-        return aktiviteter.stream().allMatch(a -> harLikAktivitetBortsettFraTrekkdager(a));
-    }
-
-    private boolean harLikAktivitetBortsettFraTrekkdager(ForeldrepengerUttakPeriodeAktivitet aktivitet) {
-        return getAktiviteter().stream().anyMatch(a -> a.likBortsettFraTrekkdager(aktivitet));
     }
 
     public boolean isSamtidigUttak() {

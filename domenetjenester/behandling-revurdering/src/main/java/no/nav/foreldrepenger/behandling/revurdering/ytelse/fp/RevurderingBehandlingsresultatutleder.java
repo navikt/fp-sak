@@ -3,13 +3,11 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIUttak;
-import no.nav.foreldrepenger.behandling.revurdering.felles.ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak;
-import no.nav.foreldrepenger.behandling.revurdering.felles.HarEtablertYtelse;
-import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFellesImpl;
+import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFelles;
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
@@ -21,19 +19,17 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @Dependent
 @FagsakYtelseTypeRef("FP")
 @BehandlingTypeRef("BT-004")
-public class RevurderingBehandlingsresultatutleder extends RevurderingBehandlingsresultatutlederFellesImpl {
+public class RevurderingBehandlingsresultatutleder extends RevurderingBehandlingsresultatutlederFelles {
 
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
-    private HarEtablertYtelse harEtablertYtelse;
+    private HarEtablertYtelseFP harEtablertYtelse;
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider,  // NOSONAR
                                                  HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                                  OpphørUttakTjeneste opphørUttakTjeneste,
-                                                 @FagsakYtelseTypeRef("FP") HarEtablertYtelse harEtablertYtelse,
-                                                 @FagsakYtelseTypeRef("FP") ErEndringIUttak erEndringIUttak,
-                                                 @FagsakYtelseTypeRef("FP") ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
+                                                 HarEtablertYtelseFP harEtablertYtelse,
                                                  @FagsakYtelseTypeRef("FP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                  MedlemTjeneste medlemTjeneste,
                                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
@@ -41,8 +37,6 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
             beregningsgrunnlagTjeneste,
             medlemTjeneste,
             opphørUttakTjeneste,
-            erEndringIUttak,
-            erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
             skjæringstidspunktTjeneste
         );
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
@@ -53,11 +47,12 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
     @Override
     protected UttakResultatHolder getUttakResultat(Long behandlingId) {
         var vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandlingId);
-        return new UttakResultatHolderImpl(foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId), vedtak.orElse(null));
+        return new UttakResultatHolderFP(foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId), vedtak.orElse(null));
     }
 
     @Override
-    protected HarEtablertYtelse harEtablertYtelse() {
-        return harEtablertYtelse;
+    protected boolean harEtablertYtelse(Behandling revurdering, boolean finnesInnvilgetIkkeOpphørtVedtak,
+                                                  UttakResultatHolder uttakresultatOriginal) {
+        return harEtablertYtelse.vurder(revurdering, finnesInnvilgetIkkeOpphørtVedtak, uttakresultatOriginal);
     }
 }

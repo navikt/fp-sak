@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -129,6 +129,15 @@ public class ForeldrepengerUttakPeriodeAktivitet {
             Objects.equals(utbetalingsgrad, that.utbetalingsgrad) &&
             Objects.equals(aktivitet, that.aktivitet);
     }
+
+    public boolean likEllerSammeAktivitetZeroTrekkdager(ForeldrepengerUttakPeriodeAktivitet that) {
+        if (Objects.equals(trekkdager, Trekkdager.ZERO) && Objects.equals(that.getTrekkdager(), Trekkdager.ZERO))
+            return Objects.equals(aktivitet, that.getUttakAktivitet());
+        if (Objects.equals(trekkdager, Trekkdager.ZERO) || Objects.equals(that.getTrekkdager(), Trekkdager.ZERO))
+            return false;
+        return likBortsettFraTrekkdager(that);
+    }
+
 
     @Override
     public int hashCode() {
