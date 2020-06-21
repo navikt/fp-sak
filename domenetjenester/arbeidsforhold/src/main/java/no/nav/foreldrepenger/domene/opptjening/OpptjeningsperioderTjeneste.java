@@ -41,10 +41,9 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.MapYrkesaktivitetTil
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.MapYtelseperioderTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningAktivitetVurderingAksjonspunkt;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningAktivitetVurderingVilkår;
-import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningsperioderUtenOverstyringTjeneste;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @ApplicationScoped
 public class OpptjeningsperioderTjeneste {
@@ -53,9 +52,7 @@ public class OpptjeningsperioderTjeneste {
     private OpptjeningRepository opptjeningRepository;
     private OpptjeningAktivitetVurdering vurderForSaksbehandling;
     private OpptjeningAktivitetVurdering vurderForVilkår;
-    private OpptjeningAktivitetVurdering vurderForBeregning;
     private MapYtelseperioderTjeneste mapYtelseperioderTjeneste;
-    private OpptjeningsperioderUtenOverstyringTjeneste opptjeningsperioderUtenOverstyringTjeneste;
 
     OpptjeningsperioderTjeneste() {
         // CDI
@@ -70,15 +67,7 @@ public class OpptjeningsperioderTjeneste {
         this.opptjeningRepository = opptjeningRepository;
         this.vurderForSaksbehandling = new OpptjeningAktivitetVurderingAksjonspunkt(vurderOppgittOpptjening, vurderBekreftetOpptjening);
         this.vurderForVilkår = new OpptjeningAktivitetVurderingVilkår(vurderOppgittOpptjening, vurderBekreftetOpptjening);
-        this.vurderForBeregning = new OpptjeningAktivitetVurderingBeregning();
         this.mapYtelseperioderTjeneste = new MapYtelseperioderTjeneste();
-        this.opptjeningsperioderUtenOverstyringTjeneste = new OpptjeningsperioderUtenOverstyringTjeneste(opptjeningRepository);
-    }
-
-    /** Hent alle opptjeningsaktivitet som skal brukes videre i beregning */
-    public List<OpptjeningsperiodeForSaksbehandling> hentRelevanteOpptjeningAktiveterForBeregning(BehandlingReferanse behandlingReferanse,
-                                                                                                  InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        return opptjeningsperioderUtenOverstyringTjeneste.mapPerioderForSaksbehandling(behandlingReferanse, iayGrunnlag, vurderForBeregning);
     }
 
     /** Hent alle opptjeningsaktiv og utleder om noen perioder trenger vurdering av saksbehandler */
