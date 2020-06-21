@@ -1,27 +1,6 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.control.ActivateRequestContext;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
@@ -38,8 +17,10 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.json.JacksonJsonConfig;
-import no.nav.foreldrepenger.mottak.vedtak.LoggOverlappendeEksternYtelseTjeneste;
-import no.nav.foreldrepenger.mottak.vedtak.VurderOpphørAvYtelser;
+import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappendeEksternYtelseTjeneste;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelser;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
@@ -48,7 +29,24 @@ import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.control.ActivateRequestContext;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -64,6 +62,13 @@ public class VedtaksHendelseHåndterer {
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository tilkjentYtelseRepository;
     private Validator validator;
+    private ProsessTaskRepository prosessTaskRepository;
+
+    private static final Map<YtelseType, FagsakYtelseType > YTELSE_TYPE_MAP = Map.of(
+        YtelseType.ENGANGSTØNAD, FagsakYtelseType.ENGANGSTØNAD,
+        YtelseType.FORELDREPENGER, FagsakYtelseType.FORELDREPENGER,
+        YtelseType.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER
+        );
 
     public VedtaksHendelseHåndterer() {
     }
@@ -72,12 +77,14 @@ public class VedtaksHendelseHåndterer {
     public VedtaksHendelseHåndterer(FagsakTjeneste fagsakTjeneste,
                                     VurderOpphørAvYtelser vurderOpphørAvYtelser,
                                     LoggOverlappendeEksternYtelseTjeneste eksternOverlappLogger,
-                                    BehandlingRepositoryProvider repositoryProvider) {
+                                    BehandlingRepositoryProvider repositoryProvider,
+                                    ProsessTaskRepository prosessTaskRepository) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.vurderOpphørAvYtelser = vurderOpphørAvYtelser;
         this.eksternOverlappLogger = eksternOverlappLogger;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.tilkjentYtelseRepository = repositoryProvider.getBeregningsresultatRepository();
+        this.prosessTaskRepository = prosessTaskRepository;
         @SuppressWarnings("resource")
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         // hibernate validator implementations er thread-safe, trenger ikke close
@@ -102,15 +109,46 @@ public class VedtaksHendelseHåndterer {
         if (mottattVedtak == null)
             return;
         var ytelse = (YtelseV1) mottattVedtak;
-        if (Fagsystem.FPSAK.equals(ytelse.getFagsystem())) {
-            LOG.info("Vedtatt-Ytelse mottok eget vedtak i sak {}", ytelse.getSaksnummer());
-            return;
+
+        if (Fagsystem.FPSAK.equals(ytelse.getFagsystem())){
+            oprettTasksForFpsakVedtak(ytelse);
         }
-        LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getFagsystem(), ytelse.getSaksnummer(), ytelse.getType());
-        sjekkVedtakOverlapp(ytelse);
+        else {
+            LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getFagsystem(), ytelse.getSaksnummer(), ytelse.getType());
+            sjekkVedtakOverlapp(ytelse);
+        }
     }
 
-    private void sjekkVedtakOverlapp(YtelseV1 ytelse) {
+    void oprettTasksForFpsakVedtak(YtelseV1 ytelse) {
+        FagsakYtelseType fagsakYtelseType = YTELSE_TYPE_MAP.getOrDefault(ytelse.getType(), FagsakYtelseType.UDEFINERT);
+
+        if (FagsakYtelseType.UDEFINERT.equals(fagsakYtelseType)) {
+            LOG.error("Utviklerfeil: ukjent ytelsestype for innkommende vedtak {}", ytelse.getType());
+            return;
+        }
+
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
+            return;
+        }
+
+        Behandling behandling;
+        try {
+            UUID behandlingUuid = UUID.fromString(ytelse.getVedtakReferanse());
+            behandling = behandlingRepository.hentBehandling(behandlingUuid);
+        } catch (Exception e) {
+            return;
+        }
+
+        if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
+            opprettTaskForBerørtBehandling(behandling);
+            opprettTaskForOpphørAvYtelser(behandling);
+        } //SVP
+        else {
+            opprettTaskForOpphørAvYtelser(behandling);
+        }
+    }
+
+    void sjekkVedtakOverlapp(YtelseV1 ytelse) {
         List<LocalDateSegment<Boolean>> ytelsesegments = ytelse.getAnvist().stream()
             // .filter(p -> p.getUtbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) > 0)
             .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), Boolean.TRUE))
@@ -177,4 +215,17 @@ public class VedtaksHendelseHåndterer {
         Feil parsingFeil(String key, String payload, IOException e);
     }
 
+    void opprettTaskForBerørtBehandling(Behandling behandling) {
+        ProsessTaskData berørtBehandlingTask = new ProsessTaskData(StartBerørtBehandlingTask.TASKTYPE);
+        berørtBehandlingTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        berørtBehandlingTask.setCallIdFraEksisterende();
+        prosessTaskRepository.lagre(berørtBehandlingTask);
+    }
+
+    void opprettTaskForOpphørAvYtelser(Behandling behandling) {
+        ProsessTaskData vurderOpphør = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
+        vurderOpphør.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        vurderOpphør.setCallIdFraEksisterende();
+        prosessTaskRepository.lagre(vurderOpphør);
+    }
 }

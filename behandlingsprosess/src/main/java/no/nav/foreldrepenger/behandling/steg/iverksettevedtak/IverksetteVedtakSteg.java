@@ -11,11 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 
 public interface IverksetteVedtakSteg extends BehandlingSteg {
 
-    // Midlertidig løsning for å flytte berørtBehanlding og vurderOpphørAvYytelser til mottak. Bør håndteres ved fx BehStatusEventObserver som trigger ved IVED.
-    default List<String> getInitielleTasks() {
-        return Collections.emptyList();
-    }
-
     default Optional<Venteårsak> kanBegynneIverksetting(Behandling behandling) {
         return Optional.empty();
     }

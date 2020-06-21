@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -122,7 +121,7 @@ public class IverksetteVedtakStegFellesTest {
         BehandleStegResultat resultat = utførSteg(behandling);
 
         // Assert
-        verify(opprettProsessTaskIverksett).opprettIverksettingstasker(eq(behandling), eq(Collections.emptyList()));
+        verify(opprettProsessTaskIverksett).opprettIverksettingstasker(eq(behandling));
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.SETT_PÅ_VENT);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
         Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId());

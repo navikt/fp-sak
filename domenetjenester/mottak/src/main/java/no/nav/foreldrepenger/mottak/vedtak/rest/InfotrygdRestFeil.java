@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.vedtak.infotrygd.rest;
+package no.nav.foreldrepenger.mottak.vedtak.rest;
 
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;

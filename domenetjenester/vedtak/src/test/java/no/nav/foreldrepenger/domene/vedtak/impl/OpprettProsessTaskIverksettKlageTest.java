@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,7 +61,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -82,7 +81,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -102,7 +101,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -121,7 +120,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -139,7 +138,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -158,7 +157,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -184,7 +183,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -204,7 +203,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -223,7 +222,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);

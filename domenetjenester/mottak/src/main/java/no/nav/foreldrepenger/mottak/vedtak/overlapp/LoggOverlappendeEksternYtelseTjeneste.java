@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.vedtak;
+package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 
 import java.time.LocalDate;

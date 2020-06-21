@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.vedtak;
+package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -6,13 +6,13 @@ import java.time.format.DateTimeFormatter;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.LoggHistoriskOverlappFPInfotrygdVLTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -40,6 +40,7 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
     private InformasjonssakRepository informasjonssakRepository;
     private IdentifiserOverlappendeInfotrygdYtelseTjeneste syklogger;
     private LoggHistoriskOverlappFPInfotrygdVLTjeneste loggertjeneste;
+    private BehandlingRepository behandlingRepository;
 
 
 
@@ -53,11 +54,14 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
     public VurderOpphørAvYtelserTask(VurderOpphørAvYtelser tjeneste,
                                      InformasjonssakRepository informasjonssakRepository,
                                      LoggHistoriskOverlappFPInfotrygdVLTjeneste loggertjeneste,
-                                     IdentifiserOverlappendeInfotrygdYtelseTjeneste syklogger) {
+                                     IdentifiserOverlappendeInfotrygdYtelseTjeneste syklogger,
+                                     BehandlingRepository behandlingRepository) {
         this.tjeneste = tjeneste;
         this.informasjonssakRepository = informasjonssakRepository;
         this.syklogger = syklogger;
         this.loggertjeneste = loggertjeneste;
+        this.behandlingRepository = behandlingRepository;
+
     }
 
     @Override
@@ -88,7 +92,13 @@ public class VurderOpphørAvYtelserTask implements ProsessTaskHandler {
             return;
         }
         Long behandlingId = prosessTaskData.getBehandlingId();
-        tjeneste.vurderOpphørAvYtelser(prosessTaskData.getFagsakId(), behandlingId);
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        //kjøres for førstegangsvedtak og revurderingsvedtak for fp og SVP
+        syklogger.vurderOglagreEventueltOverlapp(behandlingId);
+        //kjøres kun for førstegangsvedtak for svp og fp
+        if (!behandling.erRevurdering()) {
+            tjeneste.vurderOpphørAvYtelser(prosessTaskData.getFagsakId(), behandlingId);
+        }
     }
 
     private void loggOverlappFOR(LocalDate fom, LocalDate tom, String saksnr, String prefix) {

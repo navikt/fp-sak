@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -64,7 +63,7 @@ public class OpprettProsessTaskIverksettTest {
         when(oppgaveTjeneste.opprettTaskAvsluttOppgave(any(Behandling.class), any(OppgaveÅrsak.class), anyBoolean())).thenReturn(Optional.empty());
 
         // Act
-        opprettProsessTaskIverksettFP.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksettFP.opprettIverksettingstasker(behandling);
 
         // Assert
         List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -80,7 +79,7 @@ public class OpprettProsessTaskIverksettTest {
         mockOpprettTaskAvsluttOppgave();
 
         // Act
-        opprettProsessTaskIverksettFP.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksettFP.opprettIverksettingstasker(behandling);
 
         // Assert
         List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
