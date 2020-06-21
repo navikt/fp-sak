@@ -64,6 +64,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.konfig.Tid;
 
 @RunWith(CdiRunner.class)
 public class AvklarArbeidsforholdOppdatererTest {
@@ -134,6 +135,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         // Arrange
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
         Behandling behandling = scenario.lagre(repositoryProvider);
+        opprettTomtIAYAggregat(behandling);
 
         //simulere at 5080 har oppstått
         Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
@@ -187,6 +189,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         // Arrange
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
         Behandling behandling = scenario.lagre(repositoryProvider);
+        opprettTomtIAYAggregat(behandling);
 
         //simulere at 5080 har oppstått
         Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
@@ -287,6 +290,80 @@ public class AvklarArbeidsforholdOppdatererTest {
         List<ArbeidsforholdOverstyrtePerioder> overstyrtePerioder = overstyrtArbeidsforhold.getArbeidsforholdOverstyrtePerioder();
         assertThat(overstyrtePerioder).as("overstyrtePerioder").hasSize(1);
         assertThat(overstyrtePerioder.get(0).getOverstyrtePeriode().getTomDato()).isEqualTo(overstyrtTomDato);
+    }
+
+    @Test
+    public void prod_case_både_basertim_og_overstyrt_periode() {
+        // Arrange
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        Behandling behandling = scenario.lagre(repositoryProvider);
+        opprettIAYAggregatProdCase(behandling, false, LocalDate.now().minusYears(1));
+
+        //simulere at 5080 har oppstått
+        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+
+        LocalDate stp = LocalDate.now();
+        LocalDate fomDato = stp.minusYears(1);
+        final String navikt = "990983666";
+        final String annetforetak = "973861778";
+        when(virksomhetTjeneste.hentOrganisasjon(navikt)).thenReturn(Virksomhet.getBuilder().medNavn("NAV IKT").medOrgnr(navikt).build());
+        when(virksomhetTjeneste.hentOrganisasjon(annetforetak)).thenReturn(Virksomhet.getBuilder().medNavn("Annet foretak").medOrgnr(annetforetak).build());
+        when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(Virksomhet.getBuilder().medNavn("NAV").medOrgnr(NAV_ORGNR).build());
+
+        ArbeidsforholdDto nyttArbeidsforholdFraIM = new ArbeidsforholdDto();
+        nyttArbeidsforholdFraIM.setNavn("NAV IKT");
+        nyttArbeidsforholdFraIM.setFomDato(fomDato);
+        nyttArbeidsforholdFraIM.setStillingsprosent(BigDecimal.valueOf(100));
+        nyttArbeidsforholdFraIM.setLagtTilAvSaksbehandler(false);
+        nyttArbeidsforholdFraIM.setBasertPaInntektsmelding(true);
+        nyttArbeidsforholdFraIM.setBrukArbeidsforholdet(true);
+        nyttArbeidsforholdFraIM.setId(UUID.randomUUID().toString());
+        nyttArbeidsforholdFraIM.setArbeidsgiverIdentifikator(navikt);
+
+        ArbeidsforholdDto arbeidsforholdZeroProsent = new ArbeidsforholdDto();
+        arbeidsforholdZeroProsent.setNavn("Annet foretak");
+        arbeidsforholdZeroProsent.setFomDato(fomDato);
+        arbeidsforholdZeroProsent.setTomDato(Tid.TIDENES_ENDE);
+        arbeidsforholdZeroProsent.setOverstyrtTom(stp.minusMonths(2));
+        arbeidsforholdZeroProsent.setStillingsprosent(BigDecimal.ZERO);
+        arbeidsforholdZeroProsent.setLagtTilAvSaksbehandler(false);
+        arbeidsforholdZeroProsent.setId(UUID.randomUUID().toString());
+        arbeidsforholdZeroProsent.setArbeidsgiverIdentifikator(annetforetak);
+        arbeidsforholdZeroProsent.setBrukArbeidsforholdet(true);
+        arbeidsforholdZeroProsent.setFortsettBehandlingUtenInntektsmelding(true);
+
+        ArbeidsforholdDto normaltArbeidsforhold = new ArbeidsforholdDto();
+        normaltArbeidsforhold.setNavn("NAV");
+        normaltArbeidsforhold.setFomDato(fomDato);
+        normaltArbeidsforhold.setStillingsprosent(BigDecimal.valueOf(100));
+        normaltArbeidsforhold.setBrukArbeidsforholdet(true);
+        normaltArbeidsforhold.setId(randomId);
+        normaltArbeidsforhold.setArbeidsgiverIdentifikator(NAV_ORGNR);
+
+        List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(normaltArbeidsforhold, arbeidsforholdZeroProsent, nyttArbeidsforholdFraIM);
+
+
+        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
+
+        //Act
+        oppdaterer.oppdater(avklarArbeidsforholdDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(), avklarArbeidsforholdDto.getBegrunnelse()));
+
+        // Assert
+        InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlag(behandling);
+        List<ArbeidsforholdOverstyring> overstyring = grunnlag.getArbeidsforholdInformasjon()
+            .map(ArbeidsforholdInformasjon::getOverstyringer).orElse(Collections.emptyList());
+
+        assertThat(overstyring).hasSize(3);
+
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(behandling.getAktørId())).før(stp);
+        Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
+        assertThat(yrkesaktiviteter).hasSize(3);
+        assertThat(yrkesaktiviteter.stream().filter(y -> y.getArbeidsgiver().getOrgnr().equals(NAV_ORGNR)).count()).isEqualTo(1);
+        assertThat(yrkesaktiviteter.stream().filter(y -> y.getArbeidsgiver().getOrgnr().equals(navikt)).count()).isEqualTo(1);
+        var annet = yrkesaktiviteter.stream().filter(y -> y.getArbeidsgiver().getOrgnr().equals(annetforetak)).findFirst().orElse(null);
+        var ansattTil = filter.getAnsettelsesPerioder(annet).stream().findFirst()
+            .map(AktivitetsAvtale::getPeriode).map(DatoIntervallEntitet::getTomDato).orElse(null);
+        assertThat(ansattTil).isEqualTo(stp.minusMonths(2));
     }
 
     @Test
@@ -479,8 +556,53 @@ public class AvklarArbeidsforholdOppdatererTest {
             .leggTilAktivitetsAvtale(ansettelsesperiode);
         InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeid = aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
-        builder.leggTilAktørArbeid(aktørArbeid);
+        aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+        builder.leggTilAktørArbeid(aktørArbeidBuilder);
+        iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
+    }
+
+    private void opprettTomtIAYAggregat(Behandling behandling) {
+        InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
+        builder.leggTilAktørArbeid(aktørArbeidBuilder);
+        iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
+    }
+
+    private void opprettIAYAggregatProdCase(Behandling behandling, boolean medArbeidsforholdRef, LocalDate fom) {
+        LocalDate tom = AbstractLocalDateInterval.TIDENES_ENDE;
+        YrkesaktivitetBuilder yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
+            .medProsentsats(BigDecimal.valueOf(100))
+            .medAntallTimer(BigDecimal.valueOf(40))
+            .medAntallTimerFulltid(BigDecimal.valueOf(40));
+        AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+        yrkesaktivitetBuilder
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(NAV_ORGNR))
+            .medArbeidsforholdId(medArbeidsforholdRef ? ARBEIDSFORHOLD_REF : null)
+            .leggTilAktivitetsAvtale(aktivitetsAvtaleBuilder)
+            .leggTilAktivitetsAvtale(ansettelsesperiode);
+        YrkesaktivitetBuilder yrkesaktivitetBuilder2 = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder2 = yrkesaktivitetBuilder2.getAktivitetsAvtaleBuilder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
+            .medProsentsats(BigDecimal.ZERO)
+            .medAntallTimer(BigDecimal.ZERO)
+            .medAntallTimerFulltid(BigDecimal.valueOf(40));
+        AktivitetsAvtaleBuilder ansettelsesperiode2 = yrkesaktivitetBuilder2.getAktivitetsAvtaleBuilder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+        yrkesaktivitetBuilder2
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet("973861778"))
+            .medArbeidsforholdId(medArbeidsforholdRef ? ARBEIDSFORHOLD_REF : null)
+            .leggTilAktivitetsAvtale(aktivitetsAvtaleBuilder2)
+            .leggTilAktivitetsAvtale(ansettelsesperiode2);
+        InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
+        aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+        aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder2);
+        builder.leggTilAktørArbeid(aktørArbeidBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
     }
 
