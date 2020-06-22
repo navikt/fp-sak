@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
+import static no.nav.foreldrepenger.domene.arbeidsforhold.YtelseTestHelper.leggTilYtelseMedAnvist;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -32,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -55,10 +57,12 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingTy
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningsperiodeForSaksbehandling;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningsperioderTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.VurderingsStatus;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -121,13 +125,89 @@ public class OpptjeningsperioderTjenesteImplTest {
         // Act
         BehandlingReferanse behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
-        List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForBeregning(behandlingRef, iayGrunnlag);
+        List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef, Optional.of(iayGrunnlag));
 
         // Assert
         assertThat(perioder).hasSize(2);
         OpptjeningsperiodeForSaksbehandling saksbehandletPeriode = perioder.stream().filter(p -> p.getOpptjeningsnøkkel()
             .getArbeidsforholdRef().map(r -> r.gjelderFor(ARBEIDSFORHOLD_ID)).orElse(false)).findFirst().get();
         assertThat(saksbehandletPeriode.getPeriode()).isEqualTo(periode1);
+    }
+
+    @Test
+    public void ytelse_skal_lage_sammehengende_liste() {
+        // Arrange
+        final Behandling behandling = opprettBehandling(skjæringstidspunkt);
+
+        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt);
+
+        final Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet(ORG_NUMMER);
+        InntektArbeidYtelseAggregatBuilder bekreftet = opprettInntektArbeidYtelseAggregatForYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, periode,
+            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, virksomhet);
+        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(10)),
+            VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(2)), RelatertYtelseTilstand.LØPENDE, "12342234", RelatertYtelseType.SYKEPENGER));
+        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(25)),
+            VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(5)), RelatertYtelseTilstand.AVSLUTTET, "1222433", RelatertYtelseType.SYKEPENGER));
+        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(30)) ,
+            VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(21)), RelatertYtelseTilstand.AVSLUTTET, "124234", RelatertYtelseType.SYKEPENGER));
+        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(50)),
+            VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(40)), RelatertYtelseTilstand.AVSLUTTET, "123253254", RelatertYtelseType.SYKEPENGER));
+
+        iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
+
+        opptjeningRepository.lagreOpptjeningsperiode(behandling, skjæringstidspunkt.minusDays(30), skjæringstidspunkt, false);
+
+        // Act
+        BehandlingReferanse behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
+        List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef, Optional.of(iayGrunnlag));
+
+        // Assert
+        assertThat(perioder).hasSize(3);
+        var ytelser = perioder.stream()
+            .filter(p -> OpptjeningAktivitetType.SYKEPENGER.equals(p.getOpptjeningAktivitetType()))
+            .collect(Collectors.toList());
+        assertThat(ytelser.get(0).getPeriode().getFomDato()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(50)));
+        assertThat(ytelser.get(1).getPeriode().getFomDato()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(30)));
+        assertThat(ytelser.get(1).getPeriode().getTomDato()).isEqualTo(VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(2)));
+
+    }
+
+    @Test
+    public void ytelse_skal_ikke_ta_med_ytelser_etter_stp() {
+        // Arrange
+        final Behandling behandling = opprettBehandling(skjæringstidspunkt);
+
+        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt);
+
+        final Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet(ORG_NUMMER);
+        InntektArbeidYtelseAggregatBuilder bekreftet = opprettInntektArbeidYtelseAggregatForYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, periode,
+            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, virksomhet);
+        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(15)),
+            VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(2)), RelatertYtelseTilstand.LØPENDE, "12342234", RelatertYtelseType.SYKEPENGER));
+        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(30)),
+            VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(15)), RelatertYtelseTilstand.AVSLUTTET, "1222433", RelatertYtelseType.OMSORGSPENGER));
+        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.plusDays(10)) ,
+            VirkedagUtil.tomSøndag(skjæringstidspunkt.plusDays(21)), RelatertYtelseTilstand.AVSLUTTET, "124234", RelatertYtelseType.SYKEPENGER));
+
+        iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
+
+        opptjeningRepository.lagreOpptjeningsperiode(behandling, skjæringstidspunkt.minusDays(30), skjæringstidspunkt, false);
+
+        // Act
+        BehandlingReferanse behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
+        List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef, Optional.of(iayGrunnlag));
+
+        // Assert
+        assertThat(perioder).hasSize(3);
+        var ytelserSP = perioder.stream()
+            .filter(p -> OpptjeningAktivitetType.SYKEPENGER.equals(p.getOpptjeningAktivitetType()))
+            .collect(Collectors.toList());
+        assertThat(ytelserSP).hasSize(1);
+        assertThat(ytelserSP.get(0).getPeriode().getFomDato()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(15)));
+        assertThat(perioder.stream().map(OpptjeningsperiodeForSaksbehandling::getOpptjeningAktivitetType).filter(OpptjeningAktivitetType.OMSORGSPENGER::equals).count()).isEqualTo(1);
+
     }
 
     @Test
