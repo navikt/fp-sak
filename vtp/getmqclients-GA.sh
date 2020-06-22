@@ -15,14 +15,14 @@ fi
 wget --no-check-certificate --quiet --method GET --timeout=0 --header "Authorization: Bearer $token" \
    'https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/okonomistotte-jms/maven-metadata.xml' \
    -O maven-metadata-o.xml -nv -t 2
-oversion=$(grep "<latest>" maven-metadata-o.xml | sed -e 's/.*<latest>\(.*\)<\/latest>.*/\1/' | cut -c1,2,3,6-)
+oversion=$(grep "<latest>" maven-metadata-o.xml | sed -e 's/.*<latest>\(.*\)<\/latest>.*/\1/')
 echo "Siste versjon okonomistotte er $oversion"
 rm maven-metadata-o.xml
 
 wget --no-check-certificate --quiet --method GET --timeout=0 --header "Authorization: Bearer $token" \
    'https://maven.pkg.github.com/navikt/fp-felles/no/nav/foreldrepenger/felles/integrasjon/felles-integrasjon-jms/maven-metadata.xml' \
    -O maven-metadata-jms.xml -nv -t 2
-jmsversion=$(grep "<latest>" maven-metadata-jms.xml | sed -e 's/.*<latest>\(.*\)<\/latest>.*/\1/' | cut -c1,2,3,6-)
+jmsversion=$(grep "<latest>" maven-metadata-jms.xml | sed -e 's/.*<latest>\(.*\)<\/latest>.*/\1/')
 echo "Siste versjon felles-integrasjon-jms er $jmsversion"
 rm maven-metadata-jms.xml
 
