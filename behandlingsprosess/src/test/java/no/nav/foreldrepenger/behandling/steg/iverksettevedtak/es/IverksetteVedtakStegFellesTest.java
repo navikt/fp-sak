@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.IverksetteVedtakStegFelles;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
@@ -29,9 +30,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.domene.vedtak.es.OpprettProsessTaskIverksettImpl;
+import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
@@ -50,10 +51,10 @@ public class IverksetteVedtakStegFellesTest {
 
     private Behandling behandling;
 
-    private IverksetteVedtakStegFørstegang iverksetteVedtakSteg;
+    private IverksetteVedtakStegFelles iverksetteVedtakSteg;
 
     @Mock
-    private OpprettProsessTaskIverksettImpl opprettProsessTaskIverksett;
+    private OpprettProsessTaskIverksett opprettProsessTaskIverksett;
 
     private Repository repository = repoRule.getRepository();
     private BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -63,7 +64,7 @@ public class IverksetteVedtakStegFellesTest {
 
     @Before
     public void setup() {
-        iverksetteVedtakSteg = new IverksetteVedtakStegFørstegang(repositoryProvider, opprettProsessTaskIverksett, vurderBehandlingerUnderIverksettelse);
+        iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett, vurderBehandlingerUnderIverksettelse);
     }
 
     @Test
@@ -121,7 +122,7 @@ public class IverksetteVedtakStegFellesTest {
         BehandleStegResultat resultat = utførSteg(behandling);
 
         // Assert
-        verify(opprettProsessTaskIverksett).opprettIverksettingstasker(eq(behandling));
+        verify(opprettProsessTaskIverksett).opprettIverksettingTasks(eq(behandling));
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.SETT_PÅ_VENT);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
         Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId());

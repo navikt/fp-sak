@@ -31,7 +31,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ApplicationScoped
-public class OpprettProsessTaskIverksettAlle {
+public class OpprettProsessTaskIverksett {
 
     public static final String VEDTAK_TIL_DATAVAREHUS_TASK = "iverksetteVedtak.vedtakTilDatavarehus";
 
@@ -45,16 +45,16 @@ public class OpprettProsessTaskIverksettAlle {
     private KlageRepository klageRepository;
 
 
-    public OpprettProsessTaskIverksettAlle() {
+    public OpprettProsessTaskIverksett() {
         // for CDI proxy
     }
 
     @Inject
-    public OpprettProsessTaskIverksettAlle(ProsessTaskRepository prosessTaskRepository,
-                                           BehandlingRepository behandlingRepository,
-                                           AnkeRepository ankeRepository,
-                                           KlageRepository klageRepository,
-                                           OppgaveTjeneste oppgaveTjeneste) {
+    public OpprettProsessTaskIverksett(ProsessTaskRepository prosessTaskRepository,
+                                       BehandlingRepository behandlingRepository,
+                                       AnkeRepository ankeRepository,
+                                       KlageRepository klageRepository,
+                                       OppgaveTjeneste oppgaveTjeneste) {
         this.prosessTaskRepository = prosessTaskRepository;
         this.behandlingRepository = behandlingRepository;
         this.ankeRepository = ankeRepository;
