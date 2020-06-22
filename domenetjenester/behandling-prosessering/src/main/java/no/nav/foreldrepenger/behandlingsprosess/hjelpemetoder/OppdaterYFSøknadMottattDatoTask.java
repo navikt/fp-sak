@@ -97,7 +97,11 @@ public class OppdaterYFSøknadMottattDatoTask implements ProsessTaskHandler {
         if (uttaksperiodegrense.isPresent()) {
             return uttaksperiodegrense.get().getMottattDato();
         }
-        return søknadRepository.hentSøknad(tidligstBehandlingMedPeriode).getMottattDato();
+        var søknad = søknadRepository.hentSøknadHvisEksisterer(tidligstBehandlingMedPeriode.getId());
+        if (søknad.isEmpty()) {
+            return søknadRepository.hentFørstegangsSøknad(tidligstBehandlingMedPeriode).getMottattDato();
+        }
+        return søknad.get().getMottattDato();
     }
 
     private Behandling finnTidligstBehandling(OppgittPeriodeEntitet periode, Behandling behandling) {
