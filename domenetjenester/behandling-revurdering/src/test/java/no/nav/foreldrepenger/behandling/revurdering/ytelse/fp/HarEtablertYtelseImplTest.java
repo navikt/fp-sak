@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
-import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
 public class HarEtablertYtelseImplTest {
@@ -66,7 +65,7 @@ public class HarEtablertYtelseImplTest {
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
 
     private Behandling behandlingSomSkalRevurderes;
-    private HarEtablertYtelseImpl harEtablertYtelse;
+    private HarEtablertYtelseFP harEtablertYtelse;
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private Behandling originalBehandling;
 
@@ -84,14 +83,14 @@ public class HarEtablertYtelseImplTest {
         behandlingSomSkalRevurderes = scenarioRevurdering.lagre(repositoryProvider);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
         stønadskontoSaldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
-        harEtablertYtelse = new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
+        harEtablertYtelse = new HarEtablertYtelseFP(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), repositoryProvider.getBehandlingVedtakRepository());
     }
 
     @Test
     public void skal_gi_etablert_ytelse_med_tom_for_innvilget_periode_etter_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
             List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(10))),
@@ -122,15 +121,15 @@ public class HarEtablertYtelseImplTest {
             repositoryProvider.getBehandlingRepository().lagre(behandlingAnnenpart, repositoryProvider.getBehandlingLåsRepository().taLås(behandlingAnnenpart.getId()));
         });
 
-        return harEtablertYtelse.vurder(behandlingSomSkalRevurderes, finnesInnvilgetIkkeOpphørtVedtak, br -> false,
-            new UttakResultatHolderImpl(Optional.of(ForeldrepengerUttakTjeneste.map(uttakResultatOriginal)),
+        return harEtablertYtelse.vurder(behandlingSomSkalRevurderes, finnesInnvilgetIkkeOpphørtVedtak,
+            new UttakResultatHolderFP(Optional.of(ForeldrepengerUttakTjeneste.map(uttakResultatOriginal)),
                 uttakResultatOriginal.getBehandlingsresultat().getBehandlingVedtak()));
     }
 
     @Test
     public void skal_ikke_gi_etablert_ytelse_hvis_finnesInnvilgetIkkeOpphørtVedtak_er_false() {
         // Arrange
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
             List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(10))),
@@ -148,7 +147,7 @@ public class HarEtablertYtelseImplTest {
     @Test
     public void skal_gi_etablert_ytelse_med_tom_for_innvilget_periode_på_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
             List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato)),
@@ -165,7 +164,7 @@ public class HarEtablertYtelseImplTest {
     @Test
     public void skal_ikkje_gi_etablert_ytelse_med_tom_for_avslått_periode_etter_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
             List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(5))),
@@ -182,7 +181,7 @@ public class HarEtablertYtelseImplTest {
     @Test
     public void skal_ikkje_gi_etablert_ytelse_med_tom_for_innvilget_periode_før_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
             List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),
@@ -199,7 +198,7 @@ public class HarEtablertYtelseImplTest {
     @Test
     public void skal_gi_etablert_ytelse_selv_med_tom_for_innvilget_periode_før_dagens_dato_så_lenge_saldo_ikke_er_0() {
         // Arrange
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
             List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),
@@ -216,7 +215,7 @@ public class HarEtablertYtelseImplTest {
     @Test
     public void skal_gi_etablert_ytelse_selvom_tom_for_innvilget_periode_er_før_dagens_dato_hvis_annen_part_har_etter() {
         // Arrange
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
             List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),

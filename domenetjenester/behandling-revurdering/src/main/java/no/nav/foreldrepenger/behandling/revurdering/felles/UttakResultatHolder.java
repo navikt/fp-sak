@@ -1,29 +1,28 @@
 package no.nav.foreldrepenger.behandling.revurdering.felles;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 
 public interface UttakResultatHolder {
-
-    Object getUttakResultat();
 
     LocalDate getSisteDagAvSistePeriode();
     LocalDate getFørsteDagAvFørstePeriode();
 
     boolean eksistererUttakResultat();
 
+    interface VurderOpphørFørDagensDato extends Predicate<Behandlingsresultat> {
+    }
+
     /**
      * Bare FP
      */
-    List<ForeldrepengerUttakPeriode> getGjeldendePerioder();
-
     boolean kontrollerErSisteUttakAvslåttMedÅrsak();
 
-    boolean vurderOmErEndringIUttak(UttakResultatHolder uttakresultatSammenligneMed);
+    boolean harUlikUttaksplan(UttakResultatHolder other);
 
     Optional<BehandlingVedtak> getBehandlingVedtak();
 }

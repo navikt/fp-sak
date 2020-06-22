@@ -24,8 +24,6 @@ import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
-import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIUttak;
-import no.nav.foreldrepenger.behandling.revurdering.felles.ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagAndelTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagBeregningsresultatTjeneste;
@@ -123,8 +121,6 @@ public class RevurderingBehandlingsresultatutlederTest {
     private EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(EndringsdatoRevurderingUtlederImpl.class);
     private OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-    private ErEndringIUttak erEndringIUttak;
-    private ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak;
 
     @Before
     public void setUp() {
@@ -137,14 +133,10 @@ public class RevurderingBehandlingsresultatutlederTest {
         repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(), false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
-        erEndringIUttak = new ErEndringIUttakImpl();
-        erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl();
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
             hentBeregningsgrunnlagTjeneste,
             endringsdatoRevurderingUtlederImpl,
             opphørUttakTjeneste,
-            erEndringIUttak,
-            erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
             skjæringstidspunktTjeneste,
             medlemTjeneste);
 

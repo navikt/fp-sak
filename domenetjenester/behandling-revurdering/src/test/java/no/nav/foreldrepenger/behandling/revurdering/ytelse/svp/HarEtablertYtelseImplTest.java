@@ -16,7 +16,6 @@ import org.junit.runner.RunWith;
 
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
-import no.nav.foreldrepenger.behandling.revurdering.felles.HarEtablertYtelse;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagUttakResultatPlanTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -30,7 +29,6 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
-import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
 public class HarEtablertYtelseImplTest {
@@ -48,7 +46,7 @@ public class HarEtablertYtelseImplTest {
     private SvangerskapspengerUttakResultatRepository uttakRepository;
 
     private Behandling behandlingSomSkalRevurderes;
-    private HarEtablertYtelse harEtablertYtelse;
+    private RevurderingBehandlingsresultatutleder resultatUtleder;
 
     @Before
     public void setUp() {
@@ -56,21 +54,22 @@ public class HarEtablertYtelseImplTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
-        harEtablertYtelse = new HarEtablertYtelseImpl();
+        resultatUtleder = new RevurderingBehandlingsresultatutleder(repositoryProvider, null,
+            null, null,null, null);
     }
 
     @Test
     public void skal_gi_etablert_ytelse_med_tom_for_innvilget_periode_etter_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
 
         SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
             Collections.singletonList(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(10)))
         );
 
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder( null,true, br -> false,
-            new UttakResultatHolderImpl(Optional.of(uttakResultatOriginal)));
+        boolean etablertYtelse = resultatUtleder.harEtablertYtelse( null,true,
+            new UttakResultatHolderSVP(Optional.of(uttakResultatOriginal)));
 
         // Assert
         assertThat(etablertYtelse).isTrue();
@@ -79,15 +78,15 @@ public class HarEtablertYtelseImplTest {
     @Test
     public void skal_ikke_gi_etablert_ytelse_hvis_finnesInnvilgetIkkeOpphørtVedtak_er_false() {
         // Arrange
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
 
         SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
             Collections.singletonList(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(10)))
         );
         boolean finnesInnvilgetIkkeOpphørtVedtak = false;
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(null, finnesInnvilgetIkkeOpphørtVedtak, br -> false,
-            new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, finnesInnvilgetIkkeOpphørtVedtak,
+            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal)));
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -96,14 +95,14 @@ public class HarEtablertYtelseImplTest {
     @Test
     public void skal_gi_etablert_ytelse_med_tom_for_innvilget_periode_på_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
 
         SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
             Collections.singletonList(new LocalDateInterval(dagensDato.minusDays(10), dagensDato))
         );
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(null, true, br -> false,
-            new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, true,
+            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal)));
 
         // Assert
         assertThat(etablertYtelse).isTrue();
@@ -112,14 +111,14 @@ public class HarEtablertYtelseImplTest {
     @Test
     public void skal_ikkje_gi_etablert_ytelse_med_tom_for_avslått_periode_etter_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
 
         SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
             Collections.singletonList(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(5)))
         );
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(null, false, br -> false,
-            new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, false,
+            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal)));
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -128,14 +127,14 @@ public class HarEtablertYtelseImplTest {
     @Test
     public void skal_ikkje_gi_etablert_ytelse_med_tom_for_innvilget_periode_før_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
 
         SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
             Collections.singletonList(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5)))
         );
         // Act
-        boolean etablertYtelse = harEtablertYtelse.vurder(null, true, br -> false,
-            new UttakResultatHolderImpl( Optional.of(uttakResultatOriginal)));
+        boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, true,
+            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal)));
 
         // Assert
         assertThat(etablertYtelse).isFalse();
