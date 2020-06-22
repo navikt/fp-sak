@@ -72,4 +72,40 @@ public class UttakYrkesaktiviteterTest {
         assertThat(uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, dato)).isEqualTo(aktivStillingsprosent);
     }
 
+    @Test
+    public void skal_tåle_null_stillingsprosent_på_aktivitetsavtale() {
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repoProvider);
+        var dato = LocalDate.of(2020, 5, 4);
+        var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
+        var ansettelsesperiode = AktivitetsAvtaleBuilder.ny()
+            .medPeriode(DatoIntervallEntitet.fraOgMed(dato.minusYears(5)));
+        var aktivitetsavtaleUtenStillingsprosent = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+            .medSisteLønnsendringsdato(LocalDate.now())
+            .medPeriode(DatoIntervallEntitet.fraOgMed(dato.minusYears(5)));
+        var aktivitetsavtaleMedStillingsprosent = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+            .medSisteLønnsendringsdato(LocalDate.now())
+            .medProsentsats(BigDecimal.TEN)
+            .medPeriode(DatoIntervallEntitet.fraOgMed(dato.minusYears(5)));
+        var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+            .leggTilAktivitetsAvtale(ansettelsesperiode)
+            .leggTilAktivitetsAvtale(aktivitetsavtaleUtenStillingsprosent)
+            .leggTilAktivitetsAvtale(aktivitetsavtaleMedStillingsprosent);
+        var aktørArbeid = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty())
+            .medAktørId(behandling.getAktørId())
+            .leggTilYrkesaktivitet(yrkesaktivitet
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .medArbeidsgiver(arbeidsgiver));
+        var iayAggregat = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER)
+            .leggTilAktørArbeid(aktørArbeid);
+        var iayGrunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt()
+            .medData(iayAggregat)
+            .build();
+        var input = new UttakInput(BehandlingReferanse.fra(behandling, dato), iayGrunnlag, null)
+            .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, arbeidsgiver, null)));
+        var uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
+
+        assertThat(uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, dato)).isEqualTo(BigDecimal.TEN);
+    }
+
 }
