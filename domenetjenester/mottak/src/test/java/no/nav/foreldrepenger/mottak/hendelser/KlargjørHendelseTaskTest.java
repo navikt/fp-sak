@@ -23,10 +23,12 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.dødsfall.DødForretningshendelse;
 import no.nav.foreldrepenger.familiehendelse.dødsfall.DødfødselForretningshendelse;
 import no.nav.foreldrepenger.familiehendelse.fødsel.FødselForretningshendelse;
-import no.nav.foreldrepenger.kontrakter.abonnent.HendelseDto;
-import no.nav.foreldrepenger.kontrakter.abonnent.tps.DødHendelseDto;
-import no.nav.foreldrepenger.kontrakter.abonnent.tps.DødfødselHendelseDto;
-import no.nav.foreldrepenger.kontrakter.abonnent.tps.FødselHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.AktørIdDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.Endringstype;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødfødselHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.FødselHendelseDto;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.DødForretningshendelseSaksvelger;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.DødfødselForretningshendelseSaksvelger;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.ForretningshendelseSaksvelgerProvider;
@@ -37,7 +39,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 public class KlargjørHendelseTaskTest {
 
     @Test
-    public void skal_kalle_videre_på_domenetjeneste() throws Exception {
+    public void skal_kalle_videre_på_domenetjeneste() {
         ForretningshendelseMottak domenetjeneste = mock(ForretningshendelseMottak.class);
         KlargjørHendelseTask task = new KlargjørHendelseTask(domenetjeneste);
 
@@ -46,7 +48,7 @@ public class KlargjørHendelseTaskTest {
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
         var hendelse = new FødselHendelseDto();
         hendelse.setId("id_1");
-        hendelse.setAktørIdForeldre(Collections.singletonList(AktørId.dummy().getId()));
+        hendelse.setAktørIdForeldre(Collections.singletonList(new AktørIdDto(AktørId.dummy().getId())));
         hendelse.setFødselsdato(LocalDate.now());
         taskData.setPayload(JsonMapper.toJson(hendelse));
 
@@ -61,7 +63,7 @@ public class KlargjørHendelseTaskTest {
     }
 
     @Test
-    public void skal_motta_fødsel() throws Exception {
+    public void skal_motta_fødsel() {
         AktørId aktørId = AktørId.dummy();
         ForretningshendelseSaksvelgerProvider saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
         ForretningshendelseSaksvelger saksvelger = mock(FødselForretningshendelseSaksvelger.class);
@@ -77,7 +79,8 @@ public class KlargjørHendelseTaskTest {
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
         var hendelse = new FødselHendelseDto();
         hendelse.setId("id_1");
-        hendelse.setAktørIdForeldre(Collections.singletonList(aktørId.getId()));
+        hendelse.setEndringstype(Endringstype.OPPRETTET);
+        hendelse.setAktørIdForeldre(Collections.singletonList(new AktørIdDto(aktørId.getId())));
         hendelse.setFødselsdato(LocalDate.now());
         taskData.setPayload(JsonMapper.toJson(hendelse));
 
@@ -93,7 +96,7 @@ public class KlargjørHendelseTaskTest {
 
 
     @Test
-    public void skal_motta_dødfødsel() throws Exception {
+    public void skal_motta_dødfødsel() {
         ForretningshendelseSaksvelgerProvider saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
         ForretningshendelseSaksvelger saksvelger = mock(DødfødselForretningshendelseSaksvelger.class);
         when(saksvelger.finnRelaterteFagsaker(any())).thenReturn(new LinkedHashMap<BehandlingÅrsakType, List<Fagsak>>());
@@ -108,7 +111,8 @@ public class KlargjørHendelseTaskTest {
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
         var hendelse = new DødfødselHendelseDto();
         hendelse.setId("id_1");
-        hendelse.setAktørId(Collections.singletonList(AktørId.dummy().getId()));
+        hendelse.setEndringstype(Endringstype.OPPRETTET);
+        hendelse.setAktørId(Collections.singletonList(new AktørIdDto(AktørId.dummy().getId())));
         hendelse.setDødfødselsdato(LocalDate.now());
         taskData.setPayload(JsonMapper.toJson(hendelse));
 
@@ -122,7 +126,7 @@ public class KlargjørHendelseTaskTest {
     }
 
     @Test
-    public void skal_motta_død() throws Exception {
+    public void skal_motta_død() {
         ForretningshendelseSaksvelgerProvider saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
         ForretningshendelseSaksvelger saksvelger = mock(DødForretningshendelseSaksvelger.class);
         when(saksvelger.finnRelaterteFagsaker(any())).thenReturn(new LinkedHashMap<BehandlingÅrsakType, List<Fagsak>>());
@@ -137,7 +141,8 @@ public class KlargjørHendelseTaskTest {
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
         var hendelse = new DødHendelseDto();
         hendelse.setId("id_1");
-        hendelse.setAktørId(Collections.singletonList(AktørId.dummy().getId()));
+        hendelse.setEndringstype(Endringstype.OPPRETTET);
+        hendelse.setAktørId(Collections.singletonList(new AktørIdDto(AktørId.dummy().getId())));
         hendelse.setDødsdato(LocalDate.now());
         taskData.setPayload(JsonMapper.toJson(hendelse));
 

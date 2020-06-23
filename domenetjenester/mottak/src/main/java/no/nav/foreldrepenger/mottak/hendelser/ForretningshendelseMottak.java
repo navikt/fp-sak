@@ -25,16 +25,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Forretningshendelse;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.dødsfall.DødForretningshendelse;
 import no.nav.foreldrepenger.familiehendelse.dødsfall.DødfødselForretningshendelse;
 import no.nav.foreldrepenger.familiehendelse.fødsel.FødselForretningshendelse;
-import no.nav.foreldrepenger.kontrakter.abonnent.HendelseDto;
-import no.nav.foreldrepenger.kontrakter.abonnent.tps.DødHendelseDto;
-import no.nav.foreldrepenger.kontrakter.abonnent.tps.DødfødselHendelseDto;
-import no.nav.foreldrepenger.kontrakter.abonnent.tps.FødselHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødfødselHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.FødselHendelseDto;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
 import no.nav.foreldrepenger.mottak.hendelser.håndterer.ForretningshendelseHåndtererProvider;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.ForretningshendelseSaksvelgerProvider;
@@ -48,9 +49,9 @@ public class ForretningshendelseMottak {
     private static final LocalTime OPPDRAG_VÅKNER = LocalTime.of(6, 30);
 
     private static final Map<ForretningshendelseType, Function<HendelseDto , ? extends Forretningshendelse>> OVERSETTER = Map.of(
-        ForretningshendelseType.DØD, d -> new DødForretningshendelse(mapToAktørIds(d), ((DødHendelseDto)d).getDødsdato()),
-        ForretningshendelseType.DØDFØDSEL, d -> new DødfødselForretningshendelse(mapToAktørIds(d), ((DødfødselHendelseDto)d).getDødfødselsdato()),
-        ForretningshendelseType.FØDSEL, f -> new FødselForretningshendelse(mapToAktørIds(f), ((FødselHendelseDto)f).getFødselsdato())
+        ForretningshendelseType.DØD, d -> new DødForretningshendelse(mapToAktørIds(d), ((DødHendelseDto)d).getDødsdato(), getEndringstype(d)),
+        ForretningshendelseType.DØDFØDSEL, d -> new DødfødselForretningshendelse(mapToAktørIds(d), ((DødfødselHendelseDto)d).getDødfødselsdato(), getEndringstype(d)),
+        ForretningshendelseType.FØDSEL, f -> new FødselForretningshendelse(mapToAktørIds(f), ((FødselHendelseDto)f).getFødselsdato(), getEndringstype(f))
     );
 
     private Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -182,5 +183,9 @@ public class ForretningshendelseMottak {
 
     private static List<AktørId> mapToAktørIds(HendelseDto hendelseDto) {
         return hendelseDto.getAlleAktørId().stream().map(AktørId::new).collect(Collectors.toList());
+    }
+
+    private static Endringstype getEndringstype(HendelseDto d) {
+        return Endringstype.valueOf(d.getEndringstype().name());
     }
 }

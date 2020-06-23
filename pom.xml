@@ -69,7 +69,7 @@
 
         <metrics.version>3.2.5</metrics.version>
 
-        <fp-kontrakter.version>5.1-20200523185736-199c1db</fp-kontrakter.version>
+        <fp-kontrakter.version>5.1-20200810151031-853914b</fp-kontrakter.version>
 
         <kalkulus.version>1.0-2020.07.09.134511-2427b50</kalkulus.version>
     </properties>
@@ -191,6 +191,11 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.kontrakter</groupId>
                 <artifactId>grensesnittavstemming-v1</artifactId>
+                <version>${fp-kontrakter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+                <artifactId>abonnent-v2</artifactId>
                 <version>${fp-kontrakter.version}</version>
             </dependency>
             <dependency>

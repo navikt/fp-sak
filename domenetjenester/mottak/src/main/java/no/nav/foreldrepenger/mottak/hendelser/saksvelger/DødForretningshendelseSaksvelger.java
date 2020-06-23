@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.hendelser.saksvelger;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +15,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseHåndteringRepository;
 import no.nav.foreldrepenger.familiehendelse.dødsfall.DødForretningshendelse;
+import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseSaksvelger;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 
@@ -27,12 +30,15 @@ public class DødForretningshendelseSaksvelger implements ForretningshendelseSak
 
     private FagsakRepository fagsakRepository;
     private HendelseHåndteringRepository hendelseHåndteringRepository;
+    private HistorikkinnslagTjeneste historikkinnslagTjeneste;
 
     @Inject
     public DødForretningshendelseSaksvelger(BehandlingRepositoryProvider repositoryProvider,
-                                            HendelseHåndteringRepository hendelseHåndteringRepository) {
+                                            HendelseHåndteringRepository hendelseHåndteringRepository,
+                                            HistorikkinnslagTjeneste historikkinnslagTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.hendelseHåndteringRepository = hendelseHåndteringRepository;
+        this.historikkinnslagTjeneste = historikkinnslagTjeneste;
     }
 
     @Override
@@ -48,6 +54,12 @@ public class DødForretningshendelseSaksvelger implements ForretningshendelseSak
             .flatMap(aktørId -> hendelseHåndteringRepository.hentFagsakerSomHarAktørIdSomBarn(aktørId).stream())
             .filter(fagsak -> FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()) && fagsak.erÅpen())
             .collect(Collectors.toList()));
+
+        if (Endringstype.ANNULLERT.equals(forretningshendelse.getEndringstype())
+            || Endringstype.KORRIGERT.equals(forretningshendelse.getEndringstype())) {
+            resultat.values().stream().flatMap(Collection::stream)
+                .forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om død i folkeregisteret"));
+        }
 
         return resultat;
     }
