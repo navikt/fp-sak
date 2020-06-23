@@ -2,10 +2,14 @@ package no.nav.foreldrepenger.behandling.steg.iverksettevedtak;
 
 import java.util.Objects;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -15,11 +19,15 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjene
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 
-public abstract class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
+@BehandlingStegRef(kode = "IVEDSTEG")
+@BehandlingTypeRef("BT-006") //Innsyn
+@FagsakYtelseTypeRef()
+@ApplicationScoped
+public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
     private DokumentBestillerApplikasjonTjeneste dokumentBestillerTjeneste;
     private BehandlingRepository behandlingRepository;
 
-    protected IverksetteInnsynVedtakStegFelles() {
+    public IverksetteInnsynVedtakStegFelles() {
         // for CDI proxy
     }
 

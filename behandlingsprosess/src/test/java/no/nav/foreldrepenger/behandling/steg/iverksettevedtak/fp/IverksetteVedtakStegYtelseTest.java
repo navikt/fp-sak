@@ -1,5 +1,19 @@
 package no.nav.foreldrepenger.behandling.steg.iverksettevedtak.fp;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+
+import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.IverksetteVedtakStegFelles;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
@@ -20,21 +34,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStat
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.vedtak.fp.OpprettProsessTaskIverksettImpl;
+import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 import no.nav.vedtak.felles.testutilities.db.Repository;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-
-import java.time.LocalDateTime;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 public class IverksetteVedtakStegYtelseTest {
     @Rule
@@ -49,7 +51,7 @@ public class IverksetteVedtakStegYtelseTest {
     private Behandling behandling;
 
     @Mock
-    private OpprettProsessTaskIverksettImpl opprettProsessTaskIverksett;
+    private OpprettProsessTaskIverksett opprettProsessTaskIverksett;
 
     private Repository repository = repoRule.getRepository();
     private BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -58,11 +60,11 @@ public class IverksetteVedtakStegYtelseTest {
     @Mock
     private VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse;
 
-    private IverksetteVedtakStegFørstegang iverksetteVedtakSteg;
+    private IverksetteVedtakStegFelles iverksetteVedtakSteg;
 
     @Before
     public void setup() {
-        iverksetteVedtakSteg = new IverksetteVedtakStegFørstegang(repositoryProvider, opprettProsessTaskIverksett, vurderBehandlingerUnderIverksettelse);
+        iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett, vurderBehandlingerUnderIverksettelse);
         behandling = opprettBehandling();
     }
 

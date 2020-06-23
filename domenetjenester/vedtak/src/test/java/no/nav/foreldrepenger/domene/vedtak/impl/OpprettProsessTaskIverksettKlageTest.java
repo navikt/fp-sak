@@ -61,7 +61,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
+        opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -81,7 +81,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
+        opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -101,7 +101,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
+        opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -120,7 +120,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
+        opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -138,7 +138,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
+        opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -157,7 +157,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
+        opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -166,10 +166,10 @@ public class OpprettProsessTaskIverksettKlageTest {
             AvsluttOppgaveTaskProperties.TASKTYPE, OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
     }
 
-    private OpprettProsessTaskIverksettKlage opprettKlageProsessTask(ScenarioKlageEngangsstønad scenario) {
+    private OpprettProsessTaskIverksett opprettKlageProsessTask(ScenarioKlageEngangsstønad scenario) {
         var behandlingRepository = scenario.mockBehandlingRepositoryProvider().getBehandlingRepository();
         var klageRepository = scenario.getKlageRepository();
-        return new OpprettProsessTaskIverksettKlage(behandlingRepository, klageRepository, prosessTaskRepository, oppgaveTjeneste);
+        return new OpprettProsessTaskIverksett(prosessTaskRepository, behandlingRepository, null, klageRepository, oppgaveTjeneste);
     }
 
     @Test
@@ -183,7 +183,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
+        opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -203,7 +203,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
+        opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -222,7 +222,7 @@ public class OpprettProsessTaskIverksettKlageTest {
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
-        opprettProsessTaskIverksettKlage.opprettIverksettingstasker(behandling);
+        opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
