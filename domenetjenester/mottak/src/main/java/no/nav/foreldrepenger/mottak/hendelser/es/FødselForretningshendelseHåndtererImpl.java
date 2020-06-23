@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 import no.nav.foreldrepenger.mottak.hendelser.håndterer.ForretningshendelseHåndtererFelles;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 @ForretningshendelsestypeRef(ForretningshendelsestypeRef.FØDSEL_HENDELSE)
@@ -59,7 +58,7 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
 
     private boolean erRelevantForEngangsstønadSak(Behandling behandling) {
         LocalDate stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getUtledetSkjæringstidspunkt();
-        LocalDate idag = FPDateUtil.iDag();
+        LocalDate idag = LocalDate.now();
         // Gjelder terminsøknader pluss intervall. Øvrige tilfelle fanges opp i etterkontroll.
         if (idag.isBefore(stp.plus(tpsRegistreringsTidsrom))) {
             // Ønsker ikke revurderinger gjennom året, kun hvis sist vedtaksdato er året før fødsel er registrert

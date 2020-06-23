@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeS
 import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
@@ -38,7 +39,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class VurderFagsystemFellesUtils {
@@ -102,7 +102,7 @@ public class VurderFagsystemFellesUtils {
 
     public boolean harSakOpprettetInnenIntervall(List<Fagsak> sakerGittYtelseType) {
         return sakerGittYtelseType.stream()
-            .anyMatch(f -> f.getOpprettetTidspunkt() != null && f.getOpprettetTidspunkt().isAfter(FPDateUtil.nå().minus(PERIODE_FOR_AKTUELLE_SAKER)));
+            .anyMatch(f -> f.getOpprettetTidspunkt() != null && f.getOpprettetTidspunkt().isAfter(LocalDateTime.now().minus(PERIODE_FOR_AKTUELLE_SAKER)));
     }
 
     public boolean erFagsakPassendeForFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak) {

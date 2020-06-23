@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class KompletthetssjekkerTestUtil {
 
@@ -96,7 +95,7 @@ public class KompletthetssjekkerTestUtil {
     }
 
     public void byggOgLagreSøknadMedEksisterendeOppgittFordeling(Behandling behandling, boolean erEndringssøknad) {
-        byggOgLagreSøknadMedEksisterendeOppgittFordeling(behandling, erEndringssøknad, FPDateUtil.iDag());
+        byggOgLagreSøknadMedEksisterendeOppgittFordeling(behandling, erEndringssøknad, LocalDate.now());
     }
 
     public void byggOgLagreSøknadMedEksisterendeOppgittFordeling(Behandling behandling, boolean erEndringssøknad, LocalDate søknadsDato) {
@@ -125,7 +124,7 @@ public class KompletthetssjekkerTestUtil {
     }
 
     public void byggOppgittFordeling(Behandling behandling, Årsak utsettelseÅrsak, BigDecimal arbeidsprosent, boolean erArbeidstaker, boolean erFrilanser, boolean erSelvstendig) {
-        byggOppgittFordeling(behandling, FPDateUtil.iDag(), utsettelseÅrsak, arbeidsprosent, erArbeidstaker, erFrilanser, erSelvstendig);
+        byggOppgittFordeling(behandling, LocalDate.now(), utsettelseÅrsak, arbeidsprosent, erArbeidstaker, erFrilanser, erSelvstendig);
     }
 
     private void byggOppgittFordeling(Behandling behandling, LocalDate stp,  Årsak utsettelseÅrsak, BigDecimal arbeidsprosent, boolean erArbeidstaker, boolean erFrilanser, boolean erSelvstendig) {

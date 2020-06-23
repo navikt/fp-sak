@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.hendelser;
 
-import static no.nav.vedtak.util.FPDateUtil.iDag;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,7 +68,7 @@ public class ToForeldreBarnDødTjeneste {
     }
 
     private boolean erAktivNå(ForeldrepengerUttakPeriode periode) {
-        LocalDate iDag = iDag();
+        LocalDate iDag = LocalDate.now();
         return periode.getFom().isBefore(iDag) && periode.getTom().isAfter(iDag);
     }
 
@@ -95,7 +93,7 @@ public class ToForeldreBarnDødTjeneste {
     }
 
     private Integer avstandTilNåMedBuffer(LocalDate date) {
-        LocalDate iDag = iDag();
+        LocalDate iDag = LocalDate.now();
         if (date.isBefore(iDag)) {
             date = date.minusDays(BUFFER);
         }

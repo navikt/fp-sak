@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.KompletthetssjekkerTestUtil;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class KompletthetssjekkerSøknadRevurderingTest {
 
@@ -214,7 +213,7 @@ public class KompletthetssjekkerSøknadRevurderingTest {
     @Test
     public void skal_utlede_at_et_dokument_som_er_påkrevd_finnes_ved_vedtak_samme_dag() {
         // Arrange
-        LocalDate søknadsDato = FPDateUtil.iDag().minusWeeks(2);
+        LocalDate søknadsDato = LocalDate.now().minusWeeks(2);
         ScenarioMorSøkerForeldrepenger scenario = testUtil.opprettRevurderingsscenarioForMor();
         Behandling behandling = scenario.lagre(repositoryProvider);
         testUtil.byggOppgittFordeling(behandling, UtsettelseÅrsak.INSTITUSJON_SØKER, null, true, false, false);

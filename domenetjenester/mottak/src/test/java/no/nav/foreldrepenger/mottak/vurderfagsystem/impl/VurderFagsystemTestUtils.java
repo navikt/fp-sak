@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.vedtak.felles.testutilities.Whitebox;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class VurderFagsystemTestUtils {
 
@@ -109,7 +108,7 @@ public class VurderFagsystemTestUtils {
             .medSaksnummer(new Saksnummer(fagsakid + ""))
             .build();
         fagsak.setId(fagsakid);
-        Whitebox.setInternalState(fagsak,"opprettetTidspunkt", FPDateUtil.nå().minusDays(1));
+        Whitebox.setInternalState(fagsak,"opprettetTidspunkt", LocalDateTime.now().minusDays(1));
         if (erAvsluttet) {
             fagsak.setAvsluttet();
         }
