@@ -72,18 +72,14 @@ public class OpprettProsessTaskIverksett {
         List<ProsessTaskData> parallelle = new ArrayList<>();
         parallelle.add(getProsesstaskFor(SendVedtaksbrevTask.TASKTYPE));
         avsluttOppgave.ifPresent(parallelle::add);
-        if (behandling.erYtelseBehandling())
+        if (behandling.erYtelseBehandling()) {
             parallelle.add(getProsesstaskFor(VurderOgSendØkonomiOppdragTask.TASKTYPE));
+        }
         taskGruppe.addNesteParallell(parallelle);
 
         // Spesifikke tasks
         if (behandling.erYtelseBehandling()) {
-            if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-                taskGruppe.addNesteSekvensiell(getProsesstaskFor(VurderOppgaveArenaTask.TASKTYPE));
-                taskGruppe.addNesteSekvensiell(getProsesstaskFor(SettUtbetalingPåVentPrivatArbeidsgiverTask.TASKTYPE));
-                taskGruppe.addNesteSekvensiell(getProsesstaskFor(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE));
-            }
-            taskGruppe.addNesteSekvensiell(getProsesstaskFor(VEDTAK_TIL_DATAVAREHUS_TASK));
+            leggTilTasksYtelsesBehandling(behandling, taskGruppe);
         } else {
             leggTilTasksIkkeYtelse(behandling, taskGruppe);
         }
@@ -94,7 +90,16 @@ public class OpprettProsessTaskIverksett {
         prosessTaskRepository.lagre(taskGruppe);
     }
 
-    public void leggTilTasksIkkeYtelse(Behandling behandling, ProsessTaskGruppe gruppe) {
+    private void leggTilTasksYtelsesBehandling(Behandling behandling, ProsessTaskGruppe taskGruppe) {
+        if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
+            taskGruppe.addNesteSekvensiell(getProsesstaskFor(VurderOppgaveArenaTask.TASKTYPE));
+            taskGruppe.addNesteSekvensiell(getProsesstaskFor(SettUtbetalingPåVentPrivatArbeidsgiverTask.TASKTYPE));
+            taskGruppe.addNesteSekvensiell(getProsesstaskFor(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE));
+        }
+        taskGruppe.addNesteSekvensiell(getProsesstaskFor(VEDTAK_TIL_DATAVAREHUS_TASK));
+    }
+
+    private void leggTilTasksIkkeYtelse(Behandling behandling, ProsessTaskGruppe gruppe) {
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             opprettTaskDataForKlage(behandling).ifPresent(gruppe::addNesteSekvensiell);
         }
@@ -136,7 +141,7 @@ public class OpprettProsessTaskIverksett {
         return opprettOppgave;
     }
 
-    protected ProsessTaskData getProsesstaskFor(String tasktype) {
+    private ProsessTaskData getProsesstaskFor(String tasktype) {
         var task = new ProsessTaskData(tasktype);
         task.setPrioritet(50);
         return task;
