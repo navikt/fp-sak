@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 @BehandlingTypeRef
@@ -77,7 +76,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
             return KompletthetResultat.oppfylt();
         } else {
             AksjonspunktDefinisjon definisjon = AUTO_VENTER_PÅ_KOMPLETT_SØKNAD;
-            LocalDateTime ønsketFrist = FPDateUtil.nå().plusDays(definisjon.getFristPeriod().getDays());
+            LocalDateTime ønsketFrist = LocalDateTime.now().plusDays(definisjon.getFristPeriod().getDays());
             return KompletthetResultat.ikkeOppfylt(ønsketFrist, Venteårsak.AVV_DOK);
         }
     }

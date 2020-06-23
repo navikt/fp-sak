@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * Fellesklasse for gjenbrukte metode av subklasser for {@link KompletthetsjekkerImpl}.
@@ -69,7 +68,7 @@ public class KompletthetsjekkerFelles {
     }
 
     public Optional<LocalDateTime> finnVentefrist(LocalDate ønsketFrist) {
-        if (ønsketFrist.isAfter(FPDateUtil.iDag())) {
+        if (ønsketFrist.isAfter(LocalDate.now())) {
             LocalDateTime ventefrist = ønsketFrist.atStartOfDay();
             return Optional.of(ventefrist);
         }
@@ -77,7 +76,7 @@ public class KompletthetsjekkerFelles {
     }
 
     public LocalDateTime finnVentefristTilManglendeSøknad() {
-        return FPDateUtil.nå().plusWeeks(VENTEFRIST_FOR_MANGLENDE_SØKNAD);
+        return LocalDateTime.now().plusWeeks(VENTEFRIST_FOR_MANGLENDE_SØKNAD);
     }
 
     public void sendBrev(Long behandlingId, DokumentMalType dokumentMalType, String årsakskode) {

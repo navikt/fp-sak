@@ -6,9 +6,7 @@ import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeS
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -24,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesUtils;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemTjeneste;
-import no.nav.vedtak.util.FPDateUtil;
 
 @FagsakYtelseTypeRef("SVP")
 @ApplicationScoped
@@ -51,20 +48,31 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
     @Override
     public BehandlendeFagsystem vurderFagsystemStrukturertSøknad(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
-        return vurderElektroniskDokument(vurderFagsystem, sakerGittYtelseType);
+        if (sakerGittYtelseType.isEmpty()) {
+            return new BehandlendeFagsystem(VEDTAKSLØSNING);
+        }
+
+        boolean harSattHendelseDato = vurderFagsystem.getBarnTermindato().isPresent() || vurderFagsystem.getBarnFodselsdato().isPresent();
+        if (!harSattHendelseDato) {
+            return vurderElektroniskSøknadGammel(vurderFagsystem, sakerGittYtelseType);
+        }
+
+        List<Fagsak> relevanteFagsaker = sakerGittYtelseType.stream()
+            .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s))
+            .collect(Collectors.toList());
+
+        if (relevanteFagsaker.size() > 1) {
+            return new BehandlendeFagsystem(MANUELL_VURDERING);
+        }
+        if (relevanteFagsaker.isEmpty()) {
+            return new BehandlendeFagsystem(VEDTAKSLØSNING);
+        }
+        return relevanteFagsaker.get(0).erÅpen() ? new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(relevanteFagsaker.get(0).getSaksnummer()):
+            new BehandlendeFagsystem(MANUELL_VURDERING);
     }
 
     @Override
     public BehandlendeFagsystem vurderFagsystemInntektsmelding(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
-        return vurderElektroniskDokument(vurderFagsystem, sakerGittYtelseType);
-    }
-
-    @Override
-    public BehandlendeFagsystem vurderFagsystemUstrukturert(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
-        return fellesUtils.standardUstrukturertDokumentVurdering(sakerGittYtelseType).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
-    }
-
-    private BehandlendeFagsystem vurderElektroniskDokument(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
         if (sakerGittYtelseType.isEmpty()) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
@@ -90,6 +98,30 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         return new BehandlendeFagsystem(VEDTAKSLØSNING);
     }
 
+    @Override
+    public BehandlendeFagsystem vurderFagsystemUstrukturert(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
+        return fellesUtils.standardUstrukturertDokumentVurdering(sakerGittYtelseType).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
+    }
+
+    private BehandlendeFagsystem vurderElektroniskSøknadGammel(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
+        if (sakerGittYtelseType.isEmpty()) {
+            return new BehandlendeFagsystem(VEDTAKSLØSNING);
+        }
+
+        List<Fagsak> åpneFagsaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType);
+        if (åpneFagsaker.size() > 1) {
+            return new BehandlendeFagsystem(MANUELL_VURDERING);
+        }
+        if (åpneFagsaker.size() == 1) {
+            return vurderFørstegangsbehandling(vurderFagsystem, åpneFagsaker.get(0));
+        }
+
+        List<Fagsak> aktuelleSakerForMatch = sakerGittYtelseType.stream()
+            .filter(f -> fellesUtils.finnGjeldendeFamilieHendelse(f).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE))
+            .collect(Collectors.toList());
+        return aktuelleSakerForMatch.isEmpty() ? new BehandlendeFagsystem(VEDTAKSLØSNING) : new BehandlendeFagsystem(MANUELL_VURDERING);
+    }
+
     private BehandlendeFagsystem vurderFørstegangsbehandling(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
         if (vurderFagsystem.erInntektsmelding() || fagsakManglerSøknad(fagsak)) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(fagsak.getSaksnummer());
@@ -106,13 +138,13 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
     private Boolean hendelseDatoIPeriode(FamilieHendelseEntitet familieHendelse) {
         if (familieHendelse.getFødselsdato().isPresent()) {
-            if (familieHendelse.getFødselsdato().get().isAfter(FPDateUtil.iDag().minus(seksMåneder))) {
+            if (familieHendelse.getFødselsdato().get().isAfter(LocalDate.now().minus(seksMåneder))) {
                 return true;
             }
         }
         if (familieHendelse.getTerminbekreftelse().isPresent()) {
             LocalDate termindato = familieHendelse.getTerminbekreftelse().get().getTermindato();
-            return termindato.isAfter(FPDateUtil.iDag().minus(seksMåneder));
+            return termindato.isAfter(LocalDate.now().minus(seksMåneder));
         }
         return false;
     }

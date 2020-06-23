@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.DokumentPersistererTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentWrapper;
 import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class MottatteDokumentTjeneste {
@@ -38,13 +37,13 @@ public class MottatteDokumentTjeneste {
     }
 
     /**
-     * 
+     *
      * @param fristForInnsendingAvDokumentasjon - Frist i uker fom siste vedtaksdato
      */
     @Inject
     public MottatteDokumentTjeneste(@KonfigVerdi(value = "sak.frist.innsending.dok", defaultVerdi = "P6W") Period fristForInnsendingAvDokumentasjon,
                                     DokumentPersistererTjeneste dokumentPersistererTjeneste,
-                                    MottatteDokumentRepository mottatteDokumentRepository, 
+                                    MottatteDokumentRepository mottatteDokumentRepository,
                                     BehandlingRepositoryProvider behandlingRepositoryProvider) {
         this.fristForInnsendingAvDokumentasjon = fristForInnsendingAvDokumentasjon;
         this.dokumentPersistererTjeneste = dokumentPersistererTjeneste;
@@ -108,7 +107,7 @@ public class MottatteDokumentTjeneste {
         Optional<Behandling> behandlingOptional = behandlingRepositoryProvider.getBehandlingRepository().finnSisteAvsluttedeIkkeHenlagteBehandling(sak.getId());
         return behandlingOptional.flatMap(b -> behandlingRepositoryProvider.getBehandlingVedtakRepository().hentBehandlingvedtakForBehandlingId(b.getId()))
             .map(BehandlingVedtak::getVedtaksdato)
-            .map(dato -> dato.isBefore(FPDateUtil.iDag().minus(fristForInnsendingAvDokumentasjon))).orElse(Boolean.FALSE);
+            .map(dato -> dato.isBefore(LocalDate.now().minus(fristForInnsendingAvDokumentasjon))).orElse(Boolean.FALSE);
     }
 
     private boolean erAvsluttetPgaManglendeDokumentasjon(Behandling behandling) {
