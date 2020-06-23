@@ -87,8 +87,12 @@ public class OppdragPatchDto implements AbacDto {
     boolean isSumBeløpSannsynlig() {
         long estimertSum = 0;
         for (OppdragslinjePatchDto dto : oppdragslinjer) {
-            long dager = ChronoUnit.DAYS.between(dto.getFom(), dto.getTom()) + 1;
-            estimertSum += dager * dto.getSats();
+            if ("ENG".equals(dto.getSatsType())) {
+                estimertSum += dto.getSats();
+            } else {
+                long dager = ChronoUnit.DAYS.between(dto.getFom(), dto.getTom()) + 1;
+                estimertSum += dager * dto.getSats();
+            }
         }
         //beløp for FP kan være opptil 6G over ett år
         return estimertSum < 600000;
