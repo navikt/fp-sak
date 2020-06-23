@@ -108,7 +108,7 @@ public class VurderOpphørAvYtelser  {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(gjeldendeFagsak.getYtelseType())) {
             return;
         }
-        // Finner første fradato i vedtatt periode for iverksatt behandling
+        // Finner første fradato i utbetalingsperioden for iverksatt behandling
         LocalDate startDatoIVB = finnMinDato(behandlingId);
         if (Tid.TIDENES_ENDE.equals(startDatoIVB)) {
             return;
@@ -167,17 +167,15 @@ public class VurderOpphørAvYtelser  {
                 }
                 LocalDate startDatoverlappBeh = finnMinDato(overlappFPBeh.getId());
 
-//              Overlapp med løpende foreldrepenger på samme barn - skal opprette revurdering på innvilget svp behandling
+//              Overlapp med løpende foreldrepenger på samme barn - opprettes revurdering på innvilget svp behandling
                 if (startDatoIVB.isBefore(startDatoverlappBeh)) {
-//                    To do når overlapp er verifisert
-//                    håndtereOpphør(gjeldendeSVPsak);
-                    LOG.info("Overlapp SVP: SVP-sak {} overlapper med FP-sak på samme barn {} Gi beskjed til saksbehandler", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
-//              //Overlapp med løpende foreldrepenger og svp for nytt barn - skal vurdere opphør på foreldrepenger
+                    håndtereOpphør(gjeldendeSVPsak);
+                    LOG.info("Overlapp SVP: SVP-sak {} overlapper med FP-sak på samme barn {}", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
+//              //Overlapp med løpende foreldrepenger og svp for nytt barn - opprettes revurdering på løpende foreldrepenger-sak
                 } else if (erFullUtbetalingSistePeriode(fagsak.getId())) {
-//                    To do når overlapp er verifisert
-//                    håndtereOpphør(fagsak);
-                    LOG.info("Overlapp SVP: SVP-sak {} overlapper med FP-sak {} Gi beskjed til saksbehandler", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
-//              //Overlapp med løpenge graderte foreldrepenger, kan være tillatt så derfor logger vi foreløpig
+                    håndtereOpphør(fagsak);
+                    LOG.info("Overlapp SVP: SVP-sak {} overlapper med FP-sak {}", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
+//              //Overlapp med løpenge graderte foreldrepenger -  kan være tillatt så derfor logger vi foreløpig
                 } else {
                     LOG.info("Overlapp SVP: SVP-sak {} overlapper med gradert FP-sak {}. Ingen revurdering opprettet", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
                 }
