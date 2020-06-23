@@ -29,7 +29,7 @@ public class OppdragslinjePatchDto {
     private LocalDate opphørFom;
 
     @NotNull
-    @Pattern(regexp = "^(FP(AD|SV)?(ATORD|ATFRI|SND-OP|ATAL|ATSJO|SNDDM-OP|SNDJB-OP|SNDFI|REFAG-IOP|REFAGFER-IOP))|FPENFOD-OP|FPENAD-OP$")
+    @Pattern(regexp = "^(FP(AD|SV)?(ATORD|ATFRI|SND-OP|ATAL|ATSJO|SNDDM-OP|SNDJB-OP|SNDFI|REFAG-IOP|REFAGFER-IOP))|FP(AD|SV)?REFAGFER-IOP|FPATFER|FPENFOD-OP|FPENAD-OP$")
     @JsonProperty("kodeKlassifik")
     private String kodeKlassifik;
 
@@ -80,10 +80,10 @@ public class OppdragslinjePatchDto {
 
     @AssertTrue
     boolean isPeriodeSannsynlig() {
-        long antallDager = ChronoUnit.DAYS.between(fom, tom);
+        long antallDager = ChronoUnit.DAYS.between(fom, tom) + 1;
         switch (satsType) {
             case "ENG":
-                return antallDager == 1;
+                return antallDager <= 31; //for feriepenger brukes 1 måned, for ES brukes 1 dag
             case "DAG":
                 //vanligvis begrenset til 17-18 uker, men kan være lenger ved gradert uttak
                 int maxSannsynligLengdeDager = 38 * 7;
