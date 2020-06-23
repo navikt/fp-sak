@@ -29,7 +29,7 @@ public class HendelseHåndteringRepository {
 
     public List<Fagsak> hentFagsakerSomHarAktørIdSomBarn(AktørId aktørId) {
         TypedQuery<Fagsak> query = entityManager.createQuery(
-            "select f from Fagsak f " +
+            "select distinct f from Fagsak f " +
                 "inner join Behandling b on b.fagsak = f " +
                 "inner join PersonopplysningGrunnlagEntitet gr on gr.behandlingId = b.id " +
                 "inner join PersonInformasjon poi on gr.registrertePersonopplysninger = poi " +

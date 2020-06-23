@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
-import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -199,6 +197,20 @@ public class HistorikkinnslagTjeneste {
         HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL)
             .medBegrunnelse(behandlingÅrsakType);
+        builder.build(historikkinnslag);
+
+        historikkRepository.lagre(historikkinnslag);
+    }
+
+    public void opprettHistorikkinnslagForEndringshendelse(Fagsak fagsak, String begrunnelse) {
+        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
+        historikkinnslag.setType(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL);
+        historikkinnslag.setFagsakId(fagsak.getId());
+
+        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
+            .medHendelse(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL)
+            .medBegrunnelse(begrunnelse);
         builder.build(historikkinnslag);
 
         historikkRepository.lagre(historikkinnslag);
