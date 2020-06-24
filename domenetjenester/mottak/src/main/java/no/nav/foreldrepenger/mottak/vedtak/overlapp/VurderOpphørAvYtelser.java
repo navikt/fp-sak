@@ -198,9 +198,10 @@ public class VurderOpphørAvYtelser  {
             var behandlingId = sisteBehandling.get().getId();
             var lås = behandlingRepository.taSkriveLås(behandlingId);
             var behandling = behandlingRepository.hentBehandling(behandlingId);
+            var beskrivelse = String.format("Overlapp identifisert: Vurder saksnr %s", sakOpphør.getSaksnummer());
 
             opprettTaskForÅVurdereKonsekvens(sakOpphør.getId(), behandling.getBehandlendeEnhet(),
-                "Overlapp identfisert: Vurder ytelse", Optional.empty());
+               beskrivelse, Optional.empty());
 
             var harÅpenOrdinærBehandling = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(sakOpphør.getId());
             if (!harÅpenOrdinærBehandling) {
