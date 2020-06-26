@@ -132,6 +132,12 @@ public class StønadskontoSaldoTjeneste {
             .sum() == 0;
     }
 
+    public int finnStønadRest(UttakInput uttakInput) {
+        var saldoUtregning = finnSaldoUtregning(uttakInput);
+        return Stream.of(Stønadskontotype.MØDREKVOTE, Stønadskontotype.FEDREKVOTE, Stønadskontotype.FORELDREPENGER, Stønadskontotype.FELLESPERIODE)
+            .mapToInt(saldoUtregning::saldo).sum();
+    }
+
     private static FastsattUttakPeriode map(UttakResultatPeriodeEntitet periode) {
         return new FastsattUttakPeriode.Builder()
             .medTidsperiode(periode.getFom(), periode.getTom())

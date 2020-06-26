@@ -20,7 +20,6 @@ import java.util.Optional;
 @FagsakYtelseTypeRef("SVP")
 public class SvpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAvslutningsdatoOppdaterer {
 
-    private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
 
     @Inject
     public SvpFagsakRelasjonAvslutningsdatoOppdaterer(BehandlingRepositoryProvider behandlingRepositoryProvider,
@@ -45,12 +44,7 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAv
         Optional<Behandling> behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
         if (behandling.isPresent()) {
             avsluttningsdato = avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(behandling.get(), avsluttningsdato);
-            avsluttningsdato = avsluttningsdatoHvisDetIkkeErStønadsdagerIgjen(behandling.get(), avsluttningsdato);
-            if(fagsakRelasjon.getFagsakNrTo().isEmpty()){
-                Optional<LocalDate> sisteUttaksdato = hentSisteUttaksdatoForFagsak(behandling.get().getFagsakId());
-                if(sisteUttaksdato.isPresent() && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, sisteUttaksdato.get().plusDays(1)))avsluttningsdato = sisteUttaksdato.get().plusDays(1);
-            }
-            avsluttningsdato = avsluttningsdatoHvisDetErStønadsdagerIgjen(behandling.get(), avsluttningsdato);
+            avsluttningsdato = finnAvsluttningsdatoForRelaterteBehandlinger(behandling.get(), avsluttningsdato);
         }
 
         if (avsluttningsdato == null) {
@@ -58,12 +52,5 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAv
         }
         return avsluttningsdato;
     }
-
-    private Optional<LocalDate> hentSisteUttaksdatoForFagsak(Long fagsakId) {
-        Optional<Behandling> sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
-        if (sisteYtelsesvedtak.isPresent()) {
-            var uttakInput = uttakInputTjeneste.lagInput(sisteYtelsesvedtak.get());
-            return maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
-        } else return Optional.empty();
-    }
 }
+
