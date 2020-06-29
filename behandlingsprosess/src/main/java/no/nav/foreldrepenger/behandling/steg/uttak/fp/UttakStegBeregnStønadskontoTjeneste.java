@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -111,7 +110,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
     private boolean harTrekkdagerEllerUtbetaling(ForeldrepengerUttakPeriode periode) {
         return periode.getAktiviteter()
             .stream()
-            .anyMatch(aktivitet -> aktivitet.getTrekkdager().merEnn0() || aktivitet.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) > 0);
+            .anyMatch(aktivitet -> aktivitet.getTrekkdager().merEnn0() || aktivitet.getUtbetalingsgrad().harUtbetaling());
     }
 
     enum  BeregningingAvStønadskontoResultat {

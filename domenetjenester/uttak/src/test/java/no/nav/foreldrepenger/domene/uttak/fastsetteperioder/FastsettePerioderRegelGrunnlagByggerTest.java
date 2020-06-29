@@ -30,10 +30,12 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -280,7 +282,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødrekvote, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(30))
             .medTrekkonto(StønadskontoType.MØDREKVOTE)
-            .medUtbetalingsgrad(BigDecimal.TEN)
+            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
             .medArbeidsprosent(BigDecimal.ZERO).build();
 
         perioder.leggTilPeriode(uttakMødrekvote);
@@ -293,7 +295,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakFellesperiode, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(20))
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
-            .medUtbetalingsgrad(BigDecimal.TEN)
+            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
             .medArbeidsprosent(BigDecimal.valueOf(10)).build();
 
         perioder.leggTilPeriode(uttakFellesperiode);
@@ -306,7 +308,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         UttakResultatPeriodeAktivitetEntitet.builder(utsettelse, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(20))
             .medTrekkonto(StønadskontoType.UDEFINERT)
-            .medUtbetalingsgrad(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
             .medArbeidsprosent(BigDecimal.ZERO).build();
 
         perioder.leggTilPeriode(utsettelse);
@@ -401,7 +403,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             .medArbeidsgiver(virksomhet)
             .medErArbeidstaker(true)
             .medSamtidigUttak(true)
-            .medSamtidigUttaksprosent(BigDecimal.TEN)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .build();
 
         Behandling behandling = setupScenario(Collections.singletonList(oppgittPeriode));
@@ -419,7 +421,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         var oppittePerioder = grunnlag.getSøknad().getOppgittePerioder();
 
         assertThat(oppittePerioder).isNotEmpty();
-        assertThat(oppittePerioder.get(0).getSamtidigUttaksprosent()).isEqualTo(BigDecimal.TEN);
+        assertThat(oppittePerioder.get(0).getSamtidigUttaksprosent()).isEqualTo(SamtidigUttaksprosent.TEN.decimalValue());
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {

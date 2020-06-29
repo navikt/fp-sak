@@ -42,10 +42,13 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     private boolean samtidigUttak;
 
     @Column(name = "samtidig_uttaksprosent")
-    private BigDecimal samtidigUttaksprosent;
+    private SamtidigUttaksprosent samtidigUttaksprosent;
 
     @Column(name = "mottatt_dato")
     private LocalDate mottattDato;
+
+    @Column(name = "mottatt_dato_2")
+    private LocalDate mottattDatoTemp;
 
     @Column(name = "MORS_AKTIVITET", updatable = false, nullable = false)
     @Convert(converter = MorsAktivitet.KodeverdiConverter.class)
@@ -67,12 +70,16 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
         return samtidigUttak;
     }
 
-    public BigDecimal getSamtidigUttaksprosent() {
+    public SamtidigUttaksprosent getSamtidigUttaksprosent() {
         return isSamtidigUttak() ? samtidigUttaksprosent : null;
     }
 
     public LocalDate getMottattDato() {
         return mottattDato;
+    }
+
+    public LocalDate getMottattDatoTemp() {
+        return mottattDatoTemp;
     }
 
     public MorsAktivitet getMorsAktivitet() {
@@ -112,13 +119,18 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
             return this;
         }
 
-        public Builder medSamtidigUttaksprosent(BigDecimal samtidigUttaksprosent) {
+        public Builder medSamtidigUttaksprosent(SamtidigUttaksprosent samtidigUttaksprosent) {
             kladd.samtidigUttaksprosent = samtidigUttaksprosent;
             return this;
         }
 
         public Builder medMottattDato(LocalDate mottattDato) {
             kladd.mottattDato = mottattDato;
+            return this;
+        }
+
+        public Builder medMottattDatoTemp(LocalDate mottattDatoTemp) {
+            kladd.mottattDatoTemp = mottattDatoTemp;
             return this;
         }
 

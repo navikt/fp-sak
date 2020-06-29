@@ -42,8 +42,10 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioK
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -343,7 +345,7 @@ public class BehandlingDvhMapperTest {
                                                                      LocalDate tom,
                                                                      StønadskontoType stønadskontoType,
                                                                      BigDecimal graderingArbeidsprosent) {
-        return opprettUttakResultatPeriode(resultat, fom, tom, stønadskontoType, graderingArbeidsprosent, BigDecimal.valueOf(100));
+        return opprettUttakResultatPeriode(resultat, fom, tom, stønadskontoType, graderingArbeidsprosent, new Utbetalingsgrad(100));
     }
 
     private UttakResultatPerioderEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,
@@ -351,7 +353,7 @@ public class BehandlingDvhMapperTest {
                                                                      LocalDate tom,
                                                                      StønadskontoType stønadskontoType,
                                                                      BigDecimal graderingArbeidsprosent,
-                                                                     BigDecimal utbetalingsgrad) {
+                                                                     Utbetalingsgrad utbetalingsgrad) {
 
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
@@ -362,7 +364,7 @@ public class BehandlingDvhMapperTest {
             .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medGraderingArbeidsprosent(graderingArbeidsprosent)
             .medSamtidigUttak(true)
-            .medSamtidigUttaksprosent(BigDecimal.TEN)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .build();
         UttakResultatDokRegelEntitet dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
             .medRegelInput(" ")

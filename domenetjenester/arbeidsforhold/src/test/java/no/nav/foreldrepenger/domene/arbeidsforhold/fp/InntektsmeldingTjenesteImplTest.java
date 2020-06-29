@@ -116,8 +116,6 @@ public class InntektsmeldingTjenesteImplTest {
 
         this.arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet1.getOrgnr());
         tpsTjeneste = mock(PersonIdentTjeneste.class);
-        var t = new PersonIdent("12345678901");
-        when(tpsTjeneste.hentFnrForAktør(Mockito.any(AktørId.class))).thenReturn(t);
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet1);

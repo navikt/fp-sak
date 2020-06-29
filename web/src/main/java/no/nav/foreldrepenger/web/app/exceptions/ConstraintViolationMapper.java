@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.vedtak.feil.Feil;
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViolationException> {
 
@@ -43,11 +44,18 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
             String feltNavn = getFeltNavn(constraintViolation.getPropertyPath());
             feilene.add(new FeltFeilDto(feltNavn, constraintViolation.getMessage(), kode));
         }
-        List<String> feltNavn = feilene.stream().map(felt -> felt.getNavn()).collect(Collectors.toList());
+        List<String> feltNavn = feilene.stream().map(FeltFeilDto::getNavn).collect(Collectors.toList());
 
-        Feil feil = FeltValideringFeil.FACTORY.feltverdiKanIkkeValideres(feltNavn);
+        Feil feil = erServerkall()
+            ? FeltValideringFeil.FACTORY.feltverdiKanIkkeValideresVedServerkall(feltNavn)
+            : FeltValideringFeil.FACTORY.feltverdiKanIkkeValideres(feltNavn);
         feil.log(log);
         return lagResponse(new FeilDto(feil.getFeilmelding(), feilene));
+    }
+
+    private static boolean erServerkall() {
+        String brukerUuid = SubjectHandler.getSubjectHandler().getUid();
+        return brukerUuid != null && brukerUuid.startsWith("srv");
     }
 
     private static Response lagResponse(FeilDto entity) {

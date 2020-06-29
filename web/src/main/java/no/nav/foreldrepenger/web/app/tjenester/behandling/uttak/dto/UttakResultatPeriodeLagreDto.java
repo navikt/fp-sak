@@ -1,23 +1,20 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
@@ -54,10 +51,8 @@ public class UttakResultatPeriodeLagreDto {
 
     private boolean samtidigUttak;
 
-    @Min(0)
-    @Max(100)
-    @Digits(integer = 3, fraction = 2)
-    private BigDecimal samtidigUttaksprosent;
+    @Valid
+    private SamtidigUttaksprosent samtidigUttaksprosent;
 
     private boolean graderingInnvilget;
 
@@ -113,8 +108,11 @@ public class UttakResultatPeriodeLagreDto {
         return samtidigUttak;
     }
 
-    public BigDecimal getSamtidigUttaksprosent() {
-        return isSamtidigUttak() ? samtidigUttaksprosent : null;
+    public SamtidigUttaksprosent getSamtidigUttaksprosent() {
+        if (isSamtidigUttak()) {
+            return samtidigUttaksprosent;
+        }
+        return null;
     }
 
     public boolean isGraderingInnvilget() {
@@ -170,7 +168,7 @@ public class UttakResultatPeriodeLagreDto {
             return this;
         }
 
-        public Builder medSamtidigUttaksprosent (BigDecimal samtidigUttaksprosent) {
+        public Builder medSamtidigUttaksprosent (SamtidigUttaksprosent samtidigUttaksprosent) {
             kladd.samtidigUttaksprosent = samtidigUttaksprosent;
             return this;
         }

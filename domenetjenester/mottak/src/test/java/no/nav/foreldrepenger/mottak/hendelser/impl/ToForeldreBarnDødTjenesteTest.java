@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -174,7 +175,7 @@ public class ToForeldreBarnDødTjenesteTest {
     private ForeldrepengerUttakPeriode lagPeriodeMedUtbetalingsgrad(LocalDate fom, LocalDate tom, Long utbetalingsgrad) {
         var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medArbeidsprosent(BigDecimal.valueOf(100))
-            .medUtbetalingsgrad(BigDecimal.valueOf(utbetalingsgrad))
+            .medUtbetalingsgrad(new Utbetalingsgrad(utbetalingsgrad))
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
             .build();
         return new ForeldrepengerUttakPeriode.Builder()

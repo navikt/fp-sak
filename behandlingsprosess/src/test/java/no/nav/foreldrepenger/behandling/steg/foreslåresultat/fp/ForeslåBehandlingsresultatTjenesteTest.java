@@ -21,9 +21,7 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.ErEndringIUttakImpl;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.HarEtablertYtelseImpl;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.HarEtablertYtelseFP;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingBehandlingsresultatutleder;
 import no.nav.foreldrepenger.behandling.steg.foreslåresultat.AvslagsårsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -48,8 +46,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -97,11 +95,9 @@ public class ForeslåBehandlingsresultatTjenesteTest {
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
             beregningsgrunnlagTjeneste,
             opphørUttakTjeneste,
-            new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
+            new HarEtablertYtelseFP(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
                 uttakTjeneste, repositoryProvider.getBehandlingVedtakRepository()),
-            new ErEndringIUttakImpl(),
-            new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl(),
-            skjæringstidspunktTjeneste,
+                skjæringstidspunktTjeneste,
             medlemTjeneste,
             uttakTjeneste));
         tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,

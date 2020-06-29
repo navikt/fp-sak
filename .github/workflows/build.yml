@@ -20,7 +20,7 @@ jobs:
           echo "::set-env name=CACHE_KEY::$(expr $(date +%V) - 1 + 1)"
           echo "::set-env name=PREVIOUS_CACHE_KEY::$(expr $(date +%V) - 1)"
       - name: Henter maven avhengigheter som er cachet
-        uses: actions/cache@v1.1.2
+        uses: actions/cache@v2
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
@@ -67,7 +67,7 @@ jobs:
 
       - name: Bygg og push docker-image for distribuering
         if: success()
-        uses: whoan/docker-build-with-cache-action@v5.0.1
+        uses: whoan/docker-build-with-cache-action@v5.3.3
         with:
           username: x-access-token
           password: "${{ secrets.GITHUB_ACCESS_TOKEN }}"
@@ -78,7 +78,7 @@ jobs:
 
       - name: Bygg og push docker-image for bruk under testing
         if: success()
-        uses: whoan/docker-build-with-cache-action@v5.0.1
+        uses: whoan/docker-build-with-cache-action@v5.3.3
         with:
           username: x-access-token
           password: "${{ secrets.GITHUB_ACCESS_TOKEN }}"

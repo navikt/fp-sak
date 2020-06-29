@@ -39,7 +39,8 @@ public class UttakYrkesaktiviteter {
         LocalDate skjæringstidspunkt = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
 
         AktørId aktørId = ref.getAktørId();
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).etter(skjæringstidspunkt);
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
+            grunnlag.getAktørArbeidFraRegister(aktørId)).etter(skjæringstidspunkt);
 
         return filter.getYrkesaktiviteter()
             .stream()
@@ -152,7 +153,12 @@ public class UttakYrkesaktiviteter {
     private AktivitetsAvtale finnAktivitetPåDato(Collection<AktivitetsAvtale> aktivitetsAvtaler, LocalDate dato) {
         Optional<AktivitetsAvtale> overlapper = aktivitetsAvtaler.stream()
             .filter(aa -> riktigDato(dato, aa))
-            .max(Comparator.comparing(o -> o.getProsentsats().getVerdi()));
+            .max(Comparator.comparing(o -> {
+                if (o.getProsentsats() == null) {
+                    return BigDecimal.ZERO;
+                }
+                return o.getProsentsats().getVerdi();
+            }));
         if (overlapper.isPresent()) {
             return overlapper.get();
         }

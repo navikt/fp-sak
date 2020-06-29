@@ -19,11 +19,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -128,6 +129,8 @@ public class VedtaksperioderHelper {
         finnOppholdsÅrsak(up).ifPresent(builder::medÅrsak);
         finnOverføringÅrsak(up).ifPresent(builder::medÅrsak);
         finnSamtidigUttaksprosent(up).ifPresent(builder::medSamtidigUttaksprosent);
+        builder.medMottattDato(up.getPeriodeSøknad().orElseThrow().getMottattDatoTemp());
+
         return builder.build();
     }
 
@@ -142,7 +145,7 @@ public class VedtaksperioderHelper {
         return !OverføringÅrsak.UDEFINERT.equals(up.getOverføringÅrsak());
     }
 
-    private Optional<BigDecimal> finnSamtidigUttaksprosent(UttakResultatPeriodeEntitet up) {
+    private Optional<SamtidigUttaksprosent> finnSamtidigUttaksprosent(UttakResultatPeriodeEntitet up) {
         if (up.getPeriodeSøknad().isPresent()) {
             return Optional.ofNullable(up.getPeriodeSøknad().get().getSamtidigUttaksprosent());
         }
@@ -211,7 +214,7 @@ public class VedtaksperioderHelper {
         UttakUtsettelseType utsettelseType = uttakResultatPeriode.getUtsettelseType();
         if (utsettelseType != null && !UttakUtsettelseType.UDEFINERT.equals(utsettelseType)) {
             return uttakResultatPeriode.getAktiviteter().stream()
-                .noneMatch(a -> a.getUtbetalingsgrad() != null && a.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) > 0);
+                .noneMatch(a -> a.getUtbetalingsgrad().harUtbetaling());
         }
         return false;
     }

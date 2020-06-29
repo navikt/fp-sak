@@ -25,7 +25,7 @@ class FastsettBehandlingsresultatVedAvslagPåAvslag {
     }
 
     public static Behandlingsresultat fastsett(Behandling revurdering) {
-        return FastsettBehandlingsresultatVedEndring.buildBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING,
+        return RevurderingBehandlingsresultatutlederFelles.buildBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING,
             List.of(KonsekvensForYtelsen.INGEN_ENDRING), Vedtaksbrev.INGEN);
     }
 

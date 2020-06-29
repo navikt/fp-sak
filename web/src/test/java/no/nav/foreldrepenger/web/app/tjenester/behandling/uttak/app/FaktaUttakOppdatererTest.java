@@ -189,6 +189,7 @@ public class FaktaUttakOppdatererTest {
             .medUttakPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medArbeidstidsprosent(BigDecimal.TEN)
             .medArbeidsgiver(arbeidsgiverDto)
+            .medMottattDato(LocalDate.now())
             .build());
         avklarFaktaDto.setBekreftedePerioder(List.of(bekreftetDto));
         var aksjonspunkt = behandling.getAksjonspunktFor(avklarFaktaDto.getKode());

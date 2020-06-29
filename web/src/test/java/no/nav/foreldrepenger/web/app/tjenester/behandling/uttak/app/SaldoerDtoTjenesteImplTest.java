@@ -43,6 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -777,7 +778,7 @@ public class SaldoerDtoTjenesteImplTest {
                 .medTrekkdager(trekkdager)
                 .medTrekkonto(stønadskontoType)
                 .medArbeidsprosent(BigDecimal.ZERO)
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
+                .medUtbetalingsgrad(new Utbetalingsgrad(100))
                 .build();
             periode.leggTilAktivitet(aktivitet);
 

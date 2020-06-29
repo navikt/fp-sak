@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -34,10 +35,10 @@ public class FastsettePerioderEndringTjenesteTest {
     @Test
     public void endretPeriodeSkalVæreEndring() {
         UttakResultatPerioderEntitet opprinneligPerioder = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet opprinneligPeriode = enkeltPeriodeAktivitet(new Trekkdager(2), BigDecimal.TEN);
+        UttakResultatPeriodeEntitet opprinneligPeriode = enkeltPeriodeAktivitet(new Trekkdager(2), Utbetalingsgrad.TEN);
         opprinneligPerioder.leggTilPeriode(opprinneligPeriode);
         UttakResultatPerioderEntitet overstyrtPerioder = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet overstyrtPeriode = enkeltPeriodeAktivitet(new Trekkdager(10), BigDecimal.ZERO);
+        UttakResultatPeriodeEntitet overstyrtPeriode = enkeltPeriodeAktivitet(new Trekkdager(10), Utbetalingsgrad.ZERO);
         overstyrtPerioder.leggTilPeriode(overstyrtPeriode);
         UttakResultatEntitet uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
             .medOpprinneligPerioder(opprinneligPerioder)
@@ -102,7 +103,7 @@ public class FastsettePerioderEndringTjenesteTest {
     @Test
     public void skalReturnereTomListeHvisOverstyrtErNull() {
         UttakResultatPerioderEntitet opprinneligPerioder = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet opprinneligPeriode = enkeltPeriodeAktivitet(new Trekkdager(2), BigDecimal.ZERO);
+        UttakResultatPeriodeEntitet opprinneligPeriode = enkeltPeriodeAktivitet(new Trekkdager(2), Utbetalingsgrad.ZERO);
         opprinneligPerioder.leggTilPeriode(opprinneligPeriode);
         UttakResultatEntitet uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
             .medOpprinneligPerioder(opprinneligPerioder)
@@ -158,7 +159,7 @@ public class FastsettePerioderEndringTjenesteTest {
             .build();
     }
 
-    private UttakResultatPeriodeEntitet enkeltPeriodeAktivitet(Trekkdager trekkdager, BigDecimal utbetalingsgrad) {
+    private UttakResultatPeriodeEntitet enkeltPeriodeAktivitet(Trekkdager trekkdager, Utbetalingsgrad utbetalingsgrad) {
         UttakResultatPeriodeEntitet.Builder periodeBuilder = minimumPeriode();
         UttakResultatPeriodeEntitet periode = periodeBuilder.build();
         UttakAktivitetEntitet uttakAktivitet = uttakAktivitet();

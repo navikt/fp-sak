@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -23,7 +24,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerEnhetDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +55,7 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTi
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
-import no.nav.vedtak.felles.jpa.Transaction;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerEnhetDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -63,7 +63,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @Path("/forvaltningBeregning")
 @ApplicationScoped
-@Transaction
+@Transactional
 public class ForvaltningBeregningRestTjeneste {
     private static final Period MELDEKORT_PERIODE_UTV = Period.parse("P30D");
     private static final Logger logger = LoggerFactory.getLogger(ForvaltningBeregningRestTjeneste.class);

@@ -5,11 +5,11 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDAT
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.APPLIKASJON;
 
 import java.util.Objects;
-import java.util.UUID;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -27,14 +27,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLÃ
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLÃ¥sRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.RegisterdataCallback;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.IAYRegisterdataTjeneste;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @Path("/registerdata")
 @ApplicationScoped
-@Transaction
+@Transactional
 public class IAYRegisterdataCallbackRestTjeneste {
 
     private static final Logger log = LoggerFactory.getLogger(IAYRegisterdataCallbackRestTjeneste.class);

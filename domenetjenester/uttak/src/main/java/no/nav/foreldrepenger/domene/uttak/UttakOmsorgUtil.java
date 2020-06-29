@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.uttak;
 
 import static java.lang.Boolean.TRUE;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -42,14 +41,6 @@ public final class UttakOmsorgUtil {
     }
 
     private static boolean harUtbetaling(ForeldrepengerUttak resultat) {
-        return resultat.getGjeldendePerioder().stream().anyMatch(UttakOmsorgUtil::harUtbetaling);
-    }
-
-    private static boolean harUtbetaling(ForeldrepengerUttakPeriode periode) {
-        return periode.getAktiviteter().stream().anyMatch(UttakOmsorgUtil::harUtbetaling);
-    }
-
-    private static boolean harUtbetaling(ForeldrepengerUttakPeriodeAktivitet aktivitet) {
-        return aktivitet.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) > 0;
+        return resultat.getGjeldendePerioder().stream().anyMatch(p -> p.harUtbetaling());
     }
 }

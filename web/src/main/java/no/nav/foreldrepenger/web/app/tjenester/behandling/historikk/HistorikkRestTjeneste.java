@@ -9,6 +9,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
@@ -27,12 +28,11 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
 import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/historikk")
 @ApplicationScoped
-@Transaction
+@Transactional
 public class HistorikkRestTjeneste {
     private HistorikkTjenesteAdapter historikkTjeneste;
 

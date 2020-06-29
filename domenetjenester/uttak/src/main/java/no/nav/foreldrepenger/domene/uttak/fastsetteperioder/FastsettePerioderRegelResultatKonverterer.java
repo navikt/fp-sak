@@ -21,7 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -170,7 +172,7 @@ public class FastsettePerioderRegelResultatKonverterer {
         return UttakResultatPeriodeAktivitetEntitet.builder(periode, uttakAktivitet)
             .medTrekkonto(UttakEnumMapper.map(uttakPeriode.getStønadskontotype()))
             .medTrekkdager(map(aktivitet))
-            .medUtbetalingsgrad(aktivitet.getUtbetalingsgrad())
+            .medUtbetalingsgrad(new Utbetalingsgrad(aktivitet.getUtbetalingsgrad()))
             .medArbeidsprosent(finnArbeidsprosent(uttakPeriode, aktivitet, uttakYrkesaktiviteter))
             .medErSøktGradering(aktivitet.isSøktGradering())
             .build();
@@ -273,9 +275,13 @@ public class FastsettePerioderRegelResultatKonverterer {
             .medOverføringÅrsak(tilOverføringÅrsak(uttakPeriode))
             .medPeriodeSoknad(periodeSøknad)
             .medSamtidigUttak(uttakPeriode.erSamtidigUttak())
-            .medSamtidigUttaksprosent(uttakPeriode.getSamtidigUttaksprosent())
+            .medSamtidigUttaksprosent(samtidigUttaksprosent(uttakPeriode))
             .medFlerbarnsdager(uttakPeriode.isFlerbarnsdager())
             .build();
+    }
+
+    private SamtidigUttaksprosent samtidigUttaksprosent(UttakPeriode uttakPeriode) {
+        return uttakPeriode.getSamtidigUttaksprosent() == null ? null : new SamtidigUttaksprosent(uttakPeriode.getSamtidigUttaksprosent());
     }
 
     private OppholdÅrsak tilOppholdÅrsak(UttakPeriode uttakPeriode) {
@@ -329,6 +335,7 @@ public class FastsettePerioderRegelResultatKonverterer {
             .medGraderingArbeidsprosent(oppgittPeriode.getArbeidsprosent())
             .medUttakPeriodeType(oppgittPeriode.getPeriodeType())
             .medMottattDato(søknadMottattDato)
+            .medMottattDatoTemp(oppgittPeriode.getMottattDato())
             .medMorsAktivitet(oppgittPeriode.getMorsAktivitet())
             .medSamtidigUttak(oppgittPeriode.isSamtidigUttak())
             .medSamtidigUttaksprosent(oppgittPeriode.getSamtidigUttaksprosent());

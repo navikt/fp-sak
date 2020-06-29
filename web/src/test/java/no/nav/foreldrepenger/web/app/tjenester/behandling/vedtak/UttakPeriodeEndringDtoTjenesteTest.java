@@ -30,8 +30,10 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatDokRegelEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -208,14 +210,14 @@ public class UttakPeriodeEndringDtoTjenesteTest {
 
         // Legg til opprinnelig periode
         UttakResultatPeriodeEntitet opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.IKKE_FASTSATT, dato, dato.plusMonths(1),
-            StønadskontoType.FORELDREPENGER, new BigDecimal("100"), BigDecimal.valueOf(100));
+            StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
         UttakResultatPerioderEntitet opprinneligFordeling = new UttakResultatPerioderEntitet();
         opprinneligFordeling.leggTilPeriode(opprinneligPeriode);
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
 
         // Legg til overstyrende periode
         UttakResultatPeriodeEntitet overstyrendePeriode = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, dato, dato.plusMonths(1),
-            StønadskontoType.FORELDREPENGER, new BigDecimal("100"), BigDecimal.valueOf(100));
+            StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
         UttakResultatPerioderEntitet overstyrendeFordeling = new UttakResultatPerioderEntitet();
         overstyrendeFordeling.leggTilPeriode(overstyrendePeriode);
         fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandling.getId(), overstyrendeFordeling);
@@ -239,14 +241,14 @@ public class UttakPeriodeEndringDtoTjenesteTest {
 
         // Legg til opprinnelig periode
         UttakResultatPeriodeEntitet opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.IKKE_FASTSATT, dato, dato.plusMonths(1),
-            StønadskontoType.FORELDREPENGER, new BigDecimal("100"), BigDecimal.valueOf(100));
+            StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
         UttakResultatPerioderEntitet opprinneligFordeling = new UttakResultatPerioderEntitet();
         opprinneligFordeling.leggTilPeriode(opprinneligPeriode);
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
 
         // Legg til overstyrende periode
         UttakResultatPeriodeEntitet overstyrendePeriode = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, dato.plusWeeks(2),
-            dato.plusMonths(1).plusWeeks(2), StønadskontoType.FORELDREPENGER, new BigDecimal("100"), BigDecimal.valueOf(100));
+            dato.plusMonths(1).plusWeeks(2), StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
         UttakResultatPerioderEntitet overstyrendeFordeling = new UttakResultatPerioderEntitet();
         overstyrendeFordeling.leggTilPeriode(overstyrendePeriode);
         fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandling.getId(), overstyrendeFordeling);
@@ -270,14 +272,14 @@ public class UttakPeriodeEndringDtoTjenesteTest {
 
         // Legg til opprinnelig periode
         UttakResultatPeriodeEntitet opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.IKKE_FASTSATT, dato, dato.plusMonths(1),
-            StønadskontoType.FORELDREPENGER, new BigDecimal("100"), BigDecimal.valueOf(100));
+            StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
         UttakResultatPerioderEntitet opprinneligFordeling = new UttakResultatPerioderEntitet();
         opprinneligFordeling.leggTilPeriode(opprinneligPeriode);
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
 
         // Legg til overstyrende periode
         UttakResultatPeriodeEntitet overstyrendePeriode = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, dato, dato.plusMonths(1).minusDays(1),
-            StønadskontoType.FORELDREPENGER, new BigDecimal("100"), BigDecimal.valueOf(100));
+            StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
         UttakResultatPerioderEntitet overstyrendeFordeling = new UttakResultatPerioderEntitet();
         overstyrendeFordeling.leggTilPeriode(overstyrendePeriode);
         fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandling.getId(), overstyrendeFordeling);
@@ -308,7 +310,7 @@ public class UttakPeriodeEndringDtoTjenesteTest {
                                                                     LocalDate tom,
                                                                     StønadskontoType stønadskontoType,
                                                                     BigDecimal graderingArbeidsprosent,
-                                                                    BigDecimal ubetalingsgrad) {
+                                                                    Utbetalingsgrad ubetalingsgrad) {
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medArbeidsforhold(Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG), InternArbeidsforholdRef.nyRef())
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
@@ -318,7 +320,7 @@ public class UttakPeriodeEndringDtoTjenesteTest {
             .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medGraderingArbeidsprosent(graderingArbeidsprosent)
             .medSamtidigUttak(true)
-            .medSamtidigUttaksprosent(BigDecimal.TEN)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .build();
         UttakResultatDokRegelEntitet dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
             .medRegelInput(" ")

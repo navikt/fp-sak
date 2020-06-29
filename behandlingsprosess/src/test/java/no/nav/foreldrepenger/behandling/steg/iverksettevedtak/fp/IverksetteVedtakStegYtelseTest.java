@@ -1,15 +1,10 @@
 package no.nav.foreldrepenger.behandling.steg.iverksettevedtak.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -18,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.IverksetteVedtakStegFelles;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
@@ -32,18 +28,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygd;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.vedtak.fp.OpprettProsessTaskIverksettImpl;
+import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
-import no.nav.foreldrepenger.domene.vedtak.infotrygd.overlapp.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
-import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
-import no.nav.foreldrepenger.mottak.vedtak.VurderOpphørAvYtelserTask;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class IverksetteVedtakStegYtelseTest {
@@ -59,7 +51,7 @@ public class IverksetteVedtakStegYtelseTest {
     private Behandling behandling;
 
     @Mock
-    private OpprettProsessTaskIverksettImpl opprettProsessTaskIverksett;
+    private OpprettProsessTaskIverksett opprettProsessTaskIverksett;
 
     private Repository repository = repoRule.getRepository();
     private BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -68,14 +60,11 @@ public class IverksetteVedtakStegYtelseTest {
     @Mock
     private VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse;
 
-    @Mock
-    private IdentifiserOverlappendeInfotrygdYtelseTjeneste iverksettingSkalIkkeStoppesAvOverlappendeYtelse;
-
-    private IverksetteVedtakStegFørstegang iverksetteVedtakSteg;
+    private IverksetteVedtakStegFelles iverksetteVedtakSteg;
 
     @Before
     public void setup() {
-        iverksetteVedtakSteg = new IverksetteVedtakStegFørstegang(repositoryProvider, opprettProsessTaskIverksett, vurderBehandlingerUnderIverksettelse, iverksettingSkalIkkeStoppesAvOverlappendeYtelse);
+        iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett, vurderBehandlingerUnderIverksettelse);
         behandling = opprettBehandling();
     }
 
@@ -84,7 +73,6 @@ public class IverksetteVedtakStegYtelseTest {
         // Arrange
         opprettBehandlingVedtak(VedtakResultatType.INNVILGET, IverksettingStatus.IKKE_IVERKSATT);
         when(vurderBehandlingerUnderIverksettelse.vurder(eq(behandling))).thenReturn(true);
-        when(iverksettingSkalIkkeStoppesAvOverlappendeYtelse.vurderOmOverlappInfotrygd(any(), eq(behandling), any())).thenReturn(Collections.emptyList());
 
         // Act
         BehandleStegResultat resultat = utførSteg(behandling);
@@ -100,30 +88,11 @@ public class IverksetteVedtakStegYtelseTest {
         assertThat(del1.getAarsak().get()).isEqualTo(Venteårsak.VENT_TIDLIGERE_BEHANDLING.getKode());
     }
 
-
-    @Test
-    public void vurder_gitt_venterPåInfotrygd_ikkeVenterTidligereBehandling_skal_gi_empty_og_lagre_overlapp() {
-        // Arrange
-        opprettBehandlingVedtak(VedtakResultatType.INNVILGET, IverksettingStatus.IKKE_IVERKSATT);
-        when(vurderBehandlingerUnderIverksettelse.vurder(eq(behandling))).thenReturn(false);
-        List<BehandlingOverlappInfotrygd> overlappIt = new ArrayList();
-        when(iverksettingSkalIkkeStoppesAvOverlappendeYtelse.vurderOmOverlappInfotrygd(any(), eq(behandling), any())).thenReturn(overlappIt);
-
-        // Act
-        BehandleStegResultat resultat = utførSteg(behandling);
-
-        // Assert
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.SETT_PÅ_VENT);
-        assertThat(resultat.getAksjonspunktListe()).isEmpty();
-            verify(iverksettingSkalIkkeStoppesAvOverlappendeYtelse).vurderOglagreEventueltOverlapp(any());
-    }
-
     @Test
     public void vurder_gitt_ikkeVenterPåInfotrygd_ikkeVenterTidligereBehandling_skal_gi_empty() {
         // Arrange
         opprettBehandlingVedtak(VedtakResultatType.INNVILGET, IverksettingStatus.IKKE_IVERKSATT);
         when(vurderBehandlingerUnderIverksettelse.vurder(eq(behandling))).thenReturn(false);
-        when(iverksettingSkalIkkeStoppesAvOverlappendeYtelse.vurderOmOverlappInfotrygd(any(), eq(behandling), any())).thenReturn(Collections.emptyList());
 
         // Act
         BehandleStegResultat resultat = utførSteg(behandling);
@@ -131,19 +100,6 @@ public class IverksetteVedtakStegYtelseTest {
         // Assert
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.SETT_PÅ_VENT);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
-        verify(iverksettingSkalIkkeStoppesAvOverlappendeYtelse).vurderOglagreEventueltOverlapp(any());
-    }
-
-    @Test
-    public void sender_riktige_initielle_tasks() {
-        // Arrange
-        opprettBehandlingVedtak(VedtakResultatType.INNVILGET, IverksettingStatus.IKKE_IVERKSATT);
-
-        // Act
-        BehandleStegResultat resultat = utførSteg(behandling);
-
-        // Assert
-        verify(opprettProsessTaskIverksett).opprettIverksettingstasker(behandling, List.of(StartBerørtBehandlingTask.TASKTYPE, VurderOpphørAvYtelserTask.TASKTYPE));
     }
 
     private BehandleStegResultat utførSteg(Behandling behandling) {

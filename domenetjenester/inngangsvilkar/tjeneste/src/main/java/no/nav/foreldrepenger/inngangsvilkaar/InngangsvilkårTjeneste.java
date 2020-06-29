@@ -8,6 +8,9 @@ import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -30,6 +33,8 @@ import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef.VilkårTypeRefLitera
  */
 @ApplicationScoped
 public class InngangsvilkårTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(InngangsvilkårTjeneste.class);
 
     private Instance<Inngangsvilkår> alleInngangsvilkår;
     private BehandlingRepository behandlingRepository;
@@ -117,6 +122,8 @@ public class InngangsvilkårTjeneste {
         Avslagsårsak avslagsårsak = finnAvslagsårsak(avslagsårsakKode, utfall);
         builder.overstyrVilkår(vilkårType, utfall, avslagsårsak);
         if (utfall.equals(VilkårUtfallType.IKKE_OPPFYLT)) {
+            if (avslagsårsak == null || Avslagsårsak.UDEFINERT.equals(avslagsårsak))
+                LOG.warn("Overstyrer til IKKE OPPFYLT uten gyldig avslagskode, behandling {} vilkårtype {} kode {}", behandlingId, vilkårType, avslagsårsakKode);
             builder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         } else if (utfall.equals(VilkårUtfallType.OPPFYLT)) {
             if (!finnesOverstyrteAvviste(vilkårResultat, vilkårType)) {

@@ -57,7 +57,7 @@ public class TilbakerullingBeregningTask implements ProsessTaskHandler {
         Long behandlingId = prosessTaskData.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if(!erBehandlingBerørt(behandling) && !behandling.erSaksbehandlingAvsluttet() && behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)){
-            hoppTilbake(behandling, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
+            hoppTilbake(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD);
         }
     }
 

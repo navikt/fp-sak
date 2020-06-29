@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
 public class OppgittPeriodeBuilder {
@@ -106,7 +107,7 @@ public class OppgittPeriodeBuilder {
         return this;
     }
 
-    public OppgittPeriodeBuilder medSamtidigUttaksprosent(BigDecimal samtidigUttaksprosent) {
+    public OppgittPeriodeBuilder medSamtidigUttaksprosent(SamtidigUttaksprosent samtidigUttaksprosent) {
         kladd.setSamtidigUttaksprosent(samtidigUttaksprosent);
         return this;
     }

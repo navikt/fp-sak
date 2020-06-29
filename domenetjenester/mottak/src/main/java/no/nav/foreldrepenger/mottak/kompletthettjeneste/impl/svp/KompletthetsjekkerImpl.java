@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerInntektsmelding;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerSøknad;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp.KompletthetsjekkerFelles;
-import no.nav.vedtak.util.FPDateUtil;
 
 @FagsakYtelseTypeRef("SVP")
 @BehandlingTypeRef
@@ -171,7 +170,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker { //TODO: mye 
     private Optional<LocalDateTime> finnVentefristForEtterlysning(BehandlingReferanse ref) {
         Long behandlingId = ref.getBehandlingId();
         LocalDate permisjonsstart = ref.getUtledetSkjæringstidspunkt();
-        final LocalDate muligFrist = FPDateUtil.iDag().isBefore(permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER)) ? FPDateUtil.iDag() : permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER);
+        final LocalDate muligFrist = LocalDate.now().isBefore(permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER)) ? LocalDate.now() : permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER);
         final LocalDate annenMuligFrist = søknadRepository.hentSøknad(behandlingId).getMottattDato().plusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER);
         final LocalDate ønsketFrist = muligFrist.isAfter(annenMuligFrist) ? muligFrist : annenMuligFrist;
         return fellesUtil.finnVentefrist(ønsketFrist.plusWeeks(VENTEFRIST_ETTER_ETTERLYSNING_UKER));
@@ -179,6 +178,6 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker { //TODO: mye 
 
 
     private LocalDateTime finnVentefristTilManglendeSøknad() {
-        return FPDateUtil.nå().plusWeeks(VENTEFRIST_FOR_MANGLENDE_SØKNAD);
+        return LocalDateTime.now().plusWeeks(VENTEFRIST_FOR_MANGLENDE_SØKNAD);
     }
 }

@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,8 +18,8 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
@@ -53,7 +52,7 @@ public class OpprettProsessTaskIverksettTest {
     public void setup() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         behandling = scenario.lagMocked();
-        opprettProsessTaskIverksett = new OpprettProsessTaskIverksettImpl(prosessTaskRepository, oppgaveTjeneste);
+        opprettProsessTaskIverksett = new OpprettProsessTaskIverksett(prosessTaskRepository, null, null, null, oppgaveTjeneste);
     }
 
     @Test
@@ -62,7 +61,7 @@ public class OpprettProsessTaskIverksettTest {
         when(oppgaveTjeneste.opprettTaskAvsluttOppgave(any(Behandling.class), any(OppgaveÅrsak.class), anyBoolean())).thenReturn(Optional.empty());
 
         // Act
-        opprettProsessTaskIverksett.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksett.opprettIverksettingTasks(behandling);
 
         // Assert
         List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -77,7 +76,7 @@ public class OpprettProsessTaskIverksettTest {
         mockOpprettTaskAvsluttOppgave();
 
         // Act
-        opprettProsessTaskIverksett.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksett.opprettIverksettingTasks(behandling);
 
         // Assert
         List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);

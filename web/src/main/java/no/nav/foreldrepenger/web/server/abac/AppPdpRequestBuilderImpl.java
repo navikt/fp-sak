@@ -16,22 +16,13 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.tjeneste.virksomhet.journal.v3.HentKjerneJournalpostListeSikkerhetsbegrensning;
-import no.nav.tjeneste.virksomhet.journal.v3.HentKjerneJournalpostListeUgyldigInput;
-import no.nav.tjeneste.virksomhet.journal.v3.informasjon.Journaltilstand;
-import no.nav.tjeneste.virksomhet.journal.v3.informasjon.hentkjernejournalpostliste.ArkivSak;
-import no.nav.tjeneste.virksomhet.journal.v3.informasjon.hentkjernejournalpostliste.Journalpost;
-import no.nav.tjeneste.virksomhet.journal.v3.meldinger.HentKjerneJournalpostListeRequest;
-import no.nav.tjeneste.virksomhet.journal.v3.meldinger.HentKjerneJournalpostListeResponse;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
-import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumer;
 import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
 import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
@@ -47,16 +38,14 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     private static final MdcExtendedLogContext MDC_EXTENDED_LOG_CONTEXT = MdcExtendedLogContext.getContext("prosess"); //$NON-NLS-1$
     private PipRepository pipRepository;
     private AktørConsumerMedCache aktørConsumer;
-    private JournalConsumer journalConsumer;
 
     public AppPdpRequestBuilderImpl() {
     }
 
     @Inject
-    public AppPdpRequestBuilderImpl(PipRepository pipRepository, AktørConsumerMedCache aktørConsumer, JournalConsumer journalConsumer) {
+    public AppPdpRequestBuilderImpl(PipRepository pipRepository, AktørConsumerMedCache aktørConsumer) {
         this.pipRepository = pipRepository;
         this.aktørConsumer = aktørConsumer;
-        this.journalConsumer = journalConsumer;
     }
 
     private static void validerSamsvarBehandlingOgFagsak(Long behandlingId, Long fagsakId, Set<Long> fagsakIder) {
@@ -170,19 +159,9 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
 
         Set<String> påkrevdJournalpostIdVerdier = attributter.getVerdier(AppAbacAttributtType.EKSISTERENDE_JOURNALPOST_ID);
         Set<JournalpostId> påkrevdJournalpostId = påkrevdJournalpostIdVerdier.stream().map(JournalpostId::new).collect(Collectors.toSet());
-        fagsakIder.addAll(hentOgSjekkAtFinnes(saksnummere, påkrevdJournalpostId));
+        fagsakIder.addAll(pipRepository.fagsakIdForJournalpostId(påkrevdJournalpostId));
 
         return fagsakIder;
-    }
-
-    private Set<Long> hentOgSjekkAtFinnes(Collection<String> saksnumre, Collection<JournalpostId> journalpostIder) {
-        Set<Long> resultat = pipRepository.fagsakIdForJournalpostId(journalpostIder);
-        if (resultat.size() == journalpostIder.size()) {
-            return resultat;
-        } else {
-            validerJournalpostIdMotSaksnummer(saksnumre, journalpostIder);
-            return Collections.emptySet();
-        }
     }
 
     private Set<AktørId> utledAktørIder(AbacAttributtSamling attributter, Set<Long> fagsakIder) {
@@ -199,41 +178,6 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
             return Collections.emptySet();
         }
         return aktørConsumer.hentAktørIdForPersonIdentSet(fnr).stream().map(id -> new AktørId(id)).collect(Collectors.toSet());
-    }
-
-    private Set<Long> validerJournalpostIdMotSaksnummer(Collection<String> saksnumre, Collection<JournalpostId> journalposter) {
-        if (journalposter.isEmpty()) {
-            return Collections.emptySet();
-        }
-        if (saksnumre.isEmpty()) {
-            throw PdpRequestBuilderFeil.FACTORY.ugyldigInputPåkrevdJournalpostIdFinnesIkke(journalposter).toException();
-        }
-
-        HentKjerneJournalpostListeRequest hentKjerneJournalpostListeRequest = new HentKjerneJournalpostListeRequest();
-
-        for (String saksnummer : saksnumre) {
-            ArkivSak journalSak = new ArkivSak();
-            journalSak.setArkivSakSystem(Fagsystem.GOSYS.getOffisiellKode());
-            journalSak.setArkivSakId(saksnummer);
-            hentKjerneJournalpostListeRequest.getArkivSakListe().add(journalSak);
-        }
-
-        try {
-            HentKjerneJournalpostListeResponse hentKjerneJournalpostListeResponse = journalConsumer
-                .hentKjerneJournalpostListe(hentKjerneJournalpostListeRequest);
-            for (JournalpostId journalpost : journalposter) {
-                Journalpost journalpost1 = hentKjerneJournalpostListeResponse.getJournalpostListe()
-                    .stream().filter(jp -> journalpost.equals(new JournalpostId(jp.getJournalpostId()))).findFirst().orElse(null);
-                if (journalpost1 == null) {
-                    throw PdpRequestBuilderFeil.FACTORY.ugyldigInputPåkrevdJournalpostIdFinnesIkke(journalposter).toException();
-                } else if (Journaltilstand.UTGAAR.equals(journalpost1.getJournaltilstand())) {
-                    throw PdpRequestBuilderFeil.FACTORY.ugyldigInputJournalpostIdUtgått(journalpost.getVerdi()).toException();
-                }
-            }
-            return Collections.emptySet();
-        } catch (HentKjerneJournalpostListeSikkerhetsbegrensning | HentKjerneJournalpostListeUgyldigInput sikkerhetsbegrensning) { // NOSONAR
-            throw PdpRequestBuilderFeil.FACTORY.ugyldigInputPåkrevdJournalpostIdFinnesIkke(journalposter).toException();
-        }
     }
 
 }

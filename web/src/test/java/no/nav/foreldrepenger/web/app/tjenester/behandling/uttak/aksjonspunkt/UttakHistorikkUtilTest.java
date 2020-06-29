@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -205,6 +206,7 @@ public class UttakHistorikkUtilTest {
         return new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, Arbeidsgiver.virksomhet(ORGNR), ARBEIDSFORHOLD_REF))
             .medArbeidsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
             .build();
     }
 
@@ -216,6 +218,7 @@ public class UttakHistorikkUtilTest {
         var periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, arbeidsgiver, ARBEIDSFORHOLD_REF))
             .medArbeidsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
             .build();
         return periode(type, fom, tom, List.of(periodeAktivitet));
     }
@@ -236,6 +239,7 @@ public class UttakHistorikkUtilTest {
             .medArbeidsforholdId(ARBEIDSFORHOLD_REF)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medTrekkdager(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
             .build();
         aktiviteter.add(aktivitetLagreDto);
         return new UttakResultatPeriodeLagreDto.Builder()

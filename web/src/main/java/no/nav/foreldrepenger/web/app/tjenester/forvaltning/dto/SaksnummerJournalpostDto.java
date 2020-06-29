@@ -32,7 +32,7 @@ public class SaksnummerJournalpostDto implements AbacDto {
     public AbacDataAttributter abacAttributter() {
         return AbacDataAttributter.opprett()
             .leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer)
-            .leggTil(AppAbacAttributtType.EKSISTERENDE_JOURNALPOST_ID, journalpostId);
+            .leggTil(AppAbacAttributtType.JOURNALPOST_ID, journalpostId);
     }
 
     public String getSaksnummer() {

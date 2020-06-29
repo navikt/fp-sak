@@ -50,7 +50,7 @@ public class MapUttakResultatFraVLTilRegel {
     }
 
     private UttakAktivitet mapAktivitet(UttakInput input, ForeldrepengerUttakPeriodeAktivitet uttakResultatPeriodeAktivitet, LocalDate periodeFom, boolean periodeGraderingInvilget) {
-        BigDecimal utbetalingsgrad = uttakResultatPeriodeAktivitet.getUtbetalingsgrad();
+        var utbetalingsgrad = uttakResultatPeriodeAktivitet.getUtbetalingsgrad();
         BigDecimal stillingsprosent = mapStillingsprosent(input, uttakResultatPeriodeAktivitet, periodeFom);
         BigDecimal totalStillingsprosent = finnTotalStillingsprosentHosAG(input, uttakResultatPeriodeAktivitet, periodeFom);
 
@@ -63,7 +63,7 @@ public class MapUttakResultatFraVLTilRegel {
         boolean skalGraderes = periodeGraderingInvilget && uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode();
         return new UttakAktivitet(stillingsprosent,
             arbeidstidsprosent,
-            utbetalingsgrad,
+            utbetalingsgrad.decimalValue(),
             arbeidsforhold,
             aktivitetStatus,
             skalGraderes,

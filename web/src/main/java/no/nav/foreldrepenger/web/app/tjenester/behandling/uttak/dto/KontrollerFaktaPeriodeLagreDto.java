@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.KontrollerFaktaPeriode;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
@@ -77,10 +78,8 @@ public class KontrollerFaktaPeriodeLagreDto {
     private boolean erSelvstendig;
     private boolean samtidigUttak;
 
-    @Min(0)
-    @Max(100)
-    @Digits(integer = 3, fraction = 2)
-    private BigDecimal samtidigUttaksprosent;
+    @Valid
+    private SamtidigUttaksprosent samtidigUttaksprosent;
 
     private boolean flerbarnsdager;
 
@@ -89,6 +88,8 @@ public class KontrollerFaktaPeriodeLagreDto {
 
     @ValidKodeverk
     private FordelingPeriodeKilde periodeKilde = FordelingPeriodeKilde.SØKNAD;
+
+    private LocalDate mottattDato;
 
 
     KontrollerFaktaPeriodeLagreDto() {//NOSONAR
@@ -159,7 +160,7 @@ public class KontrollerFaktaPeriodeLagreDto {
         return samtidigUttak;
     }
 
-    public BigDecimal getSamtidigUttaksprosent() {
+    public SamtidigUttaksprosent getSamtidigUttaksprosent() {
         return samtidigUttaksprosent;
     }
 
@@ -173,6 +174,10 @@ public class KontrollerFaktaPeriodeLagreDto {
 
     public FordelingPeriodeKilde getPeriodeKilde() {
         return periodeKilde;
+    }
+
+    public LocalDate getMottattDato() {
+        return mottattDato;
     }
 
     @JsonIgnore
@@ -208,6 +213,7 @@ public class KontrollerFaktaPeriodeLagreDto {
             medMorsaktivitet(periode.getOppgittPeriode().getMorsAktivitet());
             medFlerbarnsdager(periode.getOppgittPeriode().isFlerbarnsdager());
             medPeriodeKilde(periode.getOppgittPeriode().getPeriodeKilde());
+            medMottattDato(periode.getOppgittPeriode().getMottattDato());
 
             if (periode.getOppgittPeriode().getÅrsak() instanceof UtsettelseÅrsak) {
                 medUtsettelseÅrsak((UtsettelseÅrsak) periode.getOppgittPeriode().getÅrsak()); //NOSONAR
@@ -293,7 +299,7 @@ public class KontrollerFaktaPeriodeLagreDto {
             return this;
         }
 
-        public Builder medSamtidigUttaksprosent(BigDecimal samtidigUttaksprosent) {
+        public Builder medSamtidigUttaksprosent(SamtidigUttaksprosent samtidigUttaksprosent) {
             kladd.samtidigUttaksprosent = samtidigUttaksprosent;
             return this;
         }
@@ -310,6 +316,11 @@ public class KontrollerFaktaPeriodeLagreDto {
 
         public Builder medPeriodeKilde(FordelingPeriodeKilde periodeKilde) {
             kladd.periodeKilde = periodeKilde;
+            return this;
+        }
+
+        public Builder medMottattDato(LocalDate mottattDato) {
+            kladd.mottattDato = mottattDato;
             return this;
         }
 

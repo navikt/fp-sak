@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
@@ -21,7 +22,7 @@ public class HarSattUtbetalingsgradValideringTest {
     @Test
     public void ok_når_utbetalingsgrad_er_satt_og_opprinnelig_periode_er_manuell() {
         var opprinnelig = perioder(PeriodeResultatType.MANUELL_BEHANDLING, null);
-        var nye = perioder(PeriodeResultatType.INNVILGET, BigDecimal.valueOf(50));
+        var nye = perioder(PeriodeResultatType.INNVILGET, new Utbetalingsgrad(50));
 
         HarSattUtbetalingsgradValidering validator = new HarSattUtbetalingsgradValidering(opprinnelig);
         assertThatCode(() -> validator.utfør(nye)).doesNotThrowAnyException();
@@ -45,11 +46,11 @@ public class HarSattUtbetalingsgradValideringTest {
         assertThatCode(() -> validator.utfør(nye)).isInstanceOf(TekniskException.class);
     }
 
-    private List<ForeldrepengerUttakPeriode> perioder(PeriodeResultatType resultat, BigDecimal utbetalingsgrad) {
+    private List<ForeldrepengerUttakPeriode> perioder(PeriodeResultatType resultat, Utbetalingsgrad utbetalingsgrad) {
         return List.of(periode(resultat, utbetalingsgrad));
     }
 
-    private ForeldrepengerUttakPeriode periode(PeriodeResultatType resultatType, BigDecimal utbetalingsgrad) {
+    private ForeldrepengerUttakPeriode periode(PeriodeResultatType resultatType, Utbetalingsgrad utbetalingsgrad) {
         List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter = List.of(
             new ForeldrepengerUttakPeriodeAktivitet.Builder()
                 .medArbeidsprosent(BigDecimal.ZERO)

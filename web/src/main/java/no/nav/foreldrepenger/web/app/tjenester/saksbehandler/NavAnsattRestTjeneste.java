@@ -5,21 +5,20 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.APP
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.tilganger.InnloggetNavAnsattDto;
 import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/nav-ansatt")
 @ApplicationScoped
-@Transaction
+@Transactional
 public class NavAnsattRestTjeneste {
     private TilgangerTjeneste tilgangerTjeneste;
 

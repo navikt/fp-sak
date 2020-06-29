@@ -6,12 +6,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,13 +18,14 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.SettUtbetalingPåVentPrivatArbeidsgiverTask;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.VurderOppgaveArenaTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
+import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
 import no.nav.foreldrepenger.domene.vedtak.task.VurderOgSendØkonomiOppdragTask;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
@@ -55,7 +54,7 @@ public class OpprettProsessTaskIverksettTest {
     public void setup() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
-        opprettProsessTaskIverksettFP = new OpprettProsessTaskIverksettImpl(prosessTaskRepository, oppgaveTjeneste);
+        opprettProsessTaskIverksettFP = new OpprettProsessTaskIverksett(prosessTaskRepository, null, null, null,oppgaveTjeneste);
     }
 
     @Test
@@ -64,7 +63,7 @@ public class OpprettProsessTaskIverksettTest {
         when(oppgaveTjeneste.opprettTaskAvsluttOppgave(any(Behandling.class), any(OppgaveÅrsak.class), anyBoolean())).thenReturn(Optional.empty());
 
         // Act
-        opprettProsessTaskIverksettFP.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksettFP.opprettIverksettingTasks(behandling);
 
         // Assert
         List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -80,7 +79,7 @@ public class OpprettProsessTaskIverksettTest {
         mockOpprettTaskAvsluttOppgave();
 
         // Act
-        opprettProsessTaskIverksettFP.opprettIverksettingstasker(behandling, Collections.emptyList());
+        opprettProsessTaskIverksettFP.opprettIverksettingTasks(behandling);
 
         // Assert
         List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);

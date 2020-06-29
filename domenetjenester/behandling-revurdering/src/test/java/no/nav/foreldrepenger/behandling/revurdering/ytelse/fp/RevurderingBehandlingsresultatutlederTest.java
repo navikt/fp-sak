@@ -24,9 +24,6 @@ import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
-import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIUttak;
-import no.nav.foreldrepenger.behandling.revurdering.felles.ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak;
-import no.nav.foreldrepenger.behandling.revurdering.felles.HarEtablertYtelse;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagAndelTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagBeregningsresultatTjeneste;
@@ -64,12 +61,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
@@ -157,16 +154,12 @@ public class RevurderingBehandlingsresultatutlederTest {
             false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
-        HarEtablertYtelse harEtablertYtelse = new HarEtablertYtelseImpl(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
+        HarEtablertYtelseFP harEtablertYtelse = new HarEtablertYtelseFP(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
             foreldrepengerUttakTjeneste, repositoryProvider.getBehandlingVedtakRepository());
-        ErEndringIUttak erEndringIUttak = new ErEndringIUttakImpl();
-        ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttak erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak = new ErSisteUttakAvslåttMedÅrsakOgHarEndringIUttakImpl();
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
             hentBeregningsgrunnlagTjeneste,
             opphørUttakTjeneste,
             harEtablertYtelse,
-            erEndringIUttak,
-            erSisteUttakAvslåttMedÅrsakOgHarEndringIUttak,
             skjæringstidspunktTjeneste,
             medlemTjeneste,
             foreldrepengerUttakTjeneste);

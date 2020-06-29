@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -12,7 +13,6 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.BooleanUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
@@ -20,7 +20,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @Path("/integrasjon")
 @ApplicationScoped
-@Transaction
+@Transactional
 @Produces(MediaType.APPLICATION_JSON)
 public class IntegrasjonstatusRestTjeneste {
 

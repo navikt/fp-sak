@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
@@ -104,7 +105,7 @@ public class FastsettePerioderRevurderingUtilTest {
         //Fått perioder med samtidig uttak false, men med en prosent i prod
         UttakResultatPeriodeEntitet opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 4, 22),
             LocalDate.of(2019, 4, 26))
-            .medSamtidigUttaksprosent(BigDecimal.ZERO)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.ZERO)
             .medSamtidigUttak(false)
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();

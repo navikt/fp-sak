@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.es.IverksetteInnsynVedtakSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -32,7 +31,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
         ScenarioMorSøkerEngangsstønad scenario = innsynsScenario();
         DokumentBestillerApplikasjonTjeneste dokumentBestillerTjeneste = mock(DokumentBestillerApplikasjonTjeneste.class);
         BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        IverksetteInnsynVedtakSteg steg = new IverksetteInnsynVedtakSteg(dokumentBestillerTjeneste, repositoryProvider);
+        IverksetteInnsynVedtakStegFelles steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider);
         Behandling behandling = scenario.getBehandling();
         Fagsak fagsak = behandling.getFagsak();
         BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
@@ -48,7 +47,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
         ScenarioMorSøkerEngangsstønad scenario = innsynsScenario();
         DokumentBestillerApplikasjonTjeneste dokumentBestillerTjeneste = mock(DokumentBestillerApplikasjonTjeneste.class);
         BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        IverksetteInnsynVedtakSteg steg = new IverksetteInnsynVedtakSteg(dokumentBestillerTjeneste, repositoryProvider);
+        IverksetteInnsynVedtakStegFelles steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider);
         Behandling behandling = scenario.getBehandling();
         Fagsak fagsak = behandling.getFagsak();
         BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
@@ -67,7 +66,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
         ScenarioMorSøkerEngangsstønad scenario = innsynsScenario(begrunnelse);
         DokumentBestillerApplikasjonTjeneste dokumentBestillerTjeneste = mock(DokumentBestillerApplikasjonTjeneste.class);
         BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        IverksetteInnsynVedtakSteg steg = new IverksetteInnsynVedtakSteg(dokumentBestillerTjeneste, repositoryProvider);
+        IverksetteInnsynVedtakStegFelles steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider);
         Behandling behandling = scenario.getBehandling();
         Fagsak fagsak = behandling.getFagsak();
         BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));

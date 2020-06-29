@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -45,13 +46,12 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.HoppTilbakeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.HoppTilbakeTil5080OgSlettInntektsmeldingDto;
-import no.nav.vedtak.felles.jpa.Transaction;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @Path("/forvaltningSteg")
 @ApplicationScoped
-@Transaction
+@Transactional
 public class ForvaltningStegRestTjeneste {
 
     private BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste;

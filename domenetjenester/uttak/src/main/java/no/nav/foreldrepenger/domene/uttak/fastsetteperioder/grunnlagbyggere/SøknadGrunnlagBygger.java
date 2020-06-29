@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.IntervalUtils;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -121,10 +122,10 @@ public class SøknadGrunnlagBygger {
             return null;
         }
         //Ligger søknader fra tidligere i prod med samtidig uttak og 0%. Tolker som 100%
-        if (oppgittPeriode.getSamtidigUttaksprosent().compareTo(BigDecimal.ZERO) == 0) {
+        if (oppgittPeriode.getSamtidigUttaksprosent().equals(SamtidigUttaksprosent.ZERO)) {
             return new BigDecimal("100.00");
         }
-        return oppgittPeriode.getSamtidigUttaksprosent();
+        return oppgittPeriode.getSamtidigUttaksprosent().decimalValue();
     }
 
     private static OppgittPeriode byggGradertPeriode(OppgittPeriodeEntitet oppgittPeriode,
@@ -199,7 +200,10 @@ public class SøknadGrunnlagBygger {
     }
 
     private Søknadstype type(ForeldrepengerGrunnlag fpGrunnlag) {
-        if (fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
+        var hendelser = fpGrunnlag.getFamilieHendelser();
+        if (hendelser.gjelderTerminFødsel() && hendelser.erSøktTermin()) {
+            return Søknadstype.TERMIN;
+        } else if (hendelser.gjelderTerminFødsel()) {
             return Søknadstype.FØDSEL;
         }
         return Søknadstype.ADOPSJON;

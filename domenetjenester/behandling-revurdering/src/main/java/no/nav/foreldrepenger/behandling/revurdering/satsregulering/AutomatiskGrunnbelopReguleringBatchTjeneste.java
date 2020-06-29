@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.util.FPDateUtil;
 import no.nav.vedtak.util.Tuple;
 
 /**
@@ -57,7 +57,7 @@ public class AutomatiskGrunnbelopReguleringBatchTjeneste implements BatchTjenest
         AutomatiskGrunnbelopReguleringBatchArguments opprettRevurdering = (AutomatiskGrunnbelopReguleringBatchArguments)arguments;
         String executionId = BATCHNAME + EXECUTION_ID_SEPARATOR;
         final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId()) + "_";
-        BeregningSats gjeldende = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, FPDateUtil.iDag());
+        BeregningSats gjeldende = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now());
         BeregningSats forrige = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, gjeldende.getPeriode().getFomDato().minusDays(1));
         long avkortingAntallG = beregningsresultatRepository.avkortingMultiplikatorG(gjeldende.getPeriode().getFomDato().minusDays(1));
         List<Tuple<Long, AktørId>> tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForGrunnbeløpRegulering(gjeldende.getVerdi(), forrige.getVerdi(), avkortingAntallG, gjeldende.getPeriode().getFomDato());
