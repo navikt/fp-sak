@@ -44,9 +44,6 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
     @Column(name = "rapportert_pr_aar", nullable = false)
     private BigDecimal rapportertPrÅr;
 
-    @Column(name = "avvik_promille_ny", nullable = false)
-    private BigDecimal avvikPromilleNy = BigDecimal.ZERO;
-
     @Column(name = "avvik_promille", nullable = false)
     private BigDecimal avvikPromille = BigDecimal.ZERO;
 
@@ -138,7 +135,6 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
         public Builder medAvvikPromille(BigDecimal avvikPromille) {
             if(avvikPromille != null) {
                 sammenligningsgrunnlagMal.avvikPromille = avvikPromille;
-                sammenligningsgrunnlagMal.avvikPromilleNy = avvikPromille;
             }
             return this;
         }
