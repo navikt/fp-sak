@@ -126,10 +126,13 @@ public class StønadskontoSaldoTjeneste {
     }
 
     public boolean erSluttPåStønadsdager(UttakInput uttakInput) {
+        return finnStønadRest(uttakInput) == 0;
+    }
+
+    public int finnStønadRest(UttakInput uttakInput) {
         var saldoUtregning = finnSaldoUtregning(uttakInput);
         return Stream.of(Stønadskontotype.MØDREKVOTE, Stønadskontotype.FEDREKVOTE, Stønadskontotype.FORELDREPENGER, Stønadskontotype.FELLESPERIODE)
-            .mapToInt(saldoUtregning::saldo)
-            .sum() == 0;
+            .mapToInt(saldoUtregning::saldo).sum();
     }
 
     private static FastsattUttakPeriode map(UttakResultatPeriodeEntitet periode) {
