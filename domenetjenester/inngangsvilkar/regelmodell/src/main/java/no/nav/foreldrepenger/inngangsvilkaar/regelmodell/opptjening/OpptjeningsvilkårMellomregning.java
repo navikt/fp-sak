@@ -76,10 +76,11 @@ public class OpptjeningsvilkårMellomregning {
 
         LocalDateSegmentCombinator<Long, Long, Long> inntektOverlapDuplikatCombinator = StandardCombinators::sum;
 
+        var inntektsIntervall = new LocalDateInterval(maxIntervall.getFomDato().minusMonths(1).withDayOfMonth(1), maxIntervall.getTomDato());
         grupperInntekterEtterAktiitet
             .entrySet().stream()
             .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(),
-                new LocalDateTimeline<>(e.getValue(), inntektOverlapDuplikatCombinator).intersection(maxIntervall)))
+                new LocalDateTimeline<>(e.getValue(), inntektOverlapDuplikatCombinator).intersection(inntektsIntervall)))
             .filter(e -> !e.getValue().isEmpty())
             .forEach(
                 e -> mellomregning.computeIfAbsent(e.getKey(),

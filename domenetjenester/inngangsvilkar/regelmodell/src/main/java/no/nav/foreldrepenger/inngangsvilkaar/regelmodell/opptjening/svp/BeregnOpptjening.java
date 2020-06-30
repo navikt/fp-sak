@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.Opptjenin
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
 
@@ -109,7 +110,11 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
         if (tidslinje.isEmpty()) {
             return Period.ofDays(0);
         }
-        return Period.between(tidslinje.getMinLocalDate(), tidslinje.getMaxLocalDate().plusDays(1));
+        var dager = tidslinje.getDatoIntervaller().stream()
+            .map(LocalDateInterval::days)
+            .mapToInt(Long::intValue)
+            .sum();
+        return Period.ofDays(dager);
     }
 
     private boolean evaluerEvtUnderkjennUtlandskeAktiviteteter(OpptjeningsvilkårMellomregning data) {
