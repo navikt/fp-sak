@@ -1,0 +1,24 @@
+{
+  "aktivitetPerioder" : [ {
+    "datoIntervall" : [ "2019-01-01", "-" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "vurderingsStatus" : "TIL_VURDERING"
+  } ],
+  "behandlingsDato" : "2020-02-04",
+  "forsteDatoOpptjening" : "2020-01-09",
+  "sisteDatoForOpptjening" : "2020-02-05",
+  "inntektPerioder" : [ {
+    "datoIntervall" : [ "2019-12-01", "2019-12-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 40000,
+    "inntektValuta" : "NOK"
+  }]
+}
