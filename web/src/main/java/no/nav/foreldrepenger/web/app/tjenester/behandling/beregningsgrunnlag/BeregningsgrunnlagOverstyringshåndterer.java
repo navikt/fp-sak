@@ -72,8 +72,8 @@ public class BeregningsgrunnlagOverstyringshåndterer extends AbstractOverstyrin
 
     @Override
     protected void lagHistorikkInnslag(Behandling behandling, OverstyrBeregningsgrunnlagDto dto) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag = beregningsgrunnlagTjeneste
-            .hentGrunnlagBruktForPreutfylling(behandling.getId(), behandling.getOriginalBehandling().map(Behandling::getId), BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER, BeregningsgrunnlagTilstand.KOFAKBER_UT);
+        Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(), behandling.getOriginalBehandling().map(Behandling::getId),
+                BeregningsgrunnlagTilstand.FORESLÅTT);
         BeregningsgrunnlagEntitet aktivtGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandling.getId());
         faktaBeregningHistorikkHåndterer.lagHistorikkOverstyringInntekt(behandling, dto, aktivtGrunnlag, forrigeGrunnlag);
     }
