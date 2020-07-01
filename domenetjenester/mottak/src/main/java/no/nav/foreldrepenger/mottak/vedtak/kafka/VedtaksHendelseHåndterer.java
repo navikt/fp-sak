@@ -44,6 +44,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -169,6 +170,15 @@ public class VedtaksHendelseHåndterer {
         // Flytt flere ytelser hit. Frisinn må logges ugradert. Vurder egen metode for de som kan sjekkes mot gradert overlapp - bruk da LDTL / BigDecmial
         if (YtelseType.FRISINN.equals(ytelse.getType())) {
             eksternOverlappLogger.loggOverlappUtenGradering(ytelse, minYtelseDato, ytelseTidslinje, fagsaker);
+            return;
+        } else if (YtelseType.OMSORGSPENGER.equals(ytelse.getType())) {
+            List<LocalDateSegment<BigDecimal>> graderteSegments = ytelse.getAnvist().stream()
+                .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getPeriode().getFom()),
+                    VirkedagUtil.tomVirkedag(p.getPeriode().getTom()), p.getUtbetalingsgrad().getVerdi()))
+                .collect(Collectors.toList());
+            var gradertTidslinje = new LocalDateTimeline<>(graderteSegments, StandardCombinators::sum).filterValue(v -> v.compareTo(BigDecimal.ZERO) > 0);
+
+            eksternOverlappLogger.loggOverlappMedGradering(ytelse, minYtelseDato, gradertTidslinje , fagsaker);
             return;
         }
 
