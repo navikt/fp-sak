@@ -122,6 +122,7 @@ public class LoggOverlappendeEksternYtelseTjeneste {
             .map(periode -> opprettOverlappEntitet(behandling, tema, periode))
             .collect(Collectors.toList());
     }
+
     private BehandlingOverlappInfotrygd opprettOverlappEntitet(Behandling behandling, String tema, LocalDateInterval periode) {
         return BehandlingOverlappInfotrygd.builder()
             .medSaksnummer(behandling.getFagsak().getSaksnummer())
