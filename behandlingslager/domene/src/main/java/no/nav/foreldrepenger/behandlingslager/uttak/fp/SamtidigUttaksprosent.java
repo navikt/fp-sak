@@ -21,8 +21,8 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 @JsonSerialize(using = SamtidigUttaksprosent.MySamtidigUttaksprosentSerializer.class)
 public class SamtidigUttaksprosent implements Comparable<SamtidigUttaksprosent> {
 
-    public static final SamtidigUttaksprosent ZERO = new SamtidigUttaksprosent(BigDecimal.ZERO);
-    public static final SamtidigUttaksprosent TEN = new SamtidigUttaksprosent(BigDecimal.TEN);
+    public static final SamtidigUttaksprosent ZERO = new SamtidigUttaksprosent(0);
+    public static final SamtidigUttaksprosent TEN = new SamtidigUttaksprosent(10);
 
     @Column(name = "samtidig_uttaksprosent")
     @Min(0)

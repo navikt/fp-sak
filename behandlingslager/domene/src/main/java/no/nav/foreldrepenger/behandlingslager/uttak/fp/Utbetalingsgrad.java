@@ -21,8 +21,8 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 @JsonSerialize(using = Utbetalingsgrad.MyUtbetalingsgradSerializer.class)
 public class Utbetalingsgrad implements Comparable<Utbetalingsgrad> {
 
-    public static final Utbetalingsgrad ZERO = new Utbetalingsgrad(BigDecimal.ZERO);
-    public static final Utbetalingsgrad TEN = new Utbetalingsgrad(BigDecimal.TEN);
+    public static final Utbetalingsgrad ZERO = new Utbetalingsgrad(0);
+    public static final Utbetalingsgrad TEN = new Utbetalingsgrad(10);
 
     @Column(name = "utbetalingsprosent")
     @Min(0)
@@ -56,7 +56,7 @@ public class Utbetalingsgrad implements Comparable<Utbetalingsgrad> {
     }
 
     private BigDecimal scale(BigDecimal verdi) {
-        return verdi.setScale(2, RoundingMode.DOWN);
+        return verdi.setScale(2, RoundingMode.UP);
     }
 
     @Override

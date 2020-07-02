@@ -172,7 +172,7 @@ public class FastsettePerioderRegelResultatKonverterer {
         return UttakResultatPeriodeAktivitetEntitet.builder(periode, uttakAktivitet)
             .medTrekkonto(UttakEnumMapper.map(uttakPeriode.getStønadskontotype()))
             .medTrekkdager(map(aktivitet))
-            .medUtbetalingsgrad(new Utbetalingsgrad(aktivitet.getUtbetalingsgrad()))
+            .medUtbetalingsgrad(new Utbetalingsgrad(aktivitet.getUtbetalingsgrad().decimalValue()))
             .medArbeidsprosent(finnArbeidsprosent(uttakPeriode, aktivitet, uttakYrkesaktiviteter))
             .medErSøktGradering(aktivitet.isSøktGradering())
             .build();
@@ -281,7 +281,7 @@ public class FastsettePerioderRegelResultatKonverterer {
     }
 
     private SamtidigUttaksprosent samtidigUttaksprosent(UttakPeriode uttakPeriode) {
-        return uttakPeriode.getSamtidigUttaksprosent() == null ? null : new SamtidigUttaksprosent(uttakPeriode.getSamtidigUttaksprosent());
+        return uttakPeriode.getSamtidigUttaksprosent() == null ? null : new SamtidigUttaksprosent(uttakPeriode.getSamtidigUttaksprosent().decimalValue());
     }
 
     private OppholdÅrsak tilOppholdÅrsak(UttakPeriode uttakPeriode) {
