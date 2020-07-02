@@ -1,6 +1,30 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.control.ActivateRequestContext;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
@@ -32,22 +56,6 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.control.ActivateRequestContext;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -150,6 +158,7 @@ public class VedtaksHendelseHåndterer {
     }
 
     void sjekkVedtakOverlapp(YtelseV1 ytelse) {
+        // OBS Flere av K9SAK-ytelsene har fom/tom i helg ... ikke bruk VirkedagUtil på dem
         List<LocalDateSegment<Boolean>> ytelsesegments = ytelse.getAnvist().stream()
             // .filter(p -> p.getUtbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) > 0)
             .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), Boolean.TRUE))
@@ -173,8 +182,7 @@ public class VedtaksHendelseHåndterer {
             return;
         } else if (YtelseType.OMSORGSPENGER.equals(ytelse.getType())) {
             List<LocalDateSegment<BigDecimal>> graderteSegments = ytelse.getAnvist().stream()
-                .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getPeriode().getFom()),
-                    VirkedagUtil.tomVirkedag(p.getPeriode().getTom()), p.getUtbetalingsgrad().getVerdi()))
+                .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), p.getUtbetalingsgrad().getVerdi()))
                 .collect(Collectors.toList());
             var gradertTidslinje = new LocalDateTimeline<>(graderteSegments, StandardCombinators::sum).filterValue(v -> v.compareTo(BigDecimal.ZERO) > 0);
 
