@@ -1,33 +1,13 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
@@ -48,6 +28,15 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOp
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
 Funksjonen sjekker om det finnes løpende saker for den personen det innvilges foreldrepenger eller svangerskapsper på.
@@ -71,6 +60,7 @@ public class VurderOpphørAvYtelser  {
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private SjekkOverlappForeldrepengerInfotrygdTjeneste sjekkOverlappInfortrygd;
     private KøKontroller køKontroller;
+    private FamilieHendelseRepository familieHendelseRepository;
     private static final BigDecimal HUNDRE = new BigDecimal(100);
 
     public VurderOpphørAvYtelser() {
@@ -99,6 +89,7 @@ public class VurderOpphørAvYtelser  {
         this.revurderingTjenesteSVP = revurderingTjenesteSVP;
         this.sjekkOverlappInfortrygd = sjekkOverlappInfortrygd;
         this.køKontroller = køKontroller;
+        this.familieHendelseRepository = behandlingRepositoryProvider.getFamilieHendelseRepository();
     }
 
     public void vurderOpphørAvYtelser(Long fagsakId, Long behandlingId) {
@@ -147,7 +138,7 @@ public class VurderOpphørAvYtelser  {
         });
         //Sjekker om det finnes overlapp i fpsak
         aktørIdList
-            .forEach(aktørId -> løpendeSakerSomOverlapperUttakPåNySak(aktørId, gjeldendeFagsak.getSaksnummer(), startDatoIVB)
+            .forEach(aktørId -> løpendeSakerSomOverlapperUttakPåNySak(aktørId, gjeldendeFagsak, startDatoIVB)
                 .forEach(this::håndtereOpphør));
     }
 
@@ -218,11 +209,13 @@ public class VurderOpphørAvYtelser  {
         }
     }
 
-    private List<Fagsak> løpendeSakerSomOverlapperUttakPåNySak(AktørId aktørId, Saksnummer saksnummer, LocalDate startDato) {
+
+    private List<Fagsak> løpendeSakerSomOverlapperUttakPåNySak(AktørId aktørId, Fagsak fagsakIVB, LocalDate startDato) {
         return fagsakRepository.hentForBruker(aktørId).stream()
             .filter(f -> !FagsakYtelseType.ENGANGSTØNAD.equals(f.getYtelseType()))
-            .filter(f -> !saksnummer.equals(f.getSaksnummer()))
+            .filter(f -> !fagsakIVB.getSaksnummer().equals(f.getSaksnummer()))
             .filter(f -> erMaxDatoPåLøpendeSakEtterStartDatoNysak(f, startDato))
+            .filter(f-> !gjelderAdopsjonSammeBarn(f, fagsakIVB))
             .collect(Collectors.toList());
     }
 
@@ -232,6 +225,24 @@ public class VurderOpphørAvYtelser  {
             .filter(f -> !saksnummer.equals(f.getSaksnummer()))
             .filter(f -> f.getYtelseType().equals(FagsakYtelseType.SVANGERSKAPSPENGER) ? erMaxDatoPåLøpendeSakEtterStartDatoNysak(f, startDato) : erOverlappMedløpendeFp(f, startDato, sisteDato))
             .collect(Collectors.toList());
+    }
+
+    private boolean gjelderAdopsjonSammeBarn(Fagsak fagsakLop, Fagsak fagsakIVB) {
+        var fhGrunnlagLop = hendelseGrunnlagEntitet(fagsakLop.getId());
+        var fhGrunnlagIVB = hendelseGrunnlagEntitet(fagsakIVB.getId());
+        var erAdopsjonLop = fhGrunnlagLop.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType).map(FamilieHendelseType::gjelderAdopsjon).orElse(false);
+        var erAdopsjonIVB = fhGrunnlagIVB.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType).map(FamilieHendelseType::gjelderAdopsjon).orElse(false);
+        if (!erAdopsjonLop || !erAdopsjonIVB) {
+            return false;
+        }
+        return  Objects.equals(fhGrunnlagLop.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeAdopsjon).map(AdopsjonEntitet::getOmsorgsovertakelseDato),
+            fhGrunnlagIVB.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeAdopsjon).map(AdopsjonEntitet::getOmsorgsovertakelseDato));
+    }
+
+    private Optional<FamilieHendelseGrunnlagEntitet> hendelseGrunnlagEntitet(Long fagsakId) {
+        var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
+
+        return behandling.flatMap(b-> familieHendelseRepository.hentAggregatHvisEksisterer(b.getId()));
     }
 
     private boolean erMaxDatoPåLøpendeSakEtterStartDatoNysak(Fagsak fagsak, LocalDate startDato) {

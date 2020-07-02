@@ -30,7 +30,8 @@ public enum Fagsystem implements Kodeverdi {
     ENHETSREGISTERET("ENHETSREGISTERET", "Enhetsregisteret", "ER01"),
     AAREGISTERET("AAREGISTERET", "AAregisteret", "AR01"),
     K9SAK("K9SAK", "Vedtaksløsning Folketrygdloven Kapittel 9", "K9SAK"),
-   
+    VLSP("VLSP", "Vedtaksløsning Sykepenger", "VLSP"),
+
     /**
      * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden gjør samme nytten.
      */
@@ -88,7 +89,7 @@ public enum Fagsystem implements Kodeverdi {
     public String getOffisiellKode() {
         return offisiellKode;
     }
-    
+
     public static void main(String[] args) {
         System.out.println(KODER.keySet());
     }

@@ -1,43 +1,10 @@
 package no.nav.foreldrepenger.mottak.vedtak;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
-
-import javax.persistence.EntityManager;
-
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.SjekkOverlappForeldrepengerInfotrygdTjeneste;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelser;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -53,11 +20,30 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.SjekkOverlappForeldrepengerInfotrygdTjeneste;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelser;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+import javax.persistence.EntityManager;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class VurderOpphørAvYtelserTest {
 
@@ -130,7 +116,6 @@ public class VurderOpphørAvYtelserTest {
         Behandling avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, MEDF_AKTØR_ID);
         BeregningsresultatEntitet berResMorBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(avsluttetBehMor, berResMorBeh1);
-        Fagsak fsavsluttetBehMor = avsluttetBehMor.getFagsak();
 
         Behandling nyAvsBehandlingMor = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, AKTØR_ID_MOR, MEDF_AKTØR_ID);
         BeregningsresultatEntitet berResMorOverlapp = lagBeregningsresultat(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP, Inntektskategori.ARBEIDSTAKER);
@@ -250,7 +235,6 @@ public class VurderOpphørAvYtelserTest {
         Behandling avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
         BeregningsresultatEntitet berResMorBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(avsluttetBehMor, berResMorBeh1);
-        Fagsak fsavsluttetBehMor = avsluttetBehMor.getFagsak();
 
         Behandling nyAvsBehandlingMor = lagBehandlingMor(SISTE_DAG_MOR, AKTØR_ID_MOR, null);
         BeregningsresultatEntitet berResMorOverlapp = lagBeregningsresultat(SISTE_DAG_MOR, SISTE_DAG_MOR.plusWeeks(3), Inntektskategori.ARBEIDSTAKER);
@@ -378,6 +362,42 @@ public class VurderOpphørAvYtelserTest {
         verify(revurderingTjenesteMockSVP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
     }
 
+    @Test
+    public void ikkeVurderOverlappVedAdospjonOgSammeBarn() {
+        LocalDate omsorgsovertakelsedato = LocalDate.of(2020, 1, 1);
+        Behandling adopsjonFarLop = lagBehandlingFPAdopsjonFar(null, omsorgsovertakelsedato);
+        BeregningsresultatEntitet berResadopsjon = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
+        beregningsresultatRepository.lagre(adopsjonFarLop, berResadopsjon);
+
+        Behandling morAdopsjonSammeBarnIVB = lagBehandlingFPAdopsjonMor(adopsjonFarLop.getAktørId(), omsorgsovertakelsedato);
+        BeregningsresultatEntitet berResMedOverlapp = lagBeregningsresultat(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP, Inntektskategori.ARBEIDSTAKER);
+        beregningsresultatRepository.lagre(morAdopsjonSammeBarnIVB, berResMedOverlapp);
+        Fagsak fagsakNy = morAdopsjonSammeBarnIVB.getFagsak();
+
+        vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), morAdopsjonSammeBarnIVB.getId());
+
+        verify(revurderingTjenesteMockFP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+    }
+
+    @Test
+    public void vurderOverlappVedAdospjonForskjelligeBarn() {
+        LocalDate omsorgsovertakelsedato = LocalDate.of(2019, 1, 1);
+        Behandling adopsjonFarLop = lagBehandlingFPAdopsjonFar(null, omsorgsovertakelsedato);
+        BeregningsresultatEntitet berResadopsjon = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
+        beregningsresultatRepository.lagre(adopsjonFarLop, berResadopsjon);
+        Fagsak adopsjonFarLopFS = adopsjonFarLop.getFagsak();
+
+        LocalDate omsorgsovertakelsedato2 = LocalDate.of(2020, 1, 1);
+        Behandling morAdopsjonIVB = lagBehandlingFPAdopsjonMor(adopsjonFarLop.getAktørId(), omsorgsovertakelsedato2);
+        BeregningsresultatEntitet berResMedOverlapp = lagBeregningsresultat(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP, Inntektskategori.ARBEIDSTAKER);
+        beregningsresultatRepository.lagre(morAdopsjonIVB, berResMedOverlapp);
+        Fagsak fagsakNy = morAdopsjonIVB.getFagsak();
+
+        vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), morAdopsjonIVB.getId());
+
+        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(adopsjonFarLopFS), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+    }
+
     private Behandling lagBehandlingMor( LocalDate fødselsDato, AktørId aktørId, AktørId medfAktørId)
     {
         ScenarioMorSøkerForeldrepenger scenarioAvsluttetBehMor = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
@@ -410,15 +430,46 @@ public class VurderOpphørAvYtelserTest {
         return behandling;
     }
 
-    private Behandling lagBehandlingSVP( AktørId aktørId)
-    {
+    private Behandling lagBehandlingFPAdopsjonMor(AktørId medfAktørId, LocalDate omsorgsovertakelsedato) {
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
+        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelsedato));
+        if (medfAktørId!= null) {
+            scenario.medSøknadAnnenPart().medAktørId(medfAktørId).medNavn("Seig Pinne").medType(SøknadAnnenPartType.FAR);
+        }
+        scenario.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenario.medVilkårResultatType(VilkårResultatType.INNVILGET);
+        scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        Behandling behandling = scenario.lagre(repositoryProvider);
+        avsluttBehandlingOgFagsak(behandling);
+
+        return behandling;
+    }
+
+    private Behandling lagBehandlingFPAdopsjonFar(AktørId medfAktørId, LocalDate omsorgsovertakelsedato) {
+        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forAdopsjon();
+        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelsedato));
+        if (medfAktørId!= null) {
+            scenario.medSøknadAnnenPart().medAktørId(medfAktørId).medNavn("Seig Pinne").medType(SøknadAnnenPartType.FAR);
+        }
+        scenario.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenario.medVilkårResultatType(VilkårResultatType.INNVILGET);
+        scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        Behandling behandling = scenario.lagre(repositoryProvider);
+        avsluttBehandlingOgFagsak(behandling);
+
+        return behandling;
+    }
+
+    private Behandling lagBehandlingSVP( AktørId aktørId) {
         ScenarioMorSøkerSvangerskapspenger scenarioAvslBeh = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenarioAvslBeh.medBruker(aktørId, NavBrukerKjønn.KVINNE);
         scenarioAvslBeh.medDefaultOppgittTilknytning();
 
         scenarioAvslBeh.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioAvslBeh.medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenarioAvslBeh.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
+        scenarioAvslBeh.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now().minusMonths(1))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
         Behandling behandlingSVP = scenarioAvslBeh.lagre(repositoryProvider);
         avsluttBehandlingOgFagsak(behandlingSVP);

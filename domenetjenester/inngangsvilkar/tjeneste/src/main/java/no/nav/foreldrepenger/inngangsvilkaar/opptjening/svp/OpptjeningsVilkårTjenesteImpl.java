@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.opptjening.svp;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -64,7 +63,6 @@ public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjenest
         grunnlag.setMinsteAntallMånederForVent(0);
         //TODO(OJR) denne burde kanskje endres til false i en revurdering-kontekts i etterkant?
         grunnlag.setSkalGodkjenneBasertPåAntatt(true);
-        grunnlag.setPeriodeAntattGodkjentFørBehandlingstidspunkt(Period.ofYears(1));
 
         // returner egen output i tillegg for senere lagring
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
