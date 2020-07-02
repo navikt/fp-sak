@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.fp.VedtaksperioderHelper;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
 
 public final class FastsettePerioderRevurderingUtil {
@@ -103,15 +104,15 @@ public final class FastsettePerioderRevurderingUtil {
 
     private static Trekkdager regnUtTrekkdager(UttakResultatPeriodeAktivitetEntitet aktivitet, LocalDate tom) {
         if (aktivitet.getTrekkdager().merEnn0()) {
-            BigDecimal samtidigUttaksprosent = samtidigUttaksprosent(aktivitet);
+            var samtidigUttaksprosent = samtidigUttaksprosent(aktivitet);
             return new Trekkdager(TrekkdagerUtregningUtil.trekkdagerFor(new Periode(aktivitet.getFom(), tom),
                 aktivitet.isGraderingInnvilget(), aktivitet.getArbeidsprosent(), samtidigUttaksprosent).decimalValue());
         }
         return new Trekkdager(BigDecimal.ZERO);
     }
 
-    private static BigDecimal samtidigUttaksprosent(UttakResultatPeriodeAktivitetEntitet aktivitet) {
+    private static SamtidigUttaksprosent samtidigUttaksprosent(UttakResultatPeriodeAktivitetEntitet aktivitet) {
         var samtidigUttaksprosent = aktivitet.getPeriode().getSamtidigUttaksprosent();
-        return samtidigUttaksprosent == null ? null : samtidigUttaksprosent.decimalValue();
+        return samtidigUttaksprosent == null ? null : new SamtidigUttaksprosent(samtidigUttaksprosent.decimalValue());
     }
 }
