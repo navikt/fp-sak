@@ -7,11 +7,9 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.FagsakStatusEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -48,15 +46,15 @@ public class OppdaterFagsakStatusFelles {
 
         if (sisteAvsluttedeIkkeHenlagteBehandling.isPresent()) {
             Behandling sisteBehandling = sisteAvsluttedeIkkeHenlagteBehandling.get();
-            return erVedtakResultat(sisteBehandling, VedtakResultatType.AVSLAG) || erVedtakResultat(sisteBehandling, VedtakResultatType.OPPHØR);
+            return erBehandlingResultatAvslåttEllerOpphørt(sisteBehandling);
         }
         return true;
     }
 
-    private boolean erVedtakResultat(Behandling behandling, VedtakResultatType vedtakResultat) {
+    private boolean erBehandlingResultatAvslåttEllerOpphørt(Behandling behandling) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
-            .map(Behandlingsresultat::getBehandlingVedtak)
-            .map(vedtak -> vedtak.getVedtakResultatType().equals(vedtakResultat))
+            .map(resultat -> resultat.isBehandlingsresultatAvslåttOrOpphørt())
             .orElse(Boolean.FALSE);
     }
+
 }
