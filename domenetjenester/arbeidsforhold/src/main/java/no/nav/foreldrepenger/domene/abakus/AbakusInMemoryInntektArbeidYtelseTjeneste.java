@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.LinkedHashMap;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Alternative;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYDiffsjekker;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -264,6 +266,11 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
             }
         }
         return resultat;
+    }
+
+    @Override
+    public List<Inntektsmelding> finnInntektsmeldingDiff(BehandlingReferanse referanse) {
+        return Collections.emptyList();
     }
 
     @Override

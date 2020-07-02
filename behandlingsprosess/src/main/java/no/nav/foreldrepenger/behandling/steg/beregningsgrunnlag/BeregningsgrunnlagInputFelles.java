@@ -1,12 +1,18 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
+import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDto;
+import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDtoBuilder;
+import no.nav.folketrygdloven.kalkulator.modell.iay.InntektsmeldingAggregatDto;
+import no.nav.folketrygdloven.kalkulator.modell.iay.InntektsmeldingDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -19,6 +25,7 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.opptjening.OpptjeningFor
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -94,10 +101,21 @@ public abstract class BeregningsgrunnlagInputFelles {
         }
         List<RefusjonskravDato> refusjonskravDatoer = inntektsmeldingTjeneste.hentAlleRefusjonskravDatoerForFagsak(ref.getSaksnummer());
 
+        List<Inntektsmelding> inntektsmeldingDiff = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
+        List<InntektsmeldingDto> inntektsmeldingDiffDto = inntektsmeldingDiff.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto).collect(Collectors.toList());
+        InntektArbeidYtelseGrunnlagDto iayGrunnlagUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag);
+
+        InntektArbeidYtelseGrunnlagDto iayGrunnlagDto;
+        if (!inntektsmeldingDiffDto.isEmpty()) {
+            iayGrunnlagDto = settInntektsmeldingDiffPåIAYGrunnlag(iayGrunnlagUtenIMDiff, inntektsmeldingDiffDto);
+        } else {
+            iayGrunnlagDto = iayGrunnlagUtenIMDiff;
+        }
+
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
         var beregningsgrunnlagInput = new BeregningsgrunnlagInput(
                 MapBehandlingRef.mapRef(ref),
-                IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag),
+                iayGrunnlagDto,
                 OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow()),
                 aktivitetGradering,
                 IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
@@ -105,4 +123,14 @@ public abstract class BeregningsgrunnlagInputFelles {
         kalkulusKonfigInjecter.leggTilFeatureToggles(beregningsgrunnlagInput);
         return beregningsgrunnlagInput;
     }
+
+    private InntektArbeidYtelseGrunnlagDto settInntektsmeldingDiffPåIAYGrunnlag(InntektArbeidYtelseGrunnlagDto iayGrunnlagDto, List<InntektsmeldingDto> inntektsmeldingDiffDto) {
+        List<InntektsmeldingDto> inntektsmeldingDtos = iayGrunnlagDto.getInntektsmeldinger()
+            .map(InntektsmeldingAggregatDto::getAlleInntektsmeldinger)
+            .orElse(Collections.emptyList());
+        InntektArbeidYtelseGrunnlagDtoBuilder builder = InntektArbeidYtelseGrunnlagDtoBuilder.oppdatere(iayGrunnlagDto)
+            .medInntektsmeldinger(inntektsmeldingDtos, inntektsmeldingDiffDto);
+        return builder.build();
+    }
+
 }

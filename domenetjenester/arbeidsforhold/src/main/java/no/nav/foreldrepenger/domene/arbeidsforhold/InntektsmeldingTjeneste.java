@@ -200,6 +200,18 @@ public class InntektsmeldingTjeneste {
     }
 
     /**
+     * Henter ut alle inntektsmeldinger som ikke ligger i både revurderingen og originalbehandlingen, altså alle tilkomne inntektsmeldinger
+     * <br>
+     *
+     * @param referanse referansen til revurderingen
+     * @return Liste med inntektsmeldinger {@link Inntektsmelding}
+     */
+    public List<Inntektsmelding> hentInntektsmeldingDiffFraOriginalbehandling(BehandlingReferanse referanse) {
+        return List.copyOf(iayTjeneste.finnInntektsmeldingDiff(referanse));
+    }
+
+
+    /**
      * Henter ut alle datoer for refusjon og innsendelse av refusjonskrav koblet til fagsaken, også de på inaktive grunnlag.
      *
      * @param saksnummer Saksnummer til fagsak
