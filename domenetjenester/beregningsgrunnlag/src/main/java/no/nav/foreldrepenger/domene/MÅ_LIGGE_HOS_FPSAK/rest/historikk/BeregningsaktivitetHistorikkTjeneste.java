@@ -86,15 +86,17 @@ public class BeregningsaktivitetHistorikkTjeneste {
         return finnesISaksbehandletVersjon ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
     }
 
+    private void leggTilAktivitetsinformasjon(final HistorikkEndretFeltType historikkEndretFeltType, final LocalDate fra, final LocalDate til) {
 
+    }
     private void lagPeriodeHistorikk(HistorikkInnslagTekstBuilder tekstBuilder, BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter, Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat, BeregningAktivitetEntitet ba, String aktivitetnavn) {
         Optional<BeregningAktivitetEntitet> saksbehandletAktivitet = saksbehandledeAktiviteter.getBeregningAktiviteter().stream().filter(a -> Objects.equals(a.getNøkkel(), ba.getNøkkel())).findFirst();
         if (saksbehandletAktivitet.isPresent()) {
-
             LocalDate nyPeriodeTom = saksbehandletAktivitet.get().getPeriode().getTomDato();
             LocalDate gammelPeriodeTom = ba.getPeriode().getTomDato();
             if (!nyPeriodeTom.equals(gammelPeriodeTom)) {
                 tekstBuilder.medEndretFelt(HistorikkEndretFeltType.PERIODE_TOM, gammelPeriodeTom, nyPeriodeTom);
+                tekstBuilder.medTema(HistorikkEndretFeltType.AKTIVITET, aktivitetnavn);
             }
         }
 
