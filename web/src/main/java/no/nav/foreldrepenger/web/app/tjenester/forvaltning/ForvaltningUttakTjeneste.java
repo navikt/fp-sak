@@ -15,6 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -38,6 +40,8 @@ public class ForvaltningUttakTjeneste {
     private VilkårResultatRepository vilkårResultatRepository;
     private BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRepository fagsakRepository;
 
     @Inject
     public ForvaltningUttakTjeneste(FpUttakRepository fpUttakRepository,
@@ -46,7 +50,9 @@ public class ForvaltningUttakTjeneste {
                                     BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                     VilkårResultatRepository vilkårResultatRepository,
                                     BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste,
-                                    UttakInputTjeneste uttakInputTjeneste) {
+                                    UttakInputTjeneste uttakInputTjeneste,
+                                    FagsakRelasjonRepository fagsakRelasjonRepository,
+                                    FagsakRepository fagsakRepository) {
         this.fpUttakRepository = fpUttakRepository;
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
@@ -54,6 +60,8 @@ public class ForvaltningUttakTjeneste {
         this.vilkårResultatRepository = vilkårResultatRepository;
         this.beregnStønadskontoerTjeneste = beregnStønadskontoerTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
+        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.fagsakRepository = fagsakRepository;
     }
 
     ForvaltningUttakTjeneste() {
@@ -142,6 +150,8 @@ public class ForvaltningUttakTjeneste {
 
     public void beregnKontoer(long behandlingId) {
         var input = uttakInputTjeneste.lagInput(behandlingId);
+        var fagsak = fagsakRepository.finnEksaktFagsak(input.getBehandlingReferanse().getFagsakId());
+        fagsakRelasjonRepository.nullstillOverstyrtStønadskontoberegning(fagsak);
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
     }
 }
