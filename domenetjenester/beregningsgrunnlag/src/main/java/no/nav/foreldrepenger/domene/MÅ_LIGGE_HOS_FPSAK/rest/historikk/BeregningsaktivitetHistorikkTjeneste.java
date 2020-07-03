@@ -86,9 +86,6 @@ public class BeregningsaktivitetHistorikkTjeneste {
         return finnesISaksbehandletVersjon ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
     }
 
-    private void leggTilAktivitetsinformasjon(final HistorikkEndretFeltType historikkEndretFeltType, final LocalDate fra, final LocalDate til) {
-
-    }
     private void lagPeriodeHistorikk(HistorikkInnslagTekstBuilder tekstBuilder, BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter, Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat, BeregningAktivitetEntitet ba, String aktivitetnavn) {
         Optional<BeregningAktivitetEntitet> saksbehandletAktivitet = saksbehandledeAktiviteter.getBeregningAktiviteter().stream().filter(a -> Objects.equals(a.getNøkkel(), ba.getNøkkel())).findFirst();
         if (saksbehandletAktivitet.isPresent()) {
