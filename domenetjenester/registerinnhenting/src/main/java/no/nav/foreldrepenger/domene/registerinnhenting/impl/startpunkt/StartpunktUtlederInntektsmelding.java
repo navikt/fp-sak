@@ -17,21 +17,24 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.vedtak.konfig.Tid;
 
 @Dependent
 class StartpunktUtlederInntektsmelding {
+
+    private static final Set<ArbeidsforholdHandlingType> HANDLING_SOM_IKKE_VENTER_IM = Set.of(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE,
+        ArbeidsforholdHandlingType.IKKE_BRUK, ArbeidsforholdHandlingType.BRUK_UTEN_INNTEKTSMELDING, ArbeidsforholdHandlingType.INNTEKT_IKKE_MED_I_BG);
+
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private String klassenavn = this.getClass().getSimpleName();
 
     StartpunktUtlederInntektsmelding() {
@@ -39,38 +42,31 @@ class StartpunktUtlederInntektsmelding {
     }
 
     @Inject
-    StartpunktUtlederInntektsmelding(InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                     InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                     BehandlingRepositoryProvider repositoryProvider) {
+    StartpunktUtlederInntektsmelding(InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
-        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
     public StartpunktType utledStartpunkt(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag1, InntektArbeidYtelseGrunnlag grunnlag2) {
+        Optional<InntektArbeidYtelseGrunnlag> fersktGrunnlag =  inntektArbeidYtelseTjeneste.finnGrunnlag(ref.getBehandlingId());
+        Optional<InntektArbeidYtelseGrunnlag> eldsteGrunnlag = finnIayGrunnlagForOrigBehandling(fersktGrunnlag, grunnlag1, grunnlag2);
+        List<Inntektsmelding> gamle = hentInntektsmeldingerFraGittGrunnlag(eldsteGrunnlag);
+        List<Inntektsmelding> nyim = hentInntektsmeldingerFraGittGrunnlag(fersktGrunnlag);
+        List<Inntektsmelding> deltaIM = nyim.stream()
+            .filter(im -> !gamle.contains(im))
+            .collect(Collectors.toList());
+
         if (ref.getBehandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
-            Optional<InntektArbeidYtelseGrunnlag> eldsteGrunnlag = finnIayGrunnlagForOrigBehandling(ref.getBehandlingId(), grunnlag1, grunnlag2);
-            Optional<InntektArbeidYtelseGrunnlag> fersktGrunnlag =  inntektArbeidYtelseTjeneste.finnGrunnlag(ref.getBehandlingId());
-            List<Inntektsmelding> gamle = hentInntektsmeldingerFraGittGrunnlag(eldsteGrunnlag);
-            List<Inntektsmelding> nyim = hentInntektsmeldingerFraGittGrunnlag(fersktGrunnlag);
-            return nyim.stream()
-                .filter(im -> !gamle.contains(im))
-                .anyMatch(i -> erStartdatoUlikFørsteUttaksdato(ref, i)) ? StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP : StartpunktType.BEREGNING;
+            return finnStartpunktFørstegang(ref, fersktGrunnlag, deltaIM);
         }
 
-        List<Inntektsmelding> origIm = hentInntektsmeldingerFraGrunnlag(ref, grunnlag1, grunnlag2).stream()
+        List<Inntektsmelding> origIm = gamle.stream()
             .sorted(Comparator.comparing(Inntektsmelding::getInnsendingstidspunkt, Comparator.nullsLast(Comparator.reverseOrder())))
             .collect(Collectors.toList());
-        List<Inntektsmelding> nyeIm = inntektsmeldingTjeneste.hentAlleInntektsmeldingerMottattEtterGjeldendeVedtak(ref);
 
-        return nyeIm.stream()
-            .map(nyIm -> finnStartpunktForNyIm(ref, nyIm, origIm))
+        return deltaIM.stream()
+            .map(nyIm -> finnStartpunktForNyIm(ref, fersktGrunnlag, nyIm, origIm))
             .min(Comparator.comparingInt(StartpunktType::getRangering))
             .orElse(StartpunktType.UDEFINERT);
-    }
-
-    private List<Inntektsmelding> hentInntektsmeldingerFraGrunnlag(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag1, InntektArbeidYtelseGrunnlag grunnlag2) {
-        Optional<InntektArbeidYtelseGrunnlag> origIayGrunnlag = finnIayGrunnlagForOrigBehandling(ref.getBehandlingId(), grunnlag1, grunnlag2);
-        return hentInntektsmeldingerFraGittGrunnlag(origIayGrunnlag);
     }
 
     private List<Inntektsmelding> hentInntektsmeldingerFraGittGrunnlag(Optional<InntektArbeidYtelseGrunnlag> grunnlag) {
@@ -79,11 +75,34 @@ class StartpunktUtlederInntektsmelding {
             .orElse(emptyList());
     }
 
-    private StartpunktType finnStartpunktForNyIm(BehandlingReferanse ref, Inntektsmelding nyIm, List<Inntektsmelding> origIm) {
+    private StartpunktType finnStartpunktFørstegang(BehandlingReferanse ref, Optional<InntektArbeidYtelseGrunnlag> grunnlag, List<Inntektsmelding> nyeIm) {
+        var erImForOverstyrtUtenIM =  nyeIm.stream()
+            .anyMatch(i -> erInntektsmeldingArbeidsforholdOverstyrtIkkeVenterIM(grunnlag, i)) ;
+        if (erImForOverstyrtUtenIM) {
+            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "overstyring", ref.getBehandlingId(), "en av arbeidsgivere");
+            return StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
+        }
+        return nyeIm.stream()
+            .anyMatch(i -> erStartdatoUlikFørsteUttaksdato(ref, i)) ? StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP : StartpunktType.BEREGNING;
+    }
+
+    private StartpunktType finnStartpunktForNyIm(BehandlingReferanse ref, Optional<InntektArbeidYtelseGrunnlag> grunnlag, Inntektsmelding nyIm, List<Inntektsmelding> origIm) {
+        if (erInntektsmeldingArbeidsforholdOverstyrtIkkeVenterIM(grunnlag, nyIm)) {
+            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "overstyring", ref.getBehandlingId(), nyIm.getArbeidsgiver().getIdentifikator());
+            return StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
+        }
         if (erStartpunktForNyImBeregning(nyIm, origIm, ref)) {
             return StartpunktType.BEREGNING;
         }
         return StartpunktType.UTTAKSVILKÅR;
+    }
+
+    private boolean erInntektsmeldingArbeidsforholdOverstyrtIkkeVenterIM(Optional<InntektArbeidYtelseGrunnlag> grunnlag, Inntektsmelding nyIm) {
+        var agIM = nyIm.getArbeidsgiver();
+        return grunnlag.map(InntektArbeidYtelseGrunnlag::getArbeidsforholdOverstyringer).orElse(emptyList()).stream()
+            .filter(o -> Objects.equals(o.getArbeidsgiver(), agIM))
+            .map(ArbeidsforholdOverstyring::getHandling)
+            .anyMatch(HANDLING_SOM_IKKE_VENTER_IM::contains);
     }
 
     private boolean erStartpunktForNyImBeregning(Inntektsmelding nyIm, List<Inntektsmelding> origIm, BehandlingReferanse ref) {
@@ -109,8 +128,8 @@ class StartpunktUtlederInntektsmelding {
     }
 
 
-    private Optional<InntektArbeidYtelseGrunnlag> finnIayGrunnlagForOrigBehandling(Long behandlingId, InntektArbeidYtelseGrunnlag grunnlag1, InntektArbeidYtelseGrunnlag grunnlag2) {
-        InntektArbeidYtelseGrunnlag gjeldendeGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId).orElse(null);
+    private Optional<InntektArbeidYtelseGrunnlag> finnIayGrunnlagForOrigBehandling(Optional<InntektArbeidYtelseGrunnlag> grunnlagForBehandling, InntektArbeidYtelseGrunnlag grunnlag1, InntektArbeidYtelseGrunnlag grunnlag2) {
+        InntektArbeidYtelseGrunnlag gjeldendeGrunnlag = grunnlagForBehandling.orElse(null);
         if (gjeldendeGrunnlag == null) {
             return Optional.empty();
         }
