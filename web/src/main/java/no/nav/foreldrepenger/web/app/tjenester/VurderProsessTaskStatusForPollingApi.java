@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -16,7 +15,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 
 public class VurderProsessTaskStatusForPollingApi {
     private static final Logger log = LoggerFactory.getLogger(VurderProsessTaskStatusForPollingApi.class);
-    private static final Set<ProsessTaskStatus> FERDIG_STATUSER = Set.of(ProsessTaskStatus.FERDIG, ProsessTaskStatus.KJOERT);
+
     private ProsessTaskFeilmelder feilmelder;
     private Long entityId;
 
@@ -36,7 +35,7 @@ public class VurderProsessTaskStatusForPollingApi {
     public Optional<AsyncPollingStatus> sjekkStatusNesteProsessTask(String gruppe, Map<String, ProsessTaskData> nesteTask) {
         LocalDateTime maksTidFørNesteKjøring = LocalDateTime.now().plusMinutes(2);
         nesteTask = nesteTask.entrySet().stream()
-            .filter(e -> !FERDIG_STATUSER.contains(e.getValue().getStatus())) // trenger ikke FERDIG
+            .filter(e -> !e.getValue().getStatus().erKjørt()) // trenger ikke FERDIG
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         if (!nesteTask.isEmpty()) {
