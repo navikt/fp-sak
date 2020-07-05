@@ -40,6 +40,7 @@ import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
 public class FagsakProsessTaskRepository {
 
     private static final Logger log = LoggerFactory.getLogger(FagsakProsessTaskRepository.class);
+    private static final Set<ProsessTaskStatus> FERDIG_STATUSER = Set.of(ProsessTaskStatus.FERDIG, ProsessTaskStatus.KJOERT);
 
     private EntityManager entityManager;
     private ProsessTaskRepository prosessTaskRepository;
@@ -230,7 +231,7 @@ public class FagsakProsessTaskRepository {
         Optional<FagsakProsessTask> fagsakProsessTaskOpt = hent(prosessTaskId, true);
 
         if (fagsakProsessTaskOpt.isPresent()) {
-            if (ProsessTaskStatus.FERDIG.equals(status)) {
+            if (FERDIG_STATUSER.contains(status)) {
                 // fjern link
                 fjern(fagsakId, ptEvent.getId(), fagsakProsessTaskOpt.get().getGruppeSekvensNr());
             }
