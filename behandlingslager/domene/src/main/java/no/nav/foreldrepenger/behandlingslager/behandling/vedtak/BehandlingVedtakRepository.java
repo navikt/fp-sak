@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLÃ
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLÃ¥sRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class BehandlingVedtakRepository {
@@ -29,7 +28,7 @@ public class BehandlingVedtakRepository {
     }
 
     @Inject
-    public BehandlingVedtakRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public BehandlingVedtakRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
         this.behandlingRepository = new BehandlingRepository(entityManager);
     }

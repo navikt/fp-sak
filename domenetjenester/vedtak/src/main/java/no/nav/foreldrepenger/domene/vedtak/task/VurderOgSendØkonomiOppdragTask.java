@@ -48,10 +48,9 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         // Har vi mottatt kvittering?
         Optional<ProsessTaskHendelse> hendelse = prosessTaskData.getHendelse();
-        Long behandlingId = prosessTaskData.getBehandlingId();
         if (hendelse.isPresent()) {
             behandleHendelse(hendelse.get(), behandlingId);
             return;
@@ -67,14 +66,14 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
             oppdragskontrollTjeneste.lagre(oppdragskontroll);
             oppdaterProsessTask(prosessTaskData);
 
-            sendØkonomioppdragTask(prosessTaskData);
+            sendØkonomioppdragTask(prosessTaskData, behandlingId);
 
             log.info("Økonomioppdrag er klargjort for behandling: {}", behandlingId); //$NON-NLS-1$
         } else {
             log.info("Ikke aktuelt for behandling: {}", behandlingId); //$NON-NLS-1$
         }
 
-        sendTilkjentYtelse(prosessTaskData);
+        sendTilkjentYtelse(prosessTaskData, behandlingId);
     }
 
     private void oppdaterProsessTask(ProsessTaskData prosessTaskData) {
@@ -83,22 +82,22 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
         prosessTaskRepository.lagre(prosessTaskData);
     }
 
-    private void sendØkonomioppdragTask(ProsessTaskData hovedProsessTask) {
+    private void sendØkonomioppdragTask(ProsessTaskData hovedProsessTask, Long behandlingId) {
         ProsessTaskData sendØkonomiOppdrag = new ProsessTaskData(SendØkonomiOppdragTask.TASKTYPE);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
-            hovedProsessTask.getBehandlingId(),
+            behandlingId,
             hovedProsessTask.getAktørId());
         prosessTaskRepository.lagre(sendØkonomiOppdrag);
     }
 
-    private void sendTilkjentYtelse(ProsessTaskData hovedProsessTask) {
+    private void sendTilkjentYtelse(ProsessTaskData hovedProsessTask, Long behandlingId) {
         ProsessTaskData sendØkonomiOppdrag = new ProsessTaskData(SendTilkjentYtelseTask.TASKTYPE);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
-            hovedProsessTask.getBehandlingId(),
+            behandlingId,
             hovedProsessTask.getAktørId());
         prosessTaskRepository.lagre(sendØkonomiOppdrag);
     }

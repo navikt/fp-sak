@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class FamilieHendelseRepository {
@@ -28,7 +27,7 @@ public class FamilieHendelseRepository {
     }
 
     @Inject
-    public FamilieHendelseRepository(@VLPersistenceUnit EntityManager entityManager, BehandlingLåsRepository behandlingLåsRepository) {
+    public FamilieHendelseRepository( EntityManager entityManager, BehandlingLåsRepository behandlingLåsRepository) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$ // NOSONAR
         this.entityManager = entityManager;
         this.behandlingLåsRepository = behandlingLåsRepository;

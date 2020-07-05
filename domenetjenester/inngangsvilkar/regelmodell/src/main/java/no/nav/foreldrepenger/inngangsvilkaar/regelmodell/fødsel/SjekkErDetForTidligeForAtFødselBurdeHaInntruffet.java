@@ -6,7 +6,6 @@ import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.RuleReasonRef;
 import no.nav.fpsak.nare.evaluation.RuleReasonRefImpl;
 import no.nav.fpsak.nare.specification.LeafSpecification;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class SjekkErDetForTidligeForAtFødselBurdeHaInntruffet extends LeafSpecification<FødselsvilkårGrunnlag> {
 
@@ -25,7 +24,7 @@ public class SjekkErDetForTidligeForAtFødselBurdeHaInntruffet extends LeafSpeci
         if (!grunnlag.isErSøktOmTermin()){
             return nei(FØDSEL_BURDE_HA_INNTRUFFET);
         }
-        LocalDate nå = FPDateUtil.iDag();
+        LocalDate nå = LocalDate.now();
         LocalDate nårFødselBurdeHaInntruffet = grunnlag.getBekreftetTermindato().plusDays(MAX_ANTALL_DAGER_ETTER_TERMIN);
         if (nå.isAfter(nårFødselBurdeHaInntruffet)) {
             return nei(FØDSEL_BURDE_HA_INNTRUFFET);

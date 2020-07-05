@@ -23,13 +23,12 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class BeregningsresultatRepositoryImplTest {
 
     private static final String ORGNR = "55";
 
-    private static final LocalDate DAGENSDATO = FPDateUtil.iDag();
+    private static final LocalDate DAGENSDATO = LocalDate.now();
 
     @Rule
     public final RepositoryRule repoRule = new UnittestRepositoryRule();
@@ -42,7 +41,7 @@ public class BeregningsresultatRepositoryImplTest {
     private AktørId aktørId;
 
     private final BasicBehandlingBuilder behandlingBuilder = new BasicBehandlingBuilder(repoRule.getEntityManager());
-    
+
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -55,7 +54,7 @@ public class BeregningsresultatRepositoryImplTest {
     private Behandling opprettBehandling() {
         return behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
     }
-    
+
     @Test
     public void lagreOgHentBeregningsresultatFPAggregat() {
         // Arrange

@@ -9,6 +9,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårT
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
 public class KontrollerFaktaStegImplTest {
@@ -137,7 +137,7 @@ public class KontrollerFaktaStegImplTest {
             .medIngenTilrettelegging(jordmorsdato)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
-            .medMottattTidspunkt(FPDateUtil.nå())
+            .medMottattTidspunkt(LocalDateTime.now())
             .medKopiertFraTidligereBehandling(false)
             .build();
         SvpGrunnlagEntitet svpGrunnlag = new SvpGrunnlagEntitet.Builder()

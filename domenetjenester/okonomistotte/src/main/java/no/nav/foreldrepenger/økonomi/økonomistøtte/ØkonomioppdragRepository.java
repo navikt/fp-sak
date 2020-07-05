@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class ØkonomioppdragRepository {
@@ -34,12 +33,12 @@ public class ØkonomioppdragRepository {
     }
 
     @Inject
-    public ØkonomioppdragRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public ØkonomioppdragRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }
 
-    
+
     public Oppdragskontroll hentOppdragskontroll(long oppdragskontrollId) {
         TypedQuery<Oppdragskontroll> query = entityManager.createQuery(
             "from Oppdragskontroll where id=:oppdragskontrollId", Oppdragskontroll.class); //$NON-NLS-1$
@@ -47,7 +46,7 @@ public class ØkonomioppdragRepository {
         return hentEksaktResultat(query);
     }
 
-    
+
     public List<Oppdrag110> hentOppdrag110ForPeriodeOgFagområde(LocalDate fomDato, LocalDate tomDato, String fagområde) {
         Objects.requireNonNull(fomDato, "fomDato");
         Objects.requireNonNull(tomDato, "tomDato");
@@ -70,7 +69,7 @@ public class ØkonomioppdragRepository {
         return resultList;
     }
 
-    
+
     public Oppdragskontroll finnVentendeOppdrag(long behandlingId) {
         final LockModeType lockModeType = LockModeType.PESSIMISTIC_WRITE;
         entityManager.setProperty("javax.persistence.lock.timeout", 500);
@@ -84,7 +83,7 @@ public class ØkonomioppdragRepository {
         return hentEksaktResultat(query);
     }
 
-    
+
     public Optional<Oppdragskontroll> finnOppdragForBehandling(long behandlingId) {
         List<Oppdragskontroll> resultList = entityManager.createQuery(
             "from Oppdragskontroll where behandlingId = :behandlingId", Oppdragskontroll.class)//$NON-NLS-1$
@@ -97,7 +96,7 @@ public class ØkonomioppdragRepository {
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
     }
 
-    
+
     public List<Oppdragskontroll> finnAlleOppdragForSak(Saksnummer saksnr) {
         return entityManager.createQuery(
             "from Oppdragskontroll where saksnummer = :saksnr", Oppdragskontroll.class)//$NON-NLS-1$
@@ -105,7 +104,7 @@ public class ØkonomioppdragRepository {
             .getResultList();
     }
 
-    
+
     public long lagre(Oppdragskontroll oppdragskontroll) {
         entityManager.persist(oppdragskontroll);
         oppdragskontroll.getOppdrag110Liste().forEach(this::lagre);

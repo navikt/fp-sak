@@ -28,13 +28,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -45,7 +45,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
 public class SendInformasjonsbrevBatchTjenesteTest {
@@ -68,11 +67,11 @@ public class SendInformasjonsbrevBatchTjenesteTest {
     @Inject
     private InformasjonssakRepository repository;
 
-    private LocalDate fom = FPDateUtil.iDag();
+    private LocalDate fom = LocalDate.now();
     private LocalDate tom = fom.plusDays(3);
     private LocalDate uttakFom = fom.minusWeeks(10);
-    LocalDate fomOpphold = FPDateUtil.iDag();
-    LocalDate tomOpphold = FPDateUtil.iDag().plusWeeks(5);
+    LocalDate fomOpphold = LocalDate.now();
+    LocalDate tomOpphold = LocalDate.now().plusWeeks(5);
     private LocalDate uttakFomOpphold = fom.minusWeeks(4);
     SendInformasjonsbrevBatchArguments batchArgs;
 

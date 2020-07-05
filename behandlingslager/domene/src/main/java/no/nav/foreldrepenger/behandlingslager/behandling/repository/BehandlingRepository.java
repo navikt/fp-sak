@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class BehandlingRepository {
@@ -47,7 +46,7 @@ public class BehandlingRepository {
     }
 
     @Inject
-    public BehandlingRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public BehandlingRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

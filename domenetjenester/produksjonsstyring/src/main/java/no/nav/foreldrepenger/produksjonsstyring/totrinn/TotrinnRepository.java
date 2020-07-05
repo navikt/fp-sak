@@ -12,7 +12,6 @@ import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class TotrinnRepository {
@@ -24,7 +23,7 @@ public class TotrinnRepository {
     }
 
     @Inject
-    public TotrinnRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public TotrinnRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

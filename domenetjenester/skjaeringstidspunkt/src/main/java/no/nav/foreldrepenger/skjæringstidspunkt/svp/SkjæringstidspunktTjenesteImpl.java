@@ -1,23 +1,28 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.svp;
 
+import static no.nav.foreldrepenger.skjæringstidspunkt.svp.BeregnTilrettleggingsdato.beregn;
+
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.util.FPDateUtil;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.Optional;
-
-import static no.nav.foreldrepenger.skjæringstidspunkt.svp.BeregnTilrettleggingsdato.beregn;
 
 @FagsakYtelseTypeRef("SVP")
 @ApplicationScoped
@@ -67,7 +72,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         Optional<SvpGrunnlagEntitet> svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId);
         //TODO(OJR) en svakhet?
         // Dagens dato blir gitt når grunnlag ikke finnes for at DTOer skal fungere.
-        return svpGrunnlagOpt.map(this::utledBasertPåGrunnlag).orElse(FPDateUtil.iDag());
+        return svpGrunnlagOpt.map(this::utledBasertPåGrunnlag).orElse(LocalDate.now());
     }
 
     LocalDate utledBasertPåGrunnlag(SvpGrunnlagEntitet grunnlag) {
@@ -110,6 +115,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         }
         //TODO(OJR) en svakhet?
         // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda så gir midlertidig dagens dato. for at DTOer skal fungere.
-        return FPDateUtil.iDag();
+        return LocalDate.now();
     }
 }

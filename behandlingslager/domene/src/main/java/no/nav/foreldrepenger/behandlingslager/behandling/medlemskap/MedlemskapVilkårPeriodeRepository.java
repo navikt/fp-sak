@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 import no.nav.vedtak.util.Tuple;
 
 /**
@@ -41,7 +40,7 @@ public class MedlemskapVilkårPeriodeRepository {
     }
 
     @Inject
-    public MedlemskapVilkårPeriodeRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public MedlemskapVilkårPeriodeRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

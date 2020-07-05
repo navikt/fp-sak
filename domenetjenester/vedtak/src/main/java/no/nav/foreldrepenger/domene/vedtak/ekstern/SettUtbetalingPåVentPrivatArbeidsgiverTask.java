@@ -8,16 +8,15 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class SettUtbetalingPåVentPrivatArbeidsgiverTask extends BehandlingProsessTask {
+public class SettUtbetalingPåVentPrivatArbeidsgiverTask extends GenerellProsessTask {
     private static final Logger log = LoggerFactory.getLogger(SettUtbetalingPåVentPrivatArbeidsgiverTask.class);
     public static final String TASKTYPE = "iverksetteVedtak.oppgaveUtbetalingPåVent";
 
@@ -29,17 +28,15 @@ public class SettUtbetalingPåVentPrivatArbeidsgiverTask extends BehandlingProse
     }
 
     @Inject
-    public SettUtbetalingPåVentPrivatArbeidsgiverTask(BehandlingRepositoryProvider repositoryProvider,
-                                                      BehandlingRepository behandlingRepository,
+    public SettUtbetalingPåVentPrivatArbeidsgiverTask(BehandlingRepository behandlingRepository,
                                                       VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver vurderOmSetteUtbetalingPåVentPrivatArbeidsgiver) {
-        super(repositoryProvider.getBehandlingLåsRepository());
+        super();
         this.behandlingRepository = behandlingRepository;
         this.vurderOmSetteUtbetalingPåVentPrivatArbeidsgiver = vurderOmSetteUtbetalingPåVentPrivatArbeidsgiver;
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
-        Long behandlingId = prosessTaskData.getBehandlingId();
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandling.getFagsakYtelseType().gjelderForeldrepenger()) {
             vurderOmSetteUtbetalingPåVentPrivatArbeidsgiver.opprettOppgave(behandling);
@@ -49,4 +46,5 @@ public class SettUtbetalingPåVentPrivatArbeidsgiverTask extends BehandlingProse
         }
 
     }
+
 }

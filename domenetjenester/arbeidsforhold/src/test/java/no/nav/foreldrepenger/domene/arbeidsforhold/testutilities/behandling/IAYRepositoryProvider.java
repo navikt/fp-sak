@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @Dependent
 public class IAYRepositoryProvider {
@@ -36,7 +35,7 @@ public class IAYRepositoryProvider {
     private BeregningsresultatRepository beregningsresultatRepository;
 
     @Inject
-    public IAYRepositoryProvider(@VLPersistenceUnit EntityManager entityManager) {
+    public IAYRepositoryProvider( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
 

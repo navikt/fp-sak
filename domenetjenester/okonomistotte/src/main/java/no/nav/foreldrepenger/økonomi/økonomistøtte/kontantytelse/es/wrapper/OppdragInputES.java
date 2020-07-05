@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class OppdragInputES {
     private final Saksnummer saksnummer;
@@ -57,7 +56,7 @@ public class OppdragInputES {
     }
 
     public LocalDate getVedtaksdato() {
-        return getBehVedtak().map(BehandlingVedtak::getVedtaksdato).orElse(FPDateUtil.iDag());
+        return getBehVedtak().map(BehandlingVedtak::getVedtaksdato).orElse(LocalDate.now());
     }
 
     public PersonIdent getPersonIdent() {
@@ -72,7 +71,7 @@ public class OppdragInputES {
         BehandlingResultatType behandlingResultatType = UtledBehandlingResultatType.utled(behandling.getBehandlingsresultat());
         Objects.requireNonNull(behandling, "behandling");
         Objects.requireNonNull(behandlingResultatType);
-        
+
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             return VedtakResultatType.VEDTAK_I_KLAGEBEHANDLING;
         }

@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class FagsakRelasjonBuilder {
 
@@ -73,7 +72,7 @@ public class FagsakRelasjonBuilder {
     }
 
     void setDefaults() {
-        fødselsdato = FPDateUtil.iDag();
+        fødselsdato = LocalDate.now();
         termindato = fødselsdato;
         if (dekningsgrad == null) {
             dekningsgrad = Dekningsgrad._100;

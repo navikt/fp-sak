@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.domene.vedtak.innsyn.InnsynTjeneste;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = VurderInnsynDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -51,9 +50,9 @@ public class VurderInnsynOppdaterer implements AksjonspunktOppdaterer<VurderInns
             .medInnsynResultatType(dto.getInnsynResultatType())
             .medMottattDato(dto.getMottattDato())
             .medBegrunnelse(dto.getBegrunnelse());
-        
+
         dto.getInnsynDokumenter().forEach(d -> builder.medInnsynDokument(new InnsynDokumentEntitet(d.isFikkInnsyn(), d.getJournalpostId(), d.getDokumentId())));
-        
+
         innsynTjeneste.lagreVurderInnsynResultat(behandling, builder.build());
 
         if (dto.isSattPaVent()) {
@@ -68,6 +67,6 @@ public class VurderInnsynOppdaterer implements AksjonspunktOppdaterer<VurderInns
         if (frist == null) {
             throw new Valideringsfeil(Collections.singleton(new FeltFeilDto("frist", "frist må være satt")));
         }
-        return LocalDateTime.of(frist, FPDateUtil.nå().toLocalTime());
+        return LocalDateTime.of(frist, LocalDateTime.now().toLocalTime());
     }
 }

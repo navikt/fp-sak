@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingsprosess.prosessering.tjeneste;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 
 @ApplicationScoped
 public class ProsesseringAsynkTjenesteImpl implements ProsesseringAsynkTjeneste {
+
+    private static final Set<ProsessTaskStatus> FERDIG_STATUSER = Set.of(ProsessTaskStatus.FERDIG, ProsessTaskStatus.KJOERT);
 
     private ProsessTaskRepository prosessTaskRepository;
     private FagsakProsessTaskRepository fagsakProsessTaskRepository;
@@ -79,7 +82,7 @@ public class ProsesseringAsynkTjenesteImpl implements ProsesseringAsynkTjeneste 
             && (nestePerGruppe.isEmpty()
                 || (nestePerGruppe.size() == 1
                     && nestePerGruppe.containsKey(gruppe)
-                    && ProsessTaskStatus.FERDIG.equals(nestePerGruppe.get(gruppe).getStatus())));
+                    && FERDIG_STATUSER.contains(nestePerGruppe.get(gruppe).getStatus())));
     }
 
     private Map<String, List<ProsessTaskData>> sjekkStatusProsessTasksGrouped(Long fagsakId, Long behandlingId, String gruppe) {

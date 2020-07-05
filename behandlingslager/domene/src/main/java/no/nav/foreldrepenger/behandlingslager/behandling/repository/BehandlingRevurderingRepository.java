@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
@@ -43,7 +42,7 @@ public class BehandlingRevurderingRepository {
     }
 
     @Inject
-    public BehandlingRevurderingRepository(@VLPersistenceUnit EntityManager entityManager,
+    public BehandlingRevurderingRepository( EntityManager entityManager,
                                                BehandlingRepository behandlingRepository,
                                                FagsakRelasjonRepository fagsakRelasjonRepository,
                                                SøknadRepository søknadRepository,

@@ -40,14 +40,13 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksj
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.AvklarSaksopplysningerDto;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
-import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
 public class AksjonspunktApplikasjonTjenesteTest {
 
     private static final String BEGRUNNELSE = "begrunnelse";
-    private static final LocalDate TERMINDATO = FPDateUtil.iDag().plusDays(40);
-    private static final LocalDate UTSTEDTDATO = FPDateUtil.iDag().minusDays(7);
+    private static final LocalDate TERMINDATO = LocalDate.now().plusDays(40);
+    private static final LocalDate UTSTEDTDATO = LocalDate.now().minusDays(7);
 
     @Rule
     public final RepositoryRule repoRule = new UnittestRepositoryRule();

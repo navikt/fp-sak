@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.OffentligYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class AksjonspunktUtlederForTidligereMottattYtelseTest {
 
@@ -54,7 +53,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest {
         new YtelserKonsolidertTjeneste(repositoryProvider),
         new PersonopplysningRepository(repoRule.getEntityManager()));
 
-    private Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(FPDateUtil.iDag()).build();
+    private Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
         return scenario.lagre(repositoryProvider);
@@ -88,7 +87,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
-        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, FPDateUtil.iDag().minusMonths(15), FPDateUtil.iDag().minusMonths(5));
+        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, LocalDate.now().minusMonths(15), LocalDate.now().minusMonths(5));
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -106,7 +105,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
-        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, FPDateUtil.iDag().minusMonths(9), FPDateUtil.iDag().minusMonths(0));
+        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, LocalDate.now().minusMonths(9), LocalDate.now().minusMonths(0));
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -129,7 +128,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
-        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.SYKEPENGER, FPDateUtil.iDag().minusMonths(5), FPDateUtil.iDag().minusMonths(4)); // For å
+        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.SYKEPENGER, LocalDate.now().minusMonths(5), LocalDate.now().minusMonths(4)); // For å
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -149,7 +148,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
-        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, FPDateUtil.iDag().plusMonths(4), FPDateUtil.iDag().plusMonths(7));
+        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, LocalDate.now().plusMonths(4), LocalDate.now().plusMonths(7));
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -165,10 +164,10 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest {
         // Arrange
         AktørId aktørId = AktørId.dummy();
         AktørId annenAktørId = AktørId.dummy();
-        LocalDate fødselsdato = FPDateUtil.iDag().minusWeeks(6);
+        LocalDate fødselsdato = LocalDate.now().minusWeeks(6);
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medSøknadDato(FPDateUtil.iDag());
+        scenario.medSøknadDato(LocalDate.now());
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
         leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.ENGANGSSTØNAD, fødselsdato.plusWeeks(3), fødselsdato.plusWeeks(3));
@@ -191,7 +190,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
-        leggTilYtelseInntektForAktør(behandling.getId(), aktørId, FPDateUtil.iDag().minusMonths(2));
+        leggTilYtelseInntektForAktør(behandling.getId(), aktørId, LocalDate.now().minusMonths(2));
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -229,7 +228,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest {
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
-        leggTilYtelseForAktør(behandling, annenAktørId, RelatertYtelseType.ENGANGSSTØNAD, FPDateUtil.iDag().minusMonths(2), FPDateUtil.iDag().minusMonths(2));
+        leggTilYtelseForAktør(behandling, annenAktørId, RelatertYtelseType.ENGANGSSTØNAD, LocalDate.now().minusMonths(2), LocalDate.now().minusMonths(2));
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -250,7 +249,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest {
         Behandling behandlingFar = byggBehandling(scenarioFar, annenAktørId, aktørId);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
-        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.ENGANGSSTØNAD, FPDateUtil.iDag().minusYears(2), FPDateUtil.iDag().minusYears(2));
+        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.ENGANGSSTØNAD, LocalDate.now().minusYears(2), LocalDate.now().minusYears(2));
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -263,7 +262,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest {
 
     private Behandling byggBehandling(AbstractTestScenario<?> scenario, AktørId aktørId, AktørId annenAktørId) {
         scenario.medBruker(aktørId)
-            .medSøknad().medMottattDato(FPDateUtil.iDag().minusWeeks(2));
+            .medSøknad().medMottattDato(LocalDate.now().minusWeeks(2));
         scenario.medSøknadAnnenPart().medAktørId(annenAktørId);
         return lagre(scenario);
     }

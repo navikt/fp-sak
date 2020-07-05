@@ -8,8 +8,6 @@ import javax.persistence.TypedQuery;
 
 import org.hibernate.jpa.QueryHints;
 
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
-
 @ApplicationScoped
 public class HendelsemottakRepository {
 
@@ -20,7 +18,7 @@ public class HendelsemottakRepository {
     }
 
     @Inject
-    public HendelsemottakRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public HendelsemottakRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

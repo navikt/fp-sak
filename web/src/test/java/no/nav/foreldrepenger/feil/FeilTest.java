@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.feil;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,17 +21,11 @@ public class FeilTest {
     private final List<String> prefiksFeil = new ArrayList<>();
     private final Map<String, AnnotationInstance> unikeKoder = new HashMap<>(1000);
     private final static String KALKULUS_PREFIX = "FT-";
+    private final static String TASK_PREFIX = "PT-";
     private final static String KAFKA_PREFIX = "VLKAFKA-";
     private final static String FPSAK_PREFIX = "FP-";
     private final static String VL_PREFIX = "F-";
-    private final static List<String> GYLDIGE_PREFIXER = new ArrayList<>();
-
-    static {
-        GYLDIGE_PREFIXER.add(KALKULUS_PREFIX);
-        GYLDIGE_PREFIXER.add(KAFKA_PREFIX);
-        GYLDIGE_PREFIXER.add(VL_PREFIX);
-        GYLDIGE_PREFIXER.add(FPSAK_PREFIX);
-    }
+    private final static List<String> GYLDIGE_PREFIXER = List.of(FPSAK_PREFIX, VL_PREFIX, KAFKA_PREFIX, KALKULUS_PREFIX, TASK_PREFIX);
 
 
     @Test

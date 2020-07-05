@@ -88,7 +88,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 import no.nav.vedtak.felles.testutilities.db.Repository;
-import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
 public class VedtakXmlTest {
@@ -211,7 +210,7 @@ public class VedtakXmlTest {
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
             .medKopiertFraTidligereBehandling(false)
-            .medMottattTidspunkt(FPDateUtil.nå())
+            .medMottattTidspunkt(LocalDateTime.now())
             .build();
         var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
             .medBehandlingId(behandling.getId())
@@ -308,7 +307,7 @@ public class VedtakXmlTest {
             .medIngenTilrettelegging(jordmorsdato)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
-            .medMottattTidspunkt(FPDateUtil.nå())
+            .medMottattTidspunkt(LocalDateTime.now())
             .medKopiertFraTidligereBehandling(false)
             .build();
         SvpGrunnlagEntitet svpGrunnlag = new SvpGrunnlagEntitet.Builder()

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta;
 
 import static java.util.Optional.empty;
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -41,7 +40,6 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.AksjonspunktutlederF
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
     private static final String NAV_ORGNR = "889640782";
@@ -54,7 +52,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
     private OpptjeningRepository opptjeningRepository;
 
     private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(FPDateUtil.iDag()).build();
+    private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
 
     @Spy
     private AksjonspunktutlederForVurderBekreftetOpptjening utleder = new AksjonspunktutlederForVurderBekreftetOpptjening(

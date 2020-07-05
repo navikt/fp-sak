@@ -192,7 +192,7 @@ public class ForvaltningOppdragRestTjeneste {
         sendØkonomiOppdrag.setCallId(MDCOperations.getCallId());
         sendØkonomiOppdrag.setProperty("patchet", hardPatch ? "hardt" : "vanlig"); //for sporing
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
-            hovedProsessTask.getBehandlingId(),
+            Long.valueOf(hovedProsessTask.getBehandlingId()),
             hovedProsessTask.getAktørId());
         prosessTaskRepository.lagre(sendØkonomiOppdrag);
     }

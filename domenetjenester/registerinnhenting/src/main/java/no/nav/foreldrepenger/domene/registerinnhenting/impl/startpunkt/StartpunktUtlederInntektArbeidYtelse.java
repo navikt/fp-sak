@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.AktørYtelseEndring;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYGrunnlagDiff;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.SakInntektsmeldinger;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
@@ -39,6 +40,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private StartpunktUtlederInntektsmelding startpunktUtlederInntektsmelding;
     private VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste;
+    private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
@@ -51,12 +53,14 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
                                          BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                          BehandlingRepositoryProvider repositoryProvider,
                                          StartpunktUtlederInntektsmelding startpunktUtlederInntektsmelding,
-                                         VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste) {
+                                         VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste,
+                                         ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste) {
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.startpunktUtlederInntektsmelding = startpunktUtlederInntektsmelding;
         this.vurderArbeidsforholdTjeneste = vurderArbeidsforholdTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
     }
 
     @Override
@@ -119,7 +123,11 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
             leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, defaultStartpunktForRegisterEndringer, "aktør inntekt");
         }
         if (erInntektsmeldingEndret) {
-            leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, startpunktUtlederInntektsmelding.utledStartpunkt(ref, grunnlag1, grunnlag2), "inntektsmelding");
+            var startpunktIM = startpunktUtlederInntektsmelding.utledStartpunkt(ref, grunnlag1, grunnlag2);
+            if (StartpunktType.KONTROLLER_ARBEIDSFORHOLD.equals(startpunktIM)) {
+                arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(ref.getBehandlingId(), ref.getAktørId());
+            }
+            leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, startpunktIM, "inntektsmelding");
         }
 
         return startpunkter;

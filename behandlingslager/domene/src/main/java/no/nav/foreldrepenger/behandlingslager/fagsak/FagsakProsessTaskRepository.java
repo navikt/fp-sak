@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskEvent;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -35,13 +34,13 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe.Entry;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
-import no.nav.vedtak.util.FPDateUtil;
 
 /** Repository for å håndtere kobling mellom Fagsak (og Behandling) mot Prosess Tasks. */
 @ApplicationScoped
 public class FagsakProsessTaskRepository {
 
     private static final Logger log = LoggerFactory.getLogger(FagsakProsessTaskRepository.class);
+    private static final Set<ProsessTaskStatus> FERDIG_STATUSER = Set.of(ProsessTaskStatus.FERDIG, ProsessTaskStatus.KJOERT);
 
     private EntityManager entityManager;
     private ProsessTaskRepository prosessTaskRepository;
@@ -51,12 +50,12 @@ public class FagsakProsessTaskRepository {
     }
 
     @Inject
-    public FagsakProsessTaskRepository(@VLPersistenceUnit EntityManager entityManager, ProsessTaskRepository prosessTaskRepository) {
+    public FagsakProsessTaskRepository( EntityManager entityManager, ProsessTaskRepository prosessTaskRepository) {
         this.entityManager = entityManager;
         this.prosessTaskRepository = prosessTaskRepository;
     }
 
-    
+
     public void lagre(FagsakProsessTask fagsakProsessTask) {
         ProsessTaskData ptData = prosessTaskRepository.finn(fagsakProsessTask.getProsessTaskId());
         log.debug("Linker fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakProsessTask.getFagsakId(), fagsakProsessTask.getProsessTaskId(), ptData.getTaskType(), fagsakProsessTask.getGruppeSekvensNr());
@@ -120,7 +119,7 @@ public class FagsakProsessTaskRepository {
         return tilProsessTask(resultList);
     }
 
-    
+
     public String lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(Long fagsakId, Long behandlingId, ProsessTaskGruppe gruppe) {
         // oppretter nye tasks hvis gamle har feilet og matcher angitt gruppe, eller tidligere er FERDIG. Ignorerer hvis tidligere gruppe fortsatt
         // er KLAR
@@ -155,11 +154,11 @@ public class FagsakProsessTaskRepository {
 
     }
 
-    
+
     public List<ProsessTaskData> sjekkStatusProsessTasks(Long fagsakId, Long behandlingId, String gruppe) {
         Objects.requireNonNull(fagsakId, "fagsakId"); // NOSONAR
 
-        LocalDateTime now = FPDateUtil.nå().withNano(0).withSecond(0);
+        LocalDateTime now = LocalDateTime.now().withNano(0).withSecond(0);
 
         // et tidsrom for neste kjøring vi kan ta hensyn til. Det som er lenger ut i fremtiden er ikke relevant her, kun det vi kan forvente
         // kjøres i umiddelbar fremtid. tar i tillegg hensyn til alt som skulle ha vært kjørt tilbake i tid (som har stoppet av en eller annen
@@ -183,7 +182,7 @@ public class FagsakProsessTaskRepository {
         return tasks;
     }
 
-    
+
     public Optional<FagsakProsessTask> sjekkTillattKjøreFagsakProsessTask(ProsessTaskData ptData) {
         Long fagsakId = ptData.getFagsakId();
         Long prosessTaskId = ptData.getId();
@@ -232,7 +231,7 @@ public class FagsakProsessTaskRepository {
         Optional<FagsakProsessTask> fagsakProsessTaskOpt = hent(prosessTaskId, true);
 
         if (fagsakProsessTaskOpt.isPresent()) {
-            if (ProsessTaskStatus.FERDIG.equals(status)) {
+            if (FERDIG_STATUSER.contains(status)) {
                 // fjern link
                 fjern(fagsakId, ptEvent.getId(), fagsakProsessTaskOpt.get().getGruppeSekvensNr());
             }

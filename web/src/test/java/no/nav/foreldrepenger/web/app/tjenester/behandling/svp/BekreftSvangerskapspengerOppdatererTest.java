@@ -7,7 +7,9 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,12 +40,11 @@ import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 import no.nav.foreldrepenger.tilganger.InnloggetNavAnsattDto;
 import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class BekreftSvangerskapspengerOppdatererTest {
 
-    private static final LocalDate BEHOV_DATO = FPDateUtil.iDag();
-    private static final LocalDate TERMINDATO = FPDateUtil.iDag().plusMonths(5);
+    private static final LocalDate BEHOV_DATO = LocalDate.now();
+    private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(5);
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -181,7 +182,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
             .medIngenTilrettelegging(BEHOV_DATO)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
-            .medMottattTidspunkt(FPDateUtil.nå())
+            .medMottattTidspunkt(LocalDateTime.now())
             .medKopiertFraTidligereBehandling(false)
             .medTilretteleggingFom(new TilretteleggingFOM.Builder().medFomDato(BEHOV_DATO).medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING).build())
             .build();
@@ -207,14 +208,11 @@ public class BekreftSvangerskapspengerOppdatererTest {
 
         SvpArbeidsforholdDto arbeidsforholdDto = new SvpArbeidsforholdDto();
         arbeidsforholdDto.setTilretteleggingBehovFom(behovDato);
-        List<SvpTilretteleggingDatoDto> datoer = new ArrayList<>();
-        for (var tilretteleggingDato : tilretteleggingDatoer) {
-            datoer.add(tilretteleggingDato);
-        }
+        List<SvpTilretteleggingDatoDto> datoer = new ArrayList<>(Arrays.asList(tilretteleggingDatoer));
 
         arbeidsforholdDto.setTilretteleggingDatoer(datoer);
         arbeidsforholdDto.setArbeidsgiverNavn("Byggmaker Bob");
-        arbeidsforholdDto.setMottattTidspunkt(FPDateUtil.nå());
+        arbeidsforholdDto.setMottattTidspunkt(LocalDateTime.now());
         arbeidsforholdDto.setTilretteleggingId(id);
         arbeidsforholdDto.setSkalBrukes(skalBrukes);
 

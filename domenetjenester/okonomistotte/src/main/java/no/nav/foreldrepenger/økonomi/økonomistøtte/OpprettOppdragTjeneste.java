@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.økonomi.økonomistøtte;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -11,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class OpprettOppdragTjeneste {
 
@@ -47,7 +47,7 @@ public class OpprettOppdragTjeneste {
     }
 
     public static Avstemming115 opprettAvstemming115() {
-        String localDateTimeStr = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(FPDateUtil.nå());
+        String localDateTimeStr = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
         return Avstemming115.builder()
             .medKodekomponent(ØkonomiKodekomponent.VLFP.getKodekomponent())
             .medNokkelAvstemming(localDateTimeStr)

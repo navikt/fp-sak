@@ -4,15 +4,15 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomiOppdragKøTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
 @ProsessTask(SendØkonomiOppdragTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
-public class SendØkonomiOppdragTask implements ProsessTaskHandler {
+public class SendØkonomiOppdragTask extends GenerellProsessTask {
     public static final String TASKTYPE = "iverksetteVedtak.sendØkonomiOppdrag";
 
     private ØkonomiOppdragKøTjeneste køTjeneste;
@@ -23,11 +23,13 @@ public class SendØkonomiOppdragTask implements ProsessTaskHandler {
 
     @Inject
     public SendØkonomiOppdragTask(ØkonomiOppdragKøTjeneste køTjeneste) {
+        super();
         this.køTjeneste = køTjeneste;
     }
 
     @Override
-    public void doTask(ProsessTaskData prosessTaskData) {
-        køTjeneste.leggOppdragPåKø(prosessTaskData.getBehandlingId());
+    public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+        køTjeneste.leggOppdragPåKø(behandlingId);
     }
+
 }

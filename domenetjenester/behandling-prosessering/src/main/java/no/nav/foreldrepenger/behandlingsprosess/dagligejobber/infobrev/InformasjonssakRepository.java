@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 /**
  * Spesialmetoder for å hente opp saker og personer som er kandidat for å sende informasjonsbrev om rettighet
@@ -51,7 +50,7 @@ public class InformasjonssakRepository {
     }
 
     @Inject
-    public InformasjonssakRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public InformasjonssakRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

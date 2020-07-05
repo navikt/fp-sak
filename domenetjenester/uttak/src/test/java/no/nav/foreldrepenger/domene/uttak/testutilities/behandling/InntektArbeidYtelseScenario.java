@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class InntektArbeidYtelseScenario {
 
@@ -58,8 +57,8 @@ public class InntektArbeidYtelseScenario {
         private InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder;
 
         // AktivitetsAvtale
-        private LocalDate aktivitetsAvtaleFom = FPDateUtil.iDag().minusYears(3L);
-        private LocalDate aktivitetsAvtaleTom = FPDateUtil.iDag();
+        private LocalDate aktivitetsAvtaleFom = LocalDate.now().minusYears(3L);
+        private LocalDate aktivitetsAvtaleTom = LocalDate.now();
         private BigDecimal aktivitetsAvtaleProsentsats = BigDecimal.TEN;
         private BigDecimal aktivitetsAvtaleAntallTimer = BigDecimal.valueOf(20.4d);
         private BigDecimal aktivitetsAvtaleAntallTimerFulltid = BigDecimal.valueOf(10.2d);
@@ -74,7 +73,7 @@ public class InntektArbeidYtelseScenario {
 
         // RelaterteYtelser
         private RelatertYtelseType ytelseType = null;
-        private LocalDate iverksettelsesDato = FPDateUtil.iDag().minusYears(5L);
+        private LocalDate iverksettelsesDato = LocalDate.now().minusYears(5L);
         private RelatertYtelseTilstand relatertYtelseTilstand = RelatertYtelseTilstand.AVSLUTTET;
         private TemaUnderkategori ytelseBehandlingstema = TemaUnderkategori.FORELDREPENGER_SVANGERSKAPSPENGER;
         private LocalDate tomDato;

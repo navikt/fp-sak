@@ -11,6 +11,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurde
 import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.STADFESTE_YTELSESVEDTAK;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -40,7 +41,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.vedtak.felles.testutilities.Whitebox;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * Default test scenario builder for Klage Engangssøknad. Kan opprettes for gitt standard Scenario Engangssøknad
@@ -151,7 +151,7 @@ public class ScenarioKlageEngangsstønad {
         }
         //setter default resultat NFP trenger kanskje en utledning fra resultattype
         this.vurderingResultatNFP.medKlageAvvistÅrsak(KlageAvvistÅrsak.UDEFINERT).medBegrunnelse("DEFAULT")
-            .medKlageVurdering(KlageVurdering.AVVIS_KLAGE).medVedtaksdatoPåklagdBehandling(FPDateUtil.iDag());
+            .medKlageVurdering(KlageVurdering.AVVIS_KLAGE).medVedtaksdatoPåklagdBehandling(LocalDate.now());
         return this;
     }
 
@@ -168,7 +168,7 @@ public class ScenarioKlageEngangsstønad {
 
         //setter default resultat NFP trenger kanskje en utledning fra resultattype
         this.vurderingResultatNK.medKlageAvvistÅrsak(KlageAvvistÅrsak.UDEFINERT).medBegrunnelse("DEFAULT")
-            .medKlageVurdering(KlageVurdering.AVVIS_KLAGE).medVedtaksdatoPåklagdBehandling(FPDateUtil.iDag());
+            .medKlageVurdering(KlageVurdering.AVVIS_KLAGE).medVedtaksdatoPåklagdBehandling(LocalDate.now());
         return this;
     }
 
@@ -198,11 +198,11 @@ public class ScenarioKlageEngangsstønad {
         klageRepository.lagreFormkrav(klageBehandling, opprettFormkrav(KlageVurdertAv.NFP));
         if (vurderingNFP != null) {
             klageRepository.lagreVurderingsResultat(klageBehandling,vurderingResultatNFP.medKlageVurdertAv(KlageVurdertAv.NFP).medKlageVurdering(vurderingNFP)
-                .medVedtaksdatoPåklagdBehandling(FPDateUtil.iDag()).medKlageResultat(klageResultat));
+                .medVedtaksdatoPåklagdBehandling(LocalDate.now()).medKlageResultat(klageResultat));
         }
         if (vurderingNK != null) {
             klageRepository.lagreVurderingsResultat(klageBehandling, vurderingResultatNK.medKlageVurdertAv(KlageVurdertAv.NK).medKlageVurdering(vurderingNK)
-                .medVedtaksdatoPåklagdBehandling(FPDateUtil.iDag()).medKlageResultat(klageResultat));
+                .medVedtaksdatoPåklagdBehandling(LocalDate.now()).medKlageResultat(klageResultat));
         }
         if (vurderingNFP != null) {
             Behandlingsresultat.builder().medBehandlingResultatType(

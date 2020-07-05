@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorUtil.Periode;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.AnnenForelderDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
-import no.nav.vedtak.util.FPDateUtil;
 import no.nav.vedtak.util.StringUtils;
 
 public class ManuellRegistreringFellesValidator {
@@ -154,7 +153,7 @@ public class ManuellRegistreringFellesValidator {
         if (harFødselsdato) {
             return Optional.of(new FeltFeilDto(feltnavn, TERMINDATO_OG_FØDSELSDATO));
         }
-        if (terminbekreftelseDato.isAfter(FPDateUtil.iDag())) {
+        if (terminbekreftelseDato.isAfter(LocalDate.now())) {
             return Optional.of(new FeltFeilDto(feltnavn, FØR_ELLER_LIK_DAGENS_DATO));
         }
         if (harTermindato && !terminbekreftelseDato.isBefore(termindato)) {
@@ -201,7 +200,7 @@ public class ManuellRegistreringFellesValidator {
 
     static Optional<FeltFeilDto> validerFødselsdato(ManuellRegistreringDto registreringDto) {
         String feltnavn = "foedselsDato";
-        Predicate<LocalDate> pred = d -> d.isAfter(FPDateUtil.iDag());
+        Predicate<LocalDate> pred = d -> d.isAfter(LocalDate.now());
         List<LocalDate> fødselsdatoer = hentFødselsdatoer(registreringDto);
         boolean harFødselsdato = !erTomListe(fødselsdatoer);
         if (erAdopsjonEllerOmsorg(registreringDto)) {
@@ -287,7 +286,7 @@ public class ManuellRegistreringFellesValidator {
         String feltnavn = "mottattDato";
         LocalDate mottattDato = manuellRegistreringDto.getMottattDato();
         if (nonNull(mottattDato)) {
-            if (mottattDato.isAfter(FPDateUtil.iDag())) {
+            if (mottattDato.isAfter(LocalDate.now())) {
                 return Optional.of(new FeltFeilDto(feltnavn, FØR_ELLER_LIK_DAGENS_DATO));
             }
         }

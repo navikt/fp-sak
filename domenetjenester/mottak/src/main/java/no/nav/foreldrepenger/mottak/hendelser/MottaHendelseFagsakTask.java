@@ -37,8 +37,7 @@ public class MottaHendelseFagsakTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
-        Long fagsakId = prosessTaskData.getFagsakId();
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         String hendelseTypeKode = prosessTaskData.getPropertyValue(PROPERTY_HENDELSE_TYPE);
         String årsakTypeKode = prosessTaskData.getPropertyValue(PROPERTY_ÅRSAK_TYPE);
         Objects.requireNonNull(fagsakId);

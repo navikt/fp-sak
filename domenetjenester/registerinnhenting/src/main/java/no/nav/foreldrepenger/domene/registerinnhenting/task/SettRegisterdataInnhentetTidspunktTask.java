@@ -38,8 +38,8 @@ public class SettRegisterdataInnhentetTidspunktTask extends BehandlingProsessTas
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
-        Behandling behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingId());
+    protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         LOGGER.info("Oppdaterer registerdata innhentet tidspunkt behandling med id={} og uuid={}", behandling.getId(), behandling.getUuid());
         registerdataInnhenter.oppdaterSistOppdatertTidspunkt(behandling);
     }

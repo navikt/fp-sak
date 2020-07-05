@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.diff.TraverseGraph;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 /**
  * Dette er et Repository for håndtering av alle persistente endringer i en Personopplysning graf.
@@ -47,7 +46,7 @@ public class PersonopplysningRepository {
     }
 
     @Inject
-    public PersonopplysningRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public PersonopplysningRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

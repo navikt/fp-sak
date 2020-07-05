@@ -14,7 +14,6 @@ import javax.persistence.TypedQuery;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class OppgaveBehandlingKoblingRepository {
@@ -26,7 +25,7 @@ public class OppgaveBehandlingKoblingRepository {
     }
 
     @Inject
-    public OppgaveBehandlingKoblingRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public OppgaveBehandlingKoblingRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }

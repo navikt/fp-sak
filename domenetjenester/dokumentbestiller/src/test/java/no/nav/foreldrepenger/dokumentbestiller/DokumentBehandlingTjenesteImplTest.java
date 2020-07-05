@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
 public class DokumentBehandlingTjenesteImplTest {
@@ -60,14 +59,14 @@ public class DokumentBehandlingTjenesteImplTest {
     public void skal_finne_behandlingsfrist_fra_manuel() {
         lagBehandling();
         assertThat(dokumentBehandlingTjeneste.finnNyFristManuelt(behandling))
-            .isEqualTo(FPDateUtil.iDag().plusWeeks(fristUker));
+            .isEqualTo(LocalDate.now().plusWeeks(fristUker));
     }
 
     @Test
     public void skal_finne_behandlingsfrist_fra_manuelt_medlemskap_ingen_terminbekreftelse() {
         lagBehandling();
         assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling, Period.ofWeeks(3)))
-            .isEqualTo(FPDateUtil.iDag().plusWeeks(fristUker));
+            .isEqualTo(LocalDate.now().plusWeeks(fristUker));
     }
 
     @Test

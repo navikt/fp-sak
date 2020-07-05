@@ -6,14 +6,14 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
 @ProsessTask(ValiderOgRegenererVedtaksXmlTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class ValiderOgRegenererVedtaksXmlTask implements ProsessTaskHandler {
+public class ValiderOgRegenererVedtaksXmlTask extends GenerellProsessTask {
 
 
     public static final String TASKTYPE = "iverksetteVedtak.validerOgRegenererVedtaksXmlTask";
@@ -27,13 +27,13 @@ public class ValiderOgRegenererVedtaksXmlTask implements ProsessTaskHandler {
 
     @Inject
     public ValiderOgRegenererVedtaksXmlTask(RegenererVedtaksXmlTjeneste regenererVedtaksXmlTjeneste, BehandlingRepository behandlingRepository) {
+        super();
         this.behandlingRepository = behandlingRepository;
         this.regenererVedtaksXmlTjeneste = regenererVedtaksXmlTjeneste;
     }
 
     @Override
-    public void doTask(ProsessTaskData prosessTaskData) {
-        Long behandlingId = prosessTaskData.getBehandlingId();
+    public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         Behandling behandling = finnBehandling(behandlingId);
         regenererVedtaksXmlTjeneste.validerOgRegenerer(behandling);
 

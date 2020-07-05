@@ -73,7 +73,6 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class ArbeidsforholdAdministrasjonTjenesteTest {
 
@@ -189,7 +188,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(arbeidsforhold.getKilde()).isEqualTo(ArbeidsforholdKilde.INNTEKTSMELDING);
         assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isEqualTo(true);
         assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isEqualTo(false);
-        assertThat(arbeidsforhold.getFomDato()).isEqualTo(FPDateUtil.iDag()); // null-verdi
+        assertThat(arbeidsforhold.getFomDato()).isEqualTo(LocalDate.now()); // null-verdi
     }
 
     @Test
