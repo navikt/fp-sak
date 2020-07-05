@@ -58,7 +58,7 @@ public class ForvaltningBeregningRestTjenesteTest {
         List<ProsessTaskData> prosessTaskData = prosessTaskRepository.finnIkkeStartet();
         List<ProsessTaskData> opprettTasker = prosessTaskData.stream().filter(task -> task.getTaskType().equals(OpprettGrunnbeløpTask.TASKNAME)).collect(Collectors.toList());
         assertThat(opprettTasker.size()).isEqualTo(1);
-        assertThat(opprettTasker.get(0).getBehandlingId()).isEqualTo(behandling.getId());
+        assertThat(opprettTasker.get(0).getBehandlingId()).isEqualTo(behandling.getId().toString());
     }
 
     @Test

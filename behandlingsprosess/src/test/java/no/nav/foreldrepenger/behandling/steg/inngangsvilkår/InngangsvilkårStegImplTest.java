@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.testutilities.Whitebox;
-import no.nav.vedtak.util.FPDateUtil;
 
 @SuppressWarnings("deprecation")
 public class InngangsvilkårStegImplTest {
@@ -62,7 +62,7 @@ public class InngangsvilkårStegImplTest {
 
     @Rule
     public MockitoRule mockito = MockitoJUnit.rule().silent();
-    
+
     private BehandlingskontrollKontekst kontekst;
 
     @Mock
@@ -172,7 +172,7 @@ public class InngangsvilkårStegImplTest {
         ekstra.setBekreftetGodkjentAktivitet(emptyMap());
         ekstra.setAntattGodkjentePerioder(emptyMap());
         ekstra.setAkseptertMellomliggendePerioder(emptyMap());
-        ekstra.setFrist(FPDateUtil.iDag().minusDays(1));
+        ekstra.setFrist(LocalDate.now().minusDays(1));
         return new RegelResultat(behandling.getBehandlingsresultat().getVilkårResultat(), emptyList(), Map.of(VilkårType.OPPTJENINGSVILKÅRET, ekstra));
     }
 

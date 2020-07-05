@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class DokumentBehandlingTjeneste {
@@ -106,7 +105,7 @@ public class DokumentBehandlingTjeneste {
     }
 
     LocalDate finnNyFristManuelt(Behandling behandling) {
-        return FPDateUtil.iDag().plusWeeks(behandling.getType().getBehandlingstidFristUker());
+        return LocalDate.now().plusWeeks(behandling.getType().getBehandlingstidFristUker());
     }
 
     public void utvidBehandlingsfristManueltMedlemskap(Long behandlingId) {
@@ -130,7 +129,7 @@ public class DokumentBehandlingTjeneste {
     }
 
     private boolean iFremtiden(LocalDate dato) {
-        return dato.isAfter(FPDateUtil.iDag());
+        return dato.isAfter(LocalDate.now());
     }
 
     private Optional<LocalDate> beregnTerminFrist(Behandling behandling, Period aksjonspunktPeriode) {

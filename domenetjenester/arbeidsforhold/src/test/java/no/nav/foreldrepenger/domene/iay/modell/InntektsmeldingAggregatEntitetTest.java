@@ -9,10 +9,6 @@ import java.util.List;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class InntektsmeldingAggregatEntitetTest {
 
@@ -20,7 +16,7 @@ public class InntektsmeldingAggregatEntitetTest {
 
     @Test
     public void skal_lagre_i_riktig_rekkefølge() {
-        LocalDateTime nå = FPDateUtil.nå();
+        LocalDateTime nå = LocalDateTime.now();
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
         InntektsmeldingBuilder førsteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
@@ -42,7 +38,7 @@ public class InntektsmeldingAggregatEntitetTest {
 
     @Test
     public void skal_bruk_ar_hvis_altinn_involvert() {
-        LocalDateTime nå = FPDateUtil.nå();
+        LocalDateTime nå = LocalDateTime.now();
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
         InntektsmeldingBuilder førsteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
@@ -64,7 +60,7 @@ public class InntektsmeldingAggregatEntitetTest {
 
     @Test
     public void skal_ikke_lagre_når_eldre_kanalreferanse_kommer_inn_med_lik_innsendingstidspunkt() {
-        LocalDateTime nå = FPDateUtil.nå();
+        LocalDateTime nå = LocalDateTime.now();
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
         InntektsmeldingBuilder sisteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
@@ -88,7 +84,7 @@ public class InntektsmeldingAggregatEntitetTest {
 
     @Test
     public void skal_tolke_null_i_kanalreferanse_som_gammel_ved_like_innsendingstidspunkt() {
-        LocalDateTime nå = FPDateUtil.nå();
+        LocalDateTime nå = LocalDateTime.now();
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
         InntektsmeldingBuilder sisteInntektsmeldingBuilder = InntektsmeldingBuilder.builder()
@@ -112,8 +108,8 @@ public class InntektsmeldingAggregatEntitetTest {
 
     @Test
     public void skal_benytte_innsendingstidpunkt_hvis_de_er_ulike() {
-        LocalDateTime nå = FPDateUtil.nå();
-        LocalDateTime omTi = FPDateUtil.nå().plusMinutes(10);
+        LocalDateTime nå = LocalDateTime.now();
+        LocalDateTime omTi = LocalDateTime.now().plusMinutes(10);
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
         InntektsmeldingBuilder sisteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();

@@ -4,15 +4,15 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
 @ProsessTask(RegenererVedtaksXmlDatavarehusTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class RegenererVedtaksXmlDatavarehusTask implements ProsessTaskHandler {
+public class RegenererVedtaksXmlDatavarehusTask extends GenerellProsessTask {
 
     public static final String TASKTYPE = "iverksetteVedtak.regenererVedtakXmlTilDatavarehus";
     private DatavarehusTjeneste datavarehusTjeneste;
@@ -22,12 +22,12 @@ public class RegenererVedtaksXmlDatavarehusTask implements ProsessTaskHandler {
 
     @Inject
     public RegenererVedtaksXmlDatavarehusTask(DatavarehusTjeneste datavarehusTjeneste) {
+        super();
         this.datavarehusTjeneste = datavarehusTjeneste;
     }
 
     @Override
-    public void doTask(ProsessTaskData prosessTaskData) {
-        Long behandlingId = prosessTaskData.getBehandlingId();
+    public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         datavarehusTjeneste.oppdaterVedtakXml(behandlingId);
     }
 }

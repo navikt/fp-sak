@@ -16,8 +16,6 @@ import javax.persistence.TypedQuery;
 
 import org.hibernate.jpa.QueryHints;
 
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
-
 @ApplicationScoped
 public class KodeverkSynkroniseringRepository {
 
@@ -29,7 +27,7 @@ public class KodeverkSynkroniseringRepository {
     }
 
     @Inject
-    public KodeverkSynkroniseringRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public KodeverkSynkroniseringRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }

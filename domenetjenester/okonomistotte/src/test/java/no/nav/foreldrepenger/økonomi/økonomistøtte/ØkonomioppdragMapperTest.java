@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje15
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TkodeStatusLinje;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class ØkonomioppdragMapperTest {
 
@@ -424,9 +423,9 @@ public class ØkonomioppdragMapperTest {
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming115(avstemming115)
             .medOmpostering116(erOmpostering ? new Ompostering116.Builder().medOmPostering("J")
-                .medDatoOmposterFom(FPDateUtil.iDag())
+                .medDatoOmposterFom(LocalDate.now())
                 .medSaksbehId("J5624215")
-                .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(FPDateUtil.nå()))
+                .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
                 .build() : null)
             .build();
 

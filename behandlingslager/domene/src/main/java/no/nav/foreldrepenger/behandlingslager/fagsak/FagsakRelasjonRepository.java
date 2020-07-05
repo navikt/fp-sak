@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class FagsakRelasjonRepository {
@@ -38,7 +37,7 @@ public class FagsakRelasjonRepository {
     }
 
     @Inject
-    public FagsakRelasjonRepository(@VLPersistenceUnit EntityManager entityManager, YtelsesFordelingRepository ytelsesFordelingRepository,
+    public FagsakRelasjonRepository( EntityManager entityManager, YtelsesFordelingRepository ytelsesFordelingRepository,
                                     FagsakLåsRepository fagsakLåsRepository) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;

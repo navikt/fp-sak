@@ -20,7 +20,6 @@ import javax.persistence.TypedQuery;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class PipRepository {
@@ -32,7 +31,7 @@ public class PipRepository {
     }
 
     @Inject
-    public PipRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public PipRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

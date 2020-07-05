@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.svp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,11 +12,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Hendels
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.vedtak.util.FPDateUtil;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 class SvpHelper {
 
@@ -40,7 +41,7 @@ class SvpHelper {
             .medIngenTilrettelegging(jordmorsdato)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
-            .medMottattTidspunkt(FPDateUtil.nå())
+            .medMottattTidspunkt(LocalDateTime.now())
             .medKopiertFraTidligereBehandling(false)
             .build();
         var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
@@ -55,9 +56,7 @@ class SvpHelper {
         var terminBuilder = builder.getTerminbekreftelseBuilder();
         terminBuilder.medTermindato(termindato);
         terminBuilder.medUtstedtDato(termindato.minusMonths(7));
-        for (LocalDate fødselsdato : fødselsdatoer) {
-            builder.leggTilBarn(fødselsdato);
-        }
+        Arrays.stream(fødselsdatoer).forEach(builder::leggTilBarn);
         return builder.medTerminbekreftelse(terminBuilder);
     }
 

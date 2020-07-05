@@ -7,8 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -38,7 +36,7 @@ public class OpprettOppgaveVurderKonsekvensTaskTest {
         when(repositoryProvider.getFagsakLåsRepository()).thenReturn(låsRepository);
         when(låsRepository.taLås(anyLong())).thenReturn(mock(FagsakLås.class));
 
-        opprettOppgaveVurderKonsekvensTask = new OpprettOppgaveVurderKonsekvensTask(oppgaveTjeneste, repositoryProvider);
+        opprettOppgaveVurderKonsekvensTask = new OpprettOppgaveVurderKonsekvensTask(oppgaveTjeneste);
     }
 
     @Test

@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import no.nav.vedtak.util.FPDateUtil;
-
 public class ManuellRegistreringValidatorUtil {
 
     private ManuellRegistreringValidatorUtil() {
@@ -95,7 +93,7 @@ public class ManuellRegistreringValidatorUtil {
         }
 
         boolean erFørDagensDato() {
-            LocalDate now = FPDateUtil.iDag();
+            LocalDate now = LocalDate.now();
             return !(start.isAfter(now) || start.isEqual(now) || slutt.isAfter(now));
         }
     }

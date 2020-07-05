@@ -27,13 +27,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.BehandlingStatusDto;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.JsonObjectMapper;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducer;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducerFeil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.util.env.Cluster;
 import no.nav.vedtak.util.env.Environment;
@@ -41,7 +41,7 @@ import no.nav.vedtak.util.env.Environment;
 @ApplicationScoped
 @ProsessTask(SakOgBehandlingTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class SakOgBehandlingTask implements ProsessTaskHandler {
+public class SakOgBehandlingTask extends GenerellProsessTask {
 
     public static final String TASKTYPE = "behandlingskontroll.oppdatersakogbehandling";
 
@@ -60,6 +60,7 @@ public class SakOgBehandlingTask implements ProsessTaskHandler {
     @Inject
     public SakOgBehandlingTask(SakOgBehandlingHendelseProducer producer,
                                BehandlingRepositoryProvider repositoryProvider) {
+        super();
         this.producer = producer;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -68,8 +69,7 @@ public class SakOgBehandlingTask implements ProsessTaskHandler {
     }
 
     @Override
-    public void doTask(ProsessTaskData prosessTaskData) {
-        var behandlingId = prosessTaskData.getBehandlingId();
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         if (erT4) {
             LOG.info("SOBKAFKA skipper melding i T4 for behandling {}", behandlingId);
             return;

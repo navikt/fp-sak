@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.vedtak.kafka;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.json.JacksonJsonConfig;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappendeEksternYtelseTjeneste;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelser;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -65,31 +65,30 @@ public class VedtaksHendelseHåndterer {
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksHendelseHåndterer.class);
     private static final ObjectMapper OBJECT_MAPPER = JacksonJsonConfig.getMapper();
 
+    private static final Map<YtelseType, FagsakYtelseType > YTELSE_TYPE_MAP = Map.of(
+        YtelseType.ENGANGSTØNAD, FagsakYtelseType.ENGANGSTØNAD,
+        YtelseType.FORELDREPENGER, FagsakYtelseType.FORELDREPENGER,
+        YtelseType.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER
+    );
+    private static final Set<YtelseType> DB_LOGGES = Set.of(YtelseType.FRISINN, YtelseType.OMSORGSPENGER);
+
     private FagsakTjeneste fagsakTjeneste;
-    private VurderOpphørAvYtelser vurderOpphørAvYtelser;
     private LoggOverlappendeEksternYtelseTjeneste eksternOverlappLogger;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository tilkjentYtelseRepository;
     private Validator validator;
     private ProsessTaskRepository prosessTaskRepository;
 
-    private static final Map<YtelseType, FagsakYtelseType > YTELSE_TYPE_MAP = Map.of(
-        YtelseType.ENGANGSTØNAD, FagsakYtelseType.ENGANGSTØNAD,
-        YtelseType.FORELDREPENGER, FagsakYtelseType.FORELDREPENGER,
-        YtelseType.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER
-        );
 
     public VedtaksHendelseHåndterer() {
     }
 
     @Inject
     public VedtaksHendelseHåndterer(FagsakTjeneste fagsakTjeneste,
-                                    VurderOpphørAvYtelser vurderOpphørAvYtelser,
                                     LoggOverlappendeEksternYtelseTjeneste eksternOverlappLogger,
                                     BehandlingRepositoryProvider repositoryProvider,
                                     ProsessTaskRepository prosessTaskRepository) {
         this.fagsakTjeneste = fagsakTjeneste;
-        this.vurderOpphørAvYtelser = vurderOpphørAvYtelser;
         this.eksternOverlappLogger = eksternOverlappLogger;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.tilkjentYtelseRepository = repositoryProvider.getBeregningsresultatRepository();
@@ -147,18 +146,18 @@ public class VedtaksHendelseHåndterer {
         } catch (Exception e) {
             return;
         }
-
+        // Unngå gå i beina på på iverksettingstasker med sen respons
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-            opprettTaskForBerørtBehandling(behandling);
-            opprettTaskForOpphørAvYtelser(behandling);
-        } //SVP
-        else {
-            opprettTaskForOpphørAvYtelser(behandling);
+            lagreProsesstaskFor(behandling, StartBerørtBehandlingTask.TASKTYPE, 10);
+            lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 15);
+        } else { //SVP
+            lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 10);
         }
     }
 
     void sjekkVedtakOverlapp(YtelseV1 ytelse) {
         // OBS Flere av K9SAK-ytelsene har fom/tom i helg ... ikke bruk VirkedagUtil på dem
+        var harSattUtbetalingsgrad = ytelse.getAnvist().stream().anyMatch(a -> a.getUtbetalingsgrad() != null && a.getUtbetalingsgrad().getVerdi() != null);
         List<LocalDateSegment<Boolean>> ytelsesegments = ytelse.getAnvist().stream()
             // .filter(p -> p.getUtbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) > 0)
             .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), Boolean.TRUE))
@@ -177,17 +176,19 @@ public class VedtaksHendelseHåndterer {
         var ytelseTidslinje = new LocalDateTimeline<>(ytelsesegments, StandardCombinators::alwaysTrueForMatch).compress();
 
         // Flytt flere ytelser hit. Frisinn må logges ugradert. Vurder egen metode for de som kan sjekkes mot gradert overlapp - bruk da LDTL / BigDecmial
-        if (YtelseType.FRISINN.equals(ytelse.getType())) {
-            eksternOverlappLogger.loggOverlappUtenGradering(ytelse, minYtelseDato, ytelseTidslinje, fagsaker);
-            return;
-        } else if (YtelseType.OMSORGSPENGER.equals(ytelse.getType())) {
-            List<LocalDateSegment<BigDecimal>> graderteSegments = ytelse.getAnvist().stream()
-                .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), p.getUtbetalingsgrad().getVerdi()))
-                .collect(Collectors.toList());
-            var gradertTidslinje = new LocalDateTimeline<>(graderteSegments, StandardCombinators::sum).filterValue(v -> v.compareTo(BigDecimal.ZERO) > 0);
+        if (DB_LOGGES.contains(ytelse.getType())) {
+            if (!harSattUtbetalingsgrad) {
+                eksternOverlappLogger.loggOverlappUtenGradering(ytelse, minYtelseDato, ytelseTidslinje, fagsaker);
+                return;
+            } else {
+                List<LocalDateSegment<BigDecimal>> graderteSegments = ytelse.getAnvist().stream()
+                    .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), p.getUtbetalingsgrad().getVerdi()))
+                    .collect(Collectors.toList());
+                var gradertTidslinje = new LocalDateTimeline<>(graderteSegments, StandardCombinators::sum).filterValue(v -> v.compareTo(BigDecimal.ZERO) > 0);
 
-            eksternOverlappLogger.loggOverlappMedGradering(ytelse, minYtelseDato, gradertTidslinje , fagsaker);
-            return;
+                eksternOverlappLogger.loggOverlappMedGradering(ytelse, minYtelseDato, gradertTidslinje , fagsaker);
+                return;
+            }
         }
 
         List<Behandling> behandlinger = fagsaker.stream()
@@ -229,21 +230,16 @@ public class VedtaksHendelseHåndterer {
 
         @TekniskFeil(feilkode = "FP-328773",
             feilmelding = "Vedtatt-Ytelse Feil under parsing av vedtak. key={%s} payload={%s}",
-            logLevel = LogLevel.INFO)
+            logLevel = LogLevel.WARN)
         Feil parsingFeil(String key, String payload, IOException e);
     }
 
-    void opprettTaskForBerørtBehandling(Behandling behandling) {
-        ProsessTaskData berørtBehandlingTask = new ProsessTaskData(StartBerørtBehandlingTask.TASKTYPE);
-        berørtBehandlingTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        berørtBehandlingTask.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(berørtBehandlingTask);
-    }
 
-    void opprettTaskForOpphørAvYtelser(Behandling behandling) {
-        ProsessTaskData vurderOpphør = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
-        vurderOpphør.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        vurderOpphør.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(vurderOpphør);
+    void lagreProsesstaskFor(Behandling behandling, String taskType, int delaysecs) {
+        ProsessTaskData data = new ProsessTaskData(taskType);
+        data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        data.setCallIdFraEksisterende();
+        data.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(delaysecs));
+        prosessTaskRepository.lagre(data);
     }
 }

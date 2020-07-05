@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.adapter.MapBehandlingVedtak;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class MapBehandlingVedtakTest {
 
@@ -41,7 +40,7 @@ public class MapBehandlingVedtakTest {
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
             .buildFor(behandling);
 
-        LocalDate vedtaksdato = FPDateUtil.iDag();
+        LocalDate vedtaksdato = LocalDate.now();
 
         // Act
         var behandlingVedtakFP = mapBehandlingVedtakFP.map(behandling);

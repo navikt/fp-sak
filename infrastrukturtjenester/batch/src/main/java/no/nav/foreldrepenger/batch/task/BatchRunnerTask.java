@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.batch.task;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -17,7 +18,6 @@ import no.nav.foreldrepenger.batch.feil.BatchFeil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * Opp
@@ -55,7 +55,7 @@ public class BatchRunnerTask implements ProsessTaskHandler {
             batchSupportTjeneste.retryAlleProsessTasksFeilet();
             return;
         }
-        if (batchDate != null && !batchDate.equals(FPDateUtil.iDag().toString())) {
+        if (batchDate != null && !batchDate.equals(LocalDate.now().toString())) {
             String logMessage = batchName + " dato passert " + batchDate;
             logger.warn("Kjører ikke batch {}", logMessage);
             return;

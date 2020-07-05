@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.beregnytelse.es;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -14,16 +15,15 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.util.FPDateUtil;
 
 /** Steg for å beregne tilkjent ytelse (for Engangsstønad). */
 @BehandlingStegRef(kode = "BERYT")
@@ -68,7 +68,7 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
             LocalDate satsDato = getSatsDato(behandlingId);
             BeregningSats sats = beregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, satsDato);
             long beregnetYtelse = sats.getVerdi() * antallBarn;
-            LegacyESBeregning beregning = new LegacyESBeregning(sats.getVerdi(), antallBarn, beregnetYtelse, FPDateUtil.nå());
+            LegacyESBeregning beregning = new LegacyESBeregning(sats.getVerdi(), antallBarn, beregnetYtelse, LocalDateTime.now());
 
             Behandling behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandlingId);
             LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
@@ -80,7 +80,7 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
     }
 
     private LocalDate getSatsDato(Long behandlingId) {
-        LocalDate idag = FPDateUtil.iDag();
+        LocalDate idag = LocalDate.now();
         LocalDate satsDato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
         // La stå: For å håndtere at man bruker dagens sats fram til ny trer i kraft
         return satsDato.isBefore(idag) ? satsDato : idag;

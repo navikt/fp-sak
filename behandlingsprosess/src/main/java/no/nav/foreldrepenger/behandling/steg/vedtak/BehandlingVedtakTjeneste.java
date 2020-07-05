@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class BehandlingVedtakTjeneste {
@@ -46,7 +45,7 @@ public class BehandlingVedtakTjeneste {
             vedtakResultatType = UtledVedtakResultatType.utled(behandling);
         }
         String ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
-        LocalDateTime vedtakstidspunkt = FPDateUtil.nå();
+        LocalDateTime vedtakstidspunkt = LocalDateTime.now();
 
         boolean erRevurderingMedUendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(behandling);
         BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()

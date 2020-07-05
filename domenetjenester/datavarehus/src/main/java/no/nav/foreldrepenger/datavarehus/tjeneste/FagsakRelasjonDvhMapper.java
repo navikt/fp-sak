@@ -1,8 +1,9 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
+import java.time.LocalDateTime;
+
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.datavarehus.domene.FagsakRelasjonDvh;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class FagsakRelasjonDvhMapper {
 
@@ -18,7 +19,7 @@ public class FagsakRelasjonDvhMapper {
             .fagsakNrTo(fagsakNrTo)
             .dekningsgrad(fagsakRelasjon.getDekningsgrad())
             .avsluttningsdato(fagsakRelasjon.getAvsluttningsdato())
-            .funksjonellTid(FPDateUtil.nå())
+            .funksjonellTid(LocalDateTime.now())
             .endretAv(CommonDvhMapper.finnEndretAvEllerOpprettetAv(fagsakRelasjon))
             .build();
     }

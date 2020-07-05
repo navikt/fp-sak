@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class LegacyESBeregningRepository {
@@ -37,7 +36,7 @@ public class LegacyESBeregningRepository {
     }
 
     @Inject
-    public LegacyESBeregningRepository(@VLPersistenceUnit EntityManager entityManager, BehandlingRepository behandlingRepository) {
+    public LegacyESBeregningRepository( EntityManager entityManager, BehandlingRepository behandlingRepository) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.behandlingRepository = behandlingRepository;
         this.entityManager = entityManager;

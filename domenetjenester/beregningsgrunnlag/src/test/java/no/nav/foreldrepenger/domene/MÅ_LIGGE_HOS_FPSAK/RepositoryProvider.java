@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 /**
  * Provider for å enklere å kunne hente ut ulike repository uten for mange injection points.
@@ -19,7 +18,7 @@ public class RepositoryProvider {
 
     private EntityManager entityManager;
 
-    public RepositoryProvider(@VLPersistenceUnit EntityManager entityManager) {
+    public RepositoryProvider( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }

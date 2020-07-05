@@ -17,7 +17,6 @@ import org.hibernate.jpa.QueryHints;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class BeregningsresultatRepository {
@@ -30,7 +29,7 @@ public class BeregningsresultatRepository {
     }
 
     @Inject
-    public BeregningsresultatRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public BeregningsresultatRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
         this.behandlingLåsRepository = new BehandlingLåsRepository(entityManager);

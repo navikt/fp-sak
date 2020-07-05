@@ -11,7 +11,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class NavBrukerRepository {
@@ -23,7 +22,7 @@ public class NavBrukerRepository {
     }
 
     @Inject
-    public NavBrukerRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public NavBrukerRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }

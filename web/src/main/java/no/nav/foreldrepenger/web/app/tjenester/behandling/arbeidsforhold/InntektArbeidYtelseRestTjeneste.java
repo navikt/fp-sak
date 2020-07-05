@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.util.FPDateUtil;
 
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
@@ -149,7 +148,7 @@ public class InntektArbeidYtelseRestTjeneste {
     }
 
     private Optional<AktørId> getAnnenPart(Long behandlingId, Behandling behandling) {
-        LocalDate personopplysningTidspunkt = FPDateUtil.iDag(); // TODO: Hvorfor bruker denne dagens dato og ikke skjæringstidspunkt? (fra InntektArbeidYtelseDtoMapper commit 81e8624)
+        LocalDate personopplysningTidspunkt = LocalDate.now(); // TODO: Hvorfor bruker denne dagens dato og ikke skjæringstidspunkt? (fra InntektArbeidYtelseDtoMapper commit 81e8624)
         Optional<PersonopplysningerAggregat> personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandlingId, behandling.getAktørId(), personopplysningTidspunkt);
         Optional<AktørId> annenPartAktørId = personopplysningerAggregat.flatMap(PersonopplysningerAggregat::getOppgittAnnenPart).map(OppgittAnnenPartEntitet::getAktørId);
         return annenPartAktørId;

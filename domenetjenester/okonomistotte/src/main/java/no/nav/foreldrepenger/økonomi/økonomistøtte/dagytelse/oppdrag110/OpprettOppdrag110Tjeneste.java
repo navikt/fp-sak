@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.oppdrag110;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
@@ -13,11 +14,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekv
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettOppdragTjeneste;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.FinnMottakerInfoITilkjentYtelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp.OppdragInput;
-import no.nav.vedtak.util.FPDateUtil;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 
 public class OpprettOppdrag110Tjeneste {
 
@@ -94,7 +94,7 @@ public class OpprettOppdrag110Tjeneste {
         boolean erAvslåttInntrekk = behandlingInfo.isAvslåttInntrekk();
         Ompostering116.Builder ompostering116Builder = new Ompostering116.Builder()
             .medSaksbehId(behandlingInfo.getAnsvarligSaksbehandler())
-            .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(FPDateUtil.nå()))
+            .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
             .medOmPostering(erAvslåttInntrekk ? OppdragskontrollConstants.OMPOSTERING_N : OppdragskontrollConstants.OMPOSTERING_J);
         if (!erAvslåttInntrekk) {
             LocalDate datoOmposterFom = finnDatoOmposterFom(behandlingInfo);

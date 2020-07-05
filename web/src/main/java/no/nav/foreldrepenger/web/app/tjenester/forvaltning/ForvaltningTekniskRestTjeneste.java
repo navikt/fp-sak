@@ -6,6 +6,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRIFT;
 
 import java.util.List;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -47,8 +48,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @Path("/forvaltningTeknisk")
 @ApplicationScoped
@@ -94,7 +97,8 @@ public class ForvaltningTekniskRestTjeneste {
         })
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response setTaskFerdig(@Parameter(description = "Task som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto taskId) {
+    public Response setTaskFerdig(@TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class)
+                                      @Parameter(description = "Task som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto taskId) {
         ProsessTaskData data = prosessTaskRepository.finn(taskId.getProsessTaskId());
         if (data != null) {
             data.setStatus(ProsessTaskStatus.FERDIG);
@@ -119,8 +123,9 @@ public class ForvaltningTekniskRestTjeneste {
         })
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response ferdigstillOppgave(@BeanParam @Valid ForvaltningBehandlingIdDto behandlingIdDto,
-        @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto) {
+    public Response ferdigstillOppgave(@TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class)
+                                       @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto,
+                                       @BeanParam @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
         try {
             oppgaveTjeneste.ferdigstillOppgaveForForvaltning(behandlingIdDto.getBehandlingId(), oppgaveIdDto.getProsessTaskId().toString());
         } catch (Exception e) {
@@ -143,8 +148,9 @@ public class ForvaltningTekniskRestTjeneste {
         })
     @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response feilregistrerOppgave(@BeanParam @Valid ForvaltningBehandlingIdDto behandlingIdDto,
-                                       @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto) {
+    public Response feilregistrerOppgave(@TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class)
+                                         @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto,
+                                         @BeanParam @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
         try {
             oppgaveTjeneste.feilregistrerOppgaveForForvaltning(behandlingIdDto.getBehandlingId(), oppgaveIdDto.getProsessTaskId().toString());
         } catch (Exception e) {
@@ -333,5 +339,11 @@ public class ForvaltningTekniskRestTjeneste {
         return Response.ok().build();
     }
 
+    public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            return AbacDataAttributter.opprett();
+        }
+    }
 
 }

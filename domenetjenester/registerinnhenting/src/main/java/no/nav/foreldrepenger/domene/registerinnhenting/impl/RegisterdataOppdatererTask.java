@@ -49,8 +49,7 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
-        Long behandlingsId = prosessTaskData.getBehandlingId();
+    protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingsId) {
         // NB lås før hent behandling
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingsId);
         Behandling behandling = behandlingRepository.hentBehandling(behandlingsId);

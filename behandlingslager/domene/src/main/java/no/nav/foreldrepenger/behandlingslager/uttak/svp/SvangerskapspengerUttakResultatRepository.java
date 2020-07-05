@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class SvangerskapspengerUttakResultatRepository {
@@ -23,7 +22,7 @@ public class SvangerskapspengerUttakResultatRepository {
     }
 
     @Inject
-    public SvangerskapspengerUttakResultatRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public SvangerskapspengerUttakResultatRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
         this.behandlingLåsRepository = new BehandlingLåsRepository(entityManager);

@@ -13,7 +13,6 @@ import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class SvangerskapspengerRepository {
@@ -21,7 +20,7 @@ public class SvangerskapspengerRepository {
     private EntityManager entityManager;
 
     @Inject
-    public SvangerskapspengerRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public SvangerskapspengerRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }

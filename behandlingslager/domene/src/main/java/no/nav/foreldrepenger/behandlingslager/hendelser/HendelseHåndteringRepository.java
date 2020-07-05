@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class HendelseHåndteringRepository {
@@ -24,7 +23,7 @@ public class HendelseHåndteringRepository {
     }
 
     @Inject
-    public HendelseHåndteringRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public HendelseHåndteringRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

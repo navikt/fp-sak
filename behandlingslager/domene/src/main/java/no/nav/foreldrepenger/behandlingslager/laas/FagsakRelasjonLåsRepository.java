@@ -5,8 +5,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
-
 @ApplicationScoped
 public class FagsakRelasjonLåsRepository {
 
@@ -16,7 +14,7 @@ public class FagsakRelasjonLåsRepository {
     }
 
     @Inject
-    public FagsakRelasjonLåsRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public FagsakRelasjonLåsRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

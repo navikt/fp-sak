@@ -19,10 +19,10 @@ import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
 public class AvklarOmErBosattTest {
@@ -170,14 +169,14 @@ public class AvklarOmErBosattTest {
         // Arrange
         LocalDate fødselsDato = LocalDate.now();
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medSøknad().medMottattDato(FPDateUtil.iDag());
+        scenario.medSøknad().medMottattDato(LocalDate.now());
         scenario.medDefaultOppgittTilknytning();
         scenario.medDefaultSøknadTerminbekreftelse();
 
         MedlemskapOppgittLandOppholdEntitet fremtidigOppholdISverige = new MedlemskapOppgittLandOppholdEntitet.Builder()
             .erTidligereOpphold(false)
             .medLand(Landkoder.SWE)
-            .medPeriode(FPDateUtil.iDag().plusDays(20), FPDateUtil.iDag().plusYears(2))
+            .medPeriode(LocalDate.now().plusDays(20), LocalDate.now().plusYears(2))
             .build();
 
         leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR);
@@ -199,32 +198,32 @@ public class AvklarOmErBosattTest {
         // Arrange
         LocalDate fødselsDato = LocalDate.now();
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medSøknad().medMottattDato(FPDateUtil.iDag());
+        scenario.medSøknad().medMottattDato(LocalDate.now());
         scenario.medDefaultOppgittTilknytning();
         scenario.medDefaultSøknadTerminbekreftelse();
 
         MedlemskapOppgittLandOppholdEntitet swe = new MedlemskapOppgittLandOppholdEntitet.Builder()
             .erTidligereOpphold(false)
             .medLand(Landkoder.SWE)
-            .medPeriode(FPDateUtil.iDag().plusDays(0), FPDateUtil.iDag().plusMonths(2))
+            .medPeriode(LocalDate.now().plusDays(0), LocalDate.now().plusMonths(2))
             .build();
 
         MedlemskapOppgittLandOppholdEntitet usa = new MedlemskapOppgittLandOppholdEntitet.Builder()
             .erTidligereOpphold(false)
             .medLand(Landkoder.USA)
-            .medPeriode(FPDateUtil.iDag().plusMonths(2), FPDateUtil.iDag().plusMonths(4))
+            .medPeriode(LocalDate.now().plusMonths(2), LocalDate.now().plusMonths(4))
             .build();
 
         MedlemskapOppgittLandOppholdEntitet bel = new MedlemskapOppgittLandOppholdEntitet.Builder()
             .erTidligereOpphold(false)
             .medLand(Landkoder.BEL)
-            .medPeriode(FPDateUtil.iDag().plusMonths(4), FPDateUtil.iDag().plusMonths(6))
+            .medPeriode(LocalDate.now().plusMonths(4), LocalDate.now().plusMonths(6))
             .build();
 
         MedlemskapOppgittLandOppholdEntitet png = new MedlemskapOppgittLandOppholdEntitet.Builder()
             .erTidligereOpphold(false)
             .medLand(Landkoder.PNG)
-            .medPeriode(FPDateUtil.iDag().plusMonths(6), FPDateUtil.iDag().plusMonths(8))
+            .medPeriode(LocalDate.now().plusMonths(6), LocalDate.now().plusMonths(8))
             .build();
 
         leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR);
@@ -245,32 +244,32 @@ public class AvklarOmErBosattTest {
         // Arrange
         LocalDate fødselsDato = LocalDate.now();
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medSøknad().medMottattDato(FPDateUtil.iDag());
+        scenario.medSøknad().medMottattDato(LocalDate.now());
         scenario.medDefaultOppgittTilknytning();
         scenario.medDefaultSøknadTerminbekreftelse();
 
         MedlemskapOppgittLandOppholdEntitet swe = new MedlemskapOppgittLandOppholdEntitet.Builder()
             .erTidligereOpphold(false)
             .medLand(Landkoder.SWE)
-            .medPeriode(FPDateUtil.iDag().plusDays(0), FPDateUtil.iDag().plusMonths(2))
+            .medPeriode(LocalDate.now().plusDays(0), LocalDate.now().plusMonths(2))
             .build();
 
         MedlemskapOppgittLandOppholdEntitet usa = new MedlemskapOppgittLandOppholdEntitet.Builder()
             .erTidligereOpphold(false)
             .medLand(Landkoder.USA)
-            .medPeriode(FPDateUtil.iDag().plusMonths(2), FPDateUtil.iDag().plusMonths(4))
+            .medPeriode(LocalDate.now().plusMonths(2), LocalDate.now().plusMonths(4))
             .build();
 
         MedlemskapOppgittLandOppholdEntitet bel = new MedlemskapOppgittLandOppholdEntitet.Builder()
             .erTidligereOpphold(false)
             .medLand(Landkoder.BEL)
-            .medPeriode(FPDateUtil.iDag().plusMonths(4), FPDateUtil.iDag().plusMonths(6))
+            .medPeriode(LocalDate.now().plusMonths(4), LocalDate.now().plusMonths(6))
             .build();
 
         MedlemskapOppgittLandOppholdEntitet png = new MedlemskapOppgittLandOppholdEntitet.Builder()
             .erTidligereOpphold(false)
             .medLand(Landkoder.PNG)
-            .medPeriode(FPDateUtil.iDag().plusMonths(6), FPDateUtil.iDag().plusMonths(15))
+            .medPeriode(LocalDate.now().plusMonths(6), LocalDate.now().plusMonths(15))
             .build();
 
         leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR);
@@ -296,7 +295,7 @@ public class AvklarOmErBosattTest {
         MedlemskapOppgittLandOppholdEntitet fremtidigOppholdISverige = new MedlemskapOppgittLandOppholdEntitet.Builder()
             .erTidligereOpphold(false)
             .medLand(Landkoder.SWE)
-            .medPeriode(FPDateUtil.iDag().plusDays(20), FPDateUtil.iDag().plusYears(2))
+            .medPeriode(LocalDate.now().plusDays(20), LocalDate.now().plusYears(2))
             .build();
 
         leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR);
@@ -317,14 +316,14 @@ public class AvklarOmErBosattTest {
         // Arrange
         LocalDate fødselsDato = LocalDate.now();
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medSøknad().medMottattDato(FPDateUtil.iDag());
+        scenario.medSøknad().medMottattDato(LocalDate.now());
         scenario.medDefaultOppgittTilknytning();
         scenario.medDefaultSøknadTerminbekreftelse();
 
         MedlemskapOppgittLandOppholdEntitet fremtidigOppholdISverige = new MedlemskapOppgittLandOppholdEntitet.Builder()
             .erTidligereOpphold(false)
             .medLand(Landkoder.SWE)
-            .medPeriode(FPDateUtil.iDag().plusDays(20), FPDateUtil.iDag().plusMonths(9))
+            .medPeriode(LocalDate.now().plusDays(20), LocalDate.now().plusMonths(9))
             .build();
 
         leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR);

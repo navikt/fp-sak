@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingStegDvh;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class BehandlingStegDvhMapper {
 
@@ -16,7 +16,7 @@ public class BehandlingStegDvhMapper {
             .behandlingStegStatus(finnBehandlingStegStatusKode(behandlingStegTilstand))
             .behandlingStegType(behandlingStegTilstand.getSteg().getKode())
             .endretAv("VL")
-            .funksjonellTid(FPDateUtil.nå())
+            .funksjonellTid(LocalDateTime.now())
             .build();
     }
 

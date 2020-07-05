@@ -26,9 +26,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
-import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.vedtak.util.FPDateUtil;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
 /**
  * Aksjonspunkter for søknad om engangsstønad for fødsel
@@ -91,8 +90,8 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
         LocalDate venteFrist = grunnlag.getSøknadVersjon().getBarna().stream()
             .map(barn -> barn.getFødselsdato().plusDays(14))
             .findFirst()
-            .orElse(FPDateUtil.iDag());
-        return LocalDateTime.of(venteFrist, FPDateUtil.nå().toLocalTime());
+            .orElse(LocalDate.now());
+        return LocalDateTime.of(venteFrist, LocalDateTime.now().toLocalTime());
     }
 
     Utfall harSøkerOppgittFødselISøknad(FamilieHendelseGrunnlagEntitet grunnlag) {

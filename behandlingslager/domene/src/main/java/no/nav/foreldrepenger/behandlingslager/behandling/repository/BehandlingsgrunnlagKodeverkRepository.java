@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodelisteRelasjon;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class BehandlingsgrunnlagKodeverkRepository {
@@ -34,7 +33,7 @@ public class BehandlingsgrunnlagKodeverkRepository {
     }
 
     @Inject
-    public BehandlingsgrunnlagKodeverkRepository(@VLPersistenceUnit EntityManager entityManager,
+    public BehandlingsgrunnlagKodeverkRepository( EntityManager entityManager,
                                                      KodeverkRepository kodeverkRepository) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;

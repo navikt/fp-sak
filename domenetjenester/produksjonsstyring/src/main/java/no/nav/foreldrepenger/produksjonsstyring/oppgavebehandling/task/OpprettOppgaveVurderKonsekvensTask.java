@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task;
 
 import static no.nav.foreldrepenger.historikk.OppgaveÅrsak.VURDER_KONS_FOR_YTELSE;
+import static no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask.TASKTYPE;
 
 import java.util.Optional;
 
@@ -10,13 +11,11 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import static no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask.TASKTYPE;
 
 /**
  * <p>
@@ -27,7 +26,7 @@ import static no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.Op
 @ApplicationScoped
 @ProsessTask(TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class OpprettOppgaveVurderKonsekvensTask extends FagsakProsessTask {
+public class OpprettOppgaveVurderKonsekvensTask extends GenerellProsessTask {
     public static final String TASKTYPE = "oppgavebehandling.opprettOppgaveVurderKonsekvens";
     public static final String KEY_BEHANDLENDE_ENHET = "behandlendEnhetsId";
     public static final String KEY_BESKRIVELSE = "beskrivelse";
@@ -45,14 +44,13 @@ public class OpprettOppgaveVurderKonsekvensTask extends FagsakProsessTask {
     }
 
     @Inject
-    public OpprettOppgaveVurderKonsekvensTask(OppgaveTjeneste oppgaveTjeneste,
-                                              BehandlingRepositoryProvider repositoryProvider) {
-        super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
+    public OpprettOppgaveVurderKonsekvensTask(OppgaveTjeneste oppgaveTjeneste) {
+        super();
         this.oppgaveTjeneste = oppgaveTjeneste;
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData){
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId){
         String behandlendeEnhet = prosessTaskData.getPropertyValue(KEY_BEHANDLENDE_ENHET);
         String beskrivelse = prosessTaskData.getPropertyValue(KEY_BESKRIVELSE);
         String prioritet = prosessTaskData.getPropertyValue(KEY_PRIORITET);

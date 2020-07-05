@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 /**
  * Provider for å enklere å kunne hente ut ulike repository uten for mange injection points.
@@ -64,7 +63,7 @@ public class BehandlingRepositoryProvider {
     }
 
     @Inject
-    public BehandlingRepositoryProvider(@VLPersistenceUnit EntityManager entityManager) {
+    public BehandlingRepositoryProvider( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
 

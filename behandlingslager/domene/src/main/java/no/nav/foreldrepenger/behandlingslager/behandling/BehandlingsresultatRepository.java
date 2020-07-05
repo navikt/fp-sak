@@ -9,7 +9,6 @@ import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class BehandlingsresultatRepository {
@@ -18,7 +17,7 @@ public class BehandlingsresultatRepository {
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    public BehandlingsresultatRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public BehandlingsresultatRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
         behandlingRepository = new BehandlingRepository(entityManager);
     }
