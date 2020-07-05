@@ -40,7 +40,6 @@ import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
 public class FagsakProsessTaskRepository {
 
     private static final Logger log = LoggerFactory.getLogger(FagsakProsessTaskRepository.class);
-    private static final Set<ProsessTaskStatus> FERDIG_STATUSER = Set.of(ProsessTaskStatus.FERDIG, ProsessTaskStatus.KJOERT);
 
     private EntityManager entityManager;
     private ProsessTaskRepository prosessTaskRepository;
@@ -139,9 +138,9 @@ public class FagsakProsessTaskRepository {
             Optional<ProsessTaskData> feilet = matchedTasks.stream().filter(t -> t.getStatus().equals(ProsessTaskStatus.FEILET)).findFirst();
 
             Set<String> nyeTaskTyper = nyeTasks.stream().map(t -> t.getTask().getTaskType()).collect(Collectors.toSet());
-            Set<String> eksisterendeTaskTyper = eksisterendeTasks.stream().map(t -> t.getTaskType()).collect(Collectors.toSet());
+            Set<String> eksisterendeTaskTyper = eksisterendeTasks.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toSet());
 
-            if (!feilet.isPresent()) {
+            if (feilet.isEmpty()) {
                 if(eksisterendeTaskTyper.containsAll(nyeTaskTyper)){
                     return eksisterendeTasks.get(0).getGruppe();
                 } else {
@@ -175,6 +174,7 @@ public class FagsakProsessTaskRepository {
         if (tasks.isEmpty()) {
             // ignorerer alle ferdig, suspendert, veto når vi søker blant alle grupper
             statuser.remove(ProsessTaskStatus.FERDIG);
+            statuser.remove(ProsessTaskStatus.KJOERT);
             statuser.remove(ProsessTaskStatus.SUSPENDERT);
             tasks = finnAlleForAngittSøk(fagsakId, behandlingId, null, new ArrayList<>(statuser), fom, tom);
         }
@@ -230,11 +230,9 @@ public class FagsakProsessTaskRepository {
 
         Optional<FagsakProsessTask> fagsakProsessTaskOpt = hent(prosessTaskId, true);
 
-        if (fagsakProsessTaskOpt.isPresent()) {
-            if (FERDIG_STATUSER.contains(status)) {
-                // fjern link
-                fjern(fagsakId, ptEvent.getId(), fagsakProsessTaskOpt.get().getGruppeSekvensNr());
-            }
+        if (fagsakProsessTaskOpt.isPresent() && status.erKjørt()) {
+            // fjern link
+            fjern(fagsakId, ptEvent.getId(), fagsakProsessTaskOpt.get().getGruppeSekvensNr());
         }
 
     }
