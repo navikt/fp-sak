@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class MottatteDokumentRepository {
@@ -28,7 +27,7 @@ public class MottatteDokumentRepository {
     }
 
     @Inject
-    public MottatteDokumentRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public MottatteDokumentRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }
@@ -59,7 +58,7 @@ public class MottatteDokumentRepository {
             .setParameter(PARAM_KEY, behandlingId)
             .getResultList();
     }
-    
+
     /**
      * Returnerer liste av MottattDokument.
      * NB: Kan returnere samme dokument flere ganger dersom de har ulike eks. mottatt_dato, journalføringsenhet (dersom byttet enhet). Er derfor
@@ -114,9 +113,9 @@ public class MottatteDokumentRepository {
 
     /**
      * Returnerer liste av MottattDokument.
-     * 
+     *
      * Henter alle dokument med type som ikke er søknad, endringssøknad, klage, IM (eller udefinert)
-     * 
+     *
      * NB: Kan returnere samme dokument flere ganger dersom de har ulike eks. mottatt_dato, journalføringsenhet (dersom byttet enhet). Er derfor
      * ikke å anbefale å bruke.
      */

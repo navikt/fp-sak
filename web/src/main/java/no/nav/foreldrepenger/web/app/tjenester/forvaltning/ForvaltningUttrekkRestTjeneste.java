@@ -39,12 +39,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverla
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.VedtakOverlappAvstemTask;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingSaksnummerDto;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -66,7 +65,7 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     @Inject
-    public ForvaltningUttrekkRestTjeneste(@VLPersistenceUnit EntityManager entityManager,
+    public ForvaltningUttrekkRestTjeneste( EntityManager entityManager,
                                           BehandlingRepositoryProvider repositoryProvider,
                                           ProsessTaskRepository prosessTaskRepository,
                                           BehandlingOverlappInfotrygdRepository overlappRepository) {
@@ -146,10 +145,10 @@ public class ForvaltningUttrekkRestTjeneste {
     @BeskyttetRessurs(action = READ, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response avstemPeriodeForOverlapp(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
-        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_KEY_KEY, dto.getKey());
-        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_FOM_KEY, dto.getFom().toString());
-        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_TOM_KEY, dto.getTom().toString());
+        ProsessTaskData prosessTaskData = new ProsessTaskData(VedtakOverlappAvstemTask.TASKTYPE);
+        prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TEMA_KEY_KEY, dto.getKey());
+        prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_FOM_KEY, dto.getFom().toString());
+        prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TOM_KEY, dto.getTom().toString());
         prosessTaskData.setCallIdFraEksisterende();
 
         prosessTaskRepository.lagre(prosessTaskData);
@@ -164,10 +163,10 @@ public class ForvaltningUttrekkRestTjeneste {
     @BeskyttetRessurs(action = READ, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response avstemSakForOverlapp(@Parameter(description = "Saksnummer") @BeanParam @Valid AvstemmingSaksnummerDto s) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
-        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_KEY_KEY, VurderOpphørAvYtelserTask.HIJACK_BOTH_KEY);
-        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_SAKSNUMMER_KEY, s.getSaksnummer());
-        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.HIJACK_PREFIX_KEY, "AvstemSak-");
+        ProsessTaskData prosessTaskData = new ProsessTaskData(VedtakOverlappAvstemTask.TASKTYPE);
+        prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TEMA_KEY_KEY, VedtakOverlappAvstemTask.LOG_TEMA_BOTH_KEY);
+        prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_SAKSNUMMER_KEY, s.getSaksnummer());
+        prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_PREFIX_KEY, "AvstemSak-");
         prosessTaskData.setCallIdFraEksisterende();
 
         prosessTaskRepository.lagre(prosessTaskData);

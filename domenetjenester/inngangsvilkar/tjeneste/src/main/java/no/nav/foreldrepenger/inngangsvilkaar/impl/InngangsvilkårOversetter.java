@@ -65,7 +65,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.Soeknadsf
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class InngangsvilkårOversetter {
@@ -109,7 +108,7 @@ public class InngangsvilkårOversetter {
         FødselsvilkårGrunnlag grunnlag = new FødselsvilkårGrunnlag(
             tilSoekerKjoenn(getSøkersKjønn(ref)),
             finnSoekerRolle(ref),
-            FPDateUtil.iDag(),
+            LocalDate.now(),
             familieHendelse.map(FamilieHendelseEntitet::erMorForSykVedFødsel).orElse(false),
             erSøktOmTermin(familieHendelseGrunnlag.getSøknadVersjon()),
             erTerminBekreftelseUtstedtEtterXUker(familieHendelse.orElse(null)));

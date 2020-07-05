@@ -99,8 +99,7 @@ public class OppdaterSakOgBehandlingEventObserverTest {
         assertThat(prosessTaskData.getTaskType()).isEqualTo(SakOgBehandlingTask.TASKTYPE);
         assertThat(new AktørId(prosessTaskData.getAktørId()))
             .isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
-        assertThat(prosessTaskData.getBehandlingId())
-            .isEqualTo(scenario.getBehandling().getId());
+        assertThat(prosessTaskData.getBehandlingId()).isEqualTo(scenario.getBehandling().getId().toString());
     }
 
 }

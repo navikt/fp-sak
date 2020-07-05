@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class SøknadRepository {
@@ -26,7 +25,7 @@ public class SøknadRepository {
     }
 
     @Inject
-    public SøknadRepository(@VLPersistenceUnit EntityManager entityManager, BehandlingRepository behandlingRepository) {
+    public SøknadRepository( EntityManager entityManager, BehandlingRepository behandlingRepository) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
         this.behandlingRepository = behandlingRepository;

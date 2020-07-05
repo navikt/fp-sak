@@ -22,7 +22,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.TaskStatus;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class AutomatiskGjenopptagelseTjeneste {
@@ -82,7 +81,7 @@ public class AutomatiskGjenopptagelseTjeneste {
     }
 
     public String oppdaterBehandlingerFraOppgaveFrist() {
-        LocalDate tom = FPDateUtil.iDag().minusDays(1);
+        LocalDate tom = LocalDate.now().minusDays(1);
         LocalDate fom = DayOfWeek.MONDAY.equals(tom.getDayOfWeek()) ? tom.minusDays(2) : tom;
         List<OppgaveBehandlingKobling> oppgaveListe = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(fom, tom, OPPGAVE_TYPER);
         String callId = MDCOperations.getCallId();

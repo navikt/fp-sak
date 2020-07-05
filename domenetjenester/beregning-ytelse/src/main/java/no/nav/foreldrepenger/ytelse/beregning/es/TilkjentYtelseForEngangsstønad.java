@@ -1,8 +1,9 @@
 package no.nav.foreldrepenger.ytelse.beregning.es;
 
+import java.time.LocalDateTime;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
-import no.nav.vedtak.util.FPDateUtil;
 
 class TilkjentYtelseForEngangsstønad {
 
@@ -29,7 +30,7 @@ class TilkjentYtelseForEngangsstønad {
         LegacyESBeregning overstyrtBeregning = new LegacyESBeregning(forrigeBeregning.getSatsVerdi(),
                 forrigeBeregning.getAntallBarn(),
                 tilkjentYtelse,
-                FPDateUtil.nå(),
+                LocalDateTime.now(),
                 true,
                 finnOpprinneligBeløp(forrigeBeregning));
 

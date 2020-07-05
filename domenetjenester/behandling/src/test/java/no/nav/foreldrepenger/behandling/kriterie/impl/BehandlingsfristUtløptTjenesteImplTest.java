@@ -49,7 +49,7 @@ public class BehandlingsfristUtløptTjenesteImplTest {
         ProsessTaskData prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.getTaskType()).isEqualTo(FORLENGELSESBREV_TASK);
         assertThat(new AktørId(prosessTaskData.getAktørId())).isEqualTo(AKTØR_ID);
-        assertThat(prosessTaskData.getBehandlingId()).isEqualTo(BEHANDLING_ID);
+        assertThat(prosessTaskData.getBehandlingId()).isEqualTo(BEHANDLING_ID.toString());
         assertThat(prosessTaskData.getFagsakId()).isEqualTo(FAGSAK_ID);
     }
 }

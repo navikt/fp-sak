@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
-import no.nav.vedtak.util.FPDateUtil;
 
 @BehandlingStegRef(kode = "VURDER_OPPTJ")
 @BehandlingTypeRef
@@ -38,7 +37,7 @@ import no.nav.vedtak.util.FPDateUtil;
 public class VurderOpptjeningsvilkårSteg extends VurderOpptjeningsvilkårStegFelles {
 
     @Inject
-    public VurderOpptjeningsvilkårSteg(BehandlingRepositoryProvider repositoryProvider, 
+    public VurderOpptjeningsvilkårSteg(BehandlingRepositoryProvider repositoryProvider,
                                        OpptjeningRepository opptjeningRepository,
                                        InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
         super(repositoryProvider, opptjeningRepository, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
@@ -77,8 +76,8 @@ public class VurderOpptjeningsvilkårSteg extends VurderOpptjeningsvilkårStegFe
 
     private LocalDateTime getVentPåOpptjeningsopplysningerFrist(RegelResultat regelResultat) {
         Optional<OpptjeningsvilkårResultat> resultat = regelResultat.getEkstraResultat(OPPTJENINGSVILKÅRET);
-        LocalDate now = FPDateUtil.iDag();
+        LocalDate now = LocalDate.now();
         LocalDate fristDato = resultat.isPresent() ? resultat.get().getFrist() : now;
-        return of(fristDato, FPDateUtil.nå().toLocalTime());
+        return of(fristDato, LocalDateTime.now().toLocalTime());
     }
 }

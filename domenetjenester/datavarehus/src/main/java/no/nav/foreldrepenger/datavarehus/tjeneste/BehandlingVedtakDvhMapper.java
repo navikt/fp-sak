@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
+import java.time.LocalDateTime;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingVedtakDvh;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class BehandlingVedtakDvhMapper {
 
@@ -13,7 +14,7 @@ public class BehandlingVedtakDvhMapper {
                 .ansvarligSaksbehandler(behandlingVedtak.getAnsvarligSaksbehandler())
                 .behandlingId(behandling.getId())
                 .endretAv(CommonDvhMapper.finnEndretAvEllerOpprettetAv(behandlingVedtak))
-                .funksjonellTid(FPDateUtil.nå())
+                .funksjonellTid(LocalDateTime.now())
                 .godkjennendeEnhet(behandling.getBehandlendeEnhet())
                 .iverksettingStatus(behandlingVedtak.getIverksettingStatus().getKode())
                 .opprettetDato(

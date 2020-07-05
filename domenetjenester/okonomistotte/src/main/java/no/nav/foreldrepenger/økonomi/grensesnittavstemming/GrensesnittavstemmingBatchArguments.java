@@ -14,7 +14,6 @@ import java.util.Set;
 import no.nav.foreldrepenger.batch.BatchArgument;
 import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class GrensesnittavstemmingBatchArguments extends BatchArguments {
 
@@ -76,8 +75,8 @@ public class GrensesnittavstemmingBatchArguments extends BatchArguments {
     }
 
     private void beregneFomOgTomDato() {
-        fom = FPDateUtil.iDag().minusDays(antallDager);
-        tom = FPDateUtil.iDag().minusDays(1);
+        fom = LocalDate.now().minusDays(antallDager);
+        tom = LocalDate.now().minusDays(1);
     }
 
     private LocalDate parsedato(String datoString) {

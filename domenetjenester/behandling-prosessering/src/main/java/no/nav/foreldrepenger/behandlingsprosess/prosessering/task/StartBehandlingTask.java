@@ -32,12 +32,16 @@ public class StartBehandlingTask implements ProsessTaskHandler {
         BehandlingskontrollTjeneste behandlingskontrollTjeneste = cdi.select(BehandlingskontrollTjeneste.class).get();
 
         try {
-            BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(data.getBehandlingId());
+            BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(getBehandlingId(data));
             // TODO (FC): assert at behandlingen starter fra første steg?
             behandlingskontrollTjeneste.prosesserBehandling(kontekst);
         } finally {
             // ikke nødvendig siden vi kjører request scoped, men tar en tidlig destroy
             cdi.destroy(behandlingskontrollTjeneste);
         }
+    }
+
+    private Long getBehandlingId(ProsessTaskData data) {
+        return data.getBehandlingId() != null ? Long.valueOf(data.getBehandlingId()) : null;
     }
 }

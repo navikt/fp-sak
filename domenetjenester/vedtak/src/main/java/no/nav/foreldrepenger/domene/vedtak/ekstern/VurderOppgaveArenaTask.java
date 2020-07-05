@@ -8,9 +8,8 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -19,7 +18,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ApplicationScoped
 @ProsessTask(VurderOppgaveArenaTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class VurderOppgaveArenaTask extends BehandlingProsessTask {
+public class VurderOppgaveArenaTask extends GenerellProsessTask {
 
     private static final Logger log = LoggerFactory.getLogger(VurderOppgaveArenaTask.class);
 
@@ -34,17 +33,15 @@ public class VurderOppgaveArenaTask extends BehandlingProsessTask {
     }
 
     @Inject
-    public VurderOppgaveArenaTask(BehandlingRepositoryProvider repositoryProvider,
-                                  VurderOmArenaYtelseSkalOpphøre vurdereOmArenaYtelseSkalOpphøre,
+    public VurderOppgaveArenaTask(VurderOmArenaYtelseSkalOpphøre vurdereOmArenaYtelseSkalOpphøre,
                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
-        super(repositoryProvider.getBehandlingLåsRepository());
+        super();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.vurdereOmArenaYtelseSkalOpphøre = vurdereOmArenaYtelseSkalOpphøre;
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
-        Long behandlingId = prosessTaskData.getBehandlingId();
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         AktørId aktørId = new AktørId(prosessTaskData.getAktørId());
         LocalDate skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
         vurdereOmArenaYtelseSkalOpphøre.opprettOppgaveHvisArenaytelseSkalOpphøre(behandlingId, aktørId, skjæringstidspunkt);

@@ -45,8 +45,8 @@ public class OppdaterBehandlendeEnhetTask extends BehandlingProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
-        Behandling behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingId());
+    protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         Optional<OrganisasjonsEnhet> nyEnhet = behandlendeEnhetTjeneste.sjekkOppdatertEnhetEtterReallokering(behandling);
         if (nyEnhet.isPresent()) {
             log.info("Endrer behandlende enhet for behandling: {}", prosessTaskData.getBehandlingId()); //NOSONAR

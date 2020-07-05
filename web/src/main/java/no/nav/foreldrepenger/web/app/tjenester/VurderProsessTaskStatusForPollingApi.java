@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class VurderProsessTaskStatusForPollingApi {
     private static final Logger log = LoggerFactory.getLogger(VurderProsessTaskStatusForPollingApi.class);
@@ -34,7 +33,7 @@ public class VurderProsessTaskStatusForPollingApi {
     }
 
     public Optional<AsyncPollingStatus> sjekkStatusNesteProsessTask(String gruppe, Map<String, ProsessTaskData> nesteTask) {
-        LocalDateTime maksTidFørNesteKjøring = FPDateUtil.nå().plusMinutes(2);
+        LocalDateTime maksTidFørNesteKjøring = LocalDateTime.now().plusMinutes(2);
         nesteTask = nesteTask.entrySet().stream()
             .filter(e -> !ProsessTaskStatus.FERDIG.equals(e.getValue().getStatus())) // trenger ikke FERDIG
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

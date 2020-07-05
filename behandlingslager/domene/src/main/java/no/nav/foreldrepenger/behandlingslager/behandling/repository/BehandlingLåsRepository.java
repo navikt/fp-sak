@@ -9,7 +9,6 @@ import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 /**
  * @see BehandlingLås
@@ -23,7 +22,7 @@ public class BehandlingLåsRepository {
     }
 
     @Inject
-    public BehandlingLåsRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public BehandlingLåsRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

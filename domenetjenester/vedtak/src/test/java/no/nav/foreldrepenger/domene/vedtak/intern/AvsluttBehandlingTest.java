@@ -207,7 +207,7 @@ public class AvsluttBehandlingTest {
     private boolean inneholderFortsettBehandlingTaskForBehandling(List<ProsessTaskData> arguments, Behandling behandling) {
         return arguments.stream()
             .anyMatch(argument -> argument.getTaskType().equals(FortsettBehandlingTaskProperties.TASKTYPE)
-                && argument.getBehandlingId().equals(behandling.getId()));
+                && argument.getBehandlingId().equals(behandling.getId().toString()));
     }
 
     @Test

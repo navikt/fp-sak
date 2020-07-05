@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.svp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
@@ -13,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
-import no.nav.vedtak.util.FPDateUtil;
 
 class GrunnlagOppretter {
 
@@ -37,7 +37,7 @@ class GrunnlagOppretter {
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
             .medKopiertFraTidligereBehandling(false)
-            .medMottattTidspunkt(FPDateUtil.nå())
+            .medMottattTidspunkt(LocalDateTime.now())
             .build();
         var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
             .medBehandlingId(behandling.getId())

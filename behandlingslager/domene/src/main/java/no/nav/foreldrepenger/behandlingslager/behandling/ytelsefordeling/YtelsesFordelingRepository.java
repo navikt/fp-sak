@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class YtelsesFordelingRepository {
@@ -26,7 +25,7 @@ public class YtelsesFordelingRepository {
     }
 
     @Inject
-    public YtelsesFordelingRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public YtelsesFordelingRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }

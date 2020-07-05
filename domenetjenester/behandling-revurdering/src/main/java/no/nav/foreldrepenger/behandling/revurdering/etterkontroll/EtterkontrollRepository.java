@@ -14,7 +14,6 @@ import javax.persistence.TypedQuery;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 /**
  * Oppdatering av tilstand for etterkontroll av behandling.
  */
@@ -29,7 +28,7 @@ public class EtterkontrollRepository {
     }
 
     @Inject
-    public EtterkontrollRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public EtterkontrollRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
         this.behandlingRepository = new BehandlingRepository(entityManager);
     }

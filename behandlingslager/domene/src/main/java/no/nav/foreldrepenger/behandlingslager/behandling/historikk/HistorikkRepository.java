@@ -12,7 +12,6 @@ import javax.persistence.TypedQuery;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class HistorikkRepository {
@@ -23,7 +22,7 @@ public class HistorikkRepository {
     }
 
     @Inject
-    public HistorikkRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public HistorikkRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }

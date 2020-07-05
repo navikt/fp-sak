@@ -17,8 +17,6 @@ import javax.persistence.criteria.Root;
 
 import org.hibernate.jpa.QueryHints;
 
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
-
 @ApplicationScoped
 public class FeedRepository {
 
@@ -29,7 +27,7 @@ public class FeedRepository {
     }
 
     @Inject
-    public FeedRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public FeedRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }

@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.vedtak.util.FPDateUtil;
 
 class VarselRevurderingHåndterer {
 
@@ -62,8 +61,8 @@ class VarselRevurderingHåndterer {
 
     private LocalDateTime bestemFristForBehandlingVent(LocalDate frist) {
         return frist != null
-            ? LocalDateTime.of(frist, FPDateUtil.nå().toLocalTime())
-            : FPDateUtil.nå().plus(defaultVenteFrist);
+            ? LocalDateTime.of(frist, LocalDateTime.now().toLocalTime())
+            : LocalDateTime.now().plus(defaultVenteFrist);
     }
 
     private Venteårsak fraDto(String kode) {

@@ -19,7 +19,9 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshåndterer;
@@ -32,6 +34,7 @@ public class GjenopptaBehandlingTaskTest {
     private GjenopptaBehandlingTask task; // objektet vi tester
 
     private BehandlingRepository mockBehandlingRepository;
+    private BehandlingRepositoryProvider mockRepositoryProvider;
     private BehandlingskontrollTjeneste mockBehandlingskontrollTjeneste;
     private RegisterdataEndringshåndterer mockRegisterdataEndringshåndterer;
     private BehandlendeEnhetTjeneste mockEnhetsTjeneste;
@@ -39,12 +42,14 @@ public class GjenopptaBehandlingTaskTest {
 
     @Before
     public void setup() {
+        mockRepositoryProvider = mock(BehandlingRepositoryProvider.class);
         mockBehandlingRepository = mock(BehandlingRepository.class);
         mockBehandlingskontrollTjeneste = mock(BehandlingskontrollTjeneste.class);
         mockRegisterdataEndringshåndterer = mock(RegisterdataEndringshåndterer.class);
         mockEnhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
-
-        task = new GjenopptaBehandlingTask(mockBehandlingRepository, mockBehandlingskontrollTjeneste, mockRegisterdataEndringshåndterer, mockEnhetsTjeneste);
+        when(mockRepositoryProvider.getBehandlingRepository()).thenReturn(mockBehandlingRepository);
+        when(mockRepositoryProvider.getBehandlingLåsRepository()).thenReturn(mock(BehandlingLåsRepository.class));
+        task = new GjenopptaBehandlingTask(mockRepositoryProvider, mockBehandlingskontrollTjeneste, mockRegisterdataEndringshåndterer, mockEnhetsTjeneste);
     }
 
     @Test

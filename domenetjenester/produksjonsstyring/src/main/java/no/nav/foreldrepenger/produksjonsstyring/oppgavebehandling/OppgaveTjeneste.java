@@ -284,7 +284,6 @@ public class OppgaveTjeneste {
      */
     public String opprettOppgaveSakSkalTilInfotrygd(Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Saksnummer saksnummer = behandling.getFagsak().getSaksnummer();
         var fagsak = behandling.getFagsak();
 
         var orequest = createRestRequestBuilder(fagsak.getSaksnummer(), fagsak.getAktørId(), behandling.getBehandlendeEnhet(), FORELDREPENGESAK_MÅ_FLYTTES_TIL_INFOTRYGD,

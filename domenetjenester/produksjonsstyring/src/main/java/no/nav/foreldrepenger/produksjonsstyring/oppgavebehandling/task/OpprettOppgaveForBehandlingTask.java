@@ -34,8 +34,8 @@ public class OpprettOppgaveForBehandlingTask extends BehandlingProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
-        String oppgaveId = oppgaveTjeneste.opprettBehandleOppgaveForBehandling(prosessTaskData.getBehandlingId());
+    protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
+        String oppgaveId = oppgaveTjeneste.opprettBehandleOppgaveForBehandling(behandlingId);
         if (oppgaveId != null) {
             log.info("Oppgave opprettet i GSAK for å behandle sak. Oppgavenummer: {}", oppgaveId); //NOSONAR
         }

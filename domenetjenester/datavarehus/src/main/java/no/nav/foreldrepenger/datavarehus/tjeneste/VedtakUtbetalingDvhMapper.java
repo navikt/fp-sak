@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
+import java.time.LocalDateTime;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.datavarehus.domene.VedtakUtbetalingDvh;
-import no.nav.vedtak.util.FPDateUtil;
 
 class VedtakUtbetalingDvhMapper {
 
@@ -18,7 +19,7 @@ class VedtakUtbetalingDvhMapper {
             .behandlingType(behandling.getType().getOffisiellKode())
             .fagsakType(behandling.getFagsakYtelseType().getKode())
             .søknadType(hendelseType.getKode())
-            .funksjonellTid(FPDateUtil.nå())
+            .funksjonellTid(LocalDateTime.now())
             .endretAv(CommonDvhMapper.finnEndretAvEllerOpprettetAv(behandlingVedtak))
             .build();
     }

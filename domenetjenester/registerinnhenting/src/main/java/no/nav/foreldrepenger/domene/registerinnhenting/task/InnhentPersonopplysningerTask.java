@@ -38,8 +38,8 @@ public class InnhentPersonopplysningerTask extends BehandlingProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
-        Behandling behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingId());
+    protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         LOGGER.info("Innhenter personopplysninger for behandling: {}", behandling.getId());
         registerdataInnhenter.innhentPersonopplysninger(behandling);
     }

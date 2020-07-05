@@ -49,7 +49,7 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         Long dokumentId = Long.valueOf(prosessTaskData.getPropertyValue(MOTTATT_DOKUMENT_ID_KEY));
         MottattDokument mottattDokument = mottatteDokumentTjeneste.hentMottattDokument(dokumentId)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: HåndterMottattDokument uten gyldig mottatt dokument, id=" + dokumentId.toString()));
@@ -58,8 +58,8 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
             behandlingÅrsakType = BehandlingÅrsakType.fraKode(prosessTaskData.getPropertyValue(BEHANDLING_ÅRSAK_TYPE_KEY));
         }
         log.info("HåndterMottattDokument taskId {} fagsakId {} behandlingId {} dokumentid {}", prosessTaskData.getId(), prosessTaskData.getFagsakId(), prosessTaskData.getBehandlingId(), mottattDokument.getId());
-        if (prosessTaskData.getBehandlingId() != null) {
-            innhentDokumentTjeneste.opprettFraTidligereBehandling(prosessTaskData.getBehandlingId(), mottattDokument, behandlingÅrsakType);
+        if (behandlingId != null) {
+            innhentDokumentTjeneste.opprettFraTidligereBehandling(behandlingId, mottattDokument, behandlingÅrsakType);
         } else {
             if (mottattDokument.getPayloadXml() != null) {
                 dokumentPersistererTjeneste.xmlTilWrapper(mottattDokument);

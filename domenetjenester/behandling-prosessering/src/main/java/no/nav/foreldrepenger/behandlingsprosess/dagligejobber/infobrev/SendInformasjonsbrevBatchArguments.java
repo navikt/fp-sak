@@ -10,7 +10,6 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.batch.BatchArgument;
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class SendInformasjonsbrevBatchArguments extends BatchArguments {
 
@@ -58,8 +57,8 @@ public class SendInformasjonsbrevBatchArguments extends BatchArguments {
     }
 
     private void beregneFomOgTomDato() {
-        fom = FPDateUtil.iDag().minusDays(antallDager).plusWeeks(UKER_FRAMOVER);
-        tom = FPDateUtil.iDag().minusDays(1).plusWeeks(UKER_FRAMOVER);
+        fom = LocalDate.now().minusDays(antallDager).plusWeeks(UKER_FRAMOVER);
+        tom = LocalDate.now().minusDays(1).plusWeeks(UKER_FRAMOVER);
     }
 
     private LocalDate parsedato(String datoString) {

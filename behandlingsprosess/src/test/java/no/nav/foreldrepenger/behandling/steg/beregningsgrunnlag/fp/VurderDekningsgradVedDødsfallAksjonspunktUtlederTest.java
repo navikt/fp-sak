@@ -13,7 +13,6 @@ import org.junit.Test;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
 
@@ -21,7 +20,7 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
 
     @Before
     public void setup() {
-        fødselsdato = FPDateUtil.iDag();
+        fødselsdato = LocalDate.now();
     }
 
     @Test

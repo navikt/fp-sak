@@ -19,12 +19,12 @@ import org.mockito.stubbing.Answer;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -96,7 +96,7 @@ public class AutomatiskGjenopptagelseTjenesteTest {
         ProsessTaskData faktiskProsessTaskData1 = faktiskeProsessTaskDataListe.get(0);
         assertThat(faktiskProsessTaskData1.getAktørId()).isEqualTo(aktørId1.getId());
         assertThat(faktiskProsessTaskData1.getFagsakId()).isEqualTo(fagsakId1);
-        assertThat(faktiskProsessTaskData1.getBehandlingId()).isEqualTo(behandlingId1);
+        assertThat(faktiskProsessTaskData1.getBehandlingId()).isEqualTo(behandlingId1.toString());
         assertThat(faktiskProsessTaskData1.getGruppe()).isEqualTo(gruppe);
         assertThat(faktiskProsessTaskData1.getSekvens()).isEqualTo("1");
         assertThat(faktiskProsessTaskData1.getPriority()).isEqualTo(100);
@@ -104,7 +104,7 @@ public class AutomatiskGjenopptagelseTjenesteTest {
         ProsessTaskData faktiskProsessTaskData2 = faktiskeProsessTaskDataListe.get(1);
         assertThat(faktiskProsessTaskData2.getAktørId()).isEqualTo(aktørId2.getId());
         assertThat(faktiskProsessTaskData2.getFagsakId()).isEqualTo(fagsakId2);
-        assertThat(faktiskProsessTaskData2.getBehandlingId()).isEqualTo(behandlingId2);
+        assertThat(faktiskProsessTaskData2.getBehandlingId()).isEqualTo(behandlingId2.toString());
         assertThat(faktiskProsessTaskData2.getGruppe()).isEqualTo(gruppe);
         assertThat(faktiskProsessTaskData2.getSekvens()).isEqualTo("1");
         assertThat(faktiskProsessTaskData2.getPriority()).isEqualTo(100);
@@ -153,7 +153,7 @@ public class AutomatiskGjenopptagelseTjenesteTest {
         ProsessTaskData faktiskProsessTaskData1 = faktiskeProsessTaskDataListe.get(0);
         assertThat(faktiskProsessTaskData1.getAktørId()).isEqualTo(aktørId1.getId());
         assertThat(faktiskProsessTaskData1.getFagsakId()).isEqualTo(fagsakId1);
-        assertThat(faktiskProsessTaskData1.getBehandlingId()).isEqualTo(behandlingId1);
+        assertThat(faktiskProsessTaskData1.getBehandlingId()).isEqualTo(behandlingId1.toString());
         assertThat(faktiskProsessTaskData1.getGruppe()).isEqualTo(gruppe);
         assertThat(faktiskProsessTaskData1.getSekvens()).isEqualTo("1");
         assertThat(faktiskProsessTaskData1.getPriority()).isEqualTo(100);
@@ -161,7 +161,7 @@ public class AutomatiskGjenopptagelseTjenesteTest {
         ProsessTaskData faktiskProsessTaskData2 = faktiskeProsessTaskDataListe.get(1);
         assertThat(faktiskProsessTaskData2.getAktørId()).isEqualTo(aktørId2.getId());
         assertThat(faktiskProsessTaskData2.getFagsakId()).isEqualTo(fagsakId2);
-        assertThat(faktiskProsessTaskData2.getBehandlingId()).isEqualTo(behandlingId2);
+        assertThat(faktiskProsessTaskData2.getBehandlingId()).isEqualTo(behandlingId2.toString());
         assertThat(faktiskProsessTaskData2.getGruppe()).isEqualTo(gruppe);
         assertThat(faktiskProsessTaskData2.getSekvens()).isEqualTo("1");
         assertThat(faktiskProsessTaskData2.getPriority()).isEqualTo(100);
@@ -224,7 +224,7 @@ public class AutomatiskGjenopptagelseTjenesteTest {
         ProsessTaskData faktiskProsessTaskData1 = faktiskeProsessTaskDataListe.get(0);
         assertThat(faktiskProsessTaskData1.getAktørId()).isEqualTo(aktørId1.getId());
         assertThat(faktiskProsessTaskData1.getFagsakId()).isEqualTo(fagsakId1);
-        assertThat(faktiskProsessTaskData1.getBehandlingId()).isEqualTo(behandlingId1);
+        assertThat(faktiskProsessTaskData1.getBehandlingId()).isEqualTo(behandlingId1.toString());
         assertThat(faktiskProsessTaskData1.getGruppe()).isEqualTo(gruppe);
         assertThat(faktiskProsessTaskData1.getSekvens()).isEqualTo("1");
         assertThat(faktiskProsessTaskData1.getPriority()).isEqualTo(100);

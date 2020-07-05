@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.anke;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -17,7 +18,6 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlin
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class AnkeTjeneste {
@@ -59,7 +59,7 @@ public class AnkeTjeneste {
 
         Behandling ankeBehandling = behandlingskontrollTjeneste.opprettNyBehandling(fagsak, behandlingTypeAnke,
             (beh) -> {
-                beh.setBehandlingstidFrist(FPDateUtil.iDag().plusWeeks(behandlingTypeAnke.getBehandlingstidFristUker()));
+                beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingTypeAnke.getBehandlingstidFristUker()));
                 beh.setBehandlendeEnhet(enhetAnke);
             });
 

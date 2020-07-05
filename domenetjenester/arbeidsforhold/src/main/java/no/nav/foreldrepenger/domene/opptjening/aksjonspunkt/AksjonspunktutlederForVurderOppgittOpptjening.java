@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class AksjonspunktutlederForVurderOppgittOpptjening implements AksjonspunktUtleder {
@@ -159,7 +158,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
                                                      Skjæringstidspunkt skjæringstidspunkt) {
         // Det siste ferdiglignede år vil alltid være året før behandlingstidspunktet
         // Bruker LocalDate.now() her etter avklaring med funksjonell.
-        int sistFerdiglignetÅr = FPDateUtil.iDag().minusYears(1L).getYear();
+        int sistFerdiglignetÅr = LocalDate.now().minusYears(1L).getYear();
         if (inneholderSisteFerdiglignendeÅrNæringsinntekt(aktørId, inntektArbeidYtelseGrunnlag, sistFerdiglignetÅr, opptjeningPeriode,
             skjæringstidspunkt) == NEI) {
             if (erDetRegistrertNæringEtterSisteFerdiglignendeÅr(oppgittOpptjening, sistFerdiglignetÅr) == NEI) {

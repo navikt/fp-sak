@@ -10,6 +10,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 /**
+ * Brukes når det skal opprettes nye behandlinger eller fagsaken skal endres
  * Task som utfører noe på en fagsak, før prosessen kjøres videre.
  * Sikrer at fagsaklås task på riktig plass..
  */
@@ -30,6 +31,7 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         Long fagsakId = prosessTaskData.getFagsakId();
+        Long behandlingId = getBehandlingId(prosessTaskData);
 
         identifiserBehandling(prosessTaskData)
             .stream()
@@ -37,10 +39,10 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
             .forEach(behandling -> behandlingLåsRepository.taLås(behandling));
 
         fagsakLåsRepository.taLås(fagsakId);
-        prosesser(prosessTaskData);
+        prosesser(prosessTaskData, fagsakId, behandlingId);
     }
 
-    protected abstract void prosesser(ProsessTaskData prosessTaskData);
+    protected abstract void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId);
 
     /**
      * Må alltid ta behandlingen før vi tar lås på fagsaken.
@@ -52,10 +54,14 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
      * @return behandlingId
      */
     protected List<Long> identifiserBehandling(ProsessTaskData prosessTaskData) {
-        Long behandlingId = prosessTaskData.getBehandlingId();
+        Long behandlingId = getBehandlingId(prosessTaskData);
         if (behandlingId != null) {
             return List.of(behandlingId);
         }
         return Collections.emptyList();
+    }
+
+    private Long getBehandlingId(ProsessTaskData data) {
+        return data.getBehandlingId() != null ? Long.valueOf(data.getBehandlingId()) : null;
     }
 }

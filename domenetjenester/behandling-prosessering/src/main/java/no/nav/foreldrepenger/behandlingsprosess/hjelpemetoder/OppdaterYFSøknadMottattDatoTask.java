@@ -16,16 +16,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
 @ProsessTask(OppdaterYFSøknadMottattDatoTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
-public class OppdaterYFSøknadMottattDatoTask implements ProsessTaskHandler {
+public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(OppdaterYFSøknadMottattDatoTask.class);
     public static final String TASKTYPE = "oppdater.yf.soknad.mottattdato";
@@ -45,6 +45,7 @@ public class OppdaterYFSøknadMottattDatoTask implements ProsessTaskHandler {
                                            UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
                                            BehandlingRepository behandlingRepository,
                                            EntityManager entityManager) {
+        super(behandlingLåsRepository);
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.behandlingLåsRepository = behandlingLåsRepository;
         this.søknadRepository = søknadRepository;
@@ -58,8 +59,8 @@ public class OppdaterYFSøknadMottattDatoTask implements ProsessTaskHandler {
     }
 
     @Override
-    public void doTask(ProsessTaskData prosessTaskData) {
-        var behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingId());
+    public void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         LOG.info("Oppdaterer mottatt dato for behandling {}", behandling.getId());
         oppdaterMottattDatoForBehandling(behandling);
     }

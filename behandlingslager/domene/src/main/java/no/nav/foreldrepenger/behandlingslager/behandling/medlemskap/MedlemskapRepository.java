@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.diff.TraverseGraph;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 /**
  * Dette er et Repository for håndtering av alle persistente endringer i en Medlemskap for søker.
@@ -43,7 +42,7 @@ public class MedlemskapRepository {
     }
 
     @Inject
-    public MedlemskapRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public MedlemskapRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
         this.behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
     }

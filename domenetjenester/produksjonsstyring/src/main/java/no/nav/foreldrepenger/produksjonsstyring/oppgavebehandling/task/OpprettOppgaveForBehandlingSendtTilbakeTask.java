@@ -34,9 +34,9 @@ public class OpprettOppgaveForBehandlingSendtTilbakeTask extends BehandlingProse
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         String beskrivelse = "Sak har blitt sendt tilbake fra beslutter";
-        String oppgaveId = oppgaveTjeneste.opprettBehandleOppgaveForBehandlingMedPrioritetOgFrist(prosessTaskData.getBehandlingId(),
+        String oppgaveId = oppgaveTjeneste.opprettBehandleOppgaveForBehandlingMedPrioritetOgFrist(behandlingId,
             beskrivelse, true, 0);
         if (oppgaveId != null) {
             log.info("Oppgave opprettet i GSAK for å behandle sak sendt tilbake. Oppgavenummer: {}", oppgaveId); //NOSONAR

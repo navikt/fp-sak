@@ -1,14 +1,16 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.konsument;
 
-import no.nav.vedtak.felles.AktiverContextOgTransaksjon;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.control.ActivateRequestContext;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 @ApplicationScoped
-@AktiverContextOgTransaksjon
+@ActivateRequestContext
+@Transactional
 public class RisikoklassifiseringMeldingsHåndterer {
     private ProsessTaskRepository prosessTaskRepository;
 

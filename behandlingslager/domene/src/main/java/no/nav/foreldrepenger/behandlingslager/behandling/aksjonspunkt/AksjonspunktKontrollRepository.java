@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * Håndter all endring av aksjonspunkt for behandlingskontroll. Skal IKKE brukes utenfor Behandlingskontroll uten avklaring
@@ -70,7 +69,7 @@ public class AksjonspunktKontrollRepository {
         if (frist.isPresent()) {
             adBuilder.medFristTid(frist.get());
         } else if (aksjonspunktDefinisjon.getFristPeriod() != null) {
-            adBuilder.medFristTid(FPDateUtil.nå().plus(aksjonspunktDefinisjon.getFristPeriod()));
+            adBuilder.medFristTid(LocalDateTime.now().plus(aksjonspunktDefinisjon.getFristPeriod()));
         }
 
         if (venteÅrsak.isPresent()) {

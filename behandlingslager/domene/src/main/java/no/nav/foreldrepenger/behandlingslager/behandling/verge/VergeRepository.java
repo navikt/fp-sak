@@ -11,7 +11,6 @@ import javax.persistence.TypedQuery;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class VergeRepository {
@@ -23,7 +22,7 @@ public class VergeRepository {
     }
 
     @Inject
-    public VergeRepository(@VLPersistenceUnit EntityManager entityManager, BehandlingLåsRepository behandlingLåsRepository) {
+    public VergeRepository( EntityManager entityManager, BehandlingLåsRepository behandlingLåsRepository) {
         this.entityManager = entityManager;
         this.behandlingLåsRepository = behandlingLåsRepository;
     }

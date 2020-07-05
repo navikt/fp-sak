@@ -46,8 +46,8 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
-        Behandling behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingId());
+    protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         StartpunktType startpunkt = StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
         arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId(), behandling.getAktørId());
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);

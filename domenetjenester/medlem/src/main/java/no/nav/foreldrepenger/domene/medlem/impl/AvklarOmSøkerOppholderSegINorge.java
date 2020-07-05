@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class AvklarOmSøkerOppholderSegINorge {
 
@@ -144,7 +143,7 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
     private Utfall harTermindatoPassertMed14Dager(Long behandlingId) {
-        LocalDate dagensDato = FPDateUtil.iDag();
+        LocalDate dagensDato = LocalDate.now();
         final Optional<LocalDate> termindato = familieGrunnlagRepository.hentAggregat(behandlingId).getGjeldendeTerminbekreftelse()
             .map(TerminbekreftelseEntitet::getTermindato);
         return termindato.filter(localDate -> localDate.plusDays(14L).isBefore(dagensDato)).map(localDate -> JA).orElse(NEI);
