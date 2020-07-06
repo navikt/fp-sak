@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
@@ -16,10 +17,12 @@ class EndringIBeregningsresultat {
     private int dagsatsFraBg;
     private Boolean brukerErMottaker;
     private Integer originalDagsats;
+    private Inntektskategori inntektskategori;
 
     private EndringIBeregningsresultat(Arbeidsgiver arbeidsgiver,
                                        InternArbeidsforholdRef arbeidsforholdRef,
                                        AktivitetStatus aktivitetStatus,
+                                       Inntektskategori inntektskategori,
                                        int dagsats,
                                        int dagsatsFraBg,
                                        Boolean brukerErMottaker,
@@ -31,6 +34,7 @@ class EndringIBeregningsresultat {
         this.dagsatsFraBg = dagsatsFraBg;
         this.brukerErMottaker = brukerErMottaker;
         this.originalDagsats = originalDagsats;
+        this.inntektskategori = inntektskategori;
     }
 
     EndringIBeregningsresultat(BeregningsresultatAndel beregningsresultatAndel, int nydagsats) {
@@ -38,6 +42,7 @@ class EndringIBeregningsresultat {
             beregningsresultatAndel.getArbeidsgiver().orElse(null),
             beregningsresultatAndel.getArbeidsforholdRef(),
             beregningsresultatAndel.getAktivitetStatus(),
+            beregningsresultatAndel.getInntektskategori(),
             nydagsats,
             beregningsresultatAndel.getDagsatsFraBg(),
             beregningsresultatAndel.erBrukerMottaker(),
@@ -50,6 +55,7 @@ class EndringIBeregningsresultat {
             beregningsresultatAndel.getArbeidsgiver().orElse(null),
             beregningsresultatAndel.getArbeidsforholdRef(),
             beregningsresultatAndel.getAktivitetStatus(),
+            beregningsresultatAndel.getInntektskategori(),
             beregningsresultatAndel.getDagsats(),
             beregningsresultatAndel.getDagsatsFraBg(),
             beregningsresultatAndel.erBrukerMottaker(),
@@ -62,6 +68,7 @@ class EndringIBeregningsresultat {
             beregningsresultatAndel.getArbeidsgiver().orElse(null),
             beregningsresultatAndel.getArbeidsforholdRef(),
             beregningsresultatAndel.getAktivitetStatus(),
+            beregningsresultatAndel.getInntektskategori(),
             beregningsresultatAndel.getDagsats(),
             beregningsresultatAndel.getDagsatsFraBg(),
             beregningsresultatAndel.erBrukerMottaker(),
@@ -97,12 +104,21 @@ class EndringIBeregningsresultat {
         this.dagsats = dagsats;
     }
 
+    public Inntektskategori getInntektskategori() {
+        return inntektskategori;
+    }
+
     public boolean gjelderResultatAndel(BeregningsresultatAndel resultatAndel) {
         if (!resultatAndel.getAktivitetStatus().equals(aktivitetStatus) || resultatAndel.erBrukerMottaker() != brukerErMottaker) {
             return false;
         }
-        if(resultatAndel.getArbeidsgiver().isPresent()){
-            return resultatAndel.getArbeidsgiver().get().equals(arbeidsgiver) && Objects.equals(arbeidsforholdRef.getReferanse(), resultatAndel.getArbeidsforholdRef().getReferanse());
+        if(resultatAndel.getArbeidsgiver().isPresent()) {
+            boolean sammeAG = resultatAndel.getArbeidsgiver().get().equals(arbeidsgiver) && Objects.equals(arbeidsforholdRef.getReferanse(), resultatAndel.getArbeidsforholdRef().getReferanse());
+            if (sammeAG) {
+                return inntektskategori.equals(resultatAndel.getInntektskategori());
+            } else {
+                return false;
+            }
         }
         return true;
     }
@@ -115,6 +131,7 @@ class EndringIBeregningsresultat {
         return new EndringIBeregningsresultat(beregningsresultatAndel.getArbeidsgiver().orElse(null),
             beregningsresultatAndel.getArbeidsforholdRef(),
             beregningsresultatAndel.getAktivitetStatus(),
+            beregningsresultatAndel.getInntektskategori(),
             beregningsresultatAndel.getDagsats(),
             beregningsresultatAndel.getDagsatsFraBg(),
             beregningsresultatAndel.erBrukerMottaker(),

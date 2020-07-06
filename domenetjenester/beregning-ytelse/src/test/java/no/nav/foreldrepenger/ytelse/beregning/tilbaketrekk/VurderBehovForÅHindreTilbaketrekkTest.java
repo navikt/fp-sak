@@ -337,6 +337,52 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
         assertThat(resultat).isTrue();
     }
 
+    /**
+     * I tilfeller der beregningsgrunnlaget er blitt automatisk fordelt i FORDEL_BERGRUNN steget kan det ha blitt opprettet
+     * andeler som har lik arbeidsgiver og arbeidsforholdreferanse men med ulike inntektskategorier.
+     * Disse må også håndteres av løsningen
+     */
+    @Test
+    public void skal_håndtere_flere_arbeidstakerandeler_med_samme_ref_men_ulik_inntektskategori() {
+        // Arrange
+        BeregningsresultatEntitet originalBR = BeregningsresultatEntitet.builder()
+            .medRegelSporing("regelsporing")
+            .medRegelInput("regelinput")
+            .build();
+
+        BeregningsresultatPeriode originalPeriode1 = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
+            .build(originalBR);
+        lagAndel(AktivitetStatus.FRILANSER, originalPeriode1, null, true, 381, null, Inntektskategori.FRILANSER);
+        lagAndel(AktivitetStatus.ARBEIDSTAKER, originalPeriode1, ARBEIDSGIVER1, true, 1923, REF1, Inntektskategori.ARBEIDSTAKER);
+        BeregningsresultatEntitet revurderingBR = BeregningsresultatEntitet.builder()
+            .medRegelSporing("regelsporing")
+            .medRegelInput("regelinput")
+            .build();
+
+        BeregningsresultatPeriode revurderingPeriode1 = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
+            .build(revurderingBR);
+        lagAndel(AktivitetStatus.FRILANSER, revurderingPeriode1, null, true, 0, null, Inntektskategori.FRILANSER);
+        lagAndel(AktivitetStatus.ARBEIDSTAKER, revurderingPeriode1, ARBEIDSGIVER1, true, 0, REF1, Inntektskategori.ARBEIDSTAKER);
+        lagAndel(AktivitetStatus.ARBEIDSTAKER, revurderingPeriode1, ARBEIDSGIVER1, false, 462, REF1, Inntektskategori.ARBEIDSTAKER);
+        lagAndel(AktivitetStatus.ARBEIDSTAKER, revurderingPeriode1, ARBEIDSGIVER1, true, 0, REF1, Inntektskategori.FRILANSER);
+        lagAndel(AktivitetStatus.ARBEIDSTAKER, revurderingPeriode1, ARBEIDSGIVER1, false, 462, REF1, Inntektskategori.FRILANSER);
+
+        List<BeregningsresultatPeriode> forrigeTYPerioder = originalBR.getBeregningsresultatPerioder();
+        List<BeregningsresultatPeriode> denneTYPerioder = revurderingBR.getBeregningsresultatPerioder();
+        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinje(
+            forrigeTYPerioder,
+            denneTYPerioder
+        );
+
+        // Act
+        boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
+
+        // Assert
+//        assertThat(resultat).isTrue();
+    }
+
 
     private BeregningsresultatEntitet lagBeregningsresultatFP(int dagsatsBruker, int dagsatsArbeidsgiver) {
         List<BeregningsresultatPeriode> brpList = lagBeregningsresultatPeriode();
@@ -365,17 +411,27 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     }
 
     private BeregningsresultatAndel lagAndel(BeregningsresultatPeriode brp, Arbeidsgiver arbeidsgiver, boolean brukerErMottaker, int dagsats) {
-        return lagAndel(brp, arbeidsgiver, brukerErMottaker, dagsats, null);
+        return lagAndel(AktivitetStatus.ARBEIDSTAKER, brp, arbeidsgiver, brukerErMottaker, dagsats, null, Inntektskategori.ARBEIDSTAKER);
     }
 
     private BeregningsresultatAndel lagAndel(BeregningsresultatPeriode brp, Arbeidsgiver arbeidsgiver, boolean brukerErMottaker, int dagsats, InternArbeidsforholdRef internRef) {
+        return lagAndel(AktivitetStatus.ARBEIDSTAKER, brp, arbeidsgiver, brukerErMottaker, dagsats, internRef, Inntektskategori.ARBEIDSTAKER);
+    }
+
+    private BeregningsresultatAndel lagAndel(AktivitetStatus aktivitetStatus,
+                                             BeregningsresultatPeriode brp,
+                                             Arbeidsgiver arbeidsgiver,
+                                             boolean brukerErMottaker,
+                                             int dagsats,
+                                             InternArbeidsforholdRef internRef,
+                                             Inntektskategori inntektskategori) {
         return BeregningsresultatAndel.builder()
             .medBrukerErMottaker(brukerErMottaker)
             .medArbeidsgiver(arbeidsgiver)
             .medStillingsprosent(new BigDecimal(100))
             .medUtbetalingsgrad(new BigDecimal(100))
-            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(aktivitetStatus)
+            .medInntektskategori(inntektskategori)
             .medArbeidsforholdRef(internRef)
             .medDagsats(dagsats)
             .medDagsatsFraBg(dagsats)

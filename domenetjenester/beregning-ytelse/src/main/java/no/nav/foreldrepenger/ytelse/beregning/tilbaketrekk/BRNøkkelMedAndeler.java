@@ -50,26 +50,18 @@ public class BRNøkkelMedAndeler {
             .collect(Collectors.toList());
     }
 
-    public Optional<BeregningsresultatAndel> getBrukersAndelMedReferanse(InternArbeidsforholdRef ref) {
-        List<BeregningsresultatAndel> korresponderendeAndeler = getBrukersAndelerTilknyttetNøkkel().stream()
+    public int getBrukersDagsatsMedReferanse(InternArbeidsforholdRef ref) {
+        return getBrukersAndelerTilknyttetNøkkel().stream()
             .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
-            .collect(Collectors.toList());
-        if(korresponderendeAndeler.size() > 1) {
-            throw new IllegalArgumentException("Forventet å finne maks en korresponderende BeregningsresultatAndel " + nøkkel
-                + ". Antall matchende aktiviteter var " + korresponderendeAndeler.size());
-        }
-        return korresponderendeAndeler.stream().findFirst();
+            .mapToInt(BeregningsresultatAndel::getDagsats)
+            .sum();
     }
 
-    public Optional<BeregningsresultatAndel> getArbeidsgiversAndelMedReferanse(InternArbeidsforholdRef ref) {
-        List<BeregningsresultatAndel> korresponderendeAndeler = getArbeidsgiversAndelerTilknyttetNøkkel().stream()
+    public int getArbeidsgiversDagsatsMedReferanse(InternArbeidsforholdRef ref) {
+        return getArbeidsgiversAndelerTilknyttetNøkkel().stream()
             .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
-            .collect(Collectors.toList());
-        if(korresponderendeAndeler.size() > 1) {
-            throw new IllegalArgumentException("Forventet å finne maks en korresponderende BeregningsresultatAndel " + nøkkel
-                + ". Antall matchende aktiviteter var " + korresponderendeAndeler.size());
-        }
-        return korresponderendeAndeler.stream().findFirst();
+            .mapToInt(BeregningsresultatAndel::getDagsats)
+            .sum();
     }
 
     public Optional<BeregningsresultatAndel> getBrukersAndelUtenreferanse() {
@@ -84,16 +76,28 @@ public class BRNøkkelMedAndeler {
         return korresponderendeAndeler.stream().findFirst();
     }
 
-    public Optional<BeregningsresultatAndel> getArbeidsgiversAndelUtenReferanse() {
-        List<BeregningsresultatAndel> korresponderendeAndeler = getArbeidsgiversAndelerTilknyttetNøkkel().stream()
+    public List<BeregningsresultatAndel> getAlleBrukersAndelerUtenReferanse() {
+        return getBrukersAndelerTilknyttetNøkkel().stream()
             .filter(andel -> !andel.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
             .collect(Collectors.toList());
+    }
 
-        if(korresponderendeAndeler.size() > 1) {
-            throw new IllegalArgumentException("Forventet å finne maks en andel uten referanse for BeregningsresultatAndel " + nøkkel
-                + ". Antall matchende andeler var " + korresponderendeAndeler.size());
-        }
-        return korresponderendeAndeler.stream().findFirst();
+    public List<BeregningsresultatAndel> getAlleBrukersAndelMedReferanse(InternArbeidsforholdRef ref) {
+        return getBrukersAndelerTilknyttetNøkkel().stream()
+            .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
+            .collect(Collectors.toList());
+    }
+
+    public List<BeregningsresultatAndel> getAlleArbeidsgiversAndelerMedReferanse(InternArbeidsforholdRef ref) {
+        return getArbeidsgiversAndelerTilknyttetNøkkel().stream()
+            .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
+            .collect(Collectors.toList());
+    }
+
+    public List<BeregningsresultatAndel> getAlleArbeidsgiversAndelerUtenReferanse() {
+        return getArbeidsgiversAndelerTilknyttetNøkkel().stream()
+            .filter(andel -> !andel.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
+            .collect(Collectors.toList());
     }
 
     void leggTilAndel(BeregningsresultatAndel andel) {

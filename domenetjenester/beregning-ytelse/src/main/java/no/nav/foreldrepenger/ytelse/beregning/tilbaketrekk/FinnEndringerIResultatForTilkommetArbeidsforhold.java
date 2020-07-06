@@ -39,9 +39,10 @@ class FinnEndringerIResultatForTilkommetArbeidsforhold {
     private static Optional<EndringIBeregningsresultat> flyttForManglendeReferanser(List<EndringIBeregningsresultat> endringITilkommetArbeidsgiversAndel, BRNøkkelMedAndeler nøkkelForAvsluttetArbeid, BRNøkkelMedAndeler originalNøkkel) {
         List<InternArbeidsforholdRef> alleReferanserForDenneNøkkelen = nøkkelForAvsluttetArbeid.getAlleReferanserForDenneNøkkelen();
         List<BeregningsresultatAndel> originaleAndelerUtenMatch = originalNøkkel.getAlleAndelerMedRefSomIkkeFinnesIListe(alleReferanserForDenneNøkkelen);
-        Optional<BeregningsresultatAndel> originalBrukersAndelUtenReferanse = originalNøkkel.getBrukersAndelUtenreferanse();
+        int originalBrukersDagsatsAndelUtenReferanse = originalNøkkel.getAlleBrukersAndelerUtenReferanse().stream().mapToInt(BeregningsresultatAndel::getDagsats).sum();
         int totalDagsatsFraOriginaleAndelerUtenMatch = originaleAndelerUtenMatch.stream().map(BeregningsresultatAndel::getDagsats).reduce(Integer::sum).orElse(0) +
-            originalBrukersAndelUtenReferanse.map(BeregningsresultatAndel::getDagsats).orElse(0);
+            originalBrukersDagsatsAndelUtenReferanse;
+        // TODO hva gjør vi med denne?
         Optional<EndringIBeregningsresultat> endringForBrukersAndelUtenReferanseOpt = nøkkelForAvsluttetArbeid.getBrukersAndelUtenreferanse()
             .map(brukersAndelUtenRef -> EndringIBeregningsresultat.forEndringMedOriginalDagsats(brukersAndelUtenRef, totalDagsatsFraOriginaleAndelerUtenMatch));
         if (endringForBrukersAndelUtenReferanseOpt.isPresent()) {
@@ -92,12 +93,15 @@ class FinnEndringerIResultatForTilkommetArbeidsforhold {
     }
 
     private static List<EndringIBeregningsresultat> initEndringerForMatchendeReferanser(BRNøkkelMedAndeler nøkkelForAvsluttetArbeid, BRNøkkelMedAndeler originalNøkkel) {
-        return originalNøkkel.getBrukersAndelerTilknyttetNøkkel()
-            .stream().filter(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold() && nøkkelForAvsluttetArbeid.getBrukersAndelMedReferanse(a.getArbeidsforholdRef()).isPresent())
-            .map(a -> {
-                BeregningsresultatAndel revurderingBrukersAndelMedReferanse = nøkkelForAvsluttetArbeid.getBrukersAndelMedReferanse(a.getArbeidsforholdRef()).get();
-                return new EndringIBeregningsresultat(revurderingBrukersAndelMedReferanse, a);
-            }).collect(Collectors.toList());
+        List<EndringIBeregningsresultat> liste = new ArrayList<>();
+        originalNøkkel.getBrukersAndelerTilknyttetNøkkel()
+            .stream()
+            .filter(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold() && !nøkkelForAvsluttetArbeid.getAlleBrukersAndelMedReferanse(a.getArbeidsforholdRef()).isEmpty())
+            .forEach(a -> {
+                List<BeregningsresultatAndel> revurderingBrukersAndelMedReferanse = nøkkelForAvsluttetArbeid.getAlleBrukersAndelMedReferanse(a.getArbeidsforholdRef());
+                revurderingBrukersAndelMedReferanse.forEach(andel -> liste.add(new EndringIBeregningsresultat(andel, a)));
+            });
+        return liste;
     }
 
     private static List<EndringIBeregningsresultat> initEndringerForTilkomneAndeler(TilbaketrekkForTilkommetArbeidEntry tilbaketrekk) {

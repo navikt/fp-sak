@@ -25,19 +25,13 @@ public final class OmfordelRevurderingsandelerMedReferanser {
     }
 
     private static int getReberegnetDagsats(BeregningsresultatAndel revurderingAndel, BRNøkkelMedAndeler revurderingNøkkelMedAndeler, BRNøkkelMedAndeler originalNøkkelMedAndeler) {
-        int originalBrukersDagsats = originalNøkkelMedAndeler.getBrukersAndelMedReferanse(revurderingAndel.getArbeidsforholdRef())
-            .map(BeregningsresultatAndel::getDagsats)
-            .orElse(0);
+        int originalBrukersDagsats = originalNøkkelMedAndeler.getBrukersDagsatsMedReferanse(revurderingAndel.getArbeidsforholdRef());
         int reberegnetDagsats;
         if (revurderingAndel.erBrukerMottaker()) {
-            int revurderingArbeidsgiverDagsats = revurderingNøkkelMedAndeler.getArbeidsgiversAndelMedReferanse(revurderingAndel.getArbeidsforholdRef())
-                .map(BeregningsresultatAndel::getDagsats)
-                .orElse(0);
+            int revurderingArbeidsgiverDagsats = revurderingNøkkelMedAndeler.getArbeidsgiversDagsatsMedReferanse(revurderingAndel.getArbeidsforholdRef());
             reberegnetDagsats = OmfordelDagsats.beregnDagsatsBruker(revurderingAndel.getDagsats(), revurderingArbeidsgiverDagsats, originalBrukersDagsats);
         } else {
-            int revurderingBrukersDagsats = revurderingNøkkelMedAndeler.getBrukersAndelMedReferanse(revurderingAndel.getArbeidsforholdRef())
-                .map(BeregningsresultatAndel::getDagsats)
-                .orElse(0);
+            int revurderingBrukersDagsats = revurderingNøkkelMedAndeler.getBrukersDagsatsMedReferanse(revurderingAndel.getArbeidsforholdRef());
             reberegnetDagsats = OmfordelDagsats.beregnDagsatsArbeidsgiver(revurderingAndel.getDagsats(), revurderingBrukersDagsats, originalBrukersDagsats);
         }
         return reberegnetDagsats;
