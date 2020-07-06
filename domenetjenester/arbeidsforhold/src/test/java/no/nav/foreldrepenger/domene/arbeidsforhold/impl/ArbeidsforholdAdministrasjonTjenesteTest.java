@@ -54,6 +54,7 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
@@ -64,6 +65,7 @@ import no.nav.foreldrepenger.domene.iay.modell.PermisjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -431,6 +433,61 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(wrapperList).hasSize(1);
         assertThat(wrapperList.iterator().next().getFomDato()).isEqualTo(I_DAG.minusYears(1));
         assertThat(wrapperList.iterator().next().getTomDato()).isEqualTo(I_DAG);
+    }
+
+    @Test
+    public void skal_utlede_dato_fra_ansettelsesperiode_når_overstyring_uten_overstyrte_perioder_og_im(){
+        // Arrange
+        LocalDate mottattDato = I_DAG.minusDays(2);
+        Behandling behandling = opprettBehandling();
+        opprettOppgittOpptjening(behandling);
+        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID, DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL), ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
+        lagreInntektsmelding(mottattDato, behandling, ARBEIDSFORHOLD_ID, EKSTERN_ARBEIDSFORHOLD_ID);
+
+        // Act
+        ArbeidsforholdInformasjonBuilder informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandling.getId());
+        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ARBEIDSFORHOLD_ID);
+        overstyringBuilder.medHandling(ArbeidsforholdHandlingType.BRUK);
+        BekreftetPermisjon bekreftetPermisjon = new BekreftetPermisjon(I_DAG.minusWeeks(5), I_DAG.minusWeeks(1), BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON);
+        overstyringBuilder.medBekreftetPermisjon(bekreftetPermisjon);
+        informasjonBuilder.leggTil(overstyringBuilder);
+        arbeidsforholdTjeneste.lagre(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
+        Set<ArbeidsforholdWrapper> wrapperList = hentArbeidsforholdFerdigUtledet(behandling);
+
+        // Assert
+        assertThat(wrapperList).hasSize(1);
+        ArbeidsforholdWrapper arbeidsforhold = wrapperList.iterator().next();
+        assertThat(arbeidsforhold.getFomDato()).isEqualTo(ARBEIDSFORHOLD_FRA);
+        assertThat(arbeidsforhold.getTomDato()).isEqualTo(ARBEIDSFORHOLD_TIL);
+    }
+
+    @Test
+    public void skal_utlede_dato_fra_overstyrt_periode_når_overstyring_med_overstyrte_perioder_og_im(){
+        // Arrange
+        LocalDate overstyrtPeriodeFom = ARBEIDSFORHOLD_FRA.minusDays(2);
+        LocalDate overstyrtPeriodeTom = Tid.TIDENES_ENDE;
+        LocalDate mottattDato = I_DAG.minusDays(2);
+        Behandling behandling = opprettBehandling();
+        opprettOppgittOpptjening(behandling);
+        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID, DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL), ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
+        lagreInntektsmelding(mottattDato, behandling, ARBEIDSFORHOLD_ID, EKSTERN_ARBEIDSFORHOLD_ID);
+
+        // Act
+        ArbeidsforholdInformasjonBuilder informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandling.getId());
+        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ARBEIDSFORHOLD_ID);
+        overstyringBuilder.medHandling(ArbeidsforholdHandlingType.BRUK);
+        BekreftetPermisjon bekreftetPermisjon = new BekreftetPermisjon(I_DAG.minusWeeks(5), I_DAG.minusWeeks(1), BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON);
+        overstyringBuilder.medBekreftetPermisjon(bekreftetPermisjon);
+        overstyringBuilder.leggTilOverstyrtPeriode(overstyrtPeriodeFom, overstyrtPeriodeTom);
+        informasjonBuilder.leggTil(overstyringBuilder);
+        arbeidsforholdTjeneste.lagre(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
+        Set<ArbeidsforholdWrapper> wrapperList = hentArbeidsforholdFerdigUtledet(behandling);
+
+        // Assert
+        assertThat(wrapperList).hasSize(1);
+        ArbeidsforholdWrapper arbeidsforhold = wrapperList.iterator().next();
+        assertThat(arbeidsforhold.getFomDato()).isEqualTo(overstyrtPeriodeFom);
+        assertThat(arbeidsforhold.getTomDato()).isEqualTo(overstyrtPeriodeTom);
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
