@@ -42,9 +42,9 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 /**
  * Håndterer administrasjon(saksbehandlers input) vedrørende arbeidsforhold.
@@ -210,10 +210,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
             wrapper.setBegrunnelse(os.getBegrunnelse());
             wrapper.setStillingsprosent(os.getStillingsprosent() != null ? os.getStillingsprosent().getVerdi()
                 : UtledStillingsprosent.utled(filter, yrkesaktiviteter, skjæringstidspunkt));
-            Optional<DatoIntervallEntitet> ansettelsesperiode = os.getArbeidsforholdOverstyrtePerioder().stream().findFirst()
-                .map(ArbeidsforholdOverstyrtePerioder::getOverstyrtePeriode);
-            wrapper.setFomDato(ansettelsesperiode.map(DatoIntervallEntitet::getFomDato).orElse(null));
-            wrapper.setTomDato(ansettelsesperiode.map(DatoIntervallEntitet::getTomDato).orElse(null));
+            mapDatoForArbeidsforhold(wrapper, filter, yrkesaktiviteter, skjæringstidspunkt, os);
             wrapper.setLagtTilAvSaksbehandler(os.getHandling().equals(ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER));
             wrapper.setBasertPåInntektsmelding(os.getHandling().equals(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING));
         } else {
@@ -246,6 +243,19 @@ public class ArbeidsforholdAdministrasjonTjeneste {
             wrapper.setEksternArbeidsforholdId(eksternArbeidsforholdRef.getReferanse());
         }
         return wrapper;
+    }
+
+    private void mapDatoForArbeidsforhold(ArbeidsforholdWrapper wrapper, YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt, ArbeidsforholdOverstyring overstyring){
+        Optional<DatoIntervallEntitet> overstyrtAnsettelsesperiode = overstyring.getArbeidsforholdOverstyrtePerioder().stream().findFirst()
+                .map(ArbeidsforholdOverstyrtePerioder::getOverstyrtePeriode);
+        if(overstyrtAnsettelsesperiode.isPresent()){
+            wrapper.setFomDato(overstyrtAnsettelsesperiode.map(DatoIntervallEntitet::getFomDato).orElse(null));
+            wrapper.setTomDato(overstyrtAnsettelsesperiode.map(DatoIntervallEntitet::getTomDato).orElse(null));
+        } else {
+            Optional<DatoIntervallEntitet> ansettelsesperiode = UtledAnsettelsesperiode.utled(filter, yrkesaktiviteter, skjæringstidspunkt, false);
+            wrapper.setFomDato(ansettelsesperiode.map(DatoIntervallEntitet::getFomDato).orElse(null));
+            wrapper.setTomDato(ansettelsesperiode.map(DatoIntervallEntitet::getTomDato).orElse(null));
+        }
     }
 
     private boolean sjekkOmFinnesIOverstyr(List<ArbeidsforholdOverstyring> overstyringer, Arbeidsgiver arbeidsgiver,
