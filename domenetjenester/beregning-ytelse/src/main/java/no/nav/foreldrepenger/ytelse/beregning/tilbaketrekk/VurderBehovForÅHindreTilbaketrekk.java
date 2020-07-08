@@ -87,8 +87,8 @@ public class VurderBehovForÅHindreTilbaketrekk {
     }
 
     private static boolean andelMåVurderes(BRNøkkelMedAndeler revurderingBRNøkkelMedAndeler, BeregningsresultatAndel originalBrukersAndel) {
-        Optional<BeregningsresultatAndel> brukersAndelIRevurdering = revurderingBRNøkkelMedAndeler.getBrukersAndelMedReferanse(originalBrukersAndel.getArbeidsforholdRef());
-        Optional<BeregningsresultatAndel> arbeidsgiversAndelIRevurdering = revurderingBRNøkkelMedAndeler.getArbeidsgiversAndelMedReferanse(originalBrukersAndel.getArbeidsforholdRef());
+        List<BeregningsresultatAndel> brukersAndelIRevurdering = revurderingBRNøkkelMedAndeler.getAlleBrukersAndelerMedReferanse(originalBrukersAndel.getArbeidsforholdRef());
+        List<BeregningsresultatAndel> arbeidsgiversAndelIRevurdering = revurderingBRNøkkelMedAndeler.getAlleArbeidsgiversAndelerMedReferanse(originalBrukersAndel.getArbeidsforholdRef());
         int revurderingDagsatsBruker = dagsats(brukersAndelIRevurdering);
         int revurderingDagsatsArbeidsgiver = dagsats(arbeidsgiversAndelIRevurdering);
         int endringIDagsatsBruker = revurderingDagsatsBruker - originalBrukersAndel.getDagsats();
@@ -104,25 +104,25 @@ public class VurderBehovForÅHindreTilbaketrekk {
         List<BeregningsresultatAndel> andelerIRevurderingSomIkkeSvarerTilNoenIOriginalt = finnAndelerIRevurderingSomIkkeMatcherSpesifikkeArbeidsforholdIOriginaltResultat(originalBRNøkkelMedAndeler, revurderingBRNøkkelMedAndeler);
 
         if (!andelerIRevurderingSomIkkeSvarerTilNoenIOriginalt.isEmpty()) {
-            Optional<BeregningsresultatAndel> brukersAndelPåOriginaltResultatUtenReferanse = originalBRNøkkelMedAndeler.getBrukersAndelUtenreferanse();
+            List<BeregningsresultatAndel> brukersAndelPåOriginaltResultatUtenReferanse = originalBRNøkkelMedAndeler.getAlleBrukersAndelerUtenReferanse();
             return andelerMåVurderes(andelerIRevurderingSomIkkeSvarerTilNoenIOriginalt, brukersAndelPåOriginaltResultatUtenReferanse);
         }
         return false;
     }
 
     private static boolean andelerMåVurderes(List<BeregningsresultatAndel> andelerINyttResultatSomIkkeSvarerTilNoenIGammelt,
-                                             Optional<BeregningsresultatAndel> brukersAndelPåGammeltResultatUtenReferanse) {
+                                             List<BeregningsresultatAndel> brukersAndelPåGammeltResultatUtenReferanse) {
 
         // Hvis vi har en andel på gammelt grunnlag for denne nøkkelen uten referanse kan vi sjekke mot den.
         // Om vi ikke har denne må vi opprette aksjonspunkt så saksbehandler kan avgjøre hva som skal gjøres
-        if (brukersAndelPåGammeltResultatUtenReferanse.isPresent()) { // NOSONAR
-            return måVurdereTilkomneAndeler(andelerINyttResultatSomIkkeSvarerTilNoenIGammelt, brukersAndelPåGammeltResultatUtenReferanse.get());
+        if (!brukersAndelPåGammeltResultatUtenReferanse.isEmpty()) { // NOSONAR
+            return måVurdereTilkomneAndeler(andelerINyttResultatSomIkkeSvarerTilNoenIGammelt, brukersAndelPåGammeltResultatUtenReferanse);
         }
         return true;
     }
 
     private static boolean måVurdereTilkomneAndeler(List<BeregningsresultatAndel> andelerIRevurderingSomIkkeSvarerTilNoenIOriginal,
-                                                    BeregningsresultatAndel brukersAndelPåOriginaltResultat) {
+                                                    List<BeregningsresultatAndel> brukersAndelPåOriginaltResultat) {
         int aggregertArbeidsgiversDagsats = andelerIRevurderingSomIkkeSvarerTilNoenIOriginal.stream()
             .filter(a -> !a.erBrukerMottaker())
             .mapToInt(BeregningsresultatAndel::getDagsats)
@@ -133,7 +133,7 @@ public class VurderBehovForÅHindreTilbaketrekk {
             .mapToInt(BeregningsresultatAndel::getDagsats)
             .sum();
 
-        int endringIDagsatsBruker = aggregertBrukersDagsats - brukersAndelPåOriginaltResultat.getDagsats();
+        int endringIDagsatsBruker = aggregertBrukersDagsats - brukersAndelPåOriginaltResultat.stream().mapToInt(BeregningsresultatAndel::getDagsats).sum();
 
         return KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
             endringIDagsatsBruker,
@@ -174,8 +174,8 @@ public class VurderBehovForÅHindreTilbaketrekk {
         return matchendeNøkler.stream().findFirst();
     }
 
-    private static int dagsats(Optional<BeregningsresultatAndel> andel) {
-        return andel.map(BeregningsresultatAndel::getDagsats).orElse(0);
+    private static int dagsats(List<BeregningsresultatAndel> andel) {
+        return andel.stream().mapToInt(BeregningsresultatAndel::getDagsats).sum();
     }
 }
 

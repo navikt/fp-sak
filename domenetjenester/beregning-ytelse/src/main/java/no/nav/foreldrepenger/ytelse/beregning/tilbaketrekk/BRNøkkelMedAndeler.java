@@ -96,6 +96,47 @@ public class BRNøkkelMedAndeler {
         return korresponderendeAndeler.stream().findFirst();
     }
 
+    /**
+     * Etter automatisk omfordeling (blant annet) kan vi ha flere like andeler med samme ag og ref.
+     * Her må alle returneres. Håndteres manuelt av SBH intill https://jira.adeo.no/browse/TFP-2709 er løst.
+     */
+    public List<BeregningsresultatAndel> getAlleBrukersAndelerMedReferanse(InternArbeidsforholdRef ref) {
+        return getBrukersAndelerTilknyttetNøkkel().stream()
+            .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Etter automatisk omfordeling (blant annet) kan vi ha flere like andeler med samme ag og ref.
+     * Her må alle returneres. Håndteres manuelt av SBH intill https://jira.adeo.no/browse/TFP-2709 er løst.
+     * @return
+     */
+    public List<BeregningsresultatAndel> getAlleBrukersAndelerUtenReferanse() {
+        return getBrukersAndelerTilknyttetNøkkel().stream()
+            .filter(andel -> !andel.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Etter automatisk omfordeling (blant annet) kan vi ha flere like andeler med samme ag og ref.
+     * Her må alle returneres. Håndteres manuelt av SBH intill https://jira.adeo.no/browse/TFP-2709 er løst.
+     */
+    public List<BeregningsresultatAndel> getAlleArbeidsgiversAndelerMedReferanse(InternArbeidsforholdRef ref) {
+        return getArbeidsgiversAndelerTilknyttetNøkkel().stream()
+            .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Etter automatisk omfordeling (blant annet) kan vi ha flere like andeler med samme ag og ref.
+     * Her må alle returneres. Håndteres manuelt av SBH intill https://jira.adeo.no/browse/TFP-2709 er løst.
+     */
+    public List<BeregningsresultatAndel> getAlleArbeidsgiversAndelerUtenReferanse() {
+        return getArbeidsgiversAndelerTilknyttetNøkkel().stream()
+            .filter(andel -> !andel.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
+            .collect(Collectors.toList());
+    }
+
     void leggTilAndel(BeregningsresultatAndel andel) {
         if (matcherNøkkel(andel)) {
             andelerTilknyttetNøkkel.add(andel);
