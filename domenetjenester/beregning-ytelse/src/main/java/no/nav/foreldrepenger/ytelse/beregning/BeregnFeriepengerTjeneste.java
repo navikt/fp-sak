@@ -53,7 +53,7 @@ public abstract class BeregnFeriepengerTjeneste {
 
         Optional<Behandling> annenPartsBehandling = finnAnnenPartsBehandling(behandling);
         Optional<BeregningsresultatEntitet> annenPartsBeregningsresultat = annenPartsBehandling.flatMap(beh -> {
-            if (BehandlingResultatType.getInnvilgetKoder().contains(beh.getBehandlingsresultat().getBehandlingResultatType())) {
+            if (BehandlingResultatType.getAlleInnvilgetKoder().contains(beh.getBehandlingsresultat().getBehandlingResultatType())) {
                 return beregningsresultatRepository.hentBeregningsresultat(beh.getId());
             }
             return Optional.empty();
