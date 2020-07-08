@@ -68,12 +68,7 @@ public abstract class BeregnFeriepengerTjeneste {
         Evaluation evaluation = regelBeregnFeriepenger.evaluer(regelModell);
         String sporing = RegelmodellOversetter.getSporing(evaluation);
 
-        BeregningsresultatFeriepenger beregningsresultatFeriepenger = BeregningsresultatFeriepenger.builder()
-            .medFeriepengerRegelInput(regelInput)
-            .medFeriepengerRegelSporing(sporing)
-            .build(beregningsresultat);
-
-        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelModell, beregningsresultatFeriepenger);
+        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelModell, regelInput, sporing);
     }
 
     private Optional<Behandling> finnAnnenPartsBehandling(Behandling behandling) {
