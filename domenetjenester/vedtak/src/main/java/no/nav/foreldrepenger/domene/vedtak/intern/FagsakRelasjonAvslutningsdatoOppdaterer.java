@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.intern;
 
 import java.time.LocalDate;
-import java.util.Comparator;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
@@ -18,19 +18,23 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 
 public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
+
+    private static final int JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER = 3;
 
     protected FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     protected BehandlingRepository behandlingRepository;
     protected BehandlingsresultatRepository behandlingsresultatRepository;
     protected ForeldrepengerUttakTjeneste fpUttakTjeneste;
     protected FamilieHendelseRepository familieHendelseRepository;
+
     protected StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     protected UttakInputTjeneste uttakInputTjeneste;
+    protected MaksDatoUttakTjeneste maksDatoUttakTjeneste;
 
     void oppdaterFagsakRelasjonAvsluttningsdato(FagsakRelasjon relasjon,
                                                 Long fagsakId,
@@ -55,23 +59,26 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
             && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, LocalDate.now()) ? LocalDate.now().plusDays(1) : avsluttningsdato;
     }
 
-    protected LocalDate avsluttningsdatoHvisDetIkkeErStønadsdagerIgjen(Behandling behandling,
-                                                                     LocalDate avsluttningsdato) {
-        var uttakResultatEntitet = fpUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
-        if (uttakResultatEntitet.isPresent()) {
-            var uttakPerioder = uttakResultatEntitet.get().getGjeldendePerioder();
-            Optional<LocalDate> sisteUttaksdato = uttakPerioder.stream()
-                .max(Comparator.comparing(ForeldrepengerUttakPeriode::getTom))
-                .map(ForeldrepengerUttakPeriode::getTom);
-            var uttakInput = uttakInputTjeneste.lagInput(behandling);
-            var sluttPåStønadsdager = stønadskontoSaldoTjeneste.erSluttPåStønadsdager(uttakInput);
-            return sisteUttaksdato.isPresent() && sisteUttaksdato.get().isAfter(LocalDate.now()) && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, sisteUttaksdato.get())
-                && sluttPåStønadsdager ? sisteUttaksdato.get() : avsluttningsdato;
+    protected LocalDate finnAvsluttningsdatoForRelaterteBehandlinger(Behandling behandling, LocalDate avsluttningsdato) {
+        var uttakInput = uttakInputTjeneste.lagInput(behandling);
+        var maksDatoUttak = maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
+
+        if( !maksDatoUttak.isPresent() ) return avsluttningsdatoHvisDetIkkeErGjortUttak(behandling, avsluttningsdato);
+        LocalDate avsluningsdatoFraMaksDatoUttak = maksDatoUttak.get().plusDays(1);
+
+        var stønadRest = stønadskontoSaldoTjeneste.finnStønadRest(uttakInput);
+
+        if( stønadRest > 0 ) {
+            //rest er allerede lagt til i maksDatoUttak, men der mangler 'buffer'
+            avsluningsdatoFraMaksDatoUttak = avsluningsdatoFraMaksDatoUttak.plusMonths(JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER)
+                .with(TemporalAdjusters.lastDayOfMonth());
         }
-        return avsluttningsdato;
+
+        return avsluningsdatoFraMaksDatoUttak.isAfter(LocalDate.now()) && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, avsluningsdatoFraMaksDatoUttak)?
+            avsluningsdatoFraMaksDatoUttak : avsluttningsdato;
     }
 
-    protected LocalDate avsluttningsdatoHvisDetErStønadsdagerIgjen(Behandling behandling, LocalDate avsluttningsdato) {
+    protected LocalDate avsluttningsdatoHvisDetIkkeErGjortUttak(Behandling behandling, LocalDate avsluttningsdato) {
         Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         Optional<LocalDate> fødselsdato = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .flatMap(FamilieHendelseEntitet::getFødselsdato);
