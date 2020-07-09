@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus;
 
-import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -12,6 +12,7 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAkti
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetOverstyringerDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningRefusjonOverstyringDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningRefusjonOverstyringerDto;
+import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningRefusjonPeriodeDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDtoBuilder;
@@ -19,14 +20,16 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.InntektsmeldingDto;
 import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningAktivitetHandlingType;
+import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagRegelType;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetOverstyringerEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonOverstyringerEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonPeriodeEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelSporing;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
 public class BehandlingslagerTilKalkulusMapper {
@@ -38,15 +41,11 @@ public class BehandlingslagerTilKalkulusMapper {
         //med
         builder.medGrunnbeløp(beregningsgrunnlagFraFpsak.getGrunnbeløp().getVerdi());
         builder.medOverstyring(beregningsgrunnlagFraFpsak.isOverstyrt());
-        if (beregningsgrunnlagFraFpsak.getRegelinputPeriodisering() != null) {
-            builder.medRegelinputPeriodisering(beregningsgrunnlagFraFpsak.getRegelinputPeriodisering());
-        }
-        if (beregningsgrunnlagFraFpsak.getRegelInputBrukersStatus() != null && beregningsgrunnlagFraFpsak.getRegelloggBrukersStatus() != null) {
-            builder.medRegelloggBrukersStatus(beregningsgrunnlagFraFpsak.getRegelInputBrukersStatus(), beregningsgrunnlagFraFpsak.getRegelloggBrukersStatus());
-        }
-        if (beregningsgrunnlagFraFpsak.getRegelInputSkjæringstidspunkt() != null && beregningsgrunnlagFraFpsak.getRegelloggSkjæringstidspunkt() != null) {
-            builder.medRegelloggSkjæringstidspunkt(beregningsgrunnlagFraFpsak.getRegelInputSkjæringstidspunkt(), beregningsgrunnlagFraFpsak.getRegelloggSkjæringstidspunkt());
-        }
+        leggTilSporingHvisFinnes(beregningsgrunnlagFraFpsak, builder, BeregningsgrunnlagRegelType.PERIODISERING);
+        leggTilSporingHvisFinnes(beregningsgrunnlagFraFpsak, builder, BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE);
+        leggTilSporingHvisFinnes(beregningsgrunnlagFraFpsak, builder, BeregningsgrunnlagRegelType.PERIODISERING_REFUSJON);
+        leggTilSporingHvisFinnes(beregningsgrunnlagFraFpsak, builder, BeregningsgrunnlagRegelType.BRUKERS_STATUS);
+        leggTilSporingHvisFinnes(beregningsgrunnlagFraFpsak, builder, BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT);
         builder.medSkjæringstidspunkt(beregningsgrunnlagFraFpsak.getSkjæringstidspunkt());
         if (beregningsgrunnlagFraFpsak.getSammenligningsgrunnlag() != null) {
             builder.medSammenligningsgrunnlag(BGMapperTilKalkulus.mapSammenligningsgrunnlag(beregningsgrunnlagFraFpsak.getSammenligningsgrunnlag()));
@@ -61,19 +60,33 @@ public class BehandlingslagerTilKalkulusMapper {
         return builder.build();
     }
 
+    private static void leggTilSporingHvisFinnes(BeregningsgrunnlagEntitet beregningsgrunnlagFraFpsak, BeregningsgrunnlagDto.Builder builder, BeregningsgrunnlagRegelType regelType) {
+        if (beregningsgrunnlagFraFpsak.getRegelsporing(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelType.fraKode(regelType.getKode())) != null) {
+            BeregningsgrunnlagRegelSporing regelsporing = beregningsgrunnlagFraFpsak.getRegelsporing(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelType.fraKode(regelType.getKode()));
+            builder.medRegellogg(regelsporing.getRegelInput(), regelsporing.getRegelEvaluering(), regelType);
+        }
+    }
+
     public static BeregningRefusjonOverstyringerDto mapRefusjonOverstyring(BeregningRefusjonOverstyringerEntitet refusjonOverstyringerFraFpsak) {
         BeregningRefusjonOverstyringerDto.Builder dtoBuilder = BeregningRefusjonOverstyringerDto.builder();
 
         refusjonOverstyringerFraFpsak.getRefusjonOverstyringer().forEach(beregningRefusjonOverstyring -> {
-            Optional<LocalDate> førsteMuligeRefusjonFom = beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom();
-            if (førsteMuligeRefusjonFom.isEmpty()) {
-                throw new IllegalStateException("Forventer at første mulige refusjon er satt for denne kontrakten");
-            }
-            BeregningRefusjonOverstyringDto dto = new BeregningRefusjonOverstyringDto(IAYMapperTilKalkulus.mapArbeidsgiver(beregningRefusjonOverstyring.getArbeidsgiver()), førsteMuligeRefusjonFom.get());
+            List<BeregningRefusjonPeriodeDto> refusjonsperioder = beregningRefusjonOverstyring.getRefusjonPerioder().stream()
+                .map(BehandlingslagerTilKalkulusMapper::mapRefusjonperiode)
+                .collect(Collectors.toList());
+            BeregningRefusjonOverstyringDto dto = new BeregningRefusjonOverstyringDto(
+                IAYMapperTilKalkulus.mapArbeidsgiver(beregningRefusjonOverstyring.getArbeidsgiver()),
+                beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom().orElse(null),
+                refusjonsperioder);
             dtoBuilder.leggTilOverstyring(dto);
         });
         return dtoBuilder.build();
     }
+
+    public static BeregningRefusjonPeriodeDto mapRefusjonperiode(BeregningRefusjonPeriodeEntitet refusjonPeriodeEntitet) {
+        return new BeregningRefusjonPeriodeDto(IAYMapperTilKalkulus.mapArbeidsforholdRef(refusjonPeriodeEntitet.getArbeidsforholdRef()), refusjonPeriodeEntitet.getStartdatoRefusjon());
+    }
+
 
     public static BeregningAktivitetAggregatDto mapSaksbehandletAktivitet(BeregningAktivitetAggregatEntitet saksbehandletAktiviteterFraFpsak) {
         BeregningAktivitetAggregatDto.Builder dtoBuilder = BeregningAktivitetAggregatDto.builder();

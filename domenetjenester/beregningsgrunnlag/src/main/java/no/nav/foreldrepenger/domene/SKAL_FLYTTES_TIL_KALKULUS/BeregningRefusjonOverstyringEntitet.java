@@ -39,7 +39,7 @@ public class BeregningRefusjonOverstyringEntitet extends BaseEntitet {
     @Embedded
     private Arbeidsgiver arbeidsgiver;
 
-    @Column(name = "fom", nullable = false)
+    @Column(name = "fom")
     private LocalDate førsteMuligeRefusjonFom;
 
     @JsonBackReference
@@ -107,8 +107,8 @@ public class BeregningRefusjonOverstyringEntitet extends BaseEntitet {
 
     private void verifiserTilstand() {
         Objects.requireNonNull(arbeidsgiver, "arbeidsgiver");
-        if (refusjonPerioder.isEmpty()) {
-            Objects.requireNonNull(førsteMuligeRefusjonFom, "førsteMuligeRefusjonFom");
+        if (førsteMuligeRefusjonFom == null && refusjonPerioder.isEmpty()) {
+            throw new IllegalStateException("Objektet inneholder ingen informasjon om refusjon, ugyldig tilstand");
         }
     }
 
