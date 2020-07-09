@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingIdFagsakIdAktorId;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -79,7 +78,7 @@ public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
         private EntityManager entityManager;
 
         @Inject
-        public MigrerBehandlingRepository(@VLPersistenceUnit EntityManager entityManager) {
+        public MigrerBehandlingRepository( EntityManager entityManager) {
             this.entityManager = entityManager;
         }
 

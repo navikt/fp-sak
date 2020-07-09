@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.EgenVirksomhetDt
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.FrilansDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.VirksomhetDto;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class ManuellRegistreringSvangerskapspengerValidator {
 
@@ -157,7 +156,7 @@ public class ManuellRegistreringSvangerskapspengerValidator {
         var feltnavn = "mottattDato";
         var mottattDato = manuellRegistreringDto.getMottattDato();
         if (nonNull(mottattDato)) {
-            if (mottattDato.isAfter(FPDateUtil.iDag())) {
+            if (mottattDato.isAfter(LocalDate.now())) {
                 return Optional.of(new FeltFeilDto(feltnavn, FØR_ELLER_LIK_DAGENS_DATO));
             }
         }

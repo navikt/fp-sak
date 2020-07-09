@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AnkeMerknaderResultatAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -91,7 +90,7 @@ public class AnkeMerknaderOppdaterer implements AksjonspunktOppdaterer<AnkeMerkn
             .findFirst();
 
         if(autoVentAnkeOversendtTilTrygderetten.isEmpty()) {
-            LocalDate settPåVentTom = FPDateUtil.iDag().plusYears(FRIST_VENT_PAA_ANKE_OVERSENDT_TIL_TRYGDERETTEN);
+            LocalDate settPåVentTom = LocalDate.now().plusYears(FRIST_VENT_PAA_ANKE_OVERSENDT_TIL_TRYGDERETTEN);
             LocalDateTime frist = LocalDateTime.of(settPåVentTom, LocalTime.MIDNIGHT);
             behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN, BehandlingStegType.ANKE_MERKNADER,
                 frist, Venteårsak.ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER);

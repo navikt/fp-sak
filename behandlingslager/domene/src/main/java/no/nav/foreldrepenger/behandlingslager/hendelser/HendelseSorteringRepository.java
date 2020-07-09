@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class HendelseSorteringRepository {
@@ -29,7 +28,7 @@ public class HendelseSorteringRepository {
     }
 
     @Inject
-    public HendelseSorteringRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public HendelseSorteringRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }

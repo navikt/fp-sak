@@ -9,12 +9,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshåndterer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 /**
  * Utfører automatisk gjenopptagelse av en behandling som har
@@ -23,7 +24,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @ApplicationScoped
 @ProsessTask(GjenopptaBehandlingTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
-public class GjenopptaBehandlingTask implements ProsessTaskHandler {
+public class GjenopptaBehandlingTask extends BehandlingProsessTask {
 
     public static final String TASKTYPE = "behandlingskontroll.gjenopptaBehandling";
 
@@ -37,23 +38,22 @@ public class GjenopptaBehandlingTask implements ProsessTaskHandler {
     }
 
     @Inject
-    public GjenopptaBehandlingTask(BehandlingRepository behandlingRepository,
+    public GjenopptaBehandlingTask(BehandlingRepositoryProvider repositoryProvider,
                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                    RegisterdataEndringshåndterer registerdataOppdaterer,
                                    BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
-
-        this.behandlingRepository = behandlingRepository;
+        super(repositoryProvider.getBehandlingLåsRepository());
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.registerdataOppdaterer = registerdataOppdaterer;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
     }
 
     @Override
-    public void doTask(ProsessTaskData prosessTaskData) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
 
-        Long behandlingsId = prosessTaskData.getBehandlingId();
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingsId);
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingsId);
+        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
 
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
@@ -69,4 +69,5 @@ public class GjenopptaBehandlingTask implements ProsessTaskHandler {
 
         behandlingskontrollTjeneste.prosesserBehandling(kontekst);
     }
+
 }

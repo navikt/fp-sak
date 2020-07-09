@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoForBackendTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingÅrsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class BehandlingDtoForBackendTjenesteTest {
 
@@ -47,7 +46,7 @@ public class BehandlingDtoForBackendTjenesteTest {
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
     private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
     private BehandlingDtoForBackendTjeneste behandlingDtoForBackendTjeneste = new BehandlingDtoForBackendTjeneste(repositoryProvider);
-    private LocalDateTime now = FPDateUtil.nå();
+    private LocalDateTime now = LocalDateTime.now();
 
 
     @Test

@@ -27,7 +27,6 @@ import javax.persistence.criteria.Root;
 
 import org.hibernate.jpa.QueryHints;
 
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 import no.nav.vedtak.util.LRUCache;
 
 /**
@@ -45,7 +44,7 @@ public class KodeverkRepository {
     }
 
     @Inject
-    public KodeverkRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public KodeverkRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }

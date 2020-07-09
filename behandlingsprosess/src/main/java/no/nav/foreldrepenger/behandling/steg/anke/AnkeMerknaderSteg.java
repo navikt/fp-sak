@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.vedtak.util.FPDateUtil;
 
 @BehandlingStegRef(kode = "ANKE_MERKNADER")
 @BehandlingTypeRef
@@ -91,7 +90,7 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
     }
 
     private AksjonspunktResultat settAnkebehandlingPåVentOgLagHistorikkInnslag(Behandling behandling) {
-        LocalDate settPåVentTom = FPDateUtil.iDag().plusWeeks(FRIST_VENT_PAA_MERKNADER_FRA_BRUKER);
+        LocalDate settPåVentTom = LocalDate.now().plusWeeks(FRIST_VENT_PAA_MERKNADER_FRA_BRUKER);
         LocalDateTime frist = LocalDateTime.of(settPåVentTom, LocalTime.MIDNIGHT);
 
         lagHistorikkInnslagSattPåVent(behandling, frist);

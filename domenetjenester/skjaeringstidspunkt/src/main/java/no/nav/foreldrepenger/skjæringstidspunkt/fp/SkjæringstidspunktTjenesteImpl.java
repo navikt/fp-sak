@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktFeil;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.util.FPDateUtil;
 
 @FagsakYtelseTypeRef("FP")
 @ApplicationScoped
@@ -75,7 +74,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public LocalDate utledSkjæringstidspunktForRegisterInnhenting(Long behandlingId) {
         final Optional<FamilieHendelseGrunnlagEntitet> familieHendelseAggregat = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
 
-        return familieHendelseAggregat.map(utlederUtils::utledSkjæringstidspunktRegisterinnhenting).orElse(FPDateUtil.iDag());
+        return familieHendelseAggregat.map(utlederUtils::utledSkjæringstidspunktRegisterinnhenting).orElse(LocalDate.now());
     }
 
     @Override
@@ -138,7 +137,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         } else {
             if (manglerSøknadIFørstegangsbehandling(behandling)) {
                 // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda så gir midlertidig dagens dato. for at DTOer skal fungere.
-                return førsteØnskedeUttaksdagIBehandling.orElse(FPDateUtil.iDag());
+                return førsteØnskedeUttaksdagIBehandling.orElse(LocalDate.now());
             }
             return førsteØnskedeUttaksdagIBehandling
                 .orElseThrow(() -> SkjæringstidspunktFeil.FACTORY.finnerIkkeSkjæringstidspunktForForeldrepenger(behandlingId).toException());

@@ -221,11 +221,11 @@ public class OppgaveTjenesteTest {
         List<ProsessTaskGruppe.Entry> tasks = gruppe.getTasks();
         assertThat(tasks.get(0).getTask().getTaskType()).isEqualTo(AvsluttOppgaveTaskProperties.TASKTYPE);
         assertThat(tasks.get(0).getTask().getFagsakId()).isEqualTo(behandling.getFagsakId());
-        assertThat(tasks.get(0).getTask().getBehandlingId()).isEqualTo(behandling.getId());
+        assertThat(tasks.get(0).getTask().getBehandlingId()).isEqualTo(behandling.getId().toString());
         assertThat(String.valueOf(tasks.get(0).getTask().getAktørId())).isEqualTo(behandling.getAktørId().getId());
         assertThat(tasks.get(1).getTask().getTaskType()).isEqualTo(OpprettOppgaveGodkjennVedtakTask.TASKTYPE);
         assertThat(tasks.get(1).getTask().getFagsakId()).isEqualTo(behandling.getFagsakId());
-        assertThat(tasks.get(1).getTask().getBehandlingId()).isEqualTo(behandling.getId());
+        assertThat(tasks.get(1).getTask().getBehandlingId()).isEqualTo(behandling.getId().toString());
         assertThat(String.valueOf(tasks.get(1).getTask().getAktørId())).isEqualTo(behandling.getAktørId().getId());
     }
 

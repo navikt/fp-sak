@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -15,6 +16,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
+import no.nav.abakus.iaygrunnlag.request.InntektsmeldingDiffRequest;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,6 +206,28 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         }
         return List.of();
     }
+
+    @Override
+    public List<Inntektsmelding> finnInntektsmeldingDiff(BehandlingReferanse referanse) {
+        Optional<Long> originalBehandlingId = referanse.getOriginalBehandlingId();
+        if (originalBehandlingId.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Behandling originalBehandling = behandlingRepository.hentBehandling(originalBehandlingId.get());
+        UUID revurderingUUID = referanse.getBehandlingUuid();
+        InntektsmeldingDiffRequest req = new InntektsmeldingDiffRequest(new AktørIdPersonident(referanse.getAktørId().getId()));
+        req.setEksternRefEn(revurderingUUID);
+        req.setEksternRefTo(originalBehandling.getUuid());
+        req.setSaksnummer(referanse.getSaksnummer().getVerdi());
+        req.setYtelseType(KodeverkMapper.fraFagsakYtelseType(referanse.getFagsakYtelseType()));
+        try {
+            InntektsmeldingerDto inntektsmeldingerDto = abakusTjeneste.hentInntektsmeldingDiff(req);
+            return mapResult(inntektsmeldingerDto).getAlleInntektsmeldinger();
+        } catch (IOException e) {
+            throw AbakusInntektArbeidYtelseTjenesteFeil.FEIL.feilVedKallTilAbakus("Hente inntektsmeldingdiff: " + e.getMessage(), e).toException();
+        }
+    }
+
 
     @Override
     public SakInntektsmeldinger hentInntektsmeldinger(Saksnummer saksnummer) {

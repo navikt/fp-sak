@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task;
 
 import static no.nav.foreldrepenger.historikk.OppgaveÅrsak.VURDER_DOKUMENT;
+import static no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask.TASKTYPE;
 
 import java.util.Optional;
 
@@ -11,18 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import static no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask.TASKTYPE;
 
 @ApplicationScoped
 @ProsessTask(TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class OpprettOppgaveVurderDokumentTask extends FagsakProsessTask {
+public class OpprettOppgaveVurderDokumentTask extends GenerellProsessTask {
     public static final String TASKTYPE = "oppgavebehandling.opprettOppgaveVurderDokument";
     public static final String KEY_BEHANDLENDE_ENHET = "behandlendEnhetsId";
     public static final String KEY_DOKUMENT_TYPE = "dokumentTypeId";
@@ -35,13 +34,13 @@ public class OpprettOppgaveVurderDokumentTask extends FagsakProsessTask {
     }
 
     @Inject
-    public OpprettOppgaveVurderDokumentTask(OppgaveTjeneste oppgaveTjeneste, BehandlingRepositoryProvider repositoryProvider) {
-        super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
+    public OpprettOppgaveVurderDokumentTask(OppgaveTjeneste oppgaveTjeneste) {
+        super();
         this.oppgaveTjeneste = oppgaveTjeneste;
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         String behandlendeEnhet = prosessTaskData.getPropertyValue(KEY_BEHANDLENDE_ENHET);
         DokumentTypeId dokumentTypeId = Optional.ofNullable(prosessTaskData.getPropertyValue(KEY_DOKUMENT_TYPE))
             .map(dtid -> DokumentTypeId.fraKode(dtid)).orElse(DokumentTypeId.UDEFINERT);

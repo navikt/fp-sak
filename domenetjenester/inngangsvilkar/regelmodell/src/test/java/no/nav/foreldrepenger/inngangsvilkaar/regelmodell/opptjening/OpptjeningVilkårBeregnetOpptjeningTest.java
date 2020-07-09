@@ -14,7 +14,6 @@ import no.nav.fpsak.nare.evaluation.Resultat;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSummary;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class OpptjeningVilkårBeregnetOpptjeningTest {
 
@@ -81,7 +80,7 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
         int maksMellomliggendeDager = 14;
         int minForegåendeDager = 4*7;
 
-        LocalDate behandlingstidspunkt = FPDateUtil.iDag();
+        LocalDate behandlingstidspunkt = LocalDate.now();
         LocalDate dt1 = behandlingstidspunkt.minusMonths(6).minusDays(3);
         LocalDate dt2 = behandlingstidspunkt.minusMonths(2).plusDays(2);
         LocalDate dt3 = dt2.plusDays(maksMellomliggendeDager / 2);

@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling;
 
+import java.time.LocalDate;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * Default test scenario builder for Mor søker Engangsstønad. Kan opprettes for fødsel eller adopsjon og brukes til å
@@ -23,7 +24,7 @@ public class ScenarioMorSøkerEngangsstønad extends AbstractTestScenario<Scenar
         super(FagsakYtelseType.ENGANGSTØNAD, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE);
         medSøknad()
             .medRelasjonsRolleType(RelasjonsRolleType.MORA)
-            .medSøknadsdato(FPDateUtil.iDag());
+            .medSøknadsdato(LocalDate.now());
     }
 
     public static ScenarioMorSøkerEngangsstønad forFødselUtenSøknad() {

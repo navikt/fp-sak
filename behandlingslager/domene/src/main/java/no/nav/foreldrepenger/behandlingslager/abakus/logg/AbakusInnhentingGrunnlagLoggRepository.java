@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 
 @ApplicationScoped
@@ -20,7 +19,7 @@ public class AbakusInnhentingGrunnlagLoggRepository {
     }
 
     @Inject
-    public AbakusInnhentingGrunnlagLoggRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public AbakusInnhentingGrunnlagLoggRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }

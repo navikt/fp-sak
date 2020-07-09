@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 /**
  * Provider for å enklere å kunne hente ut ulike repository uten for mange injection points.
@@ -36,7 +35,7 @@ public class BehandlingskontrollServiceProvider {
     private BehandlingskontrollEventPubliserer eventPubliserer;
 
     @Inject
-    public BehandlingskontrollServiceProvider(@VLPersistenceUnit EntityManager entityManager, BehandlingModellRepository behandlingModellRepository, BehandlingskontrollEventPubliserer eventPubliserer) {
+    public BehandlingskontrollServiceProvider( EntityManager entityManager, BehandlingModellRepository behandlingModellRepository, BehandlingskontrollEventPubliserer eventPubliserer) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
 

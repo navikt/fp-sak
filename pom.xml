@@ -60,12 +60,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <fp-uttak.version>3.2-20200625085757-9f7d9bf</fp-uttak.version>
+        <fp-uttak.version>4.0-20200703131606-daeeb9a</fp-uttak.version>
 
         <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
 
-        <felles.version>1.9-20200611133813-b2fa736</felles.version>
-        <prosesstask.version>2.0.0-20200118083448-d87fd6d</prosesstask.version>
+        <felles.version>2.0.0-20200702160706-bb063e2</felles.version>
+        <prosesstask.version>2.4.2-20200703105213-95d753a</prosesstask.version>
 
         <metrics.version>3.2.5</metrics.version>
 
@@ -196,7 +196,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.abakus</groupId>
                 <artifactId>abakus-kontrakt</artifactId>
-                <version>1.2-20200413120915-cb5b3c8</version>
+                <version>1.2-2020.07.01.092025-127462c</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>

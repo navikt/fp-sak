@@ -8,7 +8,6 @@ import java.util.Objects;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.PermisjonDto;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.util.FPDateUtil;
 
 //NOSONAR
 public class ArbeidsforholdWrapper {
@@ -20,7 +19,7 @@ public class ArbeidsforholdWrapper {
     private String eksternArbeidsforholdId;
     private String begrunnelse;
     private String erstatterArbeidsforhold;
-    private LocalDate fomDato = FPDateUtil.iDag();
+    private LocalDate fomDato = LocalDate.now();
     private LocalDate tomDato;
     private ArbeidsforholdKilde kilde;
     private LocalDate mottattDatoInntektsmelding;

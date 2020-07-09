@@ -54,7 +54,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
 
     @Before
     public void setUp() {
-        when(prosessTaskData.getBehandlingId()).thenReturn(BEHANDLING_ID);
+        when(prosessTaskData.getBehandlingId()).thenReturn(BEHANDLING_ID.toString());
         when(prosessTaskData.getId()).thenReturn(TASK_ID);
         when(prosessTaskData.getAktørId()).thenReturn(AKTØR_ID);
         task = new VurderOgSendØkonomiOppdragTask(oppdragskontrollTjeneste,

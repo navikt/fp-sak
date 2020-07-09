@@ -43,13 +43,12 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
             .medBeregningsresultatPerioder(List.of(periode))
             .medFeriepengerPeriode(STP, STP.plusMonths(10))
             .build();
-        BeregningsresultatFeriepenger beregningsresultatFeriepenger = new BeregningsresultatFeriepenger();
 
         // Act
-        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelmodell, beregningsresultatFeriepenger);
+        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelmodell, "input", "sporing");
 
         // Assert
-        List<no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr> beregningsresultatFeriepengerPrÅrListe = beregningsresultatFeriepenger.getBeregningsresultatFeriepengerPrÅrListe();
+        var beregningsresultatFeriepengerPrÅrListe = beregningsresultat.getBeregningsresultatFeriepenger().get().getBeregningsresultatFeriepengerPrÅrListe();
         assertThat(beregningsresultatFeriepengerPrÅrListe.size()).isEqualTo(0);
     }
 
@@ -62,13 +61,12 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
             .medBeregningsresultatPerioder(List.of(periode))
             .medFeriepengerPeriode(STP, STP.plusMonths(10))
             .build();
-        BeregningsresultatFeriepenger beregningsresultatFeriepenger = new BeregningsresultatFeriepenger();
 
         // Act
-        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelmodell, beregningsresultatFeriepenger);
+        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelmodell, "input", "sporing");
 
         // Assert
-        List<no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr> beregningsresultatFeriepengerPrÅrListe = beregningsresultatFeriepenger.getBeregningsresultatFeriepengerPrÅrListe();
+        var beregningsresultatFeriepengerPrÅrListe = beregningsresultat.getBeregningsresultatFeriepenger().get().getBeregningsresultatFeriepengerPrÅrListe();
         assertThat(beregningsresultatFeriepengerPrÅrListe.size()).isEqualTo(1);
     }
 

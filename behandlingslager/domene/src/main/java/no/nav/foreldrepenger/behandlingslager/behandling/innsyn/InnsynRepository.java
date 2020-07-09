@@ -11,7 +11,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 @ApplicationScoped
 public class InnsynRepository {
@@ -23,7 +22,7 @@ public class InnsynRepository {
     }
 
     @Inject
-    public InnsynRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public InnsynRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }

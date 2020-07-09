@@ -31,6 +31,8 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
 
     public static final String ID = SjekkTilstrekkeligOpptjeningInklAntatt.class.getSimpleName();
 
+    private static final int INNTEKT_RAPPORTERING_SENEST = 5;
+
     static final String IKKE_TILSTREKKELIG_OPPTJENING_ID = "1035";
     public static final RuleReasonRefImpl IKKE_TILSTREKKELIG_OPPTJENING = new RuleReasonRefImpl(IKKE_TILSTREKKELIG_OPPTJENING_ID,
         "Ikke tilstrekkelig opptjening. Har opptjening: {0}");
@@ -55,11 +57,15 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
             return ja();
         }
 
-        //TODO(OJR) burde kanskje lage et egen regelsett for SVP, da det er store forskjeller?
+        //TODO(OJR) burde kanskje lage et egen regelsett for SVP, da det er store forskjeller
         if ((data.getGrunnlag().getSkalGodkjenneBasertPåAntatt())) {
+            // SVP godkjenner basert på antatt opptjening hvis behandling er før frist for inntektsrapportering. Legger ikke på vent
+            LocalDate fristForInntektsrapportering = beregnFristForOpptjeningsopplysninger(data);
+            boolean skalKreveRapportertInntekt = data.getGrunnlag().getBehandlingsTidspunkt().isAfter(fristForInntektsrapportering);
             OpptjentTidslinje antattOpptjeningTidsserie = data.getAntattTotalOpptjening();
             LocalDateTimeline<Boolean> avkortetTidsserie = antattOpptjeningTidsserie.getTidslinje().intersection(data.getGrunnlag().getOpptjeningPeriode());
-            if (avkortetTidsserie.isEmpty()) {
+            // Avslå hvis antattopptjening ikke har nok dager (bytte aktivitet, mv) eller rapporteringsfrist passert
+            if (skalKreveRapportertInntekt || !data.sjekkErInnenforMinstePeriodeGodkjent(antattTotalOpptjening) || avkortetTidsserie.isEmpty()) {
                 Period opptjentPeriode = antattOpptjeningTidsserie.getOpptjentPeriode();
                 data.setTotalOpptjening(antattOpptjeningTidsserie);
                 return nei(IKKE_TILSTREKKELIG_OPPTJENING, opptjentPeriode);
@@ -79,7 +85,7 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
             if (data.sjekkErInnenforMinsteGodkjentePeriodeForVent(bekreftetOpptjeningPeriode)) {
                 if (manglerInntektForSisteMånederIOpptjeningsperiodenINoenArbeidsforhold(data)) {
                     LocalDate fristForOpptjeningsopplysninger = beregnFristForOpptjeningsopplysninger(data);
-                    if (fristForOpptjeningsopplysninger.isAfter(LocalDate.now())) {
+                    if (fristForOpptjeningsopplysninger.isAfter(data.getGrunnlag().getBehandlingsTidspunkt())) {
                         data.setOpptjeningOpplysningerFrist(fristForOpptjeningsopplysninger);
 
                         Evaluation evaluation = kanIkkeVurdere(LEGG_PÅ_VENT, bekreftetOpptjeningPeriode, fristForOpptjeningsopplysninger);
@@ -101,7 +107,7 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
         LocalDate skjæringstidspunkt = data.getGrunnlag().getSisteDatoForOpptjening();
 
         // first er 5 i måned etter skjæringstidspunktet
-        LocalDate frist = skjæringstidspunkt.plusMonths(1).withDayOfMonth(5);
+        LocalDate frist = skjæringstidspunkt.plusMonths(1).withDayOfMonth(INNTEKT_RAPPORTERING_SENEST);
         return frist;
     }
 
@@ -114,7 +120,10 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
             .filter(e -> e.getValue().getMaxLocalDate().isAfter(sisteDatoIOpptjening))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        LocalDate startSiste2måneder = sisteDatoIOpptjening.minusMonths(1).withDayOfMonth(1);
+        boolean behandlesFørSkjæringstidspunkt = data.getGrunnlag().getBehandlingsTidspunkt().isBefore(data.getGrunnlag().getSisteDatoForOpptjening());
+        int justerMånedForInntektFilter = behandlesFørSkjæringstidspunkt && data.getGrunnlag().getBehandlingsTidspunkt().getDayOfMonth() < INNTEKT_RAPPORTERING_SENEST ? 0 : 1;
+        LocalDate startSiste2måneder = sisteDatoIOpptjening.minus(data.getGrunnlag().getPeriodeAntattGodkjentFørBehandlingstidspunkt())
+            .plusMonths(justerMånedForInntektFilter).withDayOfMonth(1);
         LocalDateInterval sisteParMåneder = new LocalDateInterval(startSiste2måneder, sisteDatoIOpptjening);
 
         LocalDateTimeline<Boolean> manglendeOpptjeningPerioder = new LocalDateTimeline<Boolean>(sisteParMåneder, Boolean.TRUE)

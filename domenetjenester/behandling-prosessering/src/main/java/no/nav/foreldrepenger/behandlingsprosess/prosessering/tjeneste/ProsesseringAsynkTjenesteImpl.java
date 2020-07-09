@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlin
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 
 @ApplicationScoped
 public class ProsesseringAsynkTjenesteImpl implements ProsesseringAsynkTjeneste {
@@ -79,7 +78,7 @@ public class ProsesseringAsynkTjenesteImpl implements ProsesseringAsynkTjeneste 
             && (nestePerGruppe.isEmpty()
                 || (nestePerGruppe.size() == 1
                     && nestePerGruppe.containsKey(gruppe)
-                    && ProsessTaskStatus.FERDIG.equals(nestePerGruppe.get(gruppe).getStatus())));
+                    && nestePerGruppe.get(gruppe).getStatus().erKjørt()));
     }
 
     private Map<String, List<ProsessTaskData>> sjekkStatusProsessTasksGrouped(Long fagsakId, Long behandlingId, String gruppe) {

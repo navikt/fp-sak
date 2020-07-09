@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.BehandlingVedtakOppdrag;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class MapBehandlingVedtak {
@@ -33,7 +32,7 @@ public class MapBehandlingVedtak {
         String ansvarligSaksbehandler = behandlingVedtakOpt.map(BehandlingVedtak::getAnsvarligSaksbehandler)
             .orElseGet(() -> FinnAnsvarligSaksbehandler.finn(behandling));
         LocalDate vedtaksdato = behandlingVedtakOpt.map(BehandlingVedtak::getVedtaksdato)
-            .orElseGet(FPDateUtil::iDag);
+            .orElseGet(LocalDate::now);
         BehandlingResultatType behandlingResultatType = behandling.getBehandlingsresultat().getBehandlingResultatType();
         return new BehandlingVedtakOppdrag(ansvarligSaksbehandler, behandlingResultatType, vedtaksdato);
     }

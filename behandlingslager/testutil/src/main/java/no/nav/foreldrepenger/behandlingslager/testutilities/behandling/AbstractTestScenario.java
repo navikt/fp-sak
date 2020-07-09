@@ -117,7 +117,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.Whitebox;
-import no.nav.vedtak.util.FPDateUtil;
 
 /**
  * Default test scenario builder for å definere opp testdata med enkle defaults.
@@ -372,7 +371,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             @Override
             public List<OppgittPeriodeEntitet> getOppgittePerioder() {
                 return Collections.singletonList(OppgittPeriodeBuilder.ny()
-                    .medPeriode(FPDateUtil.iDag(), FPDateUtil.iDag().plusWeeks(6))
+                    .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(6))
                     .medPeriodeType(UttakPeriodeType.MØDREKVOTE).build());
             }
 
@@ -732,7 +731,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     public void buildAvsluttet(BehandlingRepository behandlingRepo, BehandlingRepositoryProvider repositoryProvider) {
         Builder behandlingBuilder = grunnBuild(repositoryProvider);
 
-        behandling = behandlingBuilder.medAvsluttetDato(FPDateUtil.nå()).build();
+        behandling = behandlingBuilder.medAvsluttetDato(LocalDateTime.now()).build();
         BehandlingLås lås = behandlingRepo.taSkriveLås(behandling);
         behandlingRepo.lagre(behandling, lås);
 
@@ -1185,19 +1184,19 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             .erTidligereOpphold(true)
             .medLand(Landkoder.NOR)
             .medPeriode(
-                FPDateUtil.iDag().minusYears(1),
-                FPDateUtil.iDag())
+                LocalDate.now().minusYears(1),
+                LocalDate.now())
             .build();
         MedlemskapOppgittLandOppholdEntitet oppholdNorgeNestePeriode = new MedlemskapOppgittLandOppholdEntitet.Builder()
             .erTidligereOpphold(false)
             .medLand(Landkoder.NOR)
             .medPeriode(
-                FPDateUtil.iDag(),
-                FPDateUtil.iDag().plusYears(1))
+                LocalDate.now(),
+                LocalDate.now().plusYears(1))
             .build();
         List<MedlemskapOppgittLandOppholdEntitet> oppholdNorge = List.of(oppholdNorgeNestePeriode, oppholdNorgeSistePeriode);
 
-        oppgittTilknytningBuilder.medOpphold(oppholdNorge).medOppholdNå(true).medOppgittDato(FPDateUtil.iDag());
+        oppgittTilknytningBuilder.medOpphold(oppholdNorge).medOppholdNå(true).medOppgittDato(LocalDate.now());
         return oppgittTilknytningBuilder;
     }
 
@@ -1283,9 +1282,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     public S medDefaultSøknadTerminbekreftelse() {
         final FamilieHendelseBuilder.TerminbekreftelseBuilder terminbekreftelse = medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medTermindato(FPDateUtil.iDag().plusDays(40))
+            .medTermindato(LocalDate.now().plusDays(40))
             .medNavnPå("LEGEN LEGESEN")
-            .medUtstedtDato(FPDateUtil.iDag().minusDays(7));
+            .medUtstedtDato(LocalDate.now().minusDays(7));
         medSøknadHendelse()
             .medTerminbekreftelse(terminbekreftelse);
 
@@ -1295,9 +1294,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medDefaultBekreftetTerminbekreftelse() {
         final FamilieHendelseBuilder.TerminbekreftelseBuilder terminbekreftelse = medBekreftetHendelse().getTerminbekreftelseBuilder()
-            .medTermindato(FPDateUtil.iDag().plusDays(40))
+            .medTermindato(LocalDate.now().plusDays(40))
             .medNavnPå("LEGEN LEGESEN")
-            .medUtstedtDato(FPDateUtil.iDag().minusDays(7));
+            .medUtstedtDato(LocalDate.now().minusDays(7));
         medBekreftetHendelse()
             .medTerminbekreftelse(terminbekreftelse);
 

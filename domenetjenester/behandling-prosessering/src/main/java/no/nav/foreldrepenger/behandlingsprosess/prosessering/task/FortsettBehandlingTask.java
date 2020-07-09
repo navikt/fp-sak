@@ -47,7 +47,7 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
         BehandlingskontrollTjeneste behandlingskontrollTjeneste = cdi.select(BehandlingskontrollTjeneste.class).get();
 
         try {
-            Long behandlingId = data.getBehandlingId();
+            Long behandlingId = getBehandlingId(data);
             BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
             Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
             Boolean manuellFortsettelse = Optional.ofNullable(data.getPropertyValue(FortsettBehandlingTaskProperties.MANUELL_FORTSETTELSE))
@@ -99,5 +99,9 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
         if (behandling.isBehandlingPåVent()) {
             throw new IllegalStateException("Utviklerfeil: Ikke tillatt å fortsette behandling på vent");
         }
+    }
+
+    private Long getBehandlingId(ProsessTaskData data) {
+        return data.getBehandlingId() != null ? Long.valueOf(data.getBehandlingId()) : null;
     }
 }

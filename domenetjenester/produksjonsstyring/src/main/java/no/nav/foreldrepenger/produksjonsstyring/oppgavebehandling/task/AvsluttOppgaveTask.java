@@ -29,10 +29,10 @@ public class AvsluttOppgaveTask extends BehandlingProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         String oppgaveId = prosessTaskData.getOppgaveId()
             .orElseThrow(() -> new IllegalStateException("Mangler oppgaveId"));
 
-        oppgaveTjeneste.avslutt(prosessTaskData.getBehandlingId(), oppgaveId);
+        oppgaveTjeneste.avslutt(behandlingId, oppgaveId);
     }
 }

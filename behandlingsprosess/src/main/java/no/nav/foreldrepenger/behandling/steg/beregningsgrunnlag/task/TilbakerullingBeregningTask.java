@@ -15,24 +15,22 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
 @ProsessTask(TilbakerullingBeregningTask.TASKNAME)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class TilbakerullingBeregningTask implements ProsessTaskHandler {
+public class TilbakerullingBeregningTask extends GenerellProsessTask {
 
     public static final String TASKNAME = "beregning.tilbakerullingAvSaker";
 
     private BehandlingRepository behandlingRepository;
     private HistorikkRepository historikkRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
 
     TilbakerullingBeregningTask() {
@@ -41,20 +39,18 @@ public class TilbakerullingBeregningTask implements ProsessTaskHandler {
 
     @Inject
     public TilbakerullingBeregningTask(BehandlingRepository behandlingRepository,
-                                       ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
                                        HistorikkRepository historikkRepository,
                                        ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
                                        BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+        super();
         this.behandlingRepository = behandlingRepository;
-        this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
         this.historikkRepository = historikkRepository;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
 
     @Override
-    public void doTask(ProsessTaskData prosessTaskData) {
-        Long behandlingId = prosessTaskData.getBehandlingId();
+    public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if(!erBehandlingBerørt(behandling) && !behandling.erSaksbehandlingAvsluttet() && behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)){
             hoppTilbake(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD);

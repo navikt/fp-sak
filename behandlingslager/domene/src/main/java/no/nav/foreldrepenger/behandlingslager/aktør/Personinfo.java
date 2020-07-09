@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class Personinfo {
 
@@ -68,7 +67,7 @@ public class Personinfo {
     }
 
     public int getAlder() {
-        return (int) ChronoUnit.YEARS.between(fødselsdato, FPDateUtil.iDag());
+        return (int) ChronoUnit.YEARS.between(fødselsdato, LocalDate.now());
     }
 
     public Set<Familierelasjon> getFamilierelasjoner() {

@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.modell;
 
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
+
+import java.util.Objects;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import java.util.Objects;
-import java.util.Optional;
-
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 @ApplicationScoped
 public class RisikoklassifiseringRepository {
@@ -21,12 +20,12 @@ public class RisikoklassifiseringRepository {
     }
 
     @Inject
-    public RisikoklassifiseringRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public RisikoklassifiseringRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }
 
-    
+
     public void lagreVurderingAvFaresignalerForRisikoklassifisering(FaresignalVurdering faresignalVurdering, long behandlingId) {
 
         Optional<RisikoklassifiseringEntitet> gammelEntitetOpt = hentRisikoklassifiseringForBehandling(behandlingId);
@@ -47,7 +46,7 @@ public class RisikoklassifiseringRepository {
         lagre(nyEntitet);
     }
 
-    
+
     public void lagreRisikoklassifisering(RisikoklassifiseringEntitet risikoklassifisering, Long behandlingId) {
         Objects.requireNonNull(risikoklassifisering, "risikoklassifisering");
         Objects.requireNonNull(risikoklassifisering.getBehandlingId(), "behandlingId");
@@ -57,7 +56,7 @@ public class RisikoklassifiseringRepository {
         lagre(risikoklassifisering);
     }
 
-    
+
     public Optional<RisikoklassifiseringEntitet> hentRisikoklassifiseringForBehandling(long behandlingId) {
         TypedQuery<RisikoklassifiseringEntitet> query = entityManager.createQuery("from RisikoklassifiseringEntitet where behandlingId = :behandlingId and erAktiv = :erAktiv", RisikoklassifiseringEntitet.class);
         query.setParameter("behandlingId", behandlingId);

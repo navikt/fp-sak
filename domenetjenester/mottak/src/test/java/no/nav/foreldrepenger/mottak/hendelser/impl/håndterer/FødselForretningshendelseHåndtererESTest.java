@@ -1,20 +1,16 @@
 package no.nav.foreldrepenger.mottak.hendelser.impl.håndterer;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRING_BEREGNINGSGRUNNLAG;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,8 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -45,7 +39,6 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
 public class FødselForretningshendelseHåndtererESTest {
@@ -97,47 +90,6 @@ public class FødselForretningshendelseHåndtererESTest {
         håndtererFelles = new ForretningshendelseHåndtererFelles(historikkinnslagTjeneste, kompletthetskontroller,
             behandlingProsesseringTjeneste, behandlingsoppretter, køKontroller);
         håndterer = new FødselForretningshendelseHåndtererImpl(håndtererFelles, Period.ofWeeks(11), skjæringstidspunktTjeneste, null);
-    }
-
-    // Vil bare gjøre noe rundt årsskifte
-    @Ignore
-    @Test
-    public void skal_opprette_revurdering_når_hendelse_er_fødsel_finnes_vedtak() {
-        // Arrange
-        LocalDate termindato = LocalDate.now();
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medBehandlingStegStart(BehandlingStegType.IVERKSETT_VEDTAK);
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medUtstedtDato(termindato)
-            .medTermindato(termindato)
-            .medNavnPå("LEGEN MIN"))
-            .medAntallBarn(1);
-        scenario.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now())
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medAnsvarligSaksbehandler("Nav Navesen")
-            .build();
-        behandling = scenario.lagre(repositoryProvider);
-
-        behandling = behandlingRepository.hentBehandling(behandling.getId());
-        assertThat(behandling.erUnderIverksettelse()).isTrue();
-
-        // Act
-        System.setProperty("funksjonelt.tidsoffset.offset", Period.between(LocalDate.now(), LocalDate.now().plusMonths(1)).toString());
-        FPDateUtil.init();
-
-        håndterer.håndterAvsluttetBehandling(behandling, ForretningshendelseType.FØDSEL, RE_ENDRING_BEREGNINGSGRUNNLAG);
-
-        System.clearProperty("funksjonelt.tidsoffset.offset");
-        FPDateUtil.init();
-
-
-        // Assert
-        behandling = behandlingRepository.hentBehandling(behandling.getId());
-        assertThat(behandling.erUnderIverksettelse()).isTrue();
-
-        Optional<Behandling> revurdering = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId());
-        assertThat(revurdering.get().erRevurdering()).isTrue();
     }
 
     @Test

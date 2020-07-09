@@ -30,7 +30,6 @@ import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 public class BehandlingsutredningApplikasjonTjeneste {
@@ -104,8 +103,8 @@ public class BehandlingsutredningApplikasjonTjeneste {
 
     private LocalDateTime bestemFristForBehandlingVent(LocalDate frist) {
         return frist != null
-            ? LocalDateTime.of(frist, FPDateUtil.nå().toLocalTime())
-            : FPDateUtil.nå().plus(defaultVenteFrist);
+            ? LocalDateTime.of(frist, LocalDateTime.now().toLocalTime())
+            : LocalDateTime.now().plus(defaultVenteFrist);
     }
 
     public void byttBehandlendeEnhet(Long behandlingId, OrganisasjonsEnhet enhet, String begrunnelse, HistorikkAktør aktør) {

@@ -421,7 +421,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         var oppittePerioder = grunnlag.getSøknad().getOppgittePerioder();
 
         assertThat(oppittePerioder).isNotEmpty();
-        assertThat(oppittePerioder.get(0).getSamtidigUttaksprosent()).isEqualTo(SamtidigUttaksprosent.TEN.decimalValue());
+        assertThat(oppittePerioder.get(0).getSamtidigUttaksprosent().decimalValue()).isEqualTo(SamtidigUttaksprosent.TEN.decimalValue());
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {

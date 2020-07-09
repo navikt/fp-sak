@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,6 +41,7 @@ public class LoggOverlappendeEksternYtelseTjeneste {
     private BeregningsresultatRepository tilkjentYtelseRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingOverlappInfotrygdRepository overlappRepository;
+    private static final BigDecimal HUNDRE = new BigDecimal(100);
 
 
     LoggOverlappendeEksternYtelseTjeneste() {
@@ -65,6 +67,16 @@ public class LoggOverlappendeEksternYtelseTjeneste {
             .forEach(overlappRepository::lagre);
     }
 
+    public void loggOverlappMedGradering(YtelseV1 ytelse, LocalDate minYtelseDato, LocalDateTimeline<BigDecimal> ytelseTidslinje, List<Fagsak> sakerForBruker) {
+        var ytelseTemaSaksnummer = ytelse.getType().getKode() + ytelse.getSaksnummer();
+        sakerForBruker.stream()
+            .map(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()))
+            .flatMap(Optional::stream)
+            .map(b -> sjekkGradertOverlappFor(ytelseTemaSaksnummer, minYtelseDato, ytelseTidslinje, b))
+            .flatMap(Collection::stream)
+            .forEach(overlappRepository::lagre);
+    }
+
     private List<BehandlingOverlappInfotrygd> sjekkOverlappFor(String tema, LocalDate minYtelseDato, LocalDateTimeline<Boolean> ytelseTidslinje, Behandling behandling) {
         List<LocalDateSegment<Boolean>> fpsegments = tilkjentYtelseRepository.hentBeregningsresultat(behandling.getId())
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
@@ -79,6 +91,30 @@ public class LoggOverlappendeEksternYtelseTjeneste {
         var fpTidslinje = new LocalDateTimeline<>(fpsegments, StandardCombinators::alwaysTrueForMatch).compress();
 
         var filter = fpTidslinje.intersection(ytelseTidslinje, StandardCombinators::alwaysTrueForMatch).compress();
+        if (!filter.getDatoIntervaller().isEmpty())
+            LOG.info("Vedtatt-Ytelse logger overlapp mellom mottatt ytelse {} og sak {}", tema, behandling.getFagsak().getSaksnummer().getVerdi());
+
+        return filter.getDatoIntervaller().stream()
+            .map(periode -> opprettOverlappEntitet(behandling, tema, periode))
+            .collect(Collectors.toList());
+    }
+
+    private List<BehandlingOverlappInfotrygd> sjekkGradertOverlappFor(String tema, LocalDate minYtelseDato, LocalDateTimeline<BigDecimal> ytelseTidslinje, Behandling behandling) {
+        List<LocalDateSegment<BigDecimal>> fpsegments = tilkjentYtelseRepository.hentBeregningsresultat(behandling.getId())
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .filter(p -> p.getDagsats() > 0)
+            .filter(p -> p.getBeregningsresultatPeriodeTom().isAfter(minYtelseDato.minusDays(1)))
+            .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getBeregningsresultatPeriodeFom()),
+                VirkedagUtil.tomVirkedag(p.getBeregningsresultatPeriodeTom()), p.getKalkulertUtbetalingsgrad()))
+            .collect(Collectors.toList());
+
+        if (fpsegments.isEmpty())
+            return Collections.emptyList();
+
+        var fpTidslinje = new LocalDateTimeline<>(fpsegments, StandardCombinators::sum).filterValue(v -> v.compareTo(BigDecimal.ZERO) > 0);
+
+        var filter = fpTidslinje.intersection(ytelseTidslinje, StandardCombinators::sum).filterValue(v -> v.compareTo(HUNDRE) > 0);
+
         if (!filter.getDatoIntervaller().isEmpty())
             LOG.info("Vedtatt-Ytelse logger overlapp mellom mottatt ytelse {} og sak {}", tema, behandling.getFagsak().getSaksnummer().getVerdi());
 

@@ -9,15 +9,15 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataInnhenter;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
 @ProsessTask(InnhentIAYIAbakusTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
-public class InnhentIAYIAbakusTask implements ProsessTaskHandler {
+public class InnhentIAYIAbakusTask extends GenerellProsessTask {
 
     public static final String TASKTYPE = "innhentsaksopplysninger.abakus";
     public static final String OVERSTYR_KEY = "overstyrt";
@@ -35,14 +35,15 @@ public class InnhentIAYIAbakusTask implements ProsessTaskHandler {
     @Inject
     public InnhentIAYIAbakusTask(BehandlingRepository behandlingRepository,
                                  RegisterdataInnhenter registerdataInnhenter) {
+        super();
         this.behandlingRepository = behandlingRepository;
         this.registerdataInnhenter = registerdataInnhenter;
     }
 
     @Override
-    public void doTask(ProsessTaskData prosessTaskData) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         boolean overstyr = prosessTaskData.getPropertyValue(OVERSTYR_KEY) != null && OVERSTYR_VALUE.equals(prosessTaskData.getPropertyValue(OVERSTYR_KEY));
-        Behandling behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingId());
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         LOGGER.info("Innhenter IAY-opplysninger i abakus for behandling: {}", behandling.getId());
         if (overstyr) {
             registerdataInnhenter.innhentFullIAYIAbakus(behandling);

@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.tilganger;
 
 import java.time.LocalDateTime;
 
-import no.nav.vedtak.util.FPDateUtil;
-
 public class InnloggetNavAnsattDto {
 
     private final String brukernavn;
@@ -40,7 +38,7 @@ public class InnloggetNavAnsattDto {
         this.kanBehandleKode6 = kanBehandleKode6;
         this.kanBehandleKode7 = kanBehandleKode7;
         this.skalViseDetaljerteFeilmeldinger = skalViseDetaljerteFeilmeldinger;
-        this.funksjonellTid = FPDateUtil.nå();
+        this.funksjonellTid = LocalDateTime.now();
     }
 
     public static Builder builder() {

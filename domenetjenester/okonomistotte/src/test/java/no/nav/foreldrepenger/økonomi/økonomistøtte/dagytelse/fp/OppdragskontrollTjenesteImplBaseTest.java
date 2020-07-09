@@ -50,13 +50,13 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -91,7 +91,6 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.Oppdrags
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.OpprettOpphørIEndringsoppdrag;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
-import no.nav.vedtak.util.FPDateUtil;
 
 public abstract class OppdragskontrollTjenesteImplBaseTest {
 
@@ -165,8 +164,8 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
         Behandling behandlingFP = Behandling.forFørstegangssøknad(fagsak).build();
         final FamilieHendelseBuilder hendelse = familieHendelseRepository.opprettBuilderFor(behandlingFP);
         hendelse.medTerminbekreftelse(hendelse.getTerminbekreftelseBuilder()
-            .medTermindato(FPDateUtil.iDag().plusDays(40))
-            .medUtstedtDato(FPDateUtil.iDag().minusDays(7))
+            .medTermindato(LocalDate.now().plusDays(40))
+            .medUtstedtDato(LocalDate.now().minusDays(7))
             .medNavnPå("Navn"));
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandlingFP);
         behandlingRepository.lagre(behandlingFP, lås);

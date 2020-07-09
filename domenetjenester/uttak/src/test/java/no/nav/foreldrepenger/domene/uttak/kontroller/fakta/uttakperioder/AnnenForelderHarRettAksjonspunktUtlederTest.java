@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
 public class AnnenForelderHarRettAksjonspunktUtlederTest {
@@ -115,7 +114,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
 
     @Test
     public void ingen_aksjonspunkt_dersom_far_søker_førstegangssøknad_og_annenforelder_har_ikke_rett_men_har_ES() {
-        LocalDate fødselsdato = FPDateUtil.iDag().minusMonths(1);
+        LocalDate fødselsdato = LocalDate.now().minusMonths(1);
         ScenarioMorSøkerEngangsstønad mores = ScenarioMorSøkerEngangsstønad.forFødsel(AKTØR_ID_MOR).medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
 
         Behandling morEngang = mores.lagre(repositoryProvider);
@@ -141,7 +140,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
 
     @Test
     public void aksjonspunkt_dersom_far_søker_førstegangssøknad_og_annenforelder_har_ikke_rett_men_har_ES_for_annet_barn() {
-        LocalDate fødselsdato = FPDateUtil.iDag().minusMonths(1);
+        LocalDate fødselsdato = LocalDate.now().minusMonths(1);
         ScenarioMorSøkerEngangsstønad mores = ScenarioMorSøkerEngangsstønad.forFødsel(AKTØR_ID_MOR).medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
 
         Behandling morEngang = mores.lagre(repositoryProvider);

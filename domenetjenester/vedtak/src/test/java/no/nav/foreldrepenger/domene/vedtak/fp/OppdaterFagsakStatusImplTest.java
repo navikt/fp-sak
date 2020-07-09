@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -18,13 +20,10 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusFelles;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 public class OppdaterFagsakStatusImplTest {
 
@@ -51,17 +50,24 @@ public class OppdaterFagsakStatusImplTest {
     }
 
     @Test
-    public void avslått_ytelsesvedtak() {
-        assertThat(erVedtakDirekteAvsluttbart(VedtakResultatType.AVSLAG)).as("Vedtak AVSLAG avsluttes direkte").isTrue();
-        assertThat(erVedtakDirekteAvsluttbart(VedtakResultatType.OPPHØR)).as("Vedtak OPPHØR avsluttes direkte").isTrue();
-        assertThat(erVedtakDirekteAvsluttbart(VedtakResultatType.INNVILGET)).as("Vedtak INNVILGET avsluttes direkte").isFalse();
+    public void avslutt_ytelsesvedtak_ved_avslått_behandling() {
+        assertThat(erBehandlingDirekteAvsluttbart(BehandlingResultatType.AVSLÅTT)).as("Vedtak AVSLAG avsluttes direkte").isTrue();
+    }
+    @Test
+    public void avslutt_ytelsesvedtak_ved_opphørt_behandling() {
+        assertThat(erBehandlingDirekteAvsluttbart(BehandlingResultatType.OPPHØR)).as("Vedtak OPPHØR avsluttes direkte").isTrue();
+    }
+    @Test
+    public void ikke_avslutt_ytelsesvedtak_ved_innvilget_behandling() {
+        assertThat(erBehandlingDirekteAvsluttbart(BehandlingResultatType.INNVILGET)).as("Vedtak INNVILGET avsluttes direkte").isFalse();
     }
 
-    private boolean erVedtakDirekteAvsluttbart(VedtakResultatType vedtakResultatType) {
+    private boolean erBehandlingDirekteAvsluttbart(BehandlingResultatType behandlingResultatType) {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        BehandlingVedtak behandlingVedtak = scenario.medBehandlingVedtak().medVedtakResultatType(vedtakResultatType).build();
+
+        Behandlingsresultat behandlingsresultat = new Behandlingsresultat.Builder().medBehandlingResultatType(behandlingResultatType).build();
         Behandling behandling = scenario.lagMocked();
-        Whitebox.setInternalState(behandling.getBehandlingsresultat(), "behandlingVedtak", behandlingVedtak);
+        behandling.setBehandlingresultat(behandlingsresultat);
 
         var foreldelsesfrist = Period.ofYears(100); // Kun for teset
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();

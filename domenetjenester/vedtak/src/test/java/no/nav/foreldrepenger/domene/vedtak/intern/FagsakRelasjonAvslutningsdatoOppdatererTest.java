@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.fp.MaksDatoUttakTjenesteImpl;
 import no.nav.foreldrepenger.domene.vedtak.intern.fp.FpFagsakRelasjonAvslutningsdatoOppdaterer;
@@ -138,7 +139,10 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()))
             .thenReturn(lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT));
-        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)));
+
+        LocalDate periodeStartDato = LocalDate.now().minusDays(10);
+        LocalDate periodeAvsluttetDato = LocalDate.now().plusDays(10);
+        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(lagUttakResultat(periodeStartDato, periodeAvsluttetDato));
 
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.empty());
         when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(0);
@@ -148,7 +152,7 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
         fagsakRelasjonAvslutningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
 
         // Assert
-        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().plusDays(11), null, Optional.empty(), Optional.empty());
+        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1), null, Optional.empty(), Optional.empty());
     }
 
     @Test
@@ -159,7 +163,10 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()))
             .thenReturn(lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT));
-        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)));
+
+        LocalDate periodeStartDato = LocalDate.now().minusDays(10);
+        LocalDate periodeAvsluttetDato = LocalDate.now().plusDays(10);
+        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(lagUttakResultat(periodeStartDato, periodeAvsluttetDato));
 
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
         FamilieHendelseEntitet familieHendelse = mock(FamilieHendelseEntitet.class);
@@ -167,14 +174,15 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
         when(familieHendelseGrunnlag.getGjeldendeVersjon()).thenReturn(familieHendelse);
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(familieHendelseGrunnlag));
 
+        int totalRest = 3;
         when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(1);
-        when(stønadskontoSaldoTjeneste.finnStønadRest(any(UttakInput.class))).thenReturn(3); //summen for de tre stønadskotoene
+        when(stønadskontoSaldoTjeneste.finnStønadRest(any(UttakInput.class))).thenReturn(totalRest); //summen for de tre stønadskotoene
 
         // Act
         fagsakRelasjonAvslutningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
 
         // Assert
-        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().plusDays(10).plusDays(3).plusMonths(3).with(TemporalAdjusters.lastDayOfMonth()), null, Optional.empty(), Optional.empty());
+        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(totalRest).plusMonths(3).with(TemporalAdjusters.lastDayOfMonth()), null, Optional.empty(), Optional.empty());
     }
 
     private Behandling lagBehandling() {

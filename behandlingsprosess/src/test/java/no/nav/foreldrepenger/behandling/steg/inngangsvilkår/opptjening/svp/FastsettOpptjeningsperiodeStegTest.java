@@ -4,7 +4,9 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårT
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.OPPTJENINGSVILKÅRET;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.Optional;
@@ -47,11 +49,12 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.util.FPDateUtil;
 
 @RunWith(CdiRunner.class)
 public class FastsettOpptjeningsperiodeStegTest {
@@ -115,6 +118,7 @@ public class FastsettOpptjeningsperiodeStegTest {
 
         var aggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
         lagAktørArbeid(aggregatBuilder, behandling.getAktørId(), ORGNR, LocalDate.now().minusYears(1), Tid.TIDENES_ENDE, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        lagAktørInntekt(aggregatBuilder, behandling.getAktørId(), ORGNR, LocalDate.now().minusYears(1), jordmorsdato);
         iayTjeneste.lagreIayAggregat(behandling.getId(), aggregatBuilder);
 
         lagreSvp(behandling, jordmorsdato);
@@ -276,13 +280,32 @@ public class FastsettOpptjeningsperiodeStegTest {
         inntektArbeidYtelseAggregatBuilder.leggTilAktørArbeid(aktørArbeidBuilder);
     }
 
+    private void lagAktørInntekt(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId, String virksomhetOrgnr,
+                                 LocalDate fom, LocalDate tom) {
+        var aktørInntektBuilder = inntektArbeidYtelseAggregatBuilder
+            .getAktørInntektBuilder(aktørId);
+        var opptjeningsnøkkel = Opptjeningsnøkkel.forOrgnummer(virksomhetOrgnr);
+
+        var inntektsBuiler = aktørInntektBuilder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING, opptjeningsnøkkel)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(virksomhetOrgnr));
+        var inntektsPostBuilder = inntektsBuiler.getInntektspostBuilder()
+            .medInntektspostType(InntektspostType.LØNN)
+            .medBeløp(BigDecimal.ONE)
+            .medPeriode(fom, tom);
+
+        inntektsBuiler.leggTilInntektspost(inntektsPostBuilder);
+
+        aktørInntektBuilder.leggTilInntekt(inntektsBuiler);
+        inntektArbeidYtelseAggregatBuilder.leggTilAktørInntekt(aktørInntektBuilder);
+    }
+
     private void lagreSvp(Behandling behandling, LocalDate jordmorsdato) {
         SvpTilretteleggingEntitet tilrettelegging = new SvpTilretteleggingEntitet.Builder()
             .medBehovForTilretteleggingFom(jordmorsdato)
             .medIngenTilrettelegging(jordmorsdato)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
-            .medMottattTidspunkt(FPDateUtil.nå())
+            .medMottattTidspunkt(LocalDateTime.now())
             .medKopiertFraTidligereBehandling(false)
             .build();
         SvpGrunnlagEntitet svpGrunnlag = new SvpGrunnlagEntitet.Builder()

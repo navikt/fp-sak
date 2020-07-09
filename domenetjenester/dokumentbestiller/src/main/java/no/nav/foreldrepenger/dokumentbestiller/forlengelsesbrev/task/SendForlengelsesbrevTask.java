@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.dokumentbestiller.forlengelsesbrev.task;
 
+import java.time.LocalDate;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -10,17 +12,17 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.dokumentbestiller.forlengelsesbrev.SendForlengelsesbrevTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.util.FPDateUtil;
 
 @ApplicationScoped
 @ProsessTask(SendForlengelsesbrevTaskProperties.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class SendForlengelsesbrevTask implements ProsessTaskHandler {
+public class SendForlengelsesbrevTask extends BehandlingProsessTask {
 
     private static final Logger log = LoggerFactory.getLogger(SendForlengelsesbrevTask.class);
 
@@ -33,15 +35,15 @@ public class SendForlengelsesbrevTask implements ProsessTaskHandler {
     }
 
     @Inject
-    public SendForlengelsesbrevTask(BehandlingRepository behandlingRepository,
+    public SendForlengelsesbrevTask(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
-        this.behandlingRepository = behandlingRepository;
+        super(behandlingRepositoryProvider.getBehandlingLåsRepository());
+        this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
 
     @Override
-    public void doTask(ProsessTaskData prosessTaskData) {
-        Long behandlingId = prosessTaskData.getBehandlingId();
+    protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandlingsfristUtløpt(behandling)) {
@@ -53,7 +55,7 @@ public class SendForlengelsesbrevTask implements ProsessTaskHandler {
     }
 
     private void sendForlengelsesbrevOgOppdaterBehandling(Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        behandling.setBehandlingstidFrist(FPDateUtil.iDag().plusWeeks(behandling.getType().getBehandlingstidFristUker()));
+        behandling.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandling.getType().getBehandlingstidFristUker()));
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
         log.info("Brev ikke sendt for behandling: {}, automatisk utsendelse slått av for alle", behandling.getId());
         // Pr mars 2020 er det ikke ønsket å sende ut forengelsesbrev da det tidligere skapte for mye støy.
@@ -61,6 +63,6 @@ public class SendForlengelsesbrevTask implements ProsessTaskHandler {
     }
 
     private boolean behandlingsfristUtløpt(Behandling behandling) {
-        return FPDateUtil.iDag().isAfter(behandling.getBehandlingstidFrist());
+        return LocalDate.now().isAfter(behandling.getBehandlingstidFrist());
     }
 }

@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.SakInntektsmeldinger;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -129,6 +130,12 @@ public interface InntektArbeidYtelseTjeneste {
      * @param builders - Collection med {@link InntektsmeldingBuilder}
      */
     void lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId, Collection<InntektsmeldingBuilder> builders);
+
+    /**
+     * Lagre en eller flere inntektsmeldinger på en behandling for en sak.
+     * @param referanse - behandlingreferanse
+     */
+    List<Inntektsmelding> finnInntektsmeldingDiff(BehandlingReferanse referanse);
 
     /**
      * NB! Denne fungerer ikke etter at abakus har tatt over

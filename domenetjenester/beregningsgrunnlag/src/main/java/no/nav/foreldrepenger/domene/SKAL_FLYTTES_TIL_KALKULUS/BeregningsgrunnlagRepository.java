@@ -22,7 +22,6 @@ import org.hibernate.jpa.QueryHints;
 import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.vedtak.felles.jpa.VLPersistenceUnit;
 
 /**
  * Henter siste {@link BeregningsgrunnlagGrunnlagEntitet} opprettet i et bestemt steg for revurdering. Ignorerer om grunnlaget er aktivt eller ikke.
@@ -46,7 +45,7 @@ public class BeregningsgrunnlagRepository {
     }
 
     @Inject
-    public BeregningsgrunnlagRepository(@VLPersistenceUnit EntityManager entityManager) {
+    public BeregningsgrunnlagRepository( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }
