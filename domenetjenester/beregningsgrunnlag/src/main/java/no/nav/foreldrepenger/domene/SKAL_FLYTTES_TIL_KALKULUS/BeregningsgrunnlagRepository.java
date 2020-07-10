@@ -346,7 +346,7 @@ public class BeregningsgrunnlagRepository {
             .ifPresent(this::lagreOverstyring);
         nyttGrunnlag.getBeregningsgrunnlag().ifPresent(entityManager::persist);
         nyttGrunnlag.getRefusjonOverstyringer()
-            .ifPresent(this::lagreRefusjonOverstyring);
+            .ifPresent(this::lagreRefusjonOverstyringer);
 
         entityManager.persist(nyttGrunnlag);
 
@@ -362,11 +362,16 @@ public class BeregningsgrunnlagRepository {
         }
     }
 
-    private void lagreRefusjonOverstyring(BeregningRefusjonOverstyringerEntitet beregningAktivitetOverstyringer) {
+    private void lagreRefusjonOverstyringer(BeregningRefusjonOverstyringerEntitet beregningAktivitetOverstyringer) {
         entityManager.persist(beregningAktivitetOverstyringer);
-        beregningAktivitetOverstyringer.getRefusjonOverstyringer().forEach(entityManager::persist);
-
+        beregningAktivitetOverstyringer.getRefusjonOverstyringer().forEach(this::lagreRefusjonOverstyring);
     }
+
+    private void lagreRefusjonOverstyring(BeregningRefusjonOverstyringEntitet beregningAktivitetOverstyring) {
+        entityManager.persist(beregningAktivitetOverstyring);
+        beregningAktivitetOverstyring.getRefusjonPerioder().forEach(entityManager::persist);
+    }
+
 
     private void lagreBeregningAktivitetAggregat(BeregningAktivitetAggregatEntitet aggregat) {
         BeregningAktivitetAggregatEntitet entitet = aggregat;

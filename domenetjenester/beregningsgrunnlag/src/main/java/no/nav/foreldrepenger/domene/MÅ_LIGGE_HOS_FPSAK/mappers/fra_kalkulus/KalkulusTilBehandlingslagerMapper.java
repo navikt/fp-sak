@@ -8,9 +8,12 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAkti
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetOverstyringerDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningRefusjonOverstyringerDto;
+import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningRefusjonPeriodeDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDto;
+import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagRegelSporingDto;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
+import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetEntitet;
@@ -19,6 +22,7 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitet
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetOverstyringerEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonOverstyringEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonOverstyringerEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonPeriodeEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
@@ -43,15 +47,11 @@ public class KalkulusTilBehandlingslagerMapper {
         //med
         builder.medGrunnbeløp(new Beløp(beregningsgrunnlagFraKalkulus.getGrunnbeløp().getVerdi()));
         builder.medOverstyring(beregningsgrunnlagFraKalkulus.isOverstyrt());
-        if (beregningsgrunnlagFraKalkulus.getRegelinputPeriodisering() != null) {
-            builder.medRegelinputPeriodisering(beregningsgrunnlagFraKalkulus.getRegelinputPeriodisering());
-        }
-        if (beregningsgrunnlagFraKalkulus.getRegelInputBrukersStatus() != null && beregningsgrunnlagFraKalkulus.getRegelloggBrukersStatus() != null) {
-            builder.medRegelloggBrukersStatus(beregningsgrunnlagFraKalkulus.getRegelInputBrukersStatus(), beregningsgrunnlagFraKalkulus.getRegelloggBrukersStatus());
-        }
-        if (beregningsgrunnlagFraKalkulus.getRegelInputSkjæringstidspunkt() != null && beregningsgrunnlagFraKalkulus.getRegelloggSkjæringstidspunkt() != null) {
-            builder.medRegelloggSkjæringstidspunkt(beregningsgrunnlagFraKalkulus.getRegelInputSkjæringstidspunkt(), beregningsgrunnlagFraKalkulus.getRegelloggSkjæringstidspunkt());
-        }
+        leggTilRegelsporing(beregningsgrunnlagFraKalkulus, builder, BeregningsgrunnlagRegelType.PERIODISERING);
+        leggTilRegelsporing(beregningsgrunnlagFraKalkulus, builder, BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE);
+        leggTilRegelsporing(beregningsgrunnlagFraKalkulus, builder, BeregningsgrunnlagRegelType.PERIODISERING_REFUSJON);
+        leggTilRegelsporing(beregningsgrunnlagFraKalkulus, builder, BeregningsgrunnlagRegelType.BRUKERS_STATUS);
+        leggTilRegelsporing(beregningsgrunnlagFraKalkulus, builder, BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT);
         builder.medSkjæringstidspunkt(beregningsgrunnlagFraKalkulus.getSkjæringstidspunkt());
         if (beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlag() != null) {
             builder.medSammenligningsgrunnlagOld(KalkulusTilBGMapper.mapSammenligningsgrunnlag(beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlag()));
@@ -66,14 +66,28 @@ public class KalkulusTilBehandlingslagerMapper {
         return builder.build();
     }
 
+    private static void leggTilRegelsporing(BeregningsgrunnlagDto beregningsgrunnlagFraKalkulus, BeregningsgrunnlagEntitet.Builder builder, BeregningsgrunnlagRegelType regelType) {
+        BeregningsgrunnlagRegelSporingDto regelLogg = beregningsgrunnlagFraKalkulus.getRegelLogg(regelType);
+        if (regelLogg != null) {
+            builder.medRegellogg(regelLogg.getRegelInput(), regelLogg.getRegelEvaluering(), no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelType.fraKode(regelType.getKode()));
+        }
+    }
+
     public static BeregningRefusjonOverstyringerEntitet mapRefusjonOverstyring(BeregningRefusjonOverstyringerDto refusjonOverstyringerFraKalkulus) {
         BeregningRefusjonOverstyringerEntitet.Builder entitetBuilder = BeregningRefusjonOverstyringerEntitet.builder();
 
         refusjonOverstyringerFraKalkulus.getRefusjonOverstyringer().forEach(beregningRefusjonOverstyring -> {
-            BeregningRefusjonOverstyringEntitet entitet = new BeregningRefusjonOverstyringEntitet(KalkulusTilIAYMapper.mapArbeidsgiver(beregningRefusjonOverstyring.getArbeidsgiver()), beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom());
-            entitetBuilder.leggTilOverstyring(entitet);
+            BeregningRefusjonOverstyringEntitet.Builder builder = BeregningRefusjonOverstyringEntitet.builder()
+                .medArbeidsgiver(KalkulusTilIAYMapper.mapArbeidsgiver(beregningRefusjonOverstyring.getArbeidsgiver()))
+                .medFørsteMuligeRefusjonFom(beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom().orElse(null));
+            beregningRefusjonOverstyring.getRefusjonPerioder().forEach(periode -> builder.leggTilRefusjonPeriode(mapRefusjonPeriode(periode)));
+            entitetBuilder.leggTilOverstyring(builder.build());
         });
         return entitetBuilder.build();
+    }
+
+    private static BeregningRefusjonPeriodeEntitet mapRefusjonPeriode(BeregningRefusjonPeriodeDto refusjonsperiode) {
+        return new BeregningRefusjonPeriodeEntitet(KalkulusTilIAYMapper.mapArbeidsforholdRed(refusjonsperiode.getArbeidsforholdRef()), refusjonsperiode.getStartdatoRefusjon());
     }
 
     public static BeregningAktivitetAggregatEntitet mapSaksbehandletAktivitet(BeregningAktivitetAggregatDto saksbehandletAktiviteterFraKalkulus) {
