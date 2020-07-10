@@ -29,6 +29,8 @@ public enum BeregningsgrunnlagTilstand implements Kodeverdi {
     KOFAKBER_UT("KOFAKBER_UT", "Kontroller fakta beregningsgrunnlag - Ut", false),
     FORESLÅTT("FORESLÅTT", "Foreslått", true),
     FORESLÅTT_UT("FORESLÅTT_UT", "Foreslått ut", false),
+    VURDERT_REFUSJON("VURDERT_REFUSJON", "Vurder refusjonskrav beregning", true),
+    VURDERT_REFUSJON_UT("VURDERT_REFUSJON_UT", "Vurder refusjonskrav beregning - Ut", false),
     OPPDATERT_MED_REFUSJON_OG_GRADERING("OPPDATERT_MED_REFUSJON_OG_GRADERING", "Tilstand for splittet periode med refusjon og gradering", true),
     FASTSATT_INN("FASTSATT_INN", "Fastsatt - Inn", false),
     FASTSATT("FASTSATT", "Fastsatt", true),

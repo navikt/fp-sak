@@ -119,6 +119,8 @@ public class AksjonspunktKodeDefinisjon {
     public static final String REGISTRER_PAPIRSØKNAD_FORELDREPENGER_KODE = "5040";
     public static final String REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER_KODE = "5057";
     public static final String VURDER_FAKTA_FOR_ATFL_SN_KODE = "5058";
+    public static final String VURDER_REFUSJON_BERGRUNN = "5059";
+
 
     public static final String MANUELL_VURDERING_AV_SØKNADSFRIST_KODE = "5043";
 

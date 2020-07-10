@@ -225,6 +225,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     VURDER_FAKTA_FOR_ATFL_SN(AksjonspunktKodeDefinisjon.VURDER_FAKTA_FOR_ATFL_SN_KODE,
             AksjonspunktType.MANUELL, "Vurder fakta for arbeidstaker, frilans og selvstendig næringsdrivende", BehandlingStegType.KONTROLLER_FAKTA_BEREGNING,
             VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_BEREGNING, TOTRINN, EnumSet.of(FP, SVP)),
+    VURDER_REFUSJON_BERGRUNN(AksjonspunktKodeDefinisjon.VURDER_REFUSJON_BERGRUNN,
+        AksjonspunktType.MANUELL, "Vurder refusjonskrav for beregningen", BehandlingStegType.VURDER_REF_BERGRUNN,
+        VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_FORDELING, TOTRINN, EnumSet.of(FP, SVP)),
     MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG(
             AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG_KODE, AksjonspunktType.MANUELL,
             "Manuell kontroll av om bruker har aleneomsorg", BehandlingStegType.KONTROLLER_FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,

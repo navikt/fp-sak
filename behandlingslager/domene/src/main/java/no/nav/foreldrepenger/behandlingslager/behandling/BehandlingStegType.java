@@ -79,12 +79,13 @@ public enum BehandlingStegType implements Kodeverdi {
 
     // Steg koder som deles av Foreldrepenger og Svangerskapspenger
     FORDEL_BEREGNINGSGRUNNLAG("FORDEL_BERGRUNN", "Fordel beregningsgrunnlag", UTREDES),
+    VURDER_REF_BERGRUNN("VURDER_REF_BERGRUNN", "Vurder refusjon for beregningsgrunnlaget", UTREDES),
     VULOMED("VULOMED", "Vurder løpende medlemskap", UTREDES),
     INREG_AVSL("INREG_AVSL", "Innhent registeropplysninger - resterende oppgaver", UTREDES),
     VURDER_OPPTJENING_FAKTA("VURDER_OPPTJ_FAKTA", "Vurder opptjeningfakta", UTREDES)
     ;
 
-    
+
     static final String KODEVERK = "BEHANDLING_STEG_TYPE";
 
     private static final Map<String, BehandlingStegType> KODER = new LinkedHashMap<>();
@@ -189,6 +190,6 @@ public enum BehandlingStegType implements Kodeverdi {
             return dbData == null ? null : BehandlingStegType.fraKode(dbData);
         }
     }
-    
-   
+
+
 }

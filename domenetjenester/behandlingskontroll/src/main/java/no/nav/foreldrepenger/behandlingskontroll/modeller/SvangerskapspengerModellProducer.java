@@ -80,6 +80,7 @@ public class SvangerskapspengerModellProducer {
             BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING,
             BehandlingStegType.KONTROLLER_FAKTA_BEREGNING,
             BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG,
+            BehandlingStegType.VURDER_REF_BERGRUNN,
             BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG,
             BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG,
             BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP,
