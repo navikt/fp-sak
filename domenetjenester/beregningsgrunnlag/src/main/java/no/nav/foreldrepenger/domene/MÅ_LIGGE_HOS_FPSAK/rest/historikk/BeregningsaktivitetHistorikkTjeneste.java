@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,30 +59,49 @@ public class BeregningsaktivitetHistorikkTjeneste {
         List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdOverstyringer();
         registerAktiviteter.getBeregningAktiviteter().forEach(ba -> {
             String aktivitetnavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningaktivitet(ba, arbeidsforholdOverstyringer);
-            HistorikkEndretFeltVerdiType tilVerdi = finnTilVerdi(saksbehandledeAktiviteter, ba);
-            HistorikkEndretFeltVerdiType fraVerdi = finnFraVerdi(forrigeAggregat, ba);
-            if (!tilVerdi.equals(fraVerdi)) {
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.AKTIVITET, aktivitetnavn, fraVerdi, tilVerdi);
-            }
+            lagSkalBrukesHistorikk(tekstBuilder, saksbehandledeAktiviteter, forrigeAggregat, ba, aktivitetnavn);
+            lagPeriodeHistorikk(tekstBuilder, saksbehandledeAktiviteter, forrigeAggregat, ba, aktivitetnavn);
         });
         return tekstBuilder;
     }
 
-    private HistorikkEndretFeltVerdiType finnFraVerdi(Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat, BeregningAktivitetEntitet ba) {
+    private void lagSkalBrukesHistorikk(HistorikkInnslagTekstBuilder tekstBuilder, BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter, Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat, BeregningAktivitetEntitet ba, String aktivitetnavn) {
+        HistorikkEndretFeltVerdiType skalBrukesTilVerdi = finnSkalBrukesTilVerdi(saksbehandledeAktiviteter, ba);
+        HistorikkEndretFeltVerdiType skalBrukesFraVerdi = finnSkalBrukesFraVerdi(forrigeAggregat, ba);
+        if (!skalBrukesTilVerdi.equals(skalBrukesFraVerdi)) {
+            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.AKTIVITET, aktivitetnavn, skalBrukesFraVerdi, skalBrukesTilVerdi);
+        }
+    }
+
+    private HistorikkEndretFeltVerdiType finnSkalBrukesFraVerdi(Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat, BeregningAktivitetEntitet ba) {
         if (forrigeAggregat.isPresent()) {
-            boolean finnesIForrige = forrigeAggregat.get().getBeregningAktiviteter().contains(ba);
+            boolean finnesIForrige = forrigeAggregat.get().getBeregningAktiviteter().stream().anyMatch(a -> a.getNøkkel().equals(ba.getNøkkel()));
             return finnesIForrige ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
         }
         return null;
     }
 
-    private HistorikkEndretFeltVerdiType finnTilVerdi(BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter, BeregningAktivitetEntitet ba) {
+    private HistorikkEndretFeltVerdiType finnSkalBrukesTilVerdi(BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter, BeregningAktivitetEntitet ba) {
         boolean finnesISaksbehandletVersjon = finnesMatch(saksbehandledeAktiviteter.getBeregningAktiviteter(), ba);
         return finnesISaksbehandletVersjon ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
     }
 
+    private void lagPeriodeHistorikk(HistorikkInnslagTekstBuilder tekstBuilder, BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter, Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat, BeregningAktivitetEntitet ba, String aktivitetnavn) {
+        Optional<BeregningAktivitetEntitet> saksbehandletAktivitet = saksbehandledeAktiviteter.getBeregningAktiviteter().stream().filter(a -> Objects.equals(a.getNøkkel(), ba.getNøkkel())).findFirst();
+        if (saksbehandletAktivitet.isPresent()) {
+            LocalDate nyPeriodeTom = saksbehandletAktivitet.get().getPeriode().getTomDato();
+            LocalDate gammelPeriodeTom = ba.getPeriode().getTomDato();
+            if (!nyPeriodeTom.equals(gammelPeriodeTom)) {
+                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.PERIODE_TOM, gammelPeriodeTom, nyPeriodeTom);
+                tekstBuilder.medTema(HistorikkEndretFeltType.AKTIVITET, aktivitetnavn);
+            }
+        }
+
+    }
+
+
     private boolean finnesMatch(List<BeregningAktivitetEntitet> beregningAktiviteter, BeregningAktivitetEntitet beregningAktivitet) {
         return beregningAktiviteter.stream()
-            .anyMatch(ba -> Objects.equals(ba, beregningAktivitet));
+            .anyMatch(ba -> Objects.equals(ba.getNøkkel(), beregningAktivitet.getNøkkel()));
     }
 }
