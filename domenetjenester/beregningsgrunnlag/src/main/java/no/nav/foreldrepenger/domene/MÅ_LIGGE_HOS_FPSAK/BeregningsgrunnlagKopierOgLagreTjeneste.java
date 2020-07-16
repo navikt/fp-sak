@@ -30,7 +30,7 @@ import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsg
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.KOFAKBER_UT;
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER;
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING;
-import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.VURDERT_REFUSJON_UT;
+import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.VURDERT_REFUSJON;
 
 /**
  * Fasade tjeneste for å delegere alle kall fra steg
@@ -79,10 +79,8 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
 
     public List<BeregningAksjonspunktResultat> vurderRefusjonBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         BeregningResultatAggregat resultat = beregningsgrunnlagTjeneste.vurderRefusjonskravForBeregninggrunnlag(beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input));
-        Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeBekreftetGrunnlag = finnForrigeGrunnlagFraTilstand(input, VURDERT_REFUSJON_UT);
         BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(resultat.getBeregningsgrunnlagGrunnlag());
-        BeregningsgrunnlagEntitet nyttBg = nyttGrunnlag.getBeregningsgrunnlag().orElseThrow(INGEN_BG_EXCEPTION_SUPPLIER);
-        lagreOgKopier(input, resultat, forrigeBekreftetGrunnlag, nyttGrunnlag, nyttBg);
+        beregningsgrunnlagRepository.lagre(input.getBehandlingReferanse().getBehandlingId(), BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), VURDERT_REFUSJON);
         return resultat.getBeregningAksjonspunktResultater();
     }
 
