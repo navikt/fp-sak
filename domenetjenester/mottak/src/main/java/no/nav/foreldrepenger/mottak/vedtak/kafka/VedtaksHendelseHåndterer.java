@@ -56,6 +56,7 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
+import no.nav.vedtak.log.util.LoggerUtils;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -65,7 +66,7 @@ public class VedtaksHendelseHåndterer {
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksHendelseHåndterer.class);
     private static final ObjectMapper OBJECT_MAPPER = JacksonJsonConfig.getMapper();
 
-    private static final Map<YtelseType, FagsakYtelseType > YTELSE_TYPE_MAP = Map.of(
+    private static final Map<YtelseType, FagsakYtelseType> YTELSE_TYPE_MAP = Map.of(
         YtelseType.ENGANGSTØNAD, FagsakYtelseType.ENGANGSTØNAD,
         YtelseType.FORELDREPENGER, FagsakYtelseType.FORELDREPENGER,
         YtelseType.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER
@@ -100,6 +101,16 @@ public class VedtaksHendelseHåndterer {
     }
 
     void handleMessage(String key, String payload) {
+        //enhver exception ut fra denne metoden medfører at tråden som leser fra kafka gir opp og dør på seg.
+        //TODO transitive feil bør egentlig medføre retry, nå blir de logget og meldingen blir ignorert
+        try {
+            handleMessageIntern(key, payload);
+        } catch (Exception e) {
+            LOG.warn("Oppstod exception ved håndtering av vedtaksmelding key=" + LoggerUtils.removeLineBreaks(key) + ". Meldingen ble ignorert", e);
+        }
+    }
+
+    void handleMessageIntern(String key, String payload) {
         Ytelse mottattVedtak;
         try {
             mottattVedtak = OBJECT_MAPPER.readValue(payload, Ytelse.class);
@@ -118,10 +129,9 @@ public class VedtaksHendelseHåndterer {
             return;
         var ytelse = (YtelseV1) mottattVedtak;
 
-        if (Fagsystem.FPSAK.equals(ytelse.getFagsystem())){
+        if (Fagsystem.FPSAK.equals(ytelse.getFagsystem())) {
             oprettTasksForFpsakVedtak(ytelse);
-        }
-        else {
+        } else {
             LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getFagsystem(), ytelse.getSaksnummer(), ytelse.getType());
             sjekkVedtakOverlapp(ytelse);
         }
@@ -186,7 +196,7 @@ public class VedtaksHendelseHåndterer {
                     .collect(Collectors.toList());
                 var gradertTidslinje = new LocalDateTimeline<>(graderteSegments, StandardCombinators::sum).filterValue(v -> v.compareTo(BigDecimal.ZERO) > 0);
 
-                eksternOverlappLogger.loggOverlappMedGradering(ytelse, minYtelseDato, gradertTidslinje , fagsaker);
+                eksternOverlappLogger.loggOverlappMedGradering(ytelse, minYtelseDato, gradertTidslinje, fagsaker);
                 return;
             }
         }
