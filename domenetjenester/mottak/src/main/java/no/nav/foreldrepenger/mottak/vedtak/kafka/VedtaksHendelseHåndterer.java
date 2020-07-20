@@ -102,7 +102,7 @@ public class VedtaksHendelseHåndterer {
 
     void handleMessage(String key, String payload) {
         //enhver exception ut fra denne metoden medfører at tråden som leser fra kafka gir opp og dør på seg.
-        //transitive feil bør egentlig medføre retry, meldinger som ikke validerer bør ignoreres
+        //TODO transitive feil bør egentlig medføre retry, nå blir de logget og meldingen blir ignorert
         try {
             handleMessageIntern(key, payload);
         } catch (Exception e) {
