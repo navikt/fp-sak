@@ -56,7 +56,7 @@ public class VirksomhetTjeneste {
     public Optional<Virksomhet> finnOrganisasjon(String orgNummer) {
         if (orgNummer == null)
             return Optional.empty();
-        if(OrgNummer.erKunstig(orgNummer)) {
+        if (OrgNummer.erKunstig(orgNummer)) {
             return Optional.of(hent(orgNummer));
         }
         return OrganisasjonsNummerValidator.erGyldig(orgNummer) ? Optional.of(hent(orgNummer)) : Optional.empty();
@@ -66,9 +66,9 @@ public class VirksomhetTjeneste {
         if (Objects.equals(KUNSTIG_VIRKSOMHET.getOrgnr(), orgnr)) {
             return KUNSTIG_VIRKSOMHET;
         }
-        var response =Optional.ofNullable(cache.get(orgnr)).orElse(hentOrganisasjonRest(orgnr));
-        cache.put(orgnr, response);
-        return response;
+        Virksomhet virksomhet = Optional.ofNullable(cache.get(orgnr)).orElseGet(() -> hentOrganisasjonRest(orgnr));
+        cache.put(orgnr, virksomhet);
+        return virksomhet;
     }
 
     private Virksomhet hentOrganisasjonRest(String orgNummer) {
