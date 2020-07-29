@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.json.JacksonJsonConfig;
@@ -101,30 +100,25 @@ public class VedtaksHendelseHåndterer {
     }
 
     void handleMessage(String key, String payload) {
-        //enhver exception ut fra denne metoden medfører at tråden som leser fra kafka gir opp og dør på seg.
-        //TODO transitive feil bør egentlig medføre retry, nå blir de logget og meldingen blir ignorert
+        // enhver exception ut fra denne metoden medfører at tråden som leser fra kafka gir opp og dør på seg.
         try {
-            handleMessageIntern(key, payload);
-        } catch (Exception e) {
-            LOG.warn("Oppstod exception ved håndtering av vedtaksmelding key=" + LoggerUtils.removeLineBreaks(key) + ". Meldingen ble ignorert", e);
-        }
-    }
-
-    void handleMessageIntern(String key, String payload) {
-        Ytelse mottattVedtak;
-        try {
-            mottattVedtak = OBJECT_MAPPER.readValue(payload, Ytelse.class);
+            var mottattVedtak = OBJECT_MAPPER.readValue(payload, Ytelse.class);
             Set<ConstraintViolation<Ytelse>> violations = validator.validate(mottattVedtak);
             if (!violations.isEmpty()) {
                 // Har feilet validering
                 String allErrors = violations.stream().map(String::valueOf).collect(Collectors.joining("\\n"));
-                LOG.info("Vedtatt-Ytelse valideringsfeil :: \n {}", allErrors);
+                LOG.warn("Vedtatt-Ytelse valideringsfeil :: \n {}", allErrors);
                 return;
             }
+            handleMessageIntern(mottattVedtak);
         } catch (IOException e) {
             YtelseFeil.FACTORY.parsingFeil(key, payload, e).log(LOG);
-            return;
+        } catch (Exception e) {
+            LOG.warn("Vedtatt-Ytelse exception ved håndtering av vedtaksmelding key=" + LoggerUtils.removeLineBreaks(payload) + ". Meldingen ble ignorert", e);
         }
+    }
+
+    void handleMessageIntern(Ytelse mottattVedtak) {
         if (mottattVedtak == null)
             return;
         var ytelse = (YtelseV1) mottattVedtak;
@@ -158,16 +152,15 @@ public class VedtaksHendelseHåndterer {
         }
         // Unngå gå i beina på på iverksettingstasker med sen respons
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-            lagreProsesstaskFor(behandling, StartBerørtBehandlingTask.TASKTYPE, 10);
-            lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 15);
+            lagreProsesstaskFor(behandling, StartBerørtBehandlingTask.TASKTYPE, 0);
+            lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 5);
         } else { //SVP
-            lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 10);
+            lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 0);
         }
     }
 
     void sjekkVedtakOverlapp(YtelseV1 ytelse) {
         // OBS Flere av K9SAK-ytelsene har fom/tom i helg ... ikke bruk VirkedagUtil på dem
-        var harSattUtbetalingsgrad = ytelse.getAnvist().stream().anyMatch(a -> a.getUtbetalingsgrad() != null && a.getUtbetalingsgrad().getVerdi() != null);
         List<LocalDateSegment<Boolean>> ytelsesegments = ytelse.getAnvist().stream()
             // .filter(p -> p.getUtbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) > 0)
             .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), Boolean.TRUE))
@@ -185,20 +178,10 @@ public class VedtaksHendelseHåndterer {
         var minYtelseDato = ytelsesegments.stream().map(LocalDateSegment::getFom).min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
         var ytelseTidslinje = new LocalDateTimeline<>(ytelsesegments, StandardCombinators::alwaysTrueForMatch).compress();
 
-        // Flytt flere ytelser hit. Frisinn må logges ugradert. Vurder egen metode for de som kan sjekkes mot gradert overlapp - bruk da LDTL / BigDecmial
+        // Flytt flere eksterne ytelser hit når de er etablert. Frisinn må logges ugradert.
         if (DB_LOGGES.contains(ytelse.getType())) {
-            if (!harSattUtbetalingsgrad) {
-                eksternOverlappLogger.loggOverlappUtenGradering(ytelse, minYtelseDato, ytelseTidslinje, fagsaker);
-                return;
-            } else {
-                List<LocalDateSegment<BigDecimal>> graderteSegments = ytelse.getAnvist().stream()
-                    .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), p.getUtbetalingsgrad().getVerdi()))
-                    .collect(Collectors.toList());
-                var gradertTidslinje = new LocalDateTimeline<>(graderteSegments, StandardCombinators::sum).filterValue(v -> v.compareTo(BigDecimal.ZERO) > 0);
-
-                eksternOverlappLogger.loggOverlappMedGradering(ytelse, minYtelseDato, gradertTidslinje, fagsaker);
-                return;
-            }
+            loggOverlappTilDB(ytelse, fagsaker, minYtelseDato, ytelseTidslinje);
+            return;
         }
 
         List<Behandling> behandlinger = fagsaker.stream()
@@ -218,13 +201,26 @@ public class VedtaksHendelseHåndterer {
         }
     }
 
+    private void loggOverlappTilDB(YtelseV1 ytelse, List<Fagsak> fagsaker, LocalDate minYtelseDato, LocalDateTimeline<Boolean> ytelseTidslinje) {
+        var harSattUtbetalingsgrad = ytelse.getAnvist().stream().anyMatch(a -> a.getUtbetalingsgrad() != null && a.getUtbetalingsgrad().getVerdi() != null);
+        if (!harSattUtbetalingsgrad) {
+            eksternOverlappLogger.loggOverlappUtenGradering(ytelse, minYtelseDato, ytelseTidslinje, fagsaker);
+        } else {
+            List<LocalDateSegment<BigDecimal>> graderteSegments = ytelse.getAnvist().stream()
+                .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), p.getUtbetalingsgrad().getVerdi()))
+                .collect(Collectors.toList());
+            var gradertTidslinje = new LocalDateTimeline<>(graderteSegments, StandardCombinators::sum).filterValue(v -> v.compareTo(BigDecimal.ZERO) > 0);
+
+            eksternOverlappLogger.loggOverlappMedGradering(ytelse, minYtelseDato, gradertTidslinje, fagsaker);
+        }
+    }
+
     private boolean sjekkOverlappFor(LocalDate minYtelseDato, LocalDateTimeline<Boolean> ytelseTidslinje, Behandling behandling) {
         List<LocalDateSegment<Boolean>> fpsegments = tilkjentYtelseRepository.hentBeregningsresultat(behandling.getId())
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
             .filter(p -> p.getDagsats() > 0)
             .filter(p -> p.getBeregningsresultatPeriodeTom().isAfter(minYtelseDato.minusDays(1)))
-            .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getBeregningsresultatPeriodeFom()),
-                VirkedagUtil.tomVirkedag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), Boolean.TRUE))
             .collect(Collectors.toList());
 
         if (fpsegments.isEmpty())
