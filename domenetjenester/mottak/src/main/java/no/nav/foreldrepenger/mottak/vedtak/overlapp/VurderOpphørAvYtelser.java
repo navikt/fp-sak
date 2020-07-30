@@ -1,13 +1,39 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
@@ -16,6 +42,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
@@ -28,15 +55,6 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOp
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
 Funksjonen sjekker om det finnes løpende saker for den personen det innvilges foreldrepenger eller svangerskapsper på.
@@ -51,6 +69,7 @@ public class VurderOpphørAvYtelser  {
     private FagsakRepository fagsakRepository;
     private PersonopplysningRepository personopplysningRepository;
     private BehandlingRepository behandlingRepository;
+    private FagsakLåsRepository fagsakLåsRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private RevurderingTjeneste revurderingTjenesteFP;
@@ -75,10 +94,10 @@ public class VurderOpphørAvYtelser  {
                                  BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                  BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                  SjekkOverlappForeldrepengerInfotrygdTjeneste sjekkOverlappInfortrygd,
-                                 KøKontroller køKontroller
-                                 ) {
+                                 KøKontroller køKontroller) {
         this.fagsakRepository = behandlingRepositoryProvider.getFagsakRepository();
         this.personopplysningRepository = behandlingRepositoryProvider.getPersonopplysningRepository();
+        this.fagsakLåsRepository = behandlingRepositoryProvider.getFagsakLåsRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatRepository = behandlingRepositoryProvider.getBeregningsresultatRepository();
@@ -129,14 +148,14 @@ public class VurderOpphørAvYtelser  {
                 aktørIdListSjekkInfotrygd.add(annenPartAktørId.get());
             }
         }
-        //Sjekker om det finnes overlapp på far og medforelder i Infotrygd
+        // Sjekker om det finnes overlapp på far og medforelder i Infotrygd
         aktørIdListSjekkInfotrygd.forEach(aktørId -> {
             boolean overlappInfotrygd = sjekkOverlappInfortrygd.harForeldrepengerInfotrygdSomOverlapper(aktørId, startDatoIVB);
             if (overlappInfotrygd) {
                 håndtereOpphørInfotrygd(behandlingId, gjeldendeFagsak, aktørId);
             }
         });
-        //Sjekker om det finnes overlapp i fpsak
+        // Sjekker om det finnes overlapp i fpsak
         aktørIdList
             .forEach(aktørId -> løpendeSakerSomOverlapperUttakPåNySak(aktørId, gjeldendeFagsak, startDatoIVB)
                 .forEach(this::håndtereOpphør));
@@ -146,7 +165,7 @@ public class VurderOpphørAvYtelser  {
         LocalDate sisteDatoIVB = finnMaxDato(behandlingId);
         List<Fagsak> overlapper = løpendeSakerSomOverlapperUttakNySakSVP(gjeldendeSVPsak.getAktørId(), gjeldendeSVPsak.getSaksnummer(), startDatoIVB, sisteDatoIVB);
         overlapper.forEach( fagsak -> {
-//          Overlapp SVP-SVP - logger foreløpig
+            // Overlapp SVP-SVP - logger foreløpig
             if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsak.getYtelseType())) {
                 LOG.info("Overlapp SVP oppdaget for sak {} med løpende SVP-sak {}. Ingen revurdering opprettet", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
             }
@@ -158,16 +177,17 @@ public class VurderOpphørAvYtelser  {
                 }
                 LocalDate startDatoverlappBeh = finnMinDato(overlappFPBeh.getId());
 
-//              Overlapp med løpende foreldrepenger på samme barn - opprettes revurdering på innvilget svp behandling
                 if (startDatoIVB.isBefore(startDatoverlappBeh)) {
+                    // Overlapp med løpende foreldrepenger på samme barn - opprettes revurdering på innvilget svp behandling
                     håndtereOpphør(gjeldendeSVPsak);
                     LOG.info("Overlapp SVP: SVP-sak {} overlapper med FP-sak på samme barn {}", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
-//              //Overlapp med løpende foreldrepenger og svp for nytt barn - opprettes revurdering på løpende foreldrepenger-sak
+
                 } else if (erFullUtbetalingSistePeriode(fagsak.getId())) {
+                    // Overlapp med løpende foreldrepenger og svp for nytt barn - opprettes revurdering på løpende foreldrepenger-sak
                     håndtereOpphør(fagsak);
                     LOG.info("Overlapp SVP: SVP-sak {} overlapper med FP-sak {}", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
-//              //Overlapp med løpenge graderte foreldrepenger -  kan være tillatt så derfor logger vi foreløpig
                 } else {
+                    // Overlapp med løpenge graderte foreldrepenger -  kan være tillatt så derfor logger vi foreløpig
                     LOG.info("Overlapp SVP: SVP-sak {} overlapper med gradert FP-sak {}. Ingen revurdering opprettet", gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
                 }
             }
@@ -196,6 +216,7 @@ public class VurderOpphørAvYtelser  {
 
             var harÅpenOrdinærBehandling = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(sakOpphør.getId());
             if (!harÅpenOrdinærBehandling) {
+                fagsakLåsRepository.taLås(sakOpphør.getId());
                 var skalKøes = !behandling.erAvsluttet() && behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING);
                 Behandling revurderingOpphør = opprettRevurdering(sakOpphør, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN, skalKøes);
                 if (revurderingOpphør != null) {

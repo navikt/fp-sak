@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.mottak.vedtak.rest.*;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdFPGrunnlag;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
@@ -30,7 +30,6 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
 
 
     private InfotrygdFPGrunnlag tjeneste ;
-    private InfotrygdSVPGrunnlag svp;
     private AktørConsumerMedCache aktørConsumer;
 
     SjekkOverlappForeldrepengerInfotrygdTjeneste() {
@@ -38,22 +37,14 @@ public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
     }
 
     @Inject
-    public SjekkOverlappForeldrepengerInfotrygdTjeneste(InfotrygdFPGrunnlag tjeneste, InfotrygdSVPGrunnlag svp, AktørConsumerMedCache aktørConsumer) {
+    public SjekkOverlappForeldrepengerInfotrygdTjeneste(InfotrygdFPGrunnlag tjeneste, AktørConsumerMedCache aktørConsumer) {
         this.tjeneste = tjeneste;
-        this.svp = svp;
         this.aktørConsumer = aktørConsumer;
     }
 
     public boolean harForeldrepengerInfotrygdSomOverlapper(AktørId aktørId, LocalDate vedtakDato) {
         var ident = getFnrFraAktørId(aktørId);
         List<Grunnlag> rest = tjeneste.hentGrunnlag(ident.getIdent(), vedtakDato.minusWeeks(1), vedtakDato.plusYears(3));
-
-        return rest.stream().anyMatch(g -> overlapper(g, vedtakDato));
-    }
-
-    public boolean harSvangerskapspengerInfotrygdSomOverlapper(AktørId aktørId, LocalDate vedtakDato) {
-        var ident = getFnrFraAktørId(aktørId);
-        List<Grunnlag> rest = svp.hentGrunnlag(ident.getIdent(), vedtakDato.minusWeeks(1), vedtakDato.plusYears(3));
 
         return rest.stream().anyMatch(g -> overlapper(g, vedtakDato));
     }

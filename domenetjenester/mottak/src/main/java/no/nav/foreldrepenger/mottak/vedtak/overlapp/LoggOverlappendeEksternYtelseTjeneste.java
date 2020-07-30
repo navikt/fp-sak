@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygd;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -82,8 +81,7 @@ public class LoggOverlappendeEksternYtelseTjeneste {
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
             .filter(p -> p.getDagsats() > 0)
             .filter(p -> p.getBeregningsresultatPeriodeTom().isAfter(minYtelseDato.minusDays(1)))
-            .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getBeregningsresultatPeriodeFom()),
-                VirkedagUtil.tomVirkedag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), Boolean.TRUE))
             .collect(Collectors.toList());
 
         if (fpsegments.isEmpty())
@@ -104,8 +102,7 @@ public class LoggOverlappendeEksternYtelseTjeneste {
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
             .filter(p -> p.getDagsats() > 0)
             .filter(p -> p.getBeregningsresultatPeriodeTom().isAfter(minYtelseDato.minusDays(1)))
-            .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getBeregningsresultatPeriodeFom()),
-                VirkedagUtil.tomVirkedag(p.getBeregningsresultatPeriodeTom()), p.getKalkulertUtbetalingsgrad()))
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), p.getKalkulertUtbetalingsgrad()))
             .collect(Collectors.toList());
 
         if (fpsegments.isEmpty())

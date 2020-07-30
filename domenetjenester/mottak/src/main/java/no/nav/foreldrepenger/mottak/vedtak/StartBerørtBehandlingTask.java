@@ -6,16 +6,15 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(StartBerørtBehandlingTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
-public class StartBerørtBehandlingTask extends FagsakProsessTask {
+public class StartBerørtBehandlingTask extends GenerellProsessTask {
 
     public static final String TASKTYPE = "iverksetteVedtak.startBerørtBehandling";
     private static final Logger log = LoggerFactory.getLogger(StartBerørtBehandlingTask.class);
@@ -26,8 +25,8 @@ public class StartBerørtBehandlingTask extends FagsakProsessTask {
     }
 
     @Inject
-    public StartBerørtBehandlingTask(BerørtBehandlingKontroller tjeneste, BehandlingRepositoryProvider repositoryProvider) {
-        super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
+    public StartBerørtBehandlingTask(BerørtBehandlingKontroller tjeneste) {
+        super();
         this.tjeneste = tjeneste;
     }
 

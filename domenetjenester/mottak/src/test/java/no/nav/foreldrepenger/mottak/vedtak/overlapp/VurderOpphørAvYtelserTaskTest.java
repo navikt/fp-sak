@@ -35,8 +35,8 @@ public class VurderOpphørAvYtelserTaskTest {
     public void setUp() {
         initMocks(this);
         vurderOpphørAvYtelserTask = new VurderOpphørAvYtelserTask(vurderOpphørAvYtelser, identifiserOverlappendeInfotrygdYtelser, repositoryProvider );
-
     }
+
     @Test
     public void vurderOpphørForFørstegangsbehandling() {
         Behandling behandling = lagBehandlingFP(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -48,8 +48,8 @@ public class VurderOpphørAvYtelserTaskTest {
 
         verify(identifiserOverlappendeInfotrygdYtelser, times(1)).vurderOglagreEventueltOverlapp(behandling.getId());
         verify(vurderOpphørAvYtelser, times(1)).vurderOpphørAvYtelser(behandling.getFagsak().getId(), behandling.getId());
-
     }
+
     @Test
     public void ikkeVurderOpphørForRevurderingsbehandling() {
         Behandling behandling = lagBehandlingFP(BehandlingType.REVURDERING);
@@ -61,8 +61,8 @@ public class VurderOpphørAvYtelserTaskTest {
 
         verify(identifiserOverlappendeInfotrygdYtelser, times(1)).vurderOglagreEventueltOverlapp(behandling.getId());
         verify(vurderOpphørAvYtelser, times(0)).vurderOpphørAvYtelser(behandling.getFagsak().getId(), behandling.getId());
-
     }
+
     public Behandling lagBehandlingFP(BehandlingType behandlingType) {
         ScenarioMorSøkerForeldrepenger scenarioFP;
         scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel();

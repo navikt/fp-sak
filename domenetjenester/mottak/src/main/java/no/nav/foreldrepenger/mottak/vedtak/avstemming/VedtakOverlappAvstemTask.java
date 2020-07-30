@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.vedtak.overlapp;
+package no.nav.foreldrepenger.mottak.vedtak.avstemming;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
