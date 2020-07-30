@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.historikk.Oppgavetyper;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTaskProperties;
+import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveGodkjennVedtakTask;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
@@ -207,7 +207,7 @@ public class OppgaveTjenesteTest {
     public void skal_avslutte_oppgave_og_starte_task() {
         // Arrange
         String oppgaveId = "1";
-        OppgaveBehandlingKobling kobling = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, oppgaveId, behandling.getFagsak().getSaksnummer(), behandling);
+        OppgaveBehandlingKobling kobling = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, oppgaveId, behandling.getFagsak().getSaksnummer(), behandling.getId());
         when(oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(anyLong())).thenReturn(Collections.singletonList(kobling));
 
         // Act
@@ -219,7 +219,7 @@ public class OppgaveTjenesteTest {
         assertThat(captor.getAllValues()).hasSize(1);
         ProsessTaskGruppe gruppe = captor.getValue();
         List<ProsessTaskGruppe.Entry> tasks = gruppe.getTasks();
-        assertThat(tasks.get(0).getTask().getTaskType()).isEqualTo(AvsluttOppgaveTaskProperties.TASKTYPE);
+        assertThat(tasks.get(0).getTask().getTaskType()).isEqualTo(AvsluttOppgaveTask.TASKTYPE);
         assertThat(tasks.get(0).getTask().getFagsakId()).isEqualTo(behandling.getFagsakId());
         assertThat(tasks.get(0).getTask().getBehandlingId()).isEqualTo(behandling.getId().toString());
         assertThat(String.valueOf(tasks.get(0).getTask().getAktørId())).isEqualTo(behandling.getAktørId().getId());

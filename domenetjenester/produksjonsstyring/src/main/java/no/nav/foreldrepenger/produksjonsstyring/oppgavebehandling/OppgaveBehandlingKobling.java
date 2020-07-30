@@ -14,13 +14,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
@@ -40,9 +37,8 @@ public class OppgaveBehandlingKobling extends BaseEntitet {
     @Column(name = "oppgave_id")
     private String oppgaveId;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "behandling_id", nullable = false, updatable = false)
-    private Behandling behandling;
+    @Column(name = "behandling_id", nullable = false, updatable = false)
+    private Long behandlingId;
 
     /**
      * Offisielt tildelt saksnummer fra GSAK.
@@ -69,11 +65,11 @@ public class OppgaveBehandlingKobling extends BaseEntitet {
         // Hibernate
     }
 
-    public OppgaveBehandlingKobling(OppgaveÅrsak oppgaveÅrsak, String oppgaveId, Saksnummer saksnummer, Behandling behandling) {
+    public OppgaveBehandlingKobling(OppgaveÅrsak oppgaveÅrsak, String oppgaveId, Saksnummer saksnummer, Long behandlingId) {
         this.setOppgaveÅrsak(oppgaveÅrsak);
         this.oppgaveId = oppgaveId;
         this.saksnummer = saksnummer;
-        this.behandling = behandling;
+        this.behandlingId = behandlingId;
     }
 
     public Long getId() {
@@ -85,8 +81,8 @@ public class OppgaveBehandlingKobling extends BaseEntitet {
         return oppgaveId;
     }
 
-    public Behandling getBehandling() {
-        return behandling;
+    public Long getBehandlingId() {
+        return behandlingId;
     }
 
     public void ferdigstillOppgave(String ferdigstiltAv) {
@@ -113,12 +109,12 @@ public class OppgaveBehandlingKobling extends BaseEntitet {
         OppgaveBehandlingKobling other = (OppgaveBehandlingKobling) obj;
         return Objects.equals(getOppgaveId(), other.getOppgaveId())
             && Objects.equals(getOppgaveÅrsak(), other.getOppgaveÅrsak())
-            && Objects.equals(behandling, other.behandling);
+            && Objects.equals(behandlingId, other.behandlingId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(oppgaveId, getOppgaveÅrsak(), behandling);
+        return Objects.hash(oppgaveId, getOppgaveÅrsak(), behandlingId);
     }
 
     public OppgaveÅrsak getOppgaveÅrsak() {

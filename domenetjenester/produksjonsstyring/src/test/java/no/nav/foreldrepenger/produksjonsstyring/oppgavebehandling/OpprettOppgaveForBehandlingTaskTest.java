@@ -99,7 +99,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
 
         ProsessTaskData taskData = new ProsessTaskData(OpprettOppgaveForBehandlingTask.TASKTYPE);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        OpprettOppgaveForBehandlingTask task = new OpprettOppgaveForBehandlingTask(tjeneste, repositoryProvider);
+        OpprettOppgaveForBehandlingTask task = new OpprettOppgaveForBehandlingTask(tjeneste);
 
         when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
 
@@ -128,7 +128,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
 
         ProsessTaskData taskData = new ProsessTaskData(OpprettOppgaveForBehandlingTask.TASKTYPE);
         taskData.setBehandling(revurdering.getFagsakId(), revurdering.getId(), revurdering.getAktørId().getId());
-        OpprettOppgaveForBehandlingTask task = new OpprettOppgaveForBehandlingTask(tjeneste, repositoryProvider);
+        OpprettOppgaveForBehandlingTask task = new OpprettOppgaveForBehandlingTask(tjeneste);
 
         when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
 

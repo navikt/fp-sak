@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsd
 import no.nav.foreldrepenger.domene.vedtak.task.VurderOgSendØkonomiOppdragTask;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTaskProperties;
+import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -85,13 +85,13 @@ public class OpprettProsessTaskIverksettTest {
         List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         List<String> tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
         assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE,
-            AvsluttOppgaveTaskProperties.TASKTYPE, VurderOgSendØkonomiOppdragTask.TASKTYPE,
+            AvsluttOppgaveTask.TASKTYPE, VurderOgSendØkonomiOppdragTask.TASKTYPE,
             SettUtbetalingPåVentPrivatArbeidsgiverTask.TASKTYPE,
             VurderOppgaveArenaTask.TASKTYPE, VEDTAK_TIL_DATAVAREHUS_TASK, SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
     }
 
     private void mockOpprettTaskAvsluttOppgave() {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AvsluttOppgaveTaskProperties.TASKTYPE);
+        ProsessTaskData prosessTaskData = new ProsessTaskData(AvsluttOppgaveTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setOppgaveId("1001");
         when(oppgaveTjeneste.opprettTaskAvsluttOppgave(any(Behandling.class), any(OppgaveÅrsak.class), anyBoolean())).thenReturn(Optional.of(prosessTaskData));

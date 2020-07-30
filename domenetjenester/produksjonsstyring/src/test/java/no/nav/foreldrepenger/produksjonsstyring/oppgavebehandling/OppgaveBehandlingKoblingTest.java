@@ -52,7 +52,7 @@ public class OppgaveBehandlingKoblingTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(behandleSøknad, oppgaveIdFraGSAK, SAKSNUMMER, behandling);
+        OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(behandleSøknad, oppgaveIdFraGSAK, SAKSNUMMER, behandling.getId());
         long id = lagreOppgave(oppgave);
 
         // Assert
@@ -77,7 +77,7 @@ public class OppgaveBehandlingKoblingTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(behandleSøknad, oppgaveIdFraGSAK, SAKSNUMMER, behandling);
+        OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(behandleSøknad, oppgaveIdFraGSAK, SAKSNUMMER, behandling.getId());
         lagreOppgave(oppgave);
 
         // Assert
@@ -100,7 +100,7 @@ public class OppgaveBehandlingKoblingTest {
             .medFødselsDato(LocalDate.now());
         Behandling behandling = scenario.lagre(repositoryProvider);
 
-        OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(behandleSøknad, oppgaveIdFraGSAK, SAKSNUMMER, behandling);
+        OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(behandleSøknad, oppgaveIdFraGSAK, SAKSNUMMER, behandling.getId());
         Long id = lagreOppgave(oppgave);
 
         // Act

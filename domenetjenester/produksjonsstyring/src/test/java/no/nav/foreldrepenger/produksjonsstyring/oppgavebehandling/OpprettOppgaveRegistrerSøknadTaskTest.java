@@ -8,9 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveRegistrerSøknadTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -24,7 +22,7 @@ public class OpprettOppgaveRegistrerSøknadTaskTest {
     @Before
     public void before() {
         oppgaveTjeneste = mock(OppgaveTjeneste.class);
-        opprettOppgaveRegistrerSøknadTask = new OpprettOppgaveRegistrerSøknadTask(oppgaveTjeneste, ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider());
+        opprettOppgaveRegistrerSøknadTask = new OpprettOppgaveRegistrerSøknadTask(oppgaveTjeneste);
     }
 
     @Test
