@@ -15,7 +15,6 @@ import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveForBehandlingSendtTilbakeTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -33,7 +32,7 @@ public class OpprettOppgaveForBehandlingSendtTilbakeTaskTest {
         oppgaveTjeneste = mock(OppgaveTjeneste.class);
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlendeEnhet(BEHANDLENDE_ENHET_ID);
         behandling = scenario.lagMocked();
-        task = new OpprettOppgaveForBehandlingSendtTilbakeTask(scenario.mockBehandlingRepositoryProvider(), oppgaveTjeneste);
+        task = new OpprettOppgaveForBehandlingSendtTilbakeTask(oppgaveTjeneste);
 
         taskData = new ProsessTaskData(OpprettOppgaveForBehandlingSendtTilbakeTask.TASKTYPE);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());

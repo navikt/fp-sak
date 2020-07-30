@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTaskProperties;
+import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -66,7 +66,7 @@ public class OpprettProsessTaskIverksettKlageTest {
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         List<String> tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTaskProperties.TASKTYPE);
+        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTask.TASKTYPE);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class OpprettProsessTaskIverksettKlageTest {
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         List<String> tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTaskProperties.TASKTYPE);
+        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTask.TASKTYPE);
     }
 
 
@@ -125,7 +125,7 @@ public class OpprettProsessTaskIverksettKlageTest {
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         List<String> tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTaskProperties.TASKTYPE, OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTask.TASKTYPE, OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
     }
 
     @Test
@@ -163,7 +163,7 @@ public class OpprettProsessTaskIverksettKlageTest {
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         List<String> tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
         assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE,
-            AvsluttOppgaveTaskProperties.TASKTYPE, OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+            AvsluttOppgaveTask.TASKTYPE, OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
     }
 
     private OpprettProsessTaskIverksett opprettKlageProsessTask(ScenarioKlageEngangsstønad scenario) {
@@ -189,7 +189,7 @@ public class OpprettProsessTaskIverksettKlageTest {
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         List<String> tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
         assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE,
-            AvsluttOppgaveTaskProperties.TASKTYPE, OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+            AvsluttOppgaveTask.TASKTYPE, OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
     }
 
     @Test
@@ -208,7 +208,7 @@ public class OpprettProsessTaskIverksettKlageTest {
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         List<String> tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTaskProperties.TASKTYPE);
+        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTask.TASKTYPE);
     }
 
     @Test
@@ -227,12 +227,12 @@ public class OpprettProsessTaskIverksettKlageTest {
         // Assert
         resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         List<String> tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTaskProperties.TASKTYPE);
+        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTask.TASKTYPE);
     }
 
 
     private void mockOpprettTaskAvsluttOppgave() {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AvsluttOppgaveTaskProperties.TASKTYPE);
+        ProsessTaskData prosessTaskData = new ProsessTaskData(AvsluttOppgaveTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setOppgaveId("1001");
         when(oppgaveTjeneste.opprettTaskAvsluttOppgave(any(Behandling.class), any(OppgaveÅrsak.class), anyBoolean())).thenReturn(Optional.of(prosessTaskData));

@@ -153,7 +153,7 @@ public class VedtaksHendelseHåndterer {
         // Unngå gå i beina på på iverksettingstasker med sen respons
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             lagreProsesstaskFor(behandling, StartBerørtBehandlingTask.TASKTYPE, 0);
-            lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 5);
+            lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 2);
         } else { //SVP
             lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 0);
         }

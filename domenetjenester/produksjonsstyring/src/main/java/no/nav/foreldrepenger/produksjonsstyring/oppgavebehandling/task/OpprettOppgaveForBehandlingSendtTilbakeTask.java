@@ -8,9 +8,8 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -18,7 +17,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ApplicationScoped
 @ProsessTask(TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class OpprettOppgaveForBehandlingSendtTilbakeTask extends BehandlingProsessTask {
+public class OpprettOppgaveForBehandlingSendtTilbakeTask extends GenerellProsessTask {
     public static final String TASKTYPE = "oppgavebehandling.opprettOppgaveSakSendtTilbake";
     private static final Logger log = LoggerFactory.getLogger(OpprettOppgaveForBehandlingSendtTilbakeTask.class);
     private OppgaveTjeneste oppgaveTjeneste;
@@ -28,13 +27,13 @@ public class OpprettOppgaveForBehandlingSendtTilbakeTask extends BehandlingProse
     }
 
     @Inject
-    public OpprettOppgaveForBehandlingSendtTilbakeTask(BehandlingRepositoryProvider repositoryProvider, OppgaveTjeneste oppgaveTjeneste) {
-        super(repositoryProvider.getBehandlingLåsRepository());
+    public OpprettOppgaveForBehandlingSendtTilbakeTask(OppgaveTjeneste oppgaveTjeneste) {
+        super();
         this.oppgaveTjeneste = oppgaveTjeneste;
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         String beskrivelse = "Sak har blitt sendt tilbake fra beslutter";
         String oppgaveId = oppgaveTjeneste.opprettBehandleOppgaveForBehandlingMedPrioritetOgFrist(behandlingId,
             beskrivelse, true, 0);

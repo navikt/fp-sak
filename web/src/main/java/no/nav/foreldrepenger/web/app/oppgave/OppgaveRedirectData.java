@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -25,7 +24,8 @@ public class OppgaveRedirectData {
     private Long behandlingId;
     private String feilmelding;
 
-    static OppgaveRedirectData hent(OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository, FagsakRepository fagsakRepository,
+    static OppgaveRedirectData hent(OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
+                                    FagsakRepository fagsakRepository,
                                     OppgaveIdDto oppgaveId, SaksnummerDto saksnummerDto) {
         if (oppgaveId == null && saksnummerDto == null) {
             return OppgaveRedirectData.medFeilmelding(logg(OppgaveRedirectServletFeil.FACTORY.sakKanIkkeÅpnesDaReferanseMangler()));
@@ -33,21 +33,20 @@ public class OppgaveRedirectData {
             Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
             return hentForFagsak(fagsakRepository,saksnummer);
         } else if (saksnummerDto == null) {
-            return hentForOppgave(oppgaveBehandlingKoblingRepository, fagsakRepository, oppgaveId.getVerdi());
+            return hentForOppgave(oppgaveBehandlingKoblingRepository, oppgaveId.getVerdi());
         }
 
         Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         Optional<Fagsak> sak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
-        if (!sak.isPresent()) {
+        if (sak.isEmpty()) {
             return OppgaveRedirectData.medFeilmelding(logg(OppgaveRedirectServletFeil.FACTORY.detFinnesIngenFagsak(saksnummer.getVerdi())));
         }
 
         Optional<OppgaveBehandlingKobling> oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId.getVerdi(), saksnummer);
         if (oppgave.isPresent()) {
-            Behandling behandling = oppgave.get().getBehandling();
-            Fagsak fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
-            if (fagsak.getSaksnummer() != null && fagsak.getSaksnummer().equals(saksnummer)) {
-                return OppgaveRedirectData.medSaksnummerOgBehandlingId(fagsak.getSaksnummer(), behandling.getId());
+            var oppgaveSaksnummer = oppgave.get().getSaksnummer();
+            if (oppgaveSaksnummer != null && oppgaveSaksnummer.equals(saksnummer)) {
+                return OppgaveRedirectData.medSaksnummerOgBehandlingId(oppgaveSaksnummer, oppgave.get().getBehandlingId());
             }
             return OppgaveRedirectData.medFeilmelding(logg(OppgaveRedirectServletFeil.FACTORY.oppgaveErIkkeRegistrertPåSak(oppgaveId.getVerdi(), saksnummer.getVerdi())));
         }
@@ -63,15 +62,10 @@ public class OppgaveRedirectData {
         return OppgaveRedirectData.medFeilmelding(logg(OppgaveRedirectServletFeil.FACTORY.detFinnesIngenFagsak(saksnummer.getVerdi())));
     }
 
-    private static OppgaveRedirectData hentForOppgave(OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
-                                                      FagsakRepository fagsakRepository, String oppgaveId) {
+    private static OppgaveRedirectData hentForOppgave(OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository, String oppgaveId) {
         Optional<OppgaveBehandlingKobling> oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId);
-        if (oppgave.isPresent()) {
-            Behandling behandling = oppgave.get().getBehandling();
-            Fagsak fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
-            return OppgaveRedirectData.medSaksnummerOgBehandlingId(fagsak.getSaksnummer(), behandling.getId());
-        }
-        return OppgaveRedirectData.medFeilmelding(logg(OppgaveRedirectServletFeil.FACTORY.detFinnesIngenOppgaveMedDenneReferansen(oppgaveId)));
+        return oppgave.map(oppgaveBehandlingKobling -> OppgaveRedirectData.medSaksnummerOgBehandlingId(oppgaveBehandlingKobling.getSaksnummer(), oppgaveBehandlingKobling.getBehandlingId()))
+            .orElseGet(() -> OppgaveRedirectData.medFeilmelding(logg(OppgaveRedirectServletFeil.FACTORY.detFinnesIngenOppgaveMedDenneReferansen(oppgaveId))));
     }
 
     private static OppgaveRedirectData medSaksnummerOgBehandlingId(Saksnummer saksnummer, Long behandlingId) {

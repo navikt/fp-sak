@@ -19,6 +19,7 @@ import org.mockito.stubbing.Answer;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -38,13 +39,15 @@ public class AutomatiskGjenopptagelseTjenesteTest {
 
     private BehandlingKandidaterRepository mockBehandlingKandidaterRepository;
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
+    private BehandlingRepository behandlingRepository;
 
     @Before
     public void setup() {
         mockProsessTaskRepository = mock(ProsessTaskRepository.class);
         mockBehandlingKandidaterRepository = mock(BehandlingKandidaterRepository.class);
         oppgaveBehandlingKoblingRepository = mock(OppgaveBehandlingKoblingRepository.class);
-        tjeneste = new AutomatiskGjenopptagelseTjeneste(mockBehandlingKandidaterRepository, oppgaveBehandlingKoblingRepository, mockProsessTaskRepository);
+        behandlingRepository = mock(BehandlingRepository.class);
+        tjeneste = new AutomatiskGjenopptagelseTjeneste(mockBehandlingKandidaterRepository, oppgaveBehandlingKoblingRepository, behandlingRepository, mockProsessTaskRepository);
     }
 
     @Test
@@ -196,11 +199,14 @@ public class AutomatiskGjenopptagelseTjenesteTest {
         OppgaveBehandlingKobling obk1 = lagMockOppgave(behandling1, OppgaveÅrsak.BEHANDLE_SAK);
 
         Behandling behandling2 = lagMockBehandling();
+        final Long behandlingId2 = behandling2.getId();
         OppgaveBehandlingKobling obk2 = lagMockOppgave(behandling2, OppgaveÅrsak.REVURDER);
 
         List<OppgaveBehandlingKobling> list = List.of(obk1, obk2);
 
         when(oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(any(), any(), anySet())).thenReturn(list);
+        when(behandlingRepository.hentBehandling(behandlingId1)).thenReturn(behandling1);
+        when(behandlingRepository.hentBehandling(behandlingId2)).thenReturn(behandling2);
 
         List<ProsessTaskData> faktiskeProsessTaskDataListe = new ArrayList<>();
         doAnswer((Answer<Void>) invocation -> {
@@ -238,6 +244,6 @@ public class AutomatiskGjenopptagelseTjenesteTest {
     }
 
     private OppgaveBehandlingKobling lagMockOppgave(Behandling behandling, OppgaveÅrsak type) {
-        return new OppgaveBehandlingKobling(type, null, null, behandling);
+        return new OppgaveBehandlingKobling(type, null, null, behandling.getId());
     }
 }
