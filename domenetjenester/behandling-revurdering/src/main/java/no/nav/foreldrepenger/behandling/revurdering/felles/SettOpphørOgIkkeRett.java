@@ -11,8 +11,7 @@ public class SettOpphørOgIkkeRett {
     private SettOpphørOgIkkeRett() {
     }
 
-    public static Behandlingsresultat fastsett(Behandling revurdering, Vedtaksbrev vedtaksbrev) {
-        Behandlingsresultat behandlingsresultat = revurdering.getBehandlingsresultat();
+    public static Behandlingsresultat fastsett(Behandling revurdering, Behandlingsresultat behandlingsresultat, Vedtaksbrev vedtaksbrev) {
         Behandlingsresultat.Builder behandlingsresultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
         behandlingsresultatBuilder.medBehandlingResultatType(BehandlingResultatType.OPPHØR);
         behandlingsresultatBuilder.medRettenTil(RettenTil.HAR_IKKE_RETT_TIL_FP);

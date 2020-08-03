@@ -20,6 +20,7 @@ import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -94,6 +95,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
 
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    private final BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
 
     @Inject
     private ØkonomioppdragRepository økonomioppdragRepository;
@@ -256,9 +258,10 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
             .buildFor(behandling);
         repository.lagre(vilkårResultat);
         if (innvilget) {
+            var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
             LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
                 .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
-                .buildFor(behandling);
+                .buildFor(behandling, bres);
             repository.lagre(beregningResultat);
         }
     }

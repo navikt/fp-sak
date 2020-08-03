@@ -60,7 +60,7 @@ public class BeregningResultatTest {
     public void skal_opprette_nytt_beregningsresultat_uten_beregning_dersom_ikke_finnes_fra_før() {
         // Act
         // TX_1: Opprette nytt beregningsresultat
-        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().buildFor(behandling1);
+        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().buildFor(behandling1, null);
         lagreBeregningResultat(behandling1, beregningResultat);
 
         // Assert
@@ -73,7 +73,7 @@ public class BeregningResultatTest {
     public void skal_koble_beregning_til_beregningsresultat() {
         LegacyESBeregning beregning = new LegacyESBeregning(1000L, antallBarn, antallBarn*1000, nå);
         assertThat(beregning.getBeregningResultat()).isNull();
-        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling1);
+        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling1, null);
         assertThat(beregning.getBeregningResultat()).isNull();
 
         assertThat(beregningResultat.getBeregninger()).hasSize(1);
@@ -92,7 +92,7 @@ public class BeregningResultatTest {
         LegacyESBeregning beregning = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, nå);
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
                 .medBeregning(beregning)
-                .buildFor(behandling1);
+                .buildFor(behandling1, null);
         lagreBeregningResultat(behandling1, beregningResultat);
 
         // Assert
@@ -107,7 +107,7 @@ public class BeregningResultatTest {
         // Act
         // TX_1: Opprette nytt beregningsresultat
         LegacyESBeregning beregning = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, nå);
-        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling1);
+        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling1, null);
         lagreBeregningResultat(behandling1, beregningResultat);
 
         // TX_2: Opprette nyTerminbekreftelse behandling fra tidligere behandling
@@ -137,7 +137,7 @@ public class BeregningResultatTest {
         // Act
         // TX_1: Opprette nytt beregningsresultat
         LegacyESBeregning beregning1 = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, nå);
-        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning1).buildFor(behandling1);
+        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning1).buildFor(behandling1, null);
         lagreBeregningResultat(behandling1, beregningResultat);
 
         // TX_2: Opprette nyTerminbekreftelse behandling fra tidligere behandling
@@ -151,7 +151,7 @@ public class BeregningResultatTest {
         // TX_3: Oppdatere nyTerminbekreftelse behandling med beregning
         behandling2 = repository.hent(Behandling.class, behandling2.getId());
         LegacyESBeregning beregning2 = new LegacyESBeregning(sats + 1, antallBarn, tilkjentYtelse, nå);
-        LegacyESBeregningsresultat.builder().medBeregning(beregning2).buildFor(behandling2);
+        LegacyESBeregningsresultat.builder().medBeregning(beregning2).buildFor(behandling2, getBehandlingsresultat(behandling2));
         lagreBeregningResultat(behandling2, getBehandlingsresultat(behandling2).getBeregningResultat());
 
         // Assert
@@ -170,7 +170,7 @@ public class BeregningResultatTest {
         // Act
         // TX_1: Opprette nytt beregningsresultat
         LegacyESBeregning beregning1 = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, nå);
-        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning1).buildFor(behandling1);
+        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning1).buildFor(behandling1, null);
         lagreBeregningResultat(behandling1, beregningResultat);
 
         // TX_2: Opprette nyTerminbekreftelse behandling fra tidligere behandling
@@ -184,13 +184,13 @@ public class BeregningResultatTest {
         // TX_3: Oppdatere nyTerminbekreftelse behandling med beregning
         behandling2 = repository.hent(Behandling.class, behandling2.getId());
         LegacyESBeregning beregning2 = new LegacyESBeregning(sats + 1, antallBarn, tilkjentYtelse, nå);
-        LegacyESBeregningsresultat.builder().medBeregning(beregning2).buildFor(behandling2);
+        LegacyESBeregningsresultat.builder().medBeregning(beregning2).buildFor(behandling2, getBehandlingsresultat(behandling2));
         lagreBeregningResultat(behandling2, getBehandlingsresultat(behandling2).getBeregningResultat());
 
         // TX_4: Oppdatere nyTerminbekreftelse behandling med beregning (samme som TX_3, men nyTerminbekreftelse beregning med nyTerminbekreftelse verdi)
         behandling2 = repository.hent(Behandling.class, behandling2.getId());
         LegacyESBeregning beregning3 = new LegacyESBeregning(sats + 2, antallBarn, tilkjentYtelse, nå);
-        LegacyESBeregningsresultat.builder().medBeregning(beregning3).buildFor(behandling2);
+        LegacyESBeregningsresultat.builder().medBeregning(beregning3).buildFor(behandling2, getBehandlingsresultat(behandling2));
         lagreBeregningResultat(behandling2, getBehandlingsresultat(behandling2).getBeregningResultat());
 
         // Assert
@@ -213,7 +213,7 @@ public class BeregningResultatTest {
         // Act
         // TX_1: Opprette Behandlingsresultat med Beregningsresultat
         LegacyESBeregning beregning1 = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, nå);
-        LegacyESBeregningsresultat beregningResultat1 = LegacyESBeregningsresultat.builder().medBeregning(beregning1).buildFor(behandling1);
+        LegacyESBeregningsresultat beregningResultat1 = LegacyESBeregningsresultat.builder().medBeregning(beregning1).buildFor(behandling1, null);
         lagreBeregningResultat(behandling1, beregningResultat1);
 
         // TX_2: Oppdatere Behandlingsresultat med VilkårResultat
@@ -228,7 +228,7 @@ public class BeregningResultatTest {
         // TX_3: Oppdatere Behandlingsresultat med BeregningResultat
         behandling1 = repository.hent(Behandling.class, behandling1.getId());
         LegacyESBeregning oppdatertBeregning = new LegacyESBeregning(sats + 1, antallBarn, tilkjentYtelse, nå);
-        LegacyESBeregningsresultat beregningResultat2 = LegacyESBeregningsresultat.builder().medBeregning(oppdatertBeregning).buildFor(behandling1);
+        LegacyESBeregningsresultat beregningResultat2 = LegacyESBeregningsresultat.builder().medBeregning(oppdatertBeregning).buildFor(behandling1, getBehandlingsresultat(behandling1));
         lagreBeregningResultat(behandling1, beregningResultat2);
 
         // Assert

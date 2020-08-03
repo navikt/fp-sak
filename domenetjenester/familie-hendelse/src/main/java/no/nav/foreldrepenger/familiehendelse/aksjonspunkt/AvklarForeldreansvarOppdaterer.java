@@ -39,9 +39,8 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
     }
 
     @Override
-    public boolean skalReinnhenteRegisteropplysninger(Behandling behandling, LocalDate forrigeSkjæringstidspunkt) {
-        // TODO (lots): Avklare med Jarek om denne blir annerledes for FP
-        return !skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandling.getId()).equals(forrigeSkjæringstidspunkt);
+    public boolean skalReinnhenteRegisteropplysninger(Long behandlingId, LocalDate forrigeSkjæringstidspunkt) {
+        return !skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId).equals(forrigeSkjæringstidspunkt);
     }
 
     @Override
@@ -50,7 +49,7 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
         Behandling behandling = param.getBehandling();
         final LocalDate forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
         oppdaterAksjonspunktGrunnlag(dto, behandling);
-        boolean skalReinnhenteRegisteropplysninger = skalReinnhenteRegisteropplysninger(behandling, forrigeSkjæringstidspunkt);
+        boolean skalReinnhenteRegisteropplysninger = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
 
         if (skalReinnhenteRegisteropplysninger) {
             return OppdateringResultat.utenTransisjon().medOppdaterGrunnlag().build();

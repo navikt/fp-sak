@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
@@ -39,6 +40,7 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository resultatRepository;
 
     BeregneYtelseEngangsstønadStegImpl() {
         // for CDI proxy
@@ -55,7 +57,8 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
         this.beregningRepository = beregningRepository;
         this.maksStønadsalderAdopsjon = maksStønadsalder;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.resultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     }
 
     @Override
@@ -70,10 +73,11 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
             long beregnetYtelse = sats.getVerdi() * antallBarn;
             LegacyESBeregning beregning = new LegacyESBeregning(sats.getVerdi(), antallBarn, beregnetYtelse, LocalDateTime.now());
 
-            Behandling behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandlingId);
+            Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+            var behResultat = resultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
             LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
                 .medBeregning(beregning)
-                .buildFor(behandling);
+                .buildFor(behandling, behResultat);
             beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
@@ -93,15 +97,17 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
     @Override
     public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType fraSteg, BehandlingStegType tilSteg) {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behResultat = resultatRepository.hentHvisEksisterer(kontekst.getBehandlingId()).orElse(null);
         RyddBeregninger ryddBeregninger = new RyddBeregninger(repositoryProvider.getBehandlingRepository(), kontekst);
-        ryddBeregninger.ryddBeregninger(behandling);
+        ryddBeregninger.ryddBeregninger(behandling, behResultat);
     }
 
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg, BehandlingStegType fraSteg) {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behResultat = resultatRepository.hentHvisEksisterer(kontekst.getBehandlingId()).orElse(null);
         RyddBeregninger ryddBeregninger = new RyddBeregninger(repositoryProvider.getBehandlingRepository(), kontekst);
-        ryddBeregninger.ryddBeregningerHvisIkkeOverstyrt(behandling);
+        ryddBeregninger.ryddBeregningerHvisIkkeOverstyrt(behandling, behResultat);
     }
 
 }

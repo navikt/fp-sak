@@ -5,11 +5,11 @@ import static org.mockito.Mockito.doReturn;
 
 import java.util.Optional;
 
-import no.finn.unleash.FakeUnleash;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import no.finn.unleash.FakeUnleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder;
 
 public class VedtaksbrevUtlederTest {
 
@@ -37,7 +36,6 @@ public class VedtaksbrevUtlederTest {
 
     @Before
     public void setup() {
-        doReturn(behandling).when(behandlingsresultatMock).getBehandling();
         doReturn(Vedtaksbrev.AUTOMATISK).when(behandlingsresultatMock).getVedtaksbrev();
         doReturn(false).when(behandlingVedtakMock).isBeslutningsvedtak();
         doReturn(VedtakResultatType.INNVILGET).when(behandlingVedtakMock).getVedtakResultatType();
@@ -47,7 +45,7 @@ public class VedtaksbrevUtlederTest {
 
     @Test
     public void skal_velge_positivt_ES() {
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.POSITIVT_VEDTAK_DOK);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.POSITIVT_VEDTAK_DOK);
     }
 
 
@@ -55,13 +53,13 @@ public class VedtaksbrevUtlederTest {
     public void skal_velge_negativt_ES() {
         doReturn(BehandlingResultatType.AVSLÅTT).when(behandlingsresultatMock).getBehandlingResultatType();
         doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.AVSLAGSVEDTAK_DOK);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.AVSLAGSVEDTAK_DOK);
     }
 
     @Test
     public void skal_velge_positivt_FP() {
         doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK);
     }
 
     @Test
@@ -69,7 +67,7 @@ public class VedtaksbrevUtlederTest {
         doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
         doReturn(true).when(behandlingsresultatMock).isBehandlingsresultatOpphørt();
         doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.OPPHØR_DOK);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.OPPHØR_DOK);
     }
 
     @Test
@@ -77,19 +75,19 @@ public class VedtaksbrevUtlederTest {
         doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
         doReturn(BehandlingResultatType.AVSLÅTT).when(behandlingsresultatMock).getBehandlingResultatType();
         doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.AVSLAG_FORELDREPENGER_DOK);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.AVSLAG_FORELDREPENGER_DOK);
     }
 
     @Test
     public void skal_velge_uendret_utfall() {
         doReturn(true).when(behandlingVedtakMock).isBeslutningsvedtak();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.UENDRETUTFALL_DOK);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.UENDRETUTFALL_DOK);
     }
 
     @Test
     public void skal_velge_fritekst() {
         doReturn(Vedtaksbrev.FRITEKST).when(behandlingsresultatMock).getVedtaksbrev();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.FRITEKST_DOK);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository, ankeRepository,fakeUnleash)).isEqualTo(DokumentMalType.FRITEKST_DOK);
     }
 
     @Test

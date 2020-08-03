@@ -33,11 +33,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemEndringssjekker;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @ApplicationScoped
 public class UtledVurderingsdatoerForMedlemskapTjeneste {
@@ -269,7 +269,7 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
         MedlemskapPerioderEntitet riktigEntitetVerdi;
         LocalDate førsteBeslutningsdato = førsteVersjon.getValue().getBeslutningsdato();
         LocalDate sisteBeslutningsdato = sisteVersjon.getValue().getBeslutningsdato();
-        if (førsteBeslutningsdato != null && førsteBeslutningsdato.isAfter(sisteBeslutningsdato)) {
+        if (førsteBeslutningsdato != null && (sisteBeslutningsdato == null || førsteBeslutningsdato.isAfter(sisteBeslutningsdato))) {
             riktigEntitetVerdi = førsteVersjon.getValue();
         } else {
             riktigEntitetVerdi = sisteVersjon.getValue();

@@ -118,7 +118,7 @@ public class BeregnFeriepengerTjenesteTest {
             .medVedtakstidspunkt(LocalDateTime.now())
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
         Behandling farsBehandling = scenarioAnnenPart.lagre(repositoryProvider);
-        Behandlingsresultat behandlingsresultat = farsBehandling.getBehandlingsresultat();
+        Behandlingsresultat behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(farsBehandling.getId());
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         repository.lagre(behandlingsresultat);
         farsBehandling.avsluttBehandling();

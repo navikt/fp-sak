@@ -17,12 +17,11 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktivitetPeriode;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningInntektPeriode;
 import no.nav.foreldrepenger.domene.opptjening.VurderingsStatus;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsgrunnlagAdapter;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.AktivitetPeriode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsgrunnlag;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class OpptjeningsgrunnlagAdapterTest {
 

@@ -52,8 +52,8 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
     }
 
     @Override
-    public boolean skalReinnhenteRegisteropplysninger(Behandling behandling, LocalDate forrigeSkjæringstidspunkt) {
-        return !skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandling.getId()).equals(forrigeSkjæringstidspunkt);
+    public boolean skalReinnhenteRegisteropplysninger(Long behandlingId, LocalDate forrigeSkjæringstidspunkt) {
+        return !skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId).equals(forrigeSkjæringstidspunkt);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
         final FamilieHendelseGrunnlagEntitet oppdatertGrunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
 
         final LocalDate forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
-        boolean skalReinnhente = skalReinnhenteRegisteropplysninger(behandling, forrigeSkjæringstidspunkt);
+        boolean skalReinnhente = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
 
         OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon().medTotrinnHvis(kreverTotrinn);
         if (skalReinnhente) {

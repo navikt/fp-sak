@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -54,6 +55,7 @@ public class BeregningsresultatRestTjeneste {
     public static final String HAR_SAMME_RESULTAT_PATH = BASE_PATH + HAR_SAMME_RESULTAT_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatTjeneste beregningsresultatTjeneste;
     private TilkjentYtelseTjeneste tilkjentYtelseTjeneste;
 
@@ -65,6 +67,7 @@ public class BeregningsresultatRestTjeneste {
     public BeregningsresultatRestTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                           BeregningsresultatTjeneste beregningsresultatMedUttaksplanTjeneste, TilkjentYtelseTjeneste tilkjentYtelseTjeneste) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatTjeneste = beregningsresultatMedUttaksplanTjeneste;
         this.tilkjentYtelseTjeneste = tilkjentYtelseTjeneste;
     }
@@ -157,7 +160,7 @@ public class BeregningsresultatRestTjeneste {
             throw new IllegalStateException("Behandling må være en revurdering");
         }
 
-        var behandlingsresultat = behandling.getBehandlingsresultat();
+        var behandlingsresultat = getBehandlingsresultat(behandling.getId());
         if (behandlingsresultat == null) {
             return false;
         }
@@ -168,7 +171,7 @@ public class BeregningsresultatRestTjeneste {
         }
 
         Behandling originalBehandling = behandling.getOriginalBehandling().orElseThrow(() -> new IllegalStateException("Revurdering må ha originalbehandling"));
-        Behandlingsresultat originaltBehandlingsresultat = originalBehandling.getBehandlingsresultat();
+        Behandlingsresultat originaltBehandlingsresultat = getBehandlingsresultat(originalBehandling.getId());
         BehandlingResultatType behandlingResultatType = behandlingsresultat.getBehandlingResultatType();
 
         boolean harSammeResultatType = behandlingResultatType.getKode().equals(originaltBehandlingsresultat.getBehandlingResultatType().getKode());
@@ -182,5 +185,9 @@ public class BeregningsresultatRestTjeneste {
         }
 
         return harSammeResultatType;
+    }
+
+    private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
+        return behandlingsresultatRepository.hent(behandlingId);
     }
 }

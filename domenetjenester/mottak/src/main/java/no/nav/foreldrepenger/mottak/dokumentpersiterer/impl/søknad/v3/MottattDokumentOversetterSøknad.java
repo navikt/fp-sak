@@ -178,8 +178,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             persisterEndringssøknad(wrapper, mottattDokument, behandling, gjelderFra);
         } else {
             persisterSøknad(wrapper, mottattDokument, behandling);
-            //TODO DIAMANT flytte ut av oversetter-klassen. Skal gjelde alle versjoner av søknaden
-            //Dette er en unntaksløsning for å sikre at DVH oppdaters med familiehendelse. DVH oppdatering skal normalt gå gjennom events
+            // DVH oppdatering skal normalt gå gjennom events - dette er en unntaksløsning for å sikre at DVH oppdateres med annen part (som er lagt på DVH-sak)
             datavarehusTjeneste.lagreNedFagsak(behandling.getFagsakId());
         }
     }

@@ -267,7 +267,7 @@ public class DatavarehusTjenesteImplTest {
     @Test
     public void lagreNedVedtak() {
         BehandlingVedtak vedtak = byggBehandlingVedtak();
-        var behandling = vedtak.getBehandlingsresultat().getBehandling();
+        var behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
         ArgumentCaptor<BehandlingVedtakDvh> captor = ArgumentCaptor.forClass(BehandlingVedtakDvh.class);
         DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(repositoryProvider);
         // Act

@@ -51,13 +51,11 @@ public class VedtaksbrevUtleder {
         return Vedtaksbrev.FRITEKST.equals(behandlingsresultat.getVedtaksbrev());
     }
 
-    public static DokumentMalType velgDokumentMalForVedtak(Behandlingsresultat behandlingsresultat,
+    public static DokumentMalType velgDokumentMalForVedtak(Behandling behandling, Behandlingsresultat behandlingsresultat,
                                                   BehandlingVedtak behandlingVedtak,
                                                   KlageRepository klageRepository,
                                                   AnkeRepository ankeRepository,
                                                    Unleash unleash) {
-        Behandling behandling = behandlingsresultat.getBehandling();
-
         DokumentMalType dokumentMal = null;
 
         if (erLagetFritekstBrev(behandlingsresultat)) {

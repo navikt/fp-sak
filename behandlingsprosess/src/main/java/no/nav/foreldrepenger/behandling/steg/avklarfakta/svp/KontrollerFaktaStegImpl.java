@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -39,6 +40,7 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     private KontrollerFaktaTjeneste tjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private UtledNyeTilretteleggingerTjeneste utledNyeTilretteleggingerTjeneste;
     private LagreNyeTilretteleggingerTjeneste lagreNyeTilretteleggingerTjeneste;
@@ -55,6 +57,7 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
                             LagreNyeTilretteleggingerTjeneste lagreNyeTilretteleggingerTjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.tjeneste = tjeneste;
         this.utledNyeTilretteleggingerTjeneste = utledNyeTilretteleggingerTjeneste;
@@ -92,7 +95,7 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
 
     private void opprettVilkår(UtledeteVilkår utledeteVilkår, Behandling behandling, BehandlingLås skriveLås) {
         // Opprett Vilkårsresultat med vilkårne som skal vurderes, og sett dem som ikke vurdert
-        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
+        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
         VilkårResultat.Builder vilkårBuilder = behandlingsresultat != null
             ? VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat())
             : VilkårResultat.builder();
@@ -100,6 +103,11 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
             .forEach(vilkårType -> vilkårBuilder.leggTilVilkår(vilkårType, VilkårUtfallType.IKKE_VURDERT));
         VilkårResultat vilkårResultat = vilkårBuilder.buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, skriveLås);
+    }
+
+
+    private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
     }
 
 }

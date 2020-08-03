@@ -1,5 +1,19 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.post;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.setStandardfelter;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
@@ -9,6 +23,8 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
@@ -73,19 +89,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.post;
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.setStandardfelter;
-
 /**
  * Bygger et sammensatt resultat av BehandlingDto ved å samle data fra ulike tjenester, for å kunne levere dette ut på en REST tjeneste.
  */
@@ -102,6 +105,7 @@ public class BehandlingDtoTjeneste {
     private SøknadRepository søknadRepository;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste;
     private BehandlingDokumentRepository behandlingDokumentRepository;
@@ -131,6 +135,7 @@ public class BehandlingDtoTjeneste {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.svangerskapspengerUttakResultatRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.opptjeningIUtlandDokStatusTjeneste = opptjeningIUtlandDokStatusTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
@@ -204,7 +209,7 @@ public class BehandlingDtoTjeneste {
             return Collections.emptyList();
         }
         Optional<BehandlingVedtak> gjeldendeVedtak = behandlingVedtakRepository.hentGjeldendeVedtak(behandlinger.get(0).getFagsak());
-        Optional<Behandling> behandlingMedGjeldendeVedtak = gjeldendeVedtak.map(bv -> bv.getBehandlingsresultat().getBehandling());
+        Optional<Behandling> behandlingMedGjeldendeVedtak = gjeldendeVedtak.map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId).map(behandlingRepository::hentBehandling);
         return behandlinger.stream().map(behandling -> {
             boolean erBehandlingMedGjeldendeVedtak = erBehandlingMedGjeldendeVedtak(behandling, behandlingMedGjeldendeVedtak);
             var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
@@ -427,7 +432,7 @@ public class BehandlingDtoTjeneste {
     }
 
     private Optional<BehandlingsresultatDto> lagBehandlingsresultatDto(Behandling behandling) {
-        var behandlingsresultat = behandling.getBehandlingsresultat();
+        var behandlingsresultat = getBehandlingsresultat(behandling.getId());
         if (behandlingsresultat == null) {
             return Optional.empty();
         }
@@ -496,5 +501,9 @@ public class BehandlingDtoTjeneste {
 
     public Boolean finnBehandlingOperasjonRettigheter(Behandling behandling) {
         return this.søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).isPresent();
+    }
+
+    private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
     }
 }

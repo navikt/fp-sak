@@ -220,10 +220,10 @@ public class DokumentmottakerKlageTest {
                 null, new Properties(), null, false, false, "", "")
             .medVilkårResultatType(VilkårResultatType.INNVILGET)
             .buildFor(behandling);
+        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
         LegacyESBeregningsresultat.builder()
             .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
-            .buildFor(behandling);
-        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
+            .buildFor(behandling, behandlingsresultat);
         BehandlingVedtak vedtak = BehandlingVedtak.builder()
             .medVedtakResultatType(VedtakResultatType.INNVILGET)
             .medBehandlingsresultat(behandlingsresultat)
