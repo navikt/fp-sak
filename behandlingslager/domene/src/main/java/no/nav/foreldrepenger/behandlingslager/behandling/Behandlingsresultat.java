@@ -245,12 +245,12 @@ public class Behandlingsresultat extends BaseEntitet {
         // Behandlingsresultat skal p.t. kun eksisterere dersom parent Behandling allerede er persistert.
         // Det syntaktisk korrekte vil derfor være at subaggregat Behandlingsresultat med 1:1-forhold til parent
         // Behandling har også sin id knyttet opp mot Behandling alene.
-        return getBehandling().equals(that.getBehandling());
+        return getBehandlingId().equals(that.getBehandlingId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getBehandling());
+        return Objects.hash(getBehandlingId());
     }
 
     public static class Builder {
@@ -364,7 +364,7 @@ public class Behandlingsresultat extends BaseEntitet {
                 behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
             }
             if (beregningResultatBuilder != null) {
-                LegacyESBeregningsresultat beregningResultat = beregningResultatBuilder.buildFor(behandling);
+                LegacyESBeregningsresultat beregningResultat = beregningResultatBuilder.buildFor(behandling, behandlingsresultat);
                 behandlingsresultat.medOppdatertBeregningResultat(beregningResultat);
             }
             built = true;

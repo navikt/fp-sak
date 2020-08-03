@@ -79,10 +79,12 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
     }
 
     private Behandlingsresultat getSistBehandlingsresultatUtenIngenEndring(Behandling orginalBehandling) {
+        Behandling sisteBehandling = orginalBehandling;
         Behandlingsresultat sisteBehandlingResultat = getBehandlingsresultat(orginalBehandling);
 
         while (sisteBehandlingResultat.isBehandlingsresultatIkkeEndret()) {
-            sisteBehandlingResultat = getBehandlingsresultat(getOriginalBehandling(sisteBehandlingResultat.getBehandling()));
+            sisteBehandling = getOriginalBehandling(sisteBehandling);
+            sisteBehandlingResultat = getBehandlingsresultat(sisteBehandling);
         }
 
         return sisteBehandlingResultat;

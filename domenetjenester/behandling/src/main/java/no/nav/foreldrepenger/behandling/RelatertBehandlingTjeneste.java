@@ -8,6 +8,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -45,9 +46,7 @@ public class RelatertBehandlingTjeneste {
 
         if(annenPartsFagsak.isPresent()) {
             Optional<BehandlingVedtak> vedtakAnnenpart = behandlingVedtakRepository.hentGjeldendeVedtak(annenPartsFagsak.get());
-            if (vedtakAnnenpart.isPresent()) {
-                return Optional.ofNullable(vedtakAnnenpart.get().getBehandlingsresultat().getBehandling());
-            }
+            return vedtakAnnenpart.map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId).map(behandlingRepository::hentBehandling);
         }
         return Optional.empty();
     }
@@ -69,7 +68,7 @@ public class RelatertBehandlingTjeneste {
         BehandlingVedtak behandlingVedtak = vedtakForBehandling(behandling);
         if (annenpartVedtak.size() == 1) {
             if (harVedtakFør(annenpartVedtak.get(0), behandlingVedtak)) {
-                return Optional.of(annenpartVedtak.get(0).getBehandlingsresultat().getBehandling());
+                return Optional.of(behandlingRepository.hentBehandling(annenpartVedtak.get(0).getBehandlingsresultat().getBehandlingId()));
             } else {
                 return Optional.empty();
             }
@@ -78,7 +77,7 @@ public class RelatertBehandlingTjeneste {
         Optional<Behandling> resultat = Optional.empty();
         for (BehandlingVedtak apVedtak : annenpartVedtak) {
             if (harVedtakFør(apVedtak, behandlingVedtak)) {
-                resultat = Optional.of(apVedtak.getBehandlingsresultat().getBehandling());
+                resultat = Optional.of(behandlingRepository.hentBehandling(apVedtak.getBehandlingsresultat().getBehandlingId()));
             }
         }
         return resultat;

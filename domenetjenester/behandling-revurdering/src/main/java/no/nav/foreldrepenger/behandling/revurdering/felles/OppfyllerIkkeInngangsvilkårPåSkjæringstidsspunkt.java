@@ -18,19 +18,19 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt {
     }
 
     //TODO(OJR) burde kanskje innfører en egenskap som tilsier at MEDLEMSKAPSVILKÅRET_LØPENDE ikke er et inngangsvilkår?
-    public static boolean vurder(Behandling revurdering) {
-        return revurdering.getBehandlingsresultat().getVilkårResultat().getVilkårene().stream()
+    public static boolean vurder(Behandlingsresultat revurdering) {
+        return revurdering.getVilkårResultat().getVilkårene().stream()
             .filter(v -> !MEDLEMSKAPSVILKÅRET_LØPENDE.equals(v.getVilkårType()))
             .anyMatch(v -> !VilkårUtfallType.OPPFYLT.equals(v.getGjeldendeVilkårUtfall()));
     }
 
-    public static Behandlingsresultat fastsett(Behandling revurdering) {
-        boolean skalBeregnesIInfotrygd = harIngenBeregningsreglerILøsningen(revurdering);
-        return SettOpphørOgIkkeRett.fastsett(revurdering, skalBeregnesIInfotrygd ? Vedtaksbrev.INGEN : Vedtaksbrev.AUTOMATISK);
+    public static Behandlingsresultat fastsett(Behandling revurdering, Behandlingsresultat behandlingsresultat) {
+        boolean skalBeregnesIInfotrygd = harIngenBeregningsreglerILøsningen(behandlingsresultat);
+        return SettOpphørOgIkkeRett.fastsett(revurdering, behandlingsresultat, skalBeregnesIInfotrygd ? Vedtaksbrev.INGEN : Vedtaksbrev.AUTOMATISK);
     }
 
-    private static boolean harIngenBeregningsreglerILøsningen(Behandling revurdering) {
-        List<Vilkår> vilkårene = revurdering.getBehandlingsresultat().getVilkårResultat().getVilkårene();
+    private static boolean harIngenBeregningsreglerILøsningen(Behandlingsresultat behandlingsresultat) {
+        List<Vilkår> vilkårene = behandlingsresultat.getVilkårResultat().getVilkårene();
         return vilkårene.stream()
             .anyMatch(vilkår -> VilkårType.BEREGNINGSGRUNNLAGVILKÅR.equals(vilkår.getVilkårType())
                 && Avslagsårsak.INGEN_BEREGNINGSREGLER_TILGJENGELIG_I_LØSNINGEN.equals(vilkår.getAvslagsårsak())

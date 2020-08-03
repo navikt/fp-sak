@@ -88,7 +88,7 @@ public class BehandlingDtoForBackendTjeneste {
     private boolean erBehandlingGjeldendeVedtak(Behandling behandling) {
         Optional<BehandlingVedtak> gjeldendeVedtak = vedtakRepository.hentGjeldendeVedtak(behandling.getFagsak());
         return gjeldendeVedtak
-            .filter(v -> v.getBehandlingsresultat().getBehandling().getId().equals(behandling.getId()))
+            .filter(v -> v.getBehandlingsresultat().getBehandlingId().equals(behandling.getId()))
             .isPresent();
     }
 

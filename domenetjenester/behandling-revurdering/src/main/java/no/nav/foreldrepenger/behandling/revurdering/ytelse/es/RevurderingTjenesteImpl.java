@@ -100,8 +100,14 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         Long nyBehandlingId = ny.getId();
         if (BehandlingType.REVURDERING.equals(ny.getType())) {
             familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandlingForRevurdering(orginalBehandlingId, nyBehandlingId);
-            personopplysningRepository.kopierGrunnlagFraEksisterendeBehandlingForRevurdering(orginalBehandlingId, nyBehandlingId);
-            medlemskapRepository.kopierGrunnlagFraEksisterendeBehandlingForRevurdering(orginalBehandlingId, nyBehandlingId);
+            if (ny.harBehandlingÅrsak(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)) { // Unngå manuell re-evaluering i tilfelle "automatisk" revurdering
+                personopplysningRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);
+                medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);
+                vergeRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);
+            } else {
+                personopplysningRepository.kopierGrunnlagFraEksisterendeBehandlingForRevurdering(orginalBehandlingId, nyBehandlingId);
+                medlemskapRepository.kopierGrunnlagFraEksisterendeBehandlingForRevurdering(orginalBehandlingId, nyBehandlingId);
+            }
         } else {
             familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);
             personopplysningRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);

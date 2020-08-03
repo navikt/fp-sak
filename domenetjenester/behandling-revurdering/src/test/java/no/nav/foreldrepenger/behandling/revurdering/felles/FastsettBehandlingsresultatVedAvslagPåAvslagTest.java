@@ -19,8 +19,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
 public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
@@ -49,7 +49,7 @@ public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
         // Act
         boolean erAvslagPåAvslag = FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(
             lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING, KonsekvensForYtelsen.INGEN_ENDRING),
-            lagBehandlingsresultat(originalBehandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT));
+            lagBehandlingsresultat(originalBehandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT), originalBehandling.getType());
 
         // Assert
         assertThat(erAvslagPåAvslag).isFalse();
@@ -62,7 +62,7 @@ public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
         // Act
         boolean erAvslagPåAvslag = FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(
             lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING, KonsekvensForYtelsen.INGEN_ENDRING),
-            lagBehandlingsresultat(originalBehandling, BehandlingResultatType.AVSLÅTT, KonsekvensForYtelsen.UDEFINERT));
+            lagBehandlingsresultat(originalBehandling, BehandlingResultatType.AVSLÅTT, KonsekvensForYtelsen.UDEFINERT), originalBehandling.getType());
 
         // Assert
         assertThat(erAvslagPåAvslag).isTrue();

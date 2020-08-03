@@ -15,17 +15,17 @@ class FastsettBehandlingsresultatVedAvslagPåAvslag {
     private FastsettBehandlingsresultatVedAvslagPåAvslag() {
     }
 
-    public static boolean vurder(Optional<Behandlingsresultat> resRevurdering, Optional<Behandlingsresultat> resOriginal) {
+    public static boolean vurder(Optional<Behandlingsresultat> resRevurdering, Optional<Behandlingsresultat> resOriginal, BehandlingType originalType) {
         if (resOriginal.isPresent() && resRevurdering.isPresent()) {
-            if (BehandlingType.FØRSTEGANGSSØKNAD.equals(resOriginal.get().getBehandling().getType())) {
+            if (BehandlingType.FØRSTEGANGSSØKNAD.equals(originalType)) {
                 return erAvslagPåAvslag(resRevurdering.get(), resOriginal.get());
             }
         }
         return false;
     }
 
-    public static Behandlingsresultat fastsett(Behandling revurdering) {
-        return RevurderingBehandlingsresultatutlederFelles.buildBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING,
+    public static Behandlingsresultat fastsett(Behandling revurdering, Behandlingsresultat behandlingsresultat) {
+        return RevurderingBehandlingsresultatutlederFelles.buildBehandlingsresultat(revurdering, behandlingsresultat, BehandlingResultatType.INGEN_ENDRING,
             List.of(KonsekvensForYtelsen.INGEN_ENDRING), Vedtaksbrev.INGEN);
     }
 

@@ -16,10 +16,10 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.es.RevurderingEndringImpl;
 import no.nav.foreldrepenger.behandling.steg.foreslåresultat.AvslagsårsakTjeneste;
-import no.nav.foreldrepenger.behandling.steg.foreslåresultat.es.ForeslåBehandlingsresultatTjenesteImpl;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -42,9 +42,10 @@ public class ForeslåBehandlingsresultatTjenesteTest {
 
     private RevurderingEndringImpl revurderingEndring = Mockito.mock(RevurderingEndringImpl.class);
     private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    private BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     private AvslagsårsakTjeneste avslagsårsakTjeneste = new AvslagsårsakTjeneste();
     private ForeslåBehandlingsresultatTjenesteImpl foreslåVedtaTjenesteES = new ForeslåBehandlingsresultatTjenesteImpl(
-        repositoryProvider.getBehandlingsresultatRepository(), 
+        repositoryProvider.getBehandlingsresultatRepository(),
         repositoryProvider.getBehandlingRepository(),
         avslagsårsakTjeneste,revurderingEndring);
 
@@ -68,7 +69,7 @@ public class ForeslåBehandlingsresultatTjenesteTest {
     }
 
     private void foreslåBehandlingsresultat(Behandling behandling) {
-        var ref = BehandlingReferanse.fra(behandling, 
+        var ref = BehandlingReferanse.fra(behandling,
             Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build());
@@ -76,7 +77,7 @@ public class ForeslåBehandlingsresultatTjenesteTest {
     }
 
     private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandling.getBehandlingsresultat();
+        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
     }
 
     @Test
@@ -98,7 +99,7 @@ public class ForeslåBehandlingsresultatTjenesteTest {
         Mockito.doReturn(true).when(revurderingEndring).erRevurderingMedUendretUtfall(Mockito.any(), Mockito.any());
         Behandling behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
         foreslåBehandlingsresultat(behandling);
-        List<KonsekvensForYtelsen> konsekvenserForYtelsen = behandling.getBehandlingsresultat().getKonsekvenserForYtelsen();
+        List<KonsekvensForYtelsen> konsekvenserForYtelsen = getBehandlingsresultat(behandling).getKonsekvenserForYtelsen();
         assertThat(konsekvenserForYtelsen.size()).isOne();
         assertThat(konsekvenserForYtelsen.get(0)).isEqualTo(KonsekvensForYtelsen.INGEN_ENDRING);
     }
@@ -108,7 +109,7 @@ public class ForeslåBehandlingsresultatTjenesteTest {
     public void setter_ikke_konsekvens_for_ytelse() {
         Behandling behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
         foreslåBehandlingsresultat(behandling);
-        List<KonsekvensForYtelsen> konsekvenserForYtelsen = behandling.getBehandlingsresultat().getKonsekvenserForYtelsen();
+        List<KonsekvensForYtelsen> konsekvenserForYtelsen = getBehandlingsresultat(behandling).getKonsekvenserForYtelsen();
         assertThat(konsekvenserForYtelsen).isEmpty();
     }
 

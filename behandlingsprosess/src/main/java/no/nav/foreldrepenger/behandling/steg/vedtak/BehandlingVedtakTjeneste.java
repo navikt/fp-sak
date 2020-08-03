@@ -12,6 +12,8 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -24,6 +26,7 @@ public class BehandlingVedtakTjeneste {
 
     private BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer;
     private BehandlingVedtakRepository behandlingVedtakRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     BehandlingVedtakTjeneste() {
         // for CDI proxy
@@ -34,6 +37,7 @@ public class BehandlingVedtakTjeneste {
                                     BehandlingRepositoryProvider repositoryProvider) {
         this.behandlingVedtakEventPubliserer = behandlingVedtakEventPubliserer;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     }
 
     public void opprettBehandlingVedtak(BehandlingskontrollKontekst kontekst, Behandling behandling) {
@@ -48,15 +52,20 @@ public class BehandlingVedtakTjeneste {
         LocalDateTime vedtakstidspunkt = LocalDateTime.now();
 
         boolean erRevurderingMedUendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(behandling);
+        var behandlingsresultat = behandlingsresultatRepository.hent(behandling.getId());
         BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
             .medVedtakResultatType(vedtakResultatType)
             .medAnsvarligSaksbehandler(ansvarligSaksbehandler)
             .medVedtakstidspunkt(vedtakstidspunkt)
-            .medBehandlingsresultat(behandling.getBehandlingsresultat())
+            .medBehandlingsresultat(behandlingsresultat)
             .medBeslutning(erRevurderingMedUendretUtfall)
             .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
             .build();
         behandlingVedtakRepository.lagre(behandlingVedtak, kontekst.getSkriveLås());
         behandlingVedtakEventPubliserer.fireEvent(behandlingVedtak, behandling);
+    }
+
+    public Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
     }
 }

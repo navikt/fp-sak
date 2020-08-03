@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -106,6 +107,7 @@ public class VedtakXmlTest {
     private LocalDate morsFødseldato;
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    private final BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
 
     private LegacyESBeregningRepository beregningRepository = new LegacyESBeregningRepository(repoRule.getEntityManager());
 
@@ -317,7 +319,8 @@ public class VedtakXmlTest {
         repository.lagre(behandlingsresultat);
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
         LegacyESBeregning beregning = new LegacyESBeregning(1L, 1L, 1L, LocalDateTime.now());
-        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling);
+        var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
+        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
         repository.flushAndClear();
         return behandling;
@@ -331,7 +334,8 @@ public class VedtakXmlTest {
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
         LegacyESBeregning beregning = new LegacyESBeregning(1L, 1L, 1L, LocalDateTime.now());
-        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling);
+        var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
+        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
         manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, behandlingStegType);
         final FamilieHendelseRepository fgRepo = repositoryProvider.getFamilieHendelseRepository();
@@ -368,9 +372,10 @@ public class VedtakXmlTest {
             .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
             .buildFor(behandling);
         if (innvilget) {
+            var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
             LegacyESBeregningsresultat.builder()
                 .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
-                .buildFor(behandling);
+                .buildFor(behandling, bres);
         }
     }
 
@@ -389,7 +394,8 @@ public class VedtakXmlTest {
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
         LegacyESBeregning beregning = new LegacyESBeregning(1L, 1L, 1L, LocalDateTime.now());
-        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling);
+        var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
+        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
         final FamilieHendelseBuilder hendelseBuilder = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
             .medFødselsDato(fødselsdato)
@@ -443,7 +449,8 @@ public class VedtakXmlTest {
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
         LegacyESBeregning beregning = new LegacyESBeregning(1L, 1L, 1L, LocalDateTime.now());
-        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling);
+        var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
+        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
         manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, stegType);
 

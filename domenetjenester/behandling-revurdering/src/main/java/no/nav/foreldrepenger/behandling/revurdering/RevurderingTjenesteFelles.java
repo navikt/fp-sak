@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
@@ -36,6 +37,7 @@ public class RevurderingTjenesteFelles {
     private static final Logger LOG = LoggerFactory.getLogger(RevurderingTjenesteFelles.class);
 
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
     private FagsakRevurdering fagsakRevurdering;
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
@@ -49,6 +51,7 @@ public class RevurderingTjenesteFelles {
     @Inject
     public RevurderingTjenesteFelles(BehandlingRepositoryProvider repositoryProvider) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
         this.fagsakRevurdering = new FagsakRevurdering(repositoryProvider.getBehandlingRepository());
         this.medlemskapVilkårPeriodeRepository = repositoryProvider.getMedlemskapVilkårPeriodeRepository();
@@ -87,7 +90,7 @@ public class RevurderingTjenesteFelles {
     }
 
     public void kopierVilkårsresultat(Behandling origBehandling, Behandling revurdering, BehandlingskontrollKontekst kontekst) {
-        VilkårResultat origVilkårResultat = origBehandling.getBehandlingsresultat().getVilkårResultat();
+        VilkårResultat origVilkårResultat = behandlingsresultatRepository.hent(origBehandling.getId()).getVilkårResultat();
         Objects.requireNonNull(origVilkårResultat, "Vilkårsresultat må være satt på revurderingens originale behandling");
 
         VilkårResultat.Builder vilkårBuilder = VilkårResultat.builder();
