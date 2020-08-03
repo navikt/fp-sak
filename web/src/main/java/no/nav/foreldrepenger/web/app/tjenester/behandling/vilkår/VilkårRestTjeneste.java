@@ -59,6 +59,7 @@ public class VilkårRestTjeneste {
     @Inject
     public VilkårRestTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
     }
 
     @GET
