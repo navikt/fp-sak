@@ -1,6 +1,21 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -12,23 +27,15 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdPSGrunnlag;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
-import no.nav.foreldrepenger.mottak.vedtak.rest.*;
 import no.nav.vedtak.konfig.Tid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
 /*
 Når Foreldrepenger-sak, enten førstegang eller revurdering, innvilges sjekker vi for overlapp med pleiepenger eller sykepenger i Infortrygd på personen.
 Overlapp er tilstede dersom noen av de vedtatte periodende i Infotrygd overlapper med noen av utbetalingsperiodene på iverksatt foreldrepenge-behandling
@@ -145,16 +152,15 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
     private LocalDateTimeline<Boolean> hentPerioderFp(Collection<BeregningsresultatPeriode> perioder) {
         var segments = perioder.stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
-            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), VirkedagUtil.tomSøndag(p.getBeregningsresultatPeriodeTom()), Boolean.TRUE))
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), Boolean.TRUE))
             .collect(Collectors.toList());
 
-        return helgeJusterTidslinje(new LocalDateTimeline<>(segments, StandardCombinators::alwaysTrueForMatch).compress());
+        return new LocalDateTimeline<>(segments, StandardCombinators::alwaysTrueForMatch).compress();
     }
 
     private LocalDateTimeline<BigDecimal> hentGradertePerioderFp(Collection<BeregningsresultatPeriode> perioder) {
         var segments = perioder.stream()
-            .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getBeregningsresultatPeriodeFom()),
-                VirkedagUtil.tomVirkedag(p.getBeregningsresultatPeriodeTom()), p.getKalkulertUtbetalingsgrad()))
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), p.getKalkulertUtbetalingsgrad()))
             .collect(Collectors.toList());
 
         return new LocalDateTimeline<>(segments, StandardCombinators::sum).filterValue(v -> v.compareTo(BigDecimal.ZERO) > 0);
@@ -176,8 +182,7 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
             .map(Grunnlag::getVedtak)
             .flatMap(Collection::stream)
             .filter(v -> v.getUtbetalingsgrad() > 0)
-            .map(p-> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getPeriode().getFom()), VirkedagUtil.tomVirkedag(p.getPeriode().getTom()),
-                new BigDecimal(p.getUtbetalingsgrad())))
+            .map(p-> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), new BigDecimal(p.getUtbetalingsgrad())))
             .collect(Collectors.toList());
 
         return new LocalDateTimeline<>(segmenter, StandardCombinators::sum);
@@ -197,7 +202,7 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
         var segments = tidslinje.getDatoIntervaller().stream()
             .map(p -> new LocalDateSegment<>(VirkedagUtil.fomVirkedag(p.getFomDato()), VirkedagUtil.tomVirkedag(p.getTomDato()), Boolean.TRUE))
             .collect(Collectors.toList());
-        return new LocalDateTimeline<Boolean>(segments, StandardCombinators::alwaysTrueForMatch).compress();
+        return new LocalDateTimeline<>(segments, StandardCombinators::alwaysTrueForMatch).compress();
     }
 
 
@@ -212,7 +217,5 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjeneste {
             .map(VirkedagUtil::fomVirkedag)
             .min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
     }
-
-
 
 }

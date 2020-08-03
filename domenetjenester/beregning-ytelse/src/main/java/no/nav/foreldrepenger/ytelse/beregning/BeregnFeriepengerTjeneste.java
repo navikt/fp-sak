@@ -53,7 +53,7 @@ public abstract class BeregnFeriepengerTjeneste {
 
         Optional<Behandling> annenPartsBehandling = finnAnnenPartsBehandling(behandling);
         Optional<BeregningsresultatEntitet> annenPartsBeregningsresultat = annenPartsBehandling.flatMap(beh -> {
-            if (BehandlingResultatType.getInnvilgetKoder().contains(beh.getBehandlingsresultat().getBehandlingResultatType())) {
+            if (BehandlingResultatType.getAlleInnvilgetKoder().contains(beh.getBehandlingsresultat().getBehandlingResultatType())) {
                 return beregningsresultatRepository.hentBeregningsresultat(beh.getId());
             }
             return Optional.empty();
@@ -68,12 +68,7 @@ public abstract class BeregnFeriepengerTjeneste {
         Evaluation evaluation = regelBeregnFeriepenger.evaluer(regelModell);
         String sporing = RegelmodellOversetter.getSporing(evaluation);
 
-        BeregningsresultatFeriepenger beregningsresultatFeriepenger = BeregningsresultatFeriepenger.builder()
-            .medFeriepengerRegelInput(regelInput)
-            .medFeriepengerRegelSporing(sporing)
-            .build(beregningsresultat);
-
-        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelModell, beregningsresultatFeriepenger);
+        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelModell, regelInput, sporing);
     }
 
     private Optional<Behandling> finnAnnenPartsBehandling(Behandling behandling) {

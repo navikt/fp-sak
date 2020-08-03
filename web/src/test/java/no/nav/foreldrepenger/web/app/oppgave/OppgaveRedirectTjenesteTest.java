@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.oppgave;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -64,73 +65,57 @@ public class OppgaveRedirectTjenesteTest {
 
     @Test
     public void skal_lage_url_med_saksnummer_og_behandlingId_når_oppgave_finnes_og_sakId_ikke_finnes_i_url() throws ServletException, IOException {
+        var behandlingId = 10L;
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null, null, saksnummer);
         fagsak.setId(2L);
 
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        OppgaveBehandlingKobling kobling = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1", saksnummer, behandling);
-        Mockito.when(oppgaveRepo.hentOppgaveBehandlingKobling("1")).thenReturn(Optional.of(kobling));
-        Mockito.when(fagsakRepo.finnEksaktFagsak(2)).thenReturn(fagsak);
+        Whitebox.setInternalState(behandling, "id", behandlingId);
+        OppgaveBehandlingKobling kobling = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1", saksnummer, behandlingId);
+        when(oppgaveRepo.hentOppgaveBehandlingKobling("1")).thenReturn(Optional.of(kobling));
+        when(fagsakRepo.finnEksaktFagsak(2)).thenReturn(fagsak);
 
         Response response = tjeneste.doRedirect(new OppgaveIdDto("1"), null);
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
-        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/fagsak/22/");
+        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/fagsak/22/behandling/10/?punkt=default&fakta=default");
     }
 
     @Test
     public void skal_lage_url_med_saksnummer_når_oppgave_ikke_finnes() throws ServletException, IOException {
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null, null, saksnummer);
         fagsak.setId(12L);
-        Mockito.when(fagsakRepo.hentSakGittSaksnummer(saksnummer)).thenReturn(Optional.of(fagsak));
-        Mockito.when(fagsakRepo.finnUnikFagsak(12L)).thenReturn(Optional.of(fagsak));
+        when(fagsakRepo.hentSakGittSaksnummer(saksnummer)).thenReturn(Optional.of(fagsak));
+        when(fagsakRepo.finnUnikFagsak(12L)).thenReturn(Optional.of(fagsak));
 
         Response response = tjeneste.doRedirect(new OppgaveIdDto("1"), new SaksnummerDto(saksnummer));
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
         assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/fagsak/22/");
-    }
-
-    @Test
-    public void skal_lage_feil_vedinkonsistens_oppgave_fagsakfinnes() throws ServletException, IOException {
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
-        Saksnummer inkonsistentSaksnummer = new Saksnummer("123");
-        Whitebox.setInternalState(fagsak, "id", 3l);
-        Whitebox.setInternalState(fagsak, "saksnummer", inkonsistentSaksnummer);
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        OppgaveBehandlingKobling kobling = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1", saksnummer, behandling);
-        oppgaveRepo.lagre(kobling);
-        Mockito.when(fagsakRepo.hentSakGittSaksnummer(saksnummer)).thenReturn(Optional.of(fagsak));
-        Mockito.when(fagsakRepo.finnEksaktFagsak(3)).thenReturn(fagsak);
-
-        Mockito.when(oppgaveRepo.hentOppgaveBehandlingKobling("1", saksnummer)).thenReturn(Optional.of(kobling));
-
-        Response response = tjeneste.doRedirect(new OppgaveIdDto("1"), new SaksnummerDto(saksnummer));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
-        String feilmelding = "Oppgaven+med+1+er+ikke+registrert+p%C3%A5+sak+22";
-        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/#?errormessage=" + feilmelding);
     }
 
     @Test
     public void skal_lage_url_med_behandlingsid_og_saksnummer_når_oppgave_finnes() throws ServletException, IOException {
+        var behandlingId = 11L;
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         Whitebox.setInternalState(fagsak, "id", 5l);
         Whitebox.setInternalState(fagsak, "saksnummer", saksnummer);
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        OppgaveBehandlingKobling kobling = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1", saksnummer, behandling);
-        Mockito.when(fagsakRepo.hentSakGittSaksnummer(saksnummer)).thenReturn(Optional.of(fagsak));
-        Mockito.when(fagsakRepo.finnEksaktFagsak(5)).thenReturn(fagsak);
+        Whitebox.setInternalState(behandling, "id", behandlingId);
+        OppgaveBehandlingKobling kobling = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1", saksnummer, behandlingId);
+        when(fagsakRepo.hentSakGittSaksnummer(saksnummer)).thenReturn(Optional.of(fagsak));
+        when(fagsakRepo.finnEksaktFagsak(5)).thenReturn(fagsak);
 
-        Mockito.when(oppgaveRepo.hentOppgaveBehandlingKobling("1")).thenReturn(Optional.of(kobling));
+        when(oppgaveRepo.hentOppgaveBehandlingKobling("1", saksnummer)).thenReturn(Optional.of(kobling));
 
         Response response = tjeneste.doRedirect(new OppgaveIdDto("1"), new SaksnummerDto(saksnummer));
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
-        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/fagsak/22/");
+        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/fagsak/22/behandling/11/?punkt=default&fakta=default");
     }
 
     @Test
     public void skal_lage_url_med_saksnummer_når_oppgave_ikke_oppgitt() throws ServletException, IOException {
         Saksnummer saksnummer = new Saksnummer("22");
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null, null, saksnummer);
-        Mockito.when(fagsakRepo.hentSakGittSaksnummer(saksnummer)).thenReturn(Optional.of(fagsak));
+        when(fagsakRepo.hentSakGittSaksnummer(saksnummer)).thenReturn(Optional.of(fagsak));
 
         Response responseSnr = tjeneste.doRedirect(null, new SaksnummerDto(saksnummer));
         assertThat(responseSnr.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());

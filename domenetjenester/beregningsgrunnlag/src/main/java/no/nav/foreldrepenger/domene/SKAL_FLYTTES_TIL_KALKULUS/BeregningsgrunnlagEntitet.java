@@ -28,7 +28,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -37,7 +36,6 @@ import javax.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
@@ -125,6 +123,10 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         if (!beregningsgrunnlagPerioder.contains(bgPeriode)) { // NOSONAR
             beregningsgrunnlagPerioder.add(bgPeriode);
         }
+    }
+
+    public BeregningsgrunnlagRegelSporing getRegelsporing(BeregningsgrunnlagRegelType regelType) {
+        return regelSporingMap.getOrDefault(regelType, null);
     }
 
     public String getRegelinputPeriodisering() {
@@ -321,6 +323,18 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
                 BeregningsgrunnlagRegelSporing.ny()
                     .medRegelInput(regelInput)
                     .medRegelType(PERIODISERING)
+                    .build(kladd);
+            }
+            return this;
+        }
+
+        public Builder medRegellogg(String regelInput, String regelEvaluering, BeregningsgrunnlagRegelType regelType) {
+            verifiserKanModifisere();
+            if (regelInput != null) {
+                BeregningsgrunnlagRegelSporing.ny()
+                    .medRegelInput(regelInput)
+                    .medRegelEvaluering(regelEvaluering)
+                    .medRegelType(regelType)
                     .build(kladd);
             }
             return this;

@@ -22,7 +22,12 @@ public enum BeregningsgrunnlagRegelType implements Kodeverdi {
 
     SKJÆRINGSTIDSPUNKT("SKJÆRINGSTIDSPUNKT", "Fastsette skjæringstidspunkt"),
     BRUKERS_STATUS("BRUKERS_STATUS", "Fastsette brukers status/aktivitetstatus"),
+    // Skal ikke lagres til men eksisterer fordi det finnes entries med denne i databasen (før ble det kun lagret 1 sporing for periodisering)
+    @Deprecated
     PERIODISERING("PERIODISERING", "Periodiser beregningsgrunnlag"),
+
+    PERIODISERING_NATURALYTELSE("PERIODISERING_NATURALYTELSE", "Periodiser beregningsgrunnlag pga naturalytelse"),
+    PERIODISERING_REFUSJON("PERIODISERING_REFUSJON", "Periodiser beregningsgrunnlag pga refusjon, gradering og endring i utbetalingsgrad"),
     UDEFINERT("-", "Ikke definert"),
     ;
     public static final String KODEVERK = "BG_REGEL_TYPE";

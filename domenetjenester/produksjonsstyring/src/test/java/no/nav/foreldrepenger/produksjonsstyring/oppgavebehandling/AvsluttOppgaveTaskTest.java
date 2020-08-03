@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTaskProperties;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -65,13 +64,13 @@ public class AvsluttOppgaveTaskTest {
 
         String oppgaveId = "99";
         OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, oppgaveId,
-            fagsak.getSaksnummer(), behandling);
+            fagsak.getSaksnummer(), behandling.getId());
         oppgaveBehandlingKoblingRepository.lagre(oppgave);
 
-        ProsessTaskData taskData = new ProsessTaskData(AvsluttOppgaveTaskProperties.TASKTYPE);
+        ProsessTaskData taskData = new ProsessTaskData(AvsluttOppgaveTask.TASKTYPE);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskData.setOppgaveId(oppgaveId);
-        AvsluttOppgaveTask task = new AvsluttOppgaveTask(oppgaveTjeneste, repositoryProvider);
+        AvsluttOppgaveTask task = new AvsluttOppgaveTask(oppgaveTjeneste);
 
         Mockito.doNothing().when(oppgaveRestKlient).ferdigstillOppgave(eq(oppgaveId));
 

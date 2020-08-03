@@ -137,7 +137,7 @@ public class BehandlingsutredningApplikasjonTjenesteImplTest {
         // Arrange
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1",
-            behandling.getFagsak().getSaksnummer(), behandling);
+            behandling.getFagsak().getSaksnummer(), behandling.getId());
         oppgaveBehandlingKoblingRepository.lagre(oppgave);
 
         // Act

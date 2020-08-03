@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
@@ -32,13 +33,16 @@ public class AutomatiskGjenopptagelseTjeneste {
     private ProsessTaskRepository prosessTaskRepository;
     private BehandlingKandidaterRepository behandlingKandidaterRepository;
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     public AutomatiskGjenopptagelseTjeneste(BehandlingKandidaterRepository behandlingKandidaterRepository,
                                             OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
+                                            BehandlingRepository behandlingRepository,
                                             ProsessTaskRepository prosessTaskRepository) {
         this.behandlingKandidaterRepository = behandlingKandidaterRepository;
         this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
+        this.behandlingRepository = behandlingRepository;
         this.prosessTaskRepository = prosessTaskRepository;
     }
 
@@ -89,7 +93,7 @@ public class AutomatiskGjenopptagelseTjeneste {
         LocalTime baseline = LocalTime.now();
 
         for (OppgaveBehandlingKobling oppgave : oppgaveListe) {
-            Behandling behandling = oppgave.getBehandling();
+            Behandling behandling = behandlingRepository.hentBehandling(oppgave.getBehandlingId());
             if (!behandling.erSaksbehandlingAvsluttet() && !behandling.isBehandlingPåVent() && behandling.erYtelseBehandling()) {
                 String nyCallId = callId + behandling.getId();
                 opprettProsessTask(behandling, nyCallId, baseline, 1439);

@@ -85,7 +85,6 @@ public class BeregningAktivitetOverstyringEntitet extends BaseEntitet {
                 .medArbeidsforholdRef(arbeidsforholdRef != null ? arbeidsforholdRef.getReferanse() : null)
                 .medOpptjeningAktivitetType(opptjeningAktivitetType)
                 .medFom(periode.getFomDato())
-                .medTom(periode.getTomDato())
                 .build();
     }
 

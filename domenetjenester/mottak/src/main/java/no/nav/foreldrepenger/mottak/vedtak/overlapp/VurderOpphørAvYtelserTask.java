@@ -13,14 +13,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(VurderOpphørAvYtelserTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class VurderOpphørAvYtelserTask extends FagsakProsessTask {
+public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
     public static final String TASKTYPE = "iverksetteVedtak.vurderOpphørAvYtelser";
 
     private static final Logger LOG = LoggerFactory.getLogger(VurderOpphørAvYtelserTask.class);
@@ -33,7 +33,6 @@ public class VurderOpphørAvYtelserTask extends FagsakProsessTask {
     private BehandlingRepository behandlingRepository;
 
 
-
     private VurderOpphørAvYtelser tjeneste;
 
     VurderOpphørAvYtelserTask() {
@@ -44,7 +43,7 @@ public class VurderOpphørAvYtelserTask extends FagsakProsessTask {
     public VurderOpphørAvYtelserTask(VurderOpphørAvYtelser tjeneste,
                                      IdentifiserOverlappendeInfotrygdYtelseTjeneste overlappsLoggerTjeneste,
                                      BehandlingRepositoryProvider repositoryProvider) {
-        super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
+        super();
         this.tjeneste = tjeneste;
         this.overlappsLoggerTjeneste = overlappsLoggerTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();

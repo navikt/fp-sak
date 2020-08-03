@@ -17,7 +17,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
+import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 
@@ -115,12 +115,46 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
             BeregningAktivitetAggregatEntitet.Builder overstyrtBuilder = BeregningAktivitetAggregatEntitet.builder()
                     .medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());
             overstyrteAktiviteter.forEach(aktivitet -> {
-                BeregningAktivitetEntitet kopiert = Kopimaskin.deepCopy(aktivitet);
+                Optional<BeregningAktivitetOverstyringEntitet> overstyrtAktivitet = hentOverstyrtAktivitet(overstyringer, aktivitet);
+                BeregningAktivitetEntitet kopiert = BeregningAktivitetEntitet.kopier(aktivitet)
+                    .medPeriode(getIntervall(aktivitet, overstyrtAktivitet))
+                    .build();
                 overstyrtBuilder.leggTilAktivitet(kopiert);
             });
             return Optional.of(overstyrtBuilder.build());
         }
         return Optional.empty();
+    }
+
+    /**
+     * Her hentes overstyrt aktivitet fra 'overstyringsAktiviteter' hvis 'aktivitet' finnes i listen av overstyringer
+     * i 'overstyringsAktiviteter' (hvis nøklene deres er like). Hvis denne finnes så skal det altså bety at aktiveten
+     * har blitt overstyrt, og hvis ikke, så har ikke aktiviteten overstyrt.
+     *
+     * @param overstyringsAktiviteter
+     * @param aktivitet
+     * @return En 'BeregningAktivitetOverstyringDto' hvis 'BeregningAktivitetDto' er overstyrt.
+     */
+    private Optional<BeregningAktivitetOverstyringEntitet> hentOverstyrtAktivitet(BeregningAktivitetOverstyringerEntitet overstyringsAktiviteter, BeregningAktivitetEntitet aktivitet) {
+        return overstyringsAktiviteter
+            .getOverstyringer()
+            .stream()
+            .filter(overstyrtAktivitet -> overstyrtAktivitet.getNøkkel().equals(aktivitet.getNøkkel()))
+            .findFirst();
+    }
+
+
+        /**
+         * Henter periode fra overstyrt aktivitet hvis aktivitet er overstyrt. Hvis ikke så hentes periode fra aktivitet.
+         * @param aktivitet  beregningaktivitet
+         * @param overstyring Gjeldende Overstyring
+         * @return opprinnelig eller overstyrt intervall
+         */
+    private ÅpenDatoIntervallEntitet getIntervall(BeregningAktivitetEntitet aktivitet, Optional<BeregningAktivitetOverstyringEntitet> overstyring) {
+        if (overstyring.isPresent()) {
+            return overstyring.get().getPeriode();
+        }
+        return aktivitet.getPeriode();
     }
 
     public BeregningAktivitetAggregatEntitet getGjeldendeAktiviteter() {

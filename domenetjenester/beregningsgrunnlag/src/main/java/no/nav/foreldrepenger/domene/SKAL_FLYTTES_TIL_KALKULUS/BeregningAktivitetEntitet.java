@@ -98,7 +98,6 @@ public class BeregningAktivitetEntitet extends BaseEntitet implements IndexKey {
         BeregningAktivitetNøkkel.Builder builder = BeregningAktivitetNøkkel.builder()
                 .medOpptjeningAktivitetType(opptjeningAktivitetType)
                 .medFom(periode.getFomDato())
-                .medTom(periode.getTomDato())
                 .medArbeidsforholdRef(getArbeidsforholdRef().getReferanse());
         if (arbeidsgiver != null) {
             builder.medArbeidsgiverIdentifikator(arbeidsgiver.getIdentifikator());
@@ -158,6 +157,11 @@ public class BeregningAktivitetEntitet extends BaseEntitet implements IndexKey {
         return new Builder();
     }
 
+    public static Builder kopier(BeregningAktivitetEntitet beregningAktivitetEntitet) {
+        return new Builder(beregningAktivitetEntitet);
+    }
+
+
     @Override
     public String getIndexKey() {
         return IndexKey.createKey(arbeidsgiver, arbeidsforholdRef);
@@ -168,6 +172,10 @@ public class BeregningAktivitetEntitet extends BaseEntitet implements IndexKey {
 
         private Builder() {
             mal = new BeregningAktivitetEntitet();
+        }
+
+        private Builder(BeregningAktivitetEntitet kopi) {
+            mal = new BeregningAktivitetEntitet(kopi);
         }
 
         public Builder medPeriode(ÅpenDatoIntervallEntitet periode) {

@@ -32,7 +32,8 @@ public class OppgaveRedirectTjeneste {
     }
 
     @Inject
-    public OppgaveRedirectTjeneste(OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository, FagsakRepository fagsakRepository, RedirectFactory redirectFactory) {
+    public OppgaveRedirectTjeneste(OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
+                                   FagsakRepository fagsakRepository, RedirectFactory redirectFactory) {
         this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
         this.fagsakRepository = fagsakRepository;
         this.redirectFactory = redirectFactory;
