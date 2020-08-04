@@ -221,7 +221,7 @@ public class ForvaltningOppdragRestTjeneste {
         if (status != ProsessTaskStatus.FERDIG) {
             throw new IllegalArgumentException("Denne skal kun brukes for FERDIG prosesstask. Se om du heller skal bruke endepunktet /patch-oppdrag");
         }
-        if (ChronoUnit.DAYS.between(task.getSistKjørt(), LocalDateTime.now()) > 30) {
+        if (ChronoUnit.DAYS.between(task.getSistKjørt(), LocalDateTime.now()) > 90) {
             throw new IllegalArgumentException("Skal ikke patche oppdrag som er så gamle som dette (sanity check). Endre grensen i java-koden hvis det er strengt nødvendig.");
         }
     }
