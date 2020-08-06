@@ -149,7 +149,7 @@ public class RegisterdataInnhenterTest {
     private RegisterdataEndringshåndterer lagRegisterdataOppdaterer(BehandlingRepositoryProvider repositoryProvider,
                                                                     String durationInstance, RegisterdataInnhenter innhenter) {
 
-        RegisterdataEndringshåndterer oppdaterer = new RegisterdataEndringshåndterer(repositoryProvider, innhenter, durationInstance, null, null, null, null, null);
+        RegisterdataEndringshåndterer oppdaterer = new RegisterdataEndringshåndterer(repositoryProvider, innhenter, durationInstance, null, null, null, null);
         return oppdaterer;
     }
 

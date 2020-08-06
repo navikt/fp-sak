@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterinnhentingHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.behandlingårsak.BehandlingÅrsakUtleder;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.behandlingårsak.EndringResultatType;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @Dependent
 public class BehandlingÅrsakTjeneste {
@@ -28,6 +29,7 @@ public class BehandlingÅrsakTjeneste {
     private Instance<BehandlingÅrsakUtleder> utledere;
     private EndringsresultatSjekker endringsresultatSjekker;
     private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     public BehandlingÅrsakTjeneste() {
     }
@@ -35,10 +37,12 @@ public class BehandlingÅrsakTjeneste {
     @Inject
     public BehandlingÅrsakTjeneste(@Any Instance<BehandlingÅrsakUtleder> utledere,
                                    EndringsresultatSjekker endringsresultatSjekker,
-                                   RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste) {
+                                   RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste,
+                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.utledere = utledere;
         this.endringsresultatSjekker = endringsresultatSjekker;
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     public void lagHistorikkForRegisterEndringerMotOriginalBehandling(Behandling revurdering) {
@@ -75,7 +79,7 @@ public class BehandlingÅrsakTjeneste {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             return endringsresultatDiff.erSporedeFeltEndret() ? Collections.singleton(EndringResultatType.REGISTEROPPLYSNING) : Collections.emptySet();
         }
-        var ref = BehandlingReferanse.fra(behandling);
+        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
         //For alle aggregat som har endringer, utled behandlingsårsak.
         return endringsresultatDiff.hentDelresultater().stream()
             .filter(EndringsresultatDiff::erSporedeFeltEndret)

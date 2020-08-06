@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 /**
@@ -48,8 +47,6 @@ public class RegisterdataEndringshåndterer {
     private BehandlingÅrsakTjeneste behandlingÅrsakTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-
     RegisterdataEndringshåndterer() {
         // for CDI proxy
     }
@@ -58,18 +55,15 @@ public class RegisterdataEndringshåndterer {
      * @param periode - Periode for hvor ofte registerdata skal oppdateres
      */
     @Inject
-    public RegisterdataEndringshåndterer( // NOSONAR jobber med å redusere
-                                          BehandlingRepositoryProvider repositoryProvider,
+    public RegisterdataEndringshåndterer( BehandlingRepositoryProvider repositoryProvider,
                                           RegisterdataInnhenter registerdataInnhenter,
                                           @KonfigVerdi(value = "oppdatere.registerdata.tidspunkt", defaultVerdi = "PT10H") String oppdaterRegisterdataEtterPeriode,
                                           Endringskontroller endringskontroller,
                                           EndringsresultatSjekker endringsresultatSjekker,
                                           FamilieHendelseTjeneste familieHendelseTjeneste,
-                                          BehandlingÅrsakTjeneste behandlingÅrsakTjeneste,
-                                          SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                          BehandlingÅrsakTjeneste behandlingÅrsakTjeneste) {
 
         this.registerdataInnhenter = registerdataInnhenter;
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.endringskontroller = endringskontroller;
