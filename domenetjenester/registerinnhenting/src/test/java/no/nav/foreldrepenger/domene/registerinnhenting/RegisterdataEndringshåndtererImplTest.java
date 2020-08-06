@@ -373,8 +373,7 @@ public class RegisterdataEndringshåndtererImplTest {
             endringskontroller,
             endringsresultatSjekker,
             familieHendelseTjeneste,
-            behandlingÅrsakTjeneste,
-            skjæringstidspunktTjeneste);
+            behandlingÅrsakTjeneste);
     }
 
     private Personinfo opprettSøkerinfo() {
