@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.steg.avklarfakta.fp;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,8 +55,8 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepositor
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
@@ -172,7 +173,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             // Automatisk revurdering skal hoppe til utledet startpunkt. Unntaket er revurdering av avslåtte behandlinger
             if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
                 startpunkt = StartpunktType.UTTAKSVILKÅR;
-                LOGGER.info("Berørt behandling {} med  startpunkt {} ", revurdering.getId(), startpunkt.getKode());// NOSONAR //$NON-NLS-1$
+                LOGGER.info("KOFAKREV Berørt behandling {} med  startpunkt {} ", revurdering.getId(), startpunkt.getKode());// NOSONAR //$NON-NLS-1$
                 return startpunkt;
             } else {
                 var orgBehandlingsresultat = getBehandlingsresultat(ref.getOriginalBehandlingId().get());
@@ -187,8 +188,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             }
         }
 
-        // Undersøk behov for GRegulering.
-        if (!DEFAULT_STARTPUNKT.equals(startpunkt)) {
+        // Undersøk behov for GRegulering. Med mindre vi allerede skal til BEREGNING eller tidligere steg
+        if (startpunkt.getRangering() > StartpunktType.BEREGNING.getRangering()) {
             StartpunktType greguleringStartpunkt = utledBehovForGRegulering(ref, revurdering);
             startpunkt = startpunkt.getRangering() < greguleringStartpunkt.getRangering() ? startpunkt : greguleringStartpunkt;
         }
@@ -197,7 +198,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         if (behandlingskontrollTjeneste.erStegPassert(revurdering, startpunkt.getBehandlingSteg())) {
             startpunkt = DEFAULT_STARTPUNKT;
         }
-        LOGGER.info("Revurdering {} har fått fastsatt startpunkt {} ", revurdering.getId(), startpunkt.getKode());// NOSONAR //$NON-NLS-1$
+        LOGGER.info("KOFAKREV Revurdering {} har fått fastsatt startpunkt {} ", revurdering.getId(), startpunkt.getKode());// NOSONAR //$NON-NLS-1$
         return startpunkt;
     }
 
@@ -219,31 +220,32 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private StartpunktType utledBehovForGRegulering(BehandlingReferanse ref, Behandling revurdering) {
-        StartpunktType startpunkt = StartpunktType.UDEFINERT;
         Long opprinneligBehandlingId = revurdering.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Revurdering skal ha en basisbehandling - skal ikke skje"));
-        BeregningSats grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getFørsteUttaksdato());
         Optional<BeregningsgrunnlagEntitet> forrigeBeregning = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(opprinneligBehandlingId);
-        if (forrigeBeregning.isPresent()) {
-            long satsIBeregning = forrigeBeregning.map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
-            // Kan evt spisse: Sjekke om det finnes BGPeriode med avkortet = 6G. Må evt også ta hensyn til SN og 1/2G
-            if (grunnbeløp.getVerdi() - satsIBeregning > 1) {
-                LOGGER.info("Revurdering {} skal G-reguleres", revurdering.getId());// NOSONAR //$NON-NLS-1$
-                startpunkt = StartpunktType.BEREGNING;
-            } else if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
-                final boolean skalReberegnes = forrigeBeregning.get().getAktivitetStatuser().stream()
-                    .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
-                    .anyMatch(ARENA_REGULERES::contains);
-                if (skalReberegnes) {
-                    LOGGER.info("Revurdering {} skal Arena-reguleres", revurdering.getId());// NOSONAR //$NON-NLS-1$
-                    startpunkt = StartpunktType.BEREGNING;
-                }
-            }
-        } else {
-            // Finnes ikke beregningsgrunnlag forrige.
-            startpunkt = StartpunktType.BEREGNING;
+
+        if (forrigeBeregning.isEmpty() || revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
+            return StartpunktType.BEREGNING;
         }
-        return startpunkt;
+
+        BeregningSats grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getFørsteUttaksdato());
+        long satsIBeregning = forrigeBeregning.map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
+
+        if (grunnbeløp.getVerdi() - satsIBeregning > 1) {
+            BigDecimal bruttoPrÅr = forrigeBeregning.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder).orElse(Collections.emptyList()).stream()
+                .map(BeregningsgrunnlagPeriode::getBruttoPrÅr)
+                .max(Comparator.naturalOrder()).orElse(BigDecimal.ZERO);
+            long multiplikator = repositoryProvider.getBeregningsresultatRepository().avkortingMultiplikatorG(grunnbeløp.getPeriode().getFomDato().minusDays(1));
+            BigDecimal grenseverdi = new BigDecimal(satsIBeregning * multiplikator);
+            boolean over6G = bruttoPrÅr.compareTo(grenseverdi) >= 0;
+            if (over6G) {
+                LOGGER.info("KOFAKREV Revurdering {} skal G-reguleres", revurdering.getId());
+                return StartpunktType.BEREGNING;
+            } else {
+                LOGGER.info("KOFAKREV Revurdering {} blir ikke G-regulert: brutto {} grense {}", revurdering.getId(), bruttoPrÅr, grenseverdi);
+            }
+        }
+        return StartpunktType.UDEFINERT;
     }
 
     @Override

@@ -207,7 +207,7 @@ public class BehandlingRevurderingRepository {
         return behandlinger.isEmpty() ? Optional.empty() : Optional.of(behandlinger.get(0));
     }
 
-    /** Liste av fagsakId, aktørId for saker som trenger G-regulering og det ikke finnes åpen behandling */
+    /** Liste av fagsakId, aktørId for saker som trenger G-regulering over 6G og det ikke finnes åpen behandling */
     public List<Tuple<Long, AktørId>> finnSakerMedBehovForGrunnbeløpRegulering(long forrigeSats, long forrigeAvkortingMultiplikator,
                                                                                LocalDate gjeldendeFom) {
         /*
@@ -254,6 +254,59 @@ public class BehandlingRevurderingRepository {
         query.setParameter("gmlsats", forrigeSats); //$NON-NLS-1$
         query.setParameter("avkorting", forrigeAvkortingMultiplikator); //$NON-NLS-1$
         query.setParameter("restyper", RES_TYPER_REGULERING); //$NON-NLS-1$
+        query.setParameter(AVSLUTTET_KEY, STATUS_FERDIG); // $NON-NLS-1$
+        query.setParameter("ytelse", YTELSE_TYPER); //$NON-NLS-1$
+        query.setParameter("berort", BehandlingÅrsakType.BERØRT_BEHANDLING.getKode()); //$NON-NLS-1$
+        query.setMaxResults(1000);
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultatList = query.getResultList();
+        return resultatList.stream().map(row -> new Tuple<>(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
+    }
+
+    /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
+    public List<Tuple<Long, AktørId>> finnSakerMedBehovForMilSivRegulering(long gjeldendeSats, long forrigeSats, LocalDate gjeldendeFom) {
+        /*
+         * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
+         * - Saker som har siste avsluttet behandling med gammel sats, status MS, brutto understiger 3G og har uttak etter gammel sats sin utløpsdato
+         * - Saken har ikke noen avsluttet behandling med ny sats
+         * - Saken har ikke noen åpne ytelsesbehandlinger (berørt telles ikke)
+         * OBS: De som kun har innvilget utsettelse (ingen utbetaling) får riktig beregning når det kommer endringssøknad med uttak
+         */
+        Query query = getEntityManager().createNativeQuery(
+            "SELECT DISTINCT f.id , bru.aktoer_id " +
+                " from Fagsak f join bruker bru on f.bruker_id=bru.id " +
+                "  join behandling b on b.fagsak_id=f.id " +
+                "  join behandling_resultat br on (br.behandling_id=b.id and br.behandling_resultat_type in (:restyper)) " +
+                "  join (select beh.fagsak_id fsmax, max(brsq.opprettet_tid) maxbr from behandling beh  " +
+                "        join behandling_resultat brsq on (brsq.behandling_id=beh.id and brsq.behandling_resultat_type in (:restyper)) " +
+                "        where beh.behandling_type in (:ytelse) and beh.behandling_status in (:avsluttet) " +
+                "        group by beh.fagsak_id) on (fsmax=b.fagsak_id and br.opprettet_tid = maxbr) " +
+                "  join GR_BEREGNINGSGRUNNLAG grbg on (grbg.behandling_id=b.id and grbg.aktiv = 'J') " +
+                "  JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in (:milsiv) ) " +
+                "  join BEREGNINGSGRUNNLAG bglag on grbg.beregningsgrunnlag_id=bglag.id " +
+                "  join (select beregningsgrunnlag_id bgid, min(brutto_pr_aar) brutto " +
+                "        from BEREGNINGSGRUNNLAG_PERIODE " +
+                "        group by beregningsgrunnlag_id " +
+                "    ) bgmin on bgmin.bgid=grbg.beregningsgrunnlag_id " +
+                "  join BR_RESULTAT_BEHANDLING grbr on (grbr.behandling_id=b.id and grbr.aktiv = 'J') " +
+                "  join (select BEREGNINGSRESULTAT_FP_ID brfpid, min(BR_PERIODE_FOM) fom " +
+                "        from br_periode brp  " +
+                "        group by BEREGNINGSRESULTAT_FP_ID " +
+                "    ) brbrutto on brbrutto.brfpid=grbr.BG_BEREGNINGSRESULTAT_FP_ID " +
+                "where b.behandling_status in (:avsluttet) and b.behandling_type in (:ytelse) " +
+                "  and brbrutto.fom is not null " +
+                "  and brbrutto.fom >= :fomdato  " +
+                "  and bgmin.brutto <= (:nysats * :avkorting ) " +
+                "  and bglag.grunnbeloep=:gmlsats  " +
+                "  and f.id not in ( select beh.fagsak_id from behandling beh " +
+                "    where beh.behandling_status not in (:avsluttet) and beh.behandling_type in (:ytelse)  " +
+                "      and beh.id not in (select ba.behandling_id from behandling_arsak ba where behandling_arsak_type=:berort) ) " ); //$NON-NLS-1$
+        query.setParameter("fomdato", gjeldendeFom); //$NON-NLS-1$
+        query.setParameter("gmlsats", forrigeSats); //$NON-NLS-1$
+        query.setParameter("nysats", gjeldendeSats); //$NON-NLS-1$
+        query.setParameter("avkorting", 3); //$NON-NLS-1$
+        query.setParameter("restyper", RES_TYPER_REGULERING); //$NON-NLS-1$
+        query.setParameter("milsiv", List.of(AktivitetStatus.MILITÆR_ELLER_SIVIL.getKode())); //$NON-NLS-1$
         query.setParameter(AVSLUTTET_KEY, STATUS_FERDIG); // $NON-NLS-1$
         query.setParameter("ytelse", YTELSE_TYPER); //$NON-NLS-1$
         query.setParameter("berort", BehandlingÅrsakType.BERØRT_BEHANDLING.getKode()); //$NON-NLS-1$
