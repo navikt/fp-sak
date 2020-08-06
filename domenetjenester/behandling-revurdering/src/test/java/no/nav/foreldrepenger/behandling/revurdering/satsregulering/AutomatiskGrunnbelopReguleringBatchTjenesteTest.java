@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
@@ -103,6 +102,7 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
     @Test
     public void skal_finne_to_saker_å_revurdere() {
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6*gammelSats, cutoff.plusDays(5));
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6*gammelSats, cutoff.plusDays(5), 0); // Ikke uttak, bare utsettelse
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6*gammelSats, cutoff.minusDays(5));  // FØR
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6*gammelSats, cutoff.plusDays(5));
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 4*gammelSats, cutoff.plusDays(5)); // Ikke avkortet
@@ -113,6 +113,10 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
     }
 
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status, long sats, long avkortet, LocalDate uttakFom) {
+        return opprettRevurderingsKandidat(status, sats, avkortet, uttakFom, 2300);
+    }
+
+    private Behandling opprettRevurderingsKandidat(BehandlingStatus status, long sats, long avkortet, LocalDate uttakFom, int dagsatsUtbet) {
         LocalDate terminDato = uttakFom.plusWeeks(3);
 
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -125,7 +129,9 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         Behandling behandling = scenario.lagre(repositoryProvider);
 
-        Whitebox.setInternalState(behandling, "status", status);
+        if (BehandlingStatus.AVSLUTTET.equals(status)) {
+            behandling.avsluttBehandling();
+        }
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
@@ -155,7 +161,7 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
             .medBeregningsresultatAndeler(Collections.emptyList())
             .build(brFP);
         BeregningsresultatAndel.builder()
-            .medDagsats(1000)
+            .medDagsats(dagsatsUtbet)
             .medDagsatsFraBg(1000)
             .medBrukerErMottaker(true)
             .medStillingsprosent(new BigDecimal(100))

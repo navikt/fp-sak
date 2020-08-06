@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
@@ -57,17 +56,16 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
     @Inject
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
+    private LocalDate arenaDato;
     private LocalDate cutoff;
     private LocalDate nySatsDato;
     AutomatiskArenaReguleringBatchArguments batchArgs;
 
-
-
-
     @Before
     public void setUp() throws Exception {
-        cutoff = AutomatiskArenaReguleringBatchArguments.DATO;
-        nySatsDato = cutoff.plusWeeks(3);
+        arenaDato = AutomatiskArenaReguleringBatchArguments.DATO;
+        cutoff = arenaDato.isAfter(LocalDate.now()) ? arenaDato : LocalDate.now();
+        nySatsDato = cutoff.plusWeeks(3).plusDays(2);
         tjeneste = new AutomatiskArenaReguleringBatchTjeneste(repositoryProvider, prosessTaskRepositoryMock);
         Map<String, String> arguments = new HashMap<>();
         arguments.put(AutomatiskArenaReguleringBatchArguments.REVURDER_KEY, "True");
@@ -79,9 +77,18 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
     public void skal_ikke_finne_saker_til_revurdering() {
         opprettRevurderingsKandidat(BehandlingStatus.UTREDES, cutoff.minusDays(5));
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusMonths(2));
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(5));
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
         String svar = tjeneste.launch(batchArgs);
         assertThat(svar).isEqualTo(AutomatiskArenaReguleringBatchTjeneste.BATCHNAME+"-0");
+    }
+
+    @Test
+    public void skal_ikke_finne_to_saker_til_revurdering() {
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2));
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2));
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
+        String svar = tjeneste.launch(batchArgs);
+        assertThat(svar).isEqualTo(AutomatiskArenaReguleringBatchTjeneste.BATCHNAME+"-2");
     }
 
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status, LocalDate uttakFom) {
@@ -97,7 +104,9 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         Behandling behandling = scenario.lagre(repositoryProvider);
 
-        Whitebox.setInternalState(behandling, "status", status);
+        if (BehandlingStatus.AVSLUTTET.equals(status)) {
+            behandling.avsluttBehandling();
+        }
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
