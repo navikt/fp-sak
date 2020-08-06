@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.avklarfakta.fp;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -228,7 +227,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
 
         Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
         repositoryProvider.getFamilieHendelseRepository().kopierGrunnlagFraEksisterendeBehandling(originalBehandling.getId(), revurdering.getId());
-        BehandlingÅrsak.Builder builder = new BehandlingÅrsak.Builder(Arrays.asList(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKERS_REL));
+        BehandlingÅrsak.Builder builder = BehandlingÅrsak.builder(Collections.singletonList(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKERS_REL));
         revurdering.getBehandlingÅrsaker().add(builder.medManueltOpprettet(true).buildFor(revurdering).get(0));
         //Legg til fordelingsperiode
         OppgittPeriodeEntitet foreldrepenger = OppgittPeriodeBuilder.ny()
@@ -333,7 +332,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
     @Test
     public void skal_sette_startpunkt_inngangsvilkår_for_manuelt_opprettet_revurdering() {
         // Arrange
-        BehandlingÅrsak.Builder builder = new BehandlingÅrsak.Builder(List.of(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKERS_REL));
+        BehandlingÅrsak.Builder builder = BehandlingÅrsak.builder(List.of(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKERS_REL));
         behandling.getBehandlingÅrsaker().add(builder.medManueltOpprettet(true).buildFor(behandling).get(0));
 
         // Nødvendig å sette aktivt steg for KOFAK revurdering

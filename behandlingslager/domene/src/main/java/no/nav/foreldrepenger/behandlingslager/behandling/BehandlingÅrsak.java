@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -74,7 +74,7 @@ public class BehandlingÅrsak extends BaseEntitet {
     }
 
     public static BehandlingÅrsak.Builder builder(BehandlingÅrsakType behandlingÅrsakType) {
-        return new Builder(Arrays.asList(behandlingÅrsakType));
+        return new Builder(Collections.singletonList(behandlingÅrsakType));
     }
 
     public static BehandlingÅrsak.Builder builder(List<BehandlingÅrsakType> behandlingÅrsakTyper) {

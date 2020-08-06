@@ -132,15 +132,16 @@ public class Behandlingsoppretter {
         kopierVedlegg(sisteYtelseBehandling, revurdering);
 
         // Kopier behandlingsårsaker fra forrige behandling
-        new BehandlingÅrsak.Builder(sisteYtelseBehandling.getBehandlingÅrsaker().stream()
+        BehandlingÅrsak.Builder årsakBuilder = BehandlingÅrsak.builder(sisteYtelseBehandling.getBehandlingÅrsaker().stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
-            .collect(toList()))
-            .buildFor(revurdering);
+            .collect(toList()));
+        revurdering.getOriginalBehandlingId().ifPresent(årsakBuilder::medOriginalBehandlingId);
+        årsakBuilder.medManueltOpprettet(sisteYtelseBehandling.erManueltOpprettet()).buildFor(revurdering);
 
         BehandlingskontrollKontekst nyKontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
         behandlingRepository.lagre(revurdering, nyKontekst.getSkriveLås());
 
-        return revurdering;
+        return revurdering;FødselForretningshendelseHåndtererImpl
     }
 
     public void henleggBehandling(Behandling behandling) {
