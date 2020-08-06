@@ -403,7 +403,8 @@ public class BehandlingDtoTjeneste {
         lagTilbakekrevingValgLink(behandling).ifPresent(dto::leggTil);
         lagSimuleringResultatLink(behandling).ifPresent(dto::leggTil);
 
-        behandling.getOriginalBehandling().ifPresent(originalBehandling -> {
+        behandling.getOriginalBehandlingId().ifPresent(originalBehandlingId -> {
+            Behandling originalBehandling = behandlingRepository.hentBehandling(originalBehandlingId);
             UuidDto originalUuidDto = new UuidDto(originalBehandling.getUuid());
 
             // Denne brukes kun av FPFORMIDLING

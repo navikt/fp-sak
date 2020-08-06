@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.vedtak.feil.FeilFactory;
 
 /**
@@ -25,13 +26,16 @@ import no.nav.vedtak.feil.FeilFactory;
 public class RevurderingEndringImpl implements RevurderingEndring {
 
     private LegacyESBeregningRepository beregningRepository;
+    private BehandlingRepository behandlingRepository;
 
     public RevurderingEndringImpl() {
     }
 
     @Inject
-    public RevurderingEndringImpl(LegacyESBeregningRepository beregningRepository) {
+    public RevurderingEndringImpl(BehandlingRepository behandlingRepository,
+                                  LegacyESBeregningRepository beregningRepository) {
         this.beregningRepository = beregningRepository;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
@@ -39,13 +43,9 @@ public class RevurderingEndringImpl implements RevurderingEndring {
         if (!BehandlingType.REVURDERING.equals(behandling.getType())) {
             return false;
         }
-        Optional<Behandling> originalBehandlingOptional = behandling.getOriginalBehandling();
-
-        if (!originalBehandlingOptional.isPresent()) {
-            throw FeilFactory.create(RevurderingFeil.class).revurderingManglerOriginalBehandling(behandling.getId()).toException();
-        }
-
-        Behandling originalBehandling = originalBehandlingOptional.get();
+        Long originalBehandlingId = behandling.getOriginalBehandlingId()
+            .orElseThrow(() -> FeilFactory.create(RevurderingFeil.class).revurderingManglerOriginalBehandling(behandling.getId()).toException());
+        var originalBehandling = behandlingRepository.hentBehandling(originalBehandlingId);
         BehandlingResultatType originalResultatType = getBehandlingsresultat(originalBehandling).getBehandlingResultatType();
 
         // Forskjellig utfall
@@ -56,12 +56,12 @@ public class RevurderingEndringImpl implements RevurderingEndring {
         // Begge har utfall INNVILGET
         if (nyResultatType.equals(BehandlingResultatType.INNVILGET)) {
             Optional<LegacyESBeregning> nyBeregning = beregningRepository.getSisteBeregning(behandling.getId());
-            Optional<LegacyESBeregning> originalBeregning = beregningRepository.getSisteBeregning(originalBehandling.getId());
+            Optional<LegacyESBeregning> originalBeregning = beregningRepository.getSisteBeregning(originalBehandlingId);
             if (originalBeregning.isPresent() && nyBeregning.isPresent()) {
                 return harSammeBeregnetYtelse(nyBeregning.get(), originalBeregning.get());
             } else {
                 throw FeilFactory.create(RevurderingFeil.class)
-                    .behandlingManglerBeregning(originalBeregning.isPresent() ? behandling.getId() : originalBehandling.getId())
+                    .behandlingManglerBeregning(originalBeregning.isPresent() ? behandling.getId() : originalBehandlingId)
                     .toException();
             }
         }
@@ -76,10 +76,11 @@ public class RevurderingEndringImpl implements RevurderingEndring {
 
     @Override
     public boolean erRevurderingMedUendretUtfall(Behandling behandling) {
-        if (getBehandlingsresultat(behandling) == null) {
+        var behandlingResultat = getBehandlingsresultat(behandling);
+        if (behandlingResultat == null) {
             return false;
         }
-        return erRevurderingMedUendretUtfall(behandling, getBehandlingsresultat(behandling).getBehandlingResultatType());
+        return erRevurderingMedUendretUtfall(behandling, behandlingResultat.getBehandlingResultatType());
     }
 
     private boolean harSammeBeregnetYtelse(LegacyESBeregning nyBeregning, LegacyESBeregning originalBeregning) {

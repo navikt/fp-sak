@@ -57,8 +57,8 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Poststed;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class BehandlingsgrunnlagEntitetTest {
@@ -110,7 +110,7 @@ public class BehandlingsgrunnlagEntitetTest {
         repository.flush();
 
         // Assert
-        SøknadEntitet søknad = søknadRepository.hentSøknad(behandling);
+        SøknadEntitet søknad = søknadRepository.hentSøknad(behandling.getId());
         assertThat(søknad).isNotNull();
 
         assertThat(søknad.getSøknadsdato()).isEqualTo(søknadsdato);
@@ -260,7 +260,7 @@ public class BehandlingsgrunnlagEntitetTest {
         repository.flush();
 
         // Assert
-        søknad = søknadRepository.hentSøknad(behandling);
+        søknad = søknadRepository.hentSøknad(behandling.getId());
         assertThat(søknad).isNotNull();
         UidentifisertBarn søknadAdopsjonBarn = familieGrunnlagRepository.hentAggregat(behandling.getId()).getSøknadVersjon().getBarna().iterator().next();
         assertThat(søknadAdopsjonBarn.getFødselsdato()).isEqualTo(fødselAdopsjonsdato);

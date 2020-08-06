@@ -107,13 +107,8 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     }
 
     private Optional<OriginalBehandling> originalBehandling(Behandling behandling) {
-        var originalBehandling = behandling.getOriginalBehandling();
-        if (originalBehandling.isEmpty()) {
-            return Optional.empty();
-        }
-
-        var familieHendelseAggregat = familieHendelseTjeneste.hentAggregat(originalBehandling.get().getId());
-        return Optional.of(new OriginalBehandling(originalBehandling.get().getId(), familieHendelser(familieHendelseAggregat)));
+        return behandling.getOriginalBehandlingId()
+            .map(obid -> new OriginalBehandling(obid, familieHendelser(familieHendelseTjeneste.hentAggregat(obid))));
     }
 
     private FamilieHendelser familieHendelser(FamilieHendelseGrunnlagEntitet familieHendelseAggregat) {

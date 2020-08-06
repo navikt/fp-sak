@@ -50,11 +50,7 @@ public class MedlemskapVilkårPeriodeRepository {
     }
 
     public Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> hentAggregatHvisEksisterer(Behandling behandling) {
-        Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> grunnlagEntitet = hentAktivtGrunnlag(behandling);
-        if (grunnlagEntitet.isPresent()) {
-            return Optional.of(grunnlagEntitet.get());
-        }
-        return Optional.empty();
+        return hentAktivtGrunnlag(behandling);
     }
 
     public void kopierGrunnlagFraEksisterendeBehandling(Behandling eksisterendeBehandling, Behandling nyBehandling) {

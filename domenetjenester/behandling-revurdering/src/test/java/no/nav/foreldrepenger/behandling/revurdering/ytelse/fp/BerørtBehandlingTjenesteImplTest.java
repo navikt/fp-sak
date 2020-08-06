@@ -71,7 +71,6 @@ public class BerørtBehandlingTjenesteImplTest {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, new NavBrukerBuilder().medAktørId(AktørId.dummy()).build());
         var førsteBehandling = Behandling.forFørstegangssøknad(fagsak).build();
         revurdering = Behandling.fraTidligereBehandling(førsteBehandling, BehandlingType.REVURDERING).build();
-        revurdering.getOriginalBehandling();
         berørtBehandlingTjeneste = new BerørtBehandlingTjeneste(stønadskontoSaldoTjeneste, repositoryProvider, uttakInputTjeneste,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
     }

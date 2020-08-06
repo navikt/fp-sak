@@ -339,11 +339,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             private SøknadEntitet søknad;
 
             @Override
-            public SøknadEntitet hentSøknad(Behandling behandling1) {
-                return søknad;
-            }
-
-            @Override
             public Optional<SøknadEntitet> hentSøknadHvisEksisterer(Long behandlingId) {
                 return Optional.ofNullable(søknad);
             }
@@ -995,7 +990,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             behandlingBuilder = Behandling.nyBehandlingFor(fagsak, behandlingType);
         } else {
             behandlingBuilder = Behandling.fraTidligereBehandling(originalBehandling, behandlingType)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(behandlingÅrsakType).medManueltOpprettet(manueltOpprettet).medOriginalBehandling(originalBehandling));
+                .medBehandlingÅrsak(BehandlingÅrsak.builder(behandlingÅrsakType).medManueltOpprettet(manueltOpprettet).medOriginalBehandlingId(originalBehandling.getId()));
         }
 
         if (behandlingstidFrist != null) {

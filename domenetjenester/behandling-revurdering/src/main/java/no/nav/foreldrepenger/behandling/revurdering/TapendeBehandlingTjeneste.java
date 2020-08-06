@@ -54,8 +54,8 @@ public class TapendeBehandlingTjeneste {
     }
 
     private boolean annenpartSøknadMottattEtterSøkersSøknad(Behandling søkersBehandling, Behandling annenpartBehandling) {
-        var nyesteSøkersSøknad = søknadRepository.hentSøknad(søkersBehandling);
-        var nyesteAnnenpartSøknad = søknadRepository.hentSøknad(annenpartBehandling);
+        var nyesteSøkersSøknad = søknadRepository.hentSøknad(søkersBehandling.getId());
+        var nyesteAnnenpartSøknad = søknadRepository.hentSøknad(annenpartBehandling.getId());
         if (nyesteSøkersSøknad == null || nyesteAnnenpartSøknad == null) {
             LOG.info("Behandling {} mangler søknad", nyesteSøkersSøknad == null ? søkersBehandling.getId() : annenpartBehandling.getId());
             return false;

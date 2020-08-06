@@ -49,8 +49,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
@@ -135,8 +135,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
         if (!behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
-            Set<BehandlingÅrsakType> behandlingÅrsaker = behandlingÅrsakTjeneste.utledBehandlingÅrsakerMotOriginalBehandling(ref);
-            leggTilBehandlingsårsaker(behandling, behandlingÅrsaker);
+            behandlingÅrsakTjeneste.lagHistorikkForRegisterEndringerMotOriginalBehandling(behandling);
         }
 
         StartpunktType startpunkt = utledStartpunkt(ref, behandling);
@@ -154,7 +153,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private List<AksjonspunktResultat> kopierOverstyringerTilHøyreForStartpunkt(Behandling behandling, BehandlingReferanse ref, StartpunktType startpunkt) {
         // Manuelle til høyre for startpunkt
-        return behandling.getOriginalBehandling().map(Behandling::getAksjonspunkter).orElse(Collections.emptySet()).stream()
+        return behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling).map(Behandling::getAksjonspunkter).orElse(Collections.emptySet()).stream()
             .filter(Aksjonspunkt::erUtført)
             .map(Aksjonspunkt::getAksjonspunktDefinisjon)
             .filter(AKSJONSPUNKT_SKAL_KOPIERES::contains)
@@ -210,12 +209,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         return false;
     }
 
-    private void leggTilBehandlingsårsaker(Behandling behandling, Set<BehandlingÅrsakType> behandlingÅrsaker) {
-        BehandlingÅrsak.Builder builder = BehandlingÅrsak.builder(new ArrayList<>(behandlingÅrsaker));
-        behandling.getOriginalBehandling().ifPresent(builder::medOriginalBehandling);
-        builder.buildFor(behandling);
-    }
-
     private boolean erEtterkontrollRevurdering(Behandling revurdering) {
         Set<BehandlingÅrsakType> etterkontrollTyper = BehandlingÅrsakType.årsakerForEtterkontroll();
         return revurdering.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType).anyMatch(etterkontrollTyper::contains);
@@ -223,7 +216,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private StartpunktType utledBehovForGRegulering(BehandlingReferanse ref, Behandling revurdering) {
         StartpunktType startpunkt = StartpunktType.UDEFINERT;
-        Optional<Behandling> opprinneligBehandling = revurdering.getOriginalBehandling();
+        Optional<Behandling> opprinneligBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling);
         if (!opprinneligBehandling.isPresent()) {
             throw new IllegalStateException("Revurdering skal ha en basisbehandling - skal ikke skje");
         }
@@ -259,7 +252,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering, BehandlingskontrollKontekst kontekst) {
-        Behandling origBehandling = revurdering.getOriginalBehandling()
+        Behandling origBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
             .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
         revurdering = kopierVilkår(origBehandling, revurdering, kontekst);
@@ -290,8 +283,9 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private boolean unntaManuellRevurderingMedAvslåttFørstegangsbehandlingSomOriginalBehandling(Behandling revurdering) {
-        if (revurdering.erManueltOpprettet() && revurdering.getOriginalBehandling().isPresent() && !revurdering.getOriginalBehandling().get().erRevurdering()) {
-            Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(revurdering.getOriginalBehandling().get().getId());
+        var original = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling);
+        if (revurdering.erManueltOpprettet() && original.isPresent() && !original.get().erRevurdering()) {
+            Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(original.get().getId());
             return behandlingsresultat.isPresent() && behandlingsresultat.get().isBehandlingsresultatAvslått();
         }
         return false;

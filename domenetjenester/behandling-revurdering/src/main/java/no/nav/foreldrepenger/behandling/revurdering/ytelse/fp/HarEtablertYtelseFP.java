@@ -47,7 +47,7 @@ public class HarEtablertYtelseFP {
                           UttakResultatHolder uttakResultatHolder) {
         var annenpartUttak = getAnnenPartUttak(revurdering.getFagsak().getSaksnummer());
         if (erDagensDatoEtterSistePeriodeIUttak(uttakResultatHolder, annenpartUttak)) {
-            var uttakInputOriginalBehandling = uttakInputTjeneste.lagInput(revurdering.getOriginalBehandling().orElseThrow());
+            var uttakInputOriginalBehandling = uttakInputTjeneste.lagInput(revurdering.getOriginalBehandlingId().orElseThrow());
             if (stønadskontoSaldoTjeneste.erSluttPåStønadsdager(uttakInputOriginalBehandling)) {
                 return false;
             }

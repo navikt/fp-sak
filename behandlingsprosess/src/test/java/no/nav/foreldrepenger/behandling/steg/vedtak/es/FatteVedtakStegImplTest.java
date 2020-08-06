@@ -178,7 +178,7 @@ public class FatteVedtakStegImplTest {
         FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
             new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
             behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
-        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, historikkRepository, klageRepository, mock(TotrinnTjeneste.class), innsynRepository, ankeRepository);
+        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageRepository, mock(TotrinnTjeneste.class), innsynRepository, ankeRepository);
 
         BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer = mock(BehandlingVedtakEventPubliserer.class);
 
@@ -240,7 +240,7 @@ public class FatteVedtakStegImplTest {
         Behandling originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandling(originalBehandling)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
 
         manipulerBehandling.forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
         BehandlingLås behandlingLås = lagreBehandling(revurdering);
@@ -268,7 +268,7 @@ public class FatteVedtakStegImplTest {
         Behandling originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandling(originalBehandling)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
 
         manipulerBehandling.forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
         BehandlingLås behandlingLås = lagreBehandling(revurdering);
@@ -295,7 +295,7 @@ public class FatteVedtakStegImplTest {
         Behandling originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandling(originalBehandling)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
 
         manipulerBehandling.forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
 
@@ -334,7 +334,7 @@ public class FatteVedtakStegImplTest {
         Behandling originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandling(originalBehandling)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
 
         manipulerBehandling.forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
         BehandlingLås behandlingLås = lagreBehandling(revurdering);
@@ -384,7 +384,7 @@ public class FatteVedtakStegImplTest {
         FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
             new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
             behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
-        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, historikkRepository, klageRepository, mock(TotrinnTjeneste.class), innsynRepository,
+        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageRepository, mock(TotrinnTjeneste.class), innsynRepository,
             ankeRepository);
 
         int antallBarn = 2;
@@ -448,7 +448,7 @@ public class FatteVedtakStegImplTest {
         FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
             new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
             behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
-        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, historikkRepository, klageRepository, mock(TotrinnTjeneste.class), innsynRepository,
+        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageRepository, mock(TotrinnTjeneste.class), innsynRepository,
             ankeRepository);
 
         int antallBarn = 2;

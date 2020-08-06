@@ -126,7 +126,7 @@ public class KompletthetsjekkerTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(søknadRepository.hentSøknad(behandling).getMottattDato().plusWeeks(1));
+        assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(søknadRepository.hentSøknad(behandling.getId()).getMottattDato().plusWeeks(1));
     }
 
     @Test
@@ -235,7 +235,7 @@ public class KompletthetsjekkerTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(søknadRepository.hentSøknad(behandling).getMottattDato().plusWeeks(3));
+        assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(søknadRepository.hentSøknad(behandling.getId()).getMottattDato().plusWeeks(3));
     }
 
     @Test
@@ -285,7 +285,7 @@ public class KompletthetsjekkerTest {
 
     private void opprettSøknadMedPåkrevdVedlegg(Behandling behandling) {
         testUtil.byggOgLagreSøknadMedNyOppgittFordeling(behandling, false);
-        SøknadEntitet søknad = new SøknadEntitet.Builder(søknadRepository.hentSøknad(behandling), false).leggTilVedlegg(
+        SøknadEntitet søknad = new SøknadEntitet.Builder(søknadRepository.hentSøknad(behandling.getId()), false).leggTilVedlegg(
             new SøknadVedleggEntitet.Builder()
                 .medSkjemanummer(KODE_INNLEGGELSE)
                 .medErPåkrevdISøknadsdialog(true)

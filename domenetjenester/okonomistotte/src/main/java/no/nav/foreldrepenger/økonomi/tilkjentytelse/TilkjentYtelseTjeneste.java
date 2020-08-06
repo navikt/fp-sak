@@ -33,9 +33,9 @@ public class TilkjentYtelseTjeneste {
     }
 
     @Inject
-    public TilkjentYtelseTjeneste(BehandlingRepository behandlingRepository, 
-                                  BehandlingVedtakRepository behandlingVedtakRepository, 
-                                  FamilieHendelseRepository familieHendelseRepository, 
+    public TilkjentYtelseTjeneste(BehandlingRepository behandlingRepository,
+                                  BehandlingVedtakRepository behandlingVedtakRepository,
+                                  FamilieHendelseRepository familieHendelseRepository,
                                   @Any Instance<YtelseTypeTilkjentYtelseTjeneste> tilkjentYtelse) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
@@ -74,7 +74,7 @@ public class TilkjentYtelseTjeneste {
         info.setGjelderAdopsjon(gjelderAdopsjon);
         info.setAktørId(behandling.getAktørId().getId());
         info.setVedtaksdato(vedtak.getVedtaksdato());
-        behandling.getOriginalBehandling().ifPresent(ob -> info.setForrigeBehandlingId(ob.getId()));
+        behandling.getOriginalBehandlingId().ifPresent(info::setForrigeBehandlingId);
         return info;
     }
 

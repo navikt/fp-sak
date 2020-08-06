@@ -50,10 +50,10 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImpl implements FinnEndri
     }
 
     private Optional<LocalDate> finnEndringsdatoForRevurdering(Behandling revurdering, BeregningsresultatEntitet revurderingBeregningsresultat) {
-        Behandling originalBehandling = revurdering.getOriginalBehandling()
+        Long originalBehandlingId = revurdering.getOriginalBehandlingId()
             .orElseThrow(() -> FinnEndringsdatoFeil.FACTORY.manglendeOriginalBehandling(revurdering.getId()).toException());
-        Optional<BeregningsresultatEntitet> originalBeregningsresultatFPOpt = beregningsresultatRepository.hentUtbetBeregningsresultat(originalBehandling.getId());
-        if (!originalBeregningsresultatFPOpt.isPresent()) {
+        Optional<BeregningsresultatEntitet> originalBeregningsresultatFPOpt = beregningsresultatRepository.hentUtbetBeregningsresultat(originalBehandlingId);
+        if (originalBeregningsresultatFPOpt.isEmpty()) {
             return Optional.empty();
         }
         BeregningsresultatEntitet originalBeregningsresultat = originalBeregningsresultatFPOpt.get();

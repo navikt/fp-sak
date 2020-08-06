@@ -4,11 +4,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAmount;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -16,11 +13,9 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
@@ -33,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
-import no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterinnhentingHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -51,7 +45,6 @@ public class RegisterdataEndringshåndterer {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private Endringskontroller endringskontroller;
     private EndringsresultatSjekker endringsresultatSjekker;
-    private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;
     private BehandlingÅrsakTjeneste behandlingÅrsakTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
@@ -71,7 +64,6 @@ public class RegisterdataEndringshåndterer {
                                           @KonfigVerdi(value = "oppdatere.registerdata.tidspunkt", defaultVerdi = "PT10H") String oppdaterRegisterdataEtterPeriode,
                                           Endringskontroller endringskontroller,
                                           EndringsresultatSjekker endringsresultatSjekker,
-                                          RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste,
                                           FamilieHendelseTjeneste familieHendelseTjeneste,
                                           BehandlingÅrsakTjeneste behandlingÅrsakTjeneste,
                                           SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
@@ -82,7 +74,6 @@ public class RegisterdataEndringshåndterer {
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.endringskontroller = endringskontroller;
         this.endringsresultatSjekker = endringsresultatSjekker;
-        this.historikkinnslagTjeneste = historikkinnslagTjeneste;
         this.behandlingÅrsakTjeneste = behandlingÅrsakTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         if (oppdaterRegisterdataEtterPeriode != null) {
@@ -132,7 +123,7 @@ public class RegisterdataEndringshåndterer {
             LOGGER.info("Starter behandlingId={} på nytt. gåttOverTerminDatoOgIngenFødselsdato={}, {}",
                 behandling.getId(), gåttOverTerminDatoOgIngenFødselsdato, endringsresultat); // NOSONAR //$NON-NLS-1$
             if (utledÅrsaker) {
-                lagBehandlingÅrsakerOgHistorikk(behandling, endringsresultat);
+                behandlingÅrsakTjeneste.lagHistorikkForRegisterEndringsResultat(behandling, endringsresultat);
             }
             // Sikre håndtering av manglende fødsel
             endringskontroller.spolTilStartpunkt(behandling, endringsresultat,
@@ -187,34 +178,5 @@ public class RegisterdataEndringshåndterer {
             .map(VilkårResultat::getVilkårene).orElse(Collections.emptyList()).stream()
             .map(Vilkår::getGjeldendeVilkårUtfall)
             .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
-    }
-
-    private void lagBehandlingÅrsakerOgHistorikk(Behandling behandling, EndringsresultatDiff endringsresultat) {
-        Set<BehandlingÅrsakType> behandlingÅrsakTyper = new HashSet<>();
-        behandlingÅrsakTyper.add(BehandlingÅrsakType.RE_REGISTEROPPLYSNING);
-        if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            var ref = BehandlingReferanse.fra(behandling, this.skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-            behandlingÅrsakTyper.addAll(behandlingÅrsakTjeneste.utledBehandlingÅrsakerBasertPåDiff(ref, endringsresultat));
-        }
-        leggTilBehandlingsårsaker(behandling, behandlingÅrsakTyper);
-        lagHistorikkinnslag(behandling, behandlingÅrsakTyper);
-    }
-
-    private void leggTilBehandlingsårsaker(Behandling behandling, Set<BehandlingÅrsakType> årsakTyper) {
-        BehandlingÅrsak.Builder builder = BehandlingÅrsak.builder(new ArrayList<>(årsakTyper));
-        behandling.getOriginalBehandling().ifPresent(builder::medOriginalBehandling);
-        builder.buildFor(behandling);
-    }
-
-    private void lagHistorikkinnslag(Behandling behandling, Set<BehandlingÅrsakType> behandlingÅrsakTyper) {
-        if (behandlingÅrsakTyper.contains(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD)) {
-            historikkinnslagTjeneste.opprettHistorikkinnslagForBehandlingMedNyeOpplysninger(behandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD);
-            return;
-        }
-        if (behandlingÅrsakTyper.contains(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_YTELSER)) {
-            historikkinnslagTjeneste.opprettHistorikkinnslagForBehandlingMedNyeOpplysninger(behandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_YTELSER);
-            return;
-        }
-        historikkinnslagTjeneste.opprettHistorikkinnslagForNyeRegisteropplysninger(behandling);
     }
 }

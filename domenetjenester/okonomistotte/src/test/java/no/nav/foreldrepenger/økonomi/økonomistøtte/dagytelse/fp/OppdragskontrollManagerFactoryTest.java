@@ -54,7 +54,7 @@ public class OppdragskontrollManagerFactoryTest {
         revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
             .medBehandlingÅrsak(
                 BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-                    .medOriginalBehandling(originalBehandling))
+                    .medOriginalBehandlingId(originalBehandling.getId()))
             .build();
         Whitebox.setInternalState(revurdering, "id", 256L);
     }

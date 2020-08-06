@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.registerinnhenting;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -11,44 +12,76 @@ import javax.inject.Inject;
 import javax.persistence.Entity;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterinnhentingHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.behandlingårsak.BehandlingÅrsakUtleder;
+import no.nav.foreldrepenger.domene.registerinnhenting.impl.behandlingårsak.EndringResultatType;
 
 @Dependent
 public class BehandlingÅrsakTjeneste {
 
     private Instance<BehandlingÅrsakUtleder> utledere;
     private EndringsresultatSjekker endringsresultatSjekker;
+    private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;
 
     public BehandlingÅrsakTjeneste() {
     }
 
     @Inject
-    public BehandlingÅrsakTjeneste(@Any Instance<BehandlingÅrsakUtleder> utledere, EndringsresultatSjekker endringsresultatSjekker) {
+    public BehandlingÅrsakTjeneste(@Any Instance<BehandlingÅrsakUtleder> utledere,
+                                   EndringsresultatSjekker endringsresultatSjekker,
+                                   RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste) {
         this.utledere = utledere;
         this.endringsresultatSjekker = endringsresultatSjekker;
+        this.historikkinnslagTjeneste = historikkinnslagTjeneste;
     }
 
-    public Set<BehandlingÅrsakType> utledBehandlingÅrsakerMotOriginalBehandling(BehandlingReferanse revurdering) {
+    public void lagHistorikkForRegisterEndringerMotOriginalBehandling(Behandling revurdering) {
         Long origBehandling = revurdering.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
         EndringsresultatSnapshot snapshotOrig = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(origBehandling);
         EndringsresultatDiff diff = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(revurdering.getId(), snapshotOrig);
 
-        return utledBehandlingÅrsakerBasertPåDiff(revurdering, diff);
+        Set<EndringResultatType> endringsTyper = utledEndringsResultatTyperBasertPåDiff(revurdering, diff);
+        lagHistorikkinnslag(revurdering, endringsTyper, false);
     }
 
-    public Set<BehandlingÅrsakType> utledBehandlingÅrsakerBasertPåDiff(BehandlingReferanse behandling, EndringsresultatDiff endringsresultatDiff) {
+    public void lagHistorikkForRegisterEndringsResultat(Behandling behandling, EndringsresultatDiff endringsresultatDiff) {
+        Set<EndringResultatType> endringsTyper = utledEndringsResultatTyperBasertPåDiff(behandling, endringsresultatDiff);
+        lagHistorikkinnslag(behandling, endringsTyper, true);
+    }
+
+    private void lagHistorikkinnslag(Behandling behandling, Set<EndringResultatType> endringsTyper, boolean medRegisterInnslag) {
+        if (endringsTyper.contains(EndringResultatType.OPPLYSNING_OM_DØD)) {
+            historikkinnslagTjeneste.opprettHistorikkinnslagForBehandlingMedNyeOpplysninger(behandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD);
+            return;
+        }
+        if (endringsTyper.contains(EndringResultatType.OPPLYSNING_OM_YTELSER)) {
+            historikkinnslagTjeneste.opprettHistorikkinnslagForBehandlingMedNyeOpplysninger(behandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_YTELSER);
+            return;
+        }
+        if (medRegisterInnslag && endringsTyper.contains(EndringResultatType.REGISTEROPPLYSNING)) {
+            historikkinnslagTjeneste.opprettHistorikkinnslagForNyeRegisteropplysninger(behandling);
+        }
+    }
+
+    private Set<EndringResultatType> utledEndringsResultatTyperBasertPåDiff(Behandling behandling, EndringsresultatDiff endringsresultatDiff) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
+            return endringsresultatDiff.erSporedeFeltEndret() ? Collections.singleton(EndringResultatType.REGISTEROPPLYSNING) : Collections.emptySet();
+        }
+        var ref = BehandlingReferanse.fra(behandling);
         //For alle aggregat som har endringer, utled behandlingsårsak.
         return endringsresultatDiff.hentDelresultater().stream()
             .filter(EndringsresultatDiff::erSporedeFeltEndret)
             .map(diff -> finnUtleder(diff.getGrunnlag())
-                .utledBehandlingÅrsaker(behandling, diff.getGrunnlagId1(), diff.getGrunnlagId2())).flatMap(Collection::stream)
-            .filter(årsak -> !årsak.equals(BehandlingÅrsakType.UDEFINERT))
+                .utledEndringsResultat(ref, diff.getGrunnlagId1(), diff.getGrunnlagId2()))
+            .flatMap(Collection::stream)
             .collect(Collectors.toSet());
     }
 

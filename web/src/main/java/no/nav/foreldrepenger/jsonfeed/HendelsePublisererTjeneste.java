@@ -73,8 +73,8 @@ public class HendelsePublisererTjeneste {
             return;
         }
 
-        Optional<LocalDateInterval> innvilgetPeriode = finnPeriode(behandling);
-        Optional<LocalDateInterval> orginalPeriode = behandling.getOriginalBehandling().flatMap(this::finnPeriode);
+        Optional<LocalDateInterval> innvilgetPeriode = finnPeriode(behandling.getId());
+        Optional<LocalDateInterval> orginalPeriode = behandling.getOriginalBehandlingId().flatMap(this::finnPeriode);
 
         if (innvilgetPeriode.isEmpty() && orginalPeriode.isEmpty()) {
             //ingen hendelse
@@ -157,9 +157,9 @@ public class HendelsePublisererTjeneste {
         }
     }
 
-   private Optional<LocalDateInterval> finnPeriode(Behandling behandling ){
-        Optional<LocalDate> førsteUtbetDato = finnMinsteUtbetDato(behandling.getId());
-        Optional<LocalDate> sisteUtbetDato = finnSisteUtbetDato(behandling.getId());
+   private Optional<LocalDateInterval> finnPeriode(Long behandlingId){
+        Optional<LocalDate> førsteUtbetDato = finnMinsteUtbetDato(behandlingId);
+        Optional<LocalDate> sisteUtbetDato = finnSisteUtbetDato(behandlingId);
 
         if (førsteUtbetDato.isPresent() && sisteUtbetDato.isPresent()) {
             return Optional.of(new LocalDateInterval(førsteUtbetDato.get(), sisteUtbetDato.get()));

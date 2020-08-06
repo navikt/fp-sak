@@ -63,7 +63,7 @@ public class RevurderingTjenesteFelles {
                                                     OrganisasjonsEnhet enhet) {
         BehandlingType behandlingType = BehandlingType.REVURDERING;
         BehandlingÅrsak.Builder revurderingÅrsak = BehandlingÅrsak.builder(revurderingÅrsakType)
-            .medOriginalBehandling(opprinneligBehandling)
+            .medOriginalBehandlingId(opprinneligBehandling.getId())
             .medManueltOpprettet(manueltOpprettet);
         if (revurderingÅrsakType.equals(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
             var basis = behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(opprinneligBehandling.getFagsak())

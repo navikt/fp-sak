@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåresultat.es;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.es.UtledBehandlingResultatType;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.steg.foreslåresultat.AvslagsårsakTjeneste;
 import no.nav.foreldrepenger.behandling.steg.foreslåresultat.ForeslåBehandlingsresultatTjeneste;
@@ -32,9 +32,9 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
     }
 
     @Inject
-    public ForeslåBehandlingsresultatTjenesteImpl(BehandlingsresultatRepository behandlingsresultatRepository, 
+    public ForeslåBehandlingsresultatTjenesteImpl(BehandlingsresultatRepository behandlingsresultatRepository,
                                                 BehandlingRepository behandlingRepository,
-                                                AvslagsårsakTjeneste avslagsårsakTjeneste, 
+                                                AvslagsårsakTjeneste avslagsårsakTjeneste,
                                                 @FagsakYtelseTypeRef("ES") RevurderingEndring revurderingEndring) {
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingRepository = behandlingRepository;
@@ -46,7 +46,7 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
     @Override
     public Behandlingsresultat foreslåBehandlingsresultat(BehandlingReferanse ref) {
         var behandlingsresultat = behandlingsresultatRepository.hent(ref.getBehandlingId());
-        BehandlingResultatType behandlingResultatType = UtledBehandlingResultatType.utled(behandlingsresultat);
+        BehandlingResultatType behandlingResultatType = utledBehandlingsresultatType(behandlingsresultat);
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(behandlingResultatType);
         var behandling = behandlingRepository.hentBehandling(ref.getBehandlingId());
         if (revurderingEndring.erRevurderingMedUendretUtfall(behandling, behandlingResultatType)) {
@@ -64,6 +64,11 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
             avslagsårsakOpt.ifPresent(ufjernetÅrsak -> behandlingsresultat.setAvslagsårsak(Avslagsårsak.UDEFINERT));
         }
         return behandlingsresultat;
+    }
+
+    private BehandlingResultatType utledBehandlingsresultatType(Behandlingsresultat behandlingsresultat) {
+        Objects.requireNonNull(behandlingsresultat, "behandlingsresultat"); //NOSONAR
+        return behandlingsresultat.isVilkårAvslått() ? BehandlingResultatType.AVSLÅTT : BehandlingResultatType.INNVILGET;
     }
 
 }

@@ -46,7 +46,7 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
     @Override
     public OppdateringResultat oppdater(VurderSøknadsfristDto dto, AksjonspunktOppdaterParameter param) {
         Behandling behandling = param.getBehandling();
-        SøknadEntitet søknad = repositoryProvider.getSøknadRepository().hentSøknad(behandling);
+        SøknadEntitet søknad = repositoryProvider.getSøknadRepository().hentSøknad(behandling.getId());
         LocalDate søknadensMottatDato = søknad.getMottattDato();
 
         opprettHistorikkinnslag(dto, param, søknad);

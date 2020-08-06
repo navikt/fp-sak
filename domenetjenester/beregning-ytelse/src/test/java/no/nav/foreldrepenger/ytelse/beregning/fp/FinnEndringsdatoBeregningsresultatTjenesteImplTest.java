@@ -505,7 +505,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     private Behandling opprettRevurdering(Behandling førstegangsbehandling) {
         return Behandling.fraTidligereBehandling(førstegangsbehandling, BehandlingType.REVURDERING)
             .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
-                .medOriginalBehandling(førstegangsbehandling))
+                .medOriginalBehandlingId(førstegangsbehandling.getId()))
             .build();
     }
 

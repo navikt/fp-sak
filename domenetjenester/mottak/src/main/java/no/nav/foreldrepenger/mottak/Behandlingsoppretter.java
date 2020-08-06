@@ -205,7 +205,7 @@ public class Behandlingsoppretter {
     }
 
     private void kopierTidligereGrunnlagFraTil(Fagsak fagsak, Behandling behandlingMedSøknad, Behandling nyBehandling) {
-        SøknadEntitet søknad = søknadRepository.hentSøknad(behandlingMedSøknad);
+        SøknadEntitet søknad = søknadRepository.hentSøknad(behandlingMedSøknad.getId());
         if (søknad != null) {
             søknadRepository.lagreOgFlush(nyBehandling, søknad);
         }

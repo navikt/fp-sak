@@ -112,7 +112,7 @@ public class AksjonspunktApplikasjonTjeneste {
 
         historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(), HistorikkinnslagType.FAKTA_ENDRET);
 
-        behandlingRepository.lagre(getBehandlingsresultat(behandling).getVilkårResultat(), kontekst.getSkriveLås());
+        behandlingRepository.lagre(getBehandlingsresultat(behandling.getId()).getVilkårResultat(), kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         håndterOverhopp(overhoppResultat, kontekst);
@@ -196,8 +196,8 @@ public class AksjonspunktApplikasjonTjeneste {
         return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).map(Behandlingsresultat::getVilkårResultat).isPresent();
     }
 
-    private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandlingsresultatRepository.hent(behandling.getId());
+    private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
+        return behandlingsresultatRepository.hent(behandlingId);
     }
 
     private TransisjonIdentifikator utledFremhoppTransisjon(BehandlingskontrollKontekst kontekst, TransisjonIdentifikator transisjon) {
@@ -213,13 +213,13 @@ public class AksjonspunktApplikasjonTjeneste {
     }
 
     private boolean harAvslåttForrigeBehandling(Behandling revurdering) {
-        Optional<Behandling> originalBehandling = revurdering.getOriginalBehandling();
-        if (originalBehandling.isPresent()) {
-            Behandlingsresultat behandlingsresultat = getBehandlingsresultat(originalBehandling.get());
+        Optional<Long> originalBehandlingId = revurdering.getOriginalBehandlingId();
+        if (originalBehandlingId.isPresent()) {
+            Behandlingsresultat behandlingsresultat = getBehandlingsresultat(originalBehandlingId.get());
             // Dersom originalBehandling er et beslutningsvedtak må vi lete videre etter det faktiske resultatet for å kunne vurdere om forrige
             // behandling var avslått
             if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingsresultat.getBehandlingResultatType())) {
-                return harAvslåttForrigeBehandling(originalBehandling.get());
+                return harAvslåttForrigeBehandling(behandlingRepository.hentBehandling(originalBehandlingId.get()));
             } else {
                 return behandlingsresultat.isBehandlingsresultatAvslått();
             }
@@ -333,7 +333,7 @@ public class AksjonspunktApplikasjonTjeneste {
         OverhoppResultat overhoppResultat = OverhoppResultat.tomtResultat();
 
         VilkårResultat.Builder vilkårBuilder = harVilkårResultat(behandling)
-            ? VilkårResultat.builderFraEksisterende(getBehandlingsresultat(behandling).getVilkårResultat())
+            ? VilkårResultat.builderFraEksisterende(getBehandlingsresultat(behandling.getId()).getVilkårResultat())
             : VilkårResultat.builder();
 
         bekreftedeAksjonspunktDtoer

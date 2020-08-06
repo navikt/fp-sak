@@ -256,7 +256,7 @@ public class VurderArbeidsforholdTjenesteImplTest {
     private Behandling opprettRevurderingsbehandling(Behandling opprinneligBehandling) {
         BehandlingType behandlingType = BehandlingType.REVURDERING;
         BehandlingÅrsak.Builder revurderingÅrsak = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
-            .medOriginalBehandling(opprinneligBehandling);
+            .medOriginalBehandlingId(opprinneligBehandling.getId());
         Behandling revurdering = Behandling.fraTidligereBehandling(opprinneligBehandling, behandlingType)
             .medBehandlingÅrsak(revurderingÅrsak).build();
         repositoryProvider.getBehandlingRepository().lagre(revurdering, repositoryProvider.getBehandlingRepository().taSkriveLås(revurdering));

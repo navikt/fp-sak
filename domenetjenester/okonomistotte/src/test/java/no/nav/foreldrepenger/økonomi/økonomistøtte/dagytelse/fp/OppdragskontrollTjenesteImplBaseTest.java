@@ -343,7 +343,7 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
     protected Behandling opprettOgLagreRevurdering(Behandling originalBehandling, VedtakResultatType resultat, boolean gjelderOpphør, boolean gjelderEndring) {
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandling(originalBehandling)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
 
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, behandlingLås);

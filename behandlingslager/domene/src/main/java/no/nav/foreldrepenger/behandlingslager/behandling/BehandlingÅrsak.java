@@ -42,9 +42,8 @@ public class BehandlingÅrsak extends BaseEntitet {
     @Column(name="behandling_arsak_type", nullable = false)
     private BehandlingÅrsakType behandlingÅrsakType = BehandlingÅrsakType.UDEFINERT;
 
-    @ManyToOne
-    @JoinColumn(name = "original_behandling_id", updatable = false)
-    private Behandling originalBehandling;
+    @Column(name = "original_behandling_id", updatable = false)
+    private Long originalBehandlingId;
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "manuelt_opprettet", nullable = false)
@@ -66,8 +65,8 @@ public class BehandlingÅrsak extends BaseEntitet {
         return behandlingÅrsakType;
     }
 
-    public Optional<Behandling> getOriginalBehandling() {
-        return Optional.ofNullable(originalBehandling);
+    public Long getOriginalBehandlingId() {
+        return originalBehandlingId;
     }
 
     public boolean erManueltOpprettet() {
@@ -89,7 +88,7 @@ public class BehandlingÅrsak extends BaseEntitet {
     public static class Builder {
 
         private List<BehandlingÅrsakType> behandlingÅrsakTyper;
-        private Behandling originalBehandling;
+        private Long originalBehandlingId;
         private boolean manueltOpprettet;
 
         public Builder(List<BehandlingÅrsakType> behandlingÅrsakTyper) {
@@ -97,8 +96,8 @@ public class BehandlingÅrsak extends BaseEntitet {
             this.behandlingÅrsakTyper = behandlingÅrsakTyper;
         }
 
-        public Builder medOriginalBehandling(Behandling originalBehandling) {
-            this.originalBehandling = originalBehandling;
+        public Builder medOriginalBehandlingId(Long originalBehandlingId) {
+            this.originalBehandlingId = originalBehandlingId;
             return this;
         }
 
@@ -118,8 +117,8 @@ public class BehandlingÅrsak extends BaseEntitet {
                 if (eksisterende.isPresent()) {
                     // Oppdater eksisterende (UPDATE)
                     BehandlingÅrsak årsak = eksisterende.get();
-                    if (this.originalBehandling != null) {
-                        årsak.originalBehandling = this.originalBehandling;
+                    if (this.originalBehandlingId != null) {
+                        årsak.originalBehandlingId = this.originalBehandlingId;
                     }
                     årsak.manueltOpprettet = this.manueltOpprettet;
                 } else {
@@ -127,7 +126,7 @@ public class BehandlingÅrsak extends BaseEntitet {
                     BehandlingÅrsak behandlingÅrsak = new BehandlingÅrsak();
                     behandlingÅrsak.behandling = behandling;
                     behandlingÅrsak.behandlingÅrsakType = årsakType;
-                    behandlingÅrsak.originalBehandling = this.originalBehandling;
+                    behandlingÅrsak.originalBehandlingId = this.originalBehandlingId;
                     behandlingÅrsak.manueltOpprettet = this.manueltOpprettet;
                     nyeÅrsaker.add(behandlingÅrsak);
                 }

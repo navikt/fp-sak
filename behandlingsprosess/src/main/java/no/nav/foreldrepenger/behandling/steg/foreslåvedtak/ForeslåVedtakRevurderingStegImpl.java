@@ -91,7 +91,7 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
     }
 
     private Behandling getOriginalBehandling(Behandling behandling) {
-        return behandling.getOriginalBehandling()
+        return behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Revurdering skal alltid ha orginal behandling"));
     }
 

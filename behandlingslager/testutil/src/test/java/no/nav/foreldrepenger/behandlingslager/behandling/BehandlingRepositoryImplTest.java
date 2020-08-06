@@ -148,7 +148,7 @@ public class BehandlingRepositoryImplTest {
         behandlingRepository.lagre(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
 
         List<Behandling> result = behandlingRepository.hentBehandlingerMedÅrsakerForFagsakId(behandling.getFagsakId(),
-            BehandlingÅrsakType.årsakerForAutomatiskRevurdering());
+            BehandlingÅrsakType.årsakerForEtterkontroll());
         assertThat(result).isNotEmpty();
     }
 

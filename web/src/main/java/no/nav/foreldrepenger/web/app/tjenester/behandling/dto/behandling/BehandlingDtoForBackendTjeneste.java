@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -37,6 +38,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 public class BehandlingDtoForBackendTjeneste {
 
     private BehandlingVedtakRepository vedtakRepository;
+    private BehandlingRepository behandlingRepository;
     private SøknadRepository søknadRepository;
 
     public BehandlingDtoForBackendTjeneste() {
@@ -46,6 +48,7 @@ public class BehandlingDtoForBackendTjeneste {
     @Inject
     public BehandlingDtoForBackendTjeneste(BehandlingRepositoryProvider repositoryProvider) {
         this.vedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
     }
 
@@ -73,7 +76,8 @@ public class BehandlingDtoForBackendTjeneste {
         dto.leggTil(get(TilbakekrevingRestTjeneste.VARSELTEKST_PATH, "tilbakekrevingsvarsel-fritekst", uuidDto));
         dto.leggTil(get(TilbakekrevingRestTjeneste.VALG_PATH, "tilbakekreving-valg", uuidDto));
 
-        behandling.getOriginalBehandling().ifPresent(originalBehandling -> {
+        behandling.getOriginalBehandlingId().ifPresent(originalBehandlingId -> {
+            Behandling originalBehandling = behandlingRepository.hentBehandling(originalBehandlingId);
             UuidDto orginalBehandlingUuid = new UuidDto(originalBehandling.getUuid());
             dto.leggTil(get(BehandlingBackendRestTjeneste.BEHANDLINGER_BACKEND_ROOT_PATH, "original-behandling", orginalBehandlingUuid));
         });
