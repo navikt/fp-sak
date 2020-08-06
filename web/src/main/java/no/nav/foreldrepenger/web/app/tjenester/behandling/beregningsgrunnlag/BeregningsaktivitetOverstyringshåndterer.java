@@ -68,7 +68,7 @@ public class BeregningsaktivitetOverstyringshåndterer extends AbstractOverstyri
     protected void lagHistorikkInnslag(Behandling behandling, OverstyrBeregningsaktiviteterDto dto) {
         BeregningsgrunnlagGrunnlagEntitet grunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId())
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler BeregningsgrunnlagGrunnlagEntitet"));
-        Optional<Long> originalBehandlingId = behandling.getOriginalBehandling().map(Behandling::getId);
+        Optional<Long> originalBehandlingId = behandling.getOriginalBehandlingId();
         Optional<BeregningAktivitetAggregatEntitet> forrige = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(), originalBehandlingId,
             BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER)
             .map(BeregningsgrunnlagGrunnlagEntitet::getGjeldendeAktiviteter);

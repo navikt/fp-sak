@@ -70,13 +70,13 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     public Behandlingsresultat bestemBehandlingsresultatForRevurdering(BehandlingReferanse revurderingRef, boolean erVarselOmRevurderingSendt) {
         Behandling revurdering = behandlingRepository.hentBehandling(revurderingRef.getBehandlingId());
 
-        Behandling originalBehandling = revurdering.getOriginalBehandling()
+        Long originalBehandlingId = revurdering.getOriginalBehandlingId()
             .orElseThrow(() -> RevurderingFeil.FACTORY.revurderingManglerOriginalBehandling(revurdering.getId()).toException());
 
         UttakResultatHolder revurderingUttak = getUttakResultat(revurderingRef.getBehandlingId());
-        UttakResultatHolder originalBehandlingUttak = getUttakResultat(originalBehandling.getId());
+        UttakResultatHolder originalBehandlingUttak = getUttakResultat(originalBehandlingId);
 
-        return bestemBehandlingsresultatForRevurderingCore(revurderingRef, revurdering, originalBehandling, revurderingUttak,
+        return bestemBehandlingsresultatForRevurderingCore(revurderingRef, revurdering, behandlingRepository.hentBehandling(originalBehandlingId), revurderingUttak,
             originalBehandlingUttak, erVarselOmRevurderingSendt);
     }
 
@@ -95,7 +95,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         Long behandlingId = revurderingRef.getBehandlingId();
 
         Optional<Behandlingsresultat> behandlingsresultatRevurdering = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
-        Optional<Behandlingsresultat> behandlingsresultatOriginal = finnBehandlingsresultatPåOriginalBehandling(originalBehandling);
+        Optional<Behandlingsresultat> behandlingsresultatOriginal = finnBehandlingsresultatPåOriginalBehandling(originalBehandling.getId());
         if (FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(behandlingsresultatRevurdering, behandlingsresultatOriginal, originalBehandling.getType())) {
             /* 2b */
             return FastsettBehandlingsresultatVedAvslagPåAvslag.fastsett(revurdering, behandlingsresultatRevurdering.orElse(null));
@@ -137,15 +137,15 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     protected abstract boolean harEtablertYtelse(Behandling revurdering, boolean finnesInnvilgetIkkeOpphørtVedtak,
                                                  UttakResultatHolder uttakresultatOriginal);
 
-    private Optional<Behandlingsresultat> finnBehandlingsresultatPåOriginalBehandling(Behandling originalBehandling) {
-        Optional<Behandlingsresultat> behandlingsresultatOriginal = behandlingsresultatRepository.hentHvisEksisterer(originalBehandling.getId());
+    private Optional<Behandlingsresultat> finnBehandlingsresultatPåOriginalBehandling(Long originalBehandlingId) {
+        Optional<Behandlingsresultat> behandlingsresultatOriginal = behandlingsresultatRepository.hentHvisEksisterer(originalBehandlingId);
         if (behandlingsresultatOriginal.isPresent()) {
             // Dersom originalBehandling er et beslutningsvedtak må vi lete videre etter det faktiske resultatet for å kunne vurdere avslag på avslag
             if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingsresultatOriginal.get().getBehandlingResultatType())) {
-                return finnBehandlingsresultatPåOriginalBehandling(originalBehandling.getOriginalBehandling()
-                    .orElseThrow(
-                        () -> new IllegalStateException("Utviklerfeil: Kan ikke ha BehandlingResultatType.INGEN_ENDRING uten original behandling. BehandlingId="
-                            + originalBehandling.getId())));
+                var forrigeBehandlingId = behandlingRepository.hentBehandling(originalBehandlingId).getOriginalBehandlingId()
+                    .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kan ikke ha BehandlingResultatType.INGEN_ENDRING uten original behandling. BehandlingId="
+                            + originalBehandlingId));
+                return finnBehandlingsresultatPåOriginalBehandling(forrigeBehandlingId);
             } else {
                 return behandlingsresultatOriginal;
             }

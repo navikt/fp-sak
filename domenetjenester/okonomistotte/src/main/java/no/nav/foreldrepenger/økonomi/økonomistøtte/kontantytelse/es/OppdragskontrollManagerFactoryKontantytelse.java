@@ -45,8 +45,8 @@ public class OppdragskontrollManagerFactoryKontantytelse implements Oppdragskont
         if (behandling.erRevurdering()) {
             return !erBeslutningsvedtak;
         }
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatTypeES.utled(behandling);
         Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
+        VedtakResultatType vedtakResultatType = UtledVedtakResultatTypeES.utled(behandling.getType(), behandlingsresultat.getBehandlingResultatType());
         return !erAvslagPåGrunnAvTidligereUtbetaltEngangsstønad(behandlingsresultat, vedtakResultatType)
             && erInnvilgetVedtak(vedtakResultatType, erBeslutningsvedtak);
     }

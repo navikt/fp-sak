@@ -348,7 +348,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
     private Behandling opprettOgLagreRevurdering(Behandling originalBehandling, VedtakResultatType vedtakResultatType, int antallbarn) {
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandling(originalBehandling)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
 
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, behandlingLås);

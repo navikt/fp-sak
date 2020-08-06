@@ -20,8 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -224,7 +224,7 @@ public class TapendeBehandlingTjenesteTest {
         ScenarioFarSøkerForeldrepenger manuellRevurdering = ScenarioFarSøkerForeldrepenger.forFødsel();
         manuellRevurdering.medOriginalBehandling(originalBehandling, årsak);
         var behandling = avsluttMedVedtak(manuellRevurdering);
-        repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, repositoryProvider.getSøknadRepository().hentSøknad(originalBehandling));
+        repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, repositoryProvider.getSøknadRepository().hentSøknad(originalBehandling.getId()));
         return behandling;
     }
 

@@ -202,9 +202,9 @@ public class FørsteUttaksdatoAksjonspunktUtlederTest {
     }
 
     private LocalDate getFørsteUttakDatoIGjeldendeBehandling(Behandling behandling) {
-        Optional<Behandling> originalBehandling = behandling.getOriginalBehandling();
-        if (originalBehandling.isPresent()) {
-            Optional<UttakResultatEntitet> gjeldendeUttakResultat = repositoryProvider.getFpUttakRepository().hentUttakResultatHvisEksisterer(originalBehandling.get().getId());
+        Optional<Long> originalBehandlingId = behandling.getOriginalBehandlingId();
+        if (originalBehandlingId.isPresent()) {
+            Optional<UttakResultatEntitet> gjeldendeUttakResultat = repositoryProvider.getFpUttakRepository().hentUttakResultatHvisEksisterer(originalBehandlingId.get());
             if (gjeldendeUttakResultat.isPresent()) {
                 Optional<UttakResultatPeriodeEntitet> førsteUttaksdatoGjeldendeVedtak = gjeldendeUttakResultat.get().getGjeldendePerioder().getPerioder()
                     .stream()

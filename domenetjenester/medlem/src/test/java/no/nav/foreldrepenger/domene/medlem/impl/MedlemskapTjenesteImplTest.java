@@ -78,7 +78,7 @@ public class MedlemskapTjenesteImplTest {
         medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
 
         // Act
-        Optional<LocalDate> localDate = tjeneste.hentOpphørsdatoHvisEksisterer(behandling);
+        Optional<LocalDate> localDate = tjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId());
 
         // Assert
         assertThat(localDate).isEmpty();

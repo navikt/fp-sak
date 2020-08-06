@@ -106,7 +106,7 @@ public class AksjonspunktOppdatererTest {
             iayTjeneste
             );
 
-        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(lagretVedtakRepository, historikkRepository, klageRepository, totrinnTjeneste,
+        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(lagretVedtakRepository, repositoryProvider, klageRepository, totrinnTjeneste,
             innsynRepository, ankeRepository);
         fatterVedtakAksjonspunkt = new FatterVedtakAksjonspunkt(behandlingskontrollTjeneste, klageRepository, ankeRepository, vedtakTjeneste, totrinnTjeneste);
     }

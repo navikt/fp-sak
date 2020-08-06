@@ -73,7 +73,7 @@ public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
             .medBehandlingÅrsak(
                 BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
                     .medManueltOpprettet(true)
-                    .medOriginalBehandling(originalBehandling))
+                    .medOriginalBehandlingId(originalBehandling.getId()))
             .build();
         behandlingRepository.lagre(revurdering, behandlingRepository.taSkriveLås(revurdering));
         return revurdering;

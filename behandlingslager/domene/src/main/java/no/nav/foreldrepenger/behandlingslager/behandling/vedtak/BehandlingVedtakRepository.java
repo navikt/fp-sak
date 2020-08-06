@@ -48,9 +48,9 @@ public class BehandlingVedtakRepository {
         if (!behandling.erRevurdering()) {
             throw new IllegalStateException("Utviklerfeil: Metoden skal bare kalles for revurderinger");
         }
-        Behandling originalBehandling = behandling.getOriginalBehandling()
+        Long originalBehandlingId = behandling.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
-        return hentBehandlingvedtakForBehandlingId(originalBehandling.getId())
+        return hentBehandlingvedtakForBehandlingId(originalBehandlingId)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling har ikke behandlingsvedtak - skal ikke skje"));
     }
 

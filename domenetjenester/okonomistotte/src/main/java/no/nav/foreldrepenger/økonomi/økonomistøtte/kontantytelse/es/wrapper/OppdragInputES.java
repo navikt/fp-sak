@@ -4,11 +4,11 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandling.es.UtledBehandlingResultatType;
+import no.nav.foreldrepenger.behandling.es.UtledVedtakResultatTypeES;
 import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -68,23 +68,16 @@ public class OppdragInputES {
     }
 
     private VedtakResultatType finnVedtakResultatTypeFraBehandling() {
-        BehandlingResultatType behandlingResultatType = UtledBehandlingResultatType.utled(behandling.getBehandlingsresultat());
+        BehandlingResultatType behandlingResultatType = utledBehandlingsresultatType(behandling.getBehandlingsresultat());
         Objects.requireNonNull(behandling, "behandling");
         Objects.requireNonNull(behandlingResultatType);
 
-        if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            return VedtakResultatType.VEDTAK_I_KLAGEBEHANDLING;
-        }
-        if (BehandlingType.ANKE.equals(behandling.getType())) {
-            return VedtakResultatType.VEDTAK_I_ANKEBEHANDLING;
-        }
-        if (BehandlingType.INNSYN.equals(behandling.getType())) {
-            return VedtakResultatType.VEDTAK_I_INNSYNBEHANDLING;
-        }
-        if (BehandlingResultatType.INNVILGET.equals(behandlingResultatType)) {
-            return VedtakResultatType.INNVILGET;
-        }
-        return VedtakResultatType.AVSLAG;
+        return UtledVedtakResultatTypeES.utled(behandling.getType(), behandlingResultatType);
+    }
+
+    private BehandlingResultatType utledBehandlingsresultatType(Behandlingsresultat behandlingsresultat) {
+        Objects.requireNonNull(behandlingsresultat, "behandlingsresultat"); //NOSONAR
+        return behandlingsresultat.isVilkårAvslått() ? BehandlingResultatType.AVSLÅTT : BehandlingResultatType.INNVILGET;
     }
 
     public String getKodeKlassifik() {

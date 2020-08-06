@@ -93,7 +93,7 @@ public class BeregningsgrunnlagRepositoryImplTest {
             .medBehandlingÅrsak(
                 BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
                     .medManueltOpprettet(false)
-                    .medOriginalBehandling(behandling))
+                    .medOriginalBehandlingId(behandling.getId()))
             .build();
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);

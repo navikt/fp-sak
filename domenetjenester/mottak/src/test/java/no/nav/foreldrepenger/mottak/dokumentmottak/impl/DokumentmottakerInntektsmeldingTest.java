@@ -11,7 +11,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -30,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -383,9 +381,6 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     private void simulerKøetBehandling(Behandling behandling) {
-        BehandlingÅrsakType berørtType = BehandlingÅrsakType.KØET_BEHANDLING;
-        new BehandlingÅrsak.Builder(List.of(berørtType)).buildFor(behandling);
-        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING);
     }
 

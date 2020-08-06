@@ -162,11 +162,9 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     private Behandling originalBehandling(Behandling behandling) {
-        Optional<Behandling> originalBehandling = behandling.getOriginalBehandling();
-        if (!originalBehandling.isPresent()) {
-            throw new IllegalArgumentException("Revurdering må ha original behandling");
-        }
-        return originalBehandling.get();
+        Long originalBehandlingId = behandling.getOriginalBehandlingId()
+            .orElseThrow(() -> new IllegalArgumentException("Revurdering må ha original behandling"));
+        return behandlingRepository.hentBehandling(originalBehandlingId);
     }
 
     private Optional<LocalDate> finnFørsteDatoFraOppgittePerioder(List<OppgittPeriodeEntitet> oppgittePerioder) {

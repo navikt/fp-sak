@@ -58,9 +58,9 @@ public class FørsteUttaksdatoTjenesteImpl implements FørsteUttaksdatoTjeneste 
     }
 
     private Optional<LocalDate> finnFørsteUttaksdatoRevurdering(Behandling behandling) {
-        Behandling revurdering = behandling.getOriginalBehandling()
+        var revurderingId = behandling.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
-        var uttak = uttakTjeneste.hentUttakHvisEksisterer(revurdering.getId());
+        var uttak = uttakTjeneste.hentUttakHvisEksisterer(revurderingId);
         if (uttak.isEmpty()) {
             return finnFørsteUttaksdatoFørstegangsbehandling(behandling);
         }

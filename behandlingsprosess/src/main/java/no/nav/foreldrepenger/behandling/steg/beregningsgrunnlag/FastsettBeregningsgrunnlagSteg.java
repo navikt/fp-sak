@@ -3,10 +3,10 @@ package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 
 @FagsakYtelseTypeRef("*")
 @BehandlingStegRef(kode = "FAST_BERGRUNN")
@@ -74,7 +75,7 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
         if (tilSteg.equals(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)) {
             if (behandling.erRevurdering()) {
                 // Kopier beregningsgrunnlag fra original, da uttaksresultat avhenger av denne
-                behandling.getOriginalBehandling().map(Behandling::getId)
+                behandling.getOriginalBehandlingId()
                     .ifPresent(originalId -> beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(originalId, behandling.getId()));
             }
         }

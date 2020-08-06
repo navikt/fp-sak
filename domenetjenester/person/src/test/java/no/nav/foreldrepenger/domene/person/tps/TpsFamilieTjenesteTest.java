@@ -37,9 +37,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class TpsFamilieTjenesteTest {
 
@@ -64,7 +64,7 @@ public class TpsFamilieTjenesteTest {
         final int antallBarn = 1;
         final Behandling behandling = opprettOriginalBehandling(BehandlingResultatType.INNVILGET, mottattDato);
         Behandling revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).medOriginalBehandling(behandling)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).medOriginalBehandlingId(behandling.getId())).build();
         BehandlingLås lås = repositoryProvider.getBehandlingRepository().taSkriveLås(revurdering);
         repositoryProvider.getBehandlingRepository().lagre(revurdering, lås);
         repositoryProvider.getFamilieHendelseRepository().kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), revurdering.getId());

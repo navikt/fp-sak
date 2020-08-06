@@ -106,13 +106,13 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
     }
 
     private Behandling finnTidligstBehandling(OppgittPeriodeEntitet periode, Behandling behandling) {
-        var originalBehandling = behandling.getOriginalBehandling();
+        var originalBehandling = behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling);
         var førsteBehandlingMedPeriode = behandling;
         while (originalBehandling.isPresent()) {
             if (finnesIBehandling(periode, originalBehandling.get())) {
                 førsteBehandlingMedPeriode = originalBehandling.get();
             }
-            originalBehandling = originalBehandling.get().getOriginalBehandling();
+            originalBehandling = originalBehandling.get().getOriginalBehandlingId().map(behandlingRepository::hentBehandling);
         }
         return førsteBehandlingMedPeriode;
     }

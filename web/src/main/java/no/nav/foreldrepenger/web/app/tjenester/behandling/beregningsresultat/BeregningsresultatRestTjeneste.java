@@ -170,8 +170,8 @@ public class BeregningsresultatRestTjeneste {
             return konsekvenserForYtelsen.stream().anyMatch(kfy -> KonsekvensForYtelsen.INGEN_ENDRING.getKode().equals(kfy.getKode()));
         }
 
-        Behandling originalBehandling = behandling.getOriginalBehandling().orElseThrow(() -> new IllegalStateException("Revurdering må ha originalbehandling"));
-        Behandlingsresultat originaltBehandlingsresultat = getBehandlingsresultat(originalBehandling.getId());
+        Long originalBehandlingId = behandling.getOriginalBehandlingId().orElseThrow(() -> new IllegalStateException("Revurdering må ha originalbehandling"));
+        Behandlingsresultat originaltBehandlingsresultat = getBehandlingsresultat(originalBehandlingId);
         BehandlingResultatType behandlingResultatType = behandlingsresultat.getBehandlingResultatType();
 
         boolean harSammeResultatType = behandlingResultatType.getKode().equals(originaltBehandlingsresultat.getBehandlingResultatType().getKode());
@@ -180,8 +180,9 @@ public class BeregningsresultatRestTjeneste {
 
         if (harSammeResultatType && erInnvilget && erEngangsstønad) {
             BeregningsresultatEngangsstønadDto beregningsresultatEngangsstønadDto = this.hentBeregningsresultatEngangsstønad(uuidDto);
-            BeregningsresultatEngangsstønadDto originalBeregningsresultatEngangsstønadDto = this.hentBeregningsresultatEngangsstønad(new UuidDto(originalBehandling.getUuid()));
-            return beregningsresultatEngangsstønadDto != null && beregningsresultatEngangsstønadDto.getAntallBarn() == originalBeregningsresultatEngangsstønadDto.getAntallBarn();
+            var originalUuid = behandlingRepository.hentBehandling(originalBehandlingId).getUuid();
+            BeregningsresultatEngangsstønadDto originalBeregningsresultatEngangsstønadDto = this.hentBeregningsresultatEngangsstønad(new UuidDto(originalUuid));
+            return beregningsresultatEngangsstønadDto != null && beregningsresultatEngangsstønadDto.getAntallBarn().equals(originalBeregningsresultatEngangsstønadDto.getAntallBarn());
         }
 
         return harSammeResultatType;
