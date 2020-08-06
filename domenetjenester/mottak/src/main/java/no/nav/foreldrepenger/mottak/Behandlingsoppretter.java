@@ -141,7 +141,7 @@ public class Behandlingsoppretter {
         BehandlingskontrollKontekst nyKontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
         behandlingRepository.lagre(revurdering, nyKontekst.getSkriveLås());
 
-        return revurdering;FødselForretningshendelseHåndtererImpl
+        return revurdering;
     }
 
     public void henleggBehandling(Behandling behandling) {
