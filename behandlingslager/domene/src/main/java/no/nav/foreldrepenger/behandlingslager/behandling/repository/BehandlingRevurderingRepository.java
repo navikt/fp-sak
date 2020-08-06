@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -31,6 +32,11 @@ import no.nav.vedtak.util.Tuple;
 public class BehandlingRevurderingRepository {
 
     private static final String AVSLUTTET_KEY = "avsluttet";
+
+    private static final List<String> RES_TYPER_REGULERING = List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(),
+        BehandlingResultatType.INGEN_ENDRING.getKode(), BehandlingResultatType.OPPHØR.getKode());
+    private static final List<String> STATUS_FERDIG = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
+    private static final List<String> YTELSE_TYPER = BehandlingType.getYtelseBehandlingTyper().stream().map(BehandlingType::getKode).collect(Collectors.toList());
 
     private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
@@ -202,51 +208,55 @@ public class BehandlingRevurderingRepository {
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering og det ikke finnes åpen behandling */
-    public List<Tuple<Long, AktørId>> finnSakerMedBehovForGrunnbeløpRegulering(long gjeldende, long forrige, long forrigeAvkortingMultiplikator,
+    public List<Tuple<Long, AktørId>> finnSakerMedBehovForGrunnbeløpRegulering(long forrigeSats, long forrigeAvkortingMultiplikator,
                                                                                LocalDate gjeldendeFom) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
-         * - Saker som har en avsluttet behandling med gammel sats og er avkortet til 6G og har uttak etter gammel sats sin utløpsdato
+         * - Saker som har siste avsluttet behandling med gammel sats, brutto overstiger 6G og har uttak etter gammel sats sin utløpsdato
          * - Saken har ikke noen avsluttet behandling med ny sats
-         * - Saken har ikke noen åpne ytelsesbehandlinger
-         * OBS: Skal se etter første uttaksdato -> må ta med perioder uten utbetaling
+         * - Saken har ikke noen åpne ytelsesbehandlinger (berørt telles ikke)
+         * OBS: De som kun har innvilget utsettelse (ingen utbetaling) får riktig beregning når det kommer endringssøknad med uttak
          */
-        List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
-        List<String> ytelseBehandling = BehandlingType.getYtelseBehandlingTyper().stream().map(BehandlingType::getKode).collect(Collectors.toList());
         Query query = getEntityManager().createNativeQuery(
-            "SELECT DISTINCT f.id , br.aktoer_id " +
-                "from Fagsak f join bruker br on f.bruker_id=br.id " +
-                "where f.id in ( " +
-                "  select beh.fagsak_id from behandling beh " +
-                "    join behandling_resultat br on (br.behandling_id=beh.id and br.behandling_resultat_type in (:restyper)) " +
-                "    join GR_BEREGNINGSGRUNNLAG grbg on (grbg.behandling_id=beh.id and grbg.aktiv = 'J') " +
-                "    join BEREGNINGSGRUNNLAG bglag on grbg.beregningsgrunnlag_id=bglag.id " +
-                "    join BEREGNINGSGRUNNLAG_PERIODE bgper on grbg.beregningsgrunnlag_id=bgper.beregningsgrunnlag_id  " +
-                "    join BR_RESULTAT_BEHANDLING grbr on (grbr.behandling_id=beh.id and grbr.aktiv = 'J') " +
-                "  where beh.behandling_status in (:avsluttet) " +
-                "    and grbr.BG_BEREGNINGSRESULTAT_FP_ID in ( " +
-                "      select beregningsresultat_fp_id from BR_PERIODE " +
-                "      group by beregningsresultat_fp_id " +
-                "      having min(br_periode_fom) >= :fomdato ) " +
-                "    and bgper.avkortet_pr_aar is not null and bgper.avkortet_pr_aar = (bglag.grunnbeloep * :avkorting )  " +
-                "    and bglag.grunnbeloep=:gmlsats ) " +
-                " and f.id not in ( " +
-                "    select beh.fagsak_id from behandling beh " +
-                "    join GR_BEREGNINGSGRUNNLAG grbg on (grbg.behandling_id=beh.id and grbg.aktiv='J') " +
-                "    join BEREGNINGSGRUNNLAG bglag on grbg.beregningsgrunnlag_id=bglag.id " +
-                "    where beh.behandling_status in ( :avsluttet ) " +
-                "      and bglag.grunnbeloep= :nysats ) " +
-                " and f.id not in (" +
-                "    select beh.fagsak_id from behandling beh " +
-                "    where beh.behandling_status not in ( :avsluttet) " +
-                "      and beh.behandling_type in (:ytelse) ) "); //$NON-NLS-1$
+            "SELECT DISTINCT f.id , bru.aktoer_id " +
+                " from Fagsak f join bruker bru on f.bruker_id=bru.id " +
+                "  join behandling b on b.fagsak_id=f.id " +
+                "  join behandling_resultat br on (br.behandling_id=b.id and br.behandling_resultat_type in (:restyper)) " +
+                "  join (select beh.fagsak_id fsmax, max(brsq.opprettet_tid) maxbr from behandling beh  " +
+                "        join behandling_resultat brsq on (brsq.behandling_id=beh.id and brsq.behandling_resultat_type in (:restyper)) " +
+                "        where beh.behandling_type in (:ytelse) and beh.behandling_status in (:avsluttet) " +
+                "        group by beh.fagsak_id) on (fsmax=b.fagsak_id and br.opprettet_tid = maxbr) " +
+                "  join GR_BEREGNINGSGRUNNLAG grbg on (grbg.behandling_id=b.id and grbg.aktiv = 'J') " +
+                "  join BEREGNINGSGRUNNLAG bglag on grbg.beregningsgrunnlag_id=bglag.id " +
+                "  join (select beregningsgrunnlag_id bgid, max(brutto_pr_aar) brutto " +
+                "        from BEREGNINGSGRUNNLAG_PERIODE " +
+                "        group by beregningsgrunnlag_id " +
+                "    ) bgmax on bgmax.bgid=grbg.beregningsgrunnlag_id " +
+                "  join BR_RESULTAT_BEHANDLING grbr on (grbr.behandling_id=b.id and grbr.aktiv = 'J') " +
+                "  join (select BEREGNINGSRESULTAT_FP_ID brfpid, min(BR_PERIODE_FOM) fom " +
+                "        from br_periode brp  " +
+                "        group by BEREGNINGSRESULTAT_FP_ID " +
+                "    ) brbrutto on brbrutto.brfpid=grbr.BG_BEREGNINGSRESULTAT_FP_ID " +
+                "  join (select BEREGNINGSRESULTAT_FP_ID brfpid, min(BR_PERIODE_FOM) fom " +
+                "    from br_periode brp left join br_andel bra on bra.br_periode_id = brp.id " +
+                "    where (dagsats>0) " +
+                "    group by BEREGNINGSRESULTAT_FP_ID " +
+                "  ) brnetto on brnetto.brfpid=grbr.BG_BEREGNINGSRESULTAT_FP_ID  " +
+                "where b.behandling_status in (:avsluttet) and b.behandling_type in (:ytelse) " +
+                "  and brbrutto.fom is not null and brnetto.fom is not null " +
+                "  and brbrutto.fom >= :fomdato  " +
+                "  and bgmax.brutto >= (bglag.grunnbeloep * :avkorting ) " +
+                "  and bglag.grunnbeloep=:gmlsats  " +
+                "  and f.id not in ( select beh.fagsak_id from behandling beh " +
+                "    where beh.behandling_status not in (:avsluttet) and beh.behandling_type in (:ytelse)  " +
+                "      and beh.id not in (select ba.behandling_id from behandling_arsak ba where behandling_arsak_type=:berort) ) " ); //$NON-NLS-1$
         query.setParameter("fomdato", gjeldendeFom); //$NON-NLS-1$
-        query.setParameter("nysats", gjeldende); //$NON-NLS-1$ 7
-        query.setParameter("gmlsats", forrige); //$NON-NLS-1$
+        query.setParameter("gmlsats", forrigeSats); //$NON-NLS-1$
         query.setParameter("avkorting", forrigeAvkortingMultiplikator); //$NON-NLS-1$
-        query.setParameter("restyper", List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.FORELDREPENGER_ENDRET.getKode())); //$NON-NLS-1$
-        query.setParameter(AVSLUTTET_KEY, avsluttendeStatus); // $NON-NLS-1$
-        query.setParameter("ytelse", ytelseBehandling); //$NON-NLS-1$
+        query.setParameter("restyper", RES_TYPER_REGULERING); //$NON-NLS-1$
+        query.setParameter(AVSLUTTET_KEY, STATUS_FERDIG); // $NON-NLS-1$
+        query.setParameter("ytelse", YTELSE_TYPER); //$NON-NLS-1$
+        query.setParameter("berort", BehandlingÅrsakType.BERØRT_BEHANDLING.getKode()); //$NON-NLS-1$
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return resultatList.stream().map(row -> new Tuple<>(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
@@ -260,37 +270,36 @@ public class BehandlingRevurderingRepository {
          * - Saken har ikke noen beregninger opprettet på eller etter dato for ny sats
          * - Saken har ikke noen åpne ytelsesbehandlinger
          */
-        List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
-        List<String> ytelseBehandling = BehandlingType.getYtelseBehandlingTyper().stream().map(BehandlingType::getKode).collect(Collectors.toList());
         Query query = getEntityManager().createNativeQuery(
-            "SELECT DISTINCT f.id, bru.aktoer_id " +
-                "from Fagsak f join bruker bru on f.bruker_id=bru.id " +
-                "  join behandling b on (fagsak_id = f.id and behandling_status in (:avsluttet) ) " +
-                "  join behandling_resultat brs on (brs.behandling_id=b.id and brs.behandling_resultat_type in (:restyper)) " +
-                "  join GR_BEREGNINGSGRUNNLAG grbg on (grbg.behandling_id=b.id and grbg.aktiv='J') " +
+            "SELECT DISTINCT f.id , bru.aktoer_id " +
+                " from Fagsak f join bruker bru on f.bruker_id=bru.id " +
+                "  join behandling b on b.fagsak_id=f.id " +
+                "  join behandling_resultat br on (br.behandling_id=b.id and br.behandling_resultat_type in (:restyper)) " +
+                "  join (select beh.fagsak_id fsmax, max(brsq.opprettet_tid) maxbr from behandling beh  " +
+                "        join behandling_resultat brsq on (brsq.behandling_id=beh.id and brsq.behandling_resultat_type in (:restyper)) " +
+                "        where beh.behandling_type in (:ytelse) and beh.behandling_status in (:avsluttet) " +
+                "        group by beh.fagsak_id) on (fsmax=b.fagsak_id and br.opprettet_tid = maxbr) " +
+                "  join GR_BEREGNINGSGRUNNLAG grbg on (grbg.behandling_id=b.id and grbg.aktiv = 'J') " +
                 "  JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in (:asarena) ) " +
-                "  join ( select grbr.behandling_id, min(brp.br_periode_fom) as fom " +
-                "         from BR_RESULTAT_BEHANDLING grbr " +
-                "         join BR_PERIODE brp on grbr.BG_BEREGNINGSRESULTAT_FP_ID = brp.beregningsresultat_fp_id " +
-                "         where grbr.aktiv='J' " +
-                "         group by grbr.behandling_id " +
-                "         ) ford ON ford.behandling_id = b.id and ford.fom >= :fomdato and ford.fom <= :satsdato " +
+                "  join BR_RESULTAT_BEHANDLING grbr on (grbr.behandling_id=b.id and grbr.aktiv = 'J') " +
+                "  join (select BEREGNINGSRESULTAT_FP_ID brfpid, min(BR_PERIODE_FOM) fom " +
+                "        from br_periode brp  " +
+                "        group by BEREGNINGSRESULTAT_FP_ID " +
+                "    ) brbrutto on brbrutto.brfpid=grbr.BG_BEREGNINGSRESULTAT_FP_ID " +
                 "where nvl(b.sist_oppdatert_tidspunkt, b.opprettet_tid) < :satsdato " +
-                "  and b.id not in (select ib.id from behandling ib " +
-                "     join behandling_resultat ibrs on (ibrs.behandling_id=ib.id and ibrs.behandling_resultat_type in (:restyper)) " +
-                "     join GR_BEREGNINGSGRUNNLAG igrbg on (igrbg.behandling_id=ib.id and igrbg.aktiv='J') " +
-                "     JOIN BG_AKTIVITET_STATUS ibgs ON (ibgs.BEREGNINGSGRUNNLAG_ID = igrbg.BEREGNINGSGRUNNLAG_ID and ibgs.AKTIVITET_STATUS in (:asarena) ) " +
-                "    where nvl(ib.sist_oppdatert_tidspunkt, ib.opprettet_tid) >= :satsdato " +
-                "     and ib.behandling_status in (:avsluttet) ) " +
-                "  and f.id not in (select beh.fagsak_id from behandling beh " +
-                "    where beh.behandling_status not in (:avsluttet) " +
-                "      and beh.behandling_type in (:ytelse) ) "); //$NON-NLS-1$
+                "  and b.behandling_status in (:avsluttet) and b.behandling_type in (:ytelse) " +
+                "  and brbrutto.fom is not null " +
+                "  and brbrutto.fom >= :fomdato and brbrutto.fom <= :satsdato " +
+                "  and f.id not in ( select beh.fagsak_id from behandling beh " +
+                "    where beh.behandling_status not in (:avsluttet) and beh.behandling_type in (:ytelse)  " +
+                "      and beh.id not in (select ba.behandling_id from behandling_arsak ba where behandling_arsak_type=:berort) ) " ); //$NON-NLS-1$
         query.setParameter("fomdato", gjeldendeFom); //$NON-NLS-1$
         query.setParameter("satsdato", nySatsDato); //$NON-NLS-1$
         query.setParameter("asarena", List.of(AktivitetStatus.ARBEIDSAVKLARINGSPENGER.getKode(), AktivitetStatus.DAGPENGER.getKode())); //$NON-NLS-1$
-        query.setParameter("restyper", List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.FORELDREPENGER_ENDRET.getKode())); //$NON-NLS-1$
-        query.setParameter(AVSLUTTET_KEY, avsluttendeStatus); // $NON-NLS-1$
-        query.setParameter("ytelse", ytelseBehandling); //$NON-NLS-1$
+        query.setParameter("restyper", RES_TYPER_REGULERING); //$NON-NLS-1$
+        query.setParameter(AVSLUTTET_KEY, STATUS_FERDIG); // $NON-NLS-1$
+        query.setParameter("ytelse", YTELSE_TYPER); //$NON-NLS-1$
+        query.setParameter("berort", BehandlingÅrsakType.BERØRT_BEHANDLING.getKode()); //$NON-NLS-1$
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return resultatList.stream().map(row -> new Tuple<>(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR

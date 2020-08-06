@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.fp;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -53,10 +53,12 @@ import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -70,6 +72,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private static final StartpunktType DEFAULT_STARTPUNKT = StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
 
     private static final Set<AksjonspunktDefinisjon> AKSJONSPUNKT_SKAL_KOPIERES = Set.of(AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER);
+
+    private static final Set<AktivitetStatus> ARENA_REGULERES = Set.of(AktivitetStatus.DAGPENGER, AktivitetStatus.ARBEIDSAVKLARINGSPENGER);
 
     private BehandlingRepository behandlingRepository;
 
@@ -216,23 +220,20 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private StartpunktType utledBehovForGRegulering(BehandlingReferanse ref, Behandling revurdering) {
         StartpunktType startpunkt = StartpunktType.UDEFINERT;
-        Optional<Behandling> opprinneligBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling);
-        if (!opprinneligBehandling.isPresent()) {
-            throw new IllegalStateException("Revurdering skal ha en basisbehandling - skal ikke skje");
-        }
+        Long opprinneligBehandlingId = revurdering.getOriginalBehandlingId()
+            .orElseThrow(() -> new IllegalStateException("Revurdering skal ha en basisbehandling - skal ikke skje"));
         BeregningSats grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getFørsteUttaksdato());
-        Optional<BeregningsgrunnlagEntitet> forrigeBeregning = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(opprinneligBehandling.get().getId());
+        Optional<BeregningsgrunnlagEntitet> forrigeBeregning = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(opprinneligBehandlingId);
         if (forrigeBeregning.isPresent()) {
-            long satsIBeregning = forrigeBeregning.get().getGrunnbeløp().getVerdi().longValue();
+            long satsIBeregning = forrigeBeregning.map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
             // Kan evt spisse: Sjekke om det finnes BGPeriode med avkortet = 6G. Må evt også ta hensyn til SN og 1/2G
             if (grunnbeløp.getVerdi() - satsIBeregning > 1) {
                 LOGGER.info("Revurdering {} skal G-reguleres", revurdering.getId());// NOSONAR //$NON-NLS-1$
                 startpunkt = StartpunktType.BEREGNING;
             } else if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
-                final Set<AktivitetStatus> reberegnes = Set.of(AktivitetStatus.DAGPENGER, AktivitetStatus.ARBEIDSAVKLARINGSPENGER);
                 final boolean skalReberegnes = forrigeBeregning.get().getAktivitetStatuser().stream()
                     .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
-                    .anyMatch(reberegnes::contains);
+                    .anyMatch(ARENA_REGULERES::contains);
                 if (skalReberegnes) {
                     LOGGER.info("Revurdering {} skal Arena-reguleres", revurdering.getId());// NOSONAR //$NON-NLS-1$
                     startpunkt = StartpunktType.BEREGNING;

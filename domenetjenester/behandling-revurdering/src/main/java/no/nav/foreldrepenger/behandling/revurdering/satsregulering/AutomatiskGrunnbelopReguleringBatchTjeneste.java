@@ -59,8 +59,11 @@ public class AutomatiskGrunnbelopReguleringBatchTjeneste implements BatchTjenest
         final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId()) + "_";
         BeregningSats gjeldende = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now());
         BeregningSats forrige = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, gjeldende.getPeriode().getFomDato().minusDays(1));
+        if (gjeldende.getVerdi() == forrige.getVerdi()) {
+            throw new IllegalArgumentException("Samme sats i periodene: gammel {} ny {}" + forrige + " ny " + gjeldende);
+        }
         long avkortingAntallG = beregningsresultatRepository.avkortingMultiplikatorG(gjeldende.getPeriode().getFomDato().minusDays(1));
-        List<Tuple<Long, AktørId>> tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForGrunnbeløpRegulering(gjeldende.getVerdi(), forrige.getVerdi(), avkortingAntallG, gjeldende.getPeriode().getFomDato());
+        List<Tuple<Long, AktørId>> tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForGrunnbeløpRegulering(forrige.getVerdi(), avkortingAntallG, gjeldende.getPeriode().getFomDato());
         if (opprettRevurdering != null && opprettRevurdering.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.getElement1(), sak.getElement2(), callId));
         } else {

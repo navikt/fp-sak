@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.batch.BatchArguments;
 public class AutomatiskArenaReguleringBatchArguments extends BatchArguments {
 
     static final LocalDate DATO = LocalDate.of(LocalDate.now().getYear(), 5, 1);
-    private static final int MAX_DIFF = 28;
     static final String REVURDER_KEY = "revurder";
     static final String SATS_DATO_KEY = "satsDato";
     static final String DATE_PATTERN = "dd-MM-yyyy";
@@ -57,6 +56,6 @@ public class AutomatiskArenaReguleringBatchArguments extends BatchArguments {
     }
 
     private boolean validerDatoer(LocalDate satsDato) {
-        return satsDato.isAfter(DATO) && satsDato.isBefore(DATO.plusDays(MAX_DIFF));
+        return satsDato.isAfter(DATO);
     }
 }
