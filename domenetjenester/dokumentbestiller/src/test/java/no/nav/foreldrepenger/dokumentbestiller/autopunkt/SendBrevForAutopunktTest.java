@@ -80,7 +80,7 @@ public class SendBrevForAutopunktTest {
         scenarioMorSøkerForeldrepenger.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, BehandlingStegType.REGISTRER_SØKNAD);
         Behandling behandling = scenarioMorSøkerForeldrepenger.lagMocked();
         BehandlingÅrsakType oppholdÅrsak = BehandlingÅrsakType.INFOBREV_BEHANDLING;
-        new BehandlingÅrsak.Builder(List.of(oppholdÅrsak)).buildFor(behandling);
+        BehandlingÅrsak.builder(List.of(oppholdÅrsak)).buildFor(behandling);
         Aksjonspunkt autopunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD).get();
         aksjonspunktRepository.setFrist(autopunkt, LocalDate.now().plusWeeks(3).atStartOfDay(), Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV);
         doReturn(false).when(dokumentBehandlingTjeneste).erDokumentBestilt(Mockito.eq(behandling.getId()), Mockito.any());
@@ -95,7 +95,7 @@ public class SendBrevForAutopunktTest {
         scenarioMorSøkerForeldrepenger.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, BehandlingStegType.REGISTRER_SØKNAD);
         Behandling behandling = scenarioMorSøkerForeldrepenger.lagMocked();
         BehandlingÅrsakType oppholdÅrsak = BehandlingÅrsakType.INFOBREV_OPPHOLD;
-        new BehandlingÅrsak.Builder(List.of(oppholdÅrsak)).buildFor(behandling);
+        BehandlingÅrsak.builder(List.of(oppholdÅrsak)).buildFor(behandling);
         Aksjonspunkt autopunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD).get();
         aksjonspunktRepository.setFrist(autopunkt, LocalDate.now().plusWeeks(3).atStartOfDay(), Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV);
         doReturn(false).when(dokumentBehandlingTjeneste).erDokumentBestilt(Mockito.eq(behandling.getId()), Mockito.any());
