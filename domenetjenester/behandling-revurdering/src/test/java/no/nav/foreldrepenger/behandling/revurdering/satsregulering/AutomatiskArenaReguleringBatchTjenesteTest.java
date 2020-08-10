@@ -76,19 +76,19 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
     @Test
     public void skal_ikke_finne_saker_til_revurdering() {
         opprettRevurderingsKandidat(BehandlingStatus.UTREDES, cutoff.minusDays(5));
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusMonths(2));
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
         String svar = tjeneste.launch(batchArgs);
         assertThat(svar).isEqualTo(AutomatiskArenaReguleringBatchTjeneste.BATCHNAME+"-0");
     }
 
     @Test
-    public void skal_finne_to_saker_til_revurdering() {
+    public void skal_finne_tre_saker_til_revurdering() {
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2));
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2));
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusMonths(2));
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
         String svar = tjeneste.launch(batchArgs);
-        assertThat(svar).isEqualTo(AutomatiskArenaReguleringBatchTjeneste.BATCHNAME+"-2");
+        assertThat(svar).isEqualTo(AutomatiskArenaReguleringBatchTjeneste.BATCHNAME+"-3");
     }
 
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status, LocalDate uttakFom) {

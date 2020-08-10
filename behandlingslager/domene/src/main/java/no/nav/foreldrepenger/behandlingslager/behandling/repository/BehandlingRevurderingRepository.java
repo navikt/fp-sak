@@ -339,10 +339,10 @@ public class BehandlingRevurderingRepository {
                 "        from br_periode brp  " +
                 "        group by BEREGNINGSRESULTAT_FP_ID " +
                 "    ) brbrutto on brbrutto.brfpid=grbr.BG_BEREGNINGSRESULTAT_FP_ID " +
-                "where nvl(b.sist_oppdatert_tidspunkt, b.opprettet_tid) < :satsdato " +
+                "where b.opprettet_tid < :satsdato " +
                 "  and b.behandling_status in (:avsluttet) and b.behandling_type in (:ytelse) " +
                 "  and brbrutto.fom is not null " +
-                "  and brbrutto.fom >= :fomdato and brbrutto.fom <= :satsdato " +
+                "  and brbrutto.fom >= :fomdato " +
                 "  and f.id not in ( select beh.fagsak_id from behandling beh " +
                 "    where beh.behandling_status not in (:avsluttet) and beh.behandling_type in (:ytelse)  " +
                 "      and beh.id not in (select ba.behandling_id from behandling_arsak ba where behandling_arsak_type=:berort) ) " ); //$NON-NLS-1$
