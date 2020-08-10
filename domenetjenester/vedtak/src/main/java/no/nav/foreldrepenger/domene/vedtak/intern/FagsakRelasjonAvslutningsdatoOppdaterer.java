@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.vedtak.intern;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
@@ -14,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
@@ -21,6 +23,8 @@ import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
+import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
+import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 
 public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
 
@@ -53,7 +57,34 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
         return null;
     }
 
+    private LocalDate sisteDødsdato(Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag) {
+        LocalDate sisteDødsdato = null;
+        Optional<List<UidentifisertBarn>> barna = familieHendelseGrunnlag
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getBarna);
+
+        if(barna.isPresent()){
+            for(var barn: barna.get()){
+                if(barn.getDødsdato() == null) return null;
+                sisteDødsdato = finnSiste(sisteDødsdato,barn.getDødsdato());
+            }
+            return sisteDødsdato;
+        } else return null;
+    }
+
+    private LocalDate finnSiste(LocalDate sisteDødsdato, Optional<LocalDate> dødsdato){
+        return (dødsdato.isPresent() && (sisteDødsdato == null || dødsdato.get().isAfter(sisteDødsdato)))?dødsdato.get(): sisteDødsdato;
+    }
+
     protected LocalDate avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(Behandling behandling, LocalDate avsluttningsdato) {
+        var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
+        if(familieHendelseGrunnlag.isPresent()){
+
+            LocalDate sisteDødsdato = sisteDødsdato(familieHendelseGrunnlag);
+            if(sisteDødsdato != null) return sisteDødsdato.plusWeeks(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now())).plusWeeks(6);
+
+        }
+
         Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         return behandlingsresultat.isPresent() && behandlingsresultat.get().isBehandlingsresultatAvslåttOrOpphørt()
             && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, LocalDate.now()) ? LocalDate.now().plusDays(1) : avsluttningsdato;
@@ -73,7 +104,6 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
             avsluningsdatoFraMaksDatoUttak = avsluningsdatoFraMaksDatoUttak.plusMonths(JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER)
                 .with(TemporalAdjusters.lastDayOfMonth());
         }
-
         return avsluningsdatoFraMaksDatoUttak.isAfter(LocalDate.now()) && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, avsluningsdatoFraMaksDatoUttak)?
             avsluningsdatoFraMaksDatoUttak : avsluttningsdato;
     }

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +14,6 @@ import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -24,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusFelles;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.TaskStatus;
 
@@ -33,7 +30,6 @@ public class AutomatiskFagsakAvslutningBatchTjenesteTest {
     private AutomatiskFagsakAvslutningBatchTjeneste tjeneste;
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
-    private OppdaterFagsakStatusFelles oppdaterFagsakStatusFelles;
     private AutomatiskFagsakAvslutningTjeneste fagsakAvslutningTjeneste;
 
 
@@ -41,7 +37,6 @@ public class AutomatiskFagsakAvslutningBatchTjenesteTest {
     public void setUp() {
         behandlingRepository = Mockito.mock(BehandlingRepository.class);
         fagsakRepository = Mockito.mock(FagsakRepository.class);
-        oppdaterFagsakStatusFelles = Mockito.mock(OppdaterFagsakStatusFelles.class);
         fagsakAvslutningTjeneste = Mockito.mock(AutomatiskFagsakAvslutningTjeneste.class);
         tjeneste = new AutomatiskFagsakAvslutningBatchTjeneste(fagsakAvslutningTjeneste);
     }
@@ -70,7 +65,6 @@ public class AutomatiskFagsakAvslutningBatchTjenesteTest {
         Mockito.when(fagsakRepository.hentForStatus(FagsakStatus.LØPENDE)).thenReturn(Arrays.asList(fagsak1, fagsak2));
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(1L)).thenReturn(Optional.empty());
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(2L)).thenReturn(Optional.of(behandling));
-        Mockito.when(oppdaterFagsakStatusFelles.ingenLøpendeYtelsesvedtak(behandling)).thenReturn(true);
 
         final String batchId = tjeneste.launch(null);
 
