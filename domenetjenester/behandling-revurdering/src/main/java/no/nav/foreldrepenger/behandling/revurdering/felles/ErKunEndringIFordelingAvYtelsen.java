@@ -27,9 +27,8 @@ class ErKunEndringIFordelingAvYtelsen {
             || erEndringISkalHindreTilbaketrekk);
     }
 
-    public static Behandlingsresultat fastsett(Behandling revurdering, boolean erVarselOmRevurderingSendt) {
+    public static Behandlingsresultat fastsett(Behandling revurdering, Behandlingsresultat behandlingsresultat, boolean erVarselOmRevurderingSendt) {
         Vedtaksbrev vedtaksbrev = utledVedtaksbrev(erVarselOmRevurderingSendt);
-        Behandlingsresultat behandlingsresultat = revurdering.getBehandlingsresultat();
         Behandlingsresultat.Builder behandlingsresultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
         behandlingsresultatBuilder.medBehandlingResultatType(BehandlingResultatType.FORELDREPENGER_ENDRET);
         behandlingsresultatBuilder.medVedtaksbrev(vedtaksbrev);

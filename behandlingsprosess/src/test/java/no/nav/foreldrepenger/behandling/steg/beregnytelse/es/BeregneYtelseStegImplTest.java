@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
@@ -31,10 +32,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -47,6 +48,7 @@ public class BeregneYtelseStegImplTest {
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    private final BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     @Inject
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private Repository repository = repoRule.getRepository();
@@ -91,7 +93,9 @@ public class BeregneYtelseStegImplTest {
         BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, LocalDate.now());
 
         // Act
+        Behandling behandling = repository.hent(Behandling.class, kontekst.getBehandlingId());
         beregneYtelseSteg.utførSteg(kontekst);
+        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         // Assert
         LegacyESBeregningsresultat beregningResultat = getBehandlingsresultat(repository.hent(Behandling.class, kontekst.getBehandlingId())).getBeregningResultat();
@@ -109,10 +113,12 @@ public class BeregneYtelseStegImplTest {
         BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, LocalDate.of(2017, 10, 1));
 
         // Act
+        Behandling behandling = repository.hent(Behandling.class, kontekst.getBehandlingId());
         beregneYtelseSteg.utførSteg(kontekst);
+        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         // Assert
-        Behandling behandling = repository.hent(Behandling.class, kontekst.getBehandlingId());
+        behandling = repository.hent(Behandling.class, kontekst.getBehandlingId());
         LegacyESBeregningsresultat beregningResultat = getBehandlingsresultat(behandling).getBeregningResultat();
         assertThat(beregningResultat.getSisteBeregning().get()).isNotNull();
 
@@ -122,7 +128,7 @@ public class BeregneYtelseStegImplTest {
     }
 
     private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandling.getBehandlingsresultat();
+        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
     }
 
     @Test
@@ -134,8 +140,9 @@ public class BeregneYtelseStegImplTest {
         BehandlingskontrollKontekst kontekst = behandlingKontekst.getElement2();
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
             .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now()))
-            .buildFor(behandling);
+            .buildFor(behandling, getBehandlingsresultat(behandling));
         beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
+        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         // Act
         beregneYtelseSteg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, null, null);
@@ -155,8 +162,9 @@ public class BeregneYtelseStegImplTest {
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
             .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
             .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
-            .buildFor(behandling);
+            .buildFor(behandling, getBehandlingsresultat(behandling));
         beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
+        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         // Act
         beregneYtelseSteg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, null, null);
@@ -179,8 +187,9 @@ public class BeregneYtelseStegImplTest {
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
             .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
             .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
-            .buildFor(behandling);
+            .buildFor(behandling, getBehandlingsresultat(behandling));
         beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
+        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         // Act
         beregneYtelseSteg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_FRAMOVER, null, null

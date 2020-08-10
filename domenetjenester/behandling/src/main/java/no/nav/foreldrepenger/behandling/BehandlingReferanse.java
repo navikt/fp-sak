@@ -90,7 +90,7 @@ public class BehandlingReferanse {
             behandling.getFagsakId(),
             behandling.getId(),
             behandling.getUuid(),
-            behandling.getOriginalBehandling().map(Behandling::getId),
+            behandling.getOriginalBehandlingId(),
             behandling.getStatus(),
             Skjæringstidspunkt.builder()
                 .medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
@@ -106,7 +106,7 @@ public class BehandlingReferanse {
             behandling.getFagsakId(),
             behandling.getId(),
             behandling.getUuid(),
-            behandling.getOriginalBehandling().map(Behandling::getId),
+            behandling.getOriginalBehandlingId(),
             behandling.getStatus(),
             skjæringstidspunkt);
     }

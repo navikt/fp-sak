@@ -188,8 +188,8 @@ public class UttakRevurderingTestUtil {
     }
 
     private void kopierGrunnlagsdata(Behandling revurdering) {
-        Behandling originalBehandling = revurdering.getOriginalBehandling().get();
-        iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(originalBehandling.getId(), revurdering.getId());
+        Long originalBehandlingId = revurdering.getOriginalBehandlingId().get();
+        iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, revurdering.getId());
     }
 
     public OppgittFordelingEntitet byggOgLagreOppgittFordelingForMorFPFF(Behandling behandling) {

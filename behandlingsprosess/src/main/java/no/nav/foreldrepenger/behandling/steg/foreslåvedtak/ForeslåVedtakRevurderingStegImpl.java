@@ -79,17 +79,19 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
     }
 
     private Behandlingsresultat getSistBehandlingsresultatUtenIngenEndring(Behandling orginalBehandling) {
+        Behandling sisteBehandling = orginalBehandling;
         Behandlingsresultat sisteBehandlingResultat = getBehandlingsresultat(orginalBehandling);
 
         while (sisteBehandlingResultat.isBehandlingsresultatIkkeEndret()) {
-            sisteBehandlingResultat = getBehandlingsresultat(getOriginalBehandling(sisteBehandlingResultat.getBehandling()));
+            sisteBehandling = getOriginalBehandling(sisteBehandling);
+            sisteBehandlingResultat = getBehandlingsresultat(sisteBehandling);
         }
 
         return sisteBehandlingResultat;
     }
 
     private Behandling getOriginalBehandling(Behandling behandling) {
-        return behandling.getOriginalBehandling()
+        return behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Revurdering skal alltid ha orginal behandling"));
     }
 

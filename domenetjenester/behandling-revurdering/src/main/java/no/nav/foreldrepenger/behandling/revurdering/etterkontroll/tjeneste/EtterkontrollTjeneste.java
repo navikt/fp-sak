@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -11,15 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingHistorikk;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTaskProperties;
@@ -31,7 +26,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 public class EtterkontrollTjeneste {
 
     private static final Logger log = LoggerFactory.getLogger(EtterkontrollTjeneste.class);
-    private BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
@@ -47,7 +41,6 @@ public class EtterkontrollTjeneste {
                                  ProsessTaskRepository prosessTaskRepository,
                                  BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.prosessTaskRepository = prosessTaskRepository;
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
@@ -97,9 +90,6 @@ public class EtterkontrollTjeneste {
     }
 
     public void enkøBehandling(Behandling behandling) {
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        BehandlingÅrsak.builder(BehandlingÅrsakType.KØET_BEHANDLING).buildFor(behandling);
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 }

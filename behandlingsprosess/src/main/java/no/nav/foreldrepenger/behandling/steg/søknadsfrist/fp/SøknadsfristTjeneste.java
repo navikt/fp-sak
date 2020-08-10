@@ -61,7 +61,7 @@ public class SøknadsfristTjeneste {
             return Optional.empty();
         }
 
-        SøknadEntitet søknad = repositoryProvider.getSøknadRepository().hentSøknad(behandling);
+        SøknadEntitet søknad = repositoryProvider.getSøknadRepository().hentSøknad(behandling.getId());
         SøknadsfristRegelAdapter regelAdapter = new SøknadsfristRegelAdapter();
         SøknadsfristResultat resultat = regelAdapter.vurderSøknadsfristFor(søknad, oppgittePerioder, søknadsfristEtterFørsteUttaksdag);
 

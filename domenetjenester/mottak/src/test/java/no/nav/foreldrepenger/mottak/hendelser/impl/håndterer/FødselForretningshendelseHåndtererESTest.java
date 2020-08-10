@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.hendelser.impl.håndterer;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRING_BEREGNINGSGRUNNLAG;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_HENDELSE_FØDSEL;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -104,7 +104,7 @@ public class FødselForretningshendelseHåndtererESTest {
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
         // Act
-        håndterer.håndterÅpenBehandling(behandling, RE_ENDRING_BEREGNINGSGRUNNLAG);
+        håndterer.håndterÅpenBehandling(behandling, RE_HENDELSE_FØDSEL);
 
         // Assert
         verify(kompletthetskontroller).vurderNyForretningshendelse(eq(behandling));

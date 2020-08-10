@@ -13,8 +13,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -25,8 +25,8 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class AvklaringFaktaMedlemskap {
 
@@ -153,7 +153,7 @@ public class AvklaringFaktaMedlemskap {
      */
     private Utfall harInntektSiste3mnd(Behandling behandling, LocalDate vurderingsdato) {
         AktørId aktørId = behandling.getAktørId();
-        LocalDate mottattDato = søknadRepository.hentSøknad(behandling).getMottattDato();
+        LocalDate mottattDato = søknadRepository.hentSøknad(behandling.getId()).getMottattDato();
         LocalDate mottattDatoMinus3Mnd = mottattDato.minusMonths(3);
         DatoIntervallEntitet siste3Mnd = DatoIntervallEntitet.fraOgMedTilOgMed(mottattDatoMinus3Mnd, mottattDato);
         Optional<InntektArbeidYtelseGrunnlag> grunnlag = iayTjeneste.finnGrunnlag(behandling.getId());

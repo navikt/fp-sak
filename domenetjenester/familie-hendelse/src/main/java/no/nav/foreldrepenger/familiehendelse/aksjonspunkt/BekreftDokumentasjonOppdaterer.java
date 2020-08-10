@@ -50,8 +50,8 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
     }
 
     @Override
-    public boolean skalReinnhenteRegisteropplysninger(Behandling behandling, LocalDate forrigeSkjæringstidspunkt) {
-        return !skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandling.getId()).equals(forrigeSkjæringstidspunkt);
+    public boolean skalReinnhenteRegisteropplysninger(Long behandlingId, LocalDate forrigeSkjæringstidspunkt) {
+        return !skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId).equals(forrigeSkjæringstidspunkt);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
 
         familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
 
-        boolean skalReinnhente = skalReinnhenteRegisteropplysninger(behandling, forrigeSkjæringstidspunkt);
+        boolean skalReinnhente = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
 
         if (skalReinnhente) {
             return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).medOppdaterGrunnlag().build();

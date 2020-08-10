@@ -148,7 +148,7 @@ public class BehandlingRepositoryImplTest {
         behandlingRepository.lagre(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
 
         List<Behandling> result = behandlingRepository.hentBehandlingerMedÅrsakerForFagsakId(behandling.getFagsakId(),
-            BehandlingÅrsakType.årsakerForAutomatiskRevurdering());
+            BehandlingÅrsakType.årsakerForEtterkontroll());
         assertThat(result).isNotEmpty();
     }
 
@@ -789,7 +789,7 @@ public class BehandlingRepositoryImplTest {
         if (innvilget) {
             LegacyESBeregningsresultat.builder()
                 .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
-                .buildFor(behandling);
+                .buildFor(behandling, behandlingsresultat);
             beregningRepository.lagre(behandlingsresultat.getBeregningResultat(), lås);
         }
         return behandlingsresultat;

@@ -377,7 +377,9 @@ public class VurderOpphørAvYtelser  {
     private void oppdatereBehMedÅrsak(Long behandlingId, BehandlingLås lås) {
         behandlingRepository.verifiserBehandlingLås(lås);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        BehandlingÅrsak.builder(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN).buildFor(behandling);
+        BehandlingÅrsak.Builder årsakBuilder = BehandlingÅrsak.builder(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
+        behandling.getOriginalBehandlingId().ifPresent(årsakBuilder::medOriginalBehandlingId);
+        årsakBuilder.buildFor(behandling);
         behandlingRepository.lagre(behandling, lås);
     }
 

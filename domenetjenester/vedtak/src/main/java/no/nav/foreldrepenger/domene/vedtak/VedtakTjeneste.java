@@ -11,11 +11,15 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.es.UtledVedtakResultatTypeES;
+import no.nav.foreldrepenger.behandling.fp.UtledVedtakResultatType;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -23,14 +27,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTotrinnsvurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtakMedBehandlingType;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
@@ -41,11 +46,12 @@ import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 @ApplicationScoped
 public class VedtakTjeneste {
 
+    private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private HistorikkRepository historikkRepository;
     private LagretVedtakRepository lagretVedtakRepository;
     private TotrinnTjeneste totrinnTjeneste;
     private KlageRepository klageRepository;
-    private InnsynRepository innsynRepository;
     private AnkeRepository ankeRepository;
 
     VedtakTjeneste() {
@@ -54,16 +60,17 @@ public class VedtakTjeneste {
 
     @Inject
     public VedtakTjeneste(LagretVedtakRepository lagretVedtakRepository,
-                          HistorikkRepository historikkRepository,
+                          BehandlingRepositoryProvider repositoryProvider,
                           KlageRepository klageRepository,
                           TotrinnTjeneste totrinnTjeneste,
                           InnsynRepository innsynRepository,
                           AnkeRepository ankeRepository) {
-        this.historikkRepository = historikkRepository;
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+        this.historikkRepository = repositoryProvider.getHistorikkRepository();
         this.lagretVedtakRepository = lagretVedtakRepository;
         this.totrinnTjeneste = totrinnTjeneste;
         this.klageRepository = klageRepository;
-        this.innsynRepository = innsynRepository;
         this.ankeRepository = ankeRepository;
     }
 
@@ -196,44 +203,21 @@ public class VedtakTjeneste {
     }
 
     public VedtakResultatType utledVedtakResultatType(Behandling behandling) {
-        BehandlingResultatType resultatType = behandling.getBehandlingsresultat().getBehandlingResultatType();
-        if (BehandlingResultatType.getKlageKoder().contains(resultatType)) {
-            return VedtakResultatType.VEDTAK_I_KLAGEBEHANDLING;
-        }
-        if (BehandlingResultatType.getAnkeKoder().contains(resultatType)) {
-            return VedtakResultatType.VEDTAK_I_ANKEBEHANDLING;
-        }
-        if (BehandlingResultatType.getInnsynKoder().contains(resultatType)) {
-            Optional<InnsynEntitet> innsynOpt = innsynRepository.hentForBehandling(behandling.getId());
-            if (innsynOpt.isPresent()) {
-                return utledVedtakResultatTypeFraInnsyn(innsynOpt.get().getInnsynResultatType());
+        var behandlingResultatType = getBehandlingsresultat(behandling.getId()).getBehandlingResultatType();
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
+            return UtledVedtakResultatTypeES.utled(behandling.getType(), behandlingResultatType);
+        } else {
+            if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingResultatType)) {
+                var original = behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
+                    .orElseThrow(() -> new IllegalStateException("INGEN ENDRING uten original behandling"));
+                return utledVedtakResultatType(original);
             }
+            return UtledVedtakResultatType.utled(behandling.getType(), behandlingResultatType);
         }
-        return utledVedtakResultatType(behandling, resultatType);
     }
 
-    private VedtakResultatType utledVedtakResultatType(Behandling behandling, BehandlingResultatType resultatType) {
-        if (BehandlingResultatType.INGEN_ENDRING.equals(resultatType)) {
-            Optional<Behandling> originalBehandlingOpt = behandling.getOriginalBehandling();
-            if (originalBehandlingOpt.isPresent() && originalBehandlingOpt.get().getBehandlingsresultat() != null) {
-                return utledVedtakResultatType(originalBehandlingOpt.get());
-            }
-        }
-        if (BehandlingResultatType.getInnvilgetKoder().contains(resultatType)) {
-            return VedtakResultatType.INNVILGET;
-        }
-        if (BehandlingResultatType.OPPHØR.equals(resultatType)) {
-            return VedtakResultatType.OPPHØR;
-        }
-        return VedtakResultatType.AVSLAG;
+    private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
     }
 
-    private VedtakResultatType utledVedtakResultatTypeFraInnsyn(InnsynResultatType innsynResultatType) {
-        if (InnsynResultatType.INNVILGET.equals(innsynResultatType)) {
-            return VedtakResultatType.INNVILGET;
-        } else if (InnsynResultatType.DELVIS_INNVILGET.equals(innsynResultatType)) {
-            return VedtakResultatType.DELVIS_INNVILGET;
-        }
-        return VedtakResultatType.AVSLAG;
-    }
 }

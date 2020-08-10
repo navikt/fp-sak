@@ -308,12 +308,10 @@ public class Behandling extends BaseEntitet {
             .anyMatch(behandlingÅrsak::equals);
     }
 
-    public Optional<Behandling> getOriginalBehandling() {
+    public Optional<Long> getOriginalBehandlingId() {
         return getBehandlingÅrsaker().stream()
+            .map(BehandlingÅrsak::getOriginalBehandlingId)
             .filter(Objects::nonNull)
-            .map(BehandlingÅrsak::getOriginalBehandling)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
             .findFirst();
     }
 

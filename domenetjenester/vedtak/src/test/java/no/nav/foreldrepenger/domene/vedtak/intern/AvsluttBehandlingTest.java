@@ -139,7 +139,8 @@ public class AvsluttBehandlingTest {
         Whitebox.setInternalState(annenBehandling,"status", BehandlingStatus.IVERKSETTER_VEDTAK);
         Whitebox.setInternalState(annenBehandling,"behandlingStegTilstander", List.of(tilstand));
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())).thenReturn(List.of(behandling, annenBehandling));
-
+        when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
+        when(behandlingRepository.hentBehandling(annenBehandling.getId())).thenReturn(annenBehandling);
         // Act
         avsluttBehandling.avsluttBehandling(behandling.getId());
 
@@ -173,6 +174,9 @@ public class AvsluttBehandlingTest {
         Behandling tredjeBehandling = lagBehandling(now, now);
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()))
             .thenReturn(List.of(behandling, annenBehandling, tredjeBehandling));
+        when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
+        when(behandlingRepository.hentBehandling(annenBehandling.getId())).thenReturn(annenBehandling);
+        when(behandlingRepository.hentBehandling(tredjeBehandling.getId())).thenReturn(tredjeBehandling);
 
         // Act
         avsluttBehandling.avsluttBehandling(behandling.getId());
@@ -218,6 +222,9 @@ public class AvsluttBehandlingTest {
         Behandling tredjeBehandling = lagBehandling(now.minusDays(1), now);
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()))
             .thenReturn(List.of(behandling, annenBehandling, tredjeBehandling));
+        when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
+        when(behandlingRepository.hentBehandling(annenBehandling.getId())).thenReturn(annenBehandling);
+        when(behandlingRepository.hentBehandling(tredjeBehandling.getId())).thenReturn(tredjeBehandling);
 
         // Act
         avsluttBehandling.avsluttBehandling(behandling.getId());

@@ -82,6 +82,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     private Behandling behandlingSomSkalRevurderes;
     private Behandling revurdering;
+    private Behandlingsresultat revurderingResultat;
     private BeregningsgrunnlagEntitet beregningsgrunnlag;
 
     @Before
@@ -101,6 +102,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
             iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         revurdering = revurderingTjeneste
             .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(), BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
+        revurderingResultat = repositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(revurdering.getId()).orElse(null);
     }
 
     @Test
@@ -230,7 +232,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     @Test
     public void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_sendt(){
         // Act
-        Behandlingsresultat behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(revurdering, true);
+        Behandlingsresultat behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(revurdering, revurderingResultat, true);
 
         // Assert
         assertThat(behandlingsresultat.getVedtaksbrev()).isEqualTo(Vedtaksbrev.AUTOMATISK);
@@ -243,7 +245,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     @Test
     public void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_ikke_sendt(){
         // Act
-        Behandlingsresultat behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(revurdering, false);
+        Behandlingsresultat behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(revurdering, revurderingResultat, false);
 
         // Assert
         assertThat(behandlingsresultat.getVedtaksbrev()).isEqualTo(Vedtaksbrev.INGEN);

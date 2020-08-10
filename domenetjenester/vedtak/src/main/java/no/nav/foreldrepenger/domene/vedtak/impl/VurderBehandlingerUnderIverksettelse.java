@@ -69,7 +69,7 @@ public class VurderBehandlingerUnderIverksettelse {
             .map(beh -> behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(beh.getId()).orElse(null))
             .filter(Objects::nonNull)
             .min(Comparator.comparing(BehandlingVedtak::getOpprettetTidspunkt));
-        return venter.map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandling);
+        return venter.map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId).map(behandlingRepository::hentBehandling);
     }
 
     private List<Behandling> finnBehandlingerUnderIverksetting(Behandling behandling) {

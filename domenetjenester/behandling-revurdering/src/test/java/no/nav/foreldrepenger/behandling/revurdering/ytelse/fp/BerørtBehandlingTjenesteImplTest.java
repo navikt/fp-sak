@@ -30,9 +30,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
@@ -71,7 +71,6 @@ public class BerørtBehandlingTjenesteImplTest {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, new NavBrukerBuilder().medAktørId(AktørId.dummy()).build());
         var førsteBehandling = Behandling.forFørstegangssøknad(fagsak).build();
         revurdering = Behandling.fraTidligereBehandling(førsteBehandling, BehandlingType.REVURDERING).build();
-        revurdering.getOriginalBehandling();
         berørtBehandlingTjeneste = new BerørtBehandlingTjeneste(stønadskontoSaldoTjeneste, repositoryProvider, uttakInputTjeneste,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
     }
@@ -80,9 +79,8 @@ public class BerørtBehandlingTjenesteImplTest {
     @Test
     public void skal_opprette_berørt_behandling_dersom_behandlingsresultater_er_opphør() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.OPPHØR, KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER, false);
-        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandlingsresultat.get().getBehandling()), null, new ForeldrepengerGrunnlag());
-        var behandling = behandlingsresultat.get().getBehandling();
-        when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
+        var uttakInput = new UttakInput(BehandlingReferanse.fra(revurdering), null, new ForeldrepengerGrunnlag());
+        when(uttakInputTjeneste.lagInput(revurdering.getId())).thenReturn(uttakInput);
 
         assertThat(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat,
             lagUttakResultatPerioder(LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), false, false),
@@ -93,9 +91,8 @@ public class BerørtBehandlingTjenesteImplTest {
     @Test
     public void skal_opprette_berørt_behandling_dersom_revudering_er_innvilget_med_endring_i_stønadskonto() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.ENDRING_I_BEREGNING, true);
-        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandlingsresultat.get().getBehandling()), null, new ForeldrepengerGrunnlag());
-        var behandling = behandlingsresultat.get().getBehandling();
-        when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
+        var uttakInput = new UttakInput(BehandlingReferanse.fra(revurdering), null, new ForeldrepengerGrunnlag());
+        when(uttakInputTjeneste.lagInput(revurdering.getId())).thenReturn(uttakInput);
 
         assertThat(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat, Optional.empty(), Optional.empty())).isTrue();
     }
@@ -104,9 +101,8 @@ public class BerørtBehandlingTjenesteImplTest {
     @Test
     public void skal_opprette_berørt_behandling_dersom_revudering_er_innvilget_med_endring_i_uttak() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.ENDRING_I_UTTAK, true);
-        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandlingsresultat.get().getBehandling()), null, new ForeldrepengerGrunnlag());
-        var behandling = behandlingsresultat.get().getBehandling();
-        when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
+        var uttakInput = new UttakInput(BehandlingReferanse.fra(revurdering), null, new ForeldrepengerGrunnlag());
+        when(uttakInputTjeneste.lagInput(revurdering.getId())).thenReturn(uttakInput);
 
         assertThat(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat, Optional.empty(), Optional.empty())).isTrue();
     }
@@ -116,7 +112,7 @@ public class BerørtBehandlingTjenesteImplTest {
     public void skal_opprette_berørt_behandling_dersom_revudering_er_endring_i_foreldrepenger_med_endring_i_uttak_overlappende_perioder() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.FORELDREPENGER_ENDRET, KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
 
-        var behandling = behandlingsresultat.get().getBehandling();
+        var behandling = revurdering;
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag());
         when(stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)).thenReturn(false);
         when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
@@ -131,7 +127,7 @@ public class BerørtBehandlingTjenesteImplTest {
     public void skal_ikke_opprette_berørt_behandling_dersom_revudering_er_endring_i_foreldrepenger_med_endring_i_uttak_og_ikke_overlappende_perioder() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.FORELDREPENGER_ENDRET, KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
 
-        var behandling = behandlingsresultat.get().getBehandling();
+        var behandling = revurdering;
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag());
         when(stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)).thenReturn(false);
         when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
@@ -146,7 +142,7 @@ public class BerørtBehandlingTjenesteImplTest {
     public void skal_ikke_opprette_berørt_behandling_dersom_revudering_er_endring_i_foreldrepenger_med_endring_i_uttak_og_overlappende_avslått_perioder() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.FORELDREPENGER_ENDRET, KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
 
-        var behandling = behandlingsresultat.get().getBehandling();
+        var behandling = revurdering;
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag());
         when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
         when(stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)).thenReturn(false);
@@ -161,7 +157,7 @@ public class BerørtBehandlingTjenesteImplTest {
     public void skal_opprette_berørt_behandling_dersom_revudering_er_endring_i_foreldrepenger_med_endring_i_uttak_og_overlappende_avslått_perioder_med_trekkdager() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.FORELDREPENGER_ENDRET, KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
 
-        var behandling = behandlingsresultat.get().getBehandling();
+        var behandling = revurdering;
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag());
         when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
         when(stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)).thenReturn(false);
@@ -196,9 +192,8 @@ public class BerørtBehandlingTjenesteImplTest {
     @Test
     public void skal_opprette_berørt_behandling_dersom_revudering_er_innvilget_med_endring_i_uttak_negativ_saldo() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
-        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandlingsresultat.get().getBehandling()), null, new ForeldrepengerGrunnlag());
-        var behandling = behandlingsresultat.get().getBehandling();
-        when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
+        var uttakInput = new UttakInput(BehandlingReferanse.fra(revurdering), null, new ForeldrepengerGrunnlag());
+        when(uttakInputTjeneste.lagInput(revurdering.getId())).thenReturn(uttakInput);
 
         when(stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)).thenReturn(true);
         assertThat(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat, Optional.empty(), Optional.empty())).isTrue();
@@ -209,7 +204,7 @@ public class BerørtBehandlingTjenesteImplTest {
         revurdering.getBehandlingÅrsaker().add(BehandlingÅrsak.builder(BehandlingÅrsakType.BERØRT_BEHANDLING).buildFor(revurdering).get(0));
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.FORELDREPENGER_ENDRET, KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
 
-        var behandling = behandlingsresultat.get().getBehandling();
+        var behandling = revurdering;
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag());
         when(stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)).thenReturn(false);
         when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);

@@ -88,7 +88,7 @@ public class BehandlingEntitetTest {
         assertThat(alle).hasSize(1);
 
         Behandling første = alle.get(0);
-        final SøknadEntitet søknad = repositoryProvider.getSøknadRepository().hentSøknad(første);
+        final SøknadEntitet søknad = repositoryProvider.getSøknadRepository().hentSøknad(første.getId());
         final var fhGrunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(første.getId());
         assertThat(søknad).isNotNull();
         assertThat(søknad.getSøknadsdato()).isEqualTo(LocalDate.now());

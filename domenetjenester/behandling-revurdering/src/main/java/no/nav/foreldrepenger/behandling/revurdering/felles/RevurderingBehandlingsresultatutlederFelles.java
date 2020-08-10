@@ -70,13 +70,13 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     public Behandlingsresultat bestemBehandlingsresultatForRevurdering(BehandlingReferanse revurderingRef, boolean erVarselOmRevurderingSendt) {
         Behandling revurdering = behandlingRepository.hentBehandling(revurderingRef.getBehandlingId());
 
-        Behandling originalBehandling = revurdering.getOriginalBehandling()
+        Long originalBehandlingId = revurdering.getOriginalBehandlingId()
             .orElseThrow(() -> RevurderingFeil.FACTORY.revurderingManglerOriginalBehandling(revurdering.getId()).toException());
 
         UttakResultatHolder revurderingUttak = getUttakResultat(revurderingRef.getBehandlingId());
-        UttakResultatHolder originalBehandlingUttak = getUttakResultat(originalBehandling.getId());
+        UttakResultatHolder originalBehandlingUttak = getUttakResultat(originalBehandlingId);
 
-        return bestemBehandlingsresultatForRevurderingCore(revurderingRef, revurdering, originalBehandling, revurderingUttak,
+        return bestemBehandlingsresultatForRevurderingCore(revurderingRef, revurdering, behandlingRepository.hentBehandling(originalBehandlingId), revurderingUttak,
             originalBehandlingUttak, erVarselOmRevurderingSendt);
     }
 
@@ -95,15 +95,15 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         Long behandlingId = revurderingRef.getBehandlingId();
 
         Optional<Behandlingsresultat> behandlingsresultatRevurdering = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
-        Optional<Behandlingsresultat> behandlingsresultatOriginal = finnBehandlingsresultatPåOriginalBehandling(originalBehandling);
-        if (FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(behandlingsresultatRevurdering, behandlingsresultatOriginal)) {
+        Optional<Behandlingsresultat> behandlingsresultatOriginal = finnBehandlingsresultatPåOriginalBehandling(originalBehandling.getId());
+        if (FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(behandlingsresultatRevurdering, behandlingsresultatOriginal, originalBehandling.getType())) {
             /* 2b */
-            return FastsettBehandlingsresultatVedAvslagPåAvslag.fastsett(revurdering);
+            return FastsettBehandlingsresultatVedAvslagPåAvslag.fastsett(revurdering, behandlingsresultatRevurdering.orElse(null));
         }
 
-        if (OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(revurdering)) {
+        if (OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(behandlingsresultatRevurdering.orElse(null))) {
             /* 2c */
-            return OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(revurdering);
+            return OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(revurdering, behandlingsresultatRevurdering.orElse(null));
         }
 
         Tuple<VilkårUtfallType, Avslagsårsak> utfall = medlemTjeneste.utledVilkårUtfall(revurdering);
@@ -120,7 +120,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
 
         boolean erEndringIUttakFraEndringstidspunkt = uttakresultatOriginalOpt.harUlikUttaksplan(uttakresultatRevurderingOpt);
         if (erEndringIUttakFraEndringstidspunkt && uttakresultatRevurderingOpt.kontrollerErSisteUttakAvslåttMedÅrsak()) {
-            return SettOpphørOgIkkeRett.fastsett(revurdering, Vedtaksbrev.AUTOMATISK);
+            return SettOpphørOgIkkeRett.fastsett(revurdering, behandlingsresultatRevurdering.orElse(null), Vedtaksbrev.AUTOMATISK);
         }
         Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlagOpt = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId());
         Optional<BeregningsgrunnlagEntitet> originalGrunnlagOpt = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(originalBehandling.getId());
@@ -137,15 +137,15 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     protected abstract boolean harEtablertYtelse(Behandling revurdering, boolean finnesInnvilgetIkkeOpphørtVedtak,
                                                  UttakResultatHolder uttakresultatOriginal);
 
-    private Optional<Behandlingsresultat> finnBehandlingsresultatPåOriginalBehandling(Behandling originalBehandling) {
-        Optional<Behandlingsresultat> behandlingsresultatOriginal = behandlingsresultatRepository.hentHvisEksisterer(originalBehandling.getId());
+    private Optional<Behandlingsresultat> finnBehandlingsresultatPåOriginalBehandling(Long originalBehandlingId) {
+        Optional<Behandlingsresultat> behandlingsresultatOriginal = behandlingsresultatRepository.hentHvisEksisterer(originalBehandlingId);
         if (behandlingsresultatOriginal.isPresent()) {
             // Dersom originalBehandling er et beslutningsvedtak må vi lete videre etter det faktiske resultatet for å kunne vurdere avslag på avslag
             if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingsresultatOriginal.get().getBehandlingResultatType())) {
-                return finnBehandlingsresultatPåOriginalBehandling(originalBehandling.getOriginalBehandling()
-                    .orElseThrow(
-                        () -> new IllegalStateException("Utviklerfeil: Kan ikke ha BehandlingResultatType.INGEN_ENDRING uten original behandling. BehandlingId="
-                            + originalBehandling.getId())));
+                var forrigeBehandlingId = behandlingRepository.hentBehandling(originalBehandlingId).getOriginalBehandlingId()
+                    .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kan ikke ha BehandlingResultatType.INGEN_ENDRING uten original behandling. BehandlingId="
+                            + originalBehandlingId));
+                return finnBehandlingsresultatPåOriginalBehandling(forrigeBehandlingId);
             } else {
                 return behandlingsresultatOriginal;
             }
@@ -184,7 +184,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
 
     private VurderOpphørFørDagensDato erOpphørtFørDagensDato() {
         return resultat -> {
-            var ref = lagRef(resultat.getBehandling());
+            var ref = lagRef(behandlingRepository.hentBehandling(resultat.getBehandlingId()));
             return opphørUttakTjeneste.getOpphørsdato(ref, resultat).orElse(LocalDate.MAX).isBefore(LocalDate.now());
         };
     }
@@ -231,11 +231,11 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         }
 
         if (erKunEndringIFordelingAvYtelsen) {
-            return ErKunEndringIFordelingAvYtelsen.fastsett(revurdering, erVarselOmRevurderingSendt);
+            return ErKunEndringIFordelingAvYtelsen.fastsett(revurdering, behandlingsresultatRepository.hent(revurdering.getId()), erVarselOmRevurderingSendt);
         }
         Vedtaksbrev vedtaksbrev = utledVedtaksbrev(konsekvenserForYtelsen, erVarselOmRevurderingSendt);
         BehandlingResultatType behandlingResultatType = utledBehandlingResultatType(konsekvenserForYtelsen);
-        return buildBehandlingsresultat(revurdering, behandlingResultatType, konsekvenserForYtelsen, vedtaksbrev);
+        return buildBehandlingsresultat(revurdering, behandlingsresultatRepository.hent(revurdering.getId()), behandlingResultatType, konsekvenserForYtelsen, vedtaksbrev);
     }
 
     private boolean harUttakIkkeOpphørt(UttakResultatHolder uttakResultatHolder, VurderOpphørFørDagensDato opphørFørDagensDato) {
@@ -253,7 +253,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     }
 
     private Behandlingsresultat fastsettForIkkeEtablertYtelse(Behandling revurdering, List<KonsekvensForYtelsen> konsekvenserForYtelsen) {
-        Behandlingsresultat behandlingsresultat = revurdering.getBehandlingsresultat();
+        Behandlingsresultat behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(revurdering.getId()).orElse(null);
         Behandlingsresultat.Builder behandlingsresultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
         konsekvenserForYtelsen.forEach(behandlingsresultatBuilder::leggTilKonsekvensForYtelsen);
         behandlingsresultatBuilder.medBehandlingResultatType(BehandlingResultatType.INNVILGET);
@@ -291,9 +291,8 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         return konsekvensForYtelsen;
     }
 
-    static Behandlingsresultat buildBehandlingsresultat(Behandling revurdering, BehandlingResultatType behandlingResultatType,
+    static Behandlingsresultat buildBehandlingsresultat(Behandling revurdering, Behandlingsresultat behandlingsresultat, BehandlingResultatType behandlingResultatType,
                                                                   List<KonsekvensForYtelsen> konsekvenserForYtelsen, Vedtaksbrev vedtaksbrev) {
-        Behandlingsresultat behandlingsresultat = revurdering.getBehandlingsresultat();
         Behandlingsresultat.Builder behandlingsresultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
         behandlingsresultatBuilder.medBehandlingResultatType(behandlingResultatType);
         behandlingsresultatBuilder.medVedtaksbrev(vedtaksbrev);

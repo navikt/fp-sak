@@ -162,11 +162,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             private SøknadEntitet søknad;
 
             @Override
-            public SøknadEntitet hentSøknad(Behandling behandling1) {
-                return søknad;
-            }
-
-            @Override
             public Optional<SøknadEntitet> hentSøknadHvisEksisterer(Long behandlingId) {
                 return Optional.ofNullable(søknad);
             }
@@ -471,7 +466,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             behandlingBuilder = Behandling.nyBehandlingFor(fagsak, behandlingType);
         } else {
             behandlingBuilder = Behandling.fraTidligereBehandling(originalBehandling, behandlingType)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(behandlingÅrsakType).medOriginalBehandling(originalBehandling));
+                .medBehandlingÅrsak(BehandlingÅrsak.builder(behandlingÅrsakType).medOriginalBehandlingId(originalBehandling.getId()));
         }
 
         if (behandlendeEnhet != null) {

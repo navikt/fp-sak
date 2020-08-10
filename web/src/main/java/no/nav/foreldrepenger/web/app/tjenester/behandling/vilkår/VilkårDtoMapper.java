@@ -18,8 +18,7 @@ class VilkårDtoMapper {
         // SONAR - Utility classes should not have public constructors
     }
 
-    static List<VilkårDto> lagVilkarDto(Behandling behandling, boolean medVilkårkjøring) {
-        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
+    static List<VilkårDto> lagVilkarDto(Behandling behandling, Behandlingsresultat behandlingsresultat, boolean medVilkårkjøring) {
         if (behandlingsresultat != null) {
             VilkårResultat vilkårResultat = behandlingsresultat.getVilkårResultat();
             if (vilkårResultat != null) {

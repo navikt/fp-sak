@@ -202,7 +202,7 @@ public class HendelsePublisererTjenesteTest {
         Long behandlingId = behandling.getId();
         if (BehandlingType.REVURDERING.equals(behandlingType)) {
             Behandling nyBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).medOriginalBehandling(behandling)).build();
+                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).medOriginalBehandlingId(behandling.getId())).build();
             Behandlingsresultat.Builder nyttBehandlingresultatBuilder = Behandlingsresultat.builder();
             nyttBehandlingresultatBuilder.medBehandlingResultatType(behandlingResultatType);
             Behandlingsresultat nyttBehandingsresultat = nyttBehandlingresultatBuilder.buildFor(nyBehandling);

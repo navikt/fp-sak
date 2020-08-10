@@ -90,7 +90,7 @@ public class ForvaltningUttakTjeneste {
     }
 
     private void kopierBeregningsgrunnlag(Behandling behandling) {
-        behandling.getOriginalBehandling().map(Behandling::getId)
+        behandling.getOriginalBehandlingId()
             .ifPresent(originalId -> beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(originalId, behandling.getId()));
     }
 
@@ -144,8 +144,8 @@ public class ForvaltningUttakTjeneste {
     }
 
     private UttakResultatEntitet hentForrigeUttaksresultat(Behandling behandling) {
-        var originalBehandling = behandling.getOriginalBehandling().orElseThrow();
-        return fpUttakRepository.hentUttakResultat(originalBehandling.getId());
+        var originalBehandlingId = behandling.getOriginalBehandlingId().orElseThrow();
+        return fpUttakRepository.hentUttakResultat(originalBehandlingId);
     }
 
     public void beregnKontoer(long behandlingId) {

@@ -178,7 +178,7 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
             .buildFor(behandlingFP);
         behandlingRepository.lagre(getBehandlingsresultat(behandlingFP).getVilkårResultat(), lås);
         repository.lagre(getBehandlingsresultat(behandlingFP));
-        behVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(getBehandlingsresultat(behandlingFP), VedtakResultatType.INNVILGET);
+        behVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(behandlingFP, getBehandlingsresultat(behandlingFP), VedtakResultatType.INNVILGET);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behVedtak, lås);
         repository.flush();
         return behandlingFP;
@@ -203,7 +203,7 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
         behandlingRepository.lagre(getBehandlingsresultat(behandling).getVilkårResultat(), lås);
         repository.lagre(getBehandlingsresultat(behandling));
 
-        behVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(getBehandlingsresultat(behandling), VedtakResultatType.INNVILGET);
+        behVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(behandling, getBehandlingsresultat(behandling), VedtakResultatType.INNVILGET);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behVedtak, lås);
 
         repository.flush();
@@ -343,7 +343,7 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
     protected Behandling opprettOgLagreRevurdering(Behandling originalBehandling, VedtakResultatType resultat, boolean gjelderOpphør, boolean gjelderEndring) {
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandling(originalBehandling)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
 
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, behandlingLås);
@@ -362,7 +362,7 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
         }
         repository.lagre(getBehandlingsresultat(revurdering));
 
-        BehandlingVedtak behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(getBehandlingsresultat(revurdering), resultat);
+        BehandlingVedtak behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(revurdering, getBehandlingsresultat(revurdering), resultat);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, behandlingLås);
         repository.flush();
 

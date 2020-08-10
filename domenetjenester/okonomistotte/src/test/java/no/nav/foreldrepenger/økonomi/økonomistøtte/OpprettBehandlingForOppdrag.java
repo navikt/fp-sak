@@ -18,8 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBereg
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 
 public class OpprettBehandlingForOppdrag {
@@ -58,7 +58,7 @@ public class OpprettBehandlingForOppdrag {
     public static void genererBehandlingOgResultat(Behandling behandling, VedtakResultatType vedtakResultatType, long antallBarn) {
         BehandlingResultatType behandlingResultatType = vedtakResultatType.equals(VedtakResultatType.INNVILGET) ?
             BehandlingResultatType.INNVILGET : BehandlingResultatType.AVSLÅTT;
-        Behandlingsresultat.builderForInngangsvilkår()
+        var bhRes = Behandlingsresultat.builderForInngangsvilkår()
             .medBehandlingResultatType(behandlingResultatType)
             .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
             .medRettenTil(RettenTil.HAR_RETT_TIL_FP)
@@ -69,7 +69,7 @@ public class OpprettBehandlingForOppdrag {
                 throw new IllegalStateException("Ved innvilgelse må antall barn angis");
             }
             LegacyESBeregning beregning = new LegacyESBeregning(SATS, antallBarn, SATS * antallBarn, nå);
-            LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling);
+            LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bhRes);
         }
     }
 
@@ -81,12 +81,12 @@ public class OpprettBehandlingForOppdrag {
             .buildFor(behandling);
     }
 
-    public static BehandlingVedtak opprettBehandlingVedtak(Behandlingsresultat behandlingsresultat, VedtakResultatType vedtakResultatType) {
-        return opprettBehandlingVedtak(behandlingsresultat, vedtakResultatType, false);
+    public static BehandlingVedtak opprettBehandlingVedtak(Behandling behandling, Behandlingsresultat behandlingsresultat, VedtakResultatType vedtakResultatType) {
+        return opprettBehandlingVedtak(behandling, behandlingsresultat, vedtakResultatType, false);
     }
 
-    public static BehandlingVedtak opprettBehandlingVedtak(Behandlingsresultat behandlingsresultat, VedtakResultatType resultatType, boolean vedtaksdatoFørIDag) {
-        String ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandlingsresultat.getBehandling());
+    public static BehandlingVedtak opprettBehandlingVedtak(Behandling behandling, Behandlingsresultat behandlingsresultat, VedtakResultatType resultatType, boolean vedtaksdatoFørIDag) {
+        String ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
         return BehandlingVedtak.builder()
             .medVedtakstidspunkt(vedtaksdatoFørIDag ? LocalDateTime.now().minusDays(3) : LocalDateTime.now())
             .medAnsvarligSaksbehandler(ansvarligSaksbehandler)

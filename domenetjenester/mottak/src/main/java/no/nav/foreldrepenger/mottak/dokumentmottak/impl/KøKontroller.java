@@ -9,12 +9,10 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
@@ -74,9 +72,6 @@ public class KøKontroller {
     }
 
     public void enkøBehandling(Behandling behandling) {
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        BehandlingÅrsak.builder(BehandlingÅrsakType.KØET_BEHANDLING).buildFor(behandling);
-        behandlingRepository.lagre(behandling, lås);
         behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
@@ -91,8 +86,8 @@ public class KøKontroller {
     //OBS: Endrer du noe her vil du antagelig også ønske å endre det i BerørtBehandlingKontroller.dekøBehandling() - kan disse slås sammen?
     private void oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(Behandling behandling) {
         Optional<Behandling> originalBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
-        if (behandling.erRevurdering() && originalBehandling.isPresent() && behandling.getOriginalBehandling().isPresent()
-            && !behandling.getOriginalBehandling().get().getId().equals(originalBehandling.get().getId())) {
+        if (behandling.erRevurdering() && originalBehandling.isPresent() && behandling.getOriginalBehandlingId().isPresent()
+            && !behandling.getOriginalBehandlingId().get().equals(originalBehandling.get().getId())) {
             Behandling oppdatertBehandling = oppdaterOriginalBehandlingVedHenleggelse(behandling);
 
             if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {

@@ -100,7 +100,7 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void håndterHenleggelseUtenOppgitteSøknadsopplysninger(Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        SøknadEntitet søknad = søknadRepository.hentSøknad(behandling);
+        SøknadEntitet søknad = søknadRepository.hentSøknad(behandling.getId());
         if (søknad == null) {
             // Må ta behandling av vent for å tillate henleggelse (krav i Behandlingskontroll)
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);

@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVi
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
@@ -72,6 +73,7 @@ public class MedlemTjeneste {
     private UtledVurderingsdatoerForMedlemskapTjeneste utledVurderingsdatoerTjeneste;
     private VurderMedlemskapTjeneste vurderMedlemskapTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
+    private BehandlingRepository behandlingRepository;
 
     MedlemTjeneste() {
         // CDI
@@ -93,6 +95,7 @@ public class MedlemTjeneste {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.utledVurderingsdatoerTjeneste = utledVurderingsdatoerForMedlemskapTjeneste;
         this.vurderMedlemskapTjeneste = vurderMedlemskapTjeneste;
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
     }
 
     /**
@@ -183,8 +186,8 @@ public class MedlemTjeneste {
      * @param behandling
      * @return opphørsdato
      */
-    public Optional<LocalDate> hentOpphørsdatoHvisEksisterer(Behandling behandling) {
-        Optional<Behandlingsresultat> behandlingsresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
+    public Optional<LocalDate> hentOpphørsdatoHvisEksisterer(Long behandlingId) {
+        Optional<Behandlingsresultat> behandlingsresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
         if (behandlingsresultatOpt.isEmpty() || behandlingsresultatOpt.get().getVilkårResultat() == null) {
             return Optional.empty();
         }
@@ -208,13 +211,14 @@ public class MedlemTjeneste {
                     if (medlemLøpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT)) {
                         return Optional.empty();
                     } else {
+                        var behandling = behandlingRepository.hentBehandling(behandlingId);
                         return medlemskapVilkårPeriodeRepository.hentOpphørsdatoHvisEksisterer(behandling);
                     }
                 }
                 return Optional.empty();
             }
             if (medlem.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
-                return skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getSkjæringstidspunktHvisUtledet();
+                return skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getSkjæringstidspunktHvisUtledet();
             }
         }
         return Optional.empty();
@@ -243,7 +247,8 @@ public class MedlemTjeneste {
 
     private LocalDate finnStartdato(Behandling revurderingBehandling) {
 
-        Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> medlemskapsvilkårPeriodeGrunnlag = revurderingBehandling.getOriginalBehandling()
+        Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> medlemskapsvilkårPeriodeGrunnlag = revurderingBehandling.getOriginalBehandlingId()
+            .map(behandlingRepository::hentBehandling)
             .flatMap(medlemskapVilkårPeriodeRepository::hentAggregatHvisEksisterer);
 
         LocalDate startDato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurderingBehandling.getId()).getUtledetSkjæringstidspunkt();

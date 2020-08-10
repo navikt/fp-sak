@@ -54,8 +54,9 @@ public class DokumentBestillerApplikasjonTjeneste {
             return;
         }
 
-        DokumentMalType dokumentMal = velgDokumentMalForVedtak(behandlingsresultat, behandlingVedtak, klageRepository, ankeRepository, unleash);
-        dokumentKafkaBestiller.bestillBrev(behandlingsresultat.getBehandling(), dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
+        var behandling = behandlingRepository.hentBehandling(behandlingsresultat.getBehandlingId());
+        DokumentMalType dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak, klageRepository, ankeRepository, unleash);
+        dokumentKafkaBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
     public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {

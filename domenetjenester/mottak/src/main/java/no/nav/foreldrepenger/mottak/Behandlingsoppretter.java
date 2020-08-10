@@ -132,10 +132,11 @@ public class Behandlingsoppretter {
         kopierVedlegg(sisteYtelseBehandling, revurdering);
 
         // Kopier behandlingsårsaker fra forrige behandling
-        new BehandlingÅrsak.Builder(sisteYtelseBehandling.getBehandlingÅrsaker().stream()
+        BehandlingÅrsak.Builder årsakBuilder = BehandlingÅrsak.builder(sisteYtelseBehandling.getBehandlingÅrsaker().stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
-            .collect(toList()))
-            .buildFor(revurdering);
+            .collect(toList()));
+        revurdering.getOriginalBehandlingId().ifPresent(årsakBuilder::medOriginalBehandlingId);
+        årsakBuilder.medManueltOpprettet(sisteYtelseBehandling.erManueltOpprettet()).buildFor(revurdering);
 
         BehandlingskontrollKontekst nyKontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
         behandlingRepository.lagre(revurdering, nyKontekst.getSkriveLås());
@@ -205,7 +206,7 @@ public class Behandlingsoppretter {
     }
 
     private void kopierTidligereGrunnlagFraTil(Fagsak fagsak, Behandling behandlingMedSøknad, Behandling nyBehandling) {
-        SøknadEntitet søknad = søknadRepository.hentSøknad(behandlingMedSøknad);
+        SøknadEntitet søknad = søknadRepository.hentSøknad(behandlingMedSøknad.getId());
         if (søknad != null) {
             søknadRepository.lagreOgFlush(nyBehandling, søknad);
         }

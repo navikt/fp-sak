@@ -58,10 +58,10 @@ public class SjekkOmDetFinnesTilkjentYtelse {
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
             return null;
         }
-        Behandling forrigeBehandling = behandling.getOriginalBehandling()
+        Long forrigeBehandlingId = behandling.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalArgumentException("Mangler original behandling for revurdering, behandlingId=" + behandling.getId()));
 
-        return hentTilkjentYtelse(forrigeBehandling.getId());
+        return hentTilkjentYtelse(forrigeBehandlingId);
     }
 
     private boolean harTilkjentYtelse(BeregningsresultatEntitet ty) {

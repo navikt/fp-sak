@@ -112,12 +112,8 @@ public class LegacyESBeregningsresultat extends BaseEntitet {
             }
         }
 
-        public LegacyESBeregningsresultat buildFor(Behandling behandling) {
-            // Må opprette Behandlingsresultat på Behandling hvis det ikke finnes, før man bygger BeregningResultat
-            Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
-            if (behandlingsresultat == null) {
-                behandlingsresultat = Behandlingsresultat.builderForBeregningResultat().buildFor(behandling);
-            }
+        public LegacyESBeregningsresultat buildFor(Behandling behandling, Behandlingsresultat resultat) {
+            var behandlingsresultat = resultat != null ? resultat : Behandlingsresultat.builderForBeregningResultat().buildFor(behandling);
             return buildFor(behandlingsresultat);
         }
 

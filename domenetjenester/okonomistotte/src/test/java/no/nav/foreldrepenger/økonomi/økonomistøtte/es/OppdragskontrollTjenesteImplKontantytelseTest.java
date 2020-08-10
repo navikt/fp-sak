@@ -58,10 +58,10 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFac
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettBehandlingForOppdrag;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.OppdragskontrollEngangsstønad;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.OppdragskontrollManagerFactoryKontantytelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -348,7 +348,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
     private Behandling opprettOgLagreRevurdering(Behandling originalBehandling, VedtakResultatType vedtakResultatType, int antallbarn) {
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandling(originalBehandling)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
 
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, behandlingLås);
@@ -361,7 +361,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
         }
         repository.lagre(behandlingsresultat);
 
-        BehandlingVedtak behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(behandlingsresultat, vedtakResultatType);
+        BehandlingVedtak behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(revurdering, behandlingsresultat, vedtakResultatType);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, behandlingLås);
         repository.flush();
 
@@ -386,7 +386,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
         beregningRepository.lagre(behandlingsresultat.getBeregningResultat(), lås);
         repository.lagre(behandlingsresultat);
 
-        behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(behandlingsresultat, VedtakResultatType.INNVILGET, vedtaksdatoFørIDag);
+        behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(behandling, behandlingsresultat, VedtakResultatType.INNVILGET, vedtaksdatoFørIDag);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, lås);
 
         repository.flush();

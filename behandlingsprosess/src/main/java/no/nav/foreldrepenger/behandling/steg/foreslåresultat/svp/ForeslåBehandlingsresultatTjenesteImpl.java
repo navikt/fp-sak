@@ -54,7 +54,7 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
 
 
     protected boolean minstEnGyldigUttaksPeriode(Behandlingsresultat behandlingsresultat) {
-        Optional<SvangerskapspengerUttakResultatEntitet> uttakResultat = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandlingsresultat.getBehandling().getId());
+        Optional<SvangerskapspengerUttakResultatEntitet> uttakResultat = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandlingsresultat.getBehandlingId());
         if(!uttakResultat.isPresent())
             return false;
         for (var arbeidsforhold : uttakResultat.get().getUttaksResultatArbeidsforhold()) {
