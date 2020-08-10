@@ -70,7 +70,7 @@ public class KompletthetssjekkerManglendeVedleggTest {
             .build();
         SøknadEntitet søknad = new SøknadEntitet.Builder().leggTilVedlegg(påkrevdSøknadVedlegg).leggTilVedlegg(annetSøknadVedlegg).build();
         reset(søknadRepository);
-        when(søknadRepository.hentSøknad(behandling)).thenReturn(søknad);
+        when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
         when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(java.util.Optional.ofNullable(søknad));
 
         // Act
@@ -103,7 +103,7 @@ public class KompletthetssjekkerManglendeVedleggTest {
             .build();
         SøknadEntitet søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true).leggTilVedlegg(påkrevdSøknadVedlegg).leggTilVedlegg(annetSøknadVedlegg).build();
         reset(søknadRepository);
-        when(søknadRepository.hentSøknad(behandling)).thenReturn(søknad);
+        when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
         when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(java.util.Optional.ofNullable(søknad));
         // Act
         final List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
@@ -134,7 +134,7 @@ public class KompletthetssjekkerManglendeVedleggTest {
             .build();
         SøknadEntitet søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true).leggTilVedlegg(påkrevdSøknadVedlegg2).leggTilVedlegg(påkrevdSøknadVedlegg1).build();
         reset(søknadRepository);
-        when(søknadRepository.hentSøknad(behandling)).thenReturn(søknad);
+        when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
         when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(java.util.Optional.ofNullable(søknad));
         // Act
         final List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
@@ -149,7 +149,7 @@ public class KompletthetssjekkerManglendeVedleggTest {
         Behandling behandling = lagBehandling();
         SøknadEntitet søknad = new SøknadEntitet.Builder().build();
         reset(søknadRepository);
-        when(søknadRepository.hentSøknad(behandling)).thenReturn(søknad);
+        when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
         when(søknadRepository.hentSøknadHvisEksisterer(any())).thenReturn(java.util.Optional.ofNullable(søknad));
         // Act
         final List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));

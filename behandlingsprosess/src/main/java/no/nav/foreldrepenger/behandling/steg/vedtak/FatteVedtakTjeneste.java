@@ -110,7 +110,7 @@ public class FatteVedtakTjeneste {
     }
 
     private void verifiserBehandlingsresultat(Behandling behandling) { // NOSONAR dette er bare enkel verifisering og har ikke høy complexity
-        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
+        Behandlingsresultat behandlingsresultat = behandlingVedtakTjeneste.getBehandlingsresultat(behandling.getId());
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             if (!VEDTAKSTILSTANDER_KLAGE.contains(behandlingsresultat.getBehandlingResultatType())) {
                 throw new IllegalStateException(

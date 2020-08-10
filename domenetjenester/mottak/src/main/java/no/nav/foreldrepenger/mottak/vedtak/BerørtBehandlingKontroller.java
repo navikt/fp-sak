@@ -168,8 +168,8 @@ public class BerørtBehandlingKontroller {
     //OBS: Endrer du noe her vil du antagelig også ønske å endre det i KøKontroller.oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling() - kan disse slås sammen?
     private void dekøBehandling(Behandling behandling) {
         Optional<Behandling> originalBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
-        if (originalBehandling.isPresent() && behandling.getOriginalBehandling().isPresent()
-            && !behandling.getOriginalBehandling().get().getId().equals(originalBehandling.get().getId())) {
+        if (originalBehandling.isPresent() && behandling.getOriginalBehandlingId().isPresent()
+            && !behandling.getOriginalBehandlingId().get().equals(originalBehandling.get().getId())) {
 
             Behandling oppdatertBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, finnFørsteÅrsak(behandling));
 

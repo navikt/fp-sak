@@ -122,9 +122,9 @@ public class BehandlingTilOppdragMapperTjeneste {
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
             return Optional.empty();
         }
-        Behandling originalBehandling = behandling.getOriginalBehandling()
+        Long originalBehandlingId = behandling.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Utvikler feil: Revurdering uten original behandling"));
-        return beregningsresultatRepository.hentUtbetBeregningsresultat(originalBehandling.getId());
+        return beregningsresultatRepository.hentUtbetBeregningsresultat(originalBehandlingId);
     }
 
     private boolean gjelderFødsel(Long behandlingId) {

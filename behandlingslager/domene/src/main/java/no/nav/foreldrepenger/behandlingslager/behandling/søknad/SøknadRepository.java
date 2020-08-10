@@ -31,11 +31,6 @@ public class SøknadRepository {
         this.behandlingRepository = behandlingRepository;
     }
 
-    public SøknadEntitet hentSøknad(Behandling behandling) {
-        Long behandlingId = behandling.getId();
-        return hentSøknad(behandlingId);
-    }
-
     public SøknadEntitet hentSøknad(Long behandlingId) {
         if (behandlingId == null) {
             return null;
@@ -48,9 +43,9 @@ public class SøknadRepository {
 
         return HibernateVerktøy.hentUniktResultat(query).map(SøknadGrunnlagEntitet::getSøknad)
                 .orElseGet(() -> {
-                    final Optional<Behandling> behandling = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId)
-                            .flatMap(Behandling::getOriginalBehandling);
-                    return behandling.map(this::hentSøknad).orElse(null);
+                    final Optional<Long> originalId = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId)
+                        .flatMap(Behandling::getOriginalBehandlingId);
+                    return originalId.map(this::hentSøknad).orElse(null);
                 });
     }
 
@@ -74,7 +69,7 @@ public class SøknadRepository {
                 return søknad.get();
             }
         }
-        return hentSøknad(behandling);
+        return hentSøknad(behandling.getId());
     }
 
     private Optional<Behandling> utledSisteFørstegangsbehandlingSomIkkeErHenlagt(Behandling behandling) {

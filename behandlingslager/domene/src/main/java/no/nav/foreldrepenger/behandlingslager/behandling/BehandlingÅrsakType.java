@@ -32,7 +32,6 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_ENDRING_FRA_BRUKER("RE-END-FRA-BRUKER", "Endringssøknad fra bruker"),
     RE_ENDRET_INNTEKTSMELDING("RE-END-INNTEKTSMELD", "Mottatt ny inntektsmelding"),
     BERØRT_BEHANDLING("BERØRT-BEHANDLING", "Endring i den andre forelderens uttak"),
-    KØET_BEHANDLING("KØET-BEHANDLING", "Søker eller den andre forelderen har en åpen behandling"),
     RE_ANNET("RE-ANNET", "Annet"),
     RE_SATS_REGULERING("RE-SATS-REGULERING", "Regulering av grunnbeløp"),
     //For automatiske informasjonsbrev
@@ -60,11 +59,15 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_HENDELSE_DØD_BARN("RE-HENDELSE-DØD-B", "Melding om registrert død på barn i folkeregisteret"),
     RE_HENDELSE_DØDFØDSEL("RE-HENDELSE-DØDFØD", "Melding om registrert dødfødsel i folkeregisteret"),
 
+
+    // UTGÅTT. men ikke slett - er noen behandlinger med disse i årsak-tabellen + at det ligger ting i historikk-innslag (inntil evt konvertert).
+
+    @Deprecated // Registeroppdatering. Mange forkomster i behandling_aarsak, færre i HISTORIKKINNSLAG_FELT
     RE_REGISTEROPPLYSNING("RE-REGISTEROPPL", "Nye registeropplysninger"),
+    @Deprecated // Registeroppdatering. Mange forkomster i behandling_aarsak, mange i HISTORIKKINNSLAG_FELT
     RE_OPPLYSNINGER_OM_YTELSER("RE-YTELSE", "Nye opplysninger om ytelse"),
-
-    // UTGÅTT. men ikke slett - er noen behandlinger med disse i årsak-tabellen.
-
+    @Deprecated // Køing - i tillegg til aksjonspunkt. Mange forkomster i behandling_aarsak, mange i HISTORIKKINNSLAG_FELT
+    KØET_BEHANDLING("KØET-BEHANDLING", "Søker eller den andre forelderen har en åpen behandling"),
     @Deprecated // Infotrygd hendelse-feed. 2 behandlinger med forekomst
     RE_TILSTØTENDE_YTELSE_INNVILGET("RE-TILST-YT-INNVIL", "Tilstøtende ytelse innvilget"),
     @Deprecated // Ukjent intensjon. Ingen forekomster i DB. Kan slettes
@@ -72,6 +75,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     @Deprecated // Infotrygd hendelse-feed. 2 behandlinger med forekomst
     RE_TILSTØTENDE_YTELSE_OPPHØRT("RE-TILST-YT-OPPH", "Tilstøtende ytelse opphørt"),
 
+    // La stå
     UDEFINERT("-", "Ikke definert"),
 
     ;

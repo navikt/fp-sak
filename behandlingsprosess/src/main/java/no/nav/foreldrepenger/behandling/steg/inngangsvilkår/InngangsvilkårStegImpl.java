@@ -100,7 +100,7 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     }
 
     private boolean harAvslåttForrigeBehandling(Behandling revurdering) {
-        Optional<Behandling> originalBehandling = revurdering.getOriginalBehandling();
+        Optional<Behandling> originalBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling);
         if (originalBehandling.isPresent()) {
             Behandlingsresultat behandlingsresultat = getBehandlingsresultat(originalBehandling.get());
             // Dersom originalBehandling er et beslutningsvedtak må vi lete videre etter det faktiske resultatet for å kunne vurdere om forrige behandling var avslått

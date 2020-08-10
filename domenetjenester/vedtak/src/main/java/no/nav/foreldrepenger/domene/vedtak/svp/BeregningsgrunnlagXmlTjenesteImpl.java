@@ -59,7 +59,7 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
         //TODO PFP-7642 Implementere basert på BeregningsgrunnlagXmlTjenesteForeldrepenger
         BeregningsgrunnlagSvangerskapspenger beregningsgrunnlagSvangerskapspenger = beregningObjectFactory.createBeregningsgrunnlagSvangerskapspenger();
         Optional<BeregningsgrunnlagEntitet> gjeldendeBg = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-            behandling.getId(), behandling.getOriginalBehandling().map(Behandling::getId), BeregningsgrunnlagTilstand.FASTSATT)
+            behandling.getId(), behandling.getOriginalBehandlingId(), BeregningsgrunnlagTilstand.FASTSATT)
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
 
         if (gjeldendeBg.isPresent()) {

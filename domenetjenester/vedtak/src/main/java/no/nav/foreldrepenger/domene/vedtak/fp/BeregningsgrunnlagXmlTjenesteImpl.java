@@ -55,7 +55,7 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
     public void setBeregningsgrunnlag(Beregningsresultat beregningsresultat, Behandling behandling) {
         BeregningsgrunnlagForeldrepenger beregningsgrunnlag = beregningObjectFactory.createBeregningsgrunnlagForeldrepenger();
         Optional<BeregningsgrunnlagEntitet> gjeldendeBg = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-            behandling.getId(), behandling.getOriginalBehandling().map(Behandling::getId), BeregningsgrunnlagTilstand.FASTSATT)
+            behandling.getId(), behandling.getOriginalBehandlingId(), BeregningsgrunnlagTilstand.FASTSATT)
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
 
         if (gjeldendeBg.isPresent()) {

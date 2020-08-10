@@ -60,7 +60,7 @@ public class DokumentBehandlingTjeneste {
 
     public void loggDokumentBestilt(Behandling behandling, DokumentMalType dokumentMalTypeKode) {
         BehandlingDokumentEntitet behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
-            .orElse(BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
+            .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
         behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
             .medBehandlingDokument(behandlingDokument)
             .medDokumentMalType(dokumentMalTypeKode.getKode())

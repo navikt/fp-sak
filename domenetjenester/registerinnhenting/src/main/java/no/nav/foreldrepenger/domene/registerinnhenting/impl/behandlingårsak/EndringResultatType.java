@@ -1,11 +1,8 @@
-package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
+package no.nav.foreldrepenger.domene.registerinnhenting.impl.behandlingårsak;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -19,50 +16,48 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum VedtakResultatType implements Kodeverdi {
+public enum EndringResultatType implements Kodeverdi {
 
-    INNVILGET("INNVILGET", "Innvilget"),
-    DELVIS_INNVILGET("DELVIS_INNVILGET", "delvis innvilget"), // TODO: vurder deprekering - finnes ikke i DB
-    AVSLAG("AVSLAG", "Avslag"),
-    OPPHØR("OPPHØR", "Opphør"),
-    VEDTAK_I_KLAGEBEHANDLING("VEDTAK_I_KLAGEBEHANDLING", "vedtak i klagebehandling"),
-    VEDTAK_I_ANKEBEHANDLING("VEDTAK_I_ANKEBEHANDLING", "vedtak i ankebehandling"),
-    VEDTAK_I_INNSYNBEHANDLING("VEDTAK_I_INNSYNBEHANDLING", "vedtak i innsynbehandling"),
+    REGISTEROPPLYSNING("REGISTEROPPLYSNING", "Nye registeropplysninger"),
+    OPPLYSNING_OM_YTELSER("YTELSEOPPLYSNING", "Nye opplysninger om ytelse"),
+    OPPLYSNING_OM_DØD("DØDSOPPLYSNING", "Nye opplysninger om dødsfall"),
+    INNTEKTSMELDING("INNTEKTSMELDING", "Nye inntektsmeldinger"),
+
     UDEFINERT("-", "Ikke definert"),
 
     ;
 
-    private static final Map<String, VedtakResultatType> KODER = new LinkedHashMap<>();
+    public static final String KODEVERK = "ENDRING_RESULTAT"; //$NON-NLS-1$
 
-    public static final String KODEVERK = "VEDTAK_RESULTAT_TYPE"; //$NON-NLS-1$
+    private static final Map<String, EndringResultatType> KODER = new LinkedHashMap<>();
 
     @JsonIgnore
     private String navn;
 
     private String kode;
 
-    private VedtakResultatType(String kode) {
+    private EndringResultatType(String kode) {
         this.kode = kode;
     }
 
-    private VedtakResultatType(String kode, String navn) {
+    private EndringResultatType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }
 
     @JsonCreator
-    public static VedtakResultatType fraKode(@JsonProperty("kode") String kode) {
+    public static EndringResultatType fraKode(@JsonProperty("kode") String kode) {
         if (kode == null) {
             return null;
         }
         var ad = KODER.get(kode);
         if (ad == null) {
-            throw new IllegalArgumentException("Ukjent VedtakResultatType: " + kode);
+            throw new IllegalArgumentException("Ukjent BehandlingÅrsakType: " + kode);
         }
         return ad;
     }
 
-    public static Map<String, VedtakResultatType> kodeMap() {
+    public static Map<String, EndringResultatType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
 
@@ -100,16 +95,4 @@ public enum VedtakResultatType implements Kodeverdi {
         }
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<VedtakResultatType, String> {
-        @Override
-        public String convertToDatabaseColumn(VedtakResultatType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public VedtakResultatType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-    }
 }

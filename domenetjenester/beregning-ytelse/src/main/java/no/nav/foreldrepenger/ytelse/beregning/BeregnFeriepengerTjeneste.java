@@ -7,8 +7,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import no.nav.folketrygdloven.beregningsgrunnlag.RegelmodellOversetter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -32,6 +33,7 @@ public abstract class BeregnFeriepengerTjeneste {
     private JacksonJsonConfig jacksonJsonConfig = new JacksonJsonConfig();
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private int antallDagerFeriepenger;
 
@@ -45,6 +47,7 @@ public abstract class BeregnFeriepengerTjeneste {
         }
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.antallDagerFeriepenger = antallDagerFeriepenger;
     }
@@ -53,7 +56,7 @@ public abstract class BeregnFeriepengerTjeneste {
 
         Optional<Behandling> annenPartsBehandling = finnAnnenPartsBehandling(behandling);
         Optional<BeregningsresultatEntitet> annenPartsBeregningsresultat = annenPartsBehandling.flatMap(beh -> {
-            if (BehandlingResultatType.getAlleInnvilgetKoder().contains(beh.getBehandlingsresultat().getBehandlingResultatType())) {
+            if (BehandlingResultatType.getAlleInnvilgetKoder().contains(getBehandlingsresultat(beh.getId()).getBehandlingResultatType())) {
                 return beregningsresultatRepository.hentBeregningsresultat(beh.getId());
             }
             return Optional.empty();
@@ -69,6 +72,10 @@ public abstract class BeregnFeriepengerTjeneste {
         String sporing = RegelmodellOversetter.getSporing(evaluation);
 
         MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelModell, regelInput, sporing);
+    }
+
+    private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
+        return behandlingsresultatRepository.hent(behandlingId);
     }
 
     private Optional<Behandling> finnAnnenPartsBehandling(Behandling behandling) {

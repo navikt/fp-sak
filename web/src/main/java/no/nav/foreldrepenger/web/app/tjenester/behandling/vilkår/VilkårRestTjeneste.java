@@ -27,6 +27,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -48,6 +50,7 @@ public class VilkårRestTjeneste {
     public static final String VILKÅR_FULL_V2_PATH = BASE_PATH + VILKÅR_FULL_V2_PART_PATH; //NOSONAR TFP-2234
 
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     public VilkårRestTjeneste() {
         // for CDI proxy
@@ -56,6 +59,7 @@ public class VilkårRestTjeneste {
     @Inject
     public VilkårRestTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
     }
 
     @GET
@@ -80,7 +84,7 @@ public class VilkårRestTjeneste {
             ? behandlingRepository.hentBehandling(behandlingId)
             : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
-        List<VilkårDto> dto = VilkårDtoMapper.lagVilkarDto(behandling, false);
+        List<VilkårDto> dto = VilkårDtoMapper.lagVilkarDto(behandling, getBehandlingsresultat(behandling.getId()), false);
         CacheControl cc = new CacheControl();
         cc.setNoCache(true);
         cc.setNoStore(true);
@@ -111,7 +115,7 @@ public class VilkårRestTjeneste {
             ? behandlingRepository.hentBehandling(behandlingId)
             : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
-        List<VilkårDto> dto = VilkårDtoMapper.lagVilkarDto(behandling, true);
+        List<VilkårDto> dto = VilkårDtoMapper.lagVilkarDto(behandling, getBehandlingsresultat(behandling.getId()), true);
         CacheControl cc = new CacheControl();
         cc.setNoCache(true);
         cc.setNoStore(true);
@@ -156,5 +160,9 @@ public class VilkårRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response getVilkårFull(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getVilkårFull(new BehandlingIdDto(uuidDto));
+    }
+
+    private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
     }
 }

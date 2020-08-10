@@ -6,6 +6,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -32,6 +33,7 @@ public class IAYRepositoryProvider {
     private OpptjeningRepository opptjeningRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
 
     @Inject
@@ -44,6 +46,7 @@ public class IAYRepositoryProvider {
 
         // behandling repositories
         this.behandlingRepository = new BehandlingRepository(entityManager);
+        this.behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
         this.fagsakRepository = new FagsakRepository(entityManager);
 
         // behandling aggregater
@@ -64,6 +67,11 @@ public class IAYRepositoryProvider {
     public BehandlingRepository getBehandlingRepository() {
         return behandlingRepository;
     }
+
+    public BehandlingsresultatRepository getBehandlingsresultatRepository() {
+        return behandlingsresultatRepository;
+    }
+
 
     public FagsakRepository getFagsakRepository() {
         // bridge metode før sammenkobling medBehandling

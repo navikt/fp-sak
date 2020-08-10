@@ -66,7 +66,7 @@ public class DokumentmottakerFelles {
 
     void leggTilBehandlingsårsak(Behandling behandling, BehandlingÅrsakType behandlingÅrsak) {
         BehandlingÅrsak.Builder builder = BehandlingÅrsak.builder(behandlingÅrsak);
-        behandling.getOriginalBehandling().ifPresent(builder::medOriginalBehandling);
+        behandling.getOriginalBehandlingId().ifPresent(builder::medOriginalBehandlingId);
         builder.buildFor(behandling);
 
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
@@ -141,10 +141,6 @@ public class DokumentmottakerFelles {
 
     OrganisasjonsEnhet finnEnhetFraFagsak(Fagsak sak) {
         return behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(sak);
-    }
-
-    void opprettHistorikkinnslagForBehandlingOppdatertMedNyeOpplysninger(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        historikkinnslagTjeneste.opprettHistorikkinnslagForBehandlingOppdatertMedNyeOpplysninger(behandling, behandlingÅrsakType);
     }
 
     final Behandling opprettRevurdering(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {

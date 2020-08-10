@@ -17,8 +17,7 @@ class RyddBeregninger {
         this.kontekst = kontekst;
     }
 
-    void ryddBeregninger(Behandling behandling) {
-        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
+    void ryddBeregninger(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         if (behandlingsresultat == null || behandlingsresultat.getBeregningResultat() == null) {
             return;
         }
@@ -28,17 +27,16 @@ class RyddBeregninger {
         if (behandlingsresultat.getBeregningResultat().getBeregninger() != null) {
             LegacyESBeregningsresultat.builderFraEksisterende(behandlingsresultat.getBeregningResultat())
                 .nullstillBeregninger()
-                .buildFor(behandling);
+                .buildFor(behandling, behandlingsresultat);
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         }
     }
 
-    public void ryddBeregningerHvisIkkeOverstyrt(Behandling behandling) {
-        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
+    public void ryddBeregningerHvisIkkeOverstyrt(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         if (behandlingsresultat == null || behandlingsresultat.getBeregningResultat() == null) {
             return;
         } else if (!behandlingsresultat.getBeregningResultat().isOverstyrt()) {
-            ryddBeregninger(behandling);
+            ryddBeregninger(behandling, behandlingsresultat);
         }
     }
 }

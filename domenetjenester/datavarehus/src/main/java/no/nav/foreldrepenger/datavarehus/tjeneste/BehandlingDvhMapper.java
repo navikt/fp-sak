@@ -75,7 +75,7 @@ public class BehandlingDvhMapper {
         if (BehandlingType.KLAGE.equals(behandling.getType()) && klageVurderingResultat.isPresent()) {
             return klageVurderingResultat.get().getKlageResultat().getPåKlagdBehandling().map(Behandling::getId).orElse(null);
         }
-        return behandling.getOriginalBehandling().map(Behandling::getId).orElse(null);
+        return behandling.getOriginalBehandlingId().orElse(null);
     }
 
     private String mapSoeknadFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh){

@@ -48,9 +48,9 @@ public class BehandlingVedtakRepository {
         if (!behandling.erRevurdering()) {
             throw new IllegalStateException("Utviklerfeil: Metoden skal bare kalles for revurderinger");
         }
-        Behandling originalBehandling = behandling.getOriginalBehandling()
+        Long originalBehandlingId = behandling.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
-        return hentBehandlingvedtakForBehandlingId(originalBehandling.getId())
+        return hentBehandlingvedtakForBehandlingId(originalBehandlingId)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling har ikke behandlingsvedtak - skal ikke skje"));
     }
 
@@ -76,8 +76,8 @@ public class BehandlingVedtakRepository {
         List<Behandling> behandlingerMedSisteVedtakstidspunkt = behandlingMedSisteVedtakstidspunkt(avsluttedeIkkeHenlagteBehandlinger);
         //Før PFP-8620 hadde vedtak bare dato og ikke klokkeslett
         if (behandlingerMedSisteVedtakstidspunkt.size() > 1) {
-            Behandling behandlingMedGjeldendeVedtak = sisteEndretVedtak(behandlingerMedSisteVedtakstidspunkt);
-            return hentBehandlingvedtakForBehandlingId(behandlingMedGjeldendeVedtak.getId());
+            Long behandlingMedGjeldendeVedtak = sisteEndretVedtak(behandlingerMedSisteVedtakstidspunkt);
+            return hentBehandlingvedtakForBehandlingId(behandlingMedGjeldendeVedtak);
         } else {
             return hentBehandlingvedtakForBehandlingId(behandlingerMedSisteVedtakstidspunkt.get(0).getId());
         }
@@ -103,7 +103,7 @@ public class BehandlingVedtakRepository {
         return hentBehandlingvedtakForBehandlingId(behandling.getId()).orElseThrow().getVedtakstidspunkt();
     }
 
-    private Behandling sisteEndretVedtak(List<Behandling> behandlinger) {
+    private Long sisteEndretVedtak(List<Behandling> behandlinger) {
         if (behandlinger.isEmpty()) {
             throw new IllegalArgumentException("Behandlinger må ha minst ett element");
         }
@@ -114,7 +114,7 @@ public class BehandlingVedtakRepository {
                 sistEndretVedtak = vedtak;
             }
         }
-        return sistEndretVedtak.getBehandlingsresultat().getBehandling();
+        return sistEndretVedtak.getBehandlingsresultat().getBehandlingId();
     }
 
     // sjekk lås og oppgrader til skriv

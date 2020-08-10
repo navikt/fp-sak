@@ -41,7 +41,6 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
     public void oppdaterÅpenBehandlingMedDokument(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) { //#I2
         dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument);
         dokumentmottakerFelles.leggTilBehandlingsårsak(behandling, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
-        dokumentmottakerFelles.opprettHistorikkinnslagForBehandlingOppdatertMedNyeOpplysninger(behandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_INNTEKT);
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
     }
 

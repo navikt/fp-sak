@@ -53,8 +53,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -76,7 +74,6 @@ import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
-import no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterinnhentingHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -150,7 +147,6 @@ public class RegisterdataEndringshåndtererImplTest {
         Period.of(1, 0, 0), Period.of(0, 6, 0), Period.of(0, 4, 0), Period.of(1, 0, 0), Period.of(1, 0, 0), Period.of(0, 6, 0));
     private HistorikkRepository historikkRepository = new HistorikkRepository(em);
     private AbakusInnhentingGrunnlagLoggRepository loggRepository = new AbakusInnhentingGrunnlagLoggRepository(em);
-    private no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste = new RegisterinnhentingHistorikkinnslagTjeneste(historikkRepository);
     private BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository = new BehandlingsgrunnlagKodeverkRepository(
         em);
 
@@ -217,10 +213,6 @@ public class RegisterdataEndringshåndtererImplTest {
             .oppdaterRegisteropplysningerOgReposisjonerBehandlingVedEndringer(behandling);
 
         // Assert
-        List<Historikkinnslag> historikkinnslag = historikkRepository.hentHistorikk(behandling.getId());
-        assertThat(historikkinnslag).hasSize(1);
-        assertThat(historikkinnslag.get(0).getType()).isEqualTo(HistorikkinnslagType.NYE_REGOPPLYSNINGER);
-
         verify(endringskontroller, times(1)).spolTilStartpunkt(any(Behandling.class), any(), any());
     }
 
@@ -247,9 +239,6 @@ public class RegisterdataEndringshåndtererImplTest {
             .oppdaterRegisteropplysningerOgReposisjonerBehandlingVedEndringer(behandling);
 
         // Assert
-        List<Historikkinnslag> historikkinnslag = historikkRepository.hentHistorikk(behandling.getId());
-        assertThat(historikkinnslag).hasSize(0);
-
         verify(endringsresultatSjekker, times(0)).opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(anyLong());
     }
 
@@ -383,10 +372,8 @@ public class RegisterdataEndringshåndtererImplTest {
             durationInstance,
             endringskontroller,
             endringsresultatSjekker,
-            historikkinnslagTjeneste,
             familieHendelseTjeneste,
-            behandlingÅrsakTjeneste,
-            skjæringstidspunktTjeneste);
+            behandlingÅrsakTjeneste);
     }
 
     private Personinfo opprettSøkerinfo() {

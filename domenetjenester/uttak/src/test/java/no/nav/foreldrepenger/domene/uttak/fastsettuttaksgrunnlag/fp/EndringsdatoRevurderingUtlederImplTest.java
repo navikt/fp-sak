@@ -45,14 +45,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -178,7 +178,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var ref = BehandlingReferanse.fra(revurdering);
         FamilieHendelser familiehendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse);
         var originalSøknadshendelse = FamilieHendelse.forFødsel(FØDSELSDATO, null, List.of(new Barn()), 1);
-        var originalBehandling = new OriginalBehandling(revurdering.getOriginalBehandling().get().getId(), new FamilieHendelser().medSøknadHendelse(originalSøknadshendelse));
+        var originalBehandling = new OriginalBehandling(revurdering.getOriginalBehandlingId().get(), new FamilieHendelser().medSøknadHendelse(originalSøknadshendelse));
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(familiehendelser)
             .medOriginalBehandling(originalBehandling);
@@ -203,7 +203,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var ref = BehandlingReferanse.fra(revurdering);
         FamilieHendelser familiehendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse);
         var originalSøknadshendelse = FamilieHendelse.forFødsel(FØDSELSDATO, null, List.of(new Barn()), 1);
-        var originalBehandling = new OriginalBehandling(revurdering.getOriginalBehandling().get().getId(),
+        var originalBehandling = new OriginalBehandling(revurdering.getOriginalBehandlingId().get(),
             new FamilieHendelser().medSøknadHendelse(originalSøknadshendelse));
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(familiehendelser)
@@ -342,7 +342,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         // Arrange berørt behandling mor
         Behandling revurderingBerørtSak = testUtil.opprettRevurderingBerørtSak(AKTØR_ID_MOR, BERØRT_BEHANDLING, behandling);
         BehandlingÅrsak.Builder revurderingÅrsak = BehandlingÅrsak.builder(BERØRT_BEHANDLING)
-            .medOriginalBehandling(revurderingBerørtSak.getOriginalBehandling().get());
+            .medOriginalBehandlingId(revurderingBerørtSak.getOriginalBehandlingId().get());
         revurderingÅrsak.buildFor(revurderingBerørtSak);
         behandlingRepository.lagre(revurderingBerørtSak, behandlingRepository.taSkriveLås(revurderingBerørtSak));
 
@@ -376,7 +376,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         // Arrange berørt behandling mor
         Behandling revurderingBerørtSak = testUtil.opprettRevurderingBerørtSak(AKTØR_ID_MOR, BERØRT_BEHANDLING, behandling);
         BehandlingÅrsak.Builder revurderingÅrsak = BehandlingÅrsak.builder(BERØRT_BEHANDLING)
-            .medOriginalBehandling(revurderingBerørtSak.getOriginalBehandling().get());
+            .medOriginalBehandlingId(revurderingBerørtSak.getOriginalBehandlingId().get());
         revurderingÅrsak.buildFor(revurderingBerørtSak);
         behandlingRepository.lagre(revurderingBerørtSak, behandlingRepository.taSkriveLås(revurderingBerørtSak));
 
@@ -499,7 +499,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
         YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(familieHendelser)
-            .medOriginalBehandling(new OriginalBehandling(revurdering.getOriginalBehandling().get().getId(), familieHendelser));
+            .medOriginalBehandling(new OriginalBehandling(revurdering.getOriginalBehandlingId().get(), familieHendelser));
         var uttakInput = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(uttakBeregningsandelTjeneste.hentStatuser());
 
         // Act
@@ -519,7 +519,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
         YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(familieHendelser)
-            .medOriginalBehandling(new OriginalBehandling(revurdering.getOriginalBehandling().get().getId(), familieHendelser));
+            .medOriginalBehandling(new OriginalBehandling(revurdering.getOriginalBehandlingId().get(), familieHendelser));
         var uttakInput = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(uttakBeregningsandelTjeneste.hentStatuser());
 
         // Act
@@ -745,7 +745,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         FamilieHendelser familiehendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse);
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(familiehendelser)
-            .medOriginalBehandling(new OriginalBehandling(behandling.getOriginalBehandling().get().getId(), new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse)));
+            .medOriginalBehandling(new OriginalBehandling(behandling.getOriginalBehandlingId().get(), new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse)));
         return new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(uttakBeregningsandelTjeneste.hentStatuser());
     }
 

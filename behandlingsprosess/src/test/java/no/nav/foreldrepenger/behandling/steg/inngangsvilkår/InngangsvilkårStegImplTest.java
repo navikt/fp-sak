@@ -236,6 +236,8 @@ public class InngangsvilkårStegImplTest {
 
         RegelResultat val = new RegelResultat(revurdering.getBehandlingsresultat().getVilkårResultat(), emptyList(), emptyMap());
         when(regelOrkestrerer.vurderInngangsvilkår(eq(Set.of(oppVilkårType, medlVilkårType)), any(), any())).thenReturn(val);
+        var behrepo = revurderingsscenario.mockBehandlingRepository();
+        when(behrepo.hentBehandling(førstegangsbehandling.getId())).thenReturn(førstegangsbehandling);
         var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer, mock(SkjæringstidspunktTjeneste.class));
         // Act
         BehandleStegResultat stegResultat = new SutOpptjeningOgMedlVilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste).utførSteg(kontekst);
@@ -279,6 +281,9 @@ public class InngangsvilkårStegImplTest {
         RegelResultat val = new RegelResultat(revurdering2.getBehandlingsresultat().getVilkårResultat(), emptyList(), emptyMap());
         when(regelOrkestrerer.vurderInngangsvilkår(eq(Set.of(oppVilkårType, medlVilkårType)), any(), any())).thenReturn(val);
         var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer, mock(SkjæringstidspunktTjeneste.class));
+        var behrepo = andreRevurderingsscenario.mockBehandlingRepository();
+        when(behrepo.hentBehandling(førstegangsbehandling.getId())).thenReturn(førstegangsbehandling);
+        when(behrepo.hentBehandling(revurdering1.getId())).thenReturn(revurdering1);
         // Act
         BehandleStegResultat stegResultat = new SutOpptjeningOgMedlVilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste).utførSteg(kontekst);
 

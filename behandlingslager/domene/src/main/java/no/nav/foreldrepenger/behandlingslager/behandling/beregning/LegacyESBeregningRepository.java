@@ -14,6 +14,7 @@ import javax.persistence.TypedQuery;
 import org.hibernate.jpa.QueryHints;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -81,8 +82,8 @@ public class LegacyESBeregningRepository {
     }
 
     private Optional<LegacyESBeregning> getSisteBeregning(Behandling behandling) {
-        Optional<LegacyESBeregning> beregning = Optional.ofNullable(behandling.getBehandlingsresultat()).map(behandlingsresultat -> behandlingsresultat.getBeregningResultat()).map(beregningResultat -> beregningResultat.getSisteBeregning()).orElse(Optional.empty());
-        return beregning;
+        return Optional.ofNullable(behandling.getBehandlingsresultat()).map(Behandlingsresultat::getBeregningResultat).flatMap(LegacyESBeregningsresultat::getSisteBeregning);
+
     }
 
     public void lagreBeregning(Long behandlingId, LegacyESBeregning nyBeregning) {
@@ -92,7 +93,7 @@ public class LegacyESBeregningRepository {
         LegacyESBeregningsresultat beregningResultat = (sisteBeregning == null ? LegacyESBeregningsresultat.builder()
                 : LegacyESBeregningsresultat.builderFraEksisterende(sisteBeregning.getBeregningResultat()))
                         .medBeregning(nyBeregning)
-                        .buildFor(behandling);
+                        .buildFor(behandling, behandling.getBehandlingsresultat());
 
         BehandlingLås skriveLås = taSkriveLås(behandling);
         lagre(beregningResultat, skriveLås);

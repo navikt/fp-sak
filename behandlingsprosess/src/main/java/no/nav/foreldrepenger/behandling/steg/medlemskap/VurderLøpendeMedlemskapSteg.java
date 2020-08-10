@@ -60,7 +60,7 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         Long behandlingId = kontekst.getBehandlingId();
-        if (skalVurdereLøpendeMedlemskap(kontekst.getBehandlingId())) {
+        if (skalVurdereLøpendeMedlemskap(behandlingId)) {
             Map<LocalDate, VilkårData> vurderingsTilDataMap = vurderLøpendeMedlemskap.vurderLøpendeMedlemskap(behandlingId);
             if (!vurderingsTilDataMap.isEmpty()) {
                 Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -79,7 +79,7 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
                 medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, builder);
 
                 Tuple<VilkårUtfallType, VilkårUtfallMerknad> resultat = medlemskapVilkårPeriodeRepository.utledeVilkårStatus(behandling);
-                VilkårResultat.Builder vilkårBuilder = VilkårResultat.builderFraEksisterende(behandling.getBehandlingsresultat().getVilkårResultat());
+                VilkårResultat.Builder vilkårBuilder = VilkårResultat.builderFraEksisterende(getBehandlingsresultat(behandlingId).getVilkårResultat());
                 Avslagsårsak avslagsårsak = null;
                 if (VilkårUtfallType.IKKE_OPPFYLT.equals(resultat.getElement1())) {
                     avslagsårsak = Avslagsårsak.fraKode(resultat.getElement2().getKode());
@@ -94,9 +94,13 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
     }
 
     private boolean skalVurdereLøpendeMedlemskap(Long behandlingId) {
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
+        Optional<Behandlingsresultat> behandlingsresultat = Optional.ofNullable(getBehandlingsresultat(behandlingId));
         return behandlingsresultat.map(b -> b.getVilkårResultat().getVilkårene()).orElse(Collections.emptyList())
             .stream()
             .anyMatch(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET) && v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT));
+    }
+
+    private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
     }
 }

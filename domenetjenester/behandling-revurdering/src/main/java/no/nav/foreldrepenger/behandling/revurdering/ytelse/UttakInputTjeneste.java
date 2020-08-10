@@ -77,7 +77,7 @@ public class UttakInputTjeneste {
     public UttakInput lagInput(Behandling behandling) {
         var behandlingId = behandling.getId();
         var iayGrunnlag = iayTjeneste.finnGrunnlag(behandlingId).orElse(null);
-        var medlemskapOpphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandling);
+        var medlemskapOpphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandlingId);
         return lagInput(behandling, iayGrunnlag, medlemskapOpphørsdato.orElse(null));
     }
 

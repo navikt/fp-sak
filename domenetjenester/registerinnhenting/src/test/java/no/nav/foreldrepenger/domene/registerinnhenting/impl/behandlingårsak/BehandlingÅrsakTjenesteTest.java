@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.behandlingårsak;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
@@ -17,7 +19,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -34,12 +35,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.EndringsresultatSjekker;
+import no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterinnhentingHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
@@ -63,14 +66,18 @@ public class BehandlingÅrsakTjenesteTest {
 
     @Mock
     private DiffResult diffResult;
+    @Mock
+    private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;
+    @Mock
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
 
     @Before
     public void setup() {
         initMocks(this);
-
-        tjeneste = new BehandlingÅrsakTjeneste(utledere, endringsresultatSjekker);
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
+        tjeneste = new BehandlingÅrsakTjeneste(utledere, endringsresultatSjekker, historikkinnslagTjeneste, skjæringstidspunktTjeneste);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBruker(AKTØRID, NavBrukerKjønn.KVINNE)
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -90,8 +97,11 @@ public class BehandlingÅrsakTjenesteTest {
         endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(InntektArbeidYtelseGrunnlag.class, 1L, 1L), () -> diffResult);
         endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(YtelseFordelingAggregat.class, 1L, 1L), () -> diffResult);
 
-        // Act/Assert
-        assertThat(tjeneste.utledBehandlingÅrsakerBasertPåDiff(lagRef(behandling), endringsresultat)).isEmpty();
+        // Assert
+        tjeneste.lagHistorikkForRegisterEndringsResultat(behandling, endringsresultat);
+
+        // Assert
+        verifyNoInteractions(historikkinnslagTjeneste);
     }
 
     @Test
@@ -100,10 +110,11 @@ public class BehandlingÅrsakTjenesteTest {
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
         endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(FamilieHendelseGrunnlagEntitet.class, 1L, 2L), () -> diffResult);
 
-        // Act/Assert
-        Set<BehandlingÅrsakType> behandlingÅrsaker = tjeneste.utledBehandlingÅrsakerBasertPåDiff(lagRef(behandling), endringsresultat);
-        assertThat(behandlingÅrsaker).hasSize(1);
-        assertThat(behandlingÅrsaker).as("Begge utlederne hvor endring skal returnere samme årsak.").contains(BehandlingÅrsakType.RE_REGISTEROPPLYSNING);
+        // Assert
+        tjeneste.lagHistorikkForRegisterEndringsResultat(behandling, endringsresultat);
+
+        // Assert
+        verify(historikkinnslagTjeneste).opprettHistorikkinnslagForNyeRegisteropplysninger(any());
     }
 
     @Test
@@ -116,13 +127,11 @@ public class BehandlingÅrsakTjenesteTest {
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
         endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(PersonInformasjonEntitet.class, personopplysningGrunnlag1.getId(), personopplysningGrunnlag2.getId()), () -> diffResult);
 
-        Set<BehandlingÅrsakType> behandlingÅrsaker = tjeneste.utledBehandlingÅrsakerBasertPåDiff(lagRef(behandling), endringsresultat);
-        assertThat(behandlingÅrsaker).hasSize(1);
-        assertThat(behandlingÅrsaker).as("Forventer behandlingsårsak").contains(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD);
-    }
+        // Assert
+        tjeneste.lagHistorikkForRegisterEndringsResultat(behandling, endringsresultat);
 
-    private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        // Assert
+        verify(historikkinnslagTjeneste).opprettHistorikkinnslagForBehandlingMedNyeOpplysninger(any(), eq(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD));
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(LocalDate dødsdato) {
