@@ -58,7 +58,7 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
         if (batchArguments.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.getElement1(), sak.getElement2(), callId));
         } else {
-            tilVurdering.forEach(sak -> log.info("Skal revurdere sak {} for aktør {}", sak.getElement1(), sak.getElement2()));
+            tilVurdering.forEach(sak -> log.info("Skal revurdere sak {}", sak.getElement1()));
         }
         return executionId + tilVurdering.size();
     }

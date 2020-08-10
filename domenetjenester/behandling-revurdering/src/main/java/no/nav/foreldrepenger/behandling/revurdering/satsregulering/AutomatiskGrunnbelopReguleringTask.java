@@ -52,6 +52,7 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         boolean åpneYtelsesBehandlinger = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId);
         if (åpneYtelsesBehandlinger) {
+            log.info("GrunnbeløpRegulering finnes allerede åpen revurdering på fagsakId = {}", fagsakId);
             return;
         }
 
