@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.domene.vedtak.intern;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
@@ -57,31 +59,26 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
         return null;
     }
 
-    private LocalDate sisteDødsdato(Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag) {
-        LocalDate sisteDødsdato = null;
+    private Optional<LocalDate> sisteDødsdato(Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag) {
         Optional<List<UidentifisertBarn>> barna = familieHendelseGrunnlag
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getBarna);
 
-        if(barna.isPresent()){
-            for(var barn: barna.get()){
-                if(barn.getDødsdato() == null) return null;
-                sisteDødsdato = finnSiste(sisteDødsdato,barn.getDødsdato());
-            }
-            return sisteDødsdato;
-        } else return null;
-    }
-
-    private LocalDate finnSiste(LocalDate sisteDødsdato, Optional<LocalDate> dødsdato){
-        return (dødsdato.isPresent() && (sisteDødsdato == null || dødsdato.get().isAfter(sisteDødsdato)))?dødsdato.get(): sisteDødsdato;
+        if (barna.isEmpty() || barna.get().isEmpty() || barna.get().stream().anyMatch(b -> b.getDødsdato().isPresent()))
+            return Optional.empty();
+        else return barna.get().stream()
+            .map(UidentifisertBarn::getDødsdato)
+            .flatMap(Optional::stream)
+            .filter(Objects::nonNull)
+            .max(Comparator.naturalOrder());
     }
 
     protected LocalDate avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(Behandling behandling, LocalDate avsluttningsdato) {
         var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         if(familieHendelseGrunnlag.isPresent()){
 
-            LocalDate sisteDødsdato = sisteDødsdato(familieHendelseGrunnlag);
-            if(sisteDødsdato != null) return sisteDødsdato.plusWeeks(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now())).plusWeeks(6);
+            Optional<LocalDate> sisteDødsdato = sisteDødsdato(familieHendelseGrunnlag);
+            if(sisteDødsdato.isPresent()) return sisteDødsdato.get().plusWeeks(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now())).plusWeeks(6);
 
         }
 

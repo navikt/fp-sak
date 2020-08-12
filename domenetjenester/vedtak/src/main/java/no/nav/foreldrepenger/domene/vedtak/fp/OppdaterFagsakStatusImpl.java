@@ -141,10 +141,7 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
         Optional<List<UidentifisertBarn>> barna = familieHendelseGrunnlag
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getBarna);
-
-        if(barna.isPresent() && barna.get().size() != 0){
-            return barna.get().stream().anyMatch(barn -> barn.getDødsdato() == null);
-        } else return true;
+        return barna.isEmpty() || barna.get().isEmpty() || barna.get().stream().anyMatch(barn -> barn.getDødsdato().isEmpty());
     }
 
     private boolean erDatoUtløpt(Optional<LocalDate> dato, LocalDate grensedato) {
