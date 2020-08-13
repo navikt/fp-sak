@@ -205,11 +205,12 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private boolean inneholderEndringssøknadPerioderFørSkjæringstidspunkt(Behandling revurdering, BehandlingReferanse behandlingReferanse) {
         if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
             YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-            Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.getId());
-            if (ytelseFordelingAggregat.isPresent() && ytelseFordelingAggregat.get().getOppgittFordeling() != null) {
-                return ytelseFordelingAggregat.get().getOppgittFordeling().getOppgittePerioder().stream()
-                    .anyMatch(oppgittPeriode -> oppgittPeriode.getFom().isBefore(behandlingReferanse.getUtledetSkjæringstidspunkt()));
-            }
+            var oppgittPerioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.getId())
+                .map(YtelseFordelingAggregat::getOppgittFordeling)
+                .map(OppgittFordelingEntitet::getOppgittePerioder).orElse(Collections.emptyList());
+            var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
+            return oppgittPerioder.stream()
+                .anyMatch(oppgittPeriode -> oppgittPeriode.getFom().isBefore(skjæringstidspunkt));
         }
         return false;
     }

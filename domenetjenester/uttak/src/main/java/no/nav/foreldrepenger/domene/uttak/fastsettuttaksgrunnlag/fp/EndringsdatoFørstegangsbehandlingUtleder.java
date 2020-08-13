@@ -33,18 +33,8 @@ public class EndringsdatoFørstegangsbehandlingUtleder {
             throw new IllegalArgumentException("Utvikler-feil: Dette skal ikke skje. Ingen perioder i førstegangsøknad.");
         }
         LocalDate førsteSøkteUttaksdato = optionalFørsteSøkteUttaksdato.get();
-        Optional<AvklarteUttakDatoerEntitet> avklarteUttakDatoer = ytelseFordelingAggregat.getAvklarteDatoer();
-        LocalDate endringsdato;
-        if (avklarteUttakDatoer.isPresent()) {
-            LocalDate manueltSattFørsteUttaksdato = avklarteUttakDatoer.get().getFørsteUttaksdato();
-            if (manueltSattFørsteUttaksdato != null && manueltSattFørsteUttaksdato.isBefore(førsteSøkteUttaksdato)) {
-                endringsdato = manueltSattFørsteUttaksdato;
-            } else {
-                endringsdato = førsteSøkteUttaksdato;
-            }
-        } else {
-            endringsdato = førsteSøkteUttaksdato;
-        }
+        var manueltSattFørsteUttaksdato = ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).orElse(førsteSøkteUttaksdato);
+        LocalDate endringsdato = manueltSattFørsteUttaksdato.isBefore(førsteSøkteUttaksdato) ? manueltSattFørsteUttaksdato : førsteSøkteUttaksdato;
         return endringsdato;
     }
 }

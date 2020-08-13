@@ -25,9 +25,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -260,11 +260,9 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private Optional<LocalDate> finnManueltSattFørsteUttaksdato(BehandlingReferanse revurdering) {
-        Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.getBehandlingId());
-        if (ytelseFordelingAggregat.isPresent()) {
-            return ytelseFordelingAggregat.get().getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
-        }
-        return Optional.empty();
+        return ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.getBehandlingId())
+            .flatMap(YtelseFordelingAggregat::getAvklarteDatoer)
+            .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
     }
 
     private boolean arbeidsforholdRelevantForUttakErEndret(UttakInput input) {

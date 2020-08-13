@@ -63,7 +63,7 @@ public class EtterkontrollEventObserverTest {
         Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false).medKontrollTidspunkt(LocalDate.now().atStartOfDay()).medKontrollType(KontrollType.MANGLENDE_FØDSEL).build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        FamiliehendelseEvent familiehendelseEvent = new FamiliehendelseEvent(FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL, behandling.getAktørId(),behandling.getFagsakId(),behandling.getId());
+        FamiliehendelseEvent familiehendelseEvent = new FamiliehendelseEvent(FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL, behandling.getAktørId(),behandling.getFagsakId(),behandling.getId(), null, null);
         etterkontrollEventObserver.observerFamiliehendelseEvent(familiehendelseEvent);
 
         List<Etterkontroll> ekListe  = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(),KontrollType.MANGLENDE_FØDSEL);
