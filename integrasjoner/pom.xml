@@ -19,7 +19,7 @@
 
     <properties>
         <jaxb-api.version>2.3.1</jaxb-api.version>
-        <jaxb2-basics.version>1.11.1</jaxb2-basics.version>
+        <jaxb2-basics.version>1.11.1-PUBLISHED-BY-MISTAKE</jaxb2-basics.version>
         <jaxws.version>2.3.2</jaxws.version>
     </properties>
 
