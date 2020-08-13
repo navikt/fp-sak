@@ -351,7 +351,7 @@
 				<!-- bør ha samme versjon som CXF ellers -->
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-rt-transports-http-jetty</artifactId>
-				<version>3.2.5</version>
+				<version>3.3.7</version>
 			</dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
