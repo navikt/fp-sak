@@ -51,7 +51,7 @@
     "MQGATEWAY02_PORT": "1414",
     "FPRISK_RISIKOKLASSIFISERING_HENT_URL": "https://fprisk.nais.adeo.no/fprisk/api/risikovurdering/hent",
     "FPABAKUS_URL": "http://fpabakus/fpabakus",
-    "FPFORDEL_BASE_URL": "http://fpfordel.default/fpfordel",
+    "FPFORDEL_BASE_URL": "http://fpfordel.teamforeldrepenger/fpfordel",
     "ABAC_PDP_ENDPOINT_URL": "https://wasapp.adeo.no/asm-pdp/authorize",
     "FPOPPDRAG_SIMULERINGRESULTAT_URL": "https://fpoppdrag.nais.adeo.no/fpoppdrag/api/simulering/resultat",
     "SAK_RS_URL": "http://sak.default/api/v1/saker",
