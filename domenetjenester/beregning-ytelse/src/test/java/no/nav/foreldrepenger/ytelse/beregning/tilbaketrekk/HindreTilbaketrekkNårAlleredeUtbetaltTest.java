@@ -50,7 +50,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         settSimulertNåtidTil(LocalDate.now());
         FPDateUtil.init();
     }
-    
+
     @Test
     public void omfordeling_med_2_tilkomne_arbeidsforhold_skal_ikke_ta_med_tilkommet_i_flyttbar_dagsats() {
         // Arrange
@@ -506,7 +506,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         });
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getArbeidsforholdRef()).isEqualTo(null);
+            assertThat(andel.getArbeidsforholdRef()).isEqualTo(InternArbeidsforholdRef.nullRef());
             assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
         });
     }

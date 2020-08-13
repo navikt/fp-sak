@@ -26,7 +26,8 @@ public class FamiliehendelseEventPubliserer {
 
     public void fireEventTerminFødsel(Behandling behandling, LocalDate forrigeBekreftetDato, LocalDate sisteBekreftetDato) {
         FamiliehendelseEvent event = new FamiliehendelseEvent(FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL,
-            behandling.getAktørId(),behandling.getFagsakId(),behandling.getId(), forrigeBekreftetDato, sisteBekreftetDato);
+            behandling.getAktørId(), behandling.getFagsakId(), behandling.getId(), behandling.getFagsakYtelseType(),
+            forrigeBekreftetDato, sisteBekreftetDato);
         familiehendelseEvent.fire(event);
     }
 }

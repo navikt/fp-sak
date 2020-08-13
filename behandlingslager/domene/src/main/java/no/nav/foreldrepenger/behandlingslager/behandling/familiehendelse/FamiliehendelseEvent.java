@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse;
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class FamiliehendelseEvent  implements BehandlingEvent {
@@ -11,16 +12,18 @@ public class FamiliehendelseEvent  implements BehandlingEvent {
     private Long fagsakId;
     private Long behandlingId;
     private AktørId aktørId;
+    private FagsakYtelseType ytelseType;
     private LocalDate forrigeBekreftetDato;
     private LocalDate sisteBekreftetDato;
 
 
-    public FamiliehendelseEvent(EventType eventType,AktørId aktørId,Long fagsakId,Long behandlingId,
-                                LocalDate forrigeBekreftetDato, LocalDate sisteBekreftetDato) {
+    public FamiliehendelseEvent(EventType eventType, AktørId aktørId, Long fagsakId, Long behandlingId,
+                                FagsakYtelseType ytelseType, LocalDate forrigeBekreftetDato, LocalDate sisteBekreftetDato) {
         this.eventType = eventType;
         this.aktørId = aktørId;
         this.fagsakId = fagsakId;
         this.behandlingId = behandlingId;
+        this.ytelseType = ytelseType;
         this.forrigeBekreftetDato = forrigeBekreftetDato;
         this.sisteBekreftetDato = sisteBekreftetDato;
     }
@@ -41,6 +44,10 @@ public class FamiliehendelseEvent  implements BehandlingEvent {
     @Override
     public Long getBehandlingId() {
         return behandlingId;
+    }
+
+    public FagsakYtelseType getYtelseType() {
+        return ytelseType;
     }
 
     public LocalDate getForrigeBekreftetDato() {

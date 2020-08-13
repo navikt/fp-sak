@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterinnhentingHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -52,7 +53,9 @@ public class BekreftetFødselEventObserver {
 
 
     public void observerFamiliehendelseEvent(@Observes FamiliehendelseEvent event) {
-        if (FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL.equals(event.getEventType()) && event.getSisteBekreftetDato() != null &&
+        if (FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL.equals(event.getEventType()) &&
+            FagsakYtelseType.FORELDREPENGER.equals(event.getYtelseType()) &&
+            event.getSisteBekreftetDato() != null &&
             (event.getForrigeBekreftetDato() == null || event.getSisteBekreftetDato().isBefore(event.getForrigeBekreftetDato()))) {
             var brukFødselsdato = VirkedagUtil.fomVirkedag(event.getSisteBekreftetDato());
             vurderNyStartdato(behandlingRepository.hentBehandling(event.getBehandlingId()), brukFødselsdato);
