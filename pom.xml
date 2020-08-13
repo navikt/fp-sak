@@ -67,7 +67,7 @@
         <felles.version>2.0.0-20200702160706-bb063e2</felles.version>
         <prosesstask.version>2.4.2-20200703105213-95d753a</prosesstask.version>
 
-        <metrics.version>3.2.5</metrics.version>
+        <metrics.version>4.1.12.1</metrics.version>
 
         <fp-kontrakter.version>5.1-20200810151031-853914b</fp-kontrakter.version>
 
