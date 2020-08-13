@@ -12,6 +12,9 @@
 	<artifactId>web-webapp</artifactId>
 	<packaging>jar</packaging>
 	<name>FPSAK :: Web - Webapp</name>
+    <properties>
+        <simpleclient.version>0.9.0</simpleclient.version>
+    </properties>
 	<dependencies>
 
 		<!-- Database håndtering -->
@@ -216,25 +219,25 @@
 		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>simpleclient_dropwizard</artifactId>
-			<version>0.6.0</version>
+			<version>${simpleclient.version}</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient -->
 		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>simpleclient</artifactId>
-			<version>0.6.0</version>
+			<version>${simpleclient.version}</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient_hotspot -->
 		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>simpleclient_hotspot</artifactId>
-			<version>0.6.0</version>
+			<version>${simpleclient.version}</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient_common -->
 		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>simpleclient_common</artifactId>
-			<version>0.6.0</version>
+			<version>${simpleclient.version}</version>
 		</dependency>
 
 		<dependency>
@@ -314,7 +317,7 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.11</version>
+            <version>0.9.12</version>
             <scope>test</scope>
         </dependency>
 
@@ -351,12 +354,12 @@
 				<!-- bør ha samme versjon som CXF ellers -->
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-rt-transports-http-jetty</artifactId>
-				<version>3.2.5</version>
+				<version>3.3.7</version>
 			</dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.26.0</version>
+                <version>3.31.1</version>
             </dependency>
 
 			<dependency>
