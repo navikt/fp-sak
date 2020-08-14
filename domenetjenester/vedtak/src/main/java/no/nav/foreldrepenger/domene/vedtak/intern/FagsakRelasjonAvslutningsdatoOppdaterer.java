@@ -64,7 +64,7 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getBarna);
 
-        if (barna.isEmpty() || barna.get().isEmpty() || barna.get().stream().anyMatch(b -> b.getDødsdato().isPresent()))
+        if (barna.isEmpty() || barna.get().isEmpty() || barna.get().stream().anyMatch(b -> b.getDødsdato().isEmpty()))
             return Optional.empty();
         else return barna.get().stream()
             .map(UidentifisertBarn::getDødsdato)
@@ -92,17 +92,17 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
         var maksDatoUttak = maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
 
         if( !maksDatoUttak.isPresent() ) return avsluttningsdatoHvisDetIkkeErGjortUttak(behandling, avsluttningsdato);
-        LocalDate avsluningsdatoFraMaksDatoUttak = maksDatoUttak.get().plusDays(1);
+        LocalDate avslutningsdatoFraMaksDatoUttak = maksDatoUttak.get().plusDays(1);
 
         var stønadRest = stønadskontoSaldoTjeneste.finnStønadRest(uttakInput);
 
         if( stønadRest > 0 ) {
             //rest er allerede lagt til i maksDatoUttak, men der mangler 'buffer'
-            avsluningsdatoFraMaksDatoUttak = avsluningsdatoFraMaksDatoUttak.plusMonths(JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER)
+            avslutningsdatoFraMaksDatoUttak = avslutningsdatoFraMaksDatoUttak.plusMonths(JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER)
                 .with(TemporalAdjusters.lastDayOfMonth());
         }
-        return avsluningsdatoFraMaksDatoUttak.isAfter(LocalDate.now()) && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, avsluningsdatoFraMaksDatoUttak)?
-            avsluningsdatoFraMaksDatoUttak : avsluttningsdato;
+        return avslutningsdatoFraMaksDatoUttak.isAfter(LocalDate.now()) && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, avslutningsdatoFraMaksDatoUttak)?
+            avslutningsdatoFraMaksDatoUttak : avsluttningsdato;
     }
 
     protected LocalDate avsluttningsdatoHvisDetIkkeErGjortUttak(Behandling behandling, LocalDate avsluttningsdato) {
