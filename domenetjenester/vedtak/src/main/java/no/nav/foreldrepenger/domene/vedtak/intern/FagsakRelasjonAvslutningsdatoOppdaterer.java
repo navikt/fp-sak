@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
 
     private static final int JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER = 3;
+    private static final int KLAGEFRIST_I_UKER_VED_DØD = 6;
 
     protected FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     protected BehandlingRepository behandlingRepository;
@@ -78,7 +79,7 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
         if(familieHendelseGrunnlag.isPresent()){
 
             Optional<LocalDate> sisteDødsdato = sisteDødsdato(familieHendelseGrunnlag);
-            if(sisteDødsdato.isPresent()) return sisteDødsdato.get().plusWeeks(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now())).plusWeeks(6);
+            if(sisteDødsdato.isPresent()) return sisteDødsdato.get().plusWeeks(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now())).plusWeeks(KLAGEFRIST_I_UKER_VED_DØD);
 
         }
 
