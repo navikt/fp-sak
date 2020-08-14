@@ -94,6 +94,16 @@ class UtbetalingsgradBeregner {
                 aktivitetsAvtale.getPeriode().getTomDato().isAfter(termindato) ? termindato : aktivitetsAvtale.getPeriode().getTomDato(),
                 nullBlirTilHundre(ikkeHøyereEnn100(aktivitetsAvtale.getProsentsats().getVerdi())));
             return new LocalDateTimeline<>(List.of(segment), UtbetalingsgradBeregner::summerStillingsprosent);
+        } if (aktiviteter.size() == 0) {
+            var aktivitetsAvtale = avtalerAAreg
+                .stream()
+                .filter(a -> a.getPeriode().overlapper(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, termindato)))
+                .findFirst();
+            if (aktivitetsAvtale.isPresent()) {
+                LocalDateSegment<BigDecimal> segment = new LocalDateSegment<>(aktivitetsAvtale.get().getPeriode().getFomDato().isBefore(jordmorsdato) ? jordmorsdato : aktivitetsAvtale.get().getPeriode().getFomDato(),
+                    aktivitetsAvtale.get().getPeriode().getTomDato().isAfter(termindato) ? termindato : aktivitetsAvtale.get().getPeriode().getTomDato(), HUNDRE_PROSENT);
+                return new LocalDateTimeline<>(List.of(segment), UtbetalingsgradBeregner::summerStillingsprosent);
+            }
         }
 
         List<LocalDateSegment<BigDecimal>> collect = aktiviteter
@@ -126,8 +136,7 @@ class UtbetalingsgradBeregner {
             if (sum.compareTo(BigDecimal.ZERO) < 0) {
                 sum = BigDecimal.ZERO;
             }
-            return new LocalDateSegment<>(di, sum.setScale(0, RoundingMode.HALF_UP));
-        } else if (aareg == null) {
+            return new LocalDateSegment<>(di, sum.setScale(0, RoundingMode.HALF_UP)); } else if (aareg == null) {
             return new LocalDateSegment<>(di, TUSEN);
         }
         return new LocalDateSegment<>(di, null);
