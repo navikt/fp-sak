@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.aksjonspunkt.fp;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.ytelsefordeling.BekreftStartdatoForPerioden;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
@@ -52,16 +50,17 @@ public class AvklarStartdatoForPeriodenOppdaterer implements AksjonspunktOppdate
         OppdateringResultat.Builder resultatBuilder = OppdateringResultat.utenTransisjon();
         avbrytOverflødigOverstyrAksjonpunkt(behandling)
             .ifPresent(a -> resultatBuilder.medEkstraAksjonspunktResultat(a.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
-        LocalDate original = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        LocalDate skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        var førsteUttakDato = param.getSkjæringstidspunkt().getFørsteUttaksdato();
         LocalDate startdatoFraSoknad = dto.getStartdatoFraSoknad();
-        if (!startdatoFraSoknad.equals(original) || harValgtStartdatoSomErSenereEnnDatoFraInntektsmelding(param.getRef(), startdatoFraSoknad, original)) {
+        if (!startdatoFraSoknad.equals(førsteUttakDato) || harValgtStartdatoSomErSenereEnnDatoFraInntektsmelding(param.getRef(), startdatoFraSoknad, skjæringstidspunkt)) {
 
-            if (harValgtStartdatoSomErSenereEnnDatoFraInntektsmelding(param.getRef(), startdatoFraSoknad, original)) {
+            if (harValgtStartdatoSomErSenereEnnDatoFraInntektsmelding(param.getRef(), startdatoFraSoknad, skjæringstidspunkt)) {
                 return OppdateringResultat.utenTransisjon().medBeholdAksjonspunktÅpent().build();
             } else {
                 HistorikkInnslagTekstBuilder tekstBuilder = historikkAdapter.tekstBuilder();
                 tekstBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.STARTDATO_FRA_SOKNAD, original, startdatoFraSoknad);
+                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.STARTDATO_FRA_SOKNAD, førsteUttakDato, startdatoFraSoknad);
             }
         }
         ytelseFordelingTjeneste.aksjonspunktAvklarStartdatoForPerioden(behandling.getId(), new BekreftStartdatoForPerioden(startdatoFraSoknad));
@@ -70,14 +69,8 @@ public class AvklarStartdatoForPeriodenOppdaterer implements AksjonspunktOppdate
     }
 
     private boolean harValgtStartdatoSomErSenereEnnDatoFraInntektsmelding(BehandlingReferanse ref, LocalDate startdatoFraSoknad, LocalDate original) {
-        List<Inntektsmelding> inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, original);
-        for (Inntektsmelding inntektsmelding : inntektsmeldinger) {
-
-            if (startdatoFraSoknad.isAfter(inntektsmelding.getStartDatoPermisjon().orElseThrow())) {
-                return true;
-            }
-        }
-        return false;
+        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, original).stream()
+            .anyMatch(im -> startdatoFraSoknad.isAfter(im.getStartDatoPermisjon().orElseThrow()));
     }
 
     private Optional<Aksjonspunkt> avbrytOverflødigOverstyrAksjonpunkt(Behandling behandling) {

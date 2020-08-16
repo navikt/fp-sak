@@ -5,7 +5,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
-import no.nav.foreldrepenger.kontrakter.abonnent.HendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;

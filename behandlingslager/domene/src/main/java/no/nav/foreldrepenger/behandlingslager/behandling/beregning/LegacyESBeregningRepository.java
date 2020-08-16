@@ -22,8 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 @ApplicationScoped
 public class LegacyESBeregningRepository {
 
-    private static final long G_MULTIPLIKATOR = 6L;
-
     private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
 
@@ -70,10 +68,6 @@ public class LegacyESBeregningRepository {
         query.setHint(QueryHints.HINT_READONLY, "true");//$NON-NLS-1$
         query.getResultList();
         return hentEksaktResultat(query);
-    }
-
-    public long avkortingMultiplikatorG(@SuppressWarnings("unused") LocalDate dato) {
-        return G_MULTIPLIKATOR;
     }
 
     public Optional<LegacyESBeregning> getSisteBeregning(Long behandlingId) {

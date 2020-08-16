@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.familiehendelse.event;
 
+import java.time.LocalDate;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -22,8 +24,10 @@ public class FamiliehendelseEventPubliserer {
         this.familiehendelseEvent = familiehendelseEvent;
     }
 
-    public void fireEvent(FamiliehendelseEvent.EventType eventType, Behandling behandling) {
-        FamiliehendelseEvent event = new FamiliehendelseEvent(eventType, behandling.getAktørId(),behandling.getFagsakId(),behandling.getId());
+    public void fireEventTerminFødsel(Behandling behandling, LocalDate forrigeBekreftetDato, LocalDate sisteBekreftetDato) {
+        FamiliehendelseEvent event = new FamiliehendelseEvent(FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL,
+            behandling.getAktørId(), behandling.getFagsakId(), behandling.getId(), behandling.getFagsakYtelseType(),
+            forrigeBekreftetDato, sisteBekreftetDato);
         familiehendelseEvent.fire(event);
     }
 }

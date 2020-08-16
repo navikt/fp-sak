@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStat
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -63,7 +64,8 @@ public class EtterkontrollEventObserverTest {
         Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false).medKontrollTidspunkt(LocalDate.now().atStartOfDay()).medKontrollType(KontrollType.MANGLENDE_FØDSEL).build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        FamiliehendelseEvent familiehendelseEvent = new FamiliehendelseEvent(FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL, behandling.getAktørId(),behandling.getFagsakId(),behandling.getId());
+        FamiliehendelseEvent familiehendelseEvent = new FamiliehendelseEvent(FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL, behandling.getAktørId(),
+            behandling.getFagsakId(), behandling.getId(), FagsakYtelseType.FORELDREPENGER, null, null);
         etterkontrollEventObserver.observerFamiliehendelseEvent(familiehendelseEvent);
 
         List<Etterkontroll> ekListe  = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(),KontrollType.MANGLENDE_FØDSEL);

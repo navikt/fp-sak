@@ -6,7 +6,7 @@
   "fpsakserviceuser": "serviceuser/data/dev/srvengangsstonad",
   "ldapserviceuser": "serviceuser/data/dev/srvssolinux",
   "namespace": "q1",
-  "minReplicas": "1",
+  "minReplicas": "2",
   "maxReplicas": "2",
   "ingresses": [
     "https://fpsak-q1.nais.preprod.local/"
@@ -51,7 +51,7 @@
     "MQGATEWAY02_PORT": "1413",
     "FPRISK_RISIKOKLASSIFISERING_HENT_URL": "https://fprisk-q1.nais.preprod.local/fprisk/api/risikovurdering/hent",
     "FPABAKUS_URL": "http://fpabakus/fpabakus",
-    "FPFORDEL_BASE_URL": "http://fpfordel.q1/fpfordel",
+    "FPFORDEL_BASE_URL": "http://fpfordel.teamforeldrepenger/fpfordel",
     "ABAC_PDP_ENDPOINT_URL": "https://wasapp-q1.adeo.no/asm-pdp/authorize",
     "FPOPPDRAG_SIMULERINGRESULTAT_URL": "https://fpoppdrag-q1.nais.preprod.local/fpoppdrag/api/simulering/resultat",
     "SAK_RS_URL": "http://sak.q1/api/v1/saker",

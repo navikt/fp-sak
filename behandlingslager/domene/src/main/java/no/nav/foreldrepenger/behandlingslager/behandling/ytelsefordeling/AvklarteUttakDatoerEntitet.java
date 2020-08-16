@@ -68,11 +68,11 @@ public class AvklarteUttakDatoerEntitet extends BaseEntitet {
         }
 
         public Builder(Optional<AvklarteUttakDatoerEntitet> avklarteDatoer) {
-            if (avklarteDatoer.isPresent()) {
-                medFørsteUttaksdato(avklarteDatoer.get().getFørsteUttaksdato());
-                medOpprinneligEndringsdato(avklarteDatoer.get().getOpprinneligEndringsdato());
-                medJustertEndringsdato(avklarteDatoer.get().getJustertEndringsdato());
-            }
+            avklarteDatoer.ifPresent(ad -> {
+                medFørsteUttaksdato(ad.getFørsteUttaksdato());
+                medOpprinneligEndringsdato(ad.getOpprinneligEndringsdato());
+                medJustertEndringsdato(ad.getJustertEndringsdato());
+            });
         }
 
         public Builder medFørsteUttaksdato(LocalDate førsteUttaksdato) {

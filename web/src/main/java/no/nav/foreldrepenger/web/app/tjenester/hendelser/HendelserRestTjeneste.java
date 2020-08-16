@@ -23,9 +23,13 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseSorteringRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.kontrakter.abonnent.AktørIdDto;
-import no.nav.foreldrepenger.kontrakter.abonnent.HendelseDto;
-import no.nav.foreldrepenger.kontrakter.abonnent.HendelseWrapperDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.AktørIdDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.Endringstype;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseWrapperDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødfødselHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.FødselHendelseDto;
 import no.nav.foreldrepenger.mottak.hendelser.JsonMapper;
 import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
@@ -70,17 +74,33 @@ public class HendelserRestTjeneste {
         return new EnkelRespons("pong");
     }
 
+    @Deprecated
     @POST
     @Path("/hendelse")
     @Operation(description = "Mottak av hendelser", tags = "hendelser")
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT)
-    public EnkelRespons mottaHendelse(@Parameter(description = "Hendelse fra TPS eller Infotrygd") @Valid AbacHendelseWrapperDto wrapperDto) {
-        HendelseDto hendelseDto = wrapperDto.getHendelse();
+    public EnkelRespons mottaHendelseV1(@Parameter(description = "Hendelse fra TPS eller Infotrygd") @Valid AbacHendelseWrapperV1Dto wrapperDto) {
+        no.nav.foreldrepenger.kontrakter.abonnent.HendelseDto hendelseDto = wrapperDto.getHendelse();
         var beskrivelse = String.format("Hendelse mottatt fra %s av typen %s med id/sekvensnummer: %s.",
             hendelseDto.getAvsenderSystem(), hendelseDto.getHendelsetype(), hendelseDto.getId());
         LOGGER.info(beskrivelse);
         if (!hendelsemottakRepository.hendelseErNy(hendelseDto.getId())) {
             return new EnkelRespons("Hendelse ble ignorert. Hendelse med samme ID er allerede registrert");
+        }
+        return registrerHendelseV1(hendelseDto, beskrivelse);
+    }
+
+    @POST
+    @Path("/motta")
+    @Operation(description = "Mottak av hendelser", tags = "hendelser")
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT)
+    public EnkelRespons mottaHendelse(@Parameter(description = "Hendelse fra Fpabonnent") @Valid AbacHendelseWrapperDto wrapperDto) {
+        HendelseDto hendelseDto = wrapperDto.getHendelse();
+        var beskrivelse = String.format("Hendelse mottatt fra %s av typen %s med hendelseId: %s.",
+            hendelseDto.getAvsenderSystem(), hendelseDto.getHendelsetype(), hendelseDto.getId());
+        LOGGER.info(beskrivelse);
+        if (!hendelsemottakRepository.hendelseErNy(hendelseDto.getId())) {
+            return new EnkelRespons("Hendelse ble ignorert. Hendelse med samme ID er allerede registrert.");
         }
         return registrerHendelse(hendelseDto, beskrivelse);
     }
@@ -94,10 +114,42 @@ public class HendelserRestTjeneste {
         return sorteringRepository.hentEksisterendeAktørIderMedSak(aktørIdList).stream().map(AktørId::getId).collect(Collectors.toList());
     }
 
+    private EnkelRespons registrerHendelseV1(no.nav.foreldrepenger.kontrakter.abonnent.HendelseDto hendelse, String beskrivelse) {
+        var hendelsType = ForretningshendelseType.fraKode(hendelse.getHendelsetype());
+        if (ForretningshendelseType.FØDSEL.equals(hendelsType)) {
+            no.nav.foreldrepenger.kontrakter.abonnent.tps.FødselHendelseDto fødselV1 = (no.nav.foreldrepenger.kontrakter.abonnent.tps.FødselHendelseDto)hendelse;
+            FødselHendelseDto fødsel = new FødselHendelseDto();
+            fødsel.setId(fødselV1.getId());
+            fødsel.setEndringstype(Endringstype.OPPRETTET);
+            fødsel.setAktørIdForeldre(fødselV1.getAktørIdForeldre().stream().map(AktørIdDto::new).collect(Collectors.toList()));
+            fødsel.setFødselsdato(fødselV1.getFødselsdato());
+            return registrerHendelse(fødsel, beskrivelse);
+        } else if (ForretningshendelseType.DØD.equals(hendelsType)) {
+            no.nav.foreldrepenger.kontrakter.abonnent.tps.DødHendelseDto dødV1 = (no.nav.foreldrepenger.kontrakter.abonnent.tps.DødHendelseDto)hendelse;
+            DødHendelseDto død = new DødHendelseDto();
+            død.setId(dødV1.getId());
+            død.setEndringstype(Endringstype.OPPRETTET);
+            død.setAktørId(dødV1.getAktørId().stream().map(AktørIdDto::new).collect(Collectors.toList()));
+            død.setDødsdato(dødV1.getDødsdato());
+            return registrerHendelse(død, beskrivelse);
+        } else if (ForretningshendelseType.DØDFØDSEL.equals(hendelsType)) {
+            no.nav.foreldrepenger.kontrakter.abonnent.tps.DødfødselHendelseDto dødfødselV1 = (no.nav.foreldrepenger.kontrakter.abonnent.tps.DødfødselHendelseDto)hendelse;
+            DødfødselHendelseDto dødfødsel = new DødfødselHendelseDto();
+            dødfødsel.setId(dødfødselV1.getId());
+            dødfødsel.setEndringstype(Endringstype.OPPRETTET);
+            dødfødsel.setAktørId(dødfødselV1.getAktørId().stream().map(AktørIdDto::new).collect(Collectors.toList()));
+            dødfødsel.setDødfødselsdato(dødfødselV1.getDødfødselsdato());
+            return registrerHendelse(dødfødsel, beskrivelse);
+        } else {
+            LOGGER.error("Kan ikke håndtere {}", beskrivelse);
+            return new EnkelRespons("Ukjent hendelse");
+        }
+    }
+
     private EnkelRespons registrerHendelse(HendelseDto hendelse, String beskrivelse) {
         var hendelsType = ForretningshendelseType.fraKode(hendelse.getHendelsetype());
         if (ForretningshendelseType.UDEFINERT.equals(hendelsType)) {
-            LOGGER.info("Kan ikke håndtere {}", beskrivelse);
+            LOGGER.warn("Kan ikke håndtere {}", beskrivelse);
             return new EnkelRespons("Ukjent hendelse");
         }
 
@@ -111,7 +163,6 @@ public class HendelserRestTjeneste {
         return new EnkelRespons("OK");
     }
 
-
     public static class AbacAktørIdDto extends AktørIdDto implements AbacDto {
         public AbacAktørIdDto() {
         }
@@ -123,6 +174,20 @@ public class HendelserRestTjeneste {
         @Override
         public AbacDataAttributter abacAttributter() {
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, this.getAktørId());
+        }
+    }
+
+    public static class AbacHendelseWrapperV1Dto extends no.nav.foreldrepenger.kontrakter.abonnent.HendelseWrapperDto implements AbacDto {
+        public AbacHendelseWrapperV1Dto() {
+        }
+
+        public AbacHendelseWrapperV1Dto(no.nav.foreldrepenger.kontrakter.abonnent.HendelseDto hendelse) {
+            super(hendelse);
+        }
+
+        @Override
+        public AbacDataAttributter abacAttributter() {
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, new HashSet<>(this.getAlleAktørId()));
         }
     }
 

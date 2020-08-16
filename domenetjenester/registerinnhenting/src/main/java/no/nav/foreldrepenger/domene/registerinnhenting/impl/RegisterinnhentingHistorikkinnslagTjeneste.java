@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl;
 
+import java.time.LocalDate;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -8,9 +10,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
@@ -64,5 +68,20 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
             .medBegrunnelse(behandlingÅrsakType);
         historieBuilder.build(nyeRegisteropplysningerInnslag);
         historikkRepository.lagre(nyeRegisteropplysningerInnslag);
+    }
+
+    public void opprettHistorikkinnslagForEndretStartdatoEtterFødselshendelse(Behandling behandling, LocalDate endretFra, LocalDate endretTil) {
+        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        historikkinnslag.setBehandlingId(behandling.getId());
+        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
+        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
+
+        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
+            .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
+            .medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP)
+            .medEndretFelt(HistorikkEndretFeltType.STARTDATO_FRA_SOKNAD, endretFra, endretTil);
+
+        builder.build(historikkinnslag);
+        historikkRepository.lagre(historikkinnslag);
     }
 }

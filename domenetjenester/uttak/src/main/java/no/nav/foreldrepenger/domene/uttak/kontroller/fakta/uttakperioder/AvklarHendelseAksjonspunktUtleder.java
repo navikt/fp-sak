@@ -24,8 +24,7 @@ public class AvklarHendelseAksjonspunktUtleder implements FaktaUttakAksjonspunkt
             resultat.add(AksjonspunktDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE);
         }
 
-        if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD)
-            || input.isOpplysningerOmDødEndret()) {
+        if (input.harBehandlingÅrsakRelatertTilDød() || input.isOpplysningerOmDødEndret()) {
             resultat.add(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
         }
 

@@ -91,6 +91,10 @@ public class UttakInput {
         return behandlingÅrsaker.stream().anyMatch(årsak -> årsak.equals(behandlingÅrsakType));
     }
 
+    public boolean harBehandlingÅrsakRelatertTilDød() {
+        return behandlingÅrsaker.stream().anyMatch(årsak -> BehandlingÅrsakType.årsakerRelatertTilDød().contains(årsak));
+    }
+
     public boolean isBehandlingManueltOpprettet() {
         return behandlingManueltOpprettet;
     }

@@ -173,4 +173,8 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     public static Set<BehandlingÅrsakType> årsakerEtterKlageBehandling() {
         return Set.of(ETTER_KLAGE, RE_KLAGE_MED_END_INNTEKT, RE_KLAGE_UTEN_END_INNTEKT);
     }
+
+    public static Set<BehandlingÅrsakType> årsakerRelatertTilDød() {
+        return Set.of(RE_OPPLYSNINGER_OM_DØD, RE_HENDELSE_DØD_BARN, RE_HENDELSE_DØD_FORELDER, RE_HENDELSE_DØDFØDSEL);
+    }
 }

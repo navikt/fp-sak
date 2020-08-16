@@ -77,6 +77,10 @@
             <artifactId>abonnent-v1</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+            <artifactId>abonnent-v2</artifactId>
+        </dependency>
+        <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter.topics</groupId>
             <artifactId>hendelser-inntektsmelding</artifactId>
         </dependency>

@@ -10,6 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -34,15 +35,11 @@ public class FørsteUttaksdatoTjenesteImpl implements FørsteUttaksdatoTjeneste 
     @Override
     public Optional<LocalDate> finnFørsteUttaksdato(Behandling behandling) {
         YtelseFordelingAggregat ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
-        Optional<LocalDate> førsteUttaksdato;
-        if (førsteUttaksdatoErAvklart(ytelseFordelingAggregat)) {
-            førsteUttaksdato = Optional.ofNullable(ytelseFordelingAggregat.getAvklarteDatoer().orElseThrow().getFørsteUttaksdato());
-        } else if (behandling.erRevurdering()) {
-            førsteUttaksdato = finnFørsteUttaksdatoRevurdering(behandling);
-        } else {
-            førsteUttaksdato = finnFørsteUttaksdatoFørstegangsbehandling(behandling);
+        Optional<LocalDate> førsteUttaksdato = ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
+        if (førsteUttaksdato.isPresent()) {
+            return førsteUttaksdato;
         }
-        return førsteUttaksdato;
+        return behandling.erRevurdering() ? finnFørsteUttaksdatoRevurdering(behandling) : finnFørsteUttaksdatoFørstegangsbehandling(behandling);
     }
 
     private Optional<LocalDate> finnFørsteUttaksdatoFørstegangsbehandling(Behandling behandling) {
@@ -51,10 +48,6 @@ public class FørsteUttaksdatoTjenesteImpl implements FørsteUttaksdatoTjeneste 
             return Optional.empty();
         }
         return Optional.of(sortert(oppgittePerioder).get(0).getFom());
-    }
-
-    private boolean førsteUttaksdatoErAvklart(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return ytelseFordelingAggregat.getAvklarteDatoer().isPresent() && ytelseFordelingAggregat.getAvklarteDatoer().get().getFørsteUttaksdato() != null;
     }
 
     private Optional<LocalDate> finnFørsteUttaksdatoRevurdering(Behandling behandling) {
