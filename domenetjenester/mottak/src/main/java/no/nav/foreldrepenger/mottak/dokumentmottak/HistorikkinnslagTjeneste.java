@@ -1,10 +1,8 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -18,16 +16,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
-import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -204,18 +199,17 @@ public class HistorikkinnslagTjeneste {
         historikkRepository.lagre(historikkinnslag);
     }
 
-    public void opprettHistorikkinnslagForEndretStartdatoEtterFødselshendelse(Behandling behandling, LocalDate endretFra, LocalDate endretTil) {
+    public void opprettHistorikkinnslagForEndringshendelse(Fagsak fagsak, String begrunnelse) {
         Historikkinnslag historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setBehandlingId(behandling.getId());
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
+        historikkinnslag.setType(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL);
+        historikkinnslag.setFagsakId(fagsak.getId());
 
         HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
-            .medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP)
-            .medEndretFelt(HistorikkEndretFeltType.STARTDATO_FRA_SOKNAD, endretFra, endretTil);
-
+            .medHendelse(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL)
+            .medBegrunnelse(begrunnelse);
         builder.build(historikkinnslag);
+
         historikkRepository.lagre(historikkinnslag);
     }
 }

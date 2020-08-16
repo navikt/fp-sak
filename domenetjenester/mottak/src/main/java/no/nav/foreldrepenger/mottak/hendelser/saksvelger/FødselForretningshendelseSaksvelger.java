@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.hendelser.saksvelger;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -15,7 +16,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -31,7 +31,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.familiehendelse.fødsel.FødselForretningshendelse;
+import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseSaksvelger;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 
@@ -44,17 +46,18 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
 
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private FamilieHendelseRepository familieHendelseRepository;
+    private HistorikkinnslagTjeneste historikkinnslagTjeneste;
 
     @Inject
-    public FødselForretningshendelseSaksvelger(BehandlingRepositoryProvider repositoryProvider) {
+    public FødselForretningshendelseSaksvelger(BehandlingRepositoryProvider repositoryProvider,
+                                               HistorikkinnslagTjeneste historikkinnslagTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
+        this.historikkinnslagTjeneste = historikkinnslagTjeneste;
     }
 
     @Override
@@ -66,8 +69,15 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
             .filter(fagsak -> fagsakErRelevantForeldrepengesak(fagsak)
                 || fagsakErRelevantEngangsstønadsak(fagsak)
                 || fagsakErRelevantSvangerskapspengersak(fagsak, forretningshendelse))
-            .filter(f -> erFagsakPassendeForFamilieHendelse(forretningshendelse.getFødselsdato(), f))
+            .filter(f -> Endringstype.ANNULLERT.equals(forretningshendelse.getEndringstype())
+                || erFagsakPassendeForFamilieHendelse(forretningshendelse.getFødselsdato(), f))
             .collect(Collectors.toList()));
+
+        if (Endringstype.ANNULLERT.equals(forretningshendelse.getEndringstype())
+            || Endringstype.KORRIGERT.equals(forretningshendelse.getEndringstype())) {
+            resultat.values().stream().flatMap(Collection::stream)
+                .forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om fødsel i folkeregisteret"));
+        }
 
         return resultat;
     }
@@ -82,9 +92,14 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
     }
 
     private boolean fagsakErRelevantSvangerskapspengersak(Fagsak fagsak, FødselForretningshendelse forretningshendelse) {
-        Optional<Behandling> behandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId());
-        LocalDate fødselsdato = forretningshendelse.getFødselsdato();
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsak.getYtelseType())) {
+            if (Endringstype.ANNULLERT.equals(forretningshendelse.getEndringstype())) {
+                // ANNULLERT-hendelser inneholder ikke fødselsdato og videre sjekk er derfor unødvendig
+                return true;
+            }
+            Optional<Behandling> behandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId());
+            LocalDate fødselsdato = forretningshendelse.getFødselsdato();
+
             Optional<BeregningsresultatEntitet> beregningsresultat = behandling.flatMap(b -> beregningsresultatRepository
                 .hentBeregningsresultat(b.getId()));
             Optional<LocalDate> tilkjentYtelseTom = beregningsresultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()

@@ -53,7 +53,7 @@ public class RedirectExceptionMapperTest {
 
         // Assert
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
-        assertThat(response.getMediaType()).isEqualTo(null);
+        assertThat(response.getMediaType()).isNull();
         assertThat(response.getMetadata().get("Content-Encoding").get(0))
             .isEqualTo("UTF-8");
         assertThat(response.getMetadata().get("Location").get(0).toString())

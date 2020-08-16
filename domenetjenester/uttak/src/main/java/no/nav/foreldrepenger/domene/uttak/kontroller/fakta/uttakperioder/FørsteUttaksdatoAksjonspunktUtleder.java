@@ -38,20 +38,15 @@ public class FørsteUttaksdatoAksjonspunktUtleder implements FaktaUttakAksjonspu
         var ref = input.getBehandlingReferanse();
 
         YtelseFordelingAggregat ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
-        Optional<AvklarteUttakDatoerEntitet> avklarteUttakDatoerOpt = ytelseFordelingAggregat.getAvklarteDatoer();
-
-        if (avklarteUttakDatoerOpt.isPresent()) {
-            AvklarteUttakDatoerEntitet avklarteUttakDatoer = avklarteUttakDatoerOpt.get();
-            if (avklarteUttakDatoer.getFørsteUttaksdato() != null) {
-                Optional<OppgittPeriodeEntitet> førsteSøknadsperiode = førsteSøknadsperiode(ytelseFordelingAggregat);
-                if (!førsteSøknadsperiode
-                    .map(oppgittPeriode -> PerioderUtenHelgUtil.datoerLikeNårHelgIgnoreres(oppgittPeriode.getFom(), avklarteUttakDatoer.getFørsteUttaksdato()))
-                    .orElse(false)) {
-                    return List.of(AksjonspunktDefinisjon.AVKLAR_FØRSTE_UTTAKSDATO);
-                }
+        var avklartFUD = ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).orElse(null);
+        if (avklartFUD != null) {
+            var behovForAvklaring = !førsteSøknadsperiode(ytelseFordelingAggregat)
+                .map(oppgittPeriode -> PerioderUtenHelgUtil.datoerLikeNårHelgIgnoreres(oppgittPeriode.getFom(), avklartFUD))
+                .orElse(false);
+            if (behovForAvklaring) {
+                return List.of(AksjonspunktDefinisjon.AVKLAR_FØRSTE_UTTAKSDATO);
             }
         }
-
         return List.of();
     }
 

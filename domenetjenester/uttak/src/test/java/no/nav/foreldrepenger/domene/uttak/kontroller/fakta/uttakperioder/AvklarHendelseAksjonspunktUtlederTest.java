@@ -88,6 +88,21 @@ public class AvklarHendelseAksjonspunktUtlederTest {
         assertThat(aksjonspunkter).contains(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
     }
 
+    @Test
+    public void skal_utlede_aksjonspunkt_for_død_når_behandlingen_har_en_årsak_relatert_til_hendelse_død() {
+        // Arrange
+        Behandling revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER);
+        var input = lagInput(revurdering)
+            .medErOpplysningerOmDødEndret(false)
+            .medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER));
+
+        // Act
+        var aksjonspunkter = avklarHendelseAksjonspunktUtleder.utledAksjonspunkterFor(input);
+
+        // Assert
+        assertThat(aksjonspunkter).contains(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
+    }
+
     @Test // #5
     public void skal_utlede_aksjonspunkt_for_søknadsfrist_når_behandling_er_manuelt_opprettet_med_søknadsfristårsak() {
         // Arrange

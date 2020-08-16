@@ -17,6 +17,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -69,8 +70,7 @@ public class AvklarFaktaUttakPerioderTjeneste {
     }
 
     private boolean avklartFørsteUttaksdato(Long behandlingId) {
-        var avklarteDatoer = ytelsesFordelingRepository.hentAggregat(behandlingId).getAvklarteDatoer();
-        return avklarteDatoer.isPresent() && avklarteDatoer.get().getFørsteUttaksdato() != null;
+        return ytelsesFordelingRepository.hentAggregat(behandlingId).getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).isPresent();
     }
 
     boolean finnesOverlappendePerioder(Long behandlingId) {

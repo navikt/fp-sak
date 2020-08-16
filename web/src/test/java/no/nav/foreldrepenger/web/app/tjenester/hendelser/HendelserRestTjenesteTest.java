@@ -20,8 +20,9 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseSorteringReposit
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.kontrakter.abonnent.tps.DødfødselHendelseDto;
-import no.nav.foreldrepenger.kontrakter.abonnent.tps.FødselHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.AktørIdDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødfødselHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.FødselHendelseDto;
 import no.nav.foreldrepenger.mottak.hendelser.JsonMapper;
 import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacAktørIdDto;
@@ -145,7 +146,7 @@ public class HendelserRestTjenesteTest {
     private FødselHendelseDto lagFødselHendelse(List<AktørId> aktørIdForeldre, LocalDate fødselsdato) {
         FødselHendelseDto hendelse = new FødselHendelseDto();
         hendelse.setId(HENDELSE_ID);
-        hendelse.setAktørIdForeldre(aktørIdForeldre.stream().map(AktørId::getId).collect(Collectors.toList()));
+        hendelse.setAktørIdForeldre(aktørIdForeldre.stream().map(AktørId::getId).map(AktørIdDto::new).collect(Collectors.toList()));
         hendelse.setFødselsdato(fødselsdato);
         return hendelse;
     }
@@ -153,7 +154,7 @@ public class HendelserRestTjenesteTest {
     private DødfødselHendelseDto lagDødfødselHendelse(List<AktørId> aktørIdForeldre, LocalDate dødfødseldato) {
         DødfødselHendelseDto hendelse = new DødfødselHendelseDto();
         hendelse.setId(HENDELSE_ID);
-        hendelse.setAktørId(aktørIdForeldre.stream().map(AktørId::getId).collect(Collectors.toList()));
+        hendelse.setAktørId(aktørIdForeldre.stream().map(AktørId::getId).map(AktørIdDto::new).collect(Collectors.toList()));
         hendelse.setDødfødselsdato(dødfødseldato);
         return hendelse;
     }

@@ -9,7 +9,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -20,6 +19,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -55,20 +55,21 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden imple
         }
 
         Long behandlingId = param.getBehandlingId();
-        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlagOptional = iayTjeneste.finnGrunnlag(behandlingId);
-        Optional<InntektsmeldingAggregat> inntektsmeldingerOptional = inntektArbeidYtelseGrunnlagOptional.flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger);
-        Optional<YtelseFordelingAggregat> ytelseFordelingAggregatOptional = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
+        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = iayTjeneste.finnGrunnlag(behandlingId).orElse(null);
+        YtelseFordelingAggregat ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId).orElse(null);
 
-        if (ytelseFordelingAggregatOptional.isEmpty() || inntektArbeidYtelseGrunnlagOptional.isEmpty() || inntektsmeldingerOptional.isEmpty()) {
+        if (ytelseFordelingAggregat == null || inntektArbeidYtelseGrunnlag == null) {
+            return INGEN_AKSJONSPUNKTER;
+        }
+        InntektsmeldingAggregat inntektsmeldinger = inntektArbeidYtelseGrunnlag.getInntektsmeldinger().orElse(null);
+        var harAlleredeAvklartStartDato = ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).isPresent();
+        if (inntektsmeldinger == null || harAlleredeAvklartStartDato) {
             return INGEN_AKSJONSPUNKTER;
         }
 
-        var grunnlag = inntektArbeidYtelseGrunnlagOptional.get();
-        var inntektsmeldinger = inntektsmeldingerOptional.get();
-
         LocalDate skjæringstidspunkt = param.getSkjæringstidspunkt().getFørsteUttaksdato();
 
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(param.getAktørId()))
+        var filter = new YrkesaktivitetFilter(inntektArbeidYtelseGrunnlag.getArbeidsforholdInformasjon(), inntektArbeidYtelseGrunnlag.getAktørArbeidFraRegister(param.getAktørId()))
             .før(skjæringstidspunkt);
 
         if (filter.getYrkesaktiviteter().isEmpty()) {

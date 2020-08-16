@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamiliehendelseEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
@@ -99,6 +98,8 @@ public class FamilieHendelseTjeneste {
             return;
         }
 
+        LocalDate tidligereRegistrertFødselsdato = hentRegisterFødselsdato(behandling.getId()).orElse(null);
+
         final FamilieHendelseBuilder hendelseBuilder = familieGrunnlagRepository.opprettBuilderForregister(behandling)
             .tilbakestillBarn();
 
@@ -107,10 +108,12 @@ public class FamilieHendelseTjeneste {
 
         familieGrunnlagRepository.lagreRegisterHendelse(behandling, hendelseBuilder);
 
+        LocalDate sisteRegistrertFødselsdato = hentRegisterFødselsdato(behandling.getId()).orElse(null);
+
         final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = hentAggregat(behandling.getId());
         if (TERMIN.equals(familieHendelseGrunnlag.getSøknadVersjon().getType()) &&
             familieHendelseGrunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).map(FØDSEL::equals).orElse(Boolean.FALSE)) {
-            familiehendelseEventPubliserer.fireEvent(FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL,behandling);
+            familiehendelseEventPubliserer.fireEventTerminFødsel(behandling, tidligereRegistrertFødselsdato, sisteRegistrertFødselsdato);
         }
     }
 
@@ -121,12 +124,16 @@ public class FamilieHendelseTjeneste {
 
 
     public void lagreOverstyrtHendelse(Behandling behandling, FamilieHendelseBuilder hendelse) {
+        LocalDate tidligereGjeldendeFødselsdato = hentGjeldendeBekreftetFødselsdato(behandling.getId()).orElse(null);
+
         familieGrunnlagRepository.lagreOverstyrtHendelse(behandling, hendelse);
+
+        LocalDate sisteGjeldendeFødselsdato = hentGjeldendeBekreftetFødselsdato(behandling.getId()).orElse(null);
 
         final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = hentAggregat(behandling.getId());
         if (TERMIN.equals(familieHendelseGrunnlag.getSøknadVersjon().getType()) &&
             familieHendelseGrunnlag.getOverstyrtVersjon().map(FamilieHendelseEntitet::getType).map(FØDSEL::equals).orElse(Boolean.FALSE) ){
-            familiehendelseEventPubliserer.fireEvent(FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL,behandling);
+            familiehendelseEventPubliserer.fireEventTerminFødsel(behandling, tidligereGjeldendeFødselsdato, sisteGjeldendeFødselsdato);
         }
     }
 
@@ -166,14 +173,6 @@ public class FamilieHendelseTjeneste {
     }
 
 
-    public Optional<Boolean> gjelderFødsel(Behandling behandling) {
-        Optional<Behandling> behandlingOptional = behandling.erYtelseBehandling() ? Optional.of(behandling) : behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId());
-        return behandlingOptional
-            .flatMap(b -> familieGrunnlagRepository.hentAggregatHvisEksisterer(b.getId()))
-            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getGjelderFødsel);
-    }
-
     public boolean harFagsakFamilieHendelseDato(LocalDate familieHendelseDato, Long avsluttetFagsakId) {
         Optional<LocalDate> dato2 = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(avsluttetFagsakId)
             .flatMap(b -> familieGrunnlagRepository.hentAggregatHvisEksisterer(b.getId()))
@@ -195,6 +194,18 @@ public class FamilieHendelseTjeneste {
     private boolean erBarnRelatertTilSøknad(List<Interval> relasjonsintervall, LocalDate dato) {
         return relasjonsintervall.stream()
             .anyMatch(periode -> periode.overlaps(IntervallUtil.tilIntervall(dato)));
+    }
+
+    private Optional<LocalDate> hentRegisterFødselsdato(Long behandlingId) {
+        return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId)
+            .flatMap(FamilieHendelseGrunnlagEntitet::getBekreftetVersjon)
+            .flatMap(FamilieHendelseEntitet::getFødselsdato);
+    }
+
+    private Optional<LocalDate> hentGjeldendeBekreftetFødselsdato(Long behandlingId) {
+        return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId)
+            .flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
+            .flatMap(FamilieHendelseEntitet::getFødselsdato);
     }
 
 

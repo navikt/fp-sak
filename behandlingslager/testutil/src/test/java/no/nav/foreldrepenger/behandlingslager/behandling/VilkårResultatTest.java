@@ -216,7 +216,7 @@ public class VilkårResultatTest {
         assertThat(oppdatertVilkårResultat.getVilkårene()).hasSize(1);
         vilkår = oppdatertVilkårResultat.getVilkårene().get(0);
         assertThat(vilkår.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkår.getAvslagsårsak()).isEqualTo(null);
+        assertThat(vilkår.getAvslagsårsak()).isNull();
         assertThat(vilkår.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.OPPFYLT);
         assertThat(vilkår.erOverstyrt()).isTrue();
         assertThat(vilkår.erManueltVurdert()).isTrue();
