@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class UtbetalingsgradBeregnerTest {
 
@@ -847,6 +848,43 @@ public class UtbetalingsgradBeregnerTest {
 
         // Assert
         assertThat(resultat.get(periode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(overstyrtUtbetalingsgrad);
+    }
+
+    /**
+     * Privat arbeidsgiver uten stillingsprosent i aareg
+     */
+    @Test
+    public void skal_sette_full_utbetalingsgrad_for_ingen_tilrettelegging_når_stillingsprosent_ikke_er_satt() {
+        //Arrange
+        LocalDate terminDato = LocalDate.of(2020, 10, 1);
+        LocalDate jordmorsdato = LocalDate.of(2020, 2, 3);
+        LocalDate delvisTilretteleggingFom = jordmorsdato;
+        AktørId aktørId = AktørId.dummy();
+        Arbeidsgiver test123 = Arbeidsgiver.person(aktørId);
+
+        SvpTilretteleggingEntitet svpTilrettelegging = new SvpTilretteleggingEntitet.Builder()
+            .medBehovForTilretteleggingFom(jordmorsdato)
+            .medTilretteleggingFom(new TilretteleggingFOM.Builder()
+                .medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING)
+                .medFomDato(delvisTilretteleggingFom)
+                .build())
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
+
+        AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
+        aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.of(2019, 8, 20)));
+        AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
+        // Act
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+
+        Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+
+        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilretteleggingFom, terminDato.minusWeeks(3).minusDays(1));
+
+        // Assert
+        assertThat(resultat.get(periode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
     }
 
     private AktivitetsAvtale lagAktivitetsAvtale(LocalDate jordmorsdato, LocalDate terminDato, BigDecimal prosentsats) {
