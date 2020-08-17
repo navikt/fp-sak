@@ -347,10 +347,10 @@
 				<version>1.1</version>
 			</dependency>
 			<dependency>
-				<!-- bør ha samme versjon som CXF ellers -->
+				<!-- bør ha samme versjon som CXF ellers se versjon i fp-felles-->
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-rt-transports-http-jetty</artifactId>
-				<version>3.3.7</version>
+				<version>3.3.6</version>
 			</dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
