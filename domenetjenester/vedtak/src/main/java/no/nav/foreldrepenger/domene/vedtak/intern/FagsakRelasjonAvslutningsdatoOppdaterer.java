@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
 
     private static final int JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER = 3;
-    private static final int KLAGEFRIST_I_UKER_VED_DØD = 6;
+    protected static final int KLAGEFRIST_I_UKER_VED_DØD = 6;
 
     protected FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     protected BehandlingRepository behandlingRepository;
