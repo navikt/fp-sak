@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
@@ -94,9 +95,11 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
 
     private LocalDate utledMottattDato(OppgittPeriodeEntitet periode, Behandling behandling) {
         var tidligstBehandlingMedPeriode = finnTidligstBehandling(periode, behandling);
-        var uttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(tidligstBehandlingMedPeriode.getId());
-        if (uttaksperiodegrense.isPresent()) {
-            return uttaksperiodegrense.get().getMottattDato();
+        if (periode.getPeriodeKilde().equals(FordelingPeriodeKilde.SØKNAD)) {
+            var uttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(tidligstBehandlingMedPeriode.getId());
+            if (uttaksperiodegrense.isPresent()) {
+                return uttaksperiodegrense.get().getMottattDato();
+            }
         }
         var søknad = søknadRepository.hentSøknadHvisEksisterer(tidligstBehandlingMedPeriode.getId());
         if (søknad.isEmpty()) {
