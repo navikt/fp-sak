@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -156,7 +157,6 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
         verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1), null, Optional.empty(), Optional.empty());
     }
 
-    @Ignore //FIXME: Testen feiler når dagens dato er 17.08
     @Test
     public void testStønadsdagerIgjen() {
         // Arrange
@@ -183,8 +183,9 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
         // Act
         fagsakRelasjonAvslutningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
 
+        LocalDate avslutningsdato = VirkedagUtil.tomVirkedag(Virkedager.plusVirkedager(periodeAvsluttetDato.plusDays(1),totalRest)).plusMonths(3).with(TemporalAdjusters.lastDayOfMonth());
         // Assert
-        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(totalRest).plusMonths(3).with(TemporalAdjusters.lastDayOfMonth()), null, Optional.empty(), Optional.empty());
+        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, avslutningsdato, null, Optional.empty(), Optional.empty());
     }
 
     private Behandling lagBehandling() {
