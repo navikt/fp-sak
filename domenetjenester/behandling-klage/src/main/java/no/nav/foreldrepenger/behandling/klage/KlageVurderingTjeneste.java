@@ -129,8 +129,14 @@ public class KlageVurderingTjeneste {
         if (behandling.getBehandlingsresultat() == null) {
             Behandlingsresultat.opprettFor(behandling);
         }
+        KlageResultatEntitet klageResultatEntitet = klageRepository.hentKlageResultat(behandling);
+
+        boolean erPåklagdEksternBehandling = false;
+        if(klageResultatEntitet.getPåKlagdBehandling().isEmpty() && klageResultatEntitet.getPåKlagdEksternBehandling().isPresent()){
+            erPåklagdEksternBehandling = true;
+        }
         Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
-            .medBehandlingResultatType(BehandlingResultatType.tolkBehandlingResultatType(klageVurdering));
+            .medBehandlingResultatType(BehandlingResultatType.tolkBehandlingResultatType(klageVurdering, erPåklagdEksternBehandling));
     }
 
     private void oppdaterBehandlingMedNyFrist(Behandling behandling) {
