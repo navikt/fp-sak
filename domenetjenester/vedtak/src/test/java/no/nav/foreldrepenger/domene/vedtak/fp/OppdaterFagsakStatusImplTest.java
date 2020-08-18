@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusFelles;
 
 public class OppdaterFagsakStatusImplTest {
 
@@ -78,8 +77,8 @@ public class OppdaterFagsakStatusImplTest {
         Mockito.when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
         Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandling.getBehandlingsresultat()));
 
-        var oppdaterFagsakStatusFP = new OppdaterFagsakStatusImpl(repositoryProvider, new OppdaterFagsakStatusFelles(repositoryProvider, fagsakStatusEventPubliserer),
-            maksDatoUttakTjeneste, uttakInputTjeneste, foreldelsesfrist);
+        var oppdaterFagsakStatusFP = new OppdaterFagsakStatusImpl(repositoryProvider.getBehandlingRepository(),repositoryProvider.getFagsakRepository(),fagsakStatusEventPubliserer,behandlingsresultatRepository,repositoryProvider.getFamilieHendelseRepository(),maksDatoUttakTjeneste, uttakInputTjeneste, foreldelsesfrist);
+
         return oppdaterFagsakStatusFP.ingenLøpendeYtelsesvedtak(behandling);
     }
 
@@ -97,8 +96,7 @@ public class OppdaterFagsakStatusImplTest {
         Mockito.when(maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput)).thenReturn(Optional.of(maksDatoUttak));
         Mockito.when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
 
-        var oppdaterFagsakStatusFP = new OppdaterFagsakStatusImpl(repositoryProvider, new OppdaterFagsakStatusFelles(repositoryProvider, fagsakStatusEventPubliserer),
-            maksDatoUttakTjeneste, uttakInputTjeneste, foreldelsesfrist);
+        var oppdaterFagsakStatusFP = new OppdaterFagsakStatusImpl(repositoryProvider.getBehandlingRepository(),repositoryProvider.getFagsakRepository(),fagsakStatusEventPubliserer,behandlingsresultatRepository,repositoryProvider.getFamilieHendelseRepository(),maksDatoUttakTjeneste, uttakInputTjeneste, foreldelsesfrist);
         return oppdaterFagsakStatusFP.ingenLøpendeYtelsesvedtak(behandling);
     }
 

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.vedtak.intern;
 
+import static no.nav.foreldrepenger.domene.vedtak.intern.FagsakRelasjonAvslutningsdatoOppdaterer.KLAGEFRIST_I_UKER_VED_DØD;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -7,13 +8,18 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
+import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
+import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -131,6 +137,39 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
 
         // Assert
         verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().plusDays(1), null, Optional.empty(), Optional.empty());
+    }
+
+    @Test
+    public void testAvsluttningsdatoVedAvslagPgaDød() {
+        // Arrange
+        FagsakRelasjon fagsakRelasjon = mock(FagsakRelasjon.class);
+        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
+        when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()))
+            .thenReturn(lagBehandlingsresultat(behandling, BehandlingResultatType.AVSLÅTT, KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
+        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusWeeks(45)));
+
+        FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
+        FamilieHendelseEntitet familieHendelse = mock(FamilieHendelseEntitet.class);
+        LocalDate fødselsdato = LocalDate.now().minusDays(5);
+        when(familieHendelse.getFødselsdato()).thenReturn(Optional.of(fødselsdato));
+        when(familieHendelseGrunnlag.getGjeldendeVersjon()).thenReturn(familieHendelse);
+
+        List<UidentifisertBarn> barna = new ArrayList<>();
+        UidentifisertBarn dødtbarn = new UidentifisertBarnEntitet(1, fødselsdato, fødselsdato);
+        barna.add(dødtbarn);
+
+        when(familieHendelse.getBarna()).thenReturn(barna);
+        when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(familieHendelseGrunnlag));
+
+//        when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.empty());
+
+        // Act
+        fagsakRelasjonAvslutningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(), null, Optional.empty(), Optional.empty());
+
+        // Assert
+        LocalDate forventetAvslutning = fødselsdato.plusWeeks(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now())).plusWeeks(KLAGEFRIST_I_UKER_VED_DØD);
+        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, forventetAvslutning, null, Optional.empty(), Optional.empty());
     }
 
     @Test
