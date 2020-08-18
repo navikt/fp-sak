@@ -42,6 +42,7 @@ public enum BehandlingResultatType implements Kodeverdi {
     KLAGE_MEDHOLD("KLAGE_MEDHOLD", "Medhold"),
     KLAGE_YTELSESVEDTAK_OPPHEVET("KLAGE_YTELSESVEDTAK_OPPHEVET", "Ytelsesvedtak opphevet"),
     KLAGE_YTELSESVEDTAK_STADFESTET("KLAGE_YTELSESVEDTAK_STADFESTET", "Ytelsesvedtak stadfestet"),
+    KLAGE_TILBAKEKREVING_VEDTAK_STADFESTET("KLAGE_TILBAKEKREVING_VEDTAK_STADFESTET", "Vedtak tilbakekreving stadfestet"), // Brukes av kun Tilbakekreving eller Tilbakekreving Revurdering
     HENLAGT_KLAGE_TRUKKET("HENLAGT_KLAGE_TRUKKET", "Henlagt, klagen er trukket"),
     DELVIS_MEDHOLD_I_KLAGE("DELVIS_MEDHOLD_I_KLAGE", "Delvis medhold i klage"),
     HJEMSENDE_UTEN_OPPHEVE("HJEMSENDE_UTEN_OPPHEVE", "Behandlingen er hjemsendt"),
@@ -186,7 +187,7 @@ public enum BehandlingResultatType implements Kodeverdi {
         }
     }
 
-    public static BehandlingResultatType tolkBehandlingResultatType(KlageVurdering vurdering) {
+    public static BehandlingResultatType tolkBehandlingResultatType(KlageVurdering vurdering, boolean erPåklagdEksternBehandling) {
         switch (vurdering.getKode()) {
             case "AVVIS_KLAGE":
                 return BehandlingResultatType.KLAGE_AVVIST;
@@ -195,7 +196,8 @@ public enum BehandlingResultatType implements Kodeverdi {
             case "OPPHEVE_YTELSESVEDTAK":
                 return BehandlingResultatType.KLAGE_YTELSESVEDTAK_OPPHEVET;
             case "STADFESTE_YTELSESVEDTAK":
-                return BehandlingResultatType.KLAGE_YTELSESVEDTAK_STADFESTET;
+                return erPåklagdEksternBehandling ? BehandlingResultatType.KLAGE_TILBAKEKREVING_VEDTAK_STADFESTET
+                    : BehandlingResultatType.KLAGE_YTELSESVEDTAK_STADFESTET;
             case "DELVIS_MEDHOLD_I_KLAGE":
                 return BehandlingResultatType.DELVIS_MEDHOLD_I_KLAGE;
             case "HJEMSENDE_UTEN_Å_OPPHEVE":

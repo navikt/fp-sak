@@ -206,7 +206,7 @@ public class ScenarioKlageEngangsstønad {
         }
         if (vurderingNFP != null) {
             Behandlingsresultat.builder().medBehandlingResultatType(
-                BehandlingResultatType.tolkBehandlingResultatType(vurderingNK != null ? vurderingNK : vurderingNFP))
+                BehandlingResultatType.tolkBehandlingResultatType(vurderingNK != null ? vurderingNK : vurderingNFP,false))
                 .buildFor(klageBehandling);
         }else{
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT)
