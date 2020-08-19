@@ -226,7 +226,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         Optional<BeregningsgrunnlagEntitet> forrigeBeregning = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(opprinneligBehandlingId);
 
         if (forrigeBeregning.isEmpty() || revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
-            return StartpunktType.BEREGNING;
+            return StartpunktType.BEREGNING_FORDEL;
         }
 
         BeregningSats grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getFørsteUttaksdato());
@@ -241,7 +241,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             boolean over6G = bruttoPrÅr.compareTo(grenseverdi) >= 0;
             if (over6G) {
                 LOGGER.info("KOFAKREV Revurdering {} skal G-reguleres", revurdering.getId());
-                return StartpunktType.BEREGNING;
+                return StartpunktType.BEREGNING_FORDEL;
             } else {
                 LOGGER.info("KOFAKREV Revurdering {} blir ikke G-regulert: brutto {} grense {}", revurdering.getId(), bruttoPrÅr, grenseverdi);
             }
@@ -261,6 +261,10 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
         revurdering = kopierVilkår(origBehandling, revurdering, kontekst);
         revurdering = kopierUttaksperiodegrense(revurdering, origBehandling);
+
+        if (StartpunktType.BEREGNING_FORDEL.equals(revurdering.getStartpunkt())) {
+            beregningsgrunnlagKopierOgLagreTjeneste.kopierResultatForGregulering(origBehandling.getId(), revurdering.getId());
+        }
 
         if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt())) {
             beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(origBehandling.getId(), revurdering.getId());

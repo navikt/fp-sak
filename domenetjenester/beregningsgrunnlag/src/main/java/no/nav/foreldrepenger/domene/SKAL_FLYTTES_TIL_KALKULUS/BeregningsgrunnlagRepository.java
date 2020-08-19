@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS;
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -428,6 +429,25 @@ public class BeregningsgrunnlagRepository {
     public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> beregningsgrunnlag = hentBeregningsgrunnlagGrunnlagEntitet(gammelBehandlingId);
         beregningsgrunnlag.ifPresent(orig -> lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.of(Kopimaskin.deepCopy(orig))), beregningsgrunnlagTilstand));
+    }
+
+    public void kopierGrunnlagForGRegulering(Long gammelBehandlingId, Long nyBehandlingId) {
+        boolean oppdatert = oppdaterGrunnlagMedGrunnbeløp(gammelBehandlingId, nyBehandlingId, BeregningsgrunnlagTilstand.FORESLÅTT_UT);
+        if (!oppdatert) {
+            oppdaterGrunnlagMedGrunnbeløp(gammelBehandlingId, nyBehandlingId, BeregningsgrunnlagTilstand.FORESLÅTT);
+        }
+    }
+
+    private boolean oppdaterGrunnlagMedGrunnbeløp(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand tilstand) {
+        Optional<BeregningsgrunnlagGrunnlagEntitet> beregningsgrunnlag = hentSisteBeregningsgrunnlagGrunnlagEntitet(gammelBehandlingId, tilstand);
+        if (beregningsgrunnlag.isPresent()) {
+            BeregningsgrunnlagEntitet bg = beregningsgrunnlag.get().getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha BG"));
+            BeregningSats beregningSats = finnEksaktSats(BeregningSatsType.GRUNNBELØP, bg.getSkjæringstidspunkt());
+            lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.oppdatere(beregningsgrunnlag.get())
+                .medBeregningsgrunnlag(BeregningsgrunnlagEntitet.builder(bg).medGrunnbeløp(BigDecimal.valueOf(beregningSats.getVerdi())).build()), BeregningsgrunnlagTilstand.FORESLÅTT_UT);
+            return true;
+        }
+        return false;
     }
 
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentBeregningsgrunnlagForPreutfylling(Long behandlingId, Optional<Long> originalBehandlingId,
