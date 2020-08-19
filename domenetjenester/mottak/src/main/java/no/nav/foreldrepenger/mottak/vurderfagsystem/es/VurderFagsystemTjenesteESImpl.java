@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -20,6 +23,8 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemTjeneste;
 @FagsakYtelseTypeRef("ES")
 @ApplicationScoped
 public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(VurderFagsystemTjenesteESImpl.class);
 
     private VurderFagsystemFellesUtils fellesUtils;
 
@@ -41,6 +46,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
         if (passendeFagsaker.size() == 1) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(passendeFagsaker.get(0).getSaksnummer());
         } else if (passendeFagsaker.size() > 1) {
+            LOG.info("VurderFagsystem ES strukturert søknad flere relevante saker {}", passendeFagsaker.size());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
@@ -63,6 +69,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
         }
 
         if (fellesUtils.harSakOpprettetInnenIntervall(kompatibleFagsaker)) {
+            LOG.info("VurderFagsystem ES ustrukturert finnes nyere sak enn 10mnd");
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         return new BehandlendeFagsystem(VEDTAKSLØSNING);

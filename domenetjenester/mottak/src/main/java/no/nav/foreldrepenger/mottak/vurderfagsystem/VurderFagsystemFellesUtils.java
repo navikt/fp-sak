@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
@@ -42,6 +45,8 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class VurderFagsystemFellesUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(VurderFagsystemFellesUtils.class);
 
     private static final TemporalAmount UKER_FH_SAMME = Period.ofWeeks(5);
     private static final TemporalAmount UKER_FH_ULIK = Period.ofWeeks(19);

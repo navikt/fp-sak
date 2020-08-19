@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -26,6 +29,8 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemTjeneste;
 @FagsakYtelseTypeRef("SVP")
 @ApplicationScoped
 public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(VurderFagsystemTjenesteImpl.class);
 
     private static final TemporalAmount seksMåneder = Period.parse("P6M");
 
@@ -62,6 +67,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             .collect(Collectors.toList());
 
         if (relevanteFagsaker.size() > 1) {
+            LOG.info("VurderFagsystem SV strukturert søknad flere relevante saker {}", relevanteFagsaker.size());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (relevanteFagsaker.isEmpty()) {
@@ -79,6 +85,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
         List<Fagsak> åpneFagsaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType);
         if (åpneFagsaker.size() > 1) {
+            LOG.info("VurderFagsystem SV inntektsmelding flere åpne saker {}", åpneFagsaker.size());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (åpneFagsaker.size() == 1) {
@@ -89,6 +96,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             .filter(f -> fellesUtils.finnGjeldendeFamilieHendelse(f).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE))
             .collect(Collectors.toList());
         if (aktuelleSakerForMatch.size() > 1) {
+            LOG.info("VurderFagsystem SV inntektsmelding flere aktuelle saker {}", aktuelleSakerForMatch.size());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (aktuelleSakerForMatch.size() == 1) {
