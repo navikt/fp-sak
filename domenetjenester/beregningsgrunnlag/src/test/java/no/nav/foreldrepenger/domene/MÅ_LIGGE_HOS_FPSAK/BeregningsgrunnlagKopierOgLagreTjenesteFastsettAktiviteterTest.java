@@ -28,6 +28,7 @@ import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -73,6 +74,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
     private final RepositoryProvider repositoryProvider = new RepositoryProvider(repoRule.getEntityManager());
     private final FakeUnleash unleash = new FakeUnleash();
     private final BeregningsgrunnlagRepository beregningsgrunnlagRepository = repositoryProvider.getBeregningsgrunnlagRepository();
+    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
 
 
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
@@ -84,7 +86,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
     @Before
     public void setUp() {
         KalkulusKonfigInjecter kalkulusKonfigInjecter = new KalkulusKonfigInjecter(5, unleash);
-        BeregningTilInputTjeneste beregningTilInputTjeneste = new BeregningTilInputTjeneste(beregningsgrunnlagRepository, kalkulusKonfigInjecter);
+        BeregningTilInputTjeneste beregningTilInputTjeneste = new BeregningTilInputTjeneste(beregningsgrunnlagRepository, kalkulusKonfigInjecter, behandlingRepository);
         behandlingReferanse = lagBehandlingReferanse();
         beregningsgrunnlagKopierOgLagreTjeneste = new BeregningsgrunnlagKopierOgLagreTjeneste(beregningsgrunnlagRepository, beregningsgrunnlagTjeneste, beregningTilInputTjeneste);
     }

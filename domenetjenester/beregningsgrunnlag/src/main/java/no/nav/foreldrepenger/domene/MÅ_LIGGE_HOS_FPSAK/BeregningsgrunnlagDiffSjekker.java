@@ -39,6 +39,9 @@ class BeregningsgrunnlagDiffSjekker {
     }
 
     static boolean harSignifikantDiffIBeregningsgrunnlag(BeregningsgrunnlagEntitet aktivt, BeregningsgrunnlagEntitet forrige) {
+        if (!erLike(aktivt.getGrunnbeløp() == null ? null : aktivt.getGrunnbeløp().getVerdi(), forrige.getGrunnbeløp() == null ? null : forrige.getGrunnbeløp().getVerdi())) {
+            return true;
+        }
         if (!hentStatuser(aktivt).equals(hentStatuser(forrige))) {
             return true;
         }
