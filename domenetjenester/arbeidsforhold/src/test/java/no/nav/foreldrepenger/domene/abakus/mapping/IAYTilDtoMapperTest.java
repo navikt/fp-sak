@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.abakus.mapping;
 
+import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -27,7 +28,7 @@ public class IAYTilDtoMapperTest {
     @Test
     public void skal_teste_at_overstyrt_skal_kunne_mappes_uten_register() {
         // Arrange
-        IAYTilDtoMapper mapper = new IAYTilDtoMapper(AKTØR_ID, GRUNNLAG_REF, BEH_REF);
+        IAYTilDtoMapper mapper = new IAYTilDtoMapper(AKTØR_ID, YtelseType.FORELDREPENGER, GRUNNLAG_REF, BEH_REF);
         InntektArbeidYtelseAggregatBuilder sbhVersjon = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.SAKSBEHANDLET);
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aaBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty()).medAktørId(AKTØR_ID);
         YrkesaktivitetBuilder yrkesaktivitetBuilderForType = aaBuilder.getYrkesaktivitetBuilderForType(ArbeidType.VANLIG);

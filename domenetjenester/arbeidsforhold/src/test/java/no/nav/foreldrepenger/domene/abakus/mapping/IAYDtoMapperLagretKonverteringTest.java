@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import org.junit.Test;
 
+import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -117,7 +118,7 @@ public class IAYDtoMapperLagretKonverteringTest {
 
         var grunnlag = hentGrunnlag(behandlingId);
 
-        var mapper = new IAYTilDtoMapper(aktørId, grunnlag.getEksternReferanse(), behandlingUuid);
+        var mapper = new IAYTilDtoMapper(aktørId, YtelseType.FORELDREPENGER, grunnlag.getEksternReferanse(), behandlingUuid);
 
         var dto = mapper.mapTilDto(grunnlag, true);
 

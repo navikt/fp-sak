@@ -6,29 +6,33 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
+import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
+import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
+import no.nav.abakus.iaygrunnlag.oppgittopptjening.v1.OppgittOpptjeningDto;
+import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseAggregatOverstyrtDto;
+import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseAggregatRegisterDto;
+import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
-import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
-import no.nav.abakus.iaygrunnlag.oppgittopptjening.v1.OppgittOpptjeningDto;
-import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseAggregatOverstyrtDto;
-import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseAggregatRegisterDto;
-import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 
 public class IAYTilDtoMapper {
 
     private AktørId aktørId;
+    private YtelseType ytelseType;
     private UUID grunnlagReferanse;
     private UUID behandlingReferanse;
 
     public IAYTilDtoMapper(AktørId aktørId,
+                           YtelseType ytelseType,
                            UUID grunnlagReferanse,
                            UUID behandlingReferanse) {
         this.aktørId = aktørId;
+        this.ytelseType = ytelseType;
         this.grunnlagReferanse = grunnlagReferanse;
         this.behandlingReferanse = behandlingReferanse;
     }
@@ -45,7 +49,7 @@ public class IAYTilDtoMapper {
         var grunnlagTidspunkt = grunnlag.getOpprettetTidspunkt().atZone(ZoneId.systemDefault()).toOffsetDateTime();
 
         var dto = new InntektArbeidYtelseGrunnlagDto(new AktørIdPersonident(aktørId.getId()),
-            grunnlagTidspunkt, grunnlagReferanse, behandlingReferanse);
+            grunnlagTidspunkt, grunnlagReferanse, behandlingReferanse, ytelseType);
 
         // REGISTEROPPLYSNINGER
         grunnlag.getRegisterVersjon().ifPresent(a -> mapRegisterOpplysninger(getArbeidforholdInfo(grunnlag), a, dto));

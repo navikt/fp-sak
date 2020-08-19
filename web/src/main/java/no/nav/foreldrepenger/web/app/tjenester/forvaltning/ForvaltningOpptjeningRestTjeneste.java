@@ -26,6 +26,7 @@ import no.nav.abakus.iaygrunnlag.oppgittopptjening.v1.OppgittOpptjeningDto;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.abakus.mapping.IAYTilDtoMapper;
+import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
@@ -166,7 +167,8 @@ public class ForvaltningOpptjeningRestTjeneste {
         Long behandlingId = dto.getBehandlingId();
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
-        var mappedOpptjening = new IAYTilDtoMapper(behandling.getAktørId(), iayGrunnlag.getEksternReferanse(), behandling.getUuid()).mapTilDto(iayGrunnlag)
+        var mappedOpptjening = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
+            iayGrunnlag.getEksternReferanse(), behandling.getUuid()).mapTilDto(iayGrunnlag)
             .getOppgittOpptjening();
 
         return mappedOpptjening;
