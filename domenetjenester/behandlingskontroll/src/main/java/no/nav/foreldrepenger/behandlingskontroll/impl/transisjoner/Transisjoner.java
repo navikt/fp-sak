@@ -24,6 +24,7 @@ public class Transisjoner {
         new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_IVERKSETT_VEDTAK.getId(), BehandlingStegType.IVERKSETT_VEDTAK),
         new SpolFremoverTransisjon(BehandlingStegType.KONTROLLER_FAKTA),
         new SpolFremoverTransisjon(BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING),
+        new SpolFremoverTransisjon(BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG),
         new SpolFremoverTransisjon(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
         new SpolFremoverTransisjon(BehandlingStegType.SØKERS_RELASJON_TIL_BARN),
         new SpolFremoverTransisjon(BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR),

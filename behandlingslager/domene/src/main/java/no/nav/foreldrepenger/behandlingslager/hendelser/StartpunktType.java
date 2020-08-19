@@ -37,7 +37,9 @@ public enum StartpunktType implements Kodeverdi {
     INNGANGSVILKÅR_MEDLEMSKAP("INNGANGSVILKÅR_MEDL", "Inngangsvilkår medlemskapsvilkår", 5, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR),
     OPPTJENING("OPPTJENING", "Opptjening", 6, BehandlingStegType.FASTSETT_OPPTJENINGSPERIODE),
     BEREGNING("BEREGNING", "Beregning", 7, BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING),
-    UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 8, BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP),
+    // StartpunktType BEREGNING_FORDEL skal kun brukes ved G-regulering
+    BEREGNING_FORDEL("BEREGNING_FORDEL", "Beregning fordel", 8, BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG),
+    UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 9, BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP),
 
     UDEFINERT("-", "Ikke definert", 99, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
     ;
@@ -89,6 +91,8 @@ public enum StartpunktType implements Kodeverdi {
             VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.values().stream().flatMap(Collection::stream).collect(toSet()));
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.BEREGNING).addAll(new HashSet<>(
             Arrays.asList(VilkårType.OPPTJENINGSPERIODEVILKÅR, VilkårType.OPPTJENINGSVILKÅRET)));
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.BEREGNING_FORDEL,
+            VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.values().stream().flatMap(Collection::stream).collect(toSet()));
 
         // Uttak
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.UTTAKSVILKÅR,
