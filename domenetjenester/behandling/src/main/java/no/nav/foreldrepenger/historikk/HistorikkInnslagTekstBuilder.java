@@ -339,6 +339,10 @@ public class HistorikkInnslagTekstBuilder {
         return medEndretFelt(type, formatString(fraVerdi), formatString(tilVerdi));
     }
 
+    public HistorikkInnslagTekstBuilder medEndretFelt(HistorikkEndretFeltType type, String navnVerdi, LocalDate fraVerdi, LocalDate tilVerdi) {
+        return medEndretFelt(type, navnVerdi, formatString(fraVerdi), formatString(tilVerdi));
+    }
+
     public HistorikkInnslagTekstBuilder medEndretFelt(HistorikkEndretFeltType historikkEndretFeltType, String fraVerdi, String tilVerdi) {
         if (Objects.equals(fraVerdi, tilVerdi)) {
             return this;

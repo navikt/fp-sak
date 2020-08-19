@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @FagsakYtelseTypeRef("*")
 @ApplicationScoped
 public class VurderRefusjonBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
-    private static final String SKAL_BRUKE_STEG = "fpsak.steg.vurder_ref_bergrunn";
+    private static final String SKAL_BRUKE_STEG_TOGGLE = "fpsak.steg.vurder_ref_bergrunn";
 
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BehandlingRepository behandlingRepository;
@@ -47,7 +47,7 @@ public class VurderRefusjonBeregningsgrunnlagSteg implements BeregningsgrunnlagS
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        if (!unleash.isEnabled(SKAL_BRUKE_STEG, false)) {
+        if (!unleash.isEnabled(SKAL_BRUKE_STEG_TOGGLE, false)) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
         Long behandlingId = kontekst.getBehandlingId();
