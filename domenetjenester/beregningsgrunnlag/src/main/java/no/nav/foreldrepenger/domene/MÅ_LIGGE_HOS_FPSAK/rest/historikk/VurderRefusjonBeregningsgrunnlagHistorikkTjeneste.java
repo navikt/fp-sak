@@ -82,7 +82,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
         Optional<InternArbeidsforholdRef> ref = fastsattAndel.getInternArbeidsforholdRef() == null ? Optional.empty() : Optional.of(InternArbeidsforholdRef.ref(fastsattAndel.getInternArbeidsforholdRef()));
         String arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(AktivitetStatus.ARBEIDSTAKER, Optional.of(ag), ref, arbeidsforholdOverstyringer);
         HistorikkEndretFeltType endretFeltType = HistorikkEndretFeltType.NYTT_REFUSJONSKRAV;
-        historikkBuilder.medNavnOgGjeldendeFra(endretFeltType, arbeidsforholdInfo, fastsattAndel.getFastsattRefusjonFra());
+        historikkBuilder.medNavnOgGjeldendeFra(endretFeltType, arbeidsforholdInfo, fastsattAndel.getFastsattRefusjonFom());
         if (!tekstBuilder.erSkjermlenkeSatt()) {
             historikkBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_FORDELING);
         }
