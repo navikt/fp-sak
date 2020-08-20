@@ -432,9 +432,9 @@ public class BeregningsgrunnlagRepository {
     }
 
     public void kopierGrunnlagForGRegulering(Long gammelBehandlingId, Long nyBehandlingId) {
-        boolean oppdatert = oppdaterGrunnlagMedGrunnbeløp(gammelBehandlingId, nyBehandlingId, BeregningsgrunnlagTilstand.FORESLÅTT_UT);
+        boolean oppdatert = oppdaterGrunnlagMedGrunnbeløp(gammelBehandlingId, nyBehandlingId, BeregningsgrunnlagTilstand.KOFAKBER_UT);
         if (!oppdatert) {
-            oppdaterGrunnlagMedGrunnbeløp(gammelBehandlingId, nyBehandlingId, BeregningsgrunnlagTilstand.FORESLÅTT);
+            oppdaterGrunnlagMedGrunnbeløp(gammelBehandlingId, nyBehandlingId, BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER);
         }
     }
 

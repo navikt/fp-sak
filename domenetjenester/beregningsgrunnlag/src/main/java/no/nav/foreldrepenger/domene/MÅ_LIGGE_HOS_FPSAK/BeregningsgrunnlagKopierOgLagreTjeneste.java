@@ -124,7 +124,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         beregningsgrunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, behandlingId, FASTSATT);
     }
 
-    public void kopierResultatForGregulering(Long originalBehandlingId, Long behandlingId) {
+    public void kopierResultatForGRegulering(Long originalBehandlingId, Long behandlingId) {
         beregningsgrunnlagRepository.kopierGrunnlagForGRegulering(originalBehandlingId, behandlingId);
     }
 
