@@ -243,10 +243,11 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             long multiplikator = repositoryProvider.getBeregningsresultatRepository().avkortingMultiplikatorG(grunnbeløp.getPeriode().getFomDato().minusDays(1));
             BigDecimal grenseverdi = new BigDecimal(satsIBeregning * multiplikator);
             boolean over6G = bruttoPrÅr.compareTo(grenseverdi) >= 0;
-            boolean erMilitær = forrigeBeregning.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
+            boolean erMilitærUnder3G = forrigeBeregning.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
                 .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
-                .anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL));
-            if (over6G || erMilitær) {
+                .anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL)
+                    && a.getBeregningsgrunnlagPeriode().getBruttoPrÅr().compareTo(BigDecimal.valueOf(3).multiply(BigDecimal.valueOf(grunnbeløp.getVerdi()))) < 0);
+            if (over6G || erMilitærUnder3G) {
                 LOGGER.info("KOFAKREV Revurdering {} skal G-reguleres", revurdering.getId());
                 return StartpunktType.BEREGNING_FORESLÅ;
             } else {
