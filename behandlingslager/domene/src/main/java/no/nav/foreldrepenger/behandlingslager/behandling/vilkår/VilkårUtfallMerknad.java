@@ -52,7 +52,7 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
 
     VM_5007("5007", "søknadsfristvilkåret"),
 
-    VM_7001("7001", "Søker ikke oppfylt opplysningsplikten jf folketrygdloven §§ 21-7 og 21-3"),
+    VM_7001("7001", "Søker ikke oppfylt opplysningsplikten jf folketrygdloven §§ 21-3"),
     VM_7002("7002", "Start ny vilkårsvurdering"),
     VM_7003("7003", "Søker er medmor (foreldre2) og har søkt på vegne av seg selv"),
     VM_7004("7004", "Søker er far og har søkt på vegne av seg selv"),
@@ -61,7 +61,7 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
     UDEFINERT("-", "Ikke definert"),
 
     ;
-    
+
     private static final Map<String, VilkårUtfallMerknad> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "VILKAR_UTFALL_MERKNAD";
@@ -121,7 +121,7 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {

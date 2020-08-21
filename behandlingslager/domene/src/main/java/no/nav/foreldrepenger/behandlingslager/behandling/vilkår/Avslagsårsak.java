@@ -44,7 +44,7 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse{
     SØKER_ER_IKKE_BARNETS_FAR_F("1016", "Søker er ikke barnets far", null),
     OMSORGSOVERTAKELSE_ETTER_56_UKER("1017", "Omsorgsovertakelse etter 56 uker", null),
     IKKE_FORELDREANSVAR_ALENE_ETTER_BARNELOVA("1018", "Ikke foreldreansvar alene etter barnelova", null),
-    MANGLENDE_DOKUMENTASJON("1019", "Manglende dokumentasjon", "{\"fagsakYtelseType\": [{\"FP\": [{\"kategori\": \"FP_VK_34\", \"lovreferanse\": \"21-3,21-7\"}]}]}"),
+    MANGLENDE_DOKUMENTASJON("1019", "Manglende dokumentasjon", "{\"fagsakYtelseType\": [{\"FP\": [{\"kategori\": \"FP_VK_34\", \"lovreferanse\": \"21-3\"}]}]}"),
     SØKER_ER_IKKE_MEDLEM("1020", "Søker er ikke medlem", "{\"fagsakYtelseType\": [{\"FP\": [{\"kategori\": \"FP_VK_2\", \"lovreferanse\": \"14-2\"}]}]}"),
     SØKER_ER_UTVANDRET("1021", "Søker er utvandret", "{\"fagsakYtelseType\": [{\"FP\": [{\"kategori\": \"FP_VK_2\", \"lovreferanse\": \"14-2\"}]}]}"),
     SØKER_HAR_IKKE_LOVLIG_OPPHOLD("1023", "Søker har ikke lovlig opphold", "{\"fagsakYtelseType\": [{\"FP\": [{\"kategori\": \"FP_VK_2\", \"lovreferanse\": \"14-2\"}]}]}"),
@@ -72,9 +72,9 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse{
     UDEFINERT("-", "Ikke definert", null),
 
     ;
-    
+
     private static final Map<String, Avslagsårsak> KODER = new LinkedHashMap<>();
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -84,7 +84,7 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse{
     }
 
     public static final String KODEVERK = "AVSLAGSARSAK"; //$NON-NLS-1$
-    
+
     private static final Set<Avslagsårsak> ALLEREDE_UTBETALT_ENGANGSSTØNAD_ÅRSAKER = Collections.unmodifiableSet(new LinkedHashSet<>(
         Arrays.asList(ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR, ENGANGSTØNAD_ER_ALLEREDE_UTBETAL_TIL_MOR,
             ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR)));
@@ -116,7 +116,7 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse{
         }
         return ad;
     }
-    
+
     public static Map<String, Avslagsårsak> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -125,13 +125,13 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse{
     public String getNavn() {
         return navn;
     }
-    
+
     @JsonProperty
     @Override
     public String getKode() {
         return kode;
     }
-    
+
     @JsonProperty
     @Override
     public String getKodeverk() {
@@ -142,7 +142,7 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse{
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     /**
      * Get vilkår dette avslaget kan opptre i.
      */
@@ -162,7 +162,7 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse{
     public boolean erAlleredeUtbetaltEngangsstønad() {
         return ALLEREDE_UTBETALT_ENGANGSSTØNAD_ÅRSAKER.contains(this);
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<Avslagsårsak, String> {
         @Override
