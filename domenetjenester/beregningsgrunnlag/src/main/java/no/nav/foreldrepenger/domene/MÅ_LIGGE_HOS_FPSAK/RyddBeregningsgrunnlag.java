@@ -35,6 +35,10 @@ public class RyddBeregningsgrunnlag {
             .reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(), BeregningsgrunnlagTilstand.FORESLÅTT);
     }
 
+    public void ryddVurderRefusjonBeregningsgrunnlagVedTilbakeføring() {
+        beregningsgrunnlagRepository
+            .reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(), BeregningsgrunnlagTilstand.VURDERT_REFUSJON);
+    }
 
     private void gjenopprettFørsteBeregningsgrunnlag() {
         beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(), BeregningsgrunnlagTilstand.OPPRETTET);

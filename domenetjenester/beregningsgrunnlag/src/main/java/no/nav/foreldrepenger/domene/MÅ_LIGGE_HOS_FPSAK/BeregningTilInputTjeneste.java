@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -67,6 +68,14 @@ public class BeregningTilInputTjeneste {
                 .medBehandlingReferanse(ref)
                 .medBeregningsgrunnlagGrunnlag(BehandlingslagerTilKalkulusMapper.mapGrunnlag(grunnlagEntitet, input.getInntektsmeldinger()));
         }
+        Optional<Long> orginalBehandling = input.getBehandlingReferanse().getOriginalBehandlingId();
+        Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag = orginalBehandling.flatMap(beh -> beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(beh));
+        if (forrigeGrunnlag.isPresent()) {
+            // Trenger ikke vite hvilke ander i orginalbehandling som hadde inntektsmeldinger
+            newInput = newInput
+                .medBeregningsgrunnlagGrunnlagFraForrigeBehandling(BehandlingslagerTilKalkulusMapper.mapGrunnlag(forrigeGrunnlag.get(), Collections.emptyList()));
+        }
+
         kalkulusKonfigInjecter.leggTilKonfigverdier(input);
         kalkulusKonfigInjecter.leggTilFeatureToggles(input);
         Optional<BeregningsgrunnlagGrunnlagEntitet> førsteFastsatteGrunnlagEtterEndringAvG = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(behandlingId);
