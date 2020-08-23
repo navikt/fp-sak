@@ -6,10 +6,11 @@ import javax.inject.Inject;
 import org.apache.kafka.common.serialization.Serdes;
 
 import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.vedtak.util.env.Environment;
 
 @Dependent
 class VedtakStreamKafkaProperties {
-
+    private static final Environment ENV = Environment.current();
     private final String bootstrapServers;
     private final String schemaRegistryUrl;
     private final String username;
@@ -29,12 +30,17 @@ class VedtakStreamKafkaProperties {
                                 @KonfigVerdi(value = "javax.net.ssl.trustStorePassword", required = false) String trustStorePassword) {
         this.trustStorePath = trustStorePath;
         this.trustStorePassword = trustStorePassword;
-        this.applicationId = System.getProperty("nais.app.name", "fpsak") + "-" + System.getProperty("nais.namespace", "default");
+        this.applicationId = applicationId();
         this.bootstrapServers = bootstrapServers;
         this.schemaRegistryUrl = schemaRegistryUrl;
         this.username = username;
         this.password = password;
         this.topicName = topicName;
+    }
+
+    private static String applicationId() {
+        String prefix = ENV.getProperty("nais.app.name", "fpsak");
+        return ENV.isProd() ? prefix + "-default" : prefix;
     }
 
     String getBootstrapServers() {

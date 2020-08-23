@@ -1,6 +1,11 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.konsument;
 
-import no.nav.vedtak.apptjeneste.AppServiceHandler;
+import java.time.Duration;
+import java.util.Properties;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.config.SaslConfigs;
@@ -13,13 +18,11 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.time.Duration;
-import java.util.Properties;
+import no.nav.foreldrepenger.domene.liveness.KafkaIntegration;
+import no.nav.vedtak.apptjeneste.AppServiceHandler;
 
 @ApplicationScoped
-public class RisikoklassifiseringConsumer implements AppServiceHandler {
+public class RisikoklassifiseringConsumer implements AppServiceHandler, KafkaIntegration {
 
     private static final Logger log = LoggerFactory.getLogger(RisikoklassifiseringConsumer.class);
 
@@ -50,7 +53,6 @@ public class RisikoklassifiseringConsumer implements AppServiceHandler {
         Properties props = new Properties();
 
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, streamProperties.getApplicationId());
-        log.info("Bruker applicationID: " + streamProperties.getApplicationId());
         props.put(StreamsConfig.CLIENT_ID_CONFIG, streamProperties.getClientId());
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, streamProperties.getBootstrapServers());
 
@@ -87,6 +89,11 @@ public class RisikoklassifiseringConsumer implements AppServiceHandler {
         log.info("Starter shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
         stream.close(Duration.ofSeconds(10));
         log.info("Shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
+    }
+
+    @Override
+    public boolean isAlive() {
+        return stream != null && stream.state().isRunningOrRebalancing();
     }
 
     public KafkaStreams.State getTilstand() {

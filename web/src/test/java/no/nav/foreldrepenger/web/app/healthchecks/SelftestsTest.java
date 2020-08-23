@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
 
+import no.nav.foreldrepenger.domene.liveness.KafkaIntegration;
 import no.nav.foreldrepenger.web.app.healthchecks.checks.ExtHealthCheck;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
@@ -26,6 +27,7 @@ import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 public class SelftestsTest {
 
     @Inject @Any Instance<ExtHealthCheck> healthChecks;
+    @Inject @Any Instance<KafkaIntegration> kafkaIntegrations;
 
     private HealthCheckRegistry registry;
 
@@ -35,7 +37,10 @@ public class SelftestsTest {
     public void setup() {
         registry = Mockito.mock(HealthCheckRegistry.class);
 
+        System.setProperty("develop-local", "true");
+
         List<ExtHealthCheck> checks = new ArrayList<>();
+        List<KafkaIntegration> kafkas = new ArrayList<>();
 
         for(ExtHealthCheck ex: healthChecks){
             ExtHealthCheck newEx = Mockito.spy(ex);
@@ -43,22 +48,27 @@ public class SelftestsTest {
             checks.add(newEx);
         }
 
+        for(KafkaIntegration k: kafkaIntegrations){
+            KafkaIntegration newK = Mockito.spy(k);
+            Mockito.doReturn(true).when(newK).isAlive();
+            kafkas.add(newK);
+        }
+
         @SuppressWarnings("unchecked")
         Instance<ExtHealthCheck> testInstance = Mockito.mock(Instance.class);
         Mockito.doReturn(checks.iterator()).when(testInstance).iterator();
-        selftests = new Selftests(registry, testInstance, "fpsak");
+        @SuppressWarnings("unchecked")
+        Instance<KafkaIntegration> testIntegration = Mockito.mock(Instance.class);
+        Mockito.doReturn(checks.iterator()).when(testIntegration).iterator();
+        selftests = new Selftests(registry, testInstance, testIntegration, "fpsak");
     }
 
     @Test
     public void test_run_skal_utfoere_alle_del_tester() {
         SelftestResultat samletResultat = selftests.run();
 
-        assertThat(samletResultat != null).isTrue();
-        assertThat(samletResultat.getApplication()).isNotNull();
-        assertThat(samletResultat.getVersion()).isNotNull();
+        assertThat(samletResultat).isNotNull();
         assertThat(samletResultat.getTimestamp()).isNotNull();
-        assertThat(samletResultat.getRevision()).isNotNull();
-        assertThat(samletResultat.getBuildTime()).isNotNull();
         assertThat(samletResultat.getAggregateResult()).isNotNull();
         List<HealthCheck.Result> resultList = samletResultat.getAlleResultater();
         assertThat(resultList).isNotNull();
