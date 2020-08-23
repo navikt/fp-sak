@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse;
 
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -364,5 +366,33 @@ public class FamilieHendelseRepository {
            .setFlushMode(FlushModeType.COMMIT); //$NON-NLS-1$
         query.setParameter("aggregatId", aggregatId); // NOSONAR //$NON-NLS-1$
         return query.getResultStream().findFirst();
+    }
+
+    /*
+     * Til Forvaltningsbruk der det er oppgitt feil termindato i søknad
+     */
+    public int oppdaterGjeldendeTermindatoForBehandling(Long behandlingId, LocalDate termindato, String begrunnelse) {
+        var fhIds = new HashSet<>();
+        var grunnlag = hentAggregat(behandlingId);
+
+        if (grunnlag.getOverstyrtVersjon().map(FamilieHendelseEntitet::getTerminbekreftelse).isPresent()) {
+            grunnlag.getOverstyrtVersjon().map(FamilieHendelseEntitet::getId).ifPresent(fhIds::add);
+        }
+        if (grunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getTerminbekreftelse).isPresent()) {
+            grunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getId).ifPresent(fhIds::add);
+        }
+        if (grunnlag.getSøknadVersjon().getTerminbekreftelse().isPresent()) {
+            fhIds.add(grunnlag.getSøknadVersjon().getId());
+        }
+        if (fhIds.isEmpty())
+            return 0;
+        int antall = entityManager.createNativeQuery(
+            "UPDATE FH_TERMINBEKREFTELSE SET TERMINDATO = :termin, endret_av = :begr WHERE FAMILIE_HENDELSE_ID in :fhid")
+            .setParameter("termin", termindato)
+            .setParameter("fhid", fhIds)
+            .setParameter("begr", begrunnelse)
+            .executeUpdate(); //$NON-NLS-1$
+        entityManager.flush();
+        return antall;
     }
 }
