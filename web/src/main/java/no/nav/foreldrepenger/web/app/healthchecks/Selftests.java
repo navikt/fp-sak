@@ -3,7 +3,9 @@ package no.nav.foreldrepenger.web.app.healthchecks;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
 
+import no.nav.foreldrepenger.domene.liveness.KafkaIntegration;
 import no.nav.foreldrepenger.web.app.healthchecks.checks.ExtHealthCheck;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
@@ -32,6 +35,8 @@ public class Selftests {
 
     private Instance<ExtHealthCheck> healthChecks;
 
+    private List<KafkaIntegration> kafkaList = new ArrayList<>();
+
     private boolean hasSetupChecks;
 
     private String applicationName;
@@ -42,14 +47,15 @@ public class Selftests {
     private LocalDateTime sistOppdatertTid = LocalDateTime.now().minusDays(1);
 
     @Inject
-    public Selftests(
-                     HealthCheckRegistry registry,
+    public Selftests(HealthCheckRegistry registry,
                      @Any Instance<ExtHealthCheck> healthChecks,
+                     @Any Instance<KafkaIntegration> kafkaIntegrations,
                      @KonfigVerdi(value = "application.name") String applicationName) {
 
         this.registry = registry;
         this.healthChecks = healthChecks;
         this.applicationName = applicationName;
+        kafkaIntegrations.forEach(this.kafkaList::add);
     }
 
     Selftests() {
@@ -59,6 +65,10 @@ public class Selftests {
     public SelftestResultat run() {
         oppdaterSelftestResultatHvisNødvendig();
         return selftestResultat; // NOSONAR
+    }
+
+    public boolean isKafkaAlive() {
+        return kafkaList.stream().allMatch(KafkaIntegration::isAlive);
     }
 
     private synchronized void oppdaterSelftestResultatHvisNødvendig() {

@@ -20,10 +20,11 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.domene.liveness.KafkaIntegration;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
 
 @ApplicationScoped
-public class VedtaksHendelseConsumer implements AppServiceHandler {
+public class VedtaksHendelseConsumer implements AppServiceHandler, KafkaIntegration {
 
     private static final Logger log = LoggerFactory.getLogger(VedtaksHendelseConsumer.class);
     private KafkaStreams stream;
@@ -59,7 +60,7 @@ public class VedtaksHendelseConsumer implements AppServiceHandler {
             }
         });
         stream.setUncaughtExceptionHandler((t, e) -> {
-            log.error(topic + " :: Caught exception in stream, exiting", e);
+            log.error("{} :: Caught exception in stream, exiting", topic, e);
             stop();
         });
     }
@@ -127,5 +128,10 @@ public class VedtaksHendelseConsumer implements AppServiceHandler {
         log.info("Starter shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
         stream.close(Duration.of(20, ChronoUnit.SECONDS));
         log.info("Shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
+    }
+
+    @Override
+    public boolean isAlive() {
+        return stream != null && stream.state().isRunningOrRebalancing();
     }
 }
