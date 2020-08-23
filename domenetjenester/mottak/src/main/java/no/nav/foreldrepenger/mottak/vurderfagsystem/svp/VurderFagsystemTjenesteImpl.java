@@ -67,7 +67,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             .collect(Collectors.toList());
 
         if (relevanteFagsaker.size() > 1) {
-            LOG.info("VurderFagsystem SV strukturert søknad flere relevante saker {}", relevanteFagsaker.size());
+            LOG.info("VurderFagsystem SV strukturert søknad flere relevante saker {} for {}", relevanteFagsaker.size(), vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (relevanteFagsaker.isEmpty()) {
@@ -85,7 +85,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
         List<Fagsak> åpneFagsaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType);
         if (åpneFagsaker.size() > 1) {
-            LOG.info("VurderFagsystem SV inntektsmelding flere åpne saker {}", åpneFagsaker.size());
+            LOG.info("VurderFagsystem SV inntektsmelding flere åpne saker {} for {}", åpneFagsaker.size(), vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (åpneFagsaker.size() == 1) {
@@ -96,7 +96,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             .filter(f -> fellesUtils.finnGjeldendeFamilieHendelse(f).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE))
             .collect(Collectors.toList());
         if (aktuelleSakerForMatch.size() > 1) {
-            LOG.info("VurderFagsystem SV inntektsmelding flere aktuelle saker {}", aktuelleSakerForMatch.size());
+            LOG.info("VurderFagsystem SV inntektsmelding flere aktuelle saker {} for {}", aktuelleSakerForMatch.size(), vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (aktuelleSakerForMatch.size() == 1) {

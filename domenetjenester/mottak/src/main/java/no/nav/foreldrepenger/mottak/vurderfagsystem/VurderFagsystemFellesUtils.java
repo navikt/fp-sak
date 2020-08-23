@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.vurderfagsystem;
 
 import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING;
 import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING;
+import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.VURDER_INFOTRYGD;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,6 +52,7 @@ public class VurderFagsystemFellesUtils {
     private static final TemporalAmount UKER_FH_SAMME = Period.ofWeeks(5);
     private static final TemporalAmount UKER_FH_ULIK = Period.ofWeeks(19);
     private static final Period MAKS_AVVIK_DAGER_IM_INPUT = Period.of(0,3,1);
+    private static final Period OPPLYSNINGSPLIKT_INTERVALL = Period.of(0,2,1);
     private static final Period PERIODE_FOR_AKTUELLE_SAKER = Period.ofMonths(10);
 
     private BehandlingRepository behandlingRepository;
@@ -105,9 +107,35 @@ public class VurderFagsystemFellesUtils {
                 .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon));
     }
 
+    public boolean erBehandlingAvsluttetFørOpplysningspliktIntervall(Behandling behandling) {
+        return behandling.getAvsluttetDato() != null && behandling.getAvsluttetDato().isAfter(LocalDateTime.now().minus(OPPLYSNINGSPLIKT_INTERVALL));
+    }
+
     public boolean harSakOpprettetInnenIntervall(List<Fagsak> sakerGittYtelseType) {
         return sakerGittYtelseType.stream()
             .anyMatch(f -> f.getOpprettetTidspunkt() != null && f.getOpprettetTidspunkt().isAfter(LocalDateTime.now().minus(PERIODE_FOR_AKTUELLE_SAKER)));
+    }
+
+    public boolean erFagsakMedFamilieHendelsePassendeForFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
+        // Finn behandling
+        Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+            .flatMap(b -> familieHendelseRepository.hentAggregatHvisEksisterer(b.getId()));
+        if (fhGrunnlag.isEmpty()) {
+            return false;
+        }
+        FamilieHendelseType fhType = fhGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
+        BehandlingTema bhTemaFagsak = BehandlingTema.fraFagsakHendelse(fagsak.getYtelseType(), fhType);
+        if (!vurderFagsystem.getBehandlingTema().erKompatibelMed(bhTemaFagsak)) {
+            return false;
+        }
+
+        // Sjekk familiehendelse
+        if (FamilieHendelseType.gjelderFødsel(fhType)) {
+            return erPassendeFødselsSak(vurderFagsystem, fhGrunnlag.get());
+        } else if (FamilieHendelseType.gjelderAdopsjon(fhType)) {
+            return erPassendeAdopsjonsSak(vurderFagsystem, fhGrunnlag.get());
+        }
+        return false;
     }
 
     public boolean erFagsakPassendeForFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
@@ -139,26 +167,71 @@ public class VurderFagsystemFellesUtils {
         return false;
     }
 
-    public boolean erFagsakPassendeForStartdato(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
-        // Finn behandling
-        Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
-        if (behandling.isEmpty()) {
-            return true;
+    public BehandlendeFagsystem vurderAktuelleFagsakerForInntektsmeldingFP(VurderFagsystem vurderFagsystem, List<Fagsak> saker) {
+        var startdatoIM = vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().orElse(null);
+        if (startdatoIM == null) {
+            return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
+        // Sorter saker etter om de har søknad, tidligere IM eller ikke + matching. Evaluer i rekkefølge
+        Map<SorteringSaker, List<Fagsak>> sorterteSaker = saker.stream()
+            .collect(Collectors.groupingBy(f -> sorterFagsakForStartdatoIM(f, startdatoIM)));
 
-        Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag = behandling.flatMap(b -> familieHendelseRepository.hentAggregatHvisEksisterer(b.getId()));
+        if (!sorterteSaker.getOrDefault(SorteringSaker.GRUNNLAG_DATO_MATCH, List.of()).isEmpty()) {
+            return behandlendeFagsystemFraFagsaker(sorterteSaker.get(SorteringSaker.GRUNNLAG_DATO_MATCH), SorteringSaker.GRUNNLAG_DATO_MATCH, vurderFagsystem);
+        }
+        if (!sorterteSaker.getOrDefault(SorteringSaker.GRUNNLAG_MULIG_MATCH, List.of()).isEmpty()) {
+            return behandlendeFagsystemFraFagsaker(sorterteSaker.get(SorteringSaker.GRUNNLAG_MULIG_MATCH), SorteringSaker.GRUNNLAG_MULIG_MATCH, vurderFagsystem);
+        }
+        if (!sorterteSaker.getOrDefault(SorteringSaker.GRUNNLAG_MISMATCH, List.of()).isEmpty() && harSakOpprettetInnenIntervall(sorterteSaker.get(SorteringSaker.GRUNNLAG_MISMATCH))) {
+            LOG.info("VurderFagsystem FP IM manuell pga nylige saker av type {} for {}", SorteringSaker.GRUNNLAG_MISMATCH, vurderFagsystem.getAktørId());
+            return new BehandlendeFagsystem(MANUELL_VURDERING);
+        }
+        if (!sorterteSaker.getOrDefault(SorteringSaker.INNTEKTSMELDING_DATO_MATCH, List.of()).isEmpty()) {
+            return behandlendeFagsystemFraFagsaker(sorterteSaker.get(SorteringSaker.INNTEKTSMELDING_DATO_MATCH), SorteringSaker.INNTEKTSMELDING_DATO_MATCH, vurderFagsystem);
+        }
+        if (!sorterteSaker.getOrDefault(SorteringSaker.INNTEKTSMELDING_MISMATCH, List.of()).isEmpty() && harSakOpprettetInnenIntervall(sorterteSaker.get(SorteringSaker.INNTEKTSMELDING_MISMATCH))) {
+            LOG.info("VurderFagsystem FP IM manuell pga nylige saker av type {} for {}", SorteringSaker.INNTEKTSMELDING_MISMATCH, vurderFagsystem.getAktørId());
+            return new BehandlendeFagsystem(MANUELL_VURDERING);
+        }
+        return sorterteSaker.getOrDefault(SorteringSaker.TOM_SAK, List.of()).isEmpty() ?  new BehandlendeFagsystem(VURDER_INFOTRYGD) :
+            new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(sorterteSaker.get(SorteringSaker.TOM_SAK).get(0).getSaksnummer());
+    }
+
+    private BehandlendeFagsystem behandlendeFagsystemFraFagsaker(List<Fagsak> saker, SorteringSaker sortering, VurderFagsystem vurderFagsystem) {
+        if (saker.size() == 1) {
+            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(saker.get(0).getSaksnummer());
+        }
+        if (saker.size() > 1) {
+            LOG.info("VurderFagsystem FP IM manuell pga flere saker av type {} for {}", sortering, vurderFagsystem.getAktørId());
+            return new BehandlendeFagsystem(MANUELL_VURDERING);
+        }
+        throw new IllegalArgumentException("Utviklerfeil skal ikke kalles med tom liste");
+    }
+
+    private SorteringSaker sorterFagsakForStartdatoIM(Fagsak fagsak, LocalDate startdatoIM) {
+        Behandling behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElse(null);
+        if (behandling == null) {
+            return SorteringSaker.TOM_SAK;
+        }
+        Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         if (fhGrunnlag.isEmpty()) {
-            // Her har vi en sak m/behandling uten søknad - 3 hovedtilfelle uregistrert papirsøknad, infobrev far, im før søknad.
-            // Innkommende kan være søknad, IM, eller ustrukturert søknad
-            return kanFagsakUtenGrunnlagBrukesForDokument(vurderFagsystem, behandling.get());
+            Map<Arbeidsgiver, List<Inntektsmelding>> alleInntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsakInkludertInaktive(behandling.getFagsak().getSaksnummer());
+            var match = alleInntektsmeldinger.values().stream().flatMap(Collection::stream).map(Inntektsmelding::getStartDatoPermisjon).flatMap(Optional::stream)
+                .anyMatch(d -> startdatoIM.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(d) && startdatoIM.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(d));
+            if (match) {
+                return SorteringSaker.INNTEKTSMELDING_DATO_MATCH;
+            }
+            return alleInntektsmeldinger.isEmpty() ?  SorteringSaker.TOM_SAK : SorteringSaker.INNTEKTSMELDING_MISMATCH;
         }
-
-        if (vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().isPresent()) {
-            LocalDate førsteDagBehandling = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.get().getId()).getFørsteUttaksdato();
-            LocalDate startDato = vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().get();
-            return førsteDagBehandling.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(startDato) && førsteDagBehandling.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(startDato);
+        // Her har vi registrert søknad
+        LocalDate førsteDagBehandling = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getFørsteUttaksdato();
+        if (førsteDagBehandling.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(startdatoIM) && førsteDagBehandling.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(startdatoIM)) {
+            return SorteringSaker.GRUNNLAG_DATO_MATCH;
+        } else if (fagsak.erÅpen() || erBehandlingAvsluttetFørOpplysningspliktIntervall(behandling)) {
+            return SorteringSaker.GRUNNLAG_MULIG_MATCH;
+        } else {
+            return SorteringSaker.GRUNNLAG_MISMATCH;
         }
-        return true;
     }
 
     /**
@@ -257,4 +330,14 @@ public class VurderFagsystemFellesUtils {
             .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
         return BehandlingTema.fraFagsakHendelse(s.getYtelseType(), fhType);
     }
+
+    public enum SorteringSaker {
+        GRUNNLAG_DATO_MATCH,
+        GRUNNLAG_MULIG_MATCH,
+        GRUNNLAG_MISMATCH,
+        INNTEKTSMELDING_DATO_MATCH,
+        INNTEKTSMELDING_MISMATCH,
+        TOM_SAK
+    }
+
 }
