@@ -46,6 +46,17 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
     @Override
     public BehandlendeFagsystem vurderFagsystemStrukturertSøknad(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
         // NB: Man ønsker er å rute søknad inn på mulig sak og unngå unødvendig saksopretting. Mottak skal håndtere tilfellene
+        List<Fagsak> matchendeFagsaker = sakerGittYtelseType.stream()
+            .filter(s -> fellesUtils.erFagsakMedFamilieHendelsePassendeForFamilieHendelse(vurderFagsystem, s))
+            .collect(Collectors.toList());
+
+        if (matchendeFagsaker.size() == 1) {
+            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(matchendeFagsaker.get(0).getSaksnummer());
+        } else if (matchendeFagsaker.size() > 1) {
+            LOG.info("VurderFagsystem FP strukturert søknad flere matchende saker {} for {}", matchendeFagsaker.size(), vurderFagsystem.getAktørId());
+            return new BehandlendeFagsystem(MANUELL_VURDERING);
+        }
+
         List<Fagsak> relevanteFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s))
             .collect(Collectors.toList());
@@ -53,16 +64,16 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         if (relevanteFagsaker.size() == 1) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(relevanteFagsaker.get(0).getSaksnummer());
         } else if (relevanteFagsaker.size() > 1) {
-            LOG.info("VurderFagsystem FP strukturert søknad flere relevante saker {}", relevanteFagsaker.size());
+            LOG.info("VurderFagsystem FP strukturert søknad flere relevante saker {} for {}", relevanteFagsaker.size(), vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
         if (fellesUtils.finnÅpneSaker(sakerGittYtelseType).size() > 1) {
-            LOG.info("VurderFagsystem FP strukturert søknad mer enn 1 åpen sak");
+            LOG.info("VurderFagsystem FP strukturert søknad mer enn 1 åpen sak for {}", vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (fellesUtils.harSakOpprettetInnenIntervall(sakerGittYtelseType)) {
-            LOG.info("VurderFagsystem FP strukturert søknad nyere sak enn 10mnd");
+            LOG.info("VurderFagsystem FP strukturert søknad nyere sak enn 10mnd for {}", vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
@@ -75,30 +86,8 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
     @Override
     public BehandlendeFagsystem vurderFagsystemInntektsmelding(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
-
         // NB: Man ønsker er å rute søknad inn på mulig sak og unngå unødvendig saksopretting. Mottak skal håndtere tilfellene
-        List<Fagsak> relevanteFagsaker = sakerGittYtelseType.stream()
-            .filter(s -> fellesUtils.erFagsakPassendeForStartdato(vurderFagsystem, s))
-            .collect(Collectors.toList());
-
-        if (relevanteFagsaker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(relevanteFagsaker.get(0).getSaksnummer());
-        } else if (relevanteFagsaker.size() > 1) {
-            LOG.info("VurderFagsystem FP inntektsmelding flere relevante saker {}", relevanteFagsaker.size());
-            return new BehandlendeFagsystem(MANUELL_VURDERING);
-        }
-
-        // For å håndtere IM med startdato utenfor godkjent intervall - vil ikke ha unødige fagsak eller rot i behandling
-        if (fellesUtils.finnÅpneSaker(sakerGittYtelseType).size() > 1) {
-            LOG.info("VurderFagsystem FP inntektsmelding mer enn 1 åpen sak");
-            return new BehandlendeFagsystem(MANUELL_VURDERING);
-        }
-        if (fellesUtils.harSakOpprettetInnenIntervall(sakerGittYtelseType)) {
-            LOG.info("VurderFagsystem FP inntektsmelding nyere sak enn 10mnd");
-            return new BehandlendeFagsystem(MANUELL_VURDERING);
-        }
-        // Videre prosess i fpfordel - sjekke om det finnes sak i Infotrygd.
-        return new BehandlendeFagsystem(VURDER_INFOTRYGD);
+        return fellesUtils.vurderAktuelleFagsakerForInntektsmeldingFP(vurderFagsystem, sakerGittYtelseType);
     }
 
     @Override
@@ -112,7 +101,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
         var vurdering = fellesUtils.standardUstrukturertDokumentVurdering(kompatibleFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
         if (MANUELL_VURDERING.equals(vurdering.getBehandlendeSystem())) {
-            LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling");
+            LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling for {}", vurderFagsystem.getAktørId());
         }
         return vurdering;
     }

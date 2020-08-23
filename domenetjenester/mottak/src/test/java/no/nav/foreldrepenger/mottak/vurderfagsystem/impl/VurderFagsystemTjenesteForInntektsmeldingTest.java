@@ -89,6 +89,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     @Test
     public void skalReturnereVedtaksløsningMedSaksnummerNårEnSakFinnesOgÅrsakInnsendingErEndring() {
         VurderFagsystem fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER, LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
+        fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(Collections.singletonList(buildFagsakMedUdefinertRelasjon(123L, false)));
 
@@ -105,6 +106,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     @Test
     public void skalReturnereInfotrygdNårBrukerIkkeHarSakIVL() {
         VurderFagsystem fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_NY, BehandlingTema.FORELDREPENGER, LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
+        fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 
         when(fagsakRepositoryMock.hentJournalpost(any())).thenReturn(Optional.empty());
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(Collections.emptyList());
@@ -122,6 +124,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
         VurderFagsystem fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER, LocalDateTime.now(),
             AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, null);
         fagsystem.setArbeidsgiverAktørId(arbeidsgiverAktørId);
+        fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(Collections.singletonList(buildFagsakMedUdefinertRelasjon(123L, false)));
 

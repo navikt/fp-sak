@@ -39,6 +39,17 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
 
     @Override
     public BehandlendeFagsystem vurderFagsystemStrukturertSøknad(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
+        List<Fagsak> matchendeFagsaker = sakerGittYtelseType.stream()
+            .filter(s -> fellesUtils.erFagsakMedFamilieHendelsePassendeForFamilieHendelse(vurderFagsystem, s))
+            .collect(Collectors.toList());
+
+        if (matchendeFagsaker.size() == 1) {
+            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(matchendeFagsaker.get(0).getSaksnummer());
+        } else if (matchendeFagsaker.size() > 1) {
+            LOG.info("VurderFagsystem ES strukturert søknad flere matchende saker {} for {}", matchendeFagsaker.size(), vurderFagsystem.getAktørId());
+            return new BehandlendeFagsystem(MANUELL_VURDERING);
+        }
+
         List<Fagsak> passendeFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s))
             .collect(Collectors.toList());
@@ -46,7 +57,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
         if (passendeFagsaker.size() == 1) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(passendeFagsaker.get(0).getSaksnummer());
         } else if (passendeFagsaker.size() > 1) {
-            LOG.info("VurderFagsystem ES strukturert søknad flere relevante saker {}", passendeFagsaker.size());
+            LOG.info("VurderFagsystem ES strukturert søknad flere relevante saker {} for {}", passendeFagsaker.size(), vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
@@ -69,7 +80,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
         }
 
         if (fellesUtils.harSakOpprettetInnenIntervall(kompatibleFagsaker)) {
-            LOG.info("VurderFagsystem ES ustrukturert finnes nyere sak enn 10mnd");
+            LOG.info("VurderFagsystem ES ustrukturert finnes nyere sak enn 10mnd for {}", vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         return new BehandlendeFagsystem(VEDTAKSLØSNING);
