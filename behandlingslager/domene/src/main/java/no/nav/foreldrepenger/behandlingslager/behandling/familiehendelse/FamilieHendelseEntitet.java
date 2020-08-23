@@ -106,6 +106,10 @@ public class FamilieHendelseEntitet extends BaseEntitet {
         }
     }
 
+    public Long getId() {
+        return id;
+    }
+
     /**
      * Liste over Uidentifiserte barn, dvs barn uten fnr. Dette betyr ikke at de ikke har fnr men at de ikke er identifisert med det i Behandlingen
      * @return Liste over barn
