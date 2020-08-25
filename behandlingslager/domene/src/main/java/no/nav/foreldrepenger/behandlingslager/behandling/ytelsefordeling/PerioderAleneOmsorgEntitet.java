@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,23 +19,22 @@ public class PerioderAleneOmsorgEntitet extends DokumentasjonPerioderEntitet {
     @ChangeTracked
     private List<PeriodeAleneOmsorgEntitet> perioder = new ArrayList<>();
 
-
-    public PerioderAleneOmsorgEntitet() {
-        //for
+    public PerioderAleneOmsorgEntitet(boolean erAleneomsorg) {
+        if (erAleneomsorg) {
+            // Legger inn en dummy periode for å indikere saksbehandlers valg. Inntil vi faktisk har perioder her
+            leggTil(new PeriodeAleneOmsorgEntitet(LocalDate.now(), LocalDate.now()));
+        }
     }
 
-    public PerioderAleneOmsorgEntitet(PerioderAleneOmsorgEntitet perioder) {
-        this();
-        for (PeriodeAleneOmsorgEntitet periode : perioder.getPerioder()) {
-            leggTil(periode);
-        }
+    PerioderAleneOmsorgEntitet() {
+        //Hibernate
     }
 
     public List<PeriodeAleneOmsorgEntitet> getPerioder() {
         return Collections.unmodifiableList(perioder);
     }
 
-    public void leggTil(PeriodeAleneOmsorgEntitet periode) {
+    private void leggTil(PeriodeAleneOmsorgEntitet periode) {
         final PeriodeAleneOmsorgEntitet entitet = new PeriodeAleneOmsorgEntitet(periode);
         entitet.setPerioder(this);
         this.perioder.add(entitet);
