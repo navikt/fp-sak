@@ -9,30 +9,31 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.FagsakStatusEventPubliserer;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.FagsakStatusOppdateringResultat;
 import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatus;
-import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusFelles;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")
-public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
+public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
 
     private BehandlingRepository behandlingRepository;
-    private OppdaterFagsakStatusFelles oppdaterFagsakStatusFelles;
 
     private FamilieHendelseRepository familieGrunnlagRepository;
     private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
@@ -43,14 +44,19 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
      * @param foreldelsesfrist - Foreldelsesfrist i år (positivt heltall), før fagsak avsluttes
      */
     @Inject
-    public OppdaterFagsakStatusImpl(BehandlingRepositoryProvider repositoryProvider,
-                                    OppdaterFagsakStatusFelles oppdaterFagsakStatusFelles,
+    public OppdaterFagsakStatusImpl(BehandlingRepository behandlingRepository,
+                                    FagsakRepository fagsakRepository,
+                                    FagsakStatusEventPubliserer fagsakStatusEventPubliserer,
+                                    BehandlingsresultatRepository behandlingsresultatRepository,
+                                    FamilieHendelseRepository familieHendelseRepository,
                                     @FagsakYtelseTypeRef("FP") MaksDatoUttakTjeneste maksDatoUttakTjeneste,
                                     UttakInputTjeneste uttakInputTjeneste,
                                     @KonfigVerdi(value = "fp.foreldelsesfrist", defaultVerdi = "P3Y") Period foreldelsesfrist) {
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.oppdaterFagsakStatusFelles = oppdaterFagsakStatusFelles;
-        this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
+        this.behandlingRepository = behandlingRepository;
+        this.fagsakRepository = fagsakRepository;
+        this.fagsakStatusEventPubliserer = fagsakStatusEventPubliserer;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
+        this.familieGrunnlagRepository = familieHendelseRepository;
         this.maksDatoUttakTjeneste = maksDatoUttakTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.foreldelsesfrist = foreldelsesfrist;
@@ -76,7 +82,7 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
             return avsluttFagsakNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling);
         }
         // hvis en Behandling har noe annen status, setter Fagsak til Under behandling
-        oppdaterFagsakStatusFelles.oppdaterFagsakStatus(behandling.getFagsak(), behandling, FagsakStatus.UNDER_BEHANDLING);
+        oppdaterFagsakStatus(behandling.getFagsak(), behandling, FagsakStatus.UNDER_BEHANDLING);
         return FagsakStatusOppdateringResultat.FAGSAK_UNDER_BEHANDLING;
     }
 
@@ -88,26 +94,30 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
         }
 
         // ingen andre behandlinger er åpne
-        if (alleÅpneBehandlinger.isEmpty()) {
+        if (alleÅpneBehandlinger.isEmpty()) {//Edit
             if (behandling == null || ingenLøpendeYtelsesvedtak(behandling)) {
-                oppdaterFagsakStatusFelles.oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.AVSLUTTET);
+                oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.AVSLUTTET);
                 return FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET;
             }
-            oppdaterFagsakStatusFelles.oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.LØPENDE);
+            oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.LØPENDE);
             return FagsakStatusOppdateringResultat.FAGSAK_LØPENDE;
         }
         return FagsakStatusOppdateringResultat.INGEN_OPPDATERING;
     }
 
     boolean ingenLøpendeYtelsesvedtak(Behandling behandling) {
-        if (oppdaterFagsakStatusFelles.ingenLøpendeYtelsesvedtak(behandling)) {
-            return true;
-        }
+
         Optional<Behandling> sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
 
         if (sisteYtelsesvedtak.isPresent()) {
+            boolean avslåttEllerOpphørt = erBehandlingResultatAvslåttEllerOpphørt(sisteYtelsesvedtak.get());
+
             var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(sisteYtelsesvedtak.get().getId());
+
             if (familieHendelseGrunnlag.isPresent()) {
+
+                if(avslåttEllerOpphørt && levendeBarnFinnes(familieHendelseGrunnlag)) return true;
+
                 Optional<LocalDate> fødselsdato = familieHendelseGrunnlag
                     .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
                     .flatMap(FamilieHendelseEntitet::getFødselsdato);
@@ -125,6 +135,13 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
             return false;
         }
         return true;
+    }
+
+    private boolean levendeBarnFinnes(Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag) {
+        Optional<List<UidentifisertBarn>> barna = familieHendelseGrunnlag
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getBarna);
+        return barna.isEmpty() || barna.get().isEmpty() || barna.get().stream().anyMatch(barn -> barn.getDødsdato().isEmpty());
     }
 
     private boolean erDatoUtløpt(Optional<LocalDate> dato, LocalDate grensedato) {

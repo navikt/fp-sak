@@ -14,6 +14,7 @@
 	<name>FPSAK :: Web - Webapp</name>
     <properties>
         <simpleclient.version>0.9.0</simpleclient.version>
+        <swagger-ui.version>3.32.1</swagger-ui.version>
     </properties>
 	<dependencies>
 
@@ -40,7 +41,7 @@
 			<groupId>no.nav.vedtak.prosesstask</groupId>
 			<artifactId>prosesstask-rest-api</artifactId>
 		</dependency>
-		
+
 		<!-- Prosjekt avhengigheter -->
 		<dependency>
 			<groupId>no.nav.foreldrepenger</groupId>
@@ -347,15 +348,15 @@
 				<version>1.1</version>
 			</dependency>
 			<dependency>
-				<!-- bør ha samme versjon som CXF ellers -->
+				<!-- bør ha samme versjon som CXF ellers se versjon i fp-felles-->
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-rt-transports-http-jetty</artifactId>
-				<version>3.3.7</version>
+				<version>3.3.6</version>
 			</dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.31.1</version>
+                <version>${swagger-ui.version}</version>
             </dependency>
 
 			<dependency>

@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.FRILA
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.ORDINÆRT_ARBEIDSFORHOLD;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE;
+import static no.nav.foreldrepenger.domene.arbeidsforhold.svp.FinnAktivitetsavtalerForUtbetalingsgrad.finnAktivitetsavtalerSomSkalBrukes;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -23,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -82,40 +84,26 @@ class UtbetalingsgradBeregner {
     }
 
     private static LocalDateTimeline<BigDecimal> byggTidsserienForAareg(Collection<AktivitetsAvtale> avtalerAAreg, LocalDate jordmorsdato, LocalDate termindato) {
-        List<AktivitetsAvtale> aktiviteter = avtalerAAreg
-            .stream()
-            .filter(a -> a.getProsentsats() != null)
-            .filter(a -> a.getPeriode().overlapper(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, termindato)))
-            .collect(Collectors.toList());
-
-        if (aktiviteter.size() == 1) {
-            AktivitetsAvtale aktivitetsAvtale = aktiviteter.get(0);
-            LocalDateSegment<BigDecimal> segment = new LocalDateSegment<>(aktivitetsAvtale.getPeriode().getFomDato().isBefore(jordmorsdato) ? jordmorsdato : aktivitetsAvtale.getPeriode().getFomDato(),
-                aktivitetsAvtale.getPeriode().getTomDato().isAfter(termindato) ? termindato : aktivitetsAvtale.getPeriode().getTomDato(),
-                nullBlirTilHundre(ikkeHøyereEnn100(aktivitetsAvtale.getProsentsats().getVerdi())));
-            return new LocalDateTimeline<>(List.of(segment), UtbetalingsgradBeregner::summerStillingsprosent);
-        } if (aktiviteter.size() == 0) {
-            var aktivitetsAvtale = avtalerAAreg
-                .stream()
-                .filter(a -> a.getPeriode().overlapper(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, termindato)))
-                .findFirst();
-            if (aktivitetsAvtale.isPresent()) {
-                LocalDateSegment<BigDecimal> segment = new LocalDateSegment<>(aktivitetsAvtale.get().getPeriode().getFomDato().isBefore(jordmorsdato) ? jordmorsdato : aktivitetsAvtale.get().getPeriode().getFomDato(),
-                    aktivitetsAvtale.get().getPeriode().getTomDato().isAfter(termindato) ? termindato : aktivitetsAvtale.get().getPeriode().getTomDato(), HUNDRE_PROSENT);
-                return new LocalDateTimeline<>(List.of(segment), UtbetalingsgradBeregner::summerStillingsprosent);
-            }
+        List<AktivitetsAvtale> aktiviteter = finnAktivitetsavtalerSomSkalBrukes(avtalerAAreg, jordmorsdato, termindato);
+        BigDecimal summertStillingsprosent = finnSummertStillingsprosent(aktiviteter);
+        LocalDate startDato = jordmorsdato;
+        if (aktiviteter.stream().noneMatch(a -> a.getPeriode().inkluderer(jordmorsdato.minusDays(1)))) {
+            startDato = aktiviteter.stream().map(AktivitetsAvtale::getPeriode).map(DatoIntervallEntitet::getFomDato).min(Comparator.naturalOrder()).orElse(jordmorsdato);
         }
+        LocalDateSegment<BigDecimal> segment = new LocalDateSegment<>(startDato, termindato, nullBlirTilHundre(ikkeHøyereEnn100(summertStillingsprosent)));
+        return new LocalDateTimeline<>(List.of(segment));
 
-        List<LocalDateSegment<BigDecimal>> collect = aktiviteter
-            .stream()
-            .map(a -> new LocalDateSegment<>(a.getPeriode().getFomDato().isBefore(jordmorsdato) ? jordmorsdato : a.getPeriode().getFomDato(),
-                a.getPeriode().getTomDato().isAfter(termindato) ? termindato : a.getPeriode().getTomDato(), a.getProsentsats().getVerdi()))
-            .collect(Collectors.toList());
+    }
 
-        LocalDateTimeline<BigDecimal> summertTidslinje = new LocalDateTimeline<>(collect, UtbetalingsgradBeregner::summerStillingsprosent);
-        //TODO(OJR) setter 0 prosent til 100 hvis det forsatt er 0 etter summering, dette gjøres fordi FPSAK ikke har støtte for å kunne sette denne prosent ved hjelp av ett aksjonspunkt..
-        // er også dårlig datakvalitet i aareg...
-        return new LocalDateTimeline<>(summertTidslinje.toSegments().stream().map(s -> new LocalDateSegment<>(s.getLocalDateInterval(), nullBlirTilHundre(s.getValue()))).collect(Collectors.toList()));
+    private static BigDecimal finnSummertStillingsprosent(List<AktivitetsAvtale> aktiviteter) {
+        // Stillingsprosent kan vere null her
+        return aktiviteter.size() == 1 ?
+            nullBlirTilHundre(aktiviteter.get(0).getProsentsats() == null ? null : aktiviteter.get(0).getProsentsats().getVerdi()) :
+            aktiviteter.stream()
+            .map(AktivitetsAvtale::getProsentsats)
+            .reduce(UtbetalingsgradBeregner::summerStillingsprosent)
+            .map(Stillingsprosent::getVerdi)
+            .orElse(NULL_PROSENT);
     }
 
     private static LocalDateSegment<BigDecimal> regnUtUtbetalingsgrad(LocalDateInterval di,
@@ -142,17 +130,18 @@ class UtbetalingsgradBeregner {
         return new LocalDateSegment<>(di, null);
     }
 
-    private static LocalDateSegment<BigDecimal> summerStillingsprosent(LocalDateInterval di,
-                                                                       LocalDateSegment<BigDecimal> førsteVersjon,
-                                                                       LocalDateSegment<BigDecimal> sisteVersjon) {
+    private static Stillingsprosent summerStillingsprosent(Stillingsprosent førsteVersjon, Stillingsprosent sisteVersjon) {
 
-        if (førsteVersjon != null && sisteVersjon != null) {
-            return new LocalDateSegment<>(di,  nullBlirTilHundre(ikkeHøyereEnn100(førsteVersjon.getValue().add(sisteVersjon.getValue()))));
+        if (førsteVersjon != null && førsteVersjon.getVerdi() != null && sisteVersjon != null && sisteVersjon.getVerdi() != null) {
+            return new Stillingsprosent(nullBlirTilHundre(ikkeHøyereEnn100(førsteVersjon.getVerdi().add(sisteVersjon.getVerdi()))));
         }
-        if (førsteVersjon != null) {
-            return new LocalDateSegment<>(di, nullBlirTilHundre(ikkeHøyereEnn100(førsteVersjon.getValue())));
+        if (førsteVersjon != null && førsteVersjon.getVerdi() != null) {
+            return new Stillingsprosent(nullBlirTilHundre(ikkeHøyereEnn100(førsteVersjon.getVerdi())));
         }
-        return new LocalDateSegment<>(di, nullBlirTilHundre(ikkeHøyereEnn100(sisteVersjon.getValue())));
+        if (sisteVersjon != null && sisteVersjon.getVerdi() != null) {
+            return new Stillingsprosent(nullBlirTilHundre(ikkeHøyereEnn100(sisteVersjon.getVerdi())));
+        }
+        return new Stillingsprosent(HUNDRE_PROSENT);
     }
 
     private static BigDecimal ikkeHøyereEnn100(BigDecimal verdi) {
@@ -163,7 +152,7 @@ class UtbetalingsgradBeregner {
     }
 
     private static BigDecimal nullBlirTilHundre(BigDecimal verdi) {
-        return verdi.compareTo(NULL_PROSENT) == 0 ? HUNDRE_PROSENT : verdi;
+        return verdi == null || verdi.compareTo(NULL_PROSENT) == 0 ? HUNDRE_PROSENT : verdi;
     }
 
     private static LocalDateTimeline<UtbetalingsgradBeregningProsent> byggTidsserienForSøknad(List<TilretteleggingFOM> tilretteleggingFOMListe,

@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningFagsakRest
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOppdragRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOpptjeningRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningStegRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttrekkRestTjeneste;
@@ -80,6 +81,7 @@ public class ApplicationConfig extends Application {
         classes.add(ForvaltningUttakRestTjeneste.class);
         classes.add(ForvaltningBehandlingRestTjeneste.class);
         classes.add(ForvaltningStegRestTjeneste.class);
+        classes.add(ForvaltningSøknadRestTjeneste.class);
 
         classes.add(OpenApiResource.class);
 

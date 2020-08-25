@@ -24,7 +24,7 @@ public class FpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAvs
     public FpFagsakRelasjonAvslutningsdatoOppdaterer(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                                      StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
                                                      UttakInputTjeneste uttakInputTjeneste,
-                                                     @FagsakYtelseTypeRef("FP") MaksDatoUttakTjeneste svpMaksDatoUttakTjeneste,
+                                                     @FagsakYtelseTypeRef("FP") MaksDatoUttakTjeneste fpMaksDatoUttakTjeneste,
                                                      FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                                      ForeldrepengerUttakTjeneste fpUttakTjeneste) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
@@ -34,12 +34,11 @@ public class FpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAvs
         this.familieHendelseRepository = behandlingRepositoryProvider.getFamilieHendelseRepository();
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
-        this.maksDatoUttakTjeneste = svpMaksDatoUttakTjeneste;
+        this.maksDatoUttakTjeneste = fpMaksDatoUttakTjeneste;
     }
 
     protected LocalDate finnAvslutningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon) {
         LocalDate avsluttningsdato = avsluttningsdatoFraEksisterendeFagsakRelasjon(fagsakRelasjon);
-
         Optional<Behandling> behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
         if (behandling.isPresent()) {
             avsluttningsdato = avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(behandling.get(), avsluttningsdato);

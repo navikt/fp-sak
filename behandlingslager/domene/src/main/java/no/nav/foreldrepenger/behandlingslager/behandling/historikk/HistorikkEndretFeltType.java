@@ -136,6 +136,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     FARESIGNALER("FARESIGNALER", "Faresignaler"),
     MILITÆR_ELLER_SIVIL("MILITÆR_ELLER_SIVIL", "Militær- eller siviltjeneste"),
     NY_REFUSJONSFRIST("NY_REFUSJONSFRIST", "Ny refusjonsfrist"),
+    NY_STARTDATO_REFUSJON("NY_STARTDATO_REFUSJON", "Ny startdato for refusjon"),
     ORGANISASJONSNUMMER("ORGANISASJONSNUMMER", "Organisasjonsnummer"),
     ARBEIDSFORHOLD_BEKREFTET_TOM_DATO("ARBEIDSFORHOLD_BEKREFTET_TOM_DATO", "Til og med dato fastsatt av saksbehandler"),
     ANKE_AVVIST_ÅRSAK("ANKE_AVVIST_ÅRSAK", "Årsak til avvist anke")
@@ -199,7 +200,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();

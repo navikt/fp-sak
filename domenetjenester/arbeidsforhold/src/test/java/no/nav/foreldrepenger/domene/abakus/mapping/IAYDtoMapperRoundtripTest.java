@@ -92,7 +92,7 @@ public class IAYDtoMapperRoundtripTest {
 
         // Act
         InntektArbeidYtelseGrunnlag fpsakGrunnlag = fraDtoMapper.mapTilGrunnlagInklusivRegisterdata(dto, true);
-        IAYTilDtoMapper dtoMapper = new IAYTilDtoMapper(aktørId, uuid, uuid);
+        IAYTilDtoMapper dtoMapper = new IAYTilDtoMapper(aktørId, ytelseType, uuid, uuid);
         InntektArbeidYtelseGrunnlagDto dtoIgjen = dtoMapper.mapTilDto(fpsakGrunnlag, true);
 
         // Assert
@@ -115,7 +115,7 @@ public class IAYDtoMapperRoundtripTest {
     }
 
     private InntektArbeidYtelseGrunnlagDto lagIAYGrunnlag() {
-        InntektArbeidYtelseGrunnlagDto grunnlag = new InntektArbeidYtelseGrunnlagDto(aktørIdent, offTidspunkt, uuid, uuid);
+        InntektArbeidYtelseGrunnlagDto grunnlag = new InntektArbeidYtelseGrunnlagDto(aktørIdent, offTidspunkt, uuid, uuid, YtelseType.FORELDREPENGER);
 
         grunnlag.medRegister(
             new InntektArbeidYtelseAggregatRegisterDto(tidspunkt, uuid)

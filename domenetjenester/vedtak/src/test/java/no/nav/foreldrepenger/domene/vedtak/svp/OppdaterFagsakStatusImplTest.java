@@ -8,7 +8,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusFelles;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -47,8 +46,7 @@ public class OppdaterFagsakStatusImplTest {
         Mockito.when(uttakInputTjeneste.lagInput(behandling)).thenReturn(uttakInput);
         Mockito.when(maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput)).thenReturn(Optional.of(maksDatoUttak));
 
-        var oppdaterFagsakStatusSVP = new OppdaterFagsakStatusImpl(repositoryProvider.getBehandlingRepository(), new OppdaterFagsakStatusFelles(repositoryProvider, fagsakStatusEventPubliserer),
-            maksDatoUttakTjeneste, uttakInputTjeneste);
+        var oppdaterFagsakStatusSVP = new OppdaterFagsakStatusImpl(repositoryProvider.getBehandlingRepository(),repositoryProvider.getFagsakRepository(),fagsakStatusEventPubliserer,repositoryProvider.getBehandlingsresultatRepository(),maksDatoUttakTjeneste, uttakInputTjeneste);
         //Act
         boolean ingenLøpendeYtelsesvedtak = oppdaterFagsakStatusSVP.ingenLøpendeYtelsesvedtak(behandling);
 
@@ -70,8 +68,8 @@ public class OppdaterFagsakStatusImplTest {
         Mockito.when(uttakInputTjeneste.lagInput(behandling)).thenReturn(uttakInput);
         Mockito.when(maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput)).thenReturn(Optional.of(maksDatoUttak));
 
-        var oppdaterFagsakStatusSVP = new OppdaterFagsakStatusImpl(repositoryProvider.getBehandlingRepository(), new OppdaterFagsakStatusFelles(repositoryProvider, fagsakStatusEventPubliserer),
-            maksDatoUttakTjeneste, uttakInputTjeneste);
+        var oppdaterFagsakStatusSVP = new OppdaterFagsakStatusImpl(repositoryProvider.getBehandlingRepository(),repositoryProvider.getFagsakRepository(),fagsakStatusEventPubliserer,repositoryProvider.getBehandlingsresultatRepository(),maksDatoUttakTjeneste, uttakInputTjeneste);
+
         //Act
         boolean ingenLøpendeYtelsesvedtak = oppdaterFagsakStatusSVP.ingenLøpendeYtelsesvedtak(behandling);
 

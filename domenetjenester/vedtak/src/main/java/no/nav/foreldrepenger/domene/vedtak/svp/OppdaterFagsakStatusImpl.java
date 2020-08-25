@@ -8,24 +8,25 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.FagsakStatusEventPubliserer;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.FagsakStatusOppdateringResultat;
 import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatus;
-import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusFelles;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("SVP")
-public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
+public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
 
     private BehandlingRepository behandlingRepository;
-    private OppdaterFagsakStatusFelles oppdaterFagsakStatusFelles;
     private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
 
@@ -34,11 +35,16 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
     }
 
     @Inject
-    public OppdaterFagsakStatusImpl(BehandlingRepository behandlingRepository, OppdaterFagsakStatusFelles oppdaterFagsakStatusFelles,
+    public OppdaterFagsakStatusImpl(BehandlingRepository behandlingRepository,
+                                    FagsakRepository fagsakRepository,
+                                    FagsakStatusEventPubliserer fagsakStatusEventPubliserer,
+                                    BehandlingsresultatRepository behandlingsresultatRepository,
                                     @FagsakYtelseTypeRef("SVP") MaksDatoUttakTjeneste maksDatoUttakTjeneste,
                                     UttakInputTjeneste uttakInputTjeneste) {
         this.behandlingRepository = behandlingRepository;
-        this.oppdaterFagsakStatusFelles = oppdaterFagsakStatusFelles;
+        this.fagsakRepository = fagsakRepository;
+        this.fagsakStatusEventPubliserer = fagsakStatusEventPubliserer;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.maksDatoUttakTjeneste = maksDatoUttakTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
 
@@ -60,7 +66,7 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
             return avsluttFagsakNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling);
         } else {
             // hvis en Behandling har noe annen status, setter Fagsak til Under behandling
-            oppdaterFagsakStatusFelles.oppdaterFagsakStatus(behandling.getFagsak(), behandling, FagsakStatus.UNDER_BEHANDLING);
+            oppdaterFagsakStatus(behandling.getFagsak(), behandling, FagsakStatus.UNDER_BEHANDLING);
             return FagsakStatusOppdateringResultat.FAGSAK_UNDER_BEHANDLING;
         }
     }
@@ -75,22 +81,20 @@ public class OppdaterFagsakStatusImpl implements OppdaterFagsakStatus {
         // ingen andre behandlinger er åpne
         if (alleÅpneBehandlinger.isEmpty()) {
             if (behandling == null || ingenLøpendeYtelsesvedtak(behandling)) {
-                oppdaterFagsakStatusFelles.oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.AVSLUTTET);
+                oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.AVSLUTTET);
                 return FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET;
             }
-            oppdaterFagsakStatusFelles.oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.LØPENDE);
+            oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.LØPENDE);
             return FagsakStatusOppdateringResultat.FAGSAK_LØPENDE;
         }
         return FagsakStatusOppdateringResultat.INGEN_OPPDATERING;
     }
 
     boolean ingenLøpendeYtelsesvedtak(Behandling behandling) {
-        if (oppdaterFagsakStatusFelles.ingenLøpendeYtelsesvedtak(behandling)) {
-            return true;
-        }
         Optional<Behandling> sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
 
         if (sisteYtelsesvedtak.isPresent()) {
+            if(erBehandlingResultatAvslåttEllerOpphørt(sisteYtelsesvedtak.get())) return true;
             var uttakInput = uttakInputTjeneste.lagInput(sisteYtelsesvedtak.get());
             var maksDatoUttak = maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
             if (maksDatoUttak.isEmpty()) {

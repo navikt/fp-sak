@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
@@ -95,12 +94,11 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
 
     private LocalDate utledMottattDato(OppgittPeriodeEntitet periode, Behandling behandling) {
         var tidligstBehandlingMedPeriode = finnTidligstBehandling(periode, behandling);
-        if (periode.getPeriodeKilde().equals(FordelingPeriodeKilde.SØKNAD)) {
-            var uttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(tidligstBehandlingMedPeriode.getId());
-            if (uttaksperiodegrense.isPresent()) {
-                return uttaksperiodegrense.get().getMottattDato();
-            }
+        var uttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(tidligstBehandlingMedPeriode.getId());
+        if (uttaksperiodegrense.isPresent()) {
+            return uttaksperiodegrense.get().getMottattDato();
         }
+
         var søknad = søknadRepository.hentSøknadHvisEksisterer(tidligstBehandlingMedPeriode.getId());
         if (søknad.isEmpty()) {
             return søknadRepository.hentFørstegangsSøknad(tidligstBehandlingMedPeriode).getMottattDato();
@@ -131,8 +129,7 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
     }
 
     private boolean lik(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
-        return periode1.getFom().equals(periode2.getFom())
-            && periode1.getTom().equals(periode2.getTom())
+        return erOmsluttetAv(periode1, periode2)
             && Objects.equals(periode1.getÅrsak(), periode2.getÅrsak())
             && Objects.equals(periode1.getArbeidsprosent(), periode2.getArbeidsprosent())
             && periode1.getErArbeidstaker() == periode2.getErArbeidstaker()
@@ -140,5 +137,9 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
             && Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType())
             && Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent())
             ;
+    }
+
+    private static boolean erOmsluttetAv(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
+        return !periode2.getFom().isAfter(periode1.getFom()) && !periode2.getTom().isBefore(periode1.getTom());
     }
 }

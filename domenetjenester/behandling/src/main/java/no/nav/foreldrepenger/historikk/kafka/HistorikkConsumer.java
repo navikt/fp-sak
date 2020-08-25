@@ -18,10 +18,11 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.domene.liveness.KafkaIntegration;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
 
 @ApplicationScoped
-public class HistorikkConsumer implements AppServiceHandler {
+public class HistorikkConsumer implements AppServiceHandler, KafkaIntegration {
 
     private static final Logger log = LoggerFactory.getLogger(HistorikkConsumer.class);
 
@@ -52,7 +53,6 @@ public class HistorikkConsumer implements AppServiceHandler {
         Properties props = new Properties();
 
         props.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, streamProperties.getApplicationId());
-        log.info("Bruker applicationID: " + streamProperties.getApplicationId());
         props.setProperty(StreamsConfig.CLIENT_ID_CONFIG, streamProperties.getClientId());
         props.setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, streamProperties.getBootstrapServers());
 
@@ -89,6 +89,11 @@ public class HistorikkConsumer implements AppServiceHandler {
         log.info("Starter shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
         stream.close(Duration.ofSeconds(10));
         log.info("Shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
+    }
+
+    @Override
+    public boolean isAlive() {
+        return stream != null && stream.state().isRunningOrRebalancing();
     }
 
     public KafkaStreams.State getTilstand() {

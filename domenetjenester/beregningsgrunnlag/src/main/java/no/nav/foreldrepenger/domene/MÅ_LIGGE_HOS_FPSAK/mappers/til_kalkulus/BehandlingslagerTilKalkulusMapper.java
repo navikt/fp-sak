@@ -84,7 +84,7 @@ public class BehandlingslagerTilKalkulusMapper {
     }
 
     public static BeregningRefusjonPeriodeDto mapRefusjonperiode(BeregningRefusjonPeriodeEntitet refusjonPeriodeEntitet) {
-        return new BeregningRefusjonPeriodeDto(IAYMapperTilKalkulus.mapArbeidsforholdRef(refusjonPeriodeEntitet.getArbeidsforholdRef()), refusjonPeriodeEntitet.getStartdatoRefusjon());
+        return new BeregningRefusjonPeriodeDto(refusjonPeriodeEntitet.getArbeidsforholdRef() == null ? null : IAYMapperTilKalkulus.mapArbeidsforholdRef(refusjonPeriodeEntitet.getArbeidsforholdRef()), refusjonPeriodeEntitet.getStartdatoRefusjon());
     }
 
 

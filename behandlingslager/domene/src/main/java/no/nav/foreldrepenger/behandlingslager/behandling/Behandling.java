@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -83,6 +84,8 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 @Entity(name = "Behandling")
 @Table(name = "BEHANDLING")
 public class Behandling extends BaseEntitet {
+
+    private static final Set<BehandlingÅrsakType> DØDSHENDELSER = Collections.unmodifiableSet(EnumSet.of(BehandlingÅrsakType.RE_HENDELSE_DØD_BARN, BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL));
 
     // Null safe
     private static final Comparator<? extends BaseEntitet> COMPARATOR_OPPRETTET_TID = Comparator
@@ -795,6 +798,10 @@ public class Behandling extends BaseEntitet {
 
     public boolean erÅpnetForEndring() {
         return åpnetForEndring;
+    }
+
+    public boolean behandlingSkyldesDødsfall() {
+        return behandlingÅrsaker.stream().anyMatch(årsak -> DØDSHENDELSER.contains(årsak.getBehandlingÅrsakType()));
     }
 
     public void setÅpnetForEndring(boolean åpnetForEndring) {

@@ -87,7 +87,7 @@ public class KalkulusTilBehandlingslagerMapper {
     }
 
     private static BeregningRefusjonPeriodeEntitet mapRefusjonPeriode(BeregningRefusjonPeriodeDto refusjonsperiode) {
-        return new BeregningRefusjonPeriodeEntitet(KalkulusTilIAYMapper.mapArbeidsforholdRed(refusjonsperiode.getArbeidsforholdRef()), refusjonsperiode.getStartdatoRefusjon());
+        return new BeregningRefusjonPeriodeEntitet(refusjonsperiode.getArbeidsforholdRef() == null ? null : KalkulusTilIAYMapper.mapArbeidsforholdRed(refusjonsperiode.getArbeidsforholdRef()), refusjonsperiode.getStartdatoRefusjon());
     }
 
     public static BeregningAktivitetAggregatEntitet mapSaksbehandletAktivitet(BeregningAktivitetAggregatDto saksbehandletAktiviteterFraKalkulus) {

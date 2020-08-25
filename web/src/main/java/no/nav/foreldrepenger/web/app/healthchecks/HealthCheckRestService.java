@@ -68,7 +68,8 @@ public class HealthCheckRestService {
     @Operation(hidden = true)
     @Path("/isAlive")
     public Response isAlive() {
-       return isReady();
+       // TODO: legg til kall til selftests isKafkaAlive
+        return isReady();
     }
 
     /**
@@ -82,6 +83,8 @@ public class HealthCheckRestService {
 
     private String hentResultatSomHTML() {
         SelftestsHtmlFormatter htmlFormatter = new SelftestsHtmlFormatter();
+
+        LOGGER.info("FPSAK KAFKAsjekk resultat {}", selftests.isKafkaAlive());
 
         SelftestResultat samletResultat = selftests.run(); //NOSONAR
 

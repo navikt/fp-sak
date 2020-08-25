@@ -41,6 +41,10 @@ public class BeregningRefusjonPeriodeEntitet extends BaseEntitet {
     @JoinColumn(name = "bg_refusjon_overstyring_id", nullable = false, updatable = false)
     private BeregningRefusjonOverstyringEntitet refusjonOverstyring;
 
+    BeregningRefusjonPeriodeEntitet() {
+        // Hibernate
+    }
+
     public BeregningRefusjonPeriodeEntitet(InternArbeidsforholdRef ref, LocalDate startdatoRefusjon) {
         Objects.requireNonNull(startdatoRefusjon, "startdatoRefusjon");
         this.arbeidsforholdRef = ref;

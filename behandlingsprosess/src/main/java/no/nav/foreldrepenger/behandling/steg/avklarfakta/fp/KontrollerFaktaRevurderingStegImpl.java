@@ -225,8 +225,12 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             .orElseThrow(() -> new IllegalStateException("Revurdering skal ha en basisbehandling - skal ikke skje"));
         Optional<BeregningsgrunnlagEntitet> forrigeBeregning = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(opprinneligBehandlingId);
 
-        if (forrigeBeregning.isEmpty() || revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
+        if (forrigeBeregning.isEmpty()) {
             return StartpunktType.BEREGNING;
+        }
+
+        if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
+            return StartpunktType.BEREGNING_FORESLÅ;
         }
 
         BeregningSats grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getFørsteUttaksdato());
@@ -239,9 +243,13 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             long multiplikator = repositoryProvider.getBeregningsresultatRepository().avkortingMultiplikatorG(grunnbeløp.getPeriode().getFomDato().minusDays(1));
             BigDecimal grenseverdi = new BigDecimal(satsIBeregning * multiplikator);
             boolean over6G = bruttoPrÅr.compareTo(grenseverdi) >= 0;
-            if (over6G) {
+            boolean erMilitærUnder3G = forrigeBeregning.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
+                .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
+                .anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL)
+                    && a.getBeregningsgrunnlagPeriode().getBruttoPrÅr().compareTo(BigDecimal.valueOf(3).multiply(BigDecimal.valueOf(grunnbeløp.getVerdi()))) < 0);
+            if (over6G || erMilitærUnder3G) {
                 LOGGER.info("KOFAKREV Revurdering {} skal G-reguleres", revurdering.getId());
-                return StartpunktType.BEREGNING;
+                return StartpunktType.BEREGNING_FORESLÅ;
             } else {
                 LOGGER.info("KOFAKREV Revurdering {} blir ikke G-regulert: brutto {} grense {}", revurdering.getId(), bruttoPrÅr, grenseverdi);
             }
@@ -261,6 +269,10 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
         revurdering = kopierVilkår(origBehandling, revurdering, kontekst);
         revurdering = kopierUttaksperiodegrense(revurdering, origBehandling);
+
+        if (StartpunktType.BEREGNING_FORESLÅ.equals(revurdering.getStartpunkt())) {
+            beregningsgrunnlagKopierOgLagreTjeneste.kopierResultatForGRegulering(origBehandling.getId(), revurdering.getId());
+        }
 
         if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt())) {
             beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(origBehandling.getId(), revurdering.getId());
