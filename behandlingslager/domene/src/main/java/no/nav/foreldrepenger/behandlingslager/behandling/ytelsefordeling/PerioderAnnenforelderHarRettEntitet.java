@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,21 +19,22 @@ public class PerioderAnnenforelderHarRettEntitet extends DokumentasjonPerioderEn
     @ChangeTracked
     private List<PeriodeAnnenforelderHarRettEntitet> perioder = new ArrayList<>();
 
-    public PerioderAnnenforelderHarRettEntitet() {
+    public PerioderAnnenforelderHarRettEntitet(boolean harRett) {
+        if (harRett) {
+            // Legger inn en dummy periode for å indikere saksbehandlers valg. Inntil vi faktisk har perioder her
+            leggTil(new PeriodeAnnenforelderHarRettEntitet(LocalDate.now(), LocalDate.now()));
+        }
     }
 
-    public PerioderAnnenforelderHarRettEntitet(PerioderAnnenforelderHarRettEntitet perioder) {
-        this();
-        for (PeriodeAnnenforelderHarRettEntitet periode : perioder.getPerioder()) {
-            leggTil(periode);
-        }
+    PerioderAnnenforelderHarRettEntitet() {
+        //Hibernate
     }
 
     public List<PeriodeAnnenforelderHarRettEntitet> getPerioder() {
         return Collections.unmodifiableList(perioder);
     }
 
-    public void leggTil(PeriodeAnnenforelderHarRettEntitet periode) {
+    private void leggTil(PeriodeAnnenforelderHarRettEntitet periode) {
         final PeriodeAnnenforelderHarRettEntitet entitet = new PeriodeAnnenforelderHarRettEntitet(periode);
         entitet.setPerioder(this);
         this.perioder.add(entitet);

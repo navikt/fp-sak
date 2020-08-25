@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
 import java.util.Collections;
 
 import javax.inject.Inject;
@@ -15,7 +14,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -133,8 +131,7 @@ public class RettOgOmsorgGrunnlagByggerTest {
 
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         if (harAleneomsorg) {
-            PerioderAleneOmsorgEntitet perioderAleneOmsorg = new PerioderAleneOmsorgEntitet();
-            perioderAleneOmsorg.leggTil(new PeriodeAleneOmsorgEntitet(LocalDate.now(), LocalDate.now()));
+            PerioderAleneOmsorgEntitet perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(true);
             scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
         }
 

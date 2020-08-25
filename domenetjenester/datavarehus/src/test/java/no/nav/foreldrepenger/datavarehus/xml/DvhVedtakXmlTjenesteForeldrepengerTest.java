@@ -52,7 +52,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -345,10 +344,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     private void opprettPeriodeAleneomsorg(ScenarioMorSøkerForeldrepenger scenario) {
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
-        PerioderAleneOmsorgEntitet perioderAleneOmsorg = new PerioderAleneOmsorgEntitet();
-        perioderAleneOmsorg.leggTil(new PeriodeAleneOmsorgEntitet(LocalDate.now(), LocalDate.now().plusDays(10)));
-        perioderAleneOmsorg.leggTil(new PeriodeAleneOmsorgEntitet(LocalDate.now().plusDays(11), LocalDate.now().plusDays(22)));
-
+        PerioderAleneOmsorgEntitet perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(true);
         scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
     }
 

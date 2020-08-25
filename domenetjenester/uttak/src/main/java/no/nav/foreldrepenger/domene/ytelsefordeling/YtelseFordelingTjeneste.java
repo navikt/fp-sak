@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.ytelsefordeling;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -10,7 +9,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
@@ -93,13 +91,7 @@ public class YtelseFordelingTjeneste {
     }
 
     public void bekreftAnnenforelderHarRett(Long behandlingId, Boolean annenforelderHarRett) {
-        PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRettEntitet = new PerioderAnnenforelderHarRettEntitet();
-        if(Boolean.FALSE.equals(annenforelderHarRett)) {
-            ytelsesFordelingRepository.lagre(behandlingId, perioderAnnenforelderHarRettEntitet);
-        } else {
-            // Legger inn en dummy periode for å indikere saksbehandlers valg. Inntil vi faktisk har perioder her
-            perioderAnnenforelderHarRettEntitet.leggTil(new PeriodeAnnenforelderHarRettEntitet(LocalDate.now(), LocalDate.now()));
-            ytelsesFordelingRepository.lagre(behandlingId, new PerioderAnnenforelderHarRettEntitet(perioderAnnenforelderHarRettEntitet));
-        }
+        var perioderAnnenforelderHarRettEntitet = new PerioderAnnenforelderHarRettEntitet(annenforelderHarRett);
+        ytelsesFordelingRepository.lagre(behandlingId, perioderAnnenforelderHarRettEntitet);
     }
 }
