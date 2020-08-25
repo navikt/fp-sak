@@ -6,7 +6,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -28,7 +27,6 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTj
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
-import no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder;
 
 @ApplicationScoped
 public class KlageVurderingTjeneste {
@@ -38,7 +36,6 @@ public class KlageVurderingTjeneste {
     private KlageRepository klageRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private Unleash unleash;
 
     KlageVurderingTjeneste() {
         // for CDI proxy
@@ -49,14 +46,12 @@ public class KlageVurderingTjeneste {
                                   ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
                                   BehandlingRepository behandlingRepository,
                                   KlageRepository klageRepository,
-                                  BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                  Unleash unleash) {
+                                  BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.dokumentBestillerApplikasjonTjeneste = dokumentBestillerApplikasjonTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.klageRepository = klageRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingRepository = behandlingRepository;
-        this.unleash = unleash;
     }
 
     public void oppdater(Behandling behandling, KlageVurderingAdapter adapter) {
@@ -114,16 +109,11 @@ public class KlageVurderingTjeneste {
 
     private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurderingAdapter adapter) {
         KlageVurdering klageVurdering = KlageVurdering.fraKode(adapter.getKlageVurderingKode());
-        if (adapter.getErNfpAksjonspunkt() && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK) && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())) {
+        if (adapter.getErNfpAksjonspunkt() && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)
+            && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())) {
 
-            if (unleash != null && unleash.isEnabled(VedtaksbrevUtleder.FPSAK_FRITEKST_BREV_FOR_KLAGE,false)) {
-                BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS);
-                dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, false);
-            }
-            else {
-                BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS_DOK);
-                dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, false);
-            }
+            BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS);
+            dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, false);
             oppdaterBehandlingMedNyFrist(behandling);
         }
         if (behandling.getBehandlingsresultat() == null) {
