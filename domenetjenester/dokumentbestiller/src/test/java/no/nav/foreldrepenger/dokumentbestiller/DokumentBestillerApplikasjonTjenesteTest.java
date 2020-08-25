@@ -9,7 +9,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import no.finn.unleash.FakeUnleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -31,7 +30,6 @@ public class DokumentBestillerApplikasjonTjenesteTest {
     private Behandling behandling;
     private BehandlingRepositoryProvider repositoryProvider;
     private DokumentBestillerApplikasjonTjeneste tjeneste;
-    private FakeUnleash fakeUnleash = new FakeUnleash();
 
     @Before
     public void setUp() {
@@ -49,8 +47,7 @@ public class DokumentBestillerApplikasjonTjenesteTest {
             null,
             null,
             brevHistorikkinnslag,
-            dokumentKafkaBestiller,
-            fakeUnleash);
+            dokumentKafkaBestiller);
     }
 
     @Test

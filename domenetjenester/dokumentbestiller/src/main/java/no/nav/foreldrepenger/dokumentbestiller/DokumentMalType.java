@@ -22,17 +22,12 @@ public enum DokumentMalType implements Kodeverdi {
     FORLENGET_TIDLIG_SOK("FORLTS", "Forlenget saksbehandlingstid - Tidlig søknad"),
     FORLENGET_OPPTJENING("FOROPT", "Forlenget saksbehandlingstid - Venter Opptjening"),
     REVURDERING_DOK("REVURD", "Varsel om revurdering"),
-    KLAGE_AVVIST_DOK("KLAGAV", "Vedtak om avvist klage"),
-    KLAGE_YTELSESVEDTAK_STADFESTET_DOK("KLAGVE", "Vedtak om stadfestelse"),
-    KLAGE_YTELSESVEDTAK_OPPHEVET_DOK("KLAGNY", "Vedtak opphevet, sendt til ny behandling"),
-    KLAGE_OVERSENDT_KLAGEINSTANS_DOK("KLAGOV", "Overføring til NAV Klageinstans"),
     INNSYNSKRAV_SVAR("INSSKR", "Svar på innsynskrav"),
     INNVILGELSE_FORELDREPENGER_DOK("INNVFP", "Innvilgelsesbrev Foreldrepenger"),
     OPPHØR_DOK("OPPHOR", "Opphør brev"),
     INNTEKTSMELDING_FOR_TIDLIG_DOK("INNTID", "Ikke mottatt søknad"),
     AVSLAG_FORELDREPENGER_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
     FRITEKST_DOK("FRITKS", "Fritekstbrev"),
-    VEDTAK_MEDHOLD("VEDMED", "Vedtak om medhold"),
     ETTERLYS_INNTEKTSMELDING_DOK("INNLYS", "Etterlys inntektsmelding"),
     INFO_TIL_ANNEN_FORELDER_DOK("INAFOR", "Informasjonsbrev til den andre forelderen"),
     INNVILGELSE_SVANGERSKAPSPENGER_DOK("INNSVP", "Innvilgelsesbrev svangerskapspenger"),
@@ -43,6 +38,18 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_OMGJØRING("KOMGJO", "Vedtak om omgjøring av klage"), // medhold
     KLAGE_OVERSENDT_KLAGEINSTANS("KOVKLA", "Klage oversendt til klageinstans"),
     KLAGE_HJEMSENDT("KHJEMS", "Klage hjemsendt/opphevet"),
+
+    // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
+    @Deprecated
+    KLAGE_OVERSENDT_KLAGEINSTANS_DOK("KLAGOV", "Overføring til NAV Klageinstans"),
+    @Deprecated
+    KLAGE_AVVIST_DOK("KLAGAV", "Vedtak om avvist klage"),
+    @Deprecated
+    KLAGE_YTELSESVEDTAK_OPPHEVET_DOK("KLAGNY", "Vedtak opphevet, sendt til ny behandling"),
+    @Deprecated
+    VEDTAK_MEDHOLD("VEDMED", "Vedtak om medhold"),
+    @Deprecated
+    KLAGE_YTELSESVEDTAK_STADFESTET_DOK("KLAGVE", "Vedtak om stadfestelse"),
 
     ;
 

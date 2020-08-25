@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import no.finn.unleash.FakeUnleash;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -69,7 +68,6 @@ public class KlagevurderingOppdatererTest {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
-    private FakeUnleash fakeUnleash = new FakeUnleash();
 
     // TODO (FLUORITT): Renskriv tester med færre mocks
     @Before
@@ -111,7 +109,7 @@ public class KlagevurderingOppdatererTest {
         ArgumentCaptor<BestillBrevDto> brevDtoCaptor = ArgumentCaptor.forClass(BestillBrevDto.class);
         verify(dokumentBestillerApplikasjonTjeneste).bestillDokument(brevDtoCaptor.capture(), eq(HistorikkAktør.SAKSBEHANDLER), eq(false));
         BestillBrevDto bestillBrevDto = brevDtoCaptor.getValue();
-        assertThat(bestillBrevDto.getBrevmalkode()).isEqualTo(DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS_DOK.getKode());
+        assertThat(bestillBrevDto.getBrevmalkode()).isEqualTo(DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS.getKode());
         assertThat(bestillBrevDto.getFritekst()).isNull();
 
         // Verifiserer HistorikkinnslagDto
@@ -158,7 +156,7 @@ public class KlagevurderingOppdatererTest {
     private KlagevurderingOppdaterer getKlageVurderer(BehandlingRepositoryProvider repositoryProvider, KlageRepository klageRepository) {
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         final KlageVurderingTjeneste klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerApplikasjonTjeneste,
-            prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,fakeUnleash);
+            prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste);
         return new KlagevurderingOppdaterer(historikkApplikasjonTjeneste, behandlingsutredningApplikasjonTjeneste, klageVurderingTjeneste,behandlendeEnhetTjeneste);
     }
 
