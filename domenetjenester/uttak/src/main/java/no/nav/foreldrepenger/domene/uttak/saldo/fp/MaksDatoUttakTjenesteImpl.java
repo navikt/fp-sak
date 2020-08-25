@@ -46,7 +46,7 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
         var ref = uttakInput.getBehandlingReferanse();
         Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(ref.getBehandlingId());
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        Optional<UttakResultatEntitet> annenpartResultat = annenPartUttak(foreldrepengerGrunnlag);
+        Optional<UttakResultatEntitet> annenpartResultat = ( foreldrepengerGrunnlag == null ) ? Optional.empty() : annenPartUttak(foreldrepengerGrunnlag);
 
         Optional<LocalDate> sisteUttaksdato = finnSisteUttaksdato(uttakResultat, annenpartResultat);
 
@@ -67,6 +67,7 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
 
     private Optional<UttakResultatEntitet> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         var annenpart = foreldrepengerGrunnlag.getAnnenpart();
+
         if (annenpart.isPresent()) {
             return fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
         }
