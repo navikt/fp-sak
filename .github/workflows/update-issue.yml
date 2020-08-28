@@ -18,7 +18,7 @@ jobs:
           issue-number: ${{ github.event.client_payload.issue-number }}
           body: |
             Alle autotestene gikk grønne!
-            Deployer ${{ github.repository }} til t4
+            Deployer ${{ github.repository }} til q1
 
       - name: Trigger deploy til q1
         if: steps.success.outcome == 'success'
