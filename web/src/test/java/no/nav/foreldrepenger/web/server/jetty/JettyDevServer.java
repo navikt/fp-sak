@@ -112,7 +112,6 @@ public class JettyDevServer extends JettyServer {
     @Override
     protected void konfigurerMiljø() throws Exception {
         System.setProperty("develop-local", "true");
-        PropertiesUtils.lagPropertiesFilFraTemplate();
         PropertiesUtils.initProperties(JettyDevServer.vtp);
     }
 

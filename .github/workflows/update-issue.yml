@@ -18,15 +18,7 @@ jobs:
           issue-number: ${{ github.event.client_payload.issue-number }}
           body: |
             Alle autotestene gikk grønne!
-            Deployer fpsak til t4 og q1!
-
-      - name: Trigger deploy til t4
-        if: steps.success.outcome == 'success'
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-          issue-number: ${{ github.event.client_payload.issue-number }}
-          body: /promote dev-fss t4
+            Deployer ${{ github.repository }} til t4
 
       - name: Trigger deploy til q1
         if: steps.success.outcome == 'success'
@@ -46,7 +38,7 @@ jobs:
             Integrasjonstestene kjørt av fpsak-autotest feilet!
 
             Det er 4 kjente grunner til at testene feiler:
-            1) Det er en feil i FPSAK som denne mergen har foresaket.
+            1) Det er en feil i ${{ github.repository }} som denne mergen har foresaket.
             2) Det er feil i en annen applikasjon i verdikjeden. Autotest bruker siste versjon av alle applikasjonene utenom den som trigger testene.
             3) Det er en feil i testene som må fikses.
             4) Det er en midlertidig feil med Github Action. Ofte kan dette løses med en rekjøring av testene.
