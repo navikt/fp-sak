@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.medlem.api.MedlemskapsperiodeKoder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -27,17 +26,14 @@ public class HentMedlemskapFraRegister {
     private static final Logger LOG = LoggerFactory.getLogger(HentMedlemskapFraRegister.class);
 
     private MedlemsunntakRestKlient restKlient;
-    private KodeverkRepository kodeverkRepository;
 
     HentMedlemskapFraRegister() {
         // CDI
     }
 
     @Inject
-    public HentMedlemskapFraRegister(MedlemsunntakRestKlient restKlient,
-                                     KodeverkRepository kodeverkRepository) {
+    public HentMedlemskapFraRegister(MedlemsunntakRestKlient restKlient) {
         this.restKlient = restKlient;
-        this.kodeverkRepository = kodeverkRepository;
     }
 
     public List<Medlemskapsperiode> finnMedlemskapPerioder(AktørId aktørId, LocalDate fom, LocalDate tom) {
@@ -70,7 +66,7 @@ public class HentMedlemskapFraRegister {
 
     private Landkoder finnLand(String land) {
         if (land != null) {
-            return kodeverkRepository.finn(Landkoder.class, land);
+            return Landkoder.fraKode(land);
         }
         return null;
     }

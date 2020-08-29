@@ -58,7 +58,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -187,9 +186,6 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     private VirksomhetTjeneste virksomhetTjeneste;
 
-    @Inject
-    private KodeverkRepository kodeverkRepository;
-
     @Before
     public void oppsett() {
         HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
@@ -198,7 +194,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
         virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste, kodeverkRepository);
+        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
 
         DvhPersonopplysningXmlTjenesteImpl dvhPersonopplysningXmlTjenesteImpl = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
             familieHendelseRepository,

@@ -10,16 +10,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.integrasjon.medl2.Medlemskapsunntak;
@@ -30,20 +27,14 @@ public class HentMedlemskapFraRegisterTest {
     private static final FiktiveFnr FIKTIVE_FNR = new FiktiveFnr();
     private static final AktørId AKTØR_ID = AktørId.dummy();
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
     private MedlemsunntakRestKlient restKlient = mock(MedlemsunntakRestKlient.class);
     private HentMedlemskapFraRegister medlemTjeneste;
-    private KodeverkRepository kodeverkRepository = new KodeverkRepository(repoRule.getEntityManager());
 
     private static final long MEDL_ID_1 = 2663947L;
-    private static final long MEDL_ID_2 = 2663948L;
-    private static final long MEDL_ID_3 = 666L;
 
     @Before
     public void before() {
-        medlemTjeneste = new HentMedlemskapFraRegister(restKlient, kodeverkRepository);
+        medlemTjeneste = new HentMedlemskapFraRegister(restKlient);
     }
 
     @Test
@@ -76,9 +67,9 @@ public class HentMedlemskapFraRegisterTest {
             .medErMedlem(true)
             .medDekning(MedlemskapDekningType.FULL)
             .medLovvalg(MedlemskapType.ENDELIG)
-            .medLovvalgsland(kodeverkRepository.finn(Landkoder.class, "UZB"))
+            .medLovvalgsland(Landkoder.UZB)
             .medKilde(MedlemskapKildeType.AVGSYS)
-            .medStudieland(kodeverkRepository.finn(Landkoder.class, "VUT"))
+            .medStudieland(Landkoder.VUT)
             .medMedlId(MEDL_ID_1)
             .build();
     }

@@ -100,35 +100,6 @@ public class KodeverkRepository {
 
 
     /**
-     * Finn instans av Kodeliste innslag for angitt Kodeliste.
-     * For oppslag av fulle instanser fra de ufullstendige i hver konkrete subklasse av Kodeliste.
-     */
-    public <V extends Kodeliste> V finn(Class<V> cls, V kodelisteKonstant) {
-        return finn(cls, kodelisteKonstant.getKode());
-    }
-
-    /**
-     * Hent alle innslag for en gitt kodeliste og gitte koder.
-     */
-    @SuppressWarnings("unchecked")
-    public <V extends Kodeliste> List<V> finnListe(Class<V> cls, List<String> koder) {
-        List<String> koderIkkeICache = new ArrayList<>();
-        List<Kodeliste> result = new ArrayList<>();
-        koder.stream().forEach(kode -> {
-            // For hver kode
-            V kodeliste = (V) kodelisteCache.get(kode);
-            if (kodeliste == null) {
-                koderIkkeICache.add(kode);
-            } else {
-                result.add(kodeliste);
-            }
-        });
-        // kan kun ha Kodeliste instanser her
-        result.addAll(finnListeFraEm((Class<Kodeliste>) cls, koderIkkeICache));
-        return (List<V>) result;
-    }
-
-    /**
      * Finn instans av Kodeliste innslag for angitt offisielt navn for koden, eller en default value hvis offisielt navn ikke gir treff.
      */
     public <V extends Kodeliste> Optional<V> finnForKodeverkEiersNavn(Class<V> cls, String navn) {
@@ -154,15 +125,6 @@ public class KodeverkRepository {
             return Optional.ofNullable(finn(cls, row));
         }
         return Optional.empty();
-    }
-
-    private <V extends Kodeliste> List<V> finnListeFraEm(Class<V> cls, List<String> koder) {
-        CriteriaQuery<V> criteria = createCriteria(cls, koder);
-        List<V> result = entityManager.createQuery(criteria)
-            .setHint(QueryHints.HINT_READONLY, "true")
-            .setHint("javax.persistence.fetchgraph", entityManager.getEntityGraph("KodelistMedNavn")) // NOSONAR
-            .getResultList();
-        return detachKodeverk(result);
     }
 
     private <V extends BasisKodeverdi> V finnFraEM(Class<V> cls, String kode) {
@@ -201,11 +163,5 @@ public class KodeverkRepository {
         return result;
     }
 
-    private <V extends Kodeliste> List<V> detachKodeverk(List<V> result) {
-        for (V res : result) {
-            detachKodeverk(res);
-        }
-        return result;
-    }
 
 }

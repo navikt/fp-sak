@@ -56,7 +56,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -132,7 +131,6 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     private FamilieHendelseRepository familieHendelseRepository;
     private SøknadRepository søknadRepository;
     private MedlemskapRepository medlemskapRepository;
-    private KodeverkRepository kodeverkRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private TpsTjeneste tpsTjeneste;
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
@@ -147,7 +145,6 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
     @Inject
     public MottattDokumentOversetterSøknad(BehandlingRepositoryProvider repositoryProvider,
-                                           KodeverkRepository kodeverkRepository,
                                            VirksomhetTjeneste virksomhetTjeneste,
                                            InntektArbeidYtelseTjeneste iayTjeneste,
                                            TpsTjeneste tpsTjeneste,
@@ -158,7 +155,6 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        this.kodeverkRepository = kodeverkRepository;
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.tpsTjeneste = tpsTjeneste;
@@ -897,7 +893,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private Landkoder finnLandkode(String landKode) {
-        return kodeverkRepository.finn(Landkoder.class, landKode);
+        return Landkoder.fraKode(landKode);
     }
 
     private void byggSøknadVedlegg(SøknadEntitet.Builder søknadBuilder, Vedlegg vedlegg, boolean påkrevd) {
@@ -910,22 +906,6 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private Innsendingsvalg tolkInnsendingsvalg(Innsendingstype innsendingstype) {
-        // FIXME (MAUR) Slå opp mot kodeverk..
-        switch (innsendingstype.getKode()) {
-            case "IKKE_VALGT":
-                return Innsendingsvalg.IKKE_VALGT;
-            case "LASTET_OPP":
-                return Innsendingsvalg.LASTET_OPP;
-            case "SEND_SENERE":
-                return Innsendingsvalg.SEND_SENERE;
-            case "SENDES_IKKE":
-                return Innsendingsvalg.SENDES_IKKE;
-            case "VEDLEGG_ALLEREDE_SENDT":
-                return Innsendingsvalg.VEDLEGG_ALLEREDE_SENDT;
-            case "VEDLEGG_SENDES_AV_ANDRE":
-                return Innsendingsvalg.VEDLEGG_SENDES_AV_ANDRE;
-            default:
-                return null;
-        }
+        return Innsendingsvalg.fraKode(innsendingstype.getKode());
     }
 }

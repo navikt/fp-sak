@@ -62,7 +62,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
@@ -115,7 +114,6 @@ public class RegisterdataInnhenter {
     private PersonopplysningRepository personopplysningRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private BehandlingRepository behandlingRepository;
-    private KodeverkRepository kodeverkRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private MedlemskapRepository medlemskapRepository;
     private SøknadRepository søknadRepository;
@@ -137,7 +135,6 @@ public class RegisterdataInnhenter {
     public RegisterdataInnhenter(PersoninfoAdapter personinfoAdapter, // NOSONAR - krever mange parametere
                                  MedlemTjeneste medlemTjeneste,
                                  BehandlingRepositoryProvider repositoryProvider,
-                                 KodeverkRepository kodeverkRepository,
                                  FamilieHendelseTjeneste familieHendelseTjeneste,
                                  MedlemskapRepository medlemskapRepository,
                                  OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
@@ -152,7 +149,6 @@ public class RegisterdataInnhenter {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.medlemskapRepository = medlemskapRepository;
-        this.kodeverkRepository = kodeverkRepository;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
         this.abakusTjeneste = abakusTjeneste;
@@ -259,7 +255,7 @@ public class RegisterdataInnhenter {
 
     private void mapStatsborgerskap(List<StatsborgerskapPeriode> statsborgerskaphistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
         for (StatsborgerskapPeriode statsborgerskap : statsborgerskaphistorikk) {
-            final Landkoder landkode = kodeverkRepository.finn(Landkoder.class, statsborgerskap.getStatsborgerskap().getLandkode());
+            final Landkoder landkode = Landkoder.fraKode(statsborgerskap.getStatsborgerskap().getLandkode());
 
             Region region = MapRegionLandkoder.mapLandkode(statsborgerskap.getStatsborgerskap().getLandkode());
 

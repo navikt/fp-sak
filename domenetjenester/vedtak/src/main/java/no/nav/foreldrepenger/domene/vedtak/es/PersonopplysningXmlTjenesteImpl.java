@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
@@ -70,12 +69,11 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     @Inject
     public PersonopplysningXmlTjenesteImpl(PersonopplysningXmlFelles fellesTjeneste,
-                                                    BehandlingRepositoryProvider provider,
-                                                    KodeverkRepository kodeverkRepository,
-                                                    PersonopplysningTjeneste personopplysningTjeneste,
-                                                    InntektArbeidYtelseTjeneste iayTjeneste,
-                                                    VergeRepository vergeRepository) {
-        super(personopplysningTjeneste, kodeverkRepository);
+                                           BehandlingRepositoryProvider provider,
+                                           PersonopplysningTjeneste personopplysningTjeneste,
+                                           InntektArbeidYtelseTjeneste iayTjeneste,
+                                           VergeRepository vergeRepository) {
+        super(personopplysningTjeneste);
         this.personopplysningFellesTjeneste = fellesTjeneste;
         this.iayTjeneste = iayTjeneste;
         this.familieHendelseRepository = provider.getFamilieHendelseRepository();

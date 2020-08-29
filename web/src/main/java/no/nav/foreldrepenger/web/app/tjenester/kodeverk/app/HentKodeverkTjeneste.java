@@ -120,6 +120,7 @@ public class HentKodeverkTjeneste {
         map.put(BehandlingType.class.getSimpleName(), BehandlingType.kodeMap().values());
         map.put(Språkkode.class.getSimpleName(), Språkkode.kodeMap().values());
         map.put(Region.class.getSimpleName(), Region.kodeMap().values());
+        map.put(Landkoder.class.getSimpleName(), Landkoder.kodeMap().values());
         map.put(ArbeidType.class.getSimpleName(), filtrerArbeidType(ArbeidType.kodeMap().values()));
         map.put(IkkeOppfyltÅrsak.class.getSimpleName(), IkkeOppfyltÅrsak.kodeMap().values());
         map.put(InnvilgetÅrsak.class.getSimpleName(), InnvilgetÅrsak.kodeMap().values());
@@ -172,9 +173,7 @@ public class HentKodeverkTjeneste {
         KODEVERDIER_SOM_BRUKES_PÅ_KLIENT = Collections.unmodifiableMap(mapFiltered);
 
     }
-    public static final List<Class<? extends Kodeliste>> KODEVERK_SOM_BRUKES_PÅ_KLIENT = List.of(
-        DokumentTypeIdKodeliste.class,
-        Landkoder.class);
+    public static final List<Class<? extends Kodeliste>> KODEVERK_SOM_BRUKES_PÅ_KLIENT = List.of(DokumentTypeIdKodeliste.class);
 
     private KodeverkRepository kodeverkRepository;
     private BehandlendeEnhetTjeneste enhetsTjeneste;
@@ -184,11 +183,11 @@ public class HentKodeverkTjeneste {
     }
 
     private static Collection<? extends Kodeverdi> filtrerMedlemskapManuellVurderingType(Collection<MedlemskapManuellVurderingType> values) {
-        return values.stream().filter(at -> at.visesPåKlient()).collect(Collectors.toSet());
+        return values.stream().filter(MedlemskapManuellVurderingType::visesPåKlient).collect(Collectors.toSet());
     }
 
     private static Collection<? extends Kodeverdi> filtrerArbeidType(Collection<ArbeidType> values) {
-        return values.stream().filter(at -> at.erAnnenOpptjening()).collect(Collectors.toSet());
+        return values.stream().filter(ArbeidType::erAnnenOpptjening).collect(Collectors.toSet());
     }
 
     @Inject
@@ -221,7 +220,7 @@ public class HentKodeverkTjeneste {
             // mindre sårbar for switch fra uoffisiell til offisiell kode i backend
             var offisielleKodeverdier = kodeverdier.stream()
                 .filter(k -> !Objects.equals(k.getKode(), k.getOffisiellKode()) && k.getOffisiellKode() != null)
-                .map(k -> new MyOffisiellKodeKodeliste(k))
+                .map(MyOffisiellKodeKodeliste::new)
                 .collect(Collectors.toSet());
 
             kodeverdier.addAll(offisielleKodeverdier);

@@ -60,7 +60,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
@@ -130,8 +129,6 @@ public class RegisterdataEndringshåndtererImplTest {
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     @Inject
     private BasisPersonopplysningTjeneste personopplysningTjeneste;
-    @Mock
-    private KodeverkRepository kodeverkRepository;
 
     private ScenarioMorSøkerEngangsstønad scenarioFødsel = ScenarioMorSøkerEngangsstønad.forFødsel();
     private ScenarioMorSøkerEngangsstønad scenarioAdopsjon = ScenarioMorSøkerEngangsstønad.forAdopsjon();
@@ -351,7 +348,6 @@ public class RegisterdataEndringshåndtererImplTest {
             personinfoAdapter,
             medlemTjeneste,
             repositoryProvider,
-            kodeverkRepository,
             familieHendelseTjeneste,
             abakusTjeneste,
             loggRepository,
@@ -393,7 +389,6 @@ public class RegisterdataEndringshåndtererImplTest {
         TestRegisterdataInnhenter(PersoninfoAdapter personinfoAdapter,
                                   MedlemTjeneste medlemTjeneste,
                                   BehandlingRepositoryProvider repositoryProvider,
-                                  KodeverkRepository kodeverkRepository,
                                   FamilieHendelseTjeneste familieHendelseTjeneste,
                                   AbakusTjeneste abakusTjeneste,
                                   AbakusInnhentingGrunnlagLoggRepository loggRepository,
@@ -404,7 +399,6 @@ public class RegisterdataEndringshåndtererImplTest {
             super(personinfoAdapter,
                 medlemTjeneste,
                 repositoryProvider,
-                kodeverkRepository,
                 familieHendelseTjeneste,
                 medlemskapRepository,
                 opplysningsPeriodeTjeneste,

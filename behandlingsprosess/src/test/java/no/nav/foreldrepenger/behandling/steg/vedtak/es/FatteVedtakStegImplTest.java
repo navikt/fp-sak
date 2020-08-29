@@ -72,7 +72,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
@@ -138,9 +137,6 @@ public class FatteVedtakStegImplTest {
     @Inject
     private AnkeRepository ankeRepository;
 
-    @Inject
-    private KodeverkRepository kodeverkRepository;
-
     private FatteVedtakSteg fatteVedtakSteg;
 
     private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
@@ -164,9 +160,9 @@ public class FatteVedtakStegImplTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
 
         VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
-        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste, kodeverkRepository);
+        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
         PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(
-            poXmlFelles, repositoryProvider, kodeverkRepository, personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
+            poXmlFelles, repositoryProvider, personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
         VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste = new VilkårsgrunnlagXmlTjenesteImpl(repositoryProvider, kompletthetssjekkerProvider, skjæringstidspunktTjeneste);
         YtelseXmlTjeneste ytelseXmlTjeneste = new YtelseXmlTjenesteImpl(beregningRepository);
         BeregningsgrunnlagXmlTjeneste beregningsgrunnlagXmlTjeneste = new BeregningsgrunnlagXmlTjenesteImpl(beregningRepository);
@@ -365,8 +361,8 @@ public class FatteVedtakStegImplTest {
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
-        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste, kodeverkRepository);
-        PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider, kodeverkRepository,
+        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
+        PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider,
             personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
         VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
         VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste = new VilkårsgrunnlagXmlTjenesteImpl(repositoryProvider, kompletthetssjekkerProvider,
@@ -429,8 +425,8 @@ public class FatteVedtakStegImplTest {
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
-        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste, kodeverkRepository);
-        PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider, kodeverkRepository,
+        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
+        PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider,
             personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
         VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste = new VilkårsgrunnlagXmlTjenesteImpl(repositoryProvider, kompletthetssjekkerProvider,
             skjæringstidspunktTjeneste);

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -17,7 +16,6 @@ import org.mockito.Mockito;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -51,8 +49,7 @@ public class TpsAdapterImplTest {
     @Before
     public void setup() {
         TpsAdresseOversetter tpsAdresseOversetter = new TpsAdresseOversetter(null);
-        TpsOversetter tpsOversetter = new TpsOversetter(
-            mock(KodeverkRepository.class), tpsAdresseOversetter);
+        TpsOversetter tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
         tpsAdapterImpl = new TpsAdapterImpl(aktørConsumerMock, personProxyServiceMock, tpsOversetter);
     }
 

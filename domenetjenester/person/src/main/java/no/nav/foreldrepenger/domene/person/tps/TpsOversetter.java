@@ -28,10 +28,10 @@ import no.nav.foreldrepenger.behandlingslager.aktør.historikk.PersonstatusPerio
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Aktoer;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker;
@@ -51,7 +51,6 @@ import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 @ApplicationScoped
 public class TpsOversetter {
 
-    private KodeverkRepository kodeverkRepository;
     private TpsAdresseOversetter tpsAdresseOversetter;
 
     TpsOversetter() {
@@ -59,17 +58,15 @@ public class TpsOversetter {
     }
 
     @Inject
-    public TpsOversetter(KodeverkRepository kodeverkRepository,
-                         TpsAdresseOversetter tpsAdresseOversetter) {
+    public TpsOversetter(TpsAdresseOversetter tpsAdresseOversetter) {
 
-        this.kodeverkRepository = kodeverkRepository;
         this.tpsAdresseOversetter = tpsAdresseOversetter;
     }
 
-    private no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder utledLandkode(Statsborgerskap statsborgerskap) {
-        no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder landkode = no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder.UDEFINERT;
+    private Landkoder utledLandkode(Statsborgerskap statsborgerskap) {
+        Landkoder landkode = Landkoder.UDEFINERT;
         if (Optional.ofNullable(statsborgerskap).isPresent()) {
-            landkode = kodeverkRepository.finn(no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder.class, statsborgerskap.getLand().getValue());
+            landkode = Landkoder.fraKode(statsborgerskap.getLand().getValue());
         }
         return landkode;
     }
@@ -92,7 +89,7 @@ public class TpsOversetter {
             .map(this::tilRelasjon)
             .collect(toSet());
 
-        no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder landkoder = utledLandkode(bruker.getStatsborgerskap());
+        Landkoder landkoder = utledLandkode(bruker.getStatsborgerskap());
         Region region = MapRegionLandkoder.mapLandkode(landkoder.getKode());
 
         String diskresjonskode = bruker.getDiskresjonskode() == null ? null : bruker.getDiskresjonskode().getValue();
@@ -167,7 +164,7 @@ public class TpsOversetter {
                     DateUtil.convertToLocalDate(e.getPeriode().getFom()),
                     DateUtil.convertToLocalDate(e.getPeriode().getTom()));
 
-                no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder landkoder = kodeverkRepository.finn(no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder.class, e.getStatsborgerskap().getLand().getValue());
+                Landkoder landkoder = Landkoder.fraKode(e.getStatsborgerskap().getLand().getValue());
                 StatsborgerskapPeriode element = new StatsborgerskapPeriode(gyldighetsperiode,
                     new no.nav.foreldrepenger.behandlingslager.aktør.Statsborgerskap(landkoder.getKode()));
                 builder.leggTil(element);

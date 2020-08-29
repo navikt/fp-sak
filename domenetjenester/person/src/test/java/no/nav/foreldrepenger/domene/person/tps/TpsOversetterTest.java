@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.person.tps;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -31,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.AktoerId;
@@ -92,7 +90,6 @@ public class TpsOversetterTest {
     @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
-    private KodeverkRepository kodeverkRepository = new KodeverkRepository(repoRule.getEntityManager());
     private PoststedKodeverkRepository poststedKodeverkRepository = new PoststedKodeverkRepository(repoRule.getEntityManager());
 
     @Mock
@@ -135,7 +132,7 @@ public class TpsOversetterTest {
         tpsAdresseOversetter = new TpsAdresseOversetter(
             poststedKodeverkRepository);
         tpsOversetter = new TpsOversetter(
-            kodeverkRepository, tpsAdresseOversetter);
+            tpsAdresseOversetter);
         Matrikkelnummer matrikkelnummer = new Matrikkelnummer();
         matrikkelnummer.setBruksnummer("bnr");
         matrikkelnummer.setFestenummer("fnr");
@@ -283,7 +280,7 @@ public class TpsOversetterTest {
 
     @Test
     public void skal_ha_med_foretrukket_språk_når_finnes() throws Exception {
-        tpsOversetter = new TpsOversetter(kodeverkRepository, tpsAdresseOversetter);
+        tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
 
         Spraak språk = new Spraak();
         språk.setValue("NN");
@@ -295,7 +292,7 @@ public class TpsOversetterTest {
     @Test
     public void skal_default_til_bokmål_om_foretrukket_språk_ikke_er_satt() throws Exception {
 
-        tpsOversetter = new TpsOversetter(kodeverkRepository, tpsAdresseOversetter);
+        tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
 
         when(bruker.getMaalform()).thenReturn(null);
         Personinfo personinfo = tpsOversetter.tilBrukerInfo(AktørId.dummy(), bruker);
@@ -305,7 +302,7 @@ public class TpsOversetterTest {
     @Test
     public void skal_defaulte_til_bokmål_om_foretrukket_språk_ikke_er_støttet() throws Exception {
 
-        tpsOversetter = new TpsOversetter(kodeverkRepository, tpsAdresseOversetter);
+        tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
 
         Spraak språk = new Spraak();
         språk.setValue("SVORSK");
@@ -316,10 +313,7 @@ public class TpsOversetterTest {
 
     @Test
     public void skal_defaulte_til_bokmål_om_foretrukket_språk_er_NO() throws Exception {
-        KodeverkRepository grunnlagRepo = mock(KodeverkRepository.class);
-        no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder norge = no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder.NOR;
-        when(grunnlagRepo.finn(no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder.class, norge.getKode())).thenReturn(norge);
-        tpsOversetter = new TpsOversetter(grunnlagRepo, tpsAdresseOversetter);
+        tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
 
         Spraak språk = new Spraak();
         språk.setValue("NO");
@@ -331,10 +325,8 @@ public class TpsOversetterTest {
     @Test
     public void skal_oversette_statsborgerskap() throws Exception {
         // Arrange
-        KodeverkRepository grunnlagRepo = mock(KodeverkRepository.class);
         no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder norge = no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder.NOR;
-        when(grunnlagRepo.finn(no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder.class, norge.getKode())).thenReturn(norge);
-        tpsOversetter = new TpsOversetter(grunnlagRepo, tpsAdresseOversetter);
+        tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
 
         // Act
         Personinfo personinfo = tpsOversetter.tilBrukerInfo(AktørId.dummy(), bruker);
@@ -347,10 +339,8 @@ public class TpsOversetterTest {
 
     @Test
     public void skal_returnere_personhistorikkinfo_med_statborgerskapsliste() {
-        KodeverkRepository grunnlagRepo = mock(KodeverkRepository.class);
         no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder norge = no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder.NOR;
-        when(grunnlagRepo.finn(no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder.class, norge.getKode())).thenReturn(norge);
-        tpsOversetter = new TpsOversetter(grunnlagRepo, tpsAdresseOversetter);
+        tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
 
         HentPersonhistorikkResponse response = new HentPersonhistorikkResponse();
         String aktørIdString = "12345679";
@@ -382,7 +372,7 @@ public class TpsOversetterTest {
 
     @Test
     public void skal_returnere_personhistorikkinfo_med_personstatusliste() throws DatatypeConfigurationException {
-        tpsOversetter = new TpsOversetter(mock(KodeverkRepository.class), tpsAdresseOversetter);
+        tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
 
         HentPersonhistorikkResponse response = new HentPersonhistorikkResponse();
         String aktørIdString = "67856789423";
@@ -431,7 +421,7 @@ public class TpsOversetterTest {
         LocalDate førsteJanuarNitten = LocalDate.of(2019, 01, 01);
         LocalDate andreFebruarNitten = LocalDate.of(2019, 02, 02);
 
-        tpsOversetter = new TpsOversetter(mock(KodeverkRepository.class), tpsAdresseOversetter);
+        tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
 
         no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker bruker = new no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker();
 

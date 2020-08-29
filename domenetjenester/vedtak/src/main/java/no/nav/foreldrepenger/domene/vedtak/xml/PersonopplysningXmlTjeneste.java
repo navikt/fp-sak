@@ -5,14 +5,12 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
 
 public abstract class PersonopplysningXmlTjeneste {
 
-    protected KodeverkRepository kodeverkRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
 
 
@@ -20,9 +18,8 @@ public abstract class PersonopplysningXmlTjeneste {
         // For CDI
     }
 
-    public PersonopplysningXmlTjeneste(PersonopplysningTjeneste personopplysningTjeneste, KodeverkRepository kodeverkRepository) {
+    public PersonopplysningXmlTjeneste(PersonopplysningTjeneste personopplysningTjeneste) {
         this.personopplysningTjeneste = personopplysningTjeneste;
-        this.kodeverkRepository = kodeverkRepository;
     }
 
     public abstract Object lagPersonopplysning(PersonopplysningerAggregat personopplysningerAggregat, Long behandlingId, AktørId aktørId, Skjæringstidspunkt skjæringstidspunkter);

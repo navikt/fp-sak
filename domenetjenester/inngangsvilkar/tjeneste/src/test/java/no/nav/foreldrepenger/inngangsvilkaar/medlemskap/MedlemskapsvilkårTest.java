@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
@@ -86,8 +85,6 @@ public class MedlemskapsvilkårTest {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
         new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
 
-
-    private KodeverkRepository kodeverkRepository = new KodeverkRepository(repoRule.getEntityManager());
     private InngangsvilkårMedlemskap vurderMedlemskapsvilkarEngangsstonad;
     private YrkesaktivitetBuilder yrkesaktivitetBuilder;
 
@@ -242,7 +239,7 @@ public class MedlemskapsvilkårTest {
     @Test
     public void skal_vurdere_avklart_ikke_bosatt_som_vilkår_når_bruker_har_relevant_arbeid_og_inntekt() {
         // Arrange
-        Landkoder landkode = kodeverkRepository.finn(Landkoder.class, "POL");
+        Landkoder landkode = Landkoder.POL;
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, landkode, PersonstatusType.BOSA);
         scenario.medMedlemskap().medBosattVurdering(false).medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
         Behandling behandling = lagre(scenario);
@@ -269,7 +266,7 @@ public class MedlemskapsvilkårTest {
     @Test
     public void skal_vurdere_avklart_ikke_bosatt_som_vilkår_når_bruker_har_ingen_relevant_arbeid_og_inntekt() {
         // Arrange
-        Landkoder landkode = kodeverkRepository.finn(Landkoder.class, "POL");
+        Landkoder landkode = Landkoder.POL;
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, landkode, PersonstatusType.BOSA);
         scenario.medMedlemskap().medBosattVurdering(false).medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
         Behandling behandling = lagre(scenario);
@@ -358,7 +355,7 @@ public class MedlemskapsvilkårTest {
     @Test
     public void skal_vurdere_eøs_statsborger_uten_oppholdsrett_som_vilkår_ikke_oppfylt() {
         // Arrange
-        Landkoder landkodeEOS = kodeverkRepository.finn(Landkoder.class, "POL");
+        Landkoder landkodeEOS = Landkoder.POL;
         var scenario = lagTestScenario(landkodeEOS, PersonstatusType.BOSA);
         scenario.medMedlemskap().medBosattVurdering(true).medOppholdsrettVurdering(false);
         Behandling behandling = lagre(scenario);
@@ -389,7 +386,7 @@ public class MedlemskapsvilkårTest {
     @Test
     public void skal_vurdere_annen_statsborger_uten_lovlig_opphold_som_vilkår_ikke_oppfylt() {
         // Arrange
-        Landkoder land = kodeverkRepository.finn(Landkoder.class, "ARG");
+        Landkoder land = Landkoder.ARG;
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, land, PersonstatusType.BOSA);
         scenario.medMedlemskap().medBosattVurdering(true).medLovligOppholdVurdering(false)
             .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);

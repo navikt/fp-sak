@@ -47,7 +47,7 @@ public class OppgittTilknytningDto {
 
     private static List<UtlandsoppholdDto> mapFør(Set<MedlemskapOppgittLandOppholdEntitet> opphold) {
         return UtlandsoppholdDto.mapFra(opphold.stream()
-            .filter(o -> o.isTidligereOpphold())
+            .filter(MedlemskapOppgittLandOppholdEntitet::isTidligereOpphold)
             .filter(o -> !o.getLand().equals(Landkoder.NOR))
             .collect(Collectors.toList()));
     }

@@ -16,15 +16,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.JoinColumnOrFormula;
-import org.hibernate.annotations.JoinColumnsOrFormulas;
-import org.hibernate.annotations.JoinFormula;
-
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 /**
  * Entitetsklasse for opphold.
@@ -43,10 +39,8 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_MEDLEMSKAP_OPPG_LAND")
     private Long id;
 
-    @ManyToOne(optional = false)
-    @JoinColumnsOrFormulas({
-        @JoinColumnOrFormula(column = @JoinColumn(name = "land", referencedColumnName = "kode", nullable = false)),
-        @JoinColumnOrFormula(formula = @JoinFormula(referencedColumnName = "kodeverk", value = "'" + Landkoder.DISCRIMINATOR + "'")) })
+    @Convert(converter = Landkoder.KodeverdiConverter.class)
+    @Column(name="land", nullable = false)
     private Landkoder land = Landkoder.UDEFINERT;
 
     @Embedded
@@ -68,7 +62,7 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
         // Hibernate
     }
 
-    MedlemskapOppgittLandOppholdEntitet(MedlemskapOppgittLandOppholdEntitet utlandsopphold) {
+    public MedlemskapOppgittLandOppholdEntitet(MedlemskapOppgittLandOppholdEntitet utlandsopphold) {
         this.setLand(utlandsopphold.getLand());
         this.periode = DatoIntervallEntitet.fraOgMedTilOgMed(
             utlandsopphold.getPeriodeFom(),
@@ -78,7 +72,6 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
 
         // kopier ikke oppgitt tilknytning. Det settes p.t. separat i builder (setOppgittTilknytning) for å knytte til OppgittTilknytningEntitet
     }
-
 
     @Override
     public String getIndexKey() {

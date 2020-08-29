@@ -50,7 +50,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
@@ -133,9 +132,6 @@ public class VedtakXmlTest {
     @Inject
     private BeregningsresultatRepository beregningsresultatRepository;
 
-    @Inject
-    private KodeverkRepository kodeverkRepository;
-
     private PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste;
     private FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste;
 
@@ -147,8 +143,8 @@ public class VedtakXmlTest {
         var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
         Mockito.when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(stp);
 
-        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste, kodeverkRepository);
-        personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider, kodeverkRepository, personopplysningTjeneste,
+        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
+        personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider, personopplysningTjeneste,
             iayTjeneste, ytelseFordelingTjeneste, mock(VergeRepository.class), mock(VirksomhetTjeneste.class));
         vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
         fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,

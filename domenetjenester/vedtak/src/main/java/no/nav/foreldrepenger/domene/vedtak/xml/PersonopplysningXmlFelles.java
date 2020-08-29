@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -30,7 +29,6 @@ import no.nav.vedtak.felles.xml.vedtak.personopplysninger.v2.PersonUidentifiserb
 public class PersonopplysningXmlFelles {
 
     private final ObjectFactory personopplysningObjectFactory = new ObjectFactory();
-    protected KodeverkRepository kodeverkRepository;
     private TpsTjeneste tpsTjeneste;
 
 
@@ -39,9 +37,8 @@ public class PersonopplysningXmlFelles {
     }
 
     @Inject
-    public PersonopplysningXmlFelles(TpsTjeneste tpsTjeneste, KodeverkRepository kodeverkRepository) {
+    public PersonopplysningXmlFelles(TpsTjeneste tpsTjeneste) {
         this.tpsTjeneste = tpsTjeneste;
-        this.kodeverkRepository = kodeverkRepository;
     }
 
     public Medlemskapsperiode lagMedlemskapPeriode(MedlemskapPerioderEntitet medlemskapPeriodeIn) {
@@ -52,7 +49,7 @@ public class PersonopplysningXmlFelles {
 
         medlemskapsPeriode.setDekningtype(VedtakXmlUtil.lagKodeverksOpplysning(medlemskapPeriodeIn.getDekningType()));
         medlemskapsPeriode.setErMedlem(VedtakXmlUtil.lagBooleanOpplysning(medlemskapPeriodeIn.getErMedlem()));
-        medlemskapsPeriode.setLovvalgsland(VedtakXmlUtil.lagKodeverksOpplysning(kodeverkRepository, medlemskapPeriodeIn.getLovvalgLand()));
+        medlemskapsPeriode.setLovvalgsland(VedtakXmlUtil.lagKodeverksOpplysning(medlemskapPeriodeIn.getLovvalgLand()));
         medlemskapsPeriode.setMedlemskaptype(VedtakXmlUtil.lagKodeverksOpplysning(medlemskapPeriodeIn.getMedlemskapType()));
         medlemskapsPeriode.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(medlemskapPeriodeIn.getFom(), medlemskapPeriodeIn.getTom()));
         return medlemskapsPeriode;
@@ -120,7 +117,7 @@ public class PersonopplysningXmlFelles {
 
         Landkoder statsborgerskap = aggregat.getStatsborgerskapFor(personopplysning.getAktørId()).stream().findFirst()
             .map(StatsborgerskapEntitet::getStatsborgerskap).orElse(Landkoder.UDEFINERT);
-        person.setStatsborgerskap(VedtakXmlUtil.lagKodeverksOpplysning(kodeverkRepository, statsborgerskap));
+        person.setStatsborgerskap(VedtakXmlUtil.lagKodeverksOpplysning(statsborgerskap));
     }
 
 }
