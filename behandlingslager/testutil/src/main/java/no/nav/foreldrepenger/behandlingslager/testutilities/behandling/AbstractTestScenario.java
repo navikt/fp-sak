@@ -75,7 +75,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingsgrunnlagKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -105,6 +104,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
@@ -610,12 +610,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         return repositoryProvider;
     }
 
-    private BehandlingsgrunnlagKodeverkRepository mockBehandlingsgrunnlagKodeverkRepository() {
-        BehandlingsgrunnlagKodeverkRepository repository = Mockito.mock(BehandlingsgrunnlagKodeverkRepository.class);
-        when(repository.finnHøyestRangertRegion(Mockito.any())).thenReturn(Region.UDEFINERT);
-        return repository;
-    }
-
     private MedlemskapRepository lagMockMedlemskapRepository() {
         MedlemskapRepository dummy = new MedlemskapRepository(null) {
             @Override
@@ -836,8 +830,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         });
 
         personInformasjon.getStatsborgerskap().forEach(e -> {
-            BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository = mockBehandlingsgrunnlagKodeverkRepository();
-            Region region = behandlingsgrunnlagKodeverkRepository.finnHøyestRangertRegion(List.of(e.getStatsborgerskap().getKode()));
+            Region region = MapRegionLandkoder.mapRangerLandkoder(List.of(e.getStatsborgerskap().getKode()));
             PersonInformasjonBuilder.StatsborgerskapBuilder builder = personInformasjonBuilder.getStatsborgerskapBuilder(e.getAktørId(), e.getPeriode(),
                 e.getStatsborgerskap(), region);
             personInformasjonBuilder.leggTil(builder);
@@ -1018,7 +1011,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                     .medAktørId(fagsakBuilder.getBrukerBuilder().getAktørId())
                     .medNavBrukerKjønn(getKjønnFraFagsak())
                     .medForetrukketSpråk(
-                        fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode() : Språkkode.nb)
+                        fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode() : Språkkode.NB)
                     .build();
                 final NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(personinfo);
                 fagsakBuilder.medBruker(navBruker);

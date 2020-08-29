@@ -156,7 +156,7 @@ public class VedtakXmlTest {
             .medNavn("Kari Nordmann")
             .medFødselsdato(morsFødseldato)
             .medNavBrukerKjønn(KVINNE)
-            .medForetrukketSpråk(Språkkode.nb)
+            .medForetrukketSpråk(Språkkode.NB)
             .build();
         søknadRepository = mock(SøknadRepository.class);
 

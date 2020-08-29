@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -77,7 +76,7 @@ public class PersonopplysningXmlFelles {
         }
 
         if (personopplysning.getRegion() != null) {
-            person.setRegion(VedtakXmlUtil.lagStringOpplysning(kodeverkRepository.finn(Region.class, personopplysning.getRegion()).getNavn()));
+            person.setRegion(VedtakXmlUtil.lagStringOpplysning(personopplysning.getRegion().getNavn()));
         }
 
         KodeverksOpplysning sivilstand = VedtakXmlUtil.lagKodeverksOpplysning(personopplysning.getSivilstand());
@@ -92,7 +91,7 @@ public class PersonopplysningXmlFelles {
         populerPerson(aggregat, personopplysning, person);
 
         if (personopplysning.getRegion() != null) {
-            person.setRegion(VedtakXmlUtil.lagStringOpplysning(kodeverkRepository.finn(Region.class, personopplysning.getRegion()).getNavn()));
+            person.setRegion(VedtakXmlUtil.lagStringOpplysning(personopplysning.getRegion().getNavn()));
         }
 
         if (personopplysning.getAktørId() != null) {

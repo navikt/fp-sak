@@ -53,7 +53,7 @@ public enum DokumentKategori implements Kodeverdi {
 
     private String kode;
 
-    private DokumentKategori(String kode, String navn, String offisiellKode) {
+    DokumentKategori(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;
@@ -83,7 +83,7 @@ public enum DokumentKategori implements Kodeverdi {
     public static void main(String[] args) {
         System.out.println(KODER.keySet().stream().map(k -> "'" + k + "'").collect(Collectors.toList()));
     }
-    
+
     @JsonProperty
     @Override
     public String getKodeverk() {
@@ -95,7 +95,7 @@ public enum DokumentKategori implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return offisiellKode;
@@ -125,5 +125,5 @@ public enum DokumentKategori implements Kodeverdi {
     public static DokumentKategori finnForKodeverkEiersKode(String offisiellDokumentType) {
         return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, offisiellDokumentType)).findFirst().orElse(UDEFINERT);
     }
-    
+
 }

@@ -3,10 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -23,9 +20,9 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
 public class PersonopplysningRepositoryImplTest {
@@ -37,13 +34,6 @@ public class PersonopplysningRepositoryImplTest {
     private FagsakRepository fagsakRepository = new FagsakRepository(repositoryRule.getEntityManager());
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
     private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private Map<Landkoder, Region> landRegion;
-
-    @Before
-    public void setUp() throws Exception {
-        landRegion = new HashMap<>();
-        landRegion.put(Landkoder.NOR, Region.NORDEN);
-    }
 
     @Test
     public void skal_hente_eldste_versjon_av_aggregat() {
@@ -85,7 +75,7 @@ public class PersonopplysningRepositoryImplTest {
     }
 
     private PersonopplysningerAggregat tilAggregat(Behandling behandling, PersonopplysningGrunnlagEntitet grunnlag) {
-        return new PersonopplysningerAggregat(grunnlag, behandling.getAktørId(), DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()), landRegion);
+        return new PersonopplysningerAggregat(grunnlag, behandling.getAktørId(), DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()));
     }
 
     private Personinfo lagPerson() {
@@ -97,7 +87,7 @@ public class PersonopplysningRepositoryImplTest {
             .medLandkode(Landkoder.NOR)
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
             .medPersonIdent(new PersonIdent("12345678901"))
-            .medForetrukketSpråk(Språkkode.nb)
+            .medForetrukketSpråk(Språkkode.NB)
             .build();
         return personinfo;
     }

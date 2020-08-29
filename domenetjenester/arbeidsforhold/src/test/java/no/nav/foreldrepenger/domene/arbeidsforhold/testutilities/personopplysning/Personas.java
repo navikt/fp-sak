@@ -43,5 +43,5 @@ public class Personas {
     public PersonInformasjon build() {
         return builder.build();
     }
-    
+
 }

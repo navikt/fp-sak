@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingsgrunnlagKodeverkRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.impl.AvklarBarnFødtUtenlands;
 import no.nav.foreldrepenger.domene.medlem.impl.AvklarGyldigPeriode;
@@ -41,7 +40,6 @@ public class VurderMedlemskapTjeneste {
 
     @Inject
     public VurderMedlemskapTjeneste(BehandlingRepositoryProvider provider,
-                                    BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository,
                                     MedlemskapPerioderTjeneste medlemskapPerioderTjeneste,
                                     PersonopplysningTjeneste personopplysningTjeneste,
                                     InntektArbeidYtelseTjeneste iayTjeneste) {
@@ -50,7 +48,7 @@ public class VurderMedlemskapTjeneste {
         this.avklarOmErBosatt = new AvklarOmErBosatt(provider, medlemskapPerioderTjeneste, personopplysningTjeneste);
         this.avklarGyldigPeriode = new AvklarGyldigPeriode(provider, medlemskapPerioderTjeneste);
         this.avklarBarnFødtUtenlands = new AvklarBarnFødtUtenlands(provider);
-        this.avklarOmSøkerOppholderSegINorge = new AvklarOmSøkerOppholderSegINorge(provider, behandlingsgrunnlagKodeverkRepository, personopplysningTjeneste, iayTjeneste);
+        this.avklarOmSøkerOppholderSegINorge = new AvklarOmSøkerOppholderSegINorge(provider, personopplysningTjeneste, iayTjeneste);
         this.avklaringFaktaMedlemskap = new AvklaringFaktaMedlemskap(provider, medlemskapPerioderTjeneste, personopplysningTjeneste, iayTjeneste);
     }
 

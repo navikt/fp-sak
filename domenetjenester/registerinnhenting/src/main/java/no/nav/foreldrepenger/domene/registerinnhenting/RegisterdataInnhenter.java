@@ -56,11 +56,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingsgrunnlagKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
@@ -120,7 +120,6 @@ public class RegisterdataInnhenter {
     private MedlemskapRepository medlemskapRepository;
     private SøknadRepository søknadRepository;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
-    private BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository;
     private AbakusTjeneste abakusTjeneste;
     private AbakusInnhentingGrunnlagLoggRepository loggRepository;
     private Period etterkontrollTidsromFørSøknadsdato;
@@ -141,7 +140,6 @@ public class RegisterdataInnhenter {
                                  KodeverkRepository kodeverkRepository,
                                  FamilieHendelseTjeneste familieHendelseTjeneste,
                                  MedlemskapRepository medlemskapRepository,
-                                 BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository,
                                  OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
                                  AbakusTjeneste abakusTjeneste,
                                  AbakusInnhentingGrunnlagLoggRepository loggRepository,
@@ -154,7 +152,6 @@ public class RegisterdataInnhenter {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.medlemskapRepository = medlemskapRepository;
-        this.behandlingsgrunnlagKodeverkRepository = behandlingsgrunnlagKodeverkRepository;
         this.kodeverkRepository = kodeverkRepository;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
@@ -264,8 +261,7 @@ public class RegisterdataInnhenter {
         for (StatsborgerskapPeriode statsborgerskap : statsborgerskaphistorikk) {
             final Landkoder landkode = kodeverkRepository.finn(Landkoder.class, statsborgerskap.getStatsborgerskap().getLandkode());
 
-            Region region = behandlingsgrunnlagKodeverkRepository
-                .finnHøyestRangertRegion(Collections.singletonList(statsborgerskap.getStatsborgerskap().getLandkode()));
+            Region region = MapRegionLandkoder.mapLandkode(statsborgerskap.getStatsborgerskap().getLandkode());
 
             final DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(brukFødselsdatoHvisEtter(
                 statsborgerskap.getGyldighetsperiode().getFom(), personinfo.getFødselsdato()), statsborgerskap.getGyldighetsperiode().getTom());

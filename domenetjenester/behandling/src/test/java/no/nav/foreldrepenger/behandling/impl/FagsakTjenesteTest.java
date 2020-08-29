@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.MANN
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -40,9 +39,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
@@ -83,7 +82,7 @@ public class FagsakTjenesteTest {
             .medNavn("Kari Nordmann")
             .medFødselsdato(forelderFødselsdato)
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medForetrukketSpråk(Språkkode.nb)
+            .medForetrukketSpråk(Språkkode.NB)
             .build();
 
         Fagsak fagsak = lagNyFagsak(personinfo);
@@ -142,7 +141,7 @@ public class FagsakTjenesteTest {
         final PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
         PersonopplysningerAggregat personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlag,
-            forelderAktørId, DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()), Collections.emptyMap());
+            forelderAktørId, DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()));
 
         // Act
         tjeneste.oppdaterFagsak(behandling, personopplysningerAggregat, personopplysningerAggregat.getBarna());

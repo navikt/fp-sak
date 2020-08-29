@@ -829,10 +829,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private Språkkode getSpraakValg(MottattDokumentWrapperSøknad skjema) {
-        if (skjema.getSpråkvalg() != null) {
-            return kodeverkRepository.finn(Språkkode.class, skjema.getSpråkvalg().getKode());
-        }
-        return Språkkode.UDEFINERT;
+        return Språkkode.defaultNorsk(skjema.getSpråkvalg() == null ? null : skjema.getSpråkvalg().getKode());
     }
 
     private SøknadEntitet.Builder byggFelleselementerForSøknad(SøknadEntitet.Builder søknadBuilder,

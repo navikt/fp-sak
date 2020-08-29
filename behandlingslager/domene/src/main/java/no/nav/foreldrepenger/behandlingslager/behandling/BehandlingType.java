@@ -9,8 +9,8 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -38,7 +38,7 @@ public enum BehandlingType implements Kodeverdi {
     TILBAKEKREVING("BT-007", "Tilbakekreving", null, 0, false),
     /** @deprecated fjern herfra. */
     REVURDERING_TILBAKEKREVING("BT-009", "Revurdering tilbakekreving", null, 0, false),
-    
+
     UDEFINERT("-", "Ikke definert", null, 0, false),
     ;
 
@@ -63,9 +63,6 @@ public enum BehandlingType implements Kodeverdi {
 
     @JsonIgnore
     private String navn;
-
-    @JsonIgnore
-    private BehandlingType real;
 
     @JsonIgnore
     private String offisiellKode;

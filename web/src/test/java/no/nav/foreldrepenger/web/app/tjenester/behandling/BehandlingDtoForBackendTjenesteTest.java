@@ -64,7 +64,7 @@ public class BehandlingDtoForBackendTjenesteTest {
         BehandlingÅrsakDto behandlingÅrsak = utvidetBehandlingDto.getBehandlingÅrsaker().get(0);
         assertThat(behandlingÅrsak.getBehandlingArsakType()).isEqualByComparingTo(BEHANDLING_ÅRSAK_TYPE);
 
-        assertThat(utvidetBehandlingDto.getSpråkkode()).isEqualByComparingTo(Språkkode.nb);
+        assertThat(utvidetBehandlingDto.getSpråkkode()).isEqualByComparingTo(Språkkode.NB);
         assertThat(utvidetBehandlingDto.getOriginalVedtaksDato()).isEqualTo(now.toLocalDate().toString());
         assertThat(utvidetBehandlingDto.getBehandlingsresultat().getType()).isEqualByComparingTo(BEHANDLING_RESULTAT_TYPE);
         assertThat(utvidetBehandlingDto.getLinks()).isNotEmpty();
@@ -96,7 +96,7 @@ public class BehandlingDtoForBackendTjenesteTest {
             .medNavn("Lorem Ipsum")
             .medPersonIdent(new PersonIdent("1243434"))
             .medFødselsdato(LocalDate.now().minusYears(20))
-            .medForetrukketSpråk(Språkkode.nb).build();
+            .medForetrukketSpråk(Språkkode.NB).build();
     }
 
     private void lagBehandligVedtak(Behandling behandling) {

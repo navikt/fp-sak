@@ -17,7 +17,7 @@ public class NavPersoninfoBuilder {
     private static final AktørId DEFAULT_AKTØR_ID = AktørId.dummy();
     private static final PersonIdent DEFAULT_OFF_TEST_FNR = PersonIdent.fra("10108000398");
     private static final LocalDate DEFAULT_FØDSELDATO = LocalDate.of(1980,10,10);
-    private static final Språkkode DEFAULT_FORETRUKKET_SPRÅK = Språkkode.nb;
+    private static final Språkkode DEFAULT_FORETRUKKET_SPRÅK = Språkkode.NB;
     private static final String DEFAULT_DISKRESJONSKODE = "6";
     private static final PersonstatusType DEFAULT_PERSONSTATUSTYPE = PersonstatusType.BOSA;
     private NavBrukerKjønn kjønn = KVINNE;

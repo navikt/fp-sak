@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
@@ -33,10 +32,4 @@ public class PoststedKodeverkRepository {
             return HibernateVerktøy.hentUniktResultat(query);
     }
 
-    public Optional<AdresseType> finnAdresseType(String kode) {
-        TypedQuery<AdresseType> query = entityManager.createQuery("from AdresseType where kode=:kode",
-                AdresseType.class);
-            query.setParameter("kode", kode);
-            return HibernateVerktøy.hentUniktResultat(query);
-    }
 }

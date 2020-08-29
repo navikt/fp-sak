@@ -88,7 +88,7 @@ public class SøknadMapperUtil {
             .medNavn("Fornavn Etternavn")
             .medFødselsdato(fødselsdato)
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medForetrukketSpråk(Språkkode.nb)
+            .medForetrukketSpråk(Språkkode.NB)
             .medLandkode(Landkoder.NOR)
             .build();
         return NavBruker.opprettNy(personinfo);

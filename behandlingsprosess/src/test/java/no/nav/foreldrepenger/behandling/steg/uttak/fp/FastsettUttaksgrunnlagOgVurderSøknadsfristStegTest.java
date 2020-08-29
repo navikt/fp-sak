@@ -77,7 +77,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
             .medLandkode(Landkoder.NOR)
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
             .medPersonIdent(PersonIdent.fra("123"))
-            .medForetrukketSpråk(Språkkode.nb)
+            .medForetrukketSpråk(Språkkode.NB)
             .build();
         Fagsak fagsak = FagsakBuilder.nyForeldrepengerForMor()
                 .medSaksnummer(new Saksnummer("2"))

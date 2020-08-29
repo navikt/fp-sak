@@ -128,7 +128,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                     .medAktørId(fagsakBuilder.getBrukerBuilder().getAktørId())
                     .medNavBrukerKjønn(getKjønnFraFagsak())
                     .medForetrukketSpråk(
-                        fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode() : Språkkode.nb)
+                        fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode() : Språkkode.NB)
                     .build();
                 final NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(personinfo);
                 fagsakBuilder.medBruker(navBruker);
@@ -176,7 +176,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         }
 
         public Språkkode getSpråkkode() {
-            return Språkkode.nb;
+            return Språkkode.NB;
         }
 
         public AktørId getAktørId() {

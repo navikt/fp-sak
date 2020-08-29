@@ -47,6 +47,4 @@ jobs:
             * For å rekjøre testene finner du jobben, trykker "Utfør verdikjede-test" i venstre kollonne og derreter på "Re-run jobs" oppe i høyre hjørne.
             * Ønsker du å se loggene for alle applikasjonene kan gå inn på gjeldene jobb og laste ned artifaktet med navnet "logs".
 
-            På grunn av testfeil deployes IKKE fpsak til t4!
-
             [1]: https://github.com/navikt/fpsak-autotest/actions?query=workflow%3A%22Kjører+Autotestene+for+verdikjeden%22

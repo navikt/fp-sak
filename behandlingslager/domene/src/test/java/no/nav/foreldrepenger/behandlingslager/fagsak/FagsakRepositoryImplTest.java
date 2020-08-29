@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import static java.time.Month.JANUARY;
 import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.KVINNE;
 import static org.junit.Assert.assertTrue;
@@ -18,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.db.Repository;
@@ -108,7 +108,7 @@ public class FagsakRepositoryImplTest {
                 .medNavn("Kari Nordmann")
                 .medFødselsdato(LocalDate.of(1990, JANUARY, 1))
                 .medNavBrukerKjønn(KVINNE)
-                .medForetrukketSpråk(Språkkode.nb)
+                .medForetrukketSpråk(Språkkode.NB)
                 .build());
 
         // Opprett fagsak

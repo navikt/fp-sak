@@ -1,26 +1,117 @@
 package no.nav.foreldrepenger.behandlingslager.geografisk;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeliste;
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 
-@Entity(name = "Region")
-@DiscriminatorValue(Region.DISCRIMINATOR)
-public class Region extends Kodeliste {
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    public static final String DISCRIMINATOR = "REGION";
-    public static final Region NORDEN = new Region("NORDEN"); //$NON-NLS-1$
-    public static final Region EOS = new Region("EOS"); //$NON-NLS-1$
-    public static final Region TREDJELANDS_BORGER = new Region("ANNET"); //$NON-NLS-1$
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-    public static final Region UDEFINERT = new Region("-"); //$NON-NLS-1$
+@JsonFormat(shape = Shape.OBJECT)
+@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
+public enum Region implements Kodeverdi {
 
-    Region() {
-        // Hibernate trenger en
+    /**
+     * Konstanter for å skrive ned kodeverdi.
+     */
+    NORDEN("NORDEN", "Nordisk", 1),
+    EOS("EOS", "EU/EØS", 2),
+    TREDJELANDS_BORGER("ANNET", "3.landsborger", 3),
+
+    UDEFINERT("-", "3.landsborger", 9),
+    ;
+
+    public static final String KODEVERK = "REGION";
+    private static final Map<String, Region> KODER = new LinkedHashMap<>();
+
+    static {
+        for (var v : values()) {
+            if (KODER.putIfAbsent(v.kode, v) != null) {
+                throw new IllegalArgumentException("Duplikat : " + v.kode);
+            }
+        }
     }
 
-    private Region(String kode) {
-        super(kode, DISCRIMINATOR);
+    @JsonIgnore
+    private String navn;
+
+    private String kode;
+
+    private int rank;
+
+    Region(String kode, String navn, int rank) {
+        this.kode = kode;
+        this.navn = navn;
+        this.rank = rank;
     }
+
+    @JsonCreator
+    public static Region fraKode(@JsonProperty("kode") String kode) {
+        if (kode == null) {
+            return null;
+        }
+        var ad = KODER.get(kode);
+        if (ad == null) {
+            throw new IllegalArgumentException("Ukjent Region: " + kode);
+        }
+        return ad;
+    }
+
+    public static Map<String, Region> kodeMap() {
+        return Collections.unmodifiableMap(KODER);
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    @Override
+    public String getNavn() {
+        return navn;
+    }
+
+    @Override
+    public String getOffisiellKode() {
+        return getKode();
+    }
+
+    @JsonProperty
+    @Override
+    public String getKode() {
+        return kode;
+    }
+
+    @JsonProperty
+    @Override
+    public String getKodeverk() {
+        return KODEVERK;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(KODER.keySet());
+    }
+
+    @Converter(autoApply = true)
+    public static class KodeverdiConverter implements AttributeConverter<Region, String> {
+        @Override
+        public String convertToDatabaseColumn(Region attribute) {
+            return attribute == null ? null : attribute.getKode();
+        }
+
+        @Override
+        public Region convertToEntityAttribute(String dbData) {
+            return dbData == null ? null : fraKode(dbData);
+        }
+    }
+
 }

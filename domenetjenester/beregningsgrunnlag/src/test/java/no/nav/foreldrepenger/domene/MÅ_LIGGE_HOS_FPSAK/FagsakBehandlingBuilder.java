@@ -1,5 +1,14 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
+import static java.time.Month.JANUARY;
+import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.KVINNE;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.persistence.EntityManager;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -11,14 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
-import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.time.Month.JANUARY;
-import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.KVINNE;
 
 /** Enkel builder for å lage en enkel behandling for internt bruk her. */
 public class FagsakBehandlingBuilder {
@@ -78,7 +79,7 @@ public class FagsakBehandlingBuilder {
                     .medPersonIdent(new PersonIdent("12345678901"))
                     .medNavn("Kari Nordmann")
                     .medFødselsdato(LocalDate.of(1990, JANUARY, 1))
-                    .medForetrukketSpråk(Språkkode.nb)
+                    .medForetrukketSpråk(Språkkode.NB)
                     .medNavBrukerKjønn(KVINNE)
                     .build());
         });

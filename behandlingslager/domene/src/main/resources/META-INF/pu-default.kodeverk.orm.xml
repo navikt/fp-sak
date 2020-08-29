@@ -11,12 +11,9 @@
 	<!-- legacy DokumentTypeId er som synkes -->
     <entity class="no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentTypeIdKodeliste" />
 
-    <entity class="no.nav.foreldrepenger.behandlingslager.kodeverk.KodelisteRelasjon" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.kodeverk.KodelisteNavnI18N" />
 
 	<entity class="no.nav.foreldrepenger.behandlingslager.geografisk.Poststed" />
-	<entity class="no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder" />
-	<entity class="no.nav.foreldrepenger.behandlingslager.geografisk.Region" />
 
 </entity-mappings>

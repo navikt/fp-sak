@@ -427,7 +427,7 @@ public class BehandlingsgrunnlagEntitetTest {
                     getPersonstatusBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(12))).medPersonstatus(PersonstatusType.BOSA))
             .leggTil(
                 informasjonBuilder
-                    .getStatsborgerskapBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(12)), Landkoder.NOR,Region.NORDEN));
+                    .getStatsborgerskapBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(12)), Landkoder.NOR, Region.NORDEN));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -553,7 +553,7 @@ public class BehandlingsgrunnlagEntitetTest {
             .leggTil(informasjonBuilder
                 .getStatsborgerskapBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(fødselsdatoForelder), Landkoder.NOR, Region.NORDEN))
             .leggTil(informasjonBuilder
-                .getStatsborgerskapBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1), Landkoder.NOR,Region.NORDEN))
+                .getStatsborgerskapBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1), Landkoder.NOR, Region.NORDEN))
             .leggTil(informasjonBuilder
                 .getAdresseBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
