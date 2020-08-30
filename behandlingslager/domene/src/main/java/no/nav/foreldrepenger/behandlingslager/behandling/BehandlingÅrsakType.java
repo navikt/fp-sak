@@ -60,19 +60,20 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_HENDELSE_DØDFØDSEL("RE-HENDELSE-DØDFØD", "Melding om registrert dødfødsel i folkeregisteret"),
 
 
-    // UTGÅTT. men ikke slett - er noen behandlinger med disse i årsak-tabellen + at det ligger ting i historikk-innslag (inntil evt konvertert).
+    // UTGÅTT. men ikke slett - BehandlingÅrsak-tabellen er rensket og ikke bruk disse som nye behandlingsårsaker!
+    // Det ligger en hel del i historikk-innslag (inntil evt konvertert) og de brukes til vise tekst frontend.
+    // OPPLYSNINGER_OM_YTELSER brukes til å lage nye historikkinnslag - de øvrige er historiske
 
-    @Deprecated // Registeroppdatering. Mange forkomster i behandling_aarsak, færre i HISTORIKKINNSLAG_FELT
-    RE_REGISTEROPPLYSNING("RE-REGISTEROPPL", "Nye registeropplysninger"),
-    @Deprecated // Registeroppdatering. Mange forkomster i behandling_aarsak, mange i HISTORIKKINNSLAG_FELT
+    @Deprecated // Registeroppdatering. 49450 forekomster i HISTORIKKINNSLAG_FELT
     RE_OPPLYSNINGER_OM_YTELSER("RE-YTELSE", "Nye opplysninger om ytelse"),
-    @Deprecated // Køing - i tillegg til aksjonspunkt. Mange forkomster i behandling_aarsak, mange i HISTORIKKINNSLAG_FELT
+
+    @Deprecated // Registeroppdatering. 1 forekomst i HISTORIKKINNSLAG_FELT
+    RE_REGISTEROPPLYSNING("RE-REGISTEROPPL", "Nye registeropplysninger"),
+    @Deprecated // Køing - i tillegg til aksjonspunkt. 532 forekomster i HISTORIKKINNSLAG_FELT
     KØET_BEHANDLING("KØET-BEHANDLING", "Søker eller den andre forelderen har en åpen behandling"),
-    @Deprecated // Infotrygd hendelse-feed. 2 behandlinger med forekomst
+    @Deprecated // Infotrygd hendelse-feed. 2 forekomster i HISTORIKKINNSLAG_FELT
     RE_TILSTØTENDE_YTELSE_INNVILGET("RE-TILST-YT-INNVIL", "Tilstøtende ytelse innvilget"),
-    @Deprecated // Ukjent intensjon. Ingen forekomster i DB. Kan slettes
-    RE_ENDRING_BEREGNINGSGRUNNLAG("RE-ENDR-BER-GRUN", "Nye opplysninger som kan påvirke beregningsgrunnlaget"),
-    @Deprecated // Infotrygd hendelse-feed. 2 behandlinger med forekomst
+    @Deprecated // Infotrygd hendelse-feed. 2 forekomster i HISTORIKKINNSLAG_FELT
     RE_TILSTØTENDE_YTELSE_OPPHØRT("RE-TILST-YT-OPPH", "Tilstøtende ytelse opphørt"),
 
     // La stå
@@ -162,8 +163,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     }
 
     public static Set<BehandlingÅrsakType> årsakerForAutomatiskRevurdering() {
-        return Set.of(RE_MANGLER_FØDSEL, RE_MANGLER_FØDSEL_I_PERIODE, RE_AVVIK_ANTALL_BARN,
-            RE_TILSTØTENDE_YTELSE_INNVILGET, RE_ENDRING_BEREGNINGSGRUNNLAG, RE_TILSTØTENDE_YTELSE_OPPHØRT);
+        return Set.of(RE_MANGLER_FØDSEL, RE_MANGLER_FØDSEL_I_PERIODE, RE_AVVIK_ANTALL_BARN);
     }
 
     public static Set<BehandlingÅrsakType> årsakerForEtterkontroll() {
