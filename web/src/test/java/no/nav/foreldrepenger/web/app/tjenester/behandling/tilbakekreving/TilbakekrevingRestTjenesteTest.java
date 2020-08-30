@@ -78,7 +78,7 @@ public class TilbakekrevingRestTjenesteTest {
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
             .medNavn("navn")
             .medFødselsdato(LocalDate.now().minusYears(25))
-            .medForetrukketSpråk(Språkkode.nb)
+            .medForetrukketSpråk(Språkkode.NB)
             .build();
         NavBruker navBruker = NavBruker.opprettNy(personinfo);
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, RelasjonsRolleType.MORA, new Saksnummer("123456"));

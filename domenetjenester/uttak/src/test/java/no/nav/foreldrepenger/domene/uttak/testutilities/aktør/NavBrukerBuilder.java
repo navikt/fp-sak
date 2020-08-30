@@ -8,8 +8,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.domene.uttak.testutilities.aktør.NavBrukerBuilder;
-import no.nav.foreldrepenger.domene.uttak.testutilities.aktør.NavPersoninfoBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class NavBrukerBuilder {

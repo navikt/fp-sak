@@ -15,10 +15,9 @@ import java.util.stream.Stream;
 
 import org.threeten.extra.Interval;
 
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class PersonopplysningerAggregat {
 
@@ -32,7 +31,7 @@ public class PersonopplysningerAggregat {
     private final List<StatsborgerskapEntitet> aktuelleStatsborgerskap;
     private final OppgittAnnenPartEntitet oppgittAnnenPart;
 
-    public PersonopplysningerAggregat(PersonopplysningGrunnlagEntitet grunnlag, AktørId aktørId, DatoIntervallEntitet forPeriode, Map<Landkoder, Region> landkoderRegionMap) {
+    public PersonopplysningerAggregat(PersonopplysningGrunnlagEntitet grunnlag, AktørId aktørId, DatoIntervallEntitet forPeriode) {
         this.søkerAktørId = aktørId;
         this.oppgittAnnenPart = grunnlag.getOppgittAnnenPart().orElse(null);
         if (grunnlag.getRegisterVersjon().isPresent()) {
@@ -63,7 +62,7 @@ public class PersonopplysningerAggregat {
                     .stream()
                     .filter(adr -> erIkkeSøker(aktørId, adr.getAktørId()) ||
                         erGyldigIPeriode(forPeriode, adr.getPeriode()))
-                    .peek(sb -> sb.setRegion(landkoderRegionMap.get(sb.getStatsborgerskap())))
+                    .peek(sb -> sb.setRegion(MapRegionLandkoder.mapLandkode(sb.getStatsborgerskap().getKode())))
                     .collect(Collectors.toList());
         } else {
             this.alleRelasjoner = Collections.emptyList();
@@ -116,20 +115,8 @@ public class PersonopplysningerAggregat {
     public List<StatsborgerskapEntitet> getStatsborgerskapFor(AktørId aktørId) {
         return aktuelleStatsborgerskap.stream()
                 .filter(ss -> ss.getAktørId().equals(aktørId))
-                .sorted(Comparator.comparing(this::rangerRegion))
+                .sorted(Comparator.comparing(s -> s.getRegion().getRank()))
                 .collect(Collectors.toList());
-    }
-
-    // Det finnes ingen definert rangering for regioner. Men venter med å generalisere til det finnes use-caser som
-    // krever en annen rangering enn nedenfor.
-    private Integer rangerRegion(StatsborgerskapEntitet region) {
-        if (region.getRegion().equals(Region.NORDEN)) {
-            return 1;
-        }
-        if (region.getRegion().equals(Region.EOS)) {
-            return 2;
-        }
-        return 3;
     }
 
     public PersonstatusEntitet getPersonstatusFor(AktørId aktørId) {

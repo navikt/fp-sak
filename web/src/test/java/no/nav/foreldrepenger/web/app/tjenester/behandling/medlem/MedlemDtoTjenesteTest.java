@@ -12,7 +12,6 @@ import java.time.Period;
 import java.util.Optional;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
@@ -22,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapMa
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingsgrunnlagKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
@@ -58,8 +56,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.Perso
 public class MedlemDtoTjenesteTest {
 
     private final InntektArbeidYtelseTjeneste iayTjeneste = mock(InntektArbeidYtelseTjeneste.class);
-
-    private final BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository = Mockito.mock(BehandlingsgrunnlagKodeverkRepository.class);
 
     String orgnr = KUNSTIG_ORG;
 
@@ -105,7 +101,6 @@ public class MedlemDtoTjenesteTest {
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
 
         PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(),
-            behandlingsgrunnlagKodeverkRepository,
             null,
             mock(VergeRepository.class),
             mock(NavBrukerRepository.class));
@@ -170,7 +165,6 @@ public class MedlemDtoTjenesteTest {
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
 
         PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(),
-            behandlingsgrunnlagKodeverkRepository,
             null,
             mock(VergeRepository.class),
             mock(NavBrukerRepository.class));
@@ -242,7 +236,6 @@ public class MedlemDtoTjenesteTest {
             .build();
 
         PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(),
-            behandlingsgrunnlagKodeverkRepository,
             null,
             mock(VergeRepository.class),
             mock(NavBrukerRepository.class));

@@ -1,17 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import org.hibernate.annotations.JoinColumnOrFormula;
-import org.hibernate.annotations.JoinFormula;
 
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -28,10 +24,9 @@ public class NavBruker extends Person {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    @ManyToOne(optional = false)
-    @JoinColumnOrFormula(column = @JoinColumn(name = "sprak_kode", referencedColumnName = "kode", nullable = false))
-    @JoinColumnOrFormula(formula = @JoinFormula(referencedColumnName = "kodeverk", value = "'" + Språkkode.DISCRIMINATOR + "'"))
-    private Språkkode språkkode = Språkkode.UDEFINERT;
+    @Convert(converter = Språkkode.KodeverdiConverter.class)
+    @Column(name="sprak_kode", nullable = false)
+    private Språkkode språkkode = Språkkode.NB;
 
     private NavBruker() {
         super(null);

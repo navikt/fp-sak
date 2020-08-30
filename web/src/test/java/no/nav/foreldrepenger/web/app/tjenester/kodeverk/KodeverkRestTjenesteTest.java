@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.kodeverk;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverkTjeneste;
@@ -50,11 +50,11 @@ public class KodeverkRestTjenesteTest {
         Map<String, Object> gruppertKodeliste = new JacksonJsonConfig().getObjectMapper().readValue(rawJson, Map.class);
 
         assertThat(gruppertKodeliste.keySet())
-            .contains(FagsakStatus.class.getSimpleName(), Avslagsårsak.class.getSimpleName(), Landkoder.class.getSimpleName(), Region.class.getSimpleName());
-        
+            .contains(FagsakStatus.class.getSimpleName(), Avslagsårsak.class.getSimpleName(), Landkoder.class.getSimpleName());
+
         assertThat(gruppertKodeliste.keySet())
-            .containsAll(HentKodeverkTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.keySet().stream().collect(Collectors.toSet()));
-        
+            .containsAll(new HashSet<>(HentKodeverkTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.keySet()));
+
         assertThat(gruppertKodeliste.keySet()).hasSize(HentKodeverkTjeneste.KODEVERK_SOM_BRUKES_PÅ_KLIENT.size() + HentKodeverkTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.size());
 
         var fagsakStatuser = (List<Map<String, String>>) gruppertKodeliste.get(FagsakStatus.class.getSimpleName());
@@ -69,15 +69,15 @@ public class KodeverkRestTjenesteTest {
             .contains(Avslagsårsak.ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR.getKode(),
                 Avslagsårsak.ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR.getKode());
     }
-    
+
     @Test
     public void serialize_kodeverdi_enums() throws Exception {
         JacksonJsonConfig jsonConfig = new JacksonJsonConfig();
-        
+
         ObjectMapper om = jsonConfig.getObjectMapper();
-        
+
         String json = om.writer().withDefaultPrettyPrinter().writeValueAsString(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
-        
+
         System.out.println(json);
     }
 

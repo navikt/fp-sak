@@ -50,7 +50,7 @@ public class HendelseHåndteringRepositoryImplTest {
             .medNavn("Mor Hansen")
             .medFødselsdato(LocalDate.of(1995, DECEMBER, 1))
             .medNavBrukerKjønn(KVINNE)
-            .medForetrukketSpråk(Språkkode.nb)
+            .medForetrukketSpråk(Språkkode.NB)
             .build();
 
         NavBruker navBruker = NavBruker.opprettNy(personinfo);

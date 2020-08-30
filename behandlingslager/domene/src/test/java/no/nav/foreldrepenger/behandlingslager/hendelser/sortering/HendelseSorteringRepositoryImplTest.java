@@ -46,7 +46,7 @@ public class HendelseSorteringRepositoryImplTest {
         var personer = genererFagsaker(1);
 
         AktørId aktørId = personer.get(0).getAktørId();
-        
+
         List<AktørId> finnAktørIder = List.of(aktørId);
         List<AktørId> resultat = sorteringRepository.hentEksisterendeAktørIderMedSak(finnAktørIder);
 
@@ -213,7 +213,7 @@ public class HendelseSorteringRepositoryImplTest {
         List<Personinfo> personinfoList = genererPersonInfo(1);
         NavBruker navBruker = NavBruker.opprettNy(personinfoList.get(0));
         AktørId morAktørId = navBruker.getAktørId();
-        
+
         Fagsak fagsak = opprettFagsak(navBruker, FagsakYtelseType.FORELDREPENGER);
         repository.lagre(navBruker);
         repository.lagre(fagsak);
@@ -279,7 +279,7 @@ public class HendelseSorteringRepositoryImplTest {
     private List<Personinfo> genererPersonInfo(int antall) {
         String fnr = "123456678901";
 
-        
+
         List<Personinfo> personinfoList = new ArrayList<>();
         for (int i = 0; i < antall; i++) {
             personinfoList.add(
@@ -289,7 +289,7 @@ public class HendelseSorteringRepositoryImplTest {
                     .medNavn("Kari Nordmann")
                     .medFødselsdato(LocalDate.of(1990, JANUARY, 1))
                     .medNavBrukerKjønn(KVINNE)
-                    .medForetrukketSpråk(Språkkode.nb)
+                    .medForetrukketSpråk(Språkkode.NB)
                     .build()
             );
         }

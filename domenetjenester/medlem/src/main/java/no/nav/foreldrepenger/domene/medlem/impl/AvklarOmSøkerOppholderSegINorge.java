@@ -21,10 +21,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingsgrunnlagKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -37,15 +37,12 @@ public class AvklarOmSøkerOppholderSegINorge {
     private FamilieHendelseRepository familieGrunnlagRepository;
     private SøknadRepository søknadRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
-    private BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
     public AvklarOmSøkerOppholderSegINorge(BehandlingRepositoryProvider repositoryProvider,
-                                           BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository,
                                            PersonopplysningTjeneste personopplysningTjeneste,
                                            InntektArbeidYtelseTjeneste iayTjeneste) {
         this.iayTjeneste = iayTjeneste;
-        this.behandlingsgrunnlagKodeverkRepository = behandlingsgrunnlagKodeverkRepository;
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.personopplysningTjeneste = personopplysningTjeneste;
@@ -54,10 +51,7 @@ public class AvklarOmSøkerOppholderSegINorge {
     public Optional<MedlemResultat> utled(BehandlingReferanse ref, LocalDate vurderingstidspunkt) {
         Long behandlingId = ref.getBehandlingId();
         final List<String> landkoder = getLandkode(ref.getBehandlingId(), ref.getAktørId(), vurderingstidspunkt);
-        Region region = Region.UDEFINERT;
-        if (!landkoder.isEmpty()) {
-            region = behandlingsgrunnlagKodeverkRepository.finnHøyestRangertRegion(landkoder);
-        }
+        Region region = MapRegionLandkoder.mapRangerLandkoder(landkoder);
         if ((harFødselsdato(behandlingId) == JA) || (harDatoForOmsorgsovertakelse(behandlingId) == JA)) {
             return Optional.empty();
         }

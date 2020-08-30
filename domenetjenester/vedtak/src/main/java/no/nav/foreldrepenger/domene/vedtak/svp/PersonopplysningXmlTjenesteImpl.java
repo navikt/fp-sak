@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
@@ -80,13 +79,12 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     @Inject
     public PersonopplysningXmlTjenesteImpl(PersonopplysningXmlFelles fellesTjeneste,
                                            BehandlingRepositoryProvider provider,
-                                           KodeverkRepository kodeverkRepository,
                                            PersonopplysningTjeneste personopplysningTjeneste,
                                            InntektArbeidYtelseTjeneste iayTjeneste,
                                            YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                            VergeRepository vergeRepository,
                                            VirksomhetTjeneste virksomhetTjeneste) {
-        super(personopplysningTjeneste, kodeverkRepository);
+        super(personopplysningTjeneste);
         this.personopplysningFellesTjeneste = fellesTjeneste;
         this.iayTjeneste = iayTjeneste;
         this.virksomhetTjeneste = virksomhetTjeneste;

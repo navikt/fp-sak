@@ -60,7 +60,7 @@ public class OpprettSakTjenesteImplTest {
             .medFødselsdato(LocalDate.of(1980, 1, 1))
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
             .medAktørId(aktørId)
-            .medForetrukketSpråk(Språkkode.nb).build();
+            .medForetrukketSpråk(Språkkode.NB).build();
         when(tpsTjenesteMock.hentBrukerForAktør(any(AktørId.class))).thenReturn(Optional.of(personinfo));
 
         //Mock BersonTjeneste

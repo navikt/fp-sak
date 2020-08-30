@@ -11,13 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.JoinColumnOrFormula;
-import org.hibernate.annotations.JoinColumnsOrFormulas;
-import org.hibernate.annotations.JoinFormula;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
@@ -52,10 +46,8 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
     @Column(name = "utl_person_ident")
     private String utenlandskPersonident;
 
-    @ManyToOne(optional = false)
-    @JoinColumnsOrFormulas({
-            @JoinColumnOrFormula(column = @JoinColumn(name = "utl_person_ident_land", referencedColumnName = "kode", nullable = false)),
-            @JoinColumnOrFormula(formula = @JoinFormula(referencedColumnName = "kodeverk", value = "'" + Landkoder.DISCRIMINATOR + "'")) })
+    @Convert(converter = Landkoder.KodeverdiConverter.class)
+    @Column(name="utl_person_ident_land", nullable = false)
     private Landkoder utenlandskPersonidentLand = Landkoder.UDEFINERT;
 
     @Column(name = "ARSAK")

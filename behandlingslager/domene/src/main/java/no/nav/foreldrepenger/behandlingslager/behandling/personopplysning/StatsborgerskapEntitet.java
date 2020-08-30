@@ -5,6 +5,7 @@ import java.util.Objects;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,17 +16,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.JoinColumnOrFormula;
-import org.hibernate.annotations.JoinFormula;
-
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.HarAktørId;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @Entity(name = "PersonopplysningStatsborgerskap")
 @Table(name = "PO_STATSBORGERSKAP")
@@ -43,9 +41,8 @@ public class StatsborgerskapEntitet extends BaseEntitet implements HarAktørId, 
     private DatoIntervallEntitet periode;
 
     @ChangeTracked
-    @ManyToOne
-    @JoinColumnOrFormula(column = @JoinColumn(name = "statsborgerskap", referencedColumnName = "kode", nullable = false))
-    @JoinColumnOrFormula(formula = @JoinFormula(referencedColumnName = "kodeverk", value = "'" + Landkoder.DISCRIMINATOR + "'"))
+    @Convert(converter = Landkoder.KodeverdiConverter.class)
+    @Column(name="statsborgerskap", nullable = false)
     private Landkoder statsborgerskap = Landkoder.UDEFINERT;
 
     @ManyToOne(optional = false)

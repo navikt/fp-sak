@@ -78,7 +78,7 @@ public class VergeOppdatererTest {
             .medPersonIdent(new PersonIdent(new FiktiveFnr().nesteKvinneFnr()))
             .medFødselsdato(LocalDate.now().minusYears(33))
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medForetrukketSpråk(Språkkode.nb)
+            .medForetrukketSpråk(Språkkode.NB)
             .build();
 
         vergeBruker = NavBruker.opprettNy(pInfo);

@@ -169,7 +169,7 @@ public class UttakStegImplTest {
                 .medLandkode(Landkoder.NOR)
                 .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
                 .medPersonIdent(PersonIdent.fra("12312312312"))
-                .medForetrukketSpråk(Språkkode.nb)
+                .medForetrukketSpråk(Språkkode.NB)
                 .build())
             .build();
         fagsakRepository.opprettNy(fagsak);

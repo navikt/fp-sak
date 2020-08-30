@@ -56,13 +56,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingsgrunnlagKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
@@ -115,12 +114,10 @@ public class RegisterdataInnhenter {
     private PersonopplysningRepository personopplysningRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private BehandlingRepository behandlingRepository;
-    private KodeverkRepository kodeverkRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private MedlemskapRepository medlemskapRepository;
     private SøknadRepository søknadRepository;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
-    private BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository;
     private AbakusTjeneste abakusTjeneste;
     private AbakusInnhentingGrunnlagLoggRepository loggRepository;
     private Period etterkontrollTidsromFørSøknadsdato;
@@ -138,10 +135,8 @@ public class RegisterdataInnhenter {
     public RegisterdataInnhenter(PersoninfoAdapter personinfoAdapter, // NOSONAR - krever mange parametere
                                  MedlemTjeneste medlemTjeneste,
                                  BehandlingRepositoryProvider repositoryProvider,
-                                 KodeverkRepository kodeverkRepository,
                                  FamilieHendelseTjeneste familieHendelseTjeneste,
                                  MedlemskapRepository medlemskapRepository,
-                                 BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository,
                                  OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
                                  AbakusTjeneste abakusTjeneste,
                                  AbakusInnhentingGrunnlagLoggRepository loggRepository,
@@ -154,8 +149,6 @@ public class RegisterdataInnhenter {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.medlemskapRepository = medlemskapRepository;
-        this.behandlingsgrunnlagKodeverkRepository = behandlingsgrunnlagKodeverkRepository;
-        this.kodeverkRepository = kodeverkRepository;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
         this.abakusTjeneste = abakusTjeneste;
@@ -262,10 +255,9 @@ public class RegisterdataInnhenter {
 
     private void mapStatsborgerskap(List<StatsborgerskapPeriode> statsborgerskaphistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
         for (StatsborgerskapPeriode statsborgerskap : statsborgerskaphistorikk) {
-            final Landkoder landkode = kodeverkRepository.finn(Landkoder.class, statsborgerskap.getStatsborgerskap().getLandkode());
+            final Landkoder landkode = Landkoder.fraKode(statsborgerskap.getStatsborgerskap().getLandkode());
 
-            Region region = behandlingsgrunnlagKodeverkRepository
-                .finnHøyestRangertRegion(Collections.singletonList(statsborgerskap.getStatsborgerskap().getLandkode()));
+            Region region = MapRegionLandkoder.mapLandkode(statsborgerskap.getStatsborgerskap().getLandkode());
 
             final DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(brukFødselsdatoHvisEtter(
                 statsborgerskap.getGyldighetsperiode().getFom(), personinfo.getFødselsdato()), statsborgerskap.getGyldighetsperiode().getTom());
