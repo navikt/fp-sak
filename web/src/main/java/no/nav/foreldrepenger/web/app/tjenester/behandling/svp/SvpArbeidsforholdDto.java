@@ -26,6 +26,7 @@ public class SvpArbeidsforholdDto {
     private String internArbeidsforholdReferanse;
     private String eksternArbeidsforholdReferanse;
     private boolean skalBrukes = true;
+    private List<VelferdspermisjonDto> velferdspermisjoner = new ArrayList<>();
 
     @Size(max = 4000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
@@ -142,4 +143,13 @@ public class SvpArbeidsforholdDto {
     public void setArbeidsgiverIdentVisning(String arbeidsgiverIdentVisning) {
         this.arbeidsgiverIdentVisning = arbeidsgiverIdentVisning;
     }
+
+    public List<VelferdspermisjonDto> getVelferdspermisjoner() {
+        return velferdspermisjoner;
+    }
+
+    public void setVelferdspermisjoner(List<VelferdspermisjonDto> velferdspermisjoner) {
+        this.velferdspermisjoner = velferdspermisjoner;
+    }
+
 }
