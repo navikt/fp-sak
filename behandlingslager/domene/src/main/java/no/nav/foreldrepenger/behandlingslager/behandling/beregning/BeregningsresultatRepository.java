@@ -4,6 +4,7 @@ import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -150,6 +151,19 @@ public class BeregningsresultatRepository {
         query.setHint(QueryHints.HINT_READONLY, "true");//$NON-NLS-1$
         query.getResultList();
         return hentEksaktResultat(query);
+    }
+
+    public BeregningSats finnGjeldendeSats(BeregningSatsType satsType) {
+        TypedQuery<BeregningSats> query = entityManager.createQuery("from BeregningSats where satsType=:satsType", BeregningSats.class); //$NON-NLS-1$
+
+        query.setParameter("satsType", satsType); //$NON-NLS-1$
+        return query.getResultList().stream()
+            .max(Comparator.comparing(s -> s.getPeriode().getFomDato())).orElseThrow(() -> new IllegalStateException("Fant ikke nyeste sats"));
+    }
+
+    public void lagreSats(BeregningSats sats) {
+        entityManager.persist(sats);
+        entityManager.flush();
     }
 
     public long avkortingMultiplikatorG(@SuppressWarnings("unused") LocalDate dato) {

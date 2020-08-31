@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.persistence.Column;
@@ -60,6 +61,12 @@ public class BeregningSats extends BaseEntitet {
 
     public BeregningSatsType getSatsType() {
         return Objects.equals(BeregningSatsType.UDEFINERT, satsType) ? null : satsType;
+    }
+
+    public void setTomDato(LocalDate tom) {
+        if (tom == null || !tom.isAfter(periode.getFomDato()))
+            throw new IllegalArgumentException("Feil tomdato " + tom);
+        periode = DatoIntervallEntitet.fraOgMedTilOgMed(periode.getFomDato(), tom);
     }
 
     @Override

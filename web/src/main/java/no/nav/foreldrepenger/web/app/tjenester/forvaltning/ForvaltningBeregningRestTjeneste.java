@@ -1,8 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
+import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRIFT;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.Period;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,8 +19,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -46,7 +51,11 @@ import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.Beregningsgrunnl
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task.OpprettGrunnbeløpTask;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task.TilbakerullingBeregningTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
@@ -54,6 +63,8 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BeregningSatsDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerEnhetDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -66,20 +77,22 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 @Transactional
 public class ForvaltningBeregningRestTjeneste {
     private static final Period MELDEKORT_PERIODE_UTV = Period.parse("P30D");
-    private static final Logger logger = LoggerFactory.getLogger(ForvaltningBeregningRestTjeneste.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ForvaltningBeregningRestTjeneste.class);
 
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
+    private BeregningsresultatRepository beregningsresultatRepository;
 
     @Inject
     public ForvaltningBeregningRestTjeneste(
-        BeregningsgrunnlagRepository beregningsgrunnlagRepository, BehandlingRepository behandlingRepository,
+        BeregningsgrunnlagRepository beregningsgrunnlagRepository, BehandlingRepositoryProvider repositoryProvider,
         ProsessTaskRepository prosessTaskRepository, InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste, BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
-        this.behandlingRepository = behandlingRepository;
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.prosessTaskRepository = prosessTaskRepository;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.beregningsgrunnlagInputProvider = beregningsgrunnlagInputProvider;
@@ -87,6 +100,76 @@ public class ForvaltningBeregningRestTjeneste {
 
     public ForvaltningBeregningRestTjeneste() {
         //CDI
+    }
+
+    @GET
+    @Path("/satsHentGjeldende")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Hent liste av gjeldende eller nyeste sats",
+        tags = "FORVALTNING-beregning",
+        responses = {
+            @ApiResponse(responseCode = "200",
+                description = "Gjeldende satser",
+                content = @Content(
+                    array = @ArraySchema(
+                        arraySchema = @Schema(implementation = List.class),
+                        schema = @Schema(implementation = BeregningSatsDto.class)),
+                    mediaType = MediaType.APPLICATION_JSON
+                )
+            )
+        })
+    @BeskyttetRessurs(action = READ, ressurs = DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public List<BeregningSatsDto> hentGjeldendeSatser() {
+        return Set.of(BeregningSatsType.ENGANG, BeregningSatsType.GRUNNBELØP, BeregningSatsType.GSNITT).stream()
+            .map(beregningsresultatRepository::finnGjeldendeSats)
+            .map(BeregningSatsDto::new)
+            .collect(Collectors.toList());
+    }
+
+    @POST
+    @Path("/satsLagreNy")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lagre ny sats", tags = "FORVALTNING-beregning",
+        responses = {
+            @ApiResponse(responseCode = "200",
+                description = "Gjeldende satser",
+                content = @Content(
+                    array = @ArraySchema(
+                        arraySchema = @Schema(implementation = List.class),
+                        schema = @Schema(implementation = BeregningSatsDto.class)),
+                    mediaType = MediaType.APPLICATION_JSON
+                )
+            )
+        })
+    @BeskyttetRessurs(action = CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    public List<BeregningSatsDto> lagreNySats(@BeanParam @Valid @NotNull BeregningSatsDto dto) {
+        var type = dto.getSatsType();
+        var brukTom = dto.getSatsTom() != null ? dto.getSatsTom() : LocalDate.now().plusYears(99);
+        var gjeldende = beregningsresultatRepository.finnGjeldendeSats(type);
+        if (!sjekkVerdierOK(dto, gjeldende, brukTom))
+            throw new IllegalArgumentException("Ulovlige verdier " + dto);
+        LOGGER.warn("SATSJUSTERTING: sjekk med produkteier om det er ventet, noter usedId i loggen {}", dto);
+        gjeldende.setTomDato(dto.getSatsFom().minusDays(1));
+        beregningsresultatRepository.lagreSats(gjeldende);
+        var nysats = new BeregningSats(type, DatoIntervallEntitet.fraOgMedTilOgMed(dto.getSatsFom(), brukTom), dto.getSatsVerdi());
+        beregningsresultatRepository.lagreSats(nysats);
+        var nygjeldende = beregningsresultatRepository.finnGjeldendeSats(type);
+        return Set.of(gjeldende, nygjeldende).stream().map(BeregningSatsDto::new).collect(Collectors.toList());
+    }
+
+    private boolean sjekkVerdierOK(BeregningSatsDto dto, BeregningSats gjeldende, LocalDate brukTom) {
+        if (!brukTom.isAfter(dto.getSatsFom()) || !dto.getSatsFom().isAfter(gjeldende.getPeriode().getFomDato()))
+            return false;
+        if (BeregningSatsType.GRUNNBELØP.equals(gjeldende.getSatsType())) {
+            return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom()) && Month.MAY.equals(dto.getSatsFom().getMonth()) &&  dto.getSatsFom().getDayOfMonth() == 1;
+        }
+        if (BeregningSatsType.ENGANG.equals(gjeldende.getSatsType())) {
+            return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom());
+        }
+        // GSNITT skal være bounded
+        return  dto.getSatsTom() != null && dto.getSatsFom().equals(gjeldende.getPeriode().getTomDato().plusDays(1)) && dto.getSatsTom().equals(dto.getSatsFom().plusYears(1).minusDays(1));
     }
 
 
@@ -137,7 +220,7 @@ public class ForvaltningBeregningRestTjeneste {
             .map(BeregningsgrunnlagGrunnlagEntitet::getBehandlingId)
             .map(behandlingRepository::hentBehandling)
             .collect(Collectors.toSet());
-        logger.info("Fant {} behandlinger som må sjekkes", behandlinger.size());
+        LOGGER.info("Fant {} behandlinger som må sjekkes", behandlinger.size());
         Set<SaksnummerEnhetDto> liste = new HashSet<>();
         for (Behandling behandling : behandlinger) {
             BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = grunnlagList.stream().filter(gr -> gr.getBehandlingId().equals(behandling.getId())).findFirst().orElseThrow();
