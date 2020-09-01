@@ -34,7 +34,7 @@
     "LOADBALANCER_URL": "https://fpsak.dev.adeo.no",
     "LOADBALANCER_FPSAK_POOLNAME": "nais",
     "LOADBALANCER_FPSAK_CONTEXTROOTS": "fpsak",
-    "OIDC_OPENAM_AGENTNAME": "fpsak-q1",
+    "OIDC_OPENAM_AGENTNAME": "fpsak-teamforeldrepenger",
     "OIDC_OPENAM_HOSTURL": "https://isso-q.adeo.no:443/isso/oauth2",
     "OIDC_OPENAM_ISSUERURL": "https://isso-q.adeo.no:443/isso/oauth2",
     "OIDC_OPENAM_JWKSURL": "https://isso-q.adeo.no:443/isso/oauth2/connect/jwk_uri",
