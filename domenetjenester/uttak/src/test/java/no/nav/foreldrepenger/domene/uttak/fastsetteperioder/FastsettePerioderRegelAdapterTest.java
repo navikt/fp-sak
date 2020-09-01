@@ -99,14 +99,10 @@ public class FastsettePerioderRegelAdapterTest {
     private final LocalDate mottattDato = LocalDate.of(2018, 6, 22);
 
     private final Konfigurasjon konfigurasjon = StandardKonfigurasjon.KONFIGURASJON;
-    private final int virkedagar_i_ei_veke = 5;
     private final int uker_før_fødsel_fellesperiode_grense = konfigurasjon.getParameter(Parametertype.LOVLIG_UTTAK_FØR_FØDSEL_UKER, fødselsdato);
     private final int uker_før_fødsel_foreldrepenger_grense = konfigurasjon.getParameter(Parametertype.UTTAK_FELLESPERIODE_FØR_FØDSEL_UKER, fødselsdato);
     private final int veker_etter_fødsel_mødrekvote_grense = konfigurasjon.getParameter(Parametertype.UTTAK_MØDREKVOTE_ETTER_FØDSEL_UKER, fødselsdato);
-    private final int maxDagerMødrekvote = 75;
     private final int maxDagerForeldrepengerFørFødsel = 15;
-    private final int maxDagerFedrekvote = 75;
-    private final int maxDagerFellesperiode = 80;
 
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
@@ -140,7 +136,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
-        return scenario.lagre(repositoryProvider, iayTjeneste::lagreIayAggregat, iayTjeneste::lagreOppgittOpptjening);
+        return scenario.lagre(repositoryProvider, iayTjeneste::lagreIayAggregat);
     }
 
     @Test
@@ -233,7 +229,7 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(foreldrePengerUttakPeriode.getFom()).isEqualTo(fødselsdato.minusWeeks(3));
         assertThat(foreldrePengerUttakPeriode.getTom()).isEqualTo(fødselsdato.minusDays(1));
 
-        int gjenståendeDager_foreldrepenger = uker_før_fødsel_foreldrepenger_grense * virkedagar_i_ei_veke - maxDagerForeldrepengerFørFødsel;
+        int gjenståendeDager_foreldrepenger = uker_før_fødsel_foreldrepenger_grense * 5 - maxDagerForeldrepengerFørFødsel;
         assertThat(maxDagerForeldrepengerFørFødsel - foreldrePengerUttakPeriode.getAktiviteter().get(0).getTrekkdager().decimalValue().intValue())
             .isEqualTo(gjenståendeDager_foreldrepenger);
 
@@ -445,7 +441,6 @@ public class FastsettePerioderRegelAdapterTest {
     @Test
     public void søknadMedOppholdForAnnenForelderFellesperiodeOgIkkeNokDagerPåKontoTest() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
-        LocalDate startDatoMødrekvote = fødselsdato;
         LocalDate sluttDatoMødrekvote = fødselsdato.plusWeeks(veker_etter_fødsel_mødrekvote_grense).minusDays(1);
 
         LocalDate startDatoOpphold = sluttDatoMødrekvote.plusDays(1);
@@ -456,14 +451,14 @@ public class FastsettePerioderRegelAdapterTest {
 
         OppgittPeriodeEntitet førFødsel = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
-            .medPeriode(startDatoMødrekvote.minusWeeks(3), startDatoMødrekvote.minusDays(1))
+            .medPeriode(fødselsdato.minusWeeks(3), fødselsdato.minusDays(1))
             .medSamtidigUttak(false)
             .medArbeidsgiver(virksomhet)
             .build();
 
         OppgittPeriodeEntitet mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medPeriode(startDatoMødrekvote, sluttDatoMødrekvote)
+            .medPeriode(fødselsdato, sluttDatoMødrekvote)
             .medSamtidigUttak(false)
             .medArbeidsgiver(virksomhet)
             .build();
@@ -527,7 +522,6 @@ public class FastsettePerioderRegelAdapterTest {
     @Test
     public void søknadMedMerEnnTilgjengeligDagerForOpphold() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
-        LocalDate startDatoMødrekvote = fødselsdato;
         LocalDate sluttDatoMødrekvote = fødselsdato.plusWeeks(veker_etter_fødsel_mødrekvote_grense).minusDays(1);
 
         LocalDate startDatoOpphold = sluttDatoMødrekvote.plusDays(1);
@@ -538,14 +532,14 @@ public class FastsettePerioderRegelAdapterTest {
 
         OppgittPeriodeEntitet førFødsel = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
-            .medPeriode(startDatoMødrekvote.minusWeeks(3), startDatoMødrekvote.minusDays(1))
+            .medPeriode(fødselsdato.minusWeeks(3), fødselsdato.minusDays(1))
             .medSamtidigUttak(false)
             .medArbeidsgiver(virksomhet)
             .build();
 
         OppgittPeriodeEntitet mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medPeriode(startDatoMødrekvote, sluttDatoMødrekvote)
+            .medPeriode(fødselsdato, sluttDatoMødrekvote)
             .medSamtidigUttak(false)
             .medArbeidsgiver(virksomhet)
             .build();
@@ -595,7 +589,6 @@ public class FastsettePerioderRegelAdapterTest {
     @Test
     public void morSøkerMødrekvoteOgFedrekvote_FårInnvilgetMødrekvoteOgFedrekvoteGårTilManuellBehandling() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
-        LocalDate startDatoMødrekvote = fødselsdato;
         LocalDate sluttDatoMødrekvote = fødselsdato.plusWeeks(veker_etter_fødsel_mødrekvote_grense).minusDays(1);
 
         LocalDate startDatoFedrekvote = sluttDatoMødrekvote.plusDays(1);
@@ -605,7 +598,7 @@ public class FastsettePerioderRegelAdapterTest {
         Arbeidsgiver virksomhet = virksomhet();
         OppgittPeriodeEntitet mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medPeriode(startDatoMødrekvote, sluttDatoMødrekvote)
+            .medPeriode(fødselsdato, sluttDatoMødrekvote)
             .medArbeidsgiver(virksomhet)
             .medSamtidigUttak(false)
             .build();
@@ -617,7 +610,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medSamtidigUttak(false)
             .build();
 
-        Behandling behandling = setupMor(List.of(mødrekvote, fedrekvote), virksomhet, startDatoMødrekvote.minusYears(1), sluttDatoFedrekvote);
+        Behandling behandling = setupMor(List.of(mødrekvote, fedrekvote), virksomhet, fødselsdato.minusYears(1), sluttDatoFedrekvote);
         UttakBeregningsandelTjenesteTestUtil beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet(), null);
 
@@ -643,7 +636,7 @@ public class FastsettePerioderRegelAdapterTest {
             .filter(uttakResultatPeriode -> uttakResultatPeriode.getAktiviteter().get(0).getTrekkonto().getKode().equals(StønadskontoType.MØDREKVOTE.getKode()))
             .collect(Collectors.toList());
         assertThat(mødrekvotePerioder).hasSize(1);
-        assertThat(mødrekvotePerioder.get(0).getFom()).isEqualTo(startDatoMødrekvote);
+        assertThat(mødrekvotePerioder.get(0).getFom()).isEqualTo(fødselsdato);
         assertThat(mødrekvotePerioder.get(0).getTom()).isEqualTo(sluttDatoMødrekvote);
         assertThat(mødrekvotePerioder.get(0).getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
         assertThat(mødrekvotePerioder.get(0).getResultatÅrsak().getKode()).isEqualTo("2003");
@@ -926,7 +919,7 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(gradertMødrekvote.getResultatÅrsak()).isInstanceOf(InnvilgetÅrsak.class);
         assertThat(gradertMødrekvote.isGraderingInnvilget()).isTrue();
         assertThat(gradertMødrekvote.getGraderingAvslagÅrsak()).isEqualTo(GraderingAvslagÅrsak.UKJENT);
-        assertThat(aktivitetGradertMørdrekvoteVirksomhet1.getTrekkdager()).isEqualTo(new Trekkdager(new BigDecimal(5.5)));
+        assertThat(aktivitetGradertMørdrekvoteVirksomhet1.getTrekkdager()).isEqualTo(new Trekkdager(new BigDecimal("5.5")));
         assertThat(aktivitetGradertMørdrekvoteVirksomhet1.getArbeidsprosent()).isEqualTo(arbeidsprosent);
         assertThat(aktivitetGradertMørdrekvoteVirksomhet1.isGraderingInnvilget()).isTrue();
         assertThat(aktivitetGradertMørdrekvoteVirksomhet1.isSøktGradering()).isTrue();
@@ -1516,11 +1509,11 @@ public class FastsettePerioderRegelAdapterTest {
         scenario.medFordeling(oppgittFordeling);
         AktivitetsAvtaleBuilder aktivitetsAvtale1 = AktivitetsAvtaleBuilder.ny()
             .medProsentsats(BigDecimal.valueOf(100))
-            .medAntallTimer(BigDecimal.TEN)
+            .medSisteLønnsendringsdato(fødselsdato)
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2016, 1, 1), oppgittPeriode1.getTom()));
         AktivitetsAvtaleBuilder aktivitetsAvtale2 = AktivitetsAvtaleBuilder.ny()
             .medProsentsats(BigDecimal.ZERO)
-            .medAntallTimer(BigDecimal.TEN)
+            .medSisteLønnsendringsdato(fødselsdato)
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(oppgittPeriode2.getFom(), LocalDate.of(2020, 1, 1)));
         AktivitetsAvtaleBuilder ansettelesperiode = AktivitetsAvtaleBuilder.ny()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(oppgittPeriode1.getFom().minusYears(1), oppgittPeriode2.getTom().plusWeeks(1)));
@@ -1576,10 +1569,10 @@ public class FastsettePerioderRegelAdapterTest {
         scenario.medFordeling(oppgittFordeling);
         AktivitetsAvtaleBuilder aktivitetsAvtale1 = AktivitetsAvtaleBuilder.ny()
             .medProsentsats(BigDecimal.valueOf(100))
-            .medAntallTimer(BigDecimal.TEN)
+            .medSisteLønnsendringsdato(fødselsdato)
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2016, 1, 1), oppgittPeriode1.getTom()));
         AktivitetsAvtaleBuilder aktivitetsAvtale2 = AktivitetsAvtaleBuilder.ny()
-            .medAntallTimer(BigDecimal.ONE)
+            .medSisteLønnsendringsdato(fødselsdato)
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(oppgittPeriode2.getFom(), LocalDate.of(2020, 1, 1)));
         AktivitetsAvtaleBuilder ansettelesperiode = AktivitetsAvtaleBuilder.ny()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(oppgittPeriode1.getFom().minusYears(1), oppgittPeriode2.getTom().plusWeeks(1)));
@@ -1618,11 +1611,11 @@ public class FastsettePerioderRegelAdapterTest {
 
     private void lagreStønadskontoer(Behandling behandling) {
         Stønadskonto mødrekvote = Stønadskonto.builder().medStønadskontoType(StønadskontoType.MØDREKVOTE)
-            .medMaxDager(maxDagerMødrekvote).build();
+            .medMaxDager(75).build();
         Stønadskonto fellesperiode = Stønadskonto.builder().medStønadskontoType(StønadskontoType.FELLESPERIODE)
-            .medMaxDager(maxDagerFellesperiode).build();
+            .medMaxDager(80).build();
         Stønadskonto fedrekvote = Stønadskonto.builder().medStønadskontoType(StønadskontoType.FEDREKVOTE)
-            .medMaxDager(maxDagerFedrekvote).build();
+            .medMaxDager(75).build();
         Stønadskonto foreldrepengerFørFødsel = Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
             .medMaxDager(maxDagerForeldrepengerFørFødsel).build();
 
@@ -1700,8 +1693,7 @@ public class FastsettePerioderRegelAdapterTest {
         AktivitetsAvtaleBuilder aktivitetsAvtale = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(arbeidFom, arbeidTom))
             .medProsentsats(stillingsprosent)
-            .medAntallTimer(BigDecimal.valueOf(20.4d))
-            .medAntallTimerFulltid(BigDecimal.valueOf(10.2d));
+            .medSisteLønnsendringsdato(arbeidFom);
         AktivitetsAvtaleBuilder ansettelsesperiode = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(arbeidFom, arbeidTom));
         YrkesaktivitetBuilder yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())

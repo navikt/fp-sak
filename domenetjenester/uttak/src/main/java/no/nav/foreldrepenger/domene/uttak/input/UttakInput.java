@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -63,10 +62,6 @@ public class UttakInput {
 
     public InntektArbeidYtelseGrunnlag getIayGrunnlag() {
         return iayGrunnlag;
-    }
-
-    public Skjæringstidspunkt getSkjæringstidspunkt() {
-        return behandlingReferanse.getSkjæringstidspunkt();
     }
 
     public LocalDate getSøknadMottattDato() {

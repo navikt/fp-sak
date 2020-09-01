@@ -42,7 +42,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
     private static final AktørId AKTØR_ID_FAR = AktørId.dummy();
     @Rule
     public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repositoryRule.getEntityManager());
+    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repositoryRule.getEntityManager());
 
     @Inject
     private PersonopplysningTjeneste personopplysningTjeneste;

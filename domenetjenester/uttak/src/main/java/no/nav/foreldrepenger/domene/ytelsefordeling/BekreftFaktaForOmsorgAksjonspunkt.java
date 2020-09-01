@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 class BekreftFaktaForOmsorgAksjonspunkt {
 
-    private YtelsesFordelingRepository ytelsesFordelingRepository;
+    private final YtelsesFordelingRepository ytelsesFordelingRepository;
 
     public BekreftFaktaForOmsorgAksjonspunkt(YtelsesFordelingRepository ytelsesFordelingRepository) {
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;

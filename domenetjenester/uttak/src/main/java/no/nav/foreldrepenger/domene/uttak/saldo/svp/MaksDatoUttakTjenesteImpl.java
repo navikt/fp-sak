@@ -1,15 +1,16 @@
 package no.nav.foreldrepenger.domene.uttak.saldo.svp;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.time.LocalDate;
-import java.util.Optional;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("SVP")
@@ -29,11 +30,14 @@ public class MaksDatoUttakTjenesteImpl  implements MaksDatoUttakTjeneste {
     public Optional<LocalDate> beregnMaksDatoUttak(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
 
-        Optional<SvangerskapspengerUttakResultatEntitet> uttakResultat = svpUttakRepository.hentHvisEksisterer(ref.getBehandlingId());
-        return finnSisteUttaksdato(uttakResultat);
+        var uttakResultat = svpUttakRepository.hentHvisEksisterer(ref.getBehandlingId());
+        if (uttakResultat.isPresent()) {
+            return finnSisteUttaksdato(uttakResultat.get());
+        }
+        return Optional.empty();
     }
 
-    private Optional<LocalDate> finnSisteUttaksdato(Optional<SvangerskapspengerUttakResultatEntitet> uttakResultat) {
-        return (uttakResultat.isPresent())?uttakResultat.get().finnSisteInnvilgedeUttaksdatoMedUtbetalingsgrad():Optional.empty();
+    private Optional<LocalDate> finnSisteUttaksdato(SvangerskapspengerUttakResultatEntitet uttakResultat) {
+        return uttakResultat.finnSisteInnvilgedeUttaksdatoMedUtbetalingsgrad();
     }
 }

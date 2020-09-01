@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.kontroller.fakta.omsorg;
 
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG;
 
 import java.util.List;
@@ -11,7 +9,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
@@ -22,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Sivils
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.FaktaUttakAksjonspunktUtleder;
@@ -38,6 +34,7 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements FaktaUttakAksjon
     private PersonopplysningTjeneste personopplysningTjeneste;
 
     BrukerHarAleneomsorgAksjonspunktUtleder() {
+        //CDI
     }
 
     @Inject
@@ -55,12 +52,12 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements FaktaUttakAksjon
         var annenPartAktørId = personopplysningerAggregat.getOppgittAnnenPart().map(OppgittAnnenPartEntitet::getAktørId);
         var søker = personopplysningerAggregat.getSøker();
 
-        if (harOppgittÅHaAleneomsorg(ytelseFordelingAggregat) == JA) {
-            if (harOppgittAndreforelderen(annenPartAktørId) == JA) {
-                if (harAnnenforeldreSammeBosted(personopplysningerAggregat) == JA) {
+        if (harOppgittÅHaAleneomsorg(ytelseFordelingAggregat)) {
+            if (annenPartAktørId.isPresent()) {
+                if (harAnnenforeldreSammeBosted(personopplysningerAggregat)) {
                     return List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG);
                 }
-            } else if (harSivilstatusGift(søker) == JA && harEktefelleSammeBosted(personopplysningerAggregat) == JA) {
+            } else if (harSivilstatusGift(søker) && harEktefelleSammeBosted(personopplysningerAggregat)) {
                 return List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG);
             }
         }
@@ -72,35 +69,31 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements FaktaUttakAksjon
         return false;
     }
 
-    private Utfall harOppgittÅHaAleneomsorg(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        Boolean harAleneomsorgForBarnet = ytelseFordelingAggregat.getOppgittRettighet().getHarAleneomsorgForBarnet();
+    private boolean harOppgittÅHaAleneomsorg(YtelseFordelingAggregat ytelseFordelingAggregat) {
+        var harAleneomsorgForBarnet = ytelseFordelingAggregat.getOppgittRettighet().getHarAleneomsorgForBarnet();
         Objects.requireNonNull(harAleneomsorgForBarnet, "harAleneomsorgForBarnet må være sett"); //$NON-NLS-1$
-        return harAleneomsorgForBarnet ? JA : NEI;
+        return harAleneomsorgForBarnet;
     }
 
-    private Utfall harOppgittAndreforelderen(Optional<AktørId> annenPartAktørId) {
-        return annenPartAktørId.isPresent() ? JA : NEI;
-    }
-
-    private Utfall harAnnenforeldreSammeBosted(PersonopplysningerAggregat personopplysningerAggregat) {
+    private boolean harAnnenforeldreSammeBosted(PersonopplysningerAggregat personopplysningerAggregat) {
         final Optional<PersonopplysningEntitet> annenPart = personopplysningerAggregat.getAnnenPart();
         if (annenPart.isPresent()) {
             // ANNEN PART HAR IKKE RELASJON
-            return personopplysningerAggregat.søkerHarSammeAdresseSom(annenPart.get().getAktørId(), RelasjonsRolleType.UDEFINERT) ? JA : NEI;
+            return personopplysningerAggregat.søkerHarSammeAdresseSom(annenPart.get().getAktørId(), RelasjonsRolleType.UDEFINERT);
         }
-        return NEI;
+        return false;
     }
 
-    private Utfall harSivilstatusGift(PersonopplysningEntitet søker) {
-        return søker.getSivilstand().equals(SivilstandType.GIFT) ? JA : NEI;
+    private boolean harSivilstatusGift(PersonopplysningEntitet søker) {
+        return søker.getSivilstand().equals(SivilstandType.GIFT);
     }
 
-    private Utfall harEktefelleSammeBosted(PersonopplysningerAggregat personopplysningerAggregat) {
+    private boolean harEktefelleSammeBosted(PersonopplysningerAggregat personopplysningerAggregat) {
         final Optional<PersonopplysningEntitet> ektefelle = personopplysningerAggregat.getEktefelle();
         if (ektefelle.isPresent()) {
-            return personopplysningerAggregat.søkerHarSammeAdresseSom(ektefelle.get().getAktørId(), RelasjonsRolleType.EKTE) ? JA : NEI;
+            return personopplysningerAggregat.søkerHarSammeAdresseSom(ektefelle.get().getAktørId(), RelasjonsRolleType.EKTE);
         }
-        return NEI;
+        return false;
     }
 
 }

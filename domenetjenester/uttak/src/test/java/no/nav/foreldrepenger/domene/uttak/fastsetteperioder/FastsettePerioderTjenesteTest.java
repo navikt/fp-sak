@@ -525,8 +525,7 @@ public class FastsettePerioderTjenesteTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), iay);
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         ForeldrepengerGrunnlag fpGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse))
-            .medDekningsgrad(100);
+            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse));
         var input = new UttakInput(BehandlingReferanse.fra(behandling, fødselsdato), iayTjeneste.hentGrunnlag(behandling.getId()), fpGrunnlag)
             .medSøknadMottattDato(oppgittFpff.getFom())
             .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
@@ -790,8 +789,7 @@ public class FastsettePerioderTjenesteTest {
             AktivitetsAvtaleBuilder aktivitetsAvtale = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed))
                 .medProsentsats(BigDecimal.valueOf(100))
-                .medAntallTimer(BigDecimal.valueOf(20.4d))
-                .medAntallTimerFulltid(BigDecimal.valueOf(10.2d));
+                .medSisteLønnsendringsdato(familieHendelse);
 
             AktivitetsAvtaleBuilder ansettelesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed));

@@ -39,18 +39,17 @@ class GrunnlagOppretter {
             .medKopiertFraTidligereBehandling(false)
             .medMottattTidspunkt(LocalDateTime.now())
             .build();
-        var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
+        return new SvpGrunnlagEntitet.Builder()
             .medBehandlingId(behandling.getId())
             .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
             .build();
-        return svpGrunnlag;
     }
 
-    void lagreUttaksgrenser(Behandling behandling, LocalDate førsteLovligeUttaksdag, LocalDate mottaksdato) {
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
+    void lagreUttaksgrenser(Long behandlingId, LocalDate førsteLovligeUttaksdag, LocalDate mottaksdato) {
+        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId))
             .medFørsteLovligeUttaksdag(førsteLovligeUttaksdag)
             .medMottattDato(mottaksdato)
             .build();
-        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), uttaksperiodegrense);
+        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandlingId, uttaksperiodegrense);
     }
 }

@@ -332,11 +332,11 @@ public class EndringsdatoRevurderingUtlederImplTest {
     @Test // #4.1
     public void skal_utlede_at_endringsdato_på_mors_berørte_behandling_er_lik_fars_første_uttaksdag() {
         // Arrange førstegangsbehandling mor
-        Behandling behandling = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_MOR, testUtil.uttaksresultatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK), Optional.empty());
+        Behandling behandling = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_MOR, testUtil.uttaksresultatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK));
 
         // Arrange førstegangsbehandling far
         LocalDate fomFar = FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(11);
-        Behandling behandlingFar = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_FAR, testUtil.uttaksresultatBerørtSak(fomFar), Optional.of(behandling.getFagsak()));
+        Behandling behandlingFar = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_FAR, testUtil.uttaksresultatBerørtSak(fomFar), behandling.getFagsak());
         behandlingRepository.lagre(behandlingFar, behandlingRepository.taSkriveLås(behandlingFar));
 
         // Arrange berørt behandling mor
@@ -366,11 +366,11 @@ public class EndringsdatoRevurderingUtlederImplTest {
     @Test // #4.2
     public void skal_utlede_at_endringsdato_på_mors_berørte_behandling_er_første_uttaksdag_fra_vedtaket_når_fars_endringsdato_er_tidligere() {
         // Arrange førstegangsbehandling mor
-        Behandling behandling = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_MOR, testUtil.uttaksresultatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK), Optional.empty());
+        Behandling behandling = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_MOR, testUtil.uttaksresultatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK));
 
         // Arrange førstegangsbehandling far
         LocalDate fomFar = FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.minusDays(2L);
-        Behandling behandlingFar = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_FAR, testUtil.uttaksresultatBerørtSak(fomFar), Optional.of(behandling.getFagsak()));
+        Behandling behandlingFar = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_FAR, testUtil.uttaksresultatBerørtSak(fomFar), behandling.getFagsak());
         behandlingRepository.lagre(behandlingFar, behandlingRepository.taSkriveLås(behandlingFar));
 
         // Arrange berørt behandling mor
@@ -775,7 +775,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
-        return scenario.lagre(repositoryProvider, iayTjeneste::lagreIayAggregat, iayTjeneste::lagreOppgittOpptjening);
+        return scenario.lagre(repositoryProvider, iayTjeneste::lagreIayAggregat);
     }
 
 }

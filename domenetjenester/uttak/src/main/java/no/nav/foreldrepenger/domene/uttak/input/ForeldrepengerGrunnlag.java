@@ -4,7 +4,6 @@ import java.util.Optional;
 
 public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
-    private int dekningsgrad = 100;
     private boolean tapendeBehandling;
     private FamilieHendelser familieHendelser;
     private OriginalBehandling originalBehandling;
@@ -15,16 +14,10 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     }
 
     public ForeldrepengerGrunnlag(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
-        dekningsgrad = foreldrepengerGrunnlag.dekningsgrad;
         tapendeBehandling = foreldrepengerGrunnlag.tapendeBehandling;
         familieHendelser = foreldrepengerGrunnlag.familieHendelser;
         originalBehandling = foreldrepengerGrunnlag.originalBehandling;
         annenpart = foreldrepengerGrunnlag.annenpart;
-    }
-
-    @Override
-    public int getDekningsgrad() {
-        return dekningsgrad;
     }
 
     public boolean isTapendeBehandling() {
@@ -41,12 +34,6 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
     public Optional<Annenpart> getAnnenpart() {
         return Optional.ofNullable(annenpart);
-    }
-
-    public ForeldrepengerGrunnlag medDekningsgrad(int dekningsgrad) {
-        var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
-        nyttGrunnlag.dekningsgrad = dekningsgrad;
-        return nyttGrunnlag;
     }
 
     public ForeldrepengerGrunnlag medErTapendeBehandling(boolean tapendeBehandling) {
