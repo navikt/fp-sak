@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
@@ -76,15 +77,15 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
         var justertFordeling = ytelseFordelingAggregat.get().getJustertFordeling();
         var overstyrtFordeling = ytelseFordelingAggregat.get().getOverstyrtFordeling();
 
-        oppgittFordeling.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling));
-        justertFordeling.ifPresent(f -> f.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling)));
-        overstyrtFordeling.ifPresent(f -> f.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling)));
+        oppgittFordeling.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling, false));
+        justertFordeling.ifPresent(f -> f.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling, true)));
+        overstyrtFordeling.ifPresent(f -> f.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling, true)));
         behandlingLåsRepository.oppdaterLåsVersjon(behandlingLås);
         entityManager.flush();
     }
 
-    private void oppdaterMottattDato(OppgittPeriodeEntitet periode, Behandling behandling) {
-        var mottattDato = utledMottattDato(periode, behandling);
+    private void oppdaterMottattDato(OppgittPeriodeEntitet periode, Behandling behandling, boolean hentFraSøknadsfristAP) {
+        var mottattDato = utledMottattDato(periode, behandling, hentFraSøknadsfristAP);
         if (mottattDato == null) {
             throw new IllegalStateException("Kunne ikke utlede mottatt dato for behandling " + behandling.getId());
         }
@@ -92,11 +93,14 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
         entityManager.persist(periode);
     }
 
-    private LocalDate utledMottattDato(OppgittPeriodeEntitet periode, Behandling behandling) {
+    private LocalDate utledMottattDato(OppgittPeriodeEntitet periode, Behandling behandling, boolean hentFraSøknadsfristAP) {
         var tidligstBehandlingMedPeriode = finnTidligstBehandling(periode, behandling);
-        var uttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(tidligstBehandlingMedPeriode.getId());
-        if (uttaksperiodegrense.isPresent()) {
-            return uttaksperiodegrense.get().getMottattDato();
+
+        if (hentFraSøknadsfristAP && periode.getPeriodeKilde().equals(FordelingPeriodeKilde.SØKNAD)) {
+            var uttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(tidligstBehandlingMedPeriode.getId());
+            if (uttaksperiodegrense.isPresent()) {
+                return uttaksperiodegrense.get().getMottattDato();
+            }
         }
 
         var søknad = søknadRepository.hentSøknadHvisEksisterer(tidligstBehandlingMedPeriode.getId());
