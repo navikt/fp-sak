@@ -32,7 +32,6 @@ public class UtlandssakManuellOverstyringTest {
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
 
     @Inject
     private AksjonspunktApplikasjonTjeneste applikasjonstjeneste;
@@ -50,9 +49,9 @@ public class UtlandssakManuellOverstyringTest {
 
         Behandling behandling = scenario.lagre(repositoryProvider);
 
-        behandling.getAksjonspunktMedDefinisjonOptional(AUTOMATISK_MARKERING_AV_UTENLANDSSAK).ifPresent(a -> aksjonspunktRepository.setTilUtført(a, "test"));
-        behandling.getAksjonspunktMedDefinisjonOptional(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET).ifPresent(a -> aksjonspunktRepository.setTilUtført(a, "test"));
-        behandling.getAksjonspunktMedDefinisjonOptional(SJEKK_MANGLENDE_FØDSEL).ifPresent(a -> aksjonspunktRepository.setTilUtført(a, "test"));
+        behandling.getAksjonspunktMedDefinisjonOptional(AUTOMATISK_MARKERING_AV_UTENLANDSSAK).ifPresent(a -> AksjonspunktTestSupport.setTilUtført(a, "test"));
+        behandling.getAksjonspunktMedDefinisjonOptional(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET).ifPresent(a -> AksjonspunktTestSupport.setTilUtført(a, "test"));
+        behandling.getAksjonspunktMedDefinisjonOptional(SJEKK_MANGLENDE_FØDSEL).ifPresent(a -> AksjonspunktTestSupport.setTilUtført(a, "test"));
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         var behandlingId = behandling.getId();
 

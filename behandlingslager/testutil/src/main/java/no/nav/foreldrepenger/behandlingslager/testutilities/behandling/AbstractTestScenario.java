@@ -871,7 +871,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             new InternalManipulerBehandling().forceOppdaterBehandlingSteg(behandling, startSteg);
         }
 
-        leggTilAksjonspunkter(behandling, repositoryProvider);
+        leggTilAksjonspunkter(behandling);
 
         BehandlingLås lås = behandlingRepo.taSkriveLås(behandling);
         behandlingRepo.lagre(behandling, lås);
@@ -894,13 +894,13 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         behandlingRepo.lagre(behandling, lås);
     }
 
-    private void leggTilAksjonspunkter(Behandling behandling, BehandlingRepositoryProvider repositoryProvider) {
+    private void leggTilAksjonspunkter(Behandling behandling) {
         aksjonspunktDefinisjoner.forEach(
             (apDef, stegType) -> {
                 if (stegType != null) {
-                    new AksjonspunktTestSupport().leggTilAksjonspunkt(behandling, apDef, stegType);
+                    AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType);
                 } else {
-                    new AksjonspunktTestSupport().leggTilAksjonspunkt(behandling, apDef);
+                    AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef);
                 }
             });
     }

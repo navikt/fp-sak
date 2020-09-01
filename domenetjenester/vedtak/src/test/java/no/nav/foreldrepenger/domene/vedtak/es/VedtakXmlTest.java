@@ -104,7 +104,6 @@ public class VedtakXmlTest {
     private InternalManipulerBehandling manipulerInternBehandling;
 
     private Repository repository = repoRule.getRepository();
-    private LocalDate morsFødseldato;
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
     private final BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -117,7 +116,6 @@ public class VedtakXmlTest {
     private PersoninfoAdapter personinfoAdapter;
 
     private Personinfo personinfoMor;
-    private SøknadEntitet søknad;
 
     @Inject
     private BehandlingsresultatXmlTjeneste behandlingsgrunnlagXmlTjeneste;
@@ -141,15 +139,11 @@ public class VedtakXmlTest {
     @Inject
     private KlageRepository klageRepository;
 
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-
-    private VedtakXmlTjeneste vedtakXmlTjeneste;
-    private SøknadRepository søknadRepository;
     private FatteVedtakXmlTjeneste tjeneste;
 
     @Before
     public void oppsett() {
-        morsFødseldato = LocalDate.of(1990, JANUARY, 1);
+        LocalDate morsFødseldato = LocalDate.of(1990, JANUARY, 1);
         personinfoMor = new Personinfo.Builder()
             .medAktørId(AktørId.dummy())
             .medPersonIdent(new PersonIdent("12345678901"))
@@ -158,9 +152,9 @@ public class VedtakXmlTest {
             .medNavBrukerKjønn(KVINNE)
             .medForetrukketSpråk(Språkkode.NB)
             .build();
-        søknadRepository = mock(SøknadRepository.class);
+        SøknadRepository søknadRepository = mock(SøknadRepository.class);
 
-        vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
+        VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
 
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
@@ -169,7 +163,7 @@ public class VedtakXmlTest {
         tjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste, new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
             behandlingsgrunnlagXmlTjeneste, skjæringstidspunktTjeneste);
 
-        søknad = new SøknadEntitet.Builder().medMottattDato(LocalDate.now()).medSøknadsdato(LocalDate.now()).build();
+        SøknadEntitet søknad = new SøknadEntitet.Builder().medMottattDato(LocalDate.now()).medSøknadsdato(LocalDate.now()).build();
         when(søknadRepository.hentSøknadHvisEksisterer(any())).thenReturn(Optional.ofNullable(søknad));
         when(personinfoAdapter.innhentSaksopplysningerForSøker(any(AktørId.class))).thenReturn(personinfoMor);
 
@@ -431,8 +425,8 @@ public class VedtakXmlTest {
     }
 
     private void utførAksjonspunkt(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        Aksjonspunkt aksjonspunkt1 = aksjonspunktRepository.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
-        aksjonspunktRepository.setTilUtført(aksjonspunkt1, "");
+        Aksjonspunkt aksjonspunkt1 = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
+        AksjonspunktTestSupport.setTilUtført(aksjonspunkt1, "");
     }
 
     private Behandling opprettBehandlingMedAdopsjon(BehandlingStegType stegType) {

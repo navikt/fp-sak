@@ -84,8 +84,6 @@ public class BehandlingRepositoryImplTest {
     @Inject
     private FagsakRepository fagsakRepository;
 
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-
     @Inject
     private KlageRepository klageRepository;
 
@@ -406,7 +404,7 @@ public class BehandlingRepositoryImplTest {
     public void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_naar_lukket_aksjonspunkt() {
         Behandling behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
         Aksjonspunkt aksjonspunkt = opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
-        aksjonspunktRepository.setTilUtført(aksjonspunkt, "ferdig");
+        AksjonspunktTestSupport.setTilUtført(aksjonspunkt, "ferdig");
         lagreBehandling(behandling1);
 
         // Act
@@ -449,7 +447,7 @@ public class BehandlingRepositoryImplTest {
         // Arrange
         Behandling behandling = opprettBehandlingForAutomatiskGjenopptagelse();
         Aksjonspunkt aksjonspunkt = opprettAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
-        aksjonspunktRepository.setTilAvbrutt(aksjonspunkt);
+        AksjonspunktTestSupport.setTilAvbrutt(aksjonspunkt);
         lagreBehandling(behandling);
 
         // Act
@@ -481,8 +479,8 @@ public class BehandlingRepositoryImplTest {
         assertThat(liste).isEmpty();
 
         // Arrange
-        aksjonspunktRepository.setTilUtført(ap2, "Begrunnelse");
-        aksjonspunktRepository.setTilUtført(ap3, "Begrunnelse");
+        AksjonspunktTestSupport.setTilUtført(ap2, "Begrunnelse");
+        AksjonspunktTestSupport.setTilUtført(ap3, "Begrunnelse");
         lagreBehandling(behandling2, behandling3);
 
         // Act
@@ -672,8 +670,8 @@ public class BehandlingRepositoryImplTest {
                                              AksjonspunktDefinisjon aksjonspunktDefinisjon,
                                              LocalDateTime frist) {
 
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
-        aksjonspunktRepository.setFrist(aksjonspunkt, frist, Venteårsak.UDEFINERT);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
+        AksjonspunktTestSupport.setFrist(aksjonspunkt, frist, Venteårsak.UDEFINERT);
         return aksjonspunkt;
     }
 

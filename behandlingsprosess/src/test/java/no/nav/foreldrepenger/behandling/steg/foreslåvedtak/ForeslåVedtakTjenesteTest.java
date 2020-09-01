@@ -86,8 +86,6 @@ public class ForeslåVedtakTjenesteTest {
 
     private ForeslåVedtakTjeneste tjeneste;
 
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-
 
     @Before
     public void setUp() {
@@ -133,7 +131,7 @@ public class ForeslåVedtakTjenesteTest {
     @Test
     public void setterPåVentHvisÅpentAksjonspunktVedtakUtenTotrinnskontroll() {
         // Arrange
-        aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
+        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
 
         // Act
         BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
@@ -146,7 +144,7 @@ public class ForeslåVedtakTjenesteTest {
     @Test
     public void nullstillerBehandlingHvisDetEksistererVedtakUtenTotrinnAksjonspunkt() {
         // Arrange
-        aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
+        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
 
         // Act
         tjeneste.foreslåVedtak(behandling, kontekst);
@@ -321,7 +319,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     private void leggTilAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean totrinnsbehandling) {
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
         Whitebox.setInternalState(aksjonspunkt, "status", AksjonspunktStatus.UTFØRT);
         Whitebox.setInternalState(aksjonspunkt, "toTrinnsBehandling", totrinnsbehandling);
     }

@@ -65,7 +65,6 @@ public class VergeTjenesteTest {
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
     private VergeRepository vergeRepository;
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
     private HistorikkRepository historikkRepository;
 
     private VergeTjeneste vergeTjeneste;
@@ -131,7 +130,7 @@ public class VergeTjenesteTest {
         Behandling behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(anyLong(), eq(BehandlingStegType.KONTROLLER_FAKTA))).thenReturn(true);
-        aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
+        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
 
         // Act
         VergeBehandlingsmenyDto resultat = vergeTjeneste.utledBehandlingsmeny(behandling.getId());
@@ -181,7 +180,7 @@ public class VergeTjenesteTest {
         Fagsak fagsak = opprettFagsak();
         Behandling behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
+        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
         VergeBuilder vergeBuilder = new VergeBuilder()
             .medVergeType(VergeType.BARN)
             .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));

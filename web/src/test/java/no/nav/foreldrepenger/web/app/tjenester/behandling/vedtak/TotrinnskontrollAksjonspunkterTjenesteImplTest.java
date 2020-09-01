@@ -53,8 +53,6 @@ public class TotrinnskontrollAksjonspunkterTjenesteImplTest {
     private Behandling behandling;
     private Totrinnresultatgrunnlag totrinnresultatgrunnlag;
 
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-
     @Inject
     private InternalManipulerBehandling manipulerInternBehandling;
 
@@ -516,10 +514,10 @@ public class TotrinnskontrollAksjonspunkterTjenesteImplTest {
     }
 
     private void opprettAksjonspunkt(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean erAvbrutt) {
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
-        aksjonspunktRepository.setToTrinnsBehandlingKreves(aksjonspunkt);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
+        AksjonspunktTestSupport.setToTrinnsBehandlingKreves(aksjonspunkt);
         if (erAvbrutt) {
-            aksjonspunktRepository.setTilAvbrutt(aksjonspunkt);
+            AksjonspunktTestSupport.setTilAvbrutt(aksjonspunkt);
         }
     }
 

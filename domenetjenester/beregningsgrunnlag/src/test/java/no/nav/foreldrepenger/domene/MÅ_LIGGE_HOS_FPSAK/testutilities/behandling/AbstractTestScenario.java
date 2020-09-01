@@ -1,5 +1,20 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.testutilities.behandling;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
+
+import org.jboss.weld.exceptions.UnsupportedOperationException;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -23,20 +38,6 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.Whitebox;
-import org.jboss.weld.exceptions.UnsupportedOperationException;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BiConsumer;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Default test scenario builder for å definere opp testdata med enkle defaults.
@@ -241,7 +242,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         this.behandling = behandlingBuilder.build();
 
-        leggTilAksjonspunkter(behandling, repositoryProvider);
+        leggTilAksjonspunkter(behandling);
 
         BehandlingLås lås = behandlingRepo.taSkriveLås(behandling);
         behandlingRepo.lagre(behandling, lås);
@@ -266,10 +267,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         }
     }
 
-    private void leggTilAksjonspunkter(Behandling behandling, RepositoryProvider repositoryProvider) {
+    private void leggTilAksjonspunkter(Behandling behandling) {
         aksjonspunktDefinisjoner.forEach(
             (apDef, stegType) -> {
-                new AksjonspunktTestSupport().leggTilAksjonspunkt(behandling, apDef, stegType);
+                AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType);
             });
     }
 

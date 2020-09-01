@@ -63,8 +63,6 @@ public class AksjonspunktApplikasjonTjenesteTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
 
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-
     private AbstractTestScenario<?> lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultSøknadTerminbekreftelse();
@@ -148,7 +146,7 @@ public class AksjonspunktApplikasjonTjenesteTest {
     public void skal_sette_totrinn_når_revurdering_ap_medfører_endring_i_grunnlag() {
         // Arrange
         Behandling førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS);
-        aksjonspunktRepository.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
+        AksjonspunktTestSupport.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
         Behandling revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling, AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS);
         AvklarSaksopplysningerDto dto = new AvklarSaksopplysningerDto(BEGRUNNELSE, "UTVA", true);
 
@@ -165,7 +163,7 @@ public class AksjonspunktApplikasjonTjenesteTest {
     public void skal_hoppe_til_uttak_ved_avslag_vilkår() {
         // Arrange
         Behandling førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
-        aksjonspunktRepository.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
+        AksjonspunktTestSupport.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
         Behandling revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
         OmsorgsvilkårAksjonspunktDto dto = new OmsorgsvilkårAksjonspunktDto(BEGRUNNELSE, false,
             Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());

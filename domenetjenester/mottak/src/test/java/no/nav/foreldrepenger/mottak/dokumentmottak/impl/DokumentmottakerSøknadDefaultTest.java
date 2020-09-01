@@ -78,8 +78,6 @@ public class DokumentmottakerSøknadDefaultTest {
     @Inject
     private ForeldrepengerUttakTjeneste fpUttakTjeneste;
 
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
     @Mock
@@ -586,7 +584,7 @@ public class DokumentmottakerSøknadDefaultTest {
     }
 
     private void simulerKøetBehandling(Behandling behandling) {
-        aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING);
+        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING);
     }
 
     private void kobleFagsaker(Behandling behandling, Behandling medforeldersBehandling) {

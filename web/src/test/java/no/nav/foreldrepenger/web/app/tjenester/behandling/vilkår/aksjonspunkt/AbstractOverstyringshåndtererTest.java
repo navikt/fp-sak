@@ -38,13 +38,11 @@ public class AbstractOverstyringshåndtererTest {
 
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(em);
 
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-
     @Test
-    public void skal_reaktivere_inaktivt_aksjonspunkt() throws Exception {
+    public void skal_reaktivere_inaktivt_aksjonspunkt() {
         Behandling behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagre(repositoryProvider);
-        Aksjonspunkt ap = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET);
-        aksjonspunktRepository.setTilUtført(ap, "OK");
+        Aksjonspunkt ap = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET);
+        AksjonspunktTestSupport.setTilUtført(ap, "OK");
 
         OverstyringAksjonspunktDto dto = new OverstyringFødselsvilkåretDto(false, IKKE_OK, Avslagsårsak.MANGLENDE_DOKUMENTASJON.getKode());
 
