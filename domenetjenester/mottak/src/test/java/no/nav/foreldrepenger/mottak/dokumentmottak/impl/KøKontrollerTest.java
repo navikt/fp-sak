@@ -122,7 +122,7 @@ public class KøKontrollerTest {
     }
 
     @Test
-    public void skal_starte_hvis_en_2part_behandling_ligger_i_iv(){
+    public void skal_starte_hvis_en_2part_behandling_ligger_før_uttak(){
         //Arrange
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagMocked();
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -131,10 +131,10 @@ public class KøKontrollerTest {
         when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(behandling.getFagsak())).thenReturn(Optional.empty());
 
         //Act
-        boolean skalSnike = køKontroller.skalNyEvtNyBehandlingKøes(behandling.getFagsak());
+        boolean skalKøes = køKontroller.skalEvtNyBehandlingKøes(behandling.getFagsak());
 
         //Assert
-        assertThat(skalSnike).isFalse();
+        assertThat(skalKøes).isFalse();
     }
 
     @Test
@@ -147,10 +147,10 @@ public class KøKontrollerTest {
         when(behandlingRepository.finnSisteInnvilgetBehandling(any())).thenReturn(Optional.of(behandling));
 
         //Act
-        boolean skalSnike = køKontroller.skalNyEvtNyBehandlingKøes(behandling.getFagsak());
+        boolean skalKøes = køKontroller.skalEvtNyBehandlingKøes(behandling.getFagsak());
 
         //Assert
-        assertThat(skalSnike).isTrue();
+        assertThat(skalKøes).isTrue();
     }
 
 }

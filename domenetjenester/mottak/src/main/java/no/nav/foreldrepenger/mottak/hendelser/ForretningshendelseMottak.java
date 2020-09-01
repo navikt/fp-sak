@@ -121,7 +121,7 @@ public class ForretningshendelseMottak {
         }
 
         // Case 2: Berørt (køet) behandling eller behandling på medforelder
-        if (køKontroller.skalNyEvtNyBehandlingKøes(fagsak)) {
+        if (køKontroller.skalEvtNyBehandlingKøes(fagsak)) {
             håndterer.håndterKøetBehandling(fagsak, behandlingÅrsakType);
             return;
         }

@@ -109,7 +109,7 @@ public class KøKontroller {
         return oppdatertBehandling;
     }
 
-    public boolean skalNyEvtNyBehandlingKøes(Fagsak fagsak) {
+    public boolean skalEvtNyBehandlingKøes(Fagsak fagsak) {
         // Finnes ingen tidligere innvilget -> Skal ikke opprettes revurdering.
         if (behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId()).isEmpty()) {
             return false;

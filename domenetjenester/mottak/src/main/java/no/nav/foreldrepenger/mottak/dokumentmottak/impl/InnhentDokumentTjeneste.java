@@ -95,7 +95,7 @@ public class InnhentDokumentTjeneste {
     }
 
     private boolean skalMottasSomKøet(Fagsak fagsak) {
-        return køKontroller.skalNyEvtNyBehandlingKøes(fagsak);
+        return køKontroller.skalEvtNyBehandlingKøes(fagsak);
     }
 
     private boolean brukDokumentKategori(DokumentTypeId dokumentTypeId, DokumentKategori dokumentKategori) {
