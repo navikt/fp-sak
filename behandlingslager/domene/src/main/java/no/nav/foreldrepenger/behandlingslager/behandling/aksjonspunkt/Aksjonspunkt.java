@@ -260,7 +260,6 @@ public class Aksjonspunkt extends BaseEntitet {
      * Intern Builder. Bruk Repository-klasser til å legge til og endre {@link Aksjonspunkt}.
      */
     static class Builder {
-        private Aksjonspunkt opprinneligAp;
         private Aksjonspunkt aksjonspunkt;
 
         Builder(AksjonspunktDefinisjon aksjonspunktDefinisjon, BehandlingStegType behandlingStegFunnet) {
@@ -271,26 +270,8 @@ public class Aksjonspunkt extends BaseEntitet {
             this.aksjonspunkt = new Aksjonspunkt(aksjonspunktDefinisjon);
         }
 
-        Builder(Aksjonspunkt opprinneligAp) {
-            this.opprinneligAp = opprinneligAp;
-            this.aksjonspunkt = new Aksjonspunkt(opprinneligAp.getAksjonspunktDefinisjon());
-        }
-
-        private void sjekkTilstand() {
-            if (aksjonspunkt == null) {
-                throw new IllegalStateException("Aksjonpunkt ikke definert"); //$NON-NLS-1$
-            }
-        }
-
         Aksjonspunkt buildFor(Behandling behandling) {
             Aksjonspunkt ap = this.aksjonspunkt;
-            if (this.opprinneligAp != null) {
-                if (behandling.erRevurdering()) {
-                    kopierAlleFelter(opprinneligAp, ap, false);
-                } else {
-                    kopierAlleFelter(opprinneligAp, ap, true);
-                }
-            }
             Optional<Aksjonspunkt> eksisterende = finnEksisterende(behandling, ap.aksjonspunktDefinisjon);
             if (eksisterende.isPresent()) {
                 // Oppdater eksisterende.
@@ -303,14 +284,6 @@ public class Aksjonspunkt extends BaseEntitet {
                 InternalUtil.leggTilAksjonspunkt(behandling, ap);
                 return ap;
             }
-        }
-
-        private void kopierAlleFelter(Aksjonspunkt fra, Aksjonspunkt til, boolean medTotrinnsfelter) {
-            kopierBasisfelter(fra, til);
-            if (medTotrinnsfelter) {
-                til.setToTrinnsBehandling(fra.isToTrinnsBehandling());
-            }
-            til.setBehandlingSteg(fra.getBehandlingStegFunnet());
         }
 
         private void kopierBasisfelter(Aksjonspunkt fra, Aksjonspunkt til) {
@@ -327,11 +300,6 @@ public class Aksjonspunkt extends BaseEntitet {
 
         Aksjonspunkt.Builder medVenteårsak(Venteårsak venteårsak) {
             aksjonspunkt.setVenteårsak(venteårsak);
-            return this;
-        }
-
-        Aksjonspunkt.Builder medTotrinnskontroll(boolean toTrinnsbehandling) {
-            aksjonspunkt.setToTrinnsBehandling(toTrinnsbehandling);
             return this;
         }
     }
