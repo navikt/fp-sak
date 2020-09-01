@@ -69,7 +69,7 @@ public class ScenarioInnsynEngangsstønad {
                 .buildFor(behandling);
 
         opprettedeAksjonspunktDefinisjoner.forEach(
-                (apDef, stegType) -> new AksjonspunktTestSupport().leggTilAksjonspunkt(behandling, apDef, stegType));
+                (apDef, stegType) -> AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType));
 
         behandling.getAksjonspunkter().forEach(punkt -> Whitebox.setInternalState(punkt, "id", AbstractTestScenario.nyId()));
 

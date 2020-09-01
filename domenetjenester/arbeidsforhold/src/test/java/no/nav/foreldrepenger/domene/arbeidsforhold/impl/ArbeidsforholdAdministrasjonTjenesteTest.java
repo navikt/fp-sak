@@ -328,7 +328,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         Behandling behandling = opprettBehandling();
         opprettOppgittOpptjening(behandling);
         opprettInntektArbeidYtelseAggregatForMultiYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.ONE, behandling);
-        opprettAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD, LocalDateTime.now());
+        opprettAksjonspunkt(behandling, LocalDateTime.now());
 
         // Act
         Set<ArbeidsforholdWrapper> wrapperList = hentArbeidsforholdFerdigUtledet(behandling);
@@ -652,12 +652,10 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
     }
 
     private Aksjonspunkt opprettAksjonspunkt(Behandling behandling,
-                                             AksjonspunktDefinisjon aksjonspunktDefinisjon,
                                              LocalDateTime frist) {
 
-        AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
-        aksjonspunktRepository.setFrist(aksjonspunkt, frist, Venteårsak.UDEFINERT);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        AksjonspunktTestSupport.setFrist(aksjonspunkt, frist, Venteårsak.UDEFINERT);
         return aksjonspunkt;
     }
 }

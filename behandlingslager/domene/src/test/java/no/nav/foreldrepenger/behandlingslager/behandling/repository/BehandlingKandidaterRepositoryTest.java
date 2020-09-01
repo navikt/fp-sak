@@ -26,8 +26,6 @@ public class BehandlingKandidaterRepositoryTest {
     @Inject
     private BehandlingKandidaterRepository sutRepo;
 
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-
     @Inject
     private BehandlingRepository behandlingRepository;
 
@@ -37,8 +35,8 @@ public class BehandlingKandidaterRepositoryTest {
     public void skal_finne_en_kandidat_for_automatisk_gjenopptagelse() throws Exception {
         // Arrange
         var behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
-        var aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
-        aksjonspunktRepository.setFrist(aksjonspunkt, LocalDateTime.now().minusMinutes(1), Venteårsak.FOR_TIDLIG_SOKNAD);
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
+        AksjonspunktTestSupport.setFrist(aksjonspunkt, LocalDateTime.now().minusMinutes(1), Venteårsak.FOR_TIDLIG_SOKNAD);
         behandlingRepository.lagre(behandling);
 
         // Act

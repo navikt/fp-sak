@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
@@ -26,8 +25,6 @@ import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @SuppressWarnings("deprecation")
 public class VarselRevurderingStegImplTest {
-
-    private static final String FRIST_PERIODE = "P3W";
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollKontekst kontekst;
@@ -43,7 +40,6 @@ public class VarselRevurderingStegImplTest {
         behandlingBuilder = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).medBehandlingstidFrist(BEHANDLINGSTID_FRIST);
 
         behandlingRepository = mock(BehandlingRepository.class);
-        AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
 
         steg = new VarselRevurderingStegImpl(behandlingRepository);
 

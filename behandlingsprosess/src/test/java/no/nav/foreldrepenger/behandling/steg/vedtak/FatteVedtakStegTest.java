@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.vedtak.es;
+package no.nav.foreldrepenger.behandling.steg.vedtak;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.FORESLÅ_VEDTAK;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET;
@@ -22,16 +22,10 @@ import javax.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandling.steg.vedtak.BehandlingVedtakTjeneste;
-import no.nav.foreldrepenger.behandling.steg.vedtak.FatteVedtakSteg;
-import no.nav.foreldrepenger.behandling.steg.vedtak.FatteVedtakTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
@@ -53,7 +47,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
@@ -103,33 +96,29 @@ import no.nav.foreldrepenger.økonomi.simulering.tjeneste.SimulerInntrekkSjekkeT
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @RunWith(CdiRunner.class)
-public class FatteVedtakStegImplTest {
+public class FatteVedtakStegTest {
 
     private static final String BEHANDLENDE_ENHET = "Stord";
-    public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-
-    @Rule
-    public final MockitoRule mockitoRule = MockitoJUnit.rule();
-
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
+    private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
     @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final Repository repository = repoRule.getRepository();
-
     private final EntityManager entityManager = repoRule.getEntityManager();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-    private LegacyESBeregningRepository beregningRepository = new LegacyESBeregningRepository(entityManager);
-    private final AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-    private final BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-    private final InternalManipulerBehandling manipulerBehandling = new InternalManipulerBehandling();
 
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private BehandlingRepository behandlingRepository;
+    @Inject
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+    @Inject
+    private LegacyESBeregningRepository beregningRepository;
+    @Inject
+    private BehandlingVedtakRepository behandlingVedtakRepository;
+    @Inject
+    private InternalManipulerBehandling manipulerBehandling;
     @Inject
     private InnsynRepository innsynRepository;
     @Inject
@@ -147,9 +136,7 @@ public class FatteVedtakStegImplTest {
 
     @Before
     public void oppsett() {
-        // TODO (Fluoritt): Fin blanding av entityManager og mocks her.... kan antagelig erstatte de som bruker entitymanager med de som lages fra AbstractTestScenario?
         LagretVedtakRepository vedtakRepository = new LagretVedtakRepository(entityManager);
-        HistorikkRepository historikkRepository = new HistorikkRepository(entityManager);
 
         OppgaveTjeneste oppgaveTjeneste = mock(OppgaveTjeneste.class);
         TpsTjeneste tpsTjeneste = Mockito.mock(TpsTjeneste.class);
@@ -179,22 +166,21 @@ public class FatteVedtakStegImplTest {
         BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer = mock(BehandlingVedtakEventPubliserer.class);
 
         behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider);
-        FatteVedtakTjeneste fvtei = new FatteVedtakTjeneste(vedtakRepository, fpSakVedtakXmlTjeneste, vedtakTjeneste,
+        var fatteVedtakTjeneste = new FatteVedtakTjeneste(vedtakRepository, fpSakVedtakXmlTjeneste, vedtakTjeneste,
             oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);
-        fatteVedtakSteg = new FatteVedtakSteg(repositoryProvider, fvtei, simuler);
+        fatteVedtakSteg = new FatteVedtakSteg(repositoryProvider, fatteVedtakTjeneste, simuler);
     }
 
     private BehandlingsresultatXmlTjeneste nyBeregningsresultatXmlTjeneste(VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste,
                                                      BeregningsresultatXmlTjeneste beregningsresultatXmlTjeneste) {
-        var behandlingsresultatXmlTjeneste = new BehandlingsresultatXmlTjeneste(
+        return new BehandlingsresultatXmlTjeneste(
             new UnitTestLookupInstanceImpl<>(beregningsresultatXmlTjeneste),
             new UnitTestLookupInstanceImpl<>(vilkårsgrunnlagXmlTjeneste),
             behandlingVedtakRepository,
             klageRepository,
             ankeRepository,
             new VilkårResultatRepository(entityManager));
-        return behandlingsresultatXmlTjeneste;
     }
 
     @Test(expected = TekniskException.class)
@@ -352,7 +338,6 @@ public class FatteVedtakStegImplTest {
     public void skal_lukke_godkjent_aksjonspunkter_og_sette_steg_til_utført() {
         // Arrange
         LagretVedtakRepository vedtakRepository = new LagretVedtakRepository(entityManager);
-        HistorikkRepository historikkRepository = new HistorikkRepository(entityManager);
 
         OppgaveTjeneste oppgaveTjeneste = mock(OppgaveTjeneste.class);
         SøknadRepository søknadRepository = mock(SøknadRepository.class);
@@ -403,7 +388,7 @@ public class FatteVedtakStegImplTest {
 
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);
         fatteVedtakSteg = new FatteVedtakSteg(repositoryProvider, fvtei, simuler);
-        aksjonspunktRepository.setToTrinnsBehandlingKreves(behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL));
+        AksjonspunktTestSupport.setToTrinnsBehandlingKreves(behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL));
 
         BehandleStegResultat behandleStegResultat = fatteVedtakSteg.utførSteg(kontekst);
 
@@ -415,7 +400,6 @@ public class FatteVedtakStegImplTest {
     @Test
     public void tilbakefører_og_reåpner_aksjonspunkt_når_totrinnskontroll_ikke_godkjent() {
         LagretVedtakRepository vedtakRepository = new LagretVedtakRepository(entityManager);
-        HistorikkRepository historikkRepository = new HistorikkRepository(entityManager);
 
         OppgaveTjeneste oppgaveTjeneste = mock(OppgaveTjeneste.class);
         SøknadRepository søknadRepository = mock(SøknadRepository.class);
@@ -454,7 +438,7 @@ public class FatteVedtakStegImplTest {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         behandling.setToTrinnsBehandling();
 
-        aksjonspunktRepository.setToTrinnsBehandlingKreves(behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL));
+        AksjonspunktTestSupport.setToTrinnsBehandlingKreves(behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL));
 
         // Legg til data i totrinsvurdering.
         Totrinnsvurdering.Builder vurdering = new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
@@ -543,8 +527,6 @@ public class FatteVedtakStegImplTest {
             .medVedtakResultatType(vedtakResultatType).build();
 
         behandlingVedtakRepository.lagre(behandlingVedtak, kontekst.getSkriveLås());
-        repository.flush();
-        repository.clear();
     }
 
     private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
@@ -576,8 +558,6 @@ public class FatteVedtakStegImplTest {
             .buildFor(behandling);
 
         behandlingRepository.lagre(behandling, lås);
-
-        repository.clear();
     }
 
 }

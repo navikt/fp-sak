@@ -177,7 +177,7 @@ public class BekreftTerminbekreftelseOppdatererTest {
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
 
         // Simuler at aksjonspunkt resettes ved tilbakehopp
-        new AksjonspunktTestSupport().fjernToTrinnsBehandlingKreves(aksjonspunkt);
+        AksjonspunktTestSupport.fjernToTrinnsBehandlingKreves(aksjonspunkt);
 
         // Act
         oppdaterer = new BekreftTerminbekreftelseOppdaterer(repositoryProvider,

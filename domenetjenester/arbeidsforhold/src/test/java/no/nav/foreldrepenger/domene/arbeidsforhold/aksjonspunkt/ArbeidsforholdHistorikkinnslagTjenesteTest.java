@@ -47,7 +47,6 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
     private JournalConsumer mockJournalProxyService = mock(JournalConsumer.class);
     private IAYRepositoryProvider provider = new IAYRepositoryProvider(repositoryRule.getEntityManager());
     private HistorikkRepository historikkRepository = new HistorikkRepository(repositoryRule.getEntityManager());
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
     private HistorikkInnslagKonverter historikkInnslagKonverter = new HistorikkInnslagKonverter();
     private DokumentArkivTjeneste dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(mockJournalProxyService, provider.getFagsakRepository(), provider.getKodeverkRepository());
     private HistorikkTjenesteAdapter historikkAdapter;
@@ -64,7 +63,7 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         arbeidsforholdHistorikkinnslagTjeneste = new ArbeidsforholdHistorikkinnslagTjeneste(historikkAdapter, arbeidsgiverHistorikkinnslagTjeneste);
         IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
         behandling = scenario.lagre(provider);
-        aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
         skjæringstidspunkt = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(LocalDate.now())
             .build();

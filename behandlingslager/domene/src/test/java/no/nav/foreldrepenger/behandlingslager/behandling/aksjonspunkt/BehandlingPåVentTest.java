@@ -15,8 +15,6 @@ public class BehandlingPåVentTest {
 
     private Fagsak fagsak;
 
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-
     @Before
     public void setup() {
         fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
@@ -31,25 +29,25 @@ public class BehandlingPåVentTest {
     @Test
     public void testErPåVentEttInnslag() {
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        aksjonspunktRepository.leggTilAksjonspunkt(behandling, AUTO_MANUELT_SATT_PÅ_VENT);
+        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AUTO_MANUELT_SATT_PÅ_VENT);
         Assert.assertTrue(behandling.isBehandlingPåVent());
     }
 
     @Test
     public void testErIkkePåVentEttInnslag() {
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AUTO_MANUELT_SATT_PÅ_VENT);
-        aksjonspunktRepository.setTilUtført(aksjonspunkt, "");
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AUTO_MANUELT_SATT_PÅ_VENT);
+        AksjonspunktTestSupport.setTilUtført(aksjonspunkt, "");
         Assert.assertFalse(behandling.isBehandlingPåVent());
     }
 
     @Test // TODO PKMANTIS-1137 Har satt midlertidig frist, må endres når dynamisk frist er implementert
     public void testErPåVentNårVenterPåOpptjeningsopplysninger() {
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AUTO_VENT_PÅ_OPPTJENINGSOPPLYSNINGER);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AUTO_VENT_PÅ_OPPTJENINGSOPPLYSNINGER);
         Assert.assertTrue(behandling.isBehandlingPåVent());
         Assert.assertEquals(behandling.getOpprettetDato().plusWeeks(2).toLocalDate(), aksjonspunkt.getFristTid().toLocalDate());
-        aksjonspunktRepository.setTilUtført(aksjonspunkt, "");
+        AksjonspunktTestSupport.setTilUtført(aksjonspunkt, "");
         Assert.assertFalse(behandling.isBehandlingPåVent());
     }
 }

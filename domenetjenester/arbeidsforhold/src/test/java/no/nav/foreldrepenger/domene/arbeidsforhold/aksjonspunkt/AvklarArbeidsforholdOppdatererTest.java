@@ -82,7 +82,6 @@ public class AvklarArbeidsforholdOppdatererTest {
     @Inject
     private VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste;
 
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
     private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private AvklarArbeidsforholdOppdaterer oppdaterer;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
@@ -114,7 +113,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         opprettIAYAggregat(behandling, false, LocalDate.of(2018, 1, 1));
 
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("Har tatt stilling til dette", List.of());
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.of(2019, 1, 1)).build();
@@ -138,7 +137,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         opprettTomtIAYAggregat(behandling);
 
         //simulere at 5080 har oppstått
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         LocalDate stp = LocalDate.of(2019, 1, 1);
 
@@ -192,7 +191,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         opprettTomtIAYAggregat(behandling);
 
         //simulere at 5080 har oppstått
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         LocalDate stp = LocalDate.of(2019, 1, 1);
 
@@ -255,7 +254,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         opprettIAYAggregat(behandling, false, fomDato);
 
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         ArbeidsforholdDto arbeidsforhold = new ArbeidsforholdDto();
         arbeidsforhold.setNavn(navn);
@@ -300,7 +299,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         opprettIAYAggregatProdCase(behandling, false, LocalDate.now().minusYears(1));
 
         //simulere at 5080 har oppstått
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         LocalDate stp = LocalDate.now();
         LocalDate fomDato = stp.minusYears(1);
@@ -381,7 +380,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         opprettIAYAggregat(behandling, true, LocalDate.of(2018, 1, 1));
 
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
         String erstatterArbeidsforholdId = ARBEIDSFORHOLD_REF.getReferanse();
 
         ArbeidsforholdDto arbeidsforhold = new ArbeidsforholdDto();
@@ -450,7 +449,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         opprettIAYAggregat(behandling, false, LocalDate.of(2018, 1, 1));
 
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         ArbeidsforholdDto arbeidsforhold = new ArbeidsforholdDto();
         arbeidsforhold.setNavn(navn);
@@ -499,7 +498,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         opprettIAYAggregat(behandling, false, LocalDate.of(2018, 1, 1));
 
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         ArbeidsforholdDto arbeidsforhold = new ArbeidsforholdDto();
         arbeidsforhold.setNavn(navn);

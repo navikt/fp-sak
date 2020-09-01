@@ -57,8 +57,6 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
 
     private BehandlingRepositoryProvider behandlingRepositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
 
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-
     @Inject
     private FamilieHendelseRepository familieHendelseRepository;
 
@@ -137,7 +135,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
 
         Behandling behandling = opprettRevurderingBehandling(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         lagreIAYGrunnlag(behandling.getId());
-        aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING);
+        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING);
 
         OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = opprettOverstyringUttaksperioderDto();
 
@@ -166,11 +164,11 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
             .build();
         behandlingRepositoryProvider.getUttaksperiodegrenseRepository().lagre(revurdering.getId(), uttaksperiodegrense);
 
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(revurdering, AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER);
-        aksjonspunktRepository.setToTrinnsBehandlingKreves(aksjonspunkt);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(revurdering, AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER);
+        AksjonspunktTestSupport.setToTrinnsBehandlingKreves(aksjonspunkt);
         // Der var aksjonspunkt 5070 pga avvik inntektsmelding men fikk nye inntektsmelding med riktig info, løsningen er tilbake hopp
         // og 5070 er avbrutt men ikke opprettet siden fått riktig inntektsmelding
-        aksjonspunktRepository.setTilAvbrutt(aksjonspunkt);
+        AksjonspunktTestSupport.setTilAvbrutt(aksjonspunkt);
         return revurdering;
     }
 

@@ -73,7 +73,6 @@ public class DokumentmottakerEndringssøknadTest {
     @Inject
     private ForeldrepengerUttakTjeneste fpUttakTjeneste;
 
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
     @Inject
     private FagsakRelasjonRepository fagsakRelasjonRepository;
 
@@ -419,7 +418,7 @@ public class DokumentmottakerEndringssøknadTest {
     }
 
     private void simulerKøetBehandling(Behandling behandling) {
-        aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING);
+        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING);
     }
 
     private Fagsak nyMorFødselFagsak() {

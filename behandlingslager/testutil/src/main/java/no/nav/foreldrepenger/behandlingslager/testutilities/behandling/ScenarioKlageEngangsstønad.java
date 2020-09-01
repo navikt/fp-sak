@@ -214,13 +214,13 @@ public class ScenarioKlageEngangsstønad {
         }
 
         utførteAksjonspunktDefinisjoner.forEach((apDef, stegType) ->
-            new AksjonspunktTestSupport().leggTilAksjonspunkt(klageBehandling, apDef, stegType)
+            AksjonspunktTestSupport.leggTilAksjonspunkt(klageBehandling, apDef, stegType)
         );
 
-        klageBehandling.getAksjonspunkter().forEach(punkt ->  new AksjonspunktTestSupport().setTilUtført(punkt,"Test"));
+        klageBehandling.getAksjonspunkter().forEach(punkt ->  AksjonspunktTestSupport.setTilUtført(punkt,"Test"));
 
         opprettedeAksjonspunktDefinisjoner.forEach((apDef, stegType) ->
-            new AksjonspunktTestSupport().leggTilAksjonspunkt(klageBehandling, apDef, stegType)
+            AksjonspunktTestSupport.leggTilAksjonspunkt(klageBehandling, apDef, stegType)
         );
 
         if (startSteg != null) {

@@ -145,13 +145,13 @@ public class ScenarioAnkeEngangsstønad {
         }
 
         utførteAksjonspunktDefinisjoner.forEach((apDef, stegType) ->
-            new AksjonspunktTestSupport().leggTilAksjonspunkt(ankeBehandling, apDef, stegType)
+            AksjonspunktTestSupport.leggTilAksjonspunkt(ankeBehandling, apDef, stegType)
         );
 
-        ankeBehandling.getAksjonspunkter().forEach(punkt -> new AksjonspunktTestSupport().setTilUtført(punkt, "Test"));
+        ankeBehandling.getAksjonspunkter().forEach(punkt -> AksjonspunktTestSupport.setTilUtført(punkt, "Test"));
 
         opprettedeAksjonspunktDefinisjoner.forEach((apDef, stegType) ->
-            new AksjonspunktTestSupport().leggTilAksjonspunkt(ankeBehandling, apDef, stegType)
+            AksjonspunktTestSupport.leggTilAksjonspunkt(ankeBehandling, apDef, stegType)
         );
 
         if (startSteg != null) {

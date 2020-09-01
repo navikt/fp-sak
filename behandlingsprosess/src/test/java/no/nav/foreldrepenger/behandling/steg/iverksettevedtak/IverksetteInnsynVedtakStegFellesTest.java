@@ -90,7 +90,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, BehandlingStegType.FORESLÅ_VEDTAK);
         scenario.lagMocked();
         Aksjonspunkt aksjonspunkt = scenario.getBehandling().getAksjonspunktFor(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
-        new AksjonspunktTestSupport().setTilUtført(aksjonspunkt, begrunnelse);
+        AksjonspunktTestSupport.setTilUtført(aksjonspunkt, begrunnelse);
         return scenario;
     }
 

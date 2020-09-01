@@ -56,7 +56,7 @@ public class VurderDekningsgradOppdatererTest {
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private Behandling behandling;
-    private Optional<Aksjonspunkt> aksjonspunkt;
+    private Aksjonspunkt aksjonspunkt;
 
     @Before
     public void oppsett(){
@@ -66,12 +66,9 @@ public class VurderDekningsgradOppdatererTest {
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
         BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-        Aksjonspunkt ap = aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_DEKNINGSGRAD);
-        aksjonspunktRepository.setTilUtført(ap, BEGRUNNELSE);
-
-        this.aksjonspunkt = Optional.of(ap);
+        aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_DEKNINGSGRAD);
+        AksjonspunktTestSupport.setTilUtført(aksjonspunkt, BEGRUNNELSE);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
     }
 
