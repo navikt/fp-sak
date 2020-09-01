@@ -158,7 +158,8 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
 
     private Behandling opprettRevurderingBehandlingMedAksjonspunktFaktaUttak() {
         Behandling revurdering = opprettRevurderingBehandling(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(revurdering.getBehandlingsresultat())
+        var behandlingsresultat = behandlingRepositoryProvider.getBehandlingsresultatRepository().hent(revurdering.getId());
+        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
             .medMottattDato(LocalDate.of(2010, 1, 1))
             .medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1))
             .build();
@@ -190,7 +191,8 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
         scenario.medFordeling(new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
         Behandling førstegangsbehandling = scenario.lagre(behandlingRepositoryProvider);
 
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(førstegangsbehandling.getBehandlingsresultat())
+        var behandlingsresultat = behandlingRepositoryProvider.getBehandlingsresultatRepository().hent(førstegangsbehandling.getId());
+        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
             .medMottattDato(LocalDate.of(2019, 1, 1))
             .medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1))
             .build();

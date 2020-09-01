@@ -719,7 +719,7 @@ public class FastsettePerioderRegelAdapterTest {
         UttakBeregningsandelTjenesteTestUtil andelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
         andelTjeneste.leggTilFrilans();
 
-        lagreUttaksperiodegrense(morBehandlingRevurdering);
+        lagreUttaksperiodegrense(morBehandlingRevurdering.getId());
 
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
@@ -1631,10 +1631,11 @@ public class FastsettePerioderRegelAdapterTest {
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
     }
 
-    private void lagreUttaksperiodegrense(Behandling behandling) {
-        Uttaksperiodegrense grense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
+    private void lagreUttaksperiodegrense(Long behandlingId) {
+        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
+        var grense = new Uttaksperiodegrense.Builder(br)
             .medFørsteLovligeUttaksdag(førsteLovligeUttaksdato).medMottattDato(mottattDato).build();
-        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), grense);
+        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandlingId, grense);
     }
 
     private Behandling setupMor(OppgittPeriodeEntitet oppgittPeriode,
@@ -1716,7 +1717,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     private void lagreUttaksgrunnlag(Behandling behandling, LocalDate endringsdato) {
-        lagreUttaksperiodegrense(behandling);
+        lagreUttaksperiodegrense(behandling.getId());
         lagreStønadskontoer(behandling);
         lagreEndringsdato(behandling, endringsdato);
     }

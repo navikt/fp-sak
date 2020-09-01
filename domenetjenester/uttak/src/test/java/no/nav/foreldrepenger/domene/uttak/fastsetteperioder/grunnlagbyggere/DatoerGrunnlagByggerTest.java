@@ -122,8 +122,9 @@ public class DatoerGrunnlagByggerTest {
 
         leggTilSøkersDødsdato(behandling, søkersDødsdato);
         Repository repository = repositoryRule.getRepository();
-        repository.lagre(behandling.getBehandlingsresultat());
-        lagreUttaksperiodegrense(behandling, repositoryProvider.getUttaksperiodegrenseRepository(), førsteLovligeUttaksdag);
+        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
+        repository.lagre(br);
+        lagreUttaksperiodegrense(repositoryProvider.getUttaksperiodegrenseRepository(), førsteLovligeUttaksdag, behandling.getId());
 
         return behandling;
     }
@@ -137,11 +138,12 @@ public class DatoerGrunnlagByggerTest {
         personopplysningRepository.lagre(behandling.getId(), builder);
     }
 
-    private void lagreUttaksperiodegrense(Behandling behandling, UttaksperiodegrenseRepository repository, LocalDate førsteLovligeUttaksdag) {
-        Uttaksperiodegrense grense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
+    private void lagreUttaksperiodegrense(UttaksperiodegrenseRepository repository, LocalDate førsteLovligeUttaksdag, Long behandlingId) {
+        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
+        var grense = new Uttaksperiodegrense.Builder(br)
             .medFørsteLovligeUttaksdag(førsteLovligeUttaksdag)
             .medMottattDato(LocalDate.now().minusWeeks(2)).build();
-        repository.lagre(behandling.getId(), grense);
+        repository.lagre(behandlingId, grense);
     }
 
     private DatoerGrunnlagBygger grunnlagBygger() {

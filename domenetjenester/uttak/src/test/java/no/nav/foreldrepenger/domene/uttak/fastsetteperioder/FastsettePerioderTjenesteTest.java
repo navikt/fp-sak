@@ -148,7 +148,7 @@ public class FastsettePerioderTjenesteTest {
         opprettStønadskontoerForFarOgMor(behandling);
         opprettPersonopplysninger(behandling);
 
-        opprettGrunnlag(mottattDato, behandling);
+        opprettGrunnlag(behandling.getId(), mottattDato);
 
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet, null);
 
@@ -216,7 +216,7 @@ public class FastsettePerioderTjenesteTest {
         opprettStønadskontoerForFarOgMor(behandling);
         opprettPersonopplysninger(behandling);
 
-        opprettGrunnlag(mottattDato, behandling);
+        opprettGrunnlag(behandling.getId(), mottattDato);
 
 
         beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver1, null);
@@ -270,7 +270,7 @@ public class FastsettePerioderTjenesteTest {
         opprettStønadskontoerForFarOgMor(behandling);
         opprettPersonopplysninger(behandling);
 
-        opprettGrunnlag(mottattDato, behandling);
+        opprettGrunnlag(behandling.getId(), mottattDato);
 
         // Act
 
@@ -321,7 +321,7 @@ public class FastsettePerioderTjenesteTest {
         opprettStønadskontoerForFarOgMor(behandling);
         opprettPersonopplysninger(behandling);
 
-        opprettGrunnlag(mottattDato, behandling);
+        opprettGrunnlag(behandling.getId(), mottattDato);
 
 
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet, null);
@@ -344,7 +344,7 @@ public class FastsettePerioderTjenesteTest {
         assertThat(mødrekvote.get().getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
 
         // Steg 2: Perioder finnes fra før, skal fastsettes på nytt pga ny mottatt dato
-        opprettGrunnlag(mottattDato.minusMonths(1).withDayOfMonth(1), behandling);
+        opprettGrunnlag(behandling.getId(), mottattDato.minusMonths(1).withDayOfMonth(1));
 
         // Act
         fastsettePerioderTjeneste.fastsettePerioder(lagInput(behandling, fødselsdato));
@@ -405,7 +405,7 @@ public class FastsettePerioderTjenesteTest {
             .build();
         relasjonRepository.lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
 
-        opprettGrunnlag(mottattDato, behandling);
+        opprettGrunnlag(behandling.getId(), mottattDato);
         opprettPersonopplysninger(behandling);
 
         // Act
@@ -466,7 +466,7 @@ public class FastsettePerioderTjenesteTest {
             .build();
         relasjonRepository.lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
 
-        opprettGrunnlag(mottattDato, behandling);
+        opprettGrunnlag(behandling.getId(), mottattDato);
 
         // Act
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet, null);
@@ -511,7 +511,7 @@ public class FastsettePerioderTjenesteTest {
         var behandling = scenario.lagre(repositoryProvider);
         relasjonRepository.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         opprettStønadskontoerForFarOgMor(behandling);
-        opprettGrunnlag(fødselsdato, behandling);
+        opprettGrunnlag(behandling.getId(), fødselsdato);
 
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet1, InternArbeidsforholdRef.nullRef());
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet2, InternArbeidsforholdRef.nyRef());
@@ -626,7 +626,7 @@ public class FastsettePerioderTjenesteTest {
         opprettStønadskontoerForFarOgMor(behandling);
         opprettPersonopplysninger(behandling);
 
-        opprettGrunnlag(mottattDato, behandling);
+        opprettGrunnlag(behandling.getId(), mottattDato);
 
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet, null);
         FastsettePerioderTjeneste fastsettePerioderTjeneste = tjeneste();
@@ -692,16 +692,17 @@ public class FastsettePerioderTjenesteTest {
             .build();
     }
 
-    private void opprettGrunnlag(LocalDate mottattDato, Behandling behandling) {
-        Uttaksperiodegrense uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
+    private void opprettGrunnlag(Long behandlingId, LocalDate mottattDato) {
+        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
+        Uttaksperiodegrense uttaksperiodegrense = new Uttaksperiodegrense.Builder(br)
             .medMottattDato(mottattDato)
             .medFørsteLovligeUttaksdag(mottattDato.withDayOfMonth(1).minusMonths(3))
             .build();
 
-        uttaksperiodegrenseRepository.lagre(behandling.getId(), uttaksperiodegrense);
+        uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
 
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(mottattDato).build();
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), avklarteUttakDatoer);
+        repositoryProvider.getYtelsesFordelingRepository().lagre(behandlingId, avklarteUttakDatoer);
     }
 
     private Fagsak opprettFagsak(RelasjonsRolleType relasjonsRolleType, AktørId aktørId) {
