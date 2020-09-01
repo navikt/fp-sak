@@ -223,6 +223,16 @@ public class YrkesaktivitetFilter {
             .collect(Collectors.toList());
     }
 
+    public Collection<Permisjon> getPermisjonerForArbeid(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef, LocalDate behovForTilretteleggingFom) {
+        return getYrkesaktiviteter().stream()
+            .filter(yt -> yt.erArbeidsforholdAktivt(behovForTilretteleggingFom))
+            .filter(yt -> yt.gjelderFor(arbeidsgiver, internArbeidsforholdRef))
+            .map(Yrkesaktivitet::getPermisjon)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+    }
+
+
     private Collection<AktivitetsAvtale> filterAktivitetsAvtaleOverstyring(Yrkesaktivitet ya, Collection<AktivitetsAvtale> yaAvtaler) {
 
         Optional<ArbeidsforholdOverstyring> overstyringOpt = finnMatchendeOverstyring(ya);

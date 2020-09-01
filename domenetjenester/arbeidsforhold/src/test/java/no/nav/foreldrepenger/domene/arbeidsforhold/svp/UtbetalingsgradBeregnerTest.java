@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,7 +18,10 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
+import no.nav.foreldrepenger.domene.iay.modell.PermisjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -57,7 +61,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale3 = aktivitetsAvtaleBuilder3.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2, aktivitetsAvtale3), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2, aktivitetsAvtale3), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -96,7 +100,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -138,7 +142,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -175,7 +179,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -207,7 +211,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -241,7 +245,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -273,7 +277,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -306,7 +310,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -342,7 +346,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -378,7 +382,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -416,7 +420,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -448,7 +452,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -515,7 +519,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -555,7 +559,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -599,7 +603,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale2 = aktivitetsAvtaleBuilder2.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
@@ -641,7 +645,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale2 = aktivitetsAvtaleBuilder2.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2), svpTilrettelegging, terminDato, Collections.emptyList());
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         DatoIntervallEntitet førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1));
@@ -687,7 +691,7 @@ public class UtbetalingsgradBeregnerTest {
         AktivitetsAvtale aktivitetsAvtale3 = aktivitetsAvtaleBuilder3.build();
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2, aktivitetsAvtale3), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2, aktivitetsAvtale3), svpTilrettelegging, terminDato, Collections.emptyList());
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         DatoIntervallEntitet førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(slutteArbeid, terminDatoMinus3UkerOg1Dag);
@@ -723,7 +727,7 @@ public class UtbetalingsgradBeregnerTest {
         );
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(aktiviteter, svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(aktiviteter, svpTilrettelegging, terminDato, Collections.emptyList());
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         DatoIntervallEntitet førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(slutteArbeid, terminDatoMinus3UkerOg1Dag);
@@ -754,7 +758,7 @@ public class UtbetalingsgradBeregnerTest {
         );
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(aktiviteter, svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(aktiviteter, svpTilrettelegging, terminDato, Collections.emptyList());
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         DatoIntervallEntitet førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, arbeidsforholdStart.minusDays(1));
@@ -803,7 +807,7 @@ public class UtbetalingsgradBeregnerTest {
         );
 
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(aktiviteter, svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(aktiviteter, svpTilrettelegging, terminDato, Collections.emptyList());
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         DatoIntervallEntitet førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDatoMinus3UkerOg1Dag);
@@ -839,7 +843,7 @@ public class UtbetalingsgradBeregnerTest {
         aktivitetsAvtaleBuilder.medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
             .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
@@ -876,7 +880,7 @@ public class UtbetalingsgradBeregnerTest {
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.of(2019, 8, 20)));
         AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
         // Act
-        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato);
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
             .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
@@ -886,6 +890,52 @@ public class UtbetalingsgradBeregnerTest {
         // Assert
         assertThat(resultat.get(periode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
     }
+
+    @Test
+    public void skal_beregne_riktig_utbetalingsgrad_for_periode_med_velferdspermisjon() {
+        //Arrange
+        LocalDate jordmorsdato = LocalDate.now().minusDays(20);
+        LocalDate helTilrettelegging = LocalDate.now().minusDays(20);
+        LocalDate delvisTilrettelegging = LocalDate.now().minusDays(10);
+        LocalDate slutteArbeid = LocalDate.now().plusDays(10);
+        LocalDate terminDatoMinus3UkerOg1Dag = LocalDate.now().plusDays(20);
+        LocalDate terminDato = LocalDate.now().plusDays(21).plusWeeks(3);
+        Arbeidsgiver test123 = Arbeidsgiver.virksomhet("Test123");
+
+        SvpTilretteleggingEntitet svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
+            .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(45)))
+            .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
+
+        AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
+        aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
+        aktivitetsAvtaleBuilder.medProsentsats(BigDecimal.valueOf(100));
+        AktivitetsAvtale aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
+
+        PermisjonBuilder permisjonBuilder = YrkesaktivitetBuilder.nyPermisjonBuilder();
+        Permisjon velferdspermisjon = permisjonBuilder.medPeriode(jordmorsdato, terminDato)
+            .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.VELFERDSPERMISJON)
+            .medProsentsats(BigDecimal.valueOf(20))
+            .build();
+
+        // Act
+        TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, List.of(velferdspermisjon));
+
+        Map<DatoIntervallEntitet, List<PeriodeMedUtbetalingsgrad>> resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream().collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+
+        DatoIntervallEntitet førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1));
+        DatoIntervallEntitet andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, slutteArbeid.minusDays(1));
+        DatoIntervallEntitet tredjePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(slutteArbeid, terminDatoMinus3UkerOg1Dag);
+
+        // Assert
+        assertThat(resultat.get(førstePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(0));
+        assertThat(resultat.get(andrePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(44));
+        assertThat(resultat.get(tredjePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+    }
+
 
     private AktivitetsAvtale lagAktivitetsAvtale(LocalDate jordmorsdato, LocalDate terminDato, BigDecimal prosentsats) {
         AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
