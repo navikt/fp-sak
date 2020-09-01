@@ -77,7 +77,7 @@ public class BehandleStegResultat {
 
     private static List<AksjonspunktResultat> konverterTilAksjonspunktResultat(List<AksjonspunktDefinisjon> aksjonspunktListe) {
         return aksjonspunktListe.stream()
-            .map(apDef -> AksjonspunktResultat.opprettForAksjonspunkt(apDef))
+            .map(AksjonspunktResultat::opprettForAksjonspunkt)
             .collect(toList());
     }
 

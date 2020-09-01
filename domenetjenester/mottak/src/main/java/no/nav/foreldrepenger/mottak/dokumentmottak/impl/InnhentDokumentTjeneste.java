@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Any;
@@ -11,7 +10,6 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -97,14 +95,7 @@ public class InnhentDokumentTjeneste {
     }
 
     private boolean skalMottasSomKøet(Fagsak fagsak) {
-        Optional<Behandling> køetBehandling = revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
-        Optional<Behandling> åpenBerørtBehandling = revurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId())
-            .filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
-        return køetBehandling.isPresent() || åpenBerørtBehandling.isPresent() || skalKøesGrunnetMedforelder(fagsak);
-    }
-
-    private boolean skalKøesGrunnetMedforelder(Fagsak fagsak) {
-        return revurderingRepository.finnÅpenBehandlingMedforelder(fagsak).map(b -> !køKontroller.skalSnikeIKø(fagsak, b)).orElse(false);
+        return køKontroller.skalNyEvtNyBehandlingKøes(fagsak);
     }
 
     private boolean brukDokumentKategori(DokumentTypeId dokumentTypeId, DokumentKategori dokumentKategori) {

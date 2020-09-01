@@ -217,7 +217,7 @@ public class VurderOpphørAvYtelser  {
             var harÅpenOrdinærBehandling = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(sakOpphør.getId());
             if (!harÅpenOrdinærBehandling) {
                 fagsakLåsRepository.taLås(sakOpphør.getId());
-                var skalKøes = !behandling.erAvsluttet() && behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING);
+                var skalKøes = køKontroller.skalNyEvtNyBehandlingKøes(sakOpphør);
                 Behandling revurderingOpphør = opprettRevurdering(sakOpphør, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN, skalKøes);
                 if (revurderingOpphør != null) {
                     LOG.info("Overlapp FPSAK: Vurder opphør av ytelse har opprettet revurdering med behandlingId {} på sak med saksnummer {} pga behandlingId {}", revurderingOpphør.getId(), sakOpphør.getSaksnummer(), behandlingId);
