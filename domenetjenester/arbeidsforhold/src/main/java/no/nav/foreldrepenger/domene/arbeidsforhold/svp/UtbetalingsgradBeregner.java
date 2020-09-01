@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Tilrett
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
+import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
@@ -35,11 +36,11 @@ class UtbetalingsgradBeregner {
     private static final BigDecimal HUNDRE_PROSENT = BigDecimal.valueOf(100);
     private static final BigDecimal TUSEN = BigDecimal.valueOf(1000);
 
-    static TilretteleggingMedUtbelingsgrad beregn(Collection<AktivitetsAvtale> avtalerAAreg, SvpTilretteleggingEntitet svpTilrettelegging, LocalDate termindato) {
+    static TilretteleggingMedUtbelingsgrad beregn(Collection<AktivitetsAvtale> avtalerAAreg, SvpTilretteleggingEntitet svpTilrettelegging, LocalDate termindato, Collection<Permisjon> velferdspermisjoner) {
         var termindatoMinus3UkerOg1Dag = termindato.minusWeeks(3).minusDays(1);
 
         var tidsserienForSøknad = byggTidsserienForSøknad(svpTilrettelegging.getTilretteleggingFOMListe(), svpTilrettelegging.getBehovForTilretteleggingFom(), termindatoMinus3UkerOg1Dag);
-        var ferdigBeregnet = byggTidsserienForAareg(avtalerAAreg, svpTilrettelegging.getBehovForTilretteleggingFom(), termindatoMinus3UkerOg1Dag)
+        var ferdigBeregnet = byggTidsserienForAareg(avtalerAAreg, svpTilrettelegging.getBehovForTilretteleggingFom(), termindatoMinus3UkerOg1Dag, velferdspermisjoner)
             .combine(tidsserienForSøknad, UtbetalingsgradBeregner::regnUtUtbetalingsgrad, LocalDateTimeline.JoinStyle.CROSS_JOIN);
         return kappOgBehold(svpTilrettelegging, termindatoMinus3UkerOg1Dag, ferdigBeregnet);
     }
@@ -83,16 +84,30 @@ class UtbetalingsgradBeregner {
         return UttakArbeidType.ANNET;
     }
 
-    private static LocalDateTimeline<BigDecimal> byggTidsserienForAareg(Collection<AktivitetsAvtale> avtalerAAreg, LocalDate jordmorsdato, LocalDate termindato) {
+    private static LocalDateTimeline<BigDecimal> byggTidsserienForAareg(Collection<AktivitetsAvtale> avtalerAAreg, LocalDate jordmorsdato, LocalDate termindato, Collection<Permisjon> velferdspermisjoner) {
         List<AktivitetsAvtale> aktiviteter = finnAktivitetsavtalerSomSkalBrukes(avtalerAAreg, jordmorsdato, termindato);
         BigDecimal summertStillingsprosent = finnSummertStillingsprosent(aktiviteter);
-        LocalDate startDato = jordmorsdato;
+        LocalDate startDato;
         if (aktiviteter.stream().noneMatch(a -> a.getPeriode().inkluderer(jordmorsdato.minusDays(1)))) {
             startDato = aktiviteter.stream().map(AktivitetsAvtale::getPeriode).map(DatoIntervallEntitet::getFomDato).min(Comparator.naturalOrder()).orElse(jordmorsdato);
+        } else {
+            startDato = jordmorsdato;
         }
-        LocalDateSegment<BigDecimal> segment = new LocalDateSegment<>(startDato, termindato, nullBlirTilHundre(ikkeHøyereEnn100(summertStillingsprosent)));
+
+        BigDecimal stillingsprosentFraAareg = finnStillingsprosentFraAareg(velferdspermisjoner, summertStillingsprosent, startDato);
+        LocalDateSegment<BigDecimal> segment = new LocalDateSegment<>(startDato, termindato, stillingsprosentFraAareg);
         return new LocalDateTimeline<>(List.of(segment));
 
+    }
+
+    private static BigDecimal finnStillingsprosentFraAareg(Collection<Permisjon> velferdspermisjoner, BigDecimal summertStillingsprosent, LocalDate startDato) {
+        BigDecimal summertVelferdspermisjon = velferdspermisjoner.stream().filter(p -> p.getPeriode().inkluderer(startDato))
+            .map(Permisjon::getProsentsats)
+            .map(Stillingsprosent::getVerdi)
+            .reduce(BigDecimal::add)
+            .orElse(BigDecimal.ZERO);
+        BigDecimal stillingsprosentFraAktivitetsavtaler = nullBlirTilHundre(ikkeHøyereEnn100(summertStillingsprosent));
+        return stillingsprosentFraAktivitetsavtaler.subtract(summertVelferdspermisjon).max(BigDecimal.ZERO);
     }
 
     private static BigDecimal finnSummertStillingsprosent(List<AktivitetsAvtale> aktiviteter) {

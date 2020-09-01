@@ -68,6 +68,10 @@ public class Permisjon extends BaseEntitet implements IndexKey {
         return periode.getTomDato();
     }
 
+    public DatoIntervallEntitet getPeriode() {
+        return periode;
+    }
+
     /**
      * Prosentsats som aktøren er permitert fra arbeidet
      *
