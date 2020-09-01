@@ -86,7 +86,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     private FastsettePerioderRegelGrunnlagBygger grunnlagBygger;
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
-        return scenario.lagre(repositoryProvider, iayTjeneste::lagreIayAggregat, iayTjeneste::lagreOppgittOpptjening);
+        return scenario.lagre(repositoryProvider, iayTjeneste::lagreIayAggregat);
     }
 
     @Test
@@ -566,8 +566,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         AktivitetsAvtaleBuilder aktivitetsAvtale = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed))
             .medProsentsats(stillingsprosent)
-            .medAntallTimer(BigDecimal.valueOf(20.4d))
-            .medAntallTimerFulltid(BigDecimal.valueOf(10.2d));
+            .medSisteLønnsendringsdato(fraOgMed);
         AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed));
         yrkesaktivitetBuilder

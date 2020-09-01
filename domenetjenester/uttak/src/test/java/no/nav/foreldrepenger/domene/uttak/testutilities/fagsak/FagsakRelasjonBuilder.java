@@ -13,7 +13,6 @@ public class FagsakRelasjonBuilder {
 
     private LocalDate fødselsdato;
     private LocalDate termindato;
-    private LocalDate adopsjonsdato;
 
     public FagsakRelasjonBuilder(FagsakYtelseType type) {
         ytelseType = type;
@@ -31,32 +30,13 @@ public class FagsakRelasjonBuilder {
         return new FagsakRelasjonBuilder(FagsakYtelseType.SVANGERSKAPSPENGER);
     }
 
-    public FagsakRelasjonBuilder medFødseldato(LocalDate dato) {
-        this.fødselsdato = dato;
-        return this;
-    }
-
-    public FagsakRelasjonBuilder medAdopsjonsdato(LocalDate dato) {
-        this.adopsjonsdato = dato;
-        return this;
-    }
-
     public FagsakRelasjonBuilder medTermindato(LocalDate dato) {
         this.termindato = dato;
         return this;
     }
 
-    public FagsakRelasjonBuilder medDekningsgrad(int dekningsgrad) {
-        this.dekningsgrad = new Dekningsgrad(dekningsgrad);
-        return this;
-    }
-
     public LocalDate getTermindato() {
         return termindato;
-    }
-
-    public LocalDate getAdopsjonsdato() {
-        return adopsjonsdato;
     }
 
     public LocalDate getFødselsdato() {

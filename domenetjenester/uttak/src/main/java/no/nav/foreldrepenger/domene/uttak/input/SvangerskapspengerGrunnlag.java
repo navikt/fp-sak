@@ -18,12 +18,6 @@ public class SvangerskapspengerGrunnlag implements YtelsespesifiktGrunnlag {
         svpGrunnlagEntitet = svangerskapspengerGrunnlag.svpGrunnlagEntitet;
     }
 
-    @Override
-    public int getDekningsgrad() {
-        // egentlig ikke relevant, eller alt kan sees på som alltid 100% dekning
-        return 100;
-    }
-
     public FamilieHendelse getFamilieHendelse() {
         return familieHendelse;
     }

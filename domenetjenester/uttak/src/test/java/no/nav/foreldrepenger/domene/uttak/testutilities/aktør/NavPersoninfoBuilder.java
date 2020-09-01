@@ -39,37 +39,8 @@ public class NavPersoninfoBuilder {
         return this;
     }
 
-    public NavPersoninfoBuilder medPersonIdent(PersonIdent personIdent) {
-        this.personIdent = personIdent;
-        return this;
-    }
-
-    public NavPersoninfoBuilder medNavn(String navn) {
-        this.navn = navn;
-        return this;
-    }
-
-    public NavPersoninfoBuilder medFødselsdato(LocalDate fødselsdato) {
-        this.fødselsdato = fødselsdato;
-        return this;
-    }
-
     public NavPersoninfoBuilder medKjønn(NavBrukerKjønn kjønn) {
         this.kjønn = kjønn;
-        return this;
-    }
-
-    public NavPersoninfoBuilder medForetrukketSpråk(Språkkode foretrukketSpråk) {
-        this.foretrukketSpråk = foretrukketSpråk;
-        return this;
-    }
-
-    public NavPersoninfoBuilder medDiskresjonskode(String diskresjonskode) {
-        this.diskresjonskode = diskresjonskode;
-        return this;
-    }
-    public NavPersoninfoBuilder medPersonstatusType(PersonstatusType personstatusType) {
-        this.personstatusType = personstatusType;
         return this;
     }
 

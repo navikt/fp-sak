@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.uttak.svp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,8 +32,11 @@ public class RegelmodellSøknaderMapper {
     public List<Søknad> hentSøknader(UttakInput input) {
         SvangerskapspengerGrunnlag svpInput = input.getYtelsespesifiktGrunnlag();
         var svpGrunnlagOptional = svpInput.getGrunnlagEntitet();
+        if (svpGrunnlagOptional.isEmpty()) {
+            return List.of();
+        }
         var termindato = finnTermindato(svpInput);
-        return lagSøknader(input, svpGrunnlagOptional, termindato);
+        return lagSøknader(input, svpGrunnlagOptional.get(), termindato);
     }
 
     private LocalDate finnTermindato(SvangerskapspengerGrunnlag svpGrunnlag) {
@@ -42,13 +44,11 @@ public class RegelmodellSøknaderMapper {
         return termindato.orElseThrow(() -> new IllegalStateException("Det skal alltid være termindato på svangerskapspenger søknad."));
     }
 
-    private List<Søknad> lagSøknader(UttakInput input, Optional<SvpGrunnlagEntitet> svpGrunnlagOptional, LocalDate termindato) {
-        var søknader = new ArrayList<Søknad>();
-        if (svpGrunnlagOptional.isPresent()) {
-            var aktuelleTilretteleggingerFiltrerte = new TilretteleggingFilter(svpGrunnlagOptional.get()).getAktuelleTilretteleggingerFiltrert();
-            aktuelleTilretteleggingerFiltrerte.forEach(tilrettelegging -> søknader.add(lagSøknad(input, tilrettelegging, termindato)));
-        }
-        return søknader;
+    private List<Søknad> lagSøknader(UttakInput input, SvpGrunnlagEntitet svpGrunnlag, LocalDate termindato) {
+        return new TilretteleggingFilter(svpGrunnlag).getAktuelleTilretteleggingerFiltrert()
+            .stream()
+            .map(tilrettelegging -> lagSøknad(input, tilrettelegging, termindato))
+            .collect(Collectors.toList());
     }
 
     private Søknad lagSøknad(UttakInput input, SvpTilretteleggingEntitet tilrettelegging, LocalDate termindato) {
@@ -89,18 +89,20 @@ public class RegelmodellSøknaderMapper {
             return input.getYrkesaktiviteter().finnStillingsprosentOrdinærtArbeid(
                 arbeidsgiver,
                 InternArbeidsforholdRef.ref(arbeidsforhold.getArbeidsforholdId().orElse(null)),
-                svpTilrettelegging.getBehovForTilretteleggingFom() //TODO SVP Er dette riktig? Kanskje vi bør beregne start på perioder.
+                svpTilrettelegging.getBehovForTilretteleggingFom()
             );
         }
         return BigDecimal.valueOf(100L); //Ellers 100% stilling
     }
 
-    private Arbeidsforhold lagArbeidsforhold(Optional<Arbeidsgiver> arbeidsforhold, Optional<InternArbeidsforholdRef> internArbeidsforholdRef, AktivitetType aktivitetType) {
-        if (!arbeidsforhold.isPresent()) {
+    private Arbeidsforhold lagArbeidsforhold(Optional<Arbeidsgiver> arbeidsforhold,
+                                             Optional<InternArbeidsforholdRef> internArbeidsforholdRef,
+                                             AktivitetType aktivitetType) {
+        if (arbeidsforhold.isEmpty()) {
             return Arbeidsforhold.annet(aktivitetType);
         }
         var arbeidsgiver = arbeidsforhold.get();
-        if (!internArbeidsforholdRef.isPresent()) {
+        if (internArbeidsforholdRef.isEmpty()) {
             if (arbeidsgiver.getErVirksomhet()) {
                 return Arbeidsforhold.virksomhet(aktivitetType, arbeidsgiver.getOrgnr(), null);
             }

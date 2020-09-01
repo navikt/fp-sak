@@ -8,7 +8,7 @@ import no.nav.vedtak.feil.FeilFactory;
 
 class BareSplittetPerioderValidering implements OverstyrUttakPerioderValidering {
 
-    private List<ForeldrepengerUttakPeriode> opprinnelig;
+    private final List<ForeldrepengerUttakPeriode> opprinnelig;
 
     BareSplittetPerioderValidering(List<ForeldrepengerUttakPeriode> opprinnelig) {
         this.opprinnelig = opprinnelig;

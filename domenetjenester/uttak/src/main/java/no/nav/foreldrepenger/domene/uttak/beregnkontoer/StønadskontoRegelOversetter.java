@@ -22,30 +22,28 @@ public class StønadskontoRegelOversetter {
                                                 Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                 ForeldrepengerGrunnlag fpGrunnlag) {
 
-        FamilieHendelse familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
+        var familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
+        var annenForeldreHarRett = UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartsGjeldendeUttaksplan);
 
-        boolean annenForeldreHarRett = UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartsGjeldendeUttaksplan);
-
-        BeregnKontoerGrunnlag.Builder grunnlagBuilder = BeregnKontoerGrunnlag.builder()
+        var grunnlagBuilder = BeregnKontoerGrunnlag.builder()
             .medAntallBarn(familieHendelse.getAntallBarn())
             .medDekningsgrad(map(fagsakRelasjon.getGjeldendeDekningsgrad().getVerdi()));
 
         leggTilFamileHendelseDatoer(grunnlagBuilder, familieHendelse, fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel());
 
-        boolean aleneomsorg = UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat);
+        var aleneomsorg = UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat);
         if (relasjonsRolleType.equals(RelasjonsRolleType.MORA)) {
             return grunnlagBuilder
                 .morRett(harSøkerRett)
                 .farRett(annenForeldreHarRett)
                 .morAleneomsorg(aleneomsorg)
                 .build();
-        } else {
-            return grunnlagBuilder
-                .morRett(annenForeldreHarRett)
-                .farRett(harSøkerRett)
-                .farAleneomsorg(aleneomsorg)
-                .build();
         }
+        return grunnlagBuilder
+            .morRett(annenForeldreHarRett)
+            .farRett(harSøkerRett)
+            .farAleneomsorg(aleneomsorg)
+            .build();
     }
 
     private void leggTilFamileHendelseDatoer(BeregnKontoerGrunnlag.Builder grunnlagBuilder, FamilieHendelse gjeldendeFamilieHendelse, boolean erFødsel) {

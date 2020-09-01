@@ -7,10 +7,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.wagnerfisher.EditDistanceLetter;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.wagnerfisher.EditDistanceOperasjon;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.wagnerfisher.WagnerFisher;
-
 public class WagnerFisherTest {
 
     @Test
@@ -58,7 +54,7 @@ public class WagnerFisherTest {
     }
 
     @Test
-    public void skal_populere_kostmatrise() throws Exception {
+    public void skal_populere_kostmatrise() {
         int[][] kostnadsmatrise = WagnerFisher.calculateEditDistanceCost(tilSekvens("abcdef"), tilSekvens("acf"));
         int[][] forventet = {
             {0, 3, 6, 9},

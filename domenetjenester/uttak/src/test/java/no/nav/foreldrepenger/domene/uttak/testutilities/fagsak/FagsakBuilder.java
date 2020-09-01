@@ -8,9 +8,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.uttak.testutilities.fagsak.FagsakBuilder;
-import no.nav.foreldrepenger.domene.uttak.testutilities.fagsak.FagsakRelasjonBuilder;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.testutilities.aktør.NavBrukerBuilder;
 
@@ -33,10 +30,6 @@ public class FagsakBuilder {
         this.fagsakRelasjonBuilder = fagsakRelasjonBuilder;
     }
 
-    private FagsakBuilder(Fagsak fagsak) {
-        this.fagsak = fagsak;
-    }
-
     public FagsakBuilder medSaksnummer(Saksnummer saksnummer) {
         validerFagsakIkkeSatt();
         this.saksnummer = saksnummer;
@@ -47,16 +40,6 @@ public class FagsakBuilder {
         if (fagsak != null) {
             throw new IllegalStateException("Fagsak er allerede konfigurert, kan ikke overstyre her");
         }
-    }
-
-    public RelasjonsRolleType getBrukerRolle() {
-        return rolle;
-    }
-
-    public FagsakBuilder medBrukerAktørId(AktørId aktørId) {
-        validerFagsakIkkeSatt();
-        brukerBuilder.medAktørId(aktørId);
-        return this;
     }
 
     public FagsakBuilder medBrukerKjønn(NavBrukerKjønn kjønn) {
@@ -85,10 +68,6 @@ public class FagsakBuilder {
         return this;
     }
 
-    public static FagsakBuilder enkel(Fagsak fagsak) {
-        return new FagsakBuilder(fagsak);
-    }
-
     public static FagsakBuilder nyFagsak(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType rolle) {
         if (fagsakYtelseType.equals(FagsakYtelseType.ENGANGSTØNAD)) {
             return nyEngangstønad(rolle);
@@ -115,26 +94,6 @@ public class FagsakBuilder {
         return new FagsakBuilder(rolle, FagsakRelasjonBuilder.svangerskapspenger());
     }
 
-    public static FagsakBuilder nyEngangstønadForMor() {
-        return new FagsakBuilder(RelasjonsRolleType.MORA, FagsakRelasjonBuilder.engangsstønad());
-    }
-
-    public static FagsakBuilder nyForeldrepengerForMor() {
-        return new FagsakBuilder(RelasjonsRolleType.MORA, FagsakRelasjonBuilder.foreldrepenger());
-    }
-
-    public FagsakBuilder medFødseldato(LocalDate dato) {
-        validerFagsakIkkeSatt();
-        fagsakRelasjonBuilder.medFødseldato(dato);
-        return this;
-    }
-
-    public FagsakBuilder medAdopsjonsdato(LocalDate dato) {
-        validerFagsakIkkeSatt();
-        fagsakRelasjonBuilder.medAdopsjonsdato(dato);
-        return this;
-    }
-
     public FagsakBuilder medTermindato(LocalDate dato) {
         validerFagsakIkkeSatt();
         fagsakRelasjonBuilder.medTermindato(dato);
@@ -142,14 +101,10 @@ public class FagsakBuilder {
     }
 
     public Fagsak build() {
-
-        if (fagsak != null) {
-            return fagsak;
-        } else {
+        if (fagsak == null) {
             fagsakRelasjonBuilder.setDefaults();
             fagsak = Fagsak.opprettNy(fagsakRelasjonBuilder.getYtelseType(), brukerBuilder.build(), rolle, saksnummer);
-            return fagsak;
         }
-
+        return fagsak;
     }
 }

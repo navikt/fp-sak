@@ -24,7 +24,7 @@ public class FørsteLovligeUttaksdatoTjeneste {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private Period søknadsfristEtterFørsteUttaksdag;
 
-    public FørsteLovligeUttaksdatoTjeneste() {
+    FørsteLovligeUttaksdatoTjeneste() {
         //For CDI
     }
 

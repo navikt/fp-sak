@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Terminb
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -66,7 +65,6 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         var saksnummer = ref.getSaksnummer();
 
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer);
-        var dekningsgrad = fagsakRelasjon.map(FagsakRelasjon::getGjeldendeDekningsgrad).orElse(Dekningsgrad._100);
 
         var fhaOpt = familieHendelseTjeneste.finnAggregat(behandlingId);
         if (fhaOpt.isEmpty()) {
@@ -77,7 +75,6 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         var erTapendeBehandling = tapendeBehandlingTjeneste.erTapendeBehandling(behandling);
         var originalBehandling = originalBehandling(behandling);
         var grunnlag = new ForeldrepengerGrunnlag()
-            .medDekningsgrad(dekningsgrad.getVerdi())
             .medErTapendeBehandling(erTapendeBehandling)
             .medFamilieHendelser(familiehendelser)
             .medOriginalBehandling(originalBehandling.orElse(null));

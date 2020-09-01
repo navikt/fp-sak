@@ -34,7 +34,6 @@ public class EndringsdatoFørstegangsbehandlingUtleder {
         }
         LocalDate førsteSøkteUttaksdato = optionalFørsteSøkteUttaksdato.get();
         var manueltSattFørsteUttaksdato = ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).orElse(førsteSøkteUttaksdato);
-        LocalDate endringsdato = manueltSattFørsteUttaksdato.isBefore(førsteSøkteUttaksdato) ? manueltSattFørsteUttaksdato : førsteSøkteUttaksdato;
-        return endringsdato;
+        return manueltSattFørsteUttaksdato.isBefore(førsteSøkteUttaksdato) ? manueltSattFørsteUttaksdato : førsteSøkteUttaksdato;
     }
 }

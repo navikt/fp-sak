@@ -11,12 +11,12 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public final class Personopplysning {
 
     private AktørId aktørId;
-    private NavBrukerKjønn brukerKjønn = NavBrukerKjønn.UDEFINERT;
-    private SivilstandType sivilstand = SivilstandType.UOPPGITT;
+    private NavBrukerKjønn brukerKjønn;
+    private SivilstandType sivilstand;
     private String navn;
     private LocalDate dødsdato;
     private LocalDate fødselsdato;
-    private Region region = Region.UDEFINERT;
+    private Region region;
 
     public AktørId getAktørId() {
         return aktørId;
@@ -58,19 +58,6 @@ public final class Personopplysning {
 
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * Bare overstyr enkelt verdier hvis du trenger det
-     */
-    public static Builder builderMedDefaultVerdier(AktørId aktørId) {
-        return Personopplysning.builder()
-            .brukerKjønn(NavBrukerKjønn.KVINNE)
-            .fødselsdato(LocalDate.now().minusYears(25))
-            .navn("Foreldre")
-            .aktørId(aktørId)
-            .sivilstand(SivilstandType.UOPPGITT)
-            .region(Region.NORDEN);
     }
 
     public static final class Builder {

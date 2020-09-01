@@ -158,28 +158,28 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
     }
 
     private boolean harSammeAdresseSomBarn(PersonopplysningerAggregat personopplysningerAggregat) {
-        boolean harSammeAdresse = false;
         for (PersonAdresseEntitet opplysningAdresseSøker : personopplysningerAggregat.getAdresserFor(personopplysningerAggregat.getSøker().getAktørId())) {
             for (PersonopplysningEntitet barn : personopplysningerAggregat.getBarna()) {
-                harSammeAdresse = harBarnetSammeAdresse(personopplysningerAggregat, harSammeAdresse, opplysningAdresseSøker, barn);
+                if (harBarnetSammeAdresse(personopplysningerAggregat, opplysningAdresseSøker, barn)) {
+                    return true;
+                }
             }
         }
-        return harSammeAdresse;
+        return false;
     }
 
     private boolean harBarnetSammeAdresse(PersonopplysningerAggregat personopplysningerAggregat,
-                                          boolean harSammeAdresse,
                                           PersonAdresseEntitet opplysningAdresseSøker,
                                           PersonopplysningEntitet barn) {
-        if (barn.getDødsdato()!=null) {
+        if (barn.getDødsdato() != null) {
             return true;
         }
         for (PersonAdresseEntitet opplysningAdresseBarn : personopplysningerAggregat.getAdresserFor(barn.getAktørId())) {
             if (Objects.equals(opplysningAdresseSøker.getAdresselinje1(), opplysningAdresseBarn.getAdresselinje1())
                 && Objects.equals(opplysningAdresseSøker.getPostnummer(), opplysningAdresseBarn.getPostnummer())) {
-                harSammeAdresse = true;
+                return true;
             }
         }
-        return harSammeAdresse;
+        return false;
     }
 }
