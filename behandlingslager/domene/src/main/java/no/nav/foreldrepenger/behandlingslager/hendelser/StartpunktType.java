@@ -39,7 +39,7 @@ public enum StartpunktType implements Kodeverdi {
     BEREGNING("BEREGNING", "Beregning", 7, BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING),
     // StartpunktType BEREGNING_FORESLÅ skal kun brukes ved G-regulering
     BEREGNING_FORESLÅ("BEREGNING_FORESLÅ", "Beregning foreslå", 8, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG),
-    UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 9, BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP),
+    UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 9, BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP), // OBS: Endrer du startsteg må du flytte køhåndtering ....
 
     UDEFINERT("-", "Ikke definert", 99, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
     ;

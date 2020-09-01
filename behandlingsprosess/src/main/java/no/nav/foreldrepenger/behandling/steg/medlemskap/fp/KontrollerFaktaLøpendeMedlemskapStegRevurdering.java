@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.behandling.steg.medlemskap.fp;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -10,9 +13,14 @@ import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandling.steg.medlemskap.KontrollerFaktaLøpendeMedlemskapSteg;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
@@ -22,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -37,12 +46,16 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @ApplicationScoped
 public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements KontrollerFaktaLøpendeMedlemskapSteg {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(KontrollerFaktaLøpendeMedlemskapStegRevurdering.class);
+
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private UtledVurderingsdatoerForMedlemskapTjeneste tjeneste;
 
     private BehandlingRepository behandlingRepository;
     private VurderMedlemskapTjeneste vurderMedlemskapTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+
+    private BehandlingFlytkontroll flytkontroll;
 
     KontrollerFaktaLøpendeMedlemskapStegRevurdering() {
         //CDI
@@ -52,17 +65,25 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
     public KontrollerFaktaLøpendeMedlemskapStegRevurdering(UtledVurderingsdatoerForMedlemskapTjeneste vurderingsdatoer,
                                                            BehandlingRepositoryProvider provider,
                                                            VurderMedlemskapTjeneste vurderMedlemskapTjeneste,
-                                                           SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                                           SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                           BehandlingFlytkontroll flytkontroll) {
         this.tjeneste = vurderingsdatoer;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
         this.vurderMedlemskapTjeneste = vurderMedlemskapTjeneste;
         this.behandlingsresultatRepository = provider.getBehandlingsresultatRepository();
+        this.flytkontroll = flytkontroll;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         Long behandlingId = kontekst.getBehandlingId();
+        List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();
+        if (flytkontroll.uttaksProsessenSkalVente(kontekst.getBehandlingId())) {
+            LOGGER.info("Flytkontroll UTTAK: Setter behandling {} revurdering på vent grunnet berørt eller annen part", kontekst.getBehandlingId());
+            aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_KØET_BEHANDLING, Venteårsak.VENT_ÅPEN_BEHANDLING, null));
+        }
+
         if (skalVurdereLøpendeMedlemskap(kontekst.getBehandlingId())) {
             Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
             if (!(behandling.erRevurdering() && behandling.getFagsakYtelseType().gjelderForeldrepenger())) {
@@ -76,10 +97,10 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
                 finnVurderingsdatoer.forEach(dato -> resultat.addAll(vurderMedlemskapTjeneste.vurderMedlemskap(ref, dato)));
             }
             if (!resultat.isEmpty()) {
-                return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP));
+                aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP));
             }
         }
-        return BehandleStegResultat.utførtUtenAksjonspunkter();
+        return aksjonspunkter.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter() : BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
     }
 
     private boolean skalVurdereLøpendeMedlemskap(Long behandlingId) {

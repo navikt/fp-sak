@@ -29,8 +29,7 @@ public class Transisjoner {
         new SpolFremoverTransisjon(BehandlingStegType.SØKERS_RELASJON_TIL_BARN),
         new SpolFremoverTransisjon(BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR),
         new SpolFremoverTransisjon(BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP),
-        new SpolFremoverTransisjon(BehandlingStegType.FASTSETT_OPPTJENINGSPERIODE),
-        new SpolFremoverTransisjon(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)
+        new SpolFremoverTransisjon(BehandlingStegType.FASTSETT_OPPTJENINGSPERIODE)
     );
 
     private Transisjoner() {

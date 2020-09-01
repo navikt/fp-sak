@@ -14,6 +14,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandling.steg.medlemskap.fp.KontrollerFaktaLøpendeMedlemskapStegRevurdering;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -82,12 +83,14 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     private InntektArbeidYtelseTjeneste iayTjeneste;
     @Inject
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    @Inject
+    private BehandlingFlytkontroll flytkontroll;
 
     private KontrollerFaktaLøpendeMedlemskapStegRevurdering steg;
 
     @Before
     public void setUp() {
-        steg = new KontrollerFaktaLøpendeMedlemskapStegRevurdering(utlederTjeneste, provider, vurderMedlemskapTjeneste, skjæringstidspunktTjeneste);
+        steg = new KontrollerFaktaLøpendeMedlemskapStegRevurdering(utlederTjeneste, provider, vurderMedlemskapTjeneste, skjæringstidspunktTjeneste, flytkontroll);
     }
 
     @Test

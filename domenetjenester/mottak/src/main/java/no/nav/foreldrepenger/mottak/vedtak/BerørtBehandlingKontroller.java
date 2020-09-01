@@ -129,6 +129,9 @@ public class BerørtBehandlingKontroller {
     }
 
     private void opprettBerørtBehandling(Fagsak fagsakMedforelder, Optional<Behandlingsresultat> behandlingsresultat) {
+        // Hvis det nå allerede skulle være en åpen behandling (ikke i kø) så legg den i kø før oppretting av berørt.
+        behandlingRevurderingRepository.finnÅpenYtelsesbehandling(fagsakMedforelder.getId())
+            .ifPresent(b -> behandlingskontrollTjeneste.settBehandlingPåVent(b, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING));
         Behandling revurdering = behandlingsoppretter.opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
         opprettHistorikkinnslag(revurdering, behandlingsresultat, HistorikkinnslagType.REVURD_OPPR);
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);

@@ -3,12 +3,9 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -18,24 +15,20 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
-import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
@@ -51,13 +44,13 @@ public class KøKontrollerTest {
     @Mock
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     @Mock
-    private HistorikkinnslagTjeneste historikkinnslagTjeneste;
-    @Mock
     private SøknadRepository søknadRepository;
     @Mock
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     @Mock
     private Behandlingsoppretter behandlingsoppretter;
+    @Mock
+    private BehandlingFlytkontroll flytkontroll;
 
     private KøKontroller køKontroller;
 
@@ -69,7 +62,7 @@ public class KøKontrollerTest {
         when(behandlingRepositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
         when(behandlingRepositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
         køKontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingRevurderingRepository, behandlingskontrollTjeneste,
-            behandlingRepositoryProvider, historikkinnslagTjeneste, behandlingsoppretter);
+            behandlingRepositoryProvider, behandlingsoppretter, flytkontroll);
     }
 
     @Test
@@ -129,50 +122,35 @@ public class KøKontrollerTest {
     }
 
     @Test
-    public void skal_snike_i_kø_hvis_en_behandling_ligger_på_vent_pga_for_tidlig_søknad(){
+    public void skal_starte_hvis_en_2part_behandling_ligger_før_uttak(){
         //Arrange
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagMocked();
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD, null);
-        Behandling behandlingMedforelder = scenario.lagMocked();
+        scenario.lagMocked();
+        when(flytkontroll.nyRevurderingSkalVente(behandling.getFagsak())).thenReturn(false);
         when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(behandling.getFagsak())).thenReturn(Optional.empty());
 
-        YtelseFordelingAggregat ytelse1 = lagYtelse(LocalDate.now());
-        when(ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(ytelse1));
-        YtelseFordelingAggregat ytelse2 = lagYtelse(LocalDate.now().plusMonths(4));
-        when(ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingMedforelder.getId())).thenReturn(Optional.of(ytelse2));
-
         //Act
-        boolean skalSnike = køKontroller.skalSnikeIKø(behandling.getFagsak(), behandlingMedforelder);
+        boolean skalKøes = køKontroller.skalEvtNyBehandlingKøes(behandling.getFagsak());
 
         //Assert
-        assertThat(skalSnike).isTrue();
+        assertThat(skalKøes).isFalse();
     }
 
     @Test
-    public void skal_ikke_snike_i_kø_hvis_en_behandling_ligger_på_vent_pga_feks_fødsel(){
+    public void skal_ikke_starte_hvis_en_2part_behandling_ligger_til_vedtak(){
         //Arrange
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PÅ_FØDSEL, null);
-        Behandling behandlingMedforelder = scenario.lagMocked();
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(behandling.getFagsak())).thenReturn(Optional.empty());
+        scenario.lagMocked();
+        when(flytkontroll.nyRevurderingSkalVente(behandling.getFagsak())).thenReturn(true);
+        when(behandlingRepository.finnSisteInnvilgetBehandling(any())).thenReturn(Optional.of(behandling));
 
         //Act
-        boolean skalSnike = køKontroller.skalSnikeIKø(behandling.getFagsak(), behandlingMedforelder);
+        boolean skalKøes = køKontroller.skalEvtNyBehandlingKøes(behandling.getFagsak());
 
         //Assert
-        assertThat(skalSnike).isFalse();
+        assertThat(skalKøes).isTrue();
     }
 
-    private YtelseFordelingAggregat lagYtelse(LocalDate fomDato) {
-        var ytelse = mock(YtelseFordelingAggregat.class);
-
-        OppgittFordelingEntitet oppgittFordeling = mock(OppgittFordelingEntitet.class);
-        OppgittPeriodeEntitet oppgittPeriode = mock(OppgittPeriodeEntitet.class);
-        when(oppgittPeriode.getFom()).thenReturn(fomDato);
-        when(oppgittFordeling.getOppgittePerioder()).thenReturn(List.of(oppgittPeriode));
-        when(ytelse.getOppgittFordeling()).thenReturn(oppgittFordeling);
-        return ytelse;
-    }
 }

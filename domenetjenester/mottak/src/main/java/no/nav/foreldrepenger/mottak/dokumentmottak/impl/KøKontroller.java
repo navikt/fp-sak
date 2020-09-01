@@ -5,14 +5,12 @@ import java.util.Optional;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
@@ -21,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
-import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 
 @Dependent
 public class KøKontroller {
@@ -30,10 +27,10 @@ public class KøKontroller {
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingRepository behandlingRepository;
-    private HistorikkinnslagTjeneste historikkinnslagTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private Behandlingsoppretter behandlingsoppretter;
     private SøknadRepository søknadRepository;
+    private BehandlingFlytkontroll flytkontroll;
 
     public KøKontroller() {
         // For CDI proxy
@@ -44,16 +41,16 @@ public class KøKontroller {
                         BehandlingRevurderingRepository behandlingRevurderingRepository,
                         BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                         BehandlingRepositoryProvider repositoryProvider,
-                        HistorikkinnslagTjeneste historikkinnslagTjeneste,
-                        Behandlingsoppretter behandlingsoppretter) {
+                        Behandlingsoppretter behandlingsoppretter,
+                        BehandlingFlytkontroll flytkontroll) {
         this.behandlingProsesseringTjeneste = prosesseringTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingRevurderingRepository = behandlingRevurderingRepository;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        this.historikkinnslagTjeneste = historikkinnslagTjeneste;
         this.behandlingsoppretter = behandlingsoppretter;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
+        this.flytkontroll = flytkontroll;
     }
 
 
@@ -112,35 +109,12 @@ public class KøKontroller {
         return oppdatertBehandling;
     }
 
-    public boolean skalSnikeIKø(Fagsak brukersFagsak, Behandling åpenBehandlingPåMedforelder) {
-        Optional<Behandling> innvilgetBehandling = behandlingRevurderingRepository.finnSisteInnvilgetBehandlingForMedforelder(brukersFagsak);
-        if (innvilgetBehandling.isEmpty() && medforelderHarÅpentApForTidligSøknad(åpenBehandlingPåMedforelder)
-            && BehandlingType.FØRSTEGANGSSØKNAD.equals(åpenBehandlingPåMedforelder.getType())) {
-
-            settAksjonspunktForTidligSøknadUtført(åpenBehandlingPåMedforelder);
-            enkøBehandling(åpenBehandlingPåMedforelder);
-            historikkinnslagTjeneste.opprettHistorikkinnslagForVenteFristRelaterteInnslag(åpenBehandlingPåMedforelder,
-                HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
-            return true;
+    public boolean skalEvtNyBehandlingKøes(Fagsak fagsak) {
+        // Finnes ingen tidligere innvilget -> Skal ikke opprettes revurdering.
+        if (behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId()).isEmpty()) {
+            return false;
         }
-        // Informasjonsbrev og IM fører til VentPåSøknad med VP REGSØK - før køhåndtering
-        return medforelderHarÅpentApVentPåSøknad(åpenBehandlingPåMedforelder);
+        return behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId()).isPresent() || flytkontroll.nyRevurderingSkalVente(fagsak);
     }
 
-    private boolean medforelderHarÅpentApForTidligSøknad(Behandling behandling) {
-        return behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD);
-    }
-
-    private boolean medforelderHarÅpentApVentPåSøknad(Behandling behandling) {
-        return behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD);
-    }
-
-    private void settAksjonspunktForTidligSøknadUtført(Behandling åpenBehandlingPåMedforelder) {
-        // TODO: Finn bedre modell. Ønsker ikke klå på andre behandlingers aksjonspunkt.
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(åpenBehandlingPåMedforelder);
-        behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, null,
-            åpenBehandlingPåMedforelder.getAksjonspunktFor(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD),
-            "Utført fordi den sperrer for behandling av annen forelder som starter uttak først");
-
-    }
 }
