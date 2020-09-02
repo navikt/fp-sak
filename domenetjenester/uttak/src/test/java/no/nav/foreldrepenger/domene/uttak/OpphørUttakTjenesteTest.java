@@ -69,15 +69,15 @@ public class OpphørUttakTjenesteTest {
         lagreSkjæringstidspunkt(revurdering, skjæringstidspunkt);
         var ref = BehandlingReferanse.fra(revurdering, skjæringstidspunkt);
 
-        Optional<LocalDate> kallPåOpphørTjenesteForOpphørBehandling = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(revurdering));
+        Optional<LocalDate> kallPåOpphørTjenesteForOpphørBehandling = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(revurdering.getId()));
         assertThat(kallPåOpphørTjenesteForOpphørBehandling).isNotEmpty();
 
-        Optional<LocalDate> kallPåOpphørTjenesteForInnvilgetBehandling = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(originalBehandling));
+        Optional<LocalDate> kallPåOpphørTjenesteForInnvilgetBehandling = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(originalBehandling.getId()));
         assertThat(kallPåOpphørTjenesteForInnvilgetBehandling).isEmpty();
     }
 
-    private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandling.getBehandlingsresultat();
+    private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
+        return repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
     }
 
     @Test
@@ -96,9 +96,9 @@ public class OpphørUttakTjenesteTest {
             .medAvslåttPeriode(opphørsÅrsaker.next(), 10)
             .buildFor(revurdering.getId());
         // act
-        Optional<LocalDate> opphørsdato = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(revurdering));
+        Optional<LocalDate> opphørsdato = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(revurdering.getId()));
         // assert
-        assertThat(opphørsdato.get()).isEqualTo(skjæringstidspunkt.plusDays(54));
+        assertThat(opphørsdato.orElseThrow()).isEqualTo(skjæringstidspunkt.plusDays(54));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class OpphørUttakTjenesteTest {
             .medAvslåttPeriode(opphørsÅrsaker.next(), 14).medAvslåttPeriode(opphørsÅrsaker.next(), 62)
             .buildFor(revurdering.getId());
         // act
-        Optional<LocalDate> opphørsdato = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(revurdering));
+        Optional<LocalDate> opphørsdato = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(revurdering.getId()));
         // assert
         assertThat(opphørsdato.get()).isEqualTo(skjæringstidspunkt);
     }

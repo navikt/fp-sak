@@ -51,7 +51,9 @@ public class SvangerskapspengerUttakResultatRepositoryTest {
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medPeriode(uttakPeriode)
             .build();
-        var uttakResultat= new SvangerskapspengerUttakResultatEntitet.Builder(behandling.getBehandlingsresultat()).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
+        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
+        var uttakResultat= new SvangerskapspengerUttakResultatEntitet.Builder(br)
+            .medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
         repositoryProvider.getSvangerskapspengerUttakResultatRepository().lagre(behandling.getId(), uttakResultat);
 
         repoRule.getEntityManager().flush();
@@ -73,8 +75,6 @@ public class SvangerskapspengerUttakResultatRepositoryTest {
         assertThat(perioder.get(0).getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
     }
 
-
-
     @Test
     public void skal_kunne_lagre_og_uttak_med_ikke_oppfylt_periode() {
         var behandling = opprettBehandling();
@@ -95,7 +95,8 @@ public class SvangerskapspengerUttakResultatRepositoryTest {
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medPeriode(uttakPeriode)
             .build();
-        var uttakResultat= new SvangerskapspengerUttakResultatEntitet.Builder(behandling.getBehandlingsresultat()).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
+        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
+        var uttakResultat= new SvangerskapspengerUttakResultatEntitet.Builder(br).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
         repositoryProvider.getSvangerskapspengerUttakResultatRepository().lagre(behandling.getId(), uttakResultat);
 
         repoRule.getEntityManager().flush();
@@ -115,7 +116,6 @@ public class SvangerskapspengerUttakResultatRepositoryTest {
         assertThat(perioder.get(0).getPeriodeIkkeOppfyltÅrsak()).isEqualTo(PeriodeIkkeOppfyltÅrsak._8308_SØKT_FOR_SENT);
     }
 
-
     @Test
     public void skal_kunne_lagre_og_uttak_med_ikke_oppfylt_arbeidsforhold() {
         var behandling = opprettBehandling();
@@ -125,7 +125,8 @@ public class SvangerskapspengerUttakResultatRepositoryTest {
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.UTTAK_KUN_PÅ_HELG)
             .build();
-        var uttakResultat= new SvangerskapspengerUttakResultatEntitet.Builder(behandling.getBehandlingsresultat()).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
+        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
+        var uttakResultat= new SvangerskapspengerUttakResultatEntitet.Builder(br).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
         repositoryProvider.getSvangerskapspengerUttakResultatRepository().lagre(behandling.getId(), uttakResultat);
 
         repoRule.getEntityManager().flush();

@@ -108,7 +108,7 @@ public class UttakRevurderingTestUtil {
             .medOppgittDekningsgrad(oppgittDekningsgrad);
 
         Behandling revurdering = lagre(revurderingsscenario);
-        lagreUttaksperiodegrense(revurdering);
+        lagreUttaksperiodegrense(revurdering.getId());
         kopierGrunnlagsdata(revurdering);
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(revurdering.getFagsak(), map(oppgittDekningsgrad));
         return revurdering;
@@ -162,12 +162,13 @@ public class UttakRevurderingTestUtil {
         return new OppgittFordelingEntitet(Collections.singletonList(oppgittPeriodeBuilder.build()), true);
     }
 
-    private void lagreUttaksperiodegrense(Behandling behandling) {
-        Uttaksperiodegrense grense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
+    private void lagreUttaksperiodegrense(Long behandlingId) {
+        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
+        var grense = new Uttaksperiodegrense.Builder(br)
             .medFørsteLovligeUttaksdag(LocalDate.of(2018, 1, 1))
             .medMottattDato(FØDSELSDATO)
             .build();
-        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), grense);
+        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandlingId, grense);
     }
 
     private void opprettUttakResultat(Behandling førstegangsbehandling, List<UttakResultatPeriodeEntitet> perioder) {
@@ -187,7 +188,7 @@ public class UttakRevurderingTestUtil {
     }
 
     private void kopierGrunnlagsdata(Behandling revurdering) {
-        Long originalBehandlingId = revurdering.getOriginalBehandlingId().get();
+        Long originalBehandlingId = revurdering.getOriginalBehandlingId().orElseThrow();
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, revurdering.getId());
     }
 
@@ -277,7 +278,7 @@ public class UttakRevurderingTestUtil {
             .medBehandlingType(BehandlingType.REVURDERING);
 
         Behandling revurdering = lagre(revurderingsscenario);
-        lagreUttaksperiodegrense(revurdering);
+        lagreUttaksperiodegrense(revurdering.getId());
         kopierGrunnlagsdata(revurdering);
         return revurdering;
     }

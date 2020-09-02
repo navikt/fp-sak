@@ -144,7 +144,7 @@ public class SaldoerDtoTjenesteImplTest {
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), StønadskontoType.MØDREKVOTE);
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE);
 
-        Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling);
+        Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         repositoryRule.getRepository().lagre(behandlingsresultatForMor);
 
@@ -220,7 +220,7 @@ public class SaldoerDtoTjenesteImplTest {
 
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), StønadskontoType.MØDREKVOTE);
 
-        Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling);
+        Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         repositoryRule.getRepository().lagre(behandlingsresultatForMor);
 
@@ -279,7 +279,7 @@ public class SaldoerDtoTjenesteImplTest {
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(15).minusDays(1), StønadskontoType.MØDREKVOTE);
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(15), fødseldato.plusWeeks(15 + 17).minusDays(1), StønadskontoType.FELLESPERIODE);
 
-        Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling);
+        Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         repositoryRule.getRepository().lagre(behandlingsresultatForMor);
 
@@ -334,7 +334,7 @@ public class SaldoerDtoTjenesteImplTest {
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), StønadskontoType.MØDREKVOTE);
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE, true, true);
 
-        Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling);
+        Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         repositoryRule.getRepository().lagre(behandlingsresultatForMor);
 
@@ -534,8 +534,8 @@ public class SaldoerDtoTjenesteImplTest {
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(18 /* forbrukte uker */ + 4 /* saldo FP */ + 15 /* saldo FK*/).minusDays(1));
     }
 
-    private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandling.getBehandlingsresultat();
+    private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
+        return repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
     }
 
     @Test
