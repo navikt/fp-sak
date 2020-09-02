@@ -122,7 +122,7 @@ public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste 
                 "join GR_YTELSES_FORDELING gryf on gryf.behandling_id = b.id and gryf.aktiv = 'J'" +
                 "join YF_FORDELING yf on yf.id in (gryf.SO_FORDELING_ID, gryf.JUSTERT_FORDELING_ID, gryf.OVERSTYRT_FORDELING_ID) " +
                 "join YF_FORDELING_PERIODE yfp on yfp.FORDELING_ID = yf.ID " +
-                "where b.id = gryf.behandling_id and yfp.mottatt_dato_temp is null) " +
+                "where b.id = gryf.behandling_id and yfp.mottatt_dato_temp is null order by b.OPPRETTET_TID desc) " +
                 "where ROWNUM <= :antall";
 
             var query = entityManager.createNativeQuery(sql);
