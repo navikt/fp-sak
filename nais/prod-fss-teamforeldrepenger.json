@@ -53,7 +53,7 @@
     "FPABAKUS_URL": "http://fpabakus.default/fpabakus",
     "FPFORDEL_BASE_URL": "http://fpfordel/fpfordel",
     "ABAC_PDP_ENDPOINT_URL": "https://wasapp.adeo.no/asm-pdp/authorize",
-    "FPOPPDRAG_SIMULERINGRESULTAT_URL": "http://fpoppdrag/fpoppdrag/api/simulering/resultat",
+    "FPOPPDRAG_SIMULERINGRESULTAT_URL": "https://fpoppdrag.nais.adeo.no/fpoppdrag/api/simulering/resultat",
     "SAK_RS_URL": "http://sak.default/api/v1/saker",
     "AKTOER_V2_URL": "https://app.adeo.no/aktoerregister/ws/Aktoer/v2",
     "JOURNAL_V3_URL": "https://dokarkiv.nais.adeo.no/services/journal/v3",

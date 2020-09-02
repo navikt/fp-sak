@@ -9,8 +9,9 @@
   "minReplicas": "2",
   "maxReplicas": "2",
   "ingresses": [
-    "https://fpsak.dev.adeo.no",
-    "https://fpsak.nais.preprod.local"
+    "https://fpsak-q1.nais.preprod.local",
+    "https://fpsak.nais.preprod.local",
+    "https://fpsak.dev.adeo.no"
   ],
   "env": {
     "APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
@@ -31,10 +32,10 @@
     "OIDC_STS_JWKS_URL": "https://security-token-service.nais.preprod.local/rest/v1/sts/jwks",
     "FPSAK_CHANNEL_NAME": "Q1_FPSAK",
     "FPSAK_CHANNEL_QUEUEMANAGER": "mq://b27apvl176.preprod.local:1413/MQ1LSC02",
-    "LOADBALANCER_URL": "https://fpsak.dev.adeo.no",
+    "LOADBALANCER_FQDN": "fpsak.nais.preprod.local",
     "LOADBALANCER_FPSAK_POOLNAME": "nais",
     "LOADBALANCER_FPSAK_CONTEXTROOTS": "fpsak",
-    "OIDC_OPENAM_AGENTNAME": "fpsak-teamforeldrepenger",
+    "OIDC_OPENAM_AGENTNAME": "fpsak-q1",
     "OIDC_OPENAM_HOSTURL": "https://isso-q.adeo.no:443/isso/oauth2",
     "OIDC_OPENAM_ISSUERURL": "https://isso-q.adeo.no:443/isso/oauth2",
     "OIDC_OPENAM_JWKSURL": "https://isso-q.adeo.no:443/isso/oauth2/connect/jwk_uri",
