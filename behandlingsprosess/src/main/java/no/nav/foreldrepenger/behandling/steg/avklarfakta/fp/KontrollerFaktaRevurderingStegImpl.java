@@ -55,6 +55,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepositor
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
@@ -75,6 +76,9 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private static final Set<AksjonspunktDefinisjon> AKSJONSPUNKT_SKAL_KOPIERES = Set.of(AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER);
 
     private static final Set<AktivitetStatus> ARENA_REGULERES = Set.of(AktivitetStatus.DAGPENGER, AktivitetStatus.ARBEIDSAVKLARINGSPENGER);
+
+    private static final Set<AktivitetStatus> SN_REGULERING = Set.of(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, AktivitetStatus.KOMBINERT_AT_SN,
+        AktivitetStatus.KOMBINERT_FL_SN, AktivitetStatus.KOMBINERT_AT_FL_SN);
 
     private BehandlingRepository behandlingRepository;
 
@@ -247,7 +251,10 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
                 .anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL)
                     && a.getBeregningsgrunnlagPeriode().getBruttoPrÅr().compareTo(BigDecimal.valueOf(3).multiply(BigDecimal.valueOf(grunnbeløp.getVerdi()))) < 0);
-            if (over6G || erMilitærUnder3G) {
+            boolean erNæringsdrivende = forrigeBeregning.stream().flatMap(bg -> bg.getAktivitetStatuser().stream())
+                .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
+                .anyMatch(SN_REGULERING::contains);
+            if (over6G || erMilitærUnder3G || erNæringsdrivende) {
                 LOGGER.info("KOFAKREV Revurdering {} skal G-reguleres", revurdering.getId());
                 return StartpunktType.BEREGNING_FORESLÅ;
             } else {

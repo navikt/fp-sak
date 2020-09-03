@@ -38,7 +38,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
-public class AutomatiskMilSivReguleringBatchTjenesteTest {
+public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
 
     @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
@@ -58,7 +58,7 @@ public class AutomatiskMilSivReguleringBatchTjenesteTest {
     @Inject
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
 
-    private AutomatiskMilSivReguleringBatchTjeneste tjeneste;
+    private AutomatiskNæringsdrivendeReguleringBatchTjeneste tjeneste;
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -73,26 +73,26 @@ public class AutomatiskMilSivReguleringBatchTjenesteTest {
         nySats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getVerdi();
         cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
         gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
-        tjeneste = new AutomatiskMilSivReguleringBatchTjeneste(behandlingRevurderingRepository, beregningsresultatRepository, prosessTaskRepository);
+        tjeneste = new AutomatiskNæringsdrivendeReguleringBatchTjeneste(behandlingRevurderingRepository, beregningsresultatRepository, prosessTaskRepository);
     }
 
     @Test
     public void skal_ikke_finne_saker_til_revurdering() {
-        opprettRevurderingsKandidat(BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats, gammelSats * 3); // Har åpen behandling
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats, gammelSats * 3); // Uttak før "1/5"
+        opprettRevurderingsKandidat(BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats, gammelSats); // Har åpen behandling
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats, gammelSats * 4); // Uttak før "1/5"
         String svar = tjeneste.launch(null);
-        assertThat(svar).isEqualTo(AutomatiskMilSivReguleringBatchTjeneste.BATCHNAME+"-0");
+        assertThat(svar).isEqualTo(AutomatiskNæringsdrivendeReguleringBatchTjeneste.BATCHNAME+"-0");
     }
 
     @Test
-    public void skal_finne_to_saker_til_revurdering() {
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), gammelSats, gammelSats * 3); // Skal finnes
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats, gammelSats * 2);  // Skal finnes
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats, gammelSats * 4); // Over streken på 3G
+    public void skal_finne_tre_saker_til_revurdering() {
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), gammelSats, gammelSats ); // Skal plukke
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats, gammelSats * 8); // Skal plukke
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats, gammelSats * 4); // Skal plukke
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(2), gammelSats, gammelSats * 2); // Uttak før "1/5"
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), nySats, gammelSats * 2); // Har allerede ny G
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), nySats, gammelSats * 7); // Har allerede ny G
         String svar = tjeneste.launch(null);
-        assertThat(svar).isEqualTo(AutomatiskMilSivReguleringBatchTjeneste.BATCHNAME+"-2");
+        assertThat(svar).isEqualTo(AutomatiskNæringsdrivendeReguleringBatchTjeneste.BATCHNAME+"-3");
     }
 
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status, LocalDate uttakFom, long sats, long brutto) {
@@ -120,7 +120,7 @@ public class AutomatiskMilSivReguleringBatchTjenesteTest {
             .medSkjæringstidspunkt(uttakFom)
             .build();
         BeregningsgrunnlagAktivitetStatus.builder()
-            .medAktivitetStatus(AktivitetStatus.MILITÆR_ELLER_SIVIL)
+            .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
             .build(beregningsgrunnlag);
         BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
             .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3))
