@@ -230,7 +230,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         }
 
         if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
-            return StartpunktType.BEREGNING_FORESLÅ;
+            return finnStartpunktForGRegulering(revurdering);
         }
 
         BeregningSats grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getFørsteUttaksdato());
@@ -249,7 +249,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                     && a.getBeregningsgrunnlagPeriode().getBruttoPrÅr().compareTo(BigDecimal.valueOf(3).multiply(BigDecimal.valueOf(grunnbeløp.getVerdi()))) < 0);
             if (over6G || erMilitærUnder3G) {
                 LOGGER.info("KOFAKREV Revurdering {} skal G-reguleres", revurdering.getId());
-                return StartpunktType.BEREGNING_FORESLÅ;
+                return finnStartpunktForGRegulering(revurdering);
             } else {
                 LOGGER.info("KOFAKREV Revurdering {} blir ikke G-regulert: brutto {} grense {}", revurdering.getId(), bruttoPrÅr, grenseverdi);
             }
@@ -261,6 +261,28 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg, BehandlingStegType fraSteg) {
         RyddRegisterData rydder = new RyddRegisterData(repositoryProvider, kontekst);
         rydder.ryddRegisterdata();
+    }
+
+    /**
+     * Om saken skal G-reguleres kan den enten starte fra start eller foreslå. Dette avhenger av om man har avklart informasjon i fakta om beregning som avhenger
+     * av størrelsen på G-beløpet. Dette gjelder søkere som har mottatt ytelse for en aktivitet (arbeidsforhold uten inntektsmelding eller frilans)
+     * og der denne ytelsen har blitt g-regulert. Derfor lar vi alle slike saker starte fra start av beregning.
+     *
+     * @param revurdering Revurdering
+     * @return Startpunkt for g-regulering
+     */
+    private StartpunktType finnStartpunktForGRegulering(Behandling revurdering) {
+        if (mottarYtelseForAktivitet(revurdering)) {
+            return StartpunktType.BEREGNING;
+        }
+        return StartpunktType.BEREGNING_FORESLÅ;
+    }
+
+    private boolean mottarYtelseForAktivitet(Behandling revurdering) {
+        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagEntitet = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId());
+        return beregningsgrunnlagEntitet.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
+            .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
+            .anyMatch(a -> a.mottarYtelse().orElse(false));
     }
 
     private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering, BehandlingskontrollKontekst kontekst) {
