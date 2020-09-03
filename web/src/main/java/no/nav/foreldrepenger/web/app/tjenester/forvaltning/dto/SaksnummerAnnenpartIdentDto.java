@@ -11,7 +11,7 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;
 
-public class SaksnummerAnnenpartDto implements AbacDto {
+public class SaksnummerAnnenpartIdentDto implements AbacDto {
 
 
     @NotNull
@@ -31,13 +31,13 @@ public class SaksnummerAnnenpartDto implements AbacDto {
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;
 
-    public SaksnummerAnnenpartDto(@NotNull String saksnummer, @NotNull String identAnnenPart, String begrunnelse) {
+    public SaksnummerAnnenpartIdentDto(@NotNull String saksnummer, @NotNull String identAnnenPart, String begrunnelse) {
         this.saksnummer = saksnummer;
         this.identAnnenPart = identAnnenPart;
         this.begrunnelse = begrunnelse;
     }
 
-    public SaksnummerAnnenpartDto() {
+    public SaksnummerAnnenpartIdentDto() {
     }
 
     @Override
