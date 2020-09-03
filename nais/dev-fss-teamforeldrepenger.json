@@ -9,7 +9,7 @@
   "minReplicas": "2",
   "maxReplicas": "2",
   "ingresses": [
-    "https://fpsak.nais.preprod.local"
+    "https://fpsak-q1.nais.preprod.local"
   ],
   "env": {
     "APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
@@ -30,7 +30,7 @@
     "OIDC_STS_JWKS_URL": "https://security-token-service.nais.preprod.local/rest/v1/sts/jwks",
     "FPSAK_CHANNEL_NAME": "Q1_FPSAK",
     "FPSAK_CHANNEL_QUEUEMANAGER": "mq://b27apvl176.preprod.local:1413/MQ1LSC02",
-    "LOADBALANCER_FQDN": "fpsak.nais.preprod.local",
+    "LOADBALANCER_FQDN": "fpsak-q1.nais.preprod.local",
     "LOADBALANCER_FPSAK_POOLNAME": "nais",
     "LOADBALANCER_FPSAK_CONTEXTROOTS": "fpsak",
     "OIDC_OPENAM_AGENTNAME": "fpsak-q1",
@@ -53,7 +53,7 @@
     "FPABAKUS_URL": "http://fpabakus.q1/fpabakus",
     "FPFORDEL_BASE_URL": "http://fpfordel/fpfordel",
     "ABAC_PDP_ENDPOINT_URL": "https://wasapp-q1.adeo.no/asm-pdp/authorize",
-    "FPOPPDRAG_SIMULERINGRESULTAT_URL": "http://fpoppdrag/fpoppdrag/api/simulering/resultat",
+    "FPOPPDRAG_SIMULERINGRESULTAT_URL": "https://fpoppdrag-q1.nais.preprod.local/fpoppdrag/api/simulering/resultat",
     "SAK_RS_URL": "http://sak.q1/api/v1/saker",
     "AKTOER_V2_URL": "https://app-q1.adeo.no/aktoerregister/ws/Aktoer/v2",
     "JOURNAL_V3_URL": "https://dokarkiv-q1.nais.preprod.local/services/journal/v3",
