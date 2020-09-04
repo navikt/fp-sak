@@ -19,18 +19,12 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @BehandlingStegRef(kode = "ANKE_MERKNADER")
 @BehandlingTypeRef
@@ -43,7 +37,6 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
 
     private AnkeRepository ankeRepository;
     private BehandlingRepository behandlingRepository;
-    private HistorikkRepository historikkRepository;
 
     public AnkeMerknaderSteg() {
         // For CDI proxy
@@ -51,11 +44,9 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
 
     @Inject
     public AnkeMerknaderSteg(BehandlingRepository behandlingRepository,
-                             AnkeRepository ankeRepository,
-                             HistorikkRepository historikkRepository) {
+                             AnkeRepository ankeRepository) {
         this.ankeRepository = ankeRepository;
         this.behandlingRepository = behandlingRepository;
-        this.historikkRepository = historikkRepository;
     }
 
     @Override
@@ -63,8 +54,8 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
         Optional<AnkeVurderingResultatEntitet> ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(kontekst.getBehandlingId());
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
-        if (kanAnkeMerknaderUtføres(ankeVurderingResultat)) {
-            if (kanBehandlingSettesPåVent(behandling)) {
+        if (skalAnkeMerknaderInnhentingUtføres(ankeVurderingResultat)) {
+            if (skalBehandlingVentePåMerknaderFraBruker(behandling)) {
                 return BehandleStegResultat.utførtMedAksjonspunktResultater(singletonList(settAnkebehandlingPåVentOgLagHistorikkInnslag(behandling)));
             }
             List<AksjonspunktDefinisjon> aksjonspunktDefinisjons = singletonList(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE_MERKNADER);
@@ -73,16 +64,11 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
-    private boolean kanBehandlingSettesPåVent(Behandling behandling) {
-        List<Aksjonspunkt> behandledeAksjonspunkter = behandling.getBehandledeAksjonspunkter();
-        Optional<Aksjonspunkt> autoVentMerknaderFraBruker = behandledeAksjonspunkter.stream()
-            .filter(a -> a.getAksjonspunktDefinisjon().equals(AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER))
-            .findFirst();
-
-        return autoVentMerknaderFraBruker.isEmpty();
+    private boolean skalBehandlingVentePåMerknaderFraBruker(Behandling behandling) {
+        return !behandling.harAksjonspunktMedType(AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER);
     }
 
-    private boolean kanAnkeMerknaderUtføres(Optional<AnkeVurderingResultatEntitet> ankeVurderingResultat) {
+    private boolean skalAnkeMerknaderInnhentingUtføres(Optional<AnkeVurderingResultatEntitet> ankeVurderingResultat) {
         return ankeVurderingResultat.isPresent()
             && ankeVurderingResultat.get().godkjentAvMedunderskriver()
             && (AnkeVurdering.ANKE_AVVIS.equals(ankeVurderingResultat.get().getAnkeVurdering())
@@ -92,22 +78,7 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
     private AksjonspunktResultat settAnkebehandlingPåVentOgLagHistorikkInnslag(Behandling behandling) {
         LocalDate settPåVentTom = LocalDate.now().plusWeeks(FRIST_VENT_PAA_MERKNADER_FRA_BRUKER);
         LocalDateTime frist = LocalDateTime.of(settPåVentTom, LocalTime.MIDNIGHT);
-
-        lagHistorikkInnslagSattPåVent(behandling, frist);
         return AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER, Venteårsak.ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER, frist);
     }
 
-    private void lagHistorikkInnslagSattPåVent(Behandling behandling, LocalDateTime frist) {
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder();
-        builder.medHendelse(HistorikkinnslagType.BEH_VENT, frist.toLocalDate());
-        builder.medÅrsak(Venteårsak.ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER);
-
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        historikkinnslag.setType(HistorikkinnslagType.BEH_VENT);
-        historikkinnslag.setBehandlingId(behandling.getId());
-        historikkinnslag.setFagsakId(behandling.getFagsakId());
-        builder.build(historikkinnslag);
-        historikkRepository.lagre(historikkinnslag);
-    }
 }
