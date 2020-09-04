@@ -58,6 +58,7 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
@@ -278,7 +279,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         revurdering = kopierUttaksperiodegrense(revurdering, origBehandling);
 
         if (StartpunktType.BEREGNING_FORESLÅ.equals(revurdering.getStartpunkt())) {
-            beregningsgrunnlagKopierOgLagreTjeneste.kopierResultatForGRegulering(origBehandling.getId(), revurdering.getId());
+            beregningsgrunnlagKopierOgLagreTjeneste.kopierResultatForGRegulering(finnBehandlingSomHarKjørtBeregning(origBehandling).getId(), revurdering.getId());
         }
 
         if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt())) {
@@ -286,6 +287,13 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         }
 
         tilbakestillOppgittFordelingBasertPåBehandlingType(revurdering);
+    }
+
+    private Behandling finnBehandlingSomHarKjørtBeregning(Behandling behandling) {
+        if (!behandling.erRevurdering() || hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(behandling.getId(), BeregningsgrunnlagTilstand.OPPRETTET).isPresent()) {
+            return behandling;
+        };
+        return finnBehandlingSomHarKjørtBeregning(behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling).orElseThrow(() -> new IllegalStateException("Forventer å finne original behandling")));
     }
 
     private void tilbakestillOppgittFordelingBasertPåBehandlingType(Behandling revurdering) {
