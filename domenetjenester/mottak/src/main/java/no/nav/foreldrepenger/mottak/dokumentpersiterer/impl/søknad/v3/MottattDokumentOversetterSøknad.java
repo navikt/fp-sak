@@ -241,7 +241,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             byggMedlemskap(wrapper, behandlingId, mottattDato);
         }
         if (skalByggeSøknadAnnenPart(wrapper)) {
-            byggSøknadAnnenPart(wrapper, behandlingId);
+            byggSøknadAnnenPart(wrapper, behandling);
         }
 
         byggYtelsesSpesifikkeFelter(wrapper, behandling, søknadBuilder);
@@ -862,7 +862,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         return (annenForelder != null);
     }
 
-    private void byggSøknadAnnenPart(MottattDokumentWrapperSøknad skjema, Long behandlingId) {
+    private void byggSøknadAnnenPart(MottattDokumentWrapperSøknad skjema, Behandling behandling) {
         OppgittAnnenPartBuilder oppgittAnnenPartBuilder = new OppgittAnnenPartBuilder();
 
         AnnenForelder annenForelder = null;
@@ -881,14 +881,16 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             AnnenForelderUtenNorskIdent annenForelderUtenNorskIdent = (AnnenForelderUtenNorskIdent) annenForelder;
             String annenPartIdentString = annenForelderUtenNorskIdent.getUtenlandskPersonidentifikator();
             if (PersonIdent.erGyldigFnr(annenPartIdentString)) {
-                tpsTjeneste.hentAktørForFnr(new PersonIdent(annenPartIdentString)).ifPresent(oppgittAnnenPartBuilder::medAktørId);
+                tpsTjeneste.hentAktørForFnr(new PersonIdent(annenPartIdentString))
+                    .filter(a -> !behandling.getAktørId().equals(a))
+                    .ifPresent(oppgittAnnenPartBuilder::medAktørId);
             }
             oppgittAnnenPartBuilder.medUtenlandskFnr(annenPartIdentString);
             Optional<String> funnetLandkode = Optional.ofNullable(annenForelderUtenNorskIdent.getLand()).map(Land::getKode);
             funnetLandkode.ifPresent(s -> oppgittAnnenPartBuilder.medUtenlandskFnrLand(finnLandkode(s)));
         }
 
-        personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder);
+        personopplysningRepository.lagre(behandling.getId(), oppgittAnnenPartBuilder);
 
     }
 
