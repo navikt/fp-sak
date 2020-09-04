@@ -115,7 +115,7 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
     private boolean behandlingHarLøstSøknadsfristAP(Behandling behandling) {
         var ap = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST);
         return ap.isPresent() && ap.get().erUtført() && ap.get().getOpprettetTidspunkt().isAfter(behandling.getOpprettetDato()) &&
-            ap.get().getOpprettetTidspunkt().isBefore(behandling.getAvsluttetDato());
+            (behandling.getAvsluttetDato() == null || ap.get().getOpprettetTidspunkt().isBefore(behandling.getAvsluttetDato()));
     }
 
     private LocalDate hentMottattDatoFraSøknad(Behandling behandling) {
