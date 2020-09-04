@@ -133,11 +133,8 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return IndexKey.createKey(uttakPeriodeType, årsakType, årsak, arbeidsgiver, periode);
     }
 
-    /**
-     * Ikke bruk, skal bare brukes i batch ifm TFP-2394
-     */
-    public LocalDate getMottattDatoTemp() {
-        return mottattDatoTemp;
+    public Long getId() {
+        return id;
     }
 
     public UttakPeriodeType getPeriodeType() {

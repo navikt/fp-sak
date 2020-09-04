@@ -12,10 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
@@ -90,30 +90,32 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
         if (mottattDato == null) {
             throw new IllegalStateException("Kunne ikke utlede mottatt dato for behandling " + behandling.getId());
         }
-        periode.setMottattDatoTemp(mottattDato);
-        entityManager.persist(periode);
+        var updated = entityManager.createNativeQuery("update YF_FORDELING_PERIODE set mottatt_dato_temp = :md where id=:periodeId")
+            .setParameter("md", mottattDato)
+            .setParameter("periodeId", periode.getId())
+            .executeUpdate();
+        if (updated != 1) {
+            throw new RuntimeException("Ikke oppdatert");
+        }
     }
 
     private LocalDate utledMottattDato(OppgittPeriodeEntitet periode, Behandling behandling) {
-        if (periode.getPeriodeKilde().equals(FordelingPeriodeKilde.SØKNAD)) {
-            var mottattDatoFraBehandling = hentMottattDatoFraBehandling(behandling);
-            if (periode.getMottattDatoTemp() != null && mottattDatoFraBehandling.isAfter(periode.getMottattDatoTemp())) {
-                return periode.getMottattDatoTemp();
-            }
-            return mottattDatoFraBehandling;
-        }
-
         var tidligstBehandlingMedPeriode = finnTidligstBehandling(periode, behandling);
         return hentMottattDatoFraBehandling(tidligstBehandlingMedPeriode);
     }
 
     private LocalDate hentMottattDatoFraBehandling(Behandling behandling) {
-        var uttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId());
-        if (uttaksperiodegrense.isPresent()) {
-            return uttaksperiodegrense.get().getMottattDato();
+        if (behandlingHarLøstSøknadsfristAP(behandling)) {
+            var uttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId());
+            return uttaksperiodegrense.orElseThrow().getMottattDato();
         }
-
         return hentMottattDatoFraSøknad(behandling);
+    }
+
+    private boolean behandlingHarLøstSøknadsfristAP(Behandling behandling) {
+        var ap = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST);
+        return ap.isPresent() && ap.get().erUtført() && ap.get().getOpprettetTidspunkt().isAfter(behandling.getOpprettetDato()) &&
+            ap.get().getOpprettetTidspunkt().isBefore(behandling.getAvsluttetDato());
     }
 
     private LocalDate hentMottattDatoFraSøknad(Behandling behandling) {
@@ -130,9 +132,6 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
         while (originalBehandling.isPresent()) {
             var p = finnPeriodeIBehandling(periode, originalBehandling.get());
             if (p.isPresent()) {
-                if (p.get().getPeriodeKilde().equals(FordelingPeriodeKilde.SØKNAD)) {
-                    return originalBehandling.get();
-                }
                 førsteBehandlingMedPeriode = originalBehandling.get();
             }
             originalBehandling = originalBehandling.get().getOriginalBehandlingId().map(behandlingRepository::hentBehandling);
