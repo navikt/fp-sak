@@ -96,7 +96,11 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
 
     private LocalDate utledMottattDato(OppgittPeriodeEntitet periode, Behandling behandling) {
         if (periode.getPeriodeKilde().equals(FordelingPeriodeKilde.SØKNAD)) {
-            return hentMottattDatoFraBehandling(behandling);
+            var mottattDatoFraBehandling = hentMottattDatoFraBehandling(behandling);
+            if (periode.getMottattDatoTemp() != null && mottattDatoFraBehandling.isAfter(periode.getMottattDatoTemp())) {
+                return periode.getMottattDatoTemp();
+            }
+            return mottattDatoFraBehandling;
         }
 
         var tidligstBehandlingMedPeriode = finnTidligstBehandling(periode, behandling);
