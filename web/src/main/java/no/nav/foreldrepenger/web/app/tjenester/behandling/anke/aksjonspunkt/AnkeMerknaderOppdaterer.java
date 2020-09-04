@@ -57,9 +57,11 @@ public class AnkeMerknaderOppdaterer implements AksjonspunktOppdaterer<AnkeMerkn
         if (!Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())) {
             lagBrevTilTrygderettenBasertPåUtfall(dto);
         }
-        settAnkebehandlingPåVentFraTrygderettenOgLagHistorikkInnslag(behandling);
+        if (!behandling.harAksjonspunktMedType(AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN)) {
+            settAnkebehandlingPåVentFraTrygderettenOgLagHistorikkInnslag(behandling);
+        }
 
-        return OppdateringResultat.utenTransisjon().medBeholdAksjonspunktÅpent().build();
+        return OppdateringResultat.utenTransisjon().build();
     }
 
     private void lagBrevTilTrygderettenBasertPåUtfall(AnkeMerknaderResultatAksjonspunktDto dto) { // NOSONAR - Fjern denne når TFP-1152 implementeres
@@ -74,15 +76,10 @@ public class AnkeMerknaderOppdaterer implements AksjonspunktOppdaterer<AnkeMerkn
     }
 
     private void settAnkebehandlingPåVentFraTrygderettenOgLagHistorikkInnslag(Behandling behandling) {
-        var harHattAutopunktVentTrygderetten = behandling.harAksjonspunktMedType(AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN);
-
-        if(!harHattAutopunktVentTrygderetten) {
-            LocalDate settPåVentTom = LocalDate.now().plusYears(FRIST_VENT_PAA_ANKE_OVERSENDT_TIL_TRYGDERETTEN);
-            LocalDateTime frist = LocalDateTime.of(settPåVentTom, LocalTime.MIDNIGHT);
-            behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN, BehandlingStegType.ANKE_MERKNADER,
-                frist, Venteårsak.ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER);
-
-        }
+        LocalDate settPåVentTom = LocalDate.now().plusYears(FRIST_VENT_PAA_ANKE_OVERSENDT_TIL_TRYGDERETTEN);
+        LocalDateTime frist = LocalDateTime.of(settPåVentTom, LocalTime.MIDNIGHT);
+        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN, BehandlingStegType.ANKE_MERKNADER,
+            frist, Venteårsak.ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER);
     }
 
     private void håndterAnkeVurdering(Behandling behandling, AnkeMerknaderResultatAksjonspunktDto dto) {
