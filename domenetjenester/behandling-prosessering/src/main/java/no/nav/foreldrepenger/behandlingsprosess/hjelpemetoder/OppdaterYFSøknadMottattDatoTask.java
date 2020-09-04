@@ -78,15 +78,15 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
         var justertFordeling = ytelseFordelingAggregat.get().getJustertFordeling();
         var overstyrtFordeling = ytelseFordelingAggregat.get().getOverstyrtFordeling();
 
-        oppgittFordeling.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling));
-        justertFordeling.ifPresent(f -> f.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling)));
-        overstyrtFordeling.ifPresent(f -> f.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling)));
+        oppgittFordeling.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling, false));
+        justertFordeling.ifPresent(f -> f.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling, true)));
+        overstyrtFordeling.ifPresent(f -> f.getOppgittePerioder().forEach(p -> oppdaterMottattDato(p, behandling, true)));
         behandlingLåsRepository.oppdaterLåsVersjon(behandlingLås);
         entityManager.flush();
     }
 
-    private void oppdaterMottattDato(OppgittPeriodeEntitet periode, Behandling behandling) {
-        var mottattDato = utledMottattDato(periode, behandling);
+    private void oppdaterMottattDato(OppgittPeriodeEntitet periode, Behandling behandling, boolean oppdaterFraAP) {
+        var mottattDato = utledMottattDato(periode, behandling, oppdaterFraAP);
         if (mottattDato == null) {
             throw new IllegalStateException("Kunne ikke utlede mottatt dato for behandling " + behandling.getId());
         }
@@ -99,13 +99,13 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
         }
     }
 
-    private LocalDate utledMottattDato(OppgittPeriodeEntitet periode, Behandling behandling) {
+    private LocalDate utledMottattDato(OppgittPeriodeEntitet periode, Behandling behandling, boolean oppdaterFraAP) {
         var tidligstBehandlingMedPeriode = finnTidligstBehandling(periode, behandling);
-        return hentMottattDatoFraBehandling(tidligstBehandlingMedPeriode);
+        return hentMottattDatoFraBehandling(tidligstBehandlingMedPeriode, oppdaterFraAP);
     }
 
-    private LocalDate hentMottattDatoFraBehandling(Behandling behandling) {
-        if (behandlingHarLøstSøknadsfristAP(behandling)) {
+    private LocalDate hentMottattDatoFraBehandling(Behandling behandling, boolean oppdaterFraAP) {
+        if (oppdaterFraAP && behandlingHarLøstSøknadsfristAP(behandling)) {
             var uttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId());
             return uttaksperiodegrense.orElseThrow().getMottattDato();
         }
