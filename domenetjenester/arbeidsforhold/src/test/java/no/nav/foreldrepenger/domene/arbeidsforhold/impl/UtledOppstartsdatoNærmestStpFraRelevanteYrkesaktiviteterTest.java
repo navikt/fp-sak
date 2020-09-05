@@ -15,8 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteterTest {
 
@@ -36,9 +36,7 @@ public class UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteterTest {
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .leggTilAktivitetsAvtale(YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, SKJÆRINGSTIDSPUNKT))
-                .medProsentsats(BigDecimal.valueOf(100))
-                .medAntallTimer(BigDecimal.valueOf(40))
-                .medAntallTimerFulltid(BigDecimal.valueOf(40)))
+                .medProsentsats(BigDecimal.valueOf(100)))
             .build();
 
         LocalDate fom2 = SKJÆRINGSTIDSPUNKT.minusYears(2);
@@ -49,9 +47,7 @@ public class UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteterTest {
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .leggTilAktivitetsAvtale(YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
-                .medProsentsats(BigDecimal.valueOf(100))
-                .medAntallTimer(BigDecimal.valueOf(40))
-                .medAntallTimerFulltid(BigDecimal.valueOf(40)))
+                .medProsentsats(BigDecimal.valueOf(100)))
             .build();
 
         LocalDate fom3 = SKJÆRINGSTIDSPUNKT.minusYears(3);
@@ -62,9 +58,7 @@ public class UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteterTest {
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .leggTilAktivitetsAvtale(YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3))
-                .medProsentsats(BigDecimal.valueOf(100))
-                .medAntallTimer(BigDecimal.valueOf(40))
-                .medAntallTimerFulltid(BigDecimal.valueOf(40)))
+                .medProsentsats(BigDecimal.valueOf(100)))
             .build();
 
         LocalDate fom4 = SKJÆRINGSTIDSPUNKT.plusDays(3);
@@ -75,9 +69,7 @@ public class UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteterTest {
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .leggTilAktivitetsAvtale(YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom4, tom4))
-                .medProsentsats(BigDecimal.valueOf(100))
-                .medAntallTimer(BigDecimal.valueOf(40))
-                .medAntallTimerFulltid(BigDecimal.valueOf(40)))
+                .medProsentsats(BigDecimal.valueOf(100)))
             .build();
 
         List<Yrkesaktivitet> yrkesaktiviteter = List.of(yrkesaktivitet1, yrkesaktivitet2, yrkesaktivitet3, yrkesaktivitet4);
@@ -106,9 +98,7 @@ public class UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteterTest {
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .leggTilAktivitetsAvtale(YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
-                .medProsentsats(BigDecimal.valueOf(100))
-                .medAntallTimer(BigDecimal.valueOf(40))
-                .medAntallTimerFulltid(BigDecimal.valueOf(40)))
+                .medProsentsats(BigDecimal.valueOf(100)))
             .build();
 
         LocalDate fom2 = SKJÆRINGSTIDSPUNKT.plusDays(1);
@@ -119,9 +109,7 @@ public class UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteterTest {
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .leggTilAktivitetsAvtale(YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
-                .medProsentsats(BigDecimal.valueOf(100))
-                .medAntallTimer(BigDecimal.valueOf(40))
-                .medAntallTimerFulltid(BigDecimal.valueOf(40)))
+                .medProsentsats(BigDecimal.valueOf(100)))
             .build();
 
         LocalDate fom3 = SKJÆRINGSTIDSPUNKT.plusDays(2);
@@ -132,9 +120,7 @@ public class UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteterTest {
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .leggTilAktivitetsAvtale(YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3))
-                .medProsentsats(BigDecimal.valueOf(100))
-                .medAntallTimer(BigDecimal.valueOf(40))
-                .medAntallTimerFulltid(BigDecimal.valueOf(40)))
+                .medProsentsats(BigDecimal.valueOf(100)))
             .build();
 
         List<Yrkesaktivitet> yrkesaktiviteter = List.of(yrkesaktivitet1, yrkesaktivitet2, yrkesaktivitet3);

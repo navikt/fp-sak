@@ -1,7 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.*;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.*;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FEDREKVOTE;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FELLESPERIODE;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FORELDREPENGER;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.MØDREKVOTE;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTSETTELSE;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTTAK;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -111,9 +116,6 @@ public enum IkkeOppfyltÅrsak implements PeriodeResultatÅrsak {
     private static final Map<String, IkkeOppfyltÅrsak> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "IKKE_OPPFYLT_AARSAK";
-
-    @Deprecated
-    public static final String DISCRIMINATOR = "IKKE_OPPFYLT_AARSAK";
 
     static {
         for (var v : values()) {

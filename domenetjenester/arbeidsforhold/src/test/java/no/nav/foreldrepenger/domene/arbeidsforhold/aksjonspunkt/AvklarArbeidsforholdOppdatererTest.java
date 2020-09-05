@@ -542,9 +542,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
         AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
-            .medProsentsats(BigDecimal.valueOf(100))
-            .medAntallTimer(BigDecimal.valueOf(40))
-            .medAntallTimerFulltid(BigDecimal.valueOf(40));
+            .medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         yrkesaktivitetBuilder
@@ -572,9 +570,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         YrkesaktivitetBuilder yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
-            .medProsentsats(BigDecimal.valueOf(100))
-            .medAntallTimer(BigDecimal.valueOf(40))
-            .medAntallTimerFulltid(BigDecimal.valueOf(40));
+            .medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         yrkesaktivitetBuilder
@@ -587,8 +583,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder2 = yrkesaktivitetBuilder2.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
             .medProsentsats(BigDecimal.ZERO)
-            .medAntallTimer(BigDecimal.ZERO)
-            .medAntallTimerFulltid(BigDecimal.valueOf(40));
+            .medSisteLønnsendringsdato(fom.minusMonths(1));
         AktivitetsAvtaleBuilder ansettelsesperiode2 = yrkesaktivitetBuilder2.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         yrkesaktivitetBuilder2

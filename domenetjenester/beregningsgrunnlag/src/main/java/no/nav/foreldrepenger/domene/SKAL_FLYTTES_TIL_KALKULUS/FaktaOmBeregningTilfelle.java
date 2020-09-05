@@ -42,8 +42,7 @@ public enum FaktaOmBeregningTilfelle implements Kodeverdi {
     UDEFINERT("-", "Ikke definert"),
     ;
     public static final String KODEVERK = "FAKTA_OM_BEREGNING_TILFELLE";
-    @Deprecated
-    public static final String DISCRIMINATOR = "FAKTA_OM_BEREGNING_TILFELLE";
+
     private static final Map<String, FaktaOmBeregningTilfelle> KODER = new LinkedHashMap<>();
 
     static {

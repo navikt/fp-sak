@@ -82,9 +82,7 @@ public class IAYDtoMapperLagretKonverteringTest {
 
         var aktivitetsAvtale = aktivitetsAvtaleBuilder
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed))
-            .medAntallTimer(BigDecimal.valueOf(20.4d))
-            .medSisteLønnsendringsdato(fraOgMed)
-            .medAntallTimerFulltid(BigDecimal.valueOf(10.2d));
+            .medSisteLønnsendringsdato(fraOgMed);
 
         var yrkesaktivitet = yrkesaktivitetBuilder
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)

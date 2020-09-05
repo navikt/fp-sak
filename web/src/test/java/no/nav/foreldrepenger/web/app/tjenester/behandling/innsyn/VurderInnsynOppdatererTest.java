@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -25,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -32,12 +34,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.vedtak.innsyn.InnsynHistorikkTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.innsyn.InnsynTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.aksjonspunkt.VurderInnsynDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.aksjonspunkt.VurderInnsynOppdaterer;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
@@ -59,22 +62,21 @@ public class VurderInnsynOppdatererTest {
     private InnsynRepository innsynRepository;
     @Inject
     private BehandlingsresultatRepository behandlingsresultatRepository;
-
+    @Inject
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste = Mockito.mock(BehandlingskontrollTjeneste.class);
-    private InnsynHistorikkTjeneste innsynHistorikkTjeneste = Mockito.mock(InnsynHistorikkTjeneste.class);
+
+    private HistorikkRepository historikkRepository = Mockito.mock(HistorikkRepository.class);
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste = Mockito.mock(BehandlendeEnhetTjeneste.class);
     private InnsynTjeneste innsynTjeneste;
     private VurderInnsynOppdaterer oppdaterer;
 
     @Before
     public void konfigurerMocker() {
-
-        innsynTjeneste = new InnsynTjeneste(behandlingskontrollTjeneste, innsynHistorikkTjeneste,
-            fagsakRepository, behandlingRepository, behandlingsresultatRepository, innsynRepository, behandlendeEnhetTjeneste);
-        oppdaterer = new VurderInnsynOppdaterer(behandlingskontrollTjeneste, innsynTjeneste);
-
         OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("enhetId", "enhetNavn");
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
+        var oppretter = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste, historikkRepository, mock(ProsessTaskRepository.class));
+        innsynTjeneste = new InnsynTjeneste(oppretter, fagsakRepository,behandlingRepository, behandlingsresultatRepository, innsynRepository);
+        oppdaterer = new VurderInnsynOppdaterer(behandlingskontrollTjeneste, innsynTjeneste);
     }
 
     @Test
@@ -101,8 +103,7 @@ public class VurderInnsynOppdatererTest {
 
         // Assert
         Assertions.assertThat(oppdateringResultat.getOverhoppKontroll()).isEqualTo(OverhoppKontroll.UTEN_OVERHOPP);
-        Mockito.verify(behandlingskontrollTjeneste).settBehandlingPåVent(eq(innsynbehandling), eq(AksjonspunktDefinisjon.VENT_PÅ_SCANNING),
-            eq(BehandlingStegType.VURDER_INNSYN), Mockito.any(LocalDateTime.class), eq(Venteårsak.SCANN));
+        Assertions.assertThat(behandlingRepository.hentBehandling(innsynbehandling.getId()).isBehandlingPåVent()).isTrue();
     }
 
 }

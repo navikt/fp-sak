@@ -275,7 +275,7 @@ public class VilkårResultatTest {
         Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
 
         assertThat(behandlingsresultat.getBehandlingId()).isNotNull();
-        assertThat(behandlingsresultat.getVilkårResultat().getOriginalBehandling()).isNotNull();
+        assertThat(behandlingsresultat.getVilkårResultat().getOriginalBehandlingId()).isNotNull();
         assertThat(behandlingsresultat.getVilkårResultat().getVilkårResultatType()).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);

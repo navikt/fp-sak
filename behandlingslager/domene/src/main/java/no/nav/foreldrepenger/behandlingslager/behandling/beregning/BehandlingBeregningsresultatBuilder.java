@@ -40,20 +40,10 @@ public class BehandlingBeregningsresultatBuilder {
         return this;
     }
 
-    /**
-     * @deprecated Bruk {@link #build(Long)} i stedet.
-     */
-    @Deprecated
-    public BehandlingBeregningsresultatEntitet build(Behandling behandling) {
-        Objects.requireNonNull(behandling);
-        kladd.setBehandling(behandling.getId());
-        return kladd;
-    }
-    
     public BehandlingBeregningsresultatEntitet build(Long behandlingId) {
         Objects.requireNonNull(behandlingId);
         kladd.setBehandling(behandlingId);
         return kladd;
     }
-    
+
 }

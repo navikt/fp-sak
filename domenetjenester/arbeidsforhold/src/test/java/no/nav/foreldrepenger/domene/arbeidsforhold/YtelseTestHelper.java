@@ -56,8 +56,7 @@ public class YtelseTestHelper {
 
         AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
             .medProsentsats(prosentsats)
-            .medAntallTimer(BigDecimal.valueOf(20.4d))
-            .medAntallTimerFulltid(BigDecimal.valueOf(10.2d))
+            .medSisteLønnsendringsdato(periode.getFomDato())
             .medBeskrivelse("Ser greit ut");
         final AktivitetsAvtaleBuilder ansettelsesPeriode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(periode, true);
 

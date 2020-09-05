@@ -72,9 +72,6 @@ public enum InnvilgetÅrsak implements PeriodeResultatÅrsak {
 
     public static final String KODEVERK = "INNVILGET_AARSAK";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "INNVILGET_AARSAK";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {

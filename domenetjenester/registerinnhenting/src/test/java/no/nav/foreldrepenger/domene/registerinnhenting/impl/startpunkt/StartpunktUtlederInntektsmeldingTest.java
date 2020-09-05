@@ -22,12 +22,6 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -36,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.Gradering;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
@@ -50,8 +43,8 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 public class StartpunktUtlederInntektsmeldingTest {
 
     private static final BigDecimal INNTEKTBELØP_DEFAULT = new BigDecimal(30000);
-    private static final String ARBEIDSID_DEFAULT = InternArbeidsforholdRef.nyRef().getReferanse();
-    private static final String ARBEIDSID_EKSTRA = InternArbeidsforholdRef.nyRef().getReferanse();
+    private static final InternArbeidsforholdRef ARBEIDSID_DEFAULT = InternArbeidsforholdRef.nyRef();
+    private static final InternArbeidsforholdRef ARBEIDSID_EKSTRA = InternArbeidsforholdRef.nyRef();
 
     @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
@@ -280,7 +273,7 @@ public class StartpunktUtlederInntektsmeldingTest {
         return førstegangsbehandling;
     }
 
-    private List<Inntektsmelding> lagInntektsmelding(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato, String arbeidID) {
+    private List<Inntektsmelding> lagInntektsmelding(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato, InternArbeidsforholdRef arbeidID) {
         List<Inntektsmelding> inntektsmeldingerGrunnlag = new ArrayList<>();
         Inntektsmelding inntektsmelding = getInntektsmeldingBuilder()
             .medBeløp(beløp)
@@ -295,7 +288,7 @@ public class StartpunktUtlederInntektsmeldingTest {
         return inntektsmeldingerGrunnlag;
     }
 
-    private List<Inntektsmelding> lagInntektsmeldingMedEndringIRefusjon(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato, String arbeidID, LocalDate refusjonsEndringFra) {
+    private List<Inntektsmelding> lagInntektsmeldingMedEndringIRefusjon(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato, InternArbeidsforholdRef arbeidID, LocalDate refusjonsEndringFra) {
         List<Inntektsmelding> inntektsmeldingerGrunnlag = new ArrayList<>();
         Inntektsmelding inntektsmelding = getInntektsmeldingBuilder()
             .medBeløp(beløp)
@@ -311,7 +304,7 @@ public class StartpunktUtlederInntektsmeldingTest {
         return inntektsmeldingerGrunnlag;
     }
 
-    private void lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato, String arbeidID, List<Inntektsmelding> im ) {
+    private void lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato, InternArbeidsforholdRef arbeidID, List<Inntektsmelding> im ) {
         Inntektsmelding inntektsmelding = getInntektsmeldingBuilder()
             .medBeløp(beløp)
             .medArbeidsforholdId(arbeidID)
@@ -332,22 +325,8 @@ public class StartpunktUtlederInntektsmeldingTest {
         return InntektsmeldingBuilder.builder().medInnsendingstidspunkt(LocalDateTime.now());
     }
 
-    private List<Inntektsmelding> lagInntektsmeldingMedGradering(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato, String arbeidID, BigDecimal arbeidsProsent) {
-        List<Inntektsmelding> inntektsmeldingerGrunnlag = new ArrayList<>();
-        Inntektsmelding inntektsmelding = getInntektsmeldingBuilder()
-            .medBeløp(beløp)
-            .medArbeidsforholdId(arbeidID)
-            .medStartDatoPermisjon(førsteUttaksdato)
-            .medArbeidsgiver(lagArbeidsgiver())
-            .medInntektsmeldingaarsak(innsendingsårsak)
-            .leggTil(new Gradering(LocalDate.now(),LocalDate.now().plusWeeks(1),arbeidsProsent))
-            .build();
 
-        inntektsmeldingerGrunnlag.add(inntektsmelding);
-        return inntektsmeldingerGrunnlag;
-    }
-
-    private List<Inntektsmelding> lagInntektsmeldingMedNaturalytelse(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato, String arbeidID, NaturalYtelse naturalYtelse) {
+    private List<Inntektsmelding> lagInntektsmeldingMedNaturalytelse(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato, InternArbeidsforholdRef arbeidID, NaturalYtelse naturalYtelse) {
         List<Inntektsmelding> inntektsmeldingerGrunnlag = new ArrayList<>();
         Inntektsmelding inntektsmelding = getInntektsmeldingBuilder()
             .medBeløp(beløp)
@@ -360,33 +339,6 @@ public class StartpunktUtlederInntektsmeldingTest {
 
         inntektsmeldingerGrunnlag.add(inntektsmelding);
         return inntektsmeldingerGrunnlag;
-    }
-    private BeregningsresultatAndel buildBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode, String virksomhetOrgnr,int dagsats) {
-        return BeregningsresultatAndel.builder()
-            .medBrukerErMottaker(true)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(virksomhetOrgnr))
-            .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
-            .medDagsats(dagsats)
-            .medDagsatsFraBg(2160)
-            .medUtbetalingsgrad(BigDecimal.valueOf(100))
-            .medStillingsprosent(BigDecimal.valueOf(100))
-            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-            .build(beregningsresultatPeriode);
-    }
-
-    private BeregningsresultatPeriode lagBeregningsresultatPeriode(BeregningsresultatEntitet beregningsresultat) {
-        return BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
-            .build(beregningsresultat);
-    }
-
-    private BeregningsresultatEntitet lagBeregningsresultatFP() {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
-        return beregningsresultat;
     }
 
     private BehandlingReferanse lagReferanse(Behandling behandling, LocalDate førsteUttaksdato) {

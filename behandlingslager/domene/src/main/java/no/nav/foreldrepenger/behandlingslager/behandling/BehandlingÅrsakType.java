@@ -22,26 +22,13 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum BehandlingÅrsakType implements Kodeverdi {
 
-    RE_MANGLER_FØDSEL("RE-MF", "Manglende informasjon om fødsel i folkeregisteret"),
-    RE_MANGLER_FØDSEL_I_PERIODE("RE-MFIP", "Manglende informasjon om fødsel i folkeregisteret mellom uke 26 og 29"),
-    RE_AVVIK_ANTALL_BARN("RE-AVAB", "Avvik i antall barn"),
+    // MANUELL OPPRETTING - GUI-anvendelse
     RE_FEIL_I_LOVANDVENDELSE("RE-LOV", "Feil lovanvendelse"),
     RE_FEIL_REGELVERKSFORSTÅELSE("RE-RGLF", "Feil regelverksforståelse"),
     RE_FEIL_ELLER_ENDRET_FAKTA("RE-FEFAKTA", "Feil eller endret fakta"),
     RE_FEIL_PROSESSUELL("RE-PRSSL", "Prosessuell feil"),
-    RE_ENDRING_FRA_BRUKER("RE-END-FRA-BRUKER", "Endringssøknad fra bruker"),
-    RE_ENDRET_INNTEKTSMELDING("RE-END-INNTEKTSMELD", "Mottatt ny inntektsmelding"),
-    BERØRT_BEHANDLING("BERØRT-BEHANDLING", "Endring i den andre forelderens uttak"),
     RE_ANNET("RE-ANNET", "Annet"),
-    RE_SATS_REGULERING("RE-SATS-REGULERING", "Regulering av grunnbeløp"),
-    //For automatiske informasjonsbrev
-    INFOBREV_BEHANDLING("INFOBREV_BEHANDLING", "Sende informasjonsbrev"),
-    INFOBREV_OPPHOLD("INFOBREV_OPPHOLD", "Sende informasjonsbrev om opphold det ikke er søkt om"),
-    //For å vurdere opphør av ytelse
-    OPPHØR_YTELSE_NYTT_BARN("OPPHØR-NYTT-BARN", "Identifisert overlapp av ytelser"),
-    // Manuelt opprettet revurdering (obs: årsakene kan også bli satt på en automatisk opprettet revurdering)
-    RE_KLAGE_UTEN_END_INNTEKT("RE-KLAG-U-INNTK", "Klage/ankebehandling uten endrede inntektsopplysninger"),
-    RE_KLAGE_MED_END_INNTEKT("RE-KLAG-M-INNTK", "Klage/ankebehandling med endrede inntektsopplysninger"),
+
     RE_OPPLYSNINGER_OM_MEDLEMSKAP("RE-MDL", "Nye opplysninger om medlemskap"),
     RE_OPPLYSNINGER_OM_OPPTJENING("RE-OPTJ", "Nye opplysninger om opptjening"),
     RE_OPPLYSNINGER_OM_FORDELING("RE-FRDLING", "Nye opplysninger om uttak"),
@@ -52,8 +39,32 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_OPPLYSNINGER_OM_SØKNAD_FRIST("RE-FRIST", "Nye opplysninger som kan påvirke vurderingen av søknadsfristen"),
     RE_OPPLYSNINGER_OM_BEREGNINGSGRUNNLAG("RE-BER-GRUN", "Nye opplysninger som kan påvirke beregningsgrunnlaget"),
 
+    // KLAGE - Manuelt opprettet revurdering (obs: årsakene kan også bli satt på en automatisk opprettet revurdering)
+    RE_KLAGE_UTEN_END_INNTEKT("RE-KLAG-U-INNTK", "Klage/ankebehandling uten endrede inntektsopplysninger"),
+    RE_KLAGE_MED_END_INNTEKT("RE-KLAG-M-INNTK", "Klage/ankebehandling med endrede inntektsopplysninger"),
     ETTER_KLAGE("ETTER_KLAGE", "Ny behandling eller revurdering etter klage eller anke"),
 
+    // Etterkontroll + funksjonell
+    RE_MANGLER_FØDSEL("RE-MF", "Manglende informasjon om fødsel i folkeregisteret"),
+    RE_MANGLER_FØDSEL_I_PERIODE("RE-MFIP", "Manglende informasjon om fødsel i folkeregisteret mellom uke 26 og 29"),
+    RE_AVVIK_ANTALL_BARN("RE-AVAB", "Avvik i antall barn"),
+
+    // Mottak
+    RE_ENDRING_FRA_BRUKER("RE-END-FRA-BRUKER", "Endringssøknad fra bruker"),
+    RE_ENDRET_INNTEKTSMELDING("RE-END-INNTEKTSMELD", "Mottatt ny inntektsmelding"),
+    BERØRT_BEHANDLING("BERØRT-BEHANDLING", "Endring i den andre forelderens uttak"),
+
+    // G-regulering
+    RE_SATS_REGULERING("RE-SATS-REGULERING", "Regulering av grunnbeløp"),
+
+    //For automatiske informasjonsbrev
+    INFOBREV_BEHANDLING("INFOBREV_BEHANDLING", "Sende informasjonsbrev"),
+    INFOBREV_OPPHOLD("INFOBREV_OPPHOLD", "Sende informasjonsbrev om opphold det ikke er søkt om"),
+
+    //For å vurdere opphør av ytelse
+    OPPHØR_YTELSE_NYTT_BARN("OPPHØR-NYTT-BARN", "Identifisert overlapp av ytelser"),
+
+    // Hendelser
     RE_HENDELSE_FØDSEL("RE-HENDELSE-FØDSEL", "Melding om registrert fødsel i folkeregisteret"),
     RE_HENDELSE_DØD_FORELDER("RE-HENDELSE-DØD-F", "Melding om registrert død på forelder i folkeregisteret"),
     RE_HENDELSE_DØD_BARN("RE-HENDELSE-DØD-B", "Melding om registrert død på barn i folkeregisteret"),

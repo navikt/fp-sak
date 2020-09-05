@@ -38,7 +38,7 @@ public class AnkeRepositoryImplTest {
 
     @Inject
     private AnkeRepository ankeRepository;
-    
+
     @Before
     public void setup() {
         ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
@@ -50,12 +50,10 @@ public class AnkeRepositoryImplTest {
     public void skal_legge_til_og_hente_ankeresultat() {
 
         // Act
-        ankeRepository.leggTilAnkeResultat(ankeBehandling);
-        Optional<AnkeResultatEntitet> hentetAnkeResultat = ankeRepository.hentAnkeResultat(ankeBehandling);
+        AnkeResultatEntitet hentetAnkeResultat = ankeRepository.hentEllerOpprettAnkeResultat(ankeBehandling);
 
         // Assert
-        assertThat(hentetAnkeResultat).isPresent();
-        assertThat(hentetAnkeResultat.get().getAnkeBehandling()).isEqualTo(ankeBehandling);
+        assertThat(hentetAnkeResultat.getAnkeBehandling()).isEqualTo(ankeBehandling);
     }
 
     @Test
@@ -66,8 +64,7 @@ public class AnkeRepositoryImplTest {
         ankeBehandling = scenario.lagre(repositoryProvider);
         entityManager.flush();
 
-        ankeRepository.leggTilAnkeResultat(ankeBehandling);
-        AnkeResultatEntitet ankeResultat = ankeRepository.hentAnkeResultat(ankeBehandling).get();
+        AnkeResultatEntitet ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(ankeBehandling);
         AnkeVurderingResultatEntitet.Builder ankeVurderingResultatBuilder = opprettVurderingResultat(ankeResultat)
             .medBegrunnelse("Begrunnelse1")
             .medFritekstTilBrev("Fritekstbrev1");
@@ -91,10 +88,7 @@ public class AnkeRepositoryImplTest {
         ScenarioAnkeEngangsstønad scenario = ScenarioAnkeEngangsstønad.forOpphevOgHjemsende(ScenarioFarSøkerEngangsstønad.forAdopsjon());
         ankeBehandling = scenario.lagre(repositoryProvider);
 
-        ankeRepository.leggTilAnkeResultat(ankeBehandling);
-        entityManager.flush();
-
-        AnkeResultatEntitet ankeResultat = ankeRepository.hentAnkeResultat(ankeBehandling).get();
+        AnkeResultatEntitet ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(ankeBehandling);
         AnkeVurderingResultatEntitet.Builder ankeVurderingResultatBuilder = opprettVurderingResultat(ankeResultat)
             .medBegrunnelse("Begrunnelse1");
 
@@ -114,7 +108,6 @@ public class AnkeRepositoryImplTest {
         Behandling ankeBehandling = scenario.lagre(repositoryProvider);
         ScenarioFarSøkerEngangsstønad scenario2 = ScenarioFarSøkerEngangsstønad.forFødsel();
         Behandling påAnketBehandling = scenario2.lagre(repositoryProvider);
-        ankeRepository.leggTilAnkeResultat(ankeBehandling);
         ankeRepository.settPåAnketBehandling(ankeBehandling, påAnketBehandling);
     }
 

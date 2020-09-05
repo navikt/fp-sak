@@ -32,9 +32,6 @@ public enum AnkeVurdering implements Kodeverdi {
 
     public static final String KODEVERK = "ANKEVURDERING";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "ANKEVURDERING";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -89,7 +86,7 @@ public enum AnkeVurdering implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();

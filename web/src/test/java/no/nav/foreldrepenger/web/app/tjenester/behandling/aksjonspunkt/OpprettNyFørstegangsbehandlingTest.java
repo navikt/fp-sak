@@ -127,9 +127,6 @@ public class OpprettNyFørstegangsbehandlingTest {
         behandlingsoppretterApplikasjonTjeneste = new BehandlingsoppretterApplikasjonTjeneste(
             repositoryProvider,
             saksbehandlingDokumentmottakTjeneste,
-            null,
-            null,
-            null,
             null);
     }
 
@@ -234,7 +231,7 @@ public class OpprettNyFørstegangsbehandlingTest {
         BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
         BehandlingLås lås = behandlingRepository.taSkriveLås(klage);
         behandlingRepository.lagre(klage, lås);
-        klageRepository.leggTilKlageResultat(klage);
+        klageRepository.hentEvtOpprettKlageResultat(klage);
 
         klageRepository.lagreVurderingsResultat(klage,KlageVurderingResultat.builder()
                 .medKlageVurdertAv(KlageVurdertAv.NFP).medKlageMedholdÅrsak(KlageMedholdÅrsak.NYE_OPPLYSNINGER).medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE)

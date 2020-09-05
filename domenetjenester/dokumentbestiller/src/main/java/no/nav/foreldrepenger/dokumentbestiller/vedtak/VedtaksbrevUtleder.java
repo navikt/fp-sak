@@ -78,15 +78,15 @@ public class VedtaksbrevUtleder {
 
     public static DokumentMalType velgNegativVedtaksmal(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         FagsakYtelseType fagsakYtelseType = behandling.getFagsakYtelseType();
-        if (fagsakYtelseType.gjelderEngangsstønad()) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
             return DokumentMalType.AVSLAGSVEDTAK_DOK;
-        } else if (fagsakYtelseType.gjelderForeldrepenger()) {
+        } else if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
                 return DokumentMalType.OPPHØR_DOK;
             } else {
                 return DokumentMalType.AVSLAG_FORELDREPENGER_DOK;
             }
-        } else if (fagsakYtelseType.gjelderSvangerskapspenger()) {
+        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
             return null; //TODO Implementer
         }
         return null;
@@ -94,9 +94,9 @@ public class VedtaksbrevUtleder {
 
     public static DokumentMalType velgPositivtVedtaksmal(Behandling behandling) {
         FagsakYtelseType ytelse = behandling.getFagsakYtelseType();
-        return ytelse.gjelderForeldrepenger() ?
-            DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK : ytelse.gjelderEngangsstønad() ?
-            DokumentMalType.POSITIVT_VEDTAK_DOK : ytelse.gjelderSvangerskapspenger() ?
+        return FagsakYtelseType.FORELDREPENGER.equals(ytelse) ?
+            DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
+            DokumentMalType.POSITIVT_VEDTAK_DOK : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
             DokumentMalType.INNVILGELSE_SVANGERSKAPSPENGER_DOK : null;
     }
 

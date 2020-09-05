@@ -39,9 +39,6 @@ public enum PeriodeResultatType implements Kodeverdi {
 
     public static final String KODEVERK = "PERIODE_RESULTAT_TYPE";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "PERIODE_RESULTAT_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {

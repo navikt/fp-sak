@@ -254,8 +254,6 @@ public class InntektsmeldingTjenesteImplTest {
         AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
             .medPeriode(periodeAA)
             .medProsentsats(prosentsats)
-            .medAntallTimer(BigDecimal.valueOf(20.4d))
-            .medAntallTimerFulltid(BigDecimal.valueOf(10.2d))
             .medBeskrivelse("Ser greit ut");
         AktivitetsAvtaleBuilder ansettelsesPeriode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(periodeYA, true);
 

@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
@@ -103,7 +104,7 @@ public class SendVedtaksbrev {
     }
 
     private boolean gjelderEngangsstønad(Behandling behandling) {
-        return behandling.getFagsak().getYtelseType().gjelderEngangsstønad();
+        return FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsak().getYtelseType());
     }
 
     private boolean skalSendeVedtaksbrevIKlagebehandling(Behandling behandling) {

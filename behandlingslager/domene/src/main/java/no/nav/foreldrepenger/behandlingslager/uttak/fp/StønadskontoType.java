@@ -34,9 +34,6 @@ public enum StønadskontoType implements Kodeverdi {
 
     public static final String KODEVERK = "STOENADSKONTOTYPE";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "STOENADSKONTOTYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {

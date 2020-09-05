@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 
 public class OpprettBehandlingForOppdrag {
@@ -31,7 +32,7 @@ public class OpprettBehandlingForOppdrag {
     public static Personinfo opprettPersonInfo() {
         return new Personinfo.Builder()
             .medAktørId(AktørId.dummy())
-            .medFnr("12345678901")
+            .medPersonIdent(PersonIdent.fra("12345678901"))
             .medNavn("Kari Nordmann")
             .medFødselsdato(LocalDate.of(1990, JANUARY, 1))
             .medNavBrukerKjønn(KVINNE)

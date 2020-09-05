@@ -230,7 +230,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteImplTest {
 
         fagsakYtelseTypeSkjermlenkeTypeMap.keySet().forEach(fagsakYtelseType -> {
 
-            if (fagsakYtelseType.gjelderEngangsstønad()) {
+            if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
                 opprettBehandlingForEngangsstønad();
             } else {
                 opprettBehandlingForFP(Optional.empty());

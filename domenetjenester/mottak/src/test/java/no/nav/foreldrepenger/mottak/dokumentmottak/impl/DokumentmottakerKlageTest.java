@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -47,6 +48,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
@@ -105,8 +107,9 @@ public class DokumentmottakerKlageTest {
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository,
             behandlendeEnhetTjeneste, historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
+        var behOpprettTjeneste = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste, mock(HistorikkRepository.class), prosessTaskRepository);
 
-        dokumentmottaker = new DokumentmottakerKlage(repositoryProvider, behandlingskontrollTjeneste, dokumentmottakerFelles,
+        dokumentmottaker = new DokumentmottakerKlage(repositoryProvider, behOpprettTjeneste, dokumentmottakerFelles,
                 klageFormkravTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
     }

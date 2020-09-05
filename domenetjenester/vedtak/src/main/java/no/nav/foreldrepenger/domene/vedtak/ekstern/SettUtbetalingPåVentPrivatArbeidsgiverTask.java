@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -38,7 +39,7 @@ public class SettUtbetalingPåVentPrivatArbeidsgiverTask extends GenerellProsess
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (behandling.getFagsakYtelseType().gjelderForeldrepenger()) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             vurderOmSetteUtbetalingPåVentPrivatArbeidsgiver.opprettOppgave(behandling);
             log.info("SettUtbetalingPåVentPrivatArbeidsgiverTask: Vurderer for behandling: {}", behandlingId); //$NON-NLS-1$
         } else {

@@ -8,10 +8,12 @@ import javax.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 
 @ApplicationScoped
 public class VilkårResultatRepository {
     private BehandlingsresultatRepository behandlingsresultatRepository;
+    private BehandlingRepository behandlingRepository;
     private EntityManager entityManager;
 
     VilkårResultatRepository() {
@@ -22,6 +24,7 @@ public class VilkårResultatRepository {
     public VilkårResultatRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
         this.behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
+        this.behandlingRepository = new BehandlingRepository(entityManager);
     }
 
     public Optional<VilkårResultat> hentHvisEksisterer(Long behandlingId) {
@@ -34,12 +37,17 @@ public class VilkårResultatRepository {
 
     public void lagre(Long behandlingId, VilkårResultat resultat) {
         var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
-        if(resultat.getOriginalBehandlingsresultat()==null) {
-            resultat.setOriginalBehandlingsresultat(behandlingsresultat);
-        }
+        settOriginalVedBehov(behandlingId, resultat);
         behandlingsresultat.medOppdatertVilkårResultat(resultat);
         entityManager.persist(resultat);
         behandlingsresultatRepository.lagre(behandlingId, behandlingsresultat);
+    }
+
+    private void settOriginalVedBehov(Long behandlingId, VilkårResultat resultat) {
+        var originalBehandlingId = resultat.getOriginalBehandlingId();
+        if (originalBehandlingId == null || behandlingsresultatRepository.hentHvisEksisterer(originalBehandlingId).isEmpty()) {
+            resultat.setOriginalBehandling(behandlingRepository.hentBehandling(behandlingId));
+        }
     }
 
 }

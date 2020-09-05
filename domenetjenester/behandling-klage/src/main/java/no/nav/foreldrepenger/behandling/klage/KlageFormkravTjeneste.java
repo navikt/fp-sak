@@ -30,7 +30,7 @@ public class KlageFormkravTjeneste {
     }
 
     public void opprettKlage(Behandling klageBehandling) {
-        klageRepository.leggTilKlageResultat(klageBehandling);
+        klageRepository.hentEvtOpprettKlageResultat(klageBehandling);
     }
 
     public void oppdaterKlageMedPåklagetBehandling(Long klageBehandlingId, Long påklagetBehandlingId) {
@@ -50,7 +50,7 @@ public class KlageFormkravTjeneste {
 
     public void lagreFormkrav(KlageFormkravAdapter dto) {
         Behandling behandling = behandlingRepository.hentBehandling(dto.getKlageBehandlingId());
-        KlageResultatEntitet klageResultat = klageRepository.hentKlageResultat(behandling);
+        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling);
         KlageVurdertAv klageVurdertAv = dto.getKlageVurdertAvKode();
         KlageFormkravEntitet.Builder builder = new KlageFormkravEntitet.Builder();
         builder.medErKlagerPart(dto.isErKlagerPart());

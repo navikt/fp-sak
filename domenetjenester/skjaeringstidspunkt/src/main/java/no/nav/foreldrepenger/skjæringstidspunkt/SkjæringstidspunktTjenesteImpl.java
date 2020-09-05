@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
 public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste {
@@ -35,11 +36,11 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandling.erYtelseBehandling()) {
-            if (behandling.getFagsakYtelseType().gjelderEngangsstønad()) {
+            if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
                 return engangsstønadTjeneste.getSkjæringstidspunkter(behandlingId);
-            } else if (behandling.getFagsakYtelseType().gjelderForeldrepenger()) {
+            } else if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
                 return foreldrepengerTjeneste.getSkjæringstidspunkter(behandlingId);
-            } else if (behandling.getFagsakYtelseType().gjelderSvangerskapspenger()) {
+            } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
                 return svangerskapspengerTjeneste.getSkjæringstidspunkter(behandlingId);
             }
             throw new IllegalStateException("Ukjent ytelse type.");

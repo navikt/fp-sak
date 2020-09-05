@@ -85,8 +85,9 @@ public class AnkeVurderingTjeneste {
 
         AnkeVurdering ankeVurdering = adapter.getAnkeVurderingKode() != null ? AnkeVurdering.fraKode(adapter.getAnkeVurderingKode())
             : null;
-        Optional<AnkeResultatEntitet> ankeResultat = ankeRepository.hentAnkeResultat(behandling);
+        AnkeResultatEntitet ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(behandling);
         AnkeVurderingResultatEntitet.Builder ankeVurderingResultatBuilder = new AnkeVurderingResultatEntitet.Builder()
+            .medAnkeResultat(ankeResultat)
             .medBegrunnelse(adapter.getBegrunnelse())
             .medFritekstTilBrev(adapter.getFritekstTilBrev())
             .medAnkeVurdering(ankeVurdering)
@@ -99,8 +100,6 @@ public class AnkeVurderingTjeneste {
             .medGodkjentAvMedunderskriver(adapter.getErGodkjentAvMedunderskriver())
             .medMerknaderFraBruker(adapter.getMerknaderFraBruker())
             .medErMerknaderMottatt(adapter.erMerknaderMottatt());
-
-        ankeResultat.ifPresent(ankeVurderingResultatBuilder::medAnkeResultat);
 
         Optional<String> ankeOmgjørÅrsak = adapter.getAnkeOmgjoerArsakKode();
         ankeOmgjørÅrsak.ifPresent(omgjørÅrsak -> ankeVurderingResultatBuilder

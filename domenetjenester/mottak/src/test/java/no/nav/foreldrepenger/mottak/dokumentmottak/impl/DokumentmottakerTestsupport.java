@@ -60,13 +60,13 @@ public abstract class DokumentmottakerTestsupport {
     protected Behandling opprettNyBehandlingUtenVedtak(FagsakYtelseType fagsakYtelseType) {
         Behandling behandling = null;
 
-        if (fagsakYtelseType.gjelderEngangsstønad()) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
             ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medBehandlingType(FØRSTEGANGSSØKNAD);
             behandling = scenario.lagre(repositoryProvider);
         }
 
-        if (fagsakYtelseType.gjelderForeldrepenger()) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(FØRSTEGANGSSØKNAD);
             behandling = scenario.lagre(repositoryProvider);
@@ -76,13 +76,13 @@ public abstract class DokumentmottakerTestsupport {
     }
 
     protected Behandling opprettBehandling(FagsakYtelseType fagsakYtelseType, BehandlingType behandlingType, BehandlingResultatType behandlingResultatType, Avslagsårsak avslagsårsak, VedtakResultatType vedtakResultatType, LocalDate vedtaksdato) {
-        if (fagsakYtelseType.gjelderEngangsstønad()) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
             ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medBehandlingType(behandlingType);
             return opprettBehandling(scenario, behandlingResultatType, avslagsårsak, vedtakResultatType, vedtaksdato);
         }
 
-        if (fagsakYtelseType.gjelderForeldrepenger()) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(behandlingType);
             return opprettBehandling(scenario, behandlingResultatType, avslagsårsak, vedtakResultatType, vedtaksdato);

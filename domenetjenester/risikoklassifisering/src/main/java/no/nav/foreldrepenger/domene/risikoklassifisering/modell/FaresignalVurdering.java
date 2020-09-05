@@ -30,9 +30,6 @@ public enum FaresignalVurdering implements Kodeverdi {
 
     public static final String KODEVERK = "FARESIGNAL_VURDERING";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "FARESIGNAL_VURDERING";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -87,7 +84,7 @@ public enum FaresignalVurdering implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import static no.nav.vedtak.feil.LogLevel.WARN;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -12,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.klage.KlageFormkravTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -22,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
@@ -35,16 +34,16 @@ class DokumentmottakerKlage implements Dokumentmottaker {
     private static final Logger logger = LoggerFactory.getLogger(DokumentmottakerKlage.class);
 
     private BehandlingRepository behandlingRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
     private DokumentmottakerFelles dokumentmottakerFelles;
     private KlageFormkravTjeneste klageFormkravTjeneste;
 
     @Inject
-    public DokumentmottakerKlage(BehandlingRepositoryProvider repositoryProvider, BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+    public DokumentmottakerKlage(BehandlingRepositoryProvider repositoryProvider, BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                  DokumentmottakerFelles dokumentmottakerFelles,
                                  KlageFormkravTjeneste klageFormkravTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.dokumentmottakerFelles = dokumentmottakerFelles;
         this.klageFormkravTjeneste = klageFormkravTjeneste;
     }
@@ -78,12 +77,7 @@ class DokumentmottakerKlage implements Dokumentmottaker {
             Feilene.FACTORY.finnerIkkeEksisterendeBehandling(fagsak.getSaksnummer().toString()).log(logger);
             return Optional.empty();
         }
-        BehandlingType behandlingTypeKlage = BehandlingType.KLAGE;
-        return Optional.ofNullable(behandlingskontrollTjeneste.opprettNyBehandling(fagsak, behandlingTypeKlage,
-            (beh) -> {
-                beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingTypeKlage.getBehandlingstidFristUker()));
-                beh.setBehandlendeEnhet(dokumentmottakerFelles.finnEnhetFraFagsak(fagsak));
-            }));
+        return Optional.of(behandlingOpprettingTjeneste.opprettBehandlingUtenHistorikk(fagsak, BehandlingType.KLAGE, BehandlingÅrsakType.UDEFINERT));
     }
 
     private boolean finnesKlageBehandlingForSak(Fagsak fagsak) {

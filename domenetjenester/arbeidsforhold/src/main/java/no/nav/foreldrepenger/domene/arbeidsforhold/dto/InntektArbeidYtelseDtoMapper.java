@@ -14,6 +14,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.ArbeidsforholdKilde;
 import no.nav.foreldrepenger.domene.arbeidsforhold.ArbeidsforholdWrapper;
@@ -58,7 +59,7 @@ public class InntektArbeidYtelseDtoMapper {
         mapRelaterteYtelser(dto, ref, iayGrunnlag, aktørIdAnnenPart);
 
         // TODO (FC) skill denne ut
-        if (!ref.getFagsakYtelseType().gjelderEngangsstønad()) {
+        if (!FagsakYtelseType.ENGANGSTØNAD.equals(ref.getFagsakYtelseType())) {
             mapArbeidsforhold(dto, ref, param, iayGrunnlag, sakInntektsmeldinger);
             dto.setInntektsmeldinger(lagInntektsmeldingDto(ref, iayGrunnlag));
         }

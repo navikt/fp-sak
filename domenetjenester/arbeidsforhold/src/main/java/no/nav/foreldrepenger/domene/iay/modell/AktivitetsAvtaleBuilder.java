@@ -4,9 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.domene.typer.AntallTimer;
-import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 public class AktivitetsAvtaleBuilder {
     private static final BigDecimal MAKS_ANTALL_TIMER_I_UKEN = BigDecimal.valueOf(168); // https://jira.adeo.no/browse/TFP-1259
@@ -24,26 +23,6 @@ public class AktivitetsAvtaleBuilder {
 
     static AktivitetsAvtaleBuilder oppdater(Optional<AktivitetsAvtale> aktivitetsAvtale) {
         return new AktivitetsAvtaleBuilder(aktivitetsAvtale.orElse(new AktivitetsAvtale()), aktivitetsAvtale.isPresent());
-    }
-
-    /**
-     * @deprecated Bruker ikke antall timer lenger. Dersom det brekker tester, bruk sisteLønnsendringsdato i stedf. antall timer for å definere som ansettelsesavtale
-     */
-    @Deprecated
-    public AktivitetsAvtaleBuilder medAntallTimer(BigDecimal antallTimer) {
-        AntallTimer avkortetAntallTimer = antallTimer == null ? null : new AntallTimer(antallTimer.min(MAKS_ANTALL_TIMER_I_UKEN));
-        this.aktivitetsAvtale.setAntallTimer(avkortetAntallTimer);
-        return this;
-    }
-
-    /**
-     * @deprecated Bruker ikke antall timer lenger. Dersom det brekker tester, bruk sisteLønnsendringsdato i stedf. antall timer for å definere som ansettelsesavtale
-     */
-    @Deprecated
-    public AktivitetsAvtaleBuilder medAntallTimerFulltid(BigDecimal antallTimerFulltid) {
-        AntallTimer avkortetAntallTimerFulltid = antallTimerFulltid == null ? null : new AntallTimer(antallTimerFulltid.min(MAKS_ANTALL_TIMER_I_UKEN));
-        this.aktivitetsAvtale.setAntallTimerFulltid(avkortetAntallTimerFulltid);
-        return this;
     }
 
     public AktivitetsAvtaleBuilder medProsentsats(Stillingsprosent prosentsats) {

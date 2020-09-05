@@ -45,6 +45,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
@@ -105,6 +106,7 @@ public class BehandlingRestTjeneste {
 
     private BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste;
     private BehandlingsoppretterApplikasjonTjeneste behandlingsoppretterApplikasjonTjeneste;
+    private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
     private BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste;
     private FagsakTjeneste fagsakTjeneste;
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
@@ -118,6 +120,7 @@ public class BehandlingRestTjeneste {
     @Inject
     public BehandlingRestTjeneste(BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste, // NOSONAR
                                   BehandlingsoppretterApplikasjonTjeneste behandlingsoppretterApplikasjonTjeneste,
+                                  BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                   BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
                                   FagsakTjeneste fagsakTjeneste,
                                   HenleggBehandlingTjeneste henleggBehandlingTjeneste,
@@ -125,6 +128,7 @@ public class BehandlingRestTjeneste {
                                   RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
         this.behandlingsutredningApplikasjonTjeneste = behandlingsutredningApplikasjonTjeneste;
         this.behandlingsoppretterApplikasjonTjeneste = behandlingsoppretterApplikasjonTjeneste;
+        this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
@@ -338,13 +342,13 @@ public class BehandlingRestTjeneste {
         Fagsak fagsak = funnetFagsak.get();
 
         if (BehandlingType.INNSYN.getKode().equals(kode)) {
-            Behandling behandling = behandlingsoppretterApplikasjonTjeneste.opprettInnsyn(saksnummer);
-            String gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
+            Behandling behandling = behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.INNSYN);
+            String gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
         } else if (BehandlingType.ANKE.getKode().equals(kode)) {
-            Behandling behandling = behandlingsoppretterApplikasjonTjeneste.opprettAnke(fagsak);
-            String gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
+            Behandling behandling = behandlingOpprettingTjeneste.opprettBehandlingVedKlageinstans(fagsak, BehandlingType.ANKE);
+            String gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
         } else if (BehandlingType.REVURDERING.getKode().equals(kode)) {
@@ -361,8 +365,8 @@ public class BehandlingRestTjeneste {
             return Redirect.tilFagsakPollStatus(fagsak.getSaksnummer(), Optional.empty());
 
         } else if (BehandlingType.KLAGE.getKode().equals(kode)) {
-            Behandling behandling = behandlingsoppretterApplikasjonTjeneste.opprettKlageBehandling(fagsak);
-            String gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
+            Behandling behandling = behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.KLAGE);
+            String gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
         } else {

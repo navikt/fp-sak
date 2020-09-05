@@ -106,8 +106,8 @@ public class VilkårResultat extends BaseEntitet {
         this.vilkårne.addAll(nyeVilkår);
     }
 
-    void setOriginalBehandlingsresultat(Behandlingsresultat originalBehandlingsresultat) {
-        this.originalBehandling = originalBehandlingsresultat.getBehandling();
+    void setOriginalBehandling(Behandling originalBehandling) {
+        this.originalBehandling = originalBehandling;
     }
 
     Behandlingsresultat getOriginalBehandlingsresultat() {
@@ -120,6 +120,14 @@ public class VilkårResultat extends BaseEntitet {
      */
     public Behandling getOriginalBehandling() {
         return originalBehandling;
+    }
+
+    /**
+     * Original behandling der denne instansen av {@link VilkårResultat} resultat først ble behandlet. Senere
+     * endringer som ikke påvirker innngangsvilkårresutlate vil bare gjenbruke denne i et {@link Behandlingsresultat}.
+     */
+    public Long getOriginalBehandlingId() {
+        return originalBehandling != null ? originalBehandling.getId() : null;
     }
 
     @Override
@@ -224,7 +232,7 @@ public class VilkårResultat extends BaseEntitet {
         Builder() {
             super();
         }
-        
+
         private void validerKanModifisere() {
             if(built) throw new IllegalStateException("Kan ikke bygge to ganger med samme builder");
         }
@@ -345,7 +353,7 @@ public class VilkårResultat extends BaseEntitet {
                 return eksisterendeResultat;
             } else {
                 oppdaterVilkår(resultatKladd);
-                resultatKladd.setOriginalBehandlingsresultat(behandlingsresultat);
+                resultatKladd.setOriginalBehandling(behandlingsresultat.getBehandling());
                 behandlingsresultat.medOppdatertVilkårResultat(resultatKladd);
                 built = true;
                 return resultatKladd;
@@ -360,7 +368,7 @@ public class VilkårResultat extends BaseEntitet {
             }
             return buildFor(behandlingsresultat);
         }
-        
+
         /** OBS: Returnerer alltid nytt vilkårresultat. */
         public VilkårResultat build() {
             oppdaterVilkår(resultatKladd);

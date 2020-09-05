@@ -30,8 +30,7 @@ public enum BeregningsgrunnlagPeriodeRegelType implements Kodeverdi {
     UDEFINERT("-", "Ikke definert"),
     ;
     public static final String KODEVERK = "BG_PERIODE_REGEL_TYPE";
-    @Deprecated
-    public static final String DISCRIMINATOR = "BG_PERIODE_REGEL_TYPE";
+
     private static final Map<String, BeregningsgrunnlagPeriodeRegelType> KODER = new LinkedHashMap<>();
 
     static {

@@ -29,9 +29,6 @@ public enum Organisasjonstype implements Kodeverdi {
 
     public static final String KODEVERK = "ORGANISASJONSTYPE";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "ORGANISASJONSTYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {

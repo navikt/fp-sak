@@ -89,7 +89,7 @@ public enum FagsakYtelseType implements Kodeverdi {
     public String getNavn() {
         return navn;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
@@ -97,39 +97,6 @@ public enum FagsakYtelseType implements Kodeverdi {
 
     public static void main(String[] args) {
         System.out.println(KODER.keySet());
-    }
-
-    /**
-     * @deprecated Ikke switch på dette i koden. Marker heller klasse og pakke for angitt ytelse (eks. behandlingssteg, aksjonspuntutleder,
-     *             kompletthetsjekk).
-     *             Til nød bruk en negativ guard
-     *             <code>if(!ENGANGSSTØNAD.getKode().equals(this.getKode())) throw IllegalStateException("No trespassing in this code"); </code>
-     */
-    @Deprecated
-    public final boolean gjelderEngangsstønad() {
-        return ENGANGSTØNAD.getKode().equals(this.getKode());
-    }
-
-    /**
-     * @deprecated Ikke switch på dette i koden. Marker heller klasse og pakke for angitt ytelse (eks. behandlingssteg, aksjonspuntutleder,
-     *             kompletthetsjekk)
-     *             Til nød bruk en negativ guard
-     *             <code>if(!FORELDREPENGER.getKode().equals(this.getKode())) throw IllegalStateException("No trespassing in this code"); </code>
-     */
-    @Deprecated
-    public final boolean gjelderForeldrepenger() {
-        return FORELDREPENGER.getKode().equals(this.getKode());
-    }
-
-    /**
-     * @deprecated Ikke switch på dette i koden. Marker heller klasse og pakke for angitt ytelse (eks. behandlingssteg, aksjonspuntutleder,
-     *             kompletthetsjekk)
-     *             Til nød bruk en negativ guard
-     *             <code>if(!SVANGERSKAPSPENGER.getKode().equals(this.getKode())) throw IllegalStateException("No trespassing in this code"); </code>
-     */
-    @Deprecated
-    public final boolean gjelderSvangerskapspenger() {
-        return SVANGERSKAPSPENGER.getKode().equals(this.getKode());
     }
 
     @Converter(autoApply = true)
