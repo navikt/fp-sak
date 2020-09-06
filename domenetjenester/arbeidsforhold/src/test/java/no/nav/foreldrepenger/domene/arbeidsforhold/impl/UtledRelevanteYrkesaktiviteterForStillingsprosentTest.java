@@ -29,8 +29,8 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.konfig.Tid;
 
 public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
@@ -55,9 +55,7 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         LocalDate tom1 = SKJÆRINGSTIDSPUNKT;
         AktivitetsAvtaleBuilder aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
-            .medProsentsats(BigDecimal.valueOf(100))
-            .medAntallTimer(BigDecimal.valueOf(40))
-            .medAntallTimerFulltid(BigDecimal.valueOf(40));
+            .medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
         Yrkesaktivitet yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
@@ -72,9 +70,7 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         LocalDate tom2 = SKJÆRINGSTIDSPUNKT.plusDays(1);
         AktivitetsAvtaleBuilder aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
-            .medProsentsats(BigDecimal.valueOf(25))
-            .medAntallTimer(BigDecimal.valueOf(10))
-            .medAntallTimerFulltid(BigDecimal.valueOf(10));
+            .medProsentsats(BigDecimal.valueOf(25));
         AktivitetsAvtaleBuilder ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
         Yrkesaktivitet yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
@@ -89,9 +85,7 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         LocalDate tom3 = SKJÆRINGSTIDSPUNKT.minusDays(1);
         AktivitetsAvtaleBuilder aktivitetsavtale3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3))
-            .medProsentsats(BigDecimal.valueOf(50))
-            .medAntallTimer(BigDecimal.valueOf(20))
-            .medAntallTimerFulltid(BigDecimal.valueOf(20));
+            .medProsentsats(BigDecimal.valueOf(50));
         AktivitetsAvtaleBuilder ansettelsesperiode3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3));
         Yrkesaktivitet yrkesaktivitet3 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
@@ -106,9 +100,7 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         LocalDate tom4 = SKJÆRINGSTIDSPUNKT.plusYears(1);
         AktivitetsAvtaleBuilder aktivitetsavtale4 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom4, tom4))
-            .medProsentsats(BigDecimal.valueOf(50))
-            .medAntallTimer(BigDecimal.valueOf(20))
-            .medAntallTimerFulltid(BigDecimal.valueOf(20));
+            .medProsentsats(BigDecimal.valueOf(50));
         AktivitetsAvtaleBuilder ansettelsesperiode4 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom4, tom4));
         Yrkesaktivitet yrkesaktivitet4 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
@@ -141,9 +133,7 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         LocalDate tom1 = SKJÆRINGSTIDSPUNKT.minusDays(1);
         AktivitetsAvtaleBuilder aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
-            .medProsentsats(BigDecimal.valueOf(100))
-            .medAntallTimer(BigDecimal.valueOf(40))
-            .medAntallTimerFulltid(BigDecimal.valueOf(40));
+            .medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
         Yrkesaktivitet yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
@@ -158,9 +148,7 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         LocalDate tom2 = SKJÆRINGSTIDSPUNKT.plusYears(1);
         AktivitetsAvtaleBuilder aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
-            .medProsentsats(BigDecimal.valueOf(25))
-            .medAntallTimer(BigDecimal.valueOf(10))
-            .medAntallTimerFulltid(BigDecimal.valueOf(10));
+            .medProsentsats(BigDecimal.valueOf(25));
         AktivitetsAvtaleBuilder ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
         Yrkesaktivitet yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
@@ -175,9 +163,7 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         LocalDate tom3 = SKJÆRINGSTIDSPUNKT.plusYears(2);
         AktivitetsAvtaleBuilder aktivitetsavtale3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3))
-            .medProsentsats(BigDecimal.valueOf(50))
-            .medAntallTimer(BigDecimal.valueOf(20))
-            .medAntallTimerFulltid(BigDecimal.valueOf(20));
+            .medProsentsats(BigDecimal.valueOf(50));
         AktivitetsAvtaleBuilder ansettelsesperiode3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3));
         Yrkesaktivitet yrkesaktivitet3 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
@@ -214,9 +200,7 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         InternArbeidsforholdRef ref1 = InternArbeidsforholdRef.nyRef();
         AktivitetsAvtaleBuilder aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
-            .medProsentsats(BigDecimal.valueOf(100))
-            .medAntallTimer(BigDecimal.valueOf(40))
-            .medAntallTimerFulltid(BigDecimal.valueOf(40));
+            .medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
         Yrkesaktivitet yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
@@ -233,9 +217,7 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         InternArbeidsforholdRef ref2 = InternArbeidsforholdRef.nyRef();
         AktivitetsAvtaleBuilder aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
-            .medProsentsats(BigDecimal.valueOf(100))
-            .medAntallTimer(BigDecimal.valueOf(40))
-            .medAntallTimerFulltid(BigDecimal.valueOf(40));
+            .medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
         Yrkesaktivitet yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())

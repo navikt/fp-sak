@@ -32,9 +32,6 @@ public enum AnkeOmgjørÅrsak implements Kodeverdi {
 
     public static final String KODEVERK = "ANKE_OMGJOER_AARSAK";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "ANKE_OMGJOER_AARSAK";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -89,7 +86,7 @@ public enum AnkeOmgjørÅrsak implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();

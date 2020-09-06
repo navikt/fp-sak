@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -19,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.omsorgsovertakelse.AksjonspunktUtlederForOmsorgsovertakelse;
 
 public class AksjonspunktUtlederForOmsorgsovertakelseTest {
 
@@ -41,7 +41,7 @@ public class AksjonspunktUtlederForOmsorgsovertakelseTest {
 
     private List<AksjonspunktResultat> aksjonspunktForFakta(FarSøkerType farSøkerType) {
         Behandling behandling = byggBehandling(farSøkerType);
-        return aksjonspunktUtleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(behandling));
+        return aksjonspunktUtleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling)));
     }
 
     private Behandling byggBehandling(FarSøkerType farSøkerType) {

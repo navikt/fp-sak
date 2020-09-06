@@ -79,7 +79,7 @@ public class KlageVurderingTjeneste {
         KlageVurdering klageVurdering = adapter.getKlageVurderingKode() != null
             ? KlageVurdering.fraKode(adapter.getKlageVurderingKode())
             : null;
-        KlageResultatEntitet klageResultat = klageRepository.hentKlageResultat(behandling);
+        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling);
         KlageVurderingResultat.Builder klageVurderingResultatBuilder = new KlageVurderingResultat.Builder()
             .medBegrunnelse(adapter.getBegrunnelse())
             .medFritekstTilBrev(adapter.getFritekstTilBrev())
@@ -119,7 +119,7 @@ public class KlageVurderingTjeneste {
         if (behandling.getBehandlingsresultat() == null) {
             Behandlingsresultat.opprettFor(behandling);
         }
-        KlageResultatEntitet klageResultatEntitet = klageRepository.hentKlageResultat(behandling);
+        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling);
 
         boolean erPåklagdEksternBehandling = false;
         if(klageResultatEntitet.getPåKlagdBehandling().isEmpty() && klageResultatEntitet.getPåKlagdEksternBehandling().isPresent()){

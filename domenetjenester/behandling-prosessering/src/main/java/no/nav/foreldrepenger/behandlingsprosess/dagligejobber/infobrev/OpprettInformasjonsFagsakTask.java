@@ -14,14 +14,12 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -31,7 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -40,7 +38,6 @@ import no.nav.foreldrepenger.produksjonsstyring.opprettgsak.OpprettGSakTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ApplicationScoped
 @ProsessTask(OpprettInformasjonsFagsakTask.TASKTYPE)
@@ -57,7 +54,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     private static final Logger log = LoggerFactory.getLogger(OpprettInformasjonsFagsakTask.class);
     private static final Period FH_DIFF_PERIODE = Period.parse("P4W");
 
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
     private TpsTjeneste tpsTjeneste;
     private FagsakTjeneste fagsakTjeneste;
     private BrukerTjeneste brukerTjeneste;
@@ -66,7 +63,6 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private BehandlingRepository behandlingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
 
     OpprettInformasjonsFagsakTask() {
         // for CDI proxy
@@ -74,14 +70,13 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
     @Inject
     public OpprettInformasjonsFagsakTask(BehandlingRepositoryProvider repositoryProvider,
-                                         ProsessTaskRepository prosessTaskRepository,
-                                         BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                         BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                          TpsTjeneste tpsTjeneste,
                                          BrukerTjeneste brukerTjeneste,
                                          FagsakTjeneste fagsakTjeneste,
                                          OpprettGSakTjeneste opprettGSakTjeneste,
                                          FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.tpsTjeneste = tpsTjeneste;
         this.brukerTjeneste = brukerTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
@@ -90,7 +85,6 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.prosessTaskRepository = prosessTaskRepository;
     }
 
     @Override
@@ -115,7 +109,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         Fagsak fagsak = opprettNyFagsak(bruker);
         kobleNyFagsakTilMors(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_MOR_KEY)), fagsak);
         Behandling behandling = opprettFørstegangsbehandlingInformasjonssak(fagsak, enhet, behandlingÅrsakType);
-        opprettTaskForÅStarteBehandling(behandling);
+        behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
         log.info("Opprettet fagsak/informasjon {} med behandling {}", fagsak.getSaksnummer().getVerdi(), behandling.getId()); //NOSONAR
     }
 
@@ -137,19 +131,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     }
 
     private Behandling opprettFørstegangsbehandlingInformasjonssak(Fagsak fagsak, OrganisasjonsEnhet enhet, BehandlingÅrsakType behandlingÅrsakType) {
-        BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
-        return behandlingskontrollTjeneste.opprettNyBehandling(fagsak, behandlingType, (beh) -> {
-            BehandlingÅrsak.builder(behandlingÅrsakType).buildFor(beh);
-            beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()));
-            beh.setBehandlendeEnhet(enhet);
-        }); // NOSONAR
-    }
-
-    void opprettTaskForÅStarteBehandling(Behandling behandling) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        return behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.FØRSTEGANGSSØKNAD, enhet, behandlingÅrsakType);
     }
 
     private List<Fagsak> hentBrukersRelevanteSaker(AktørId aktørId, LocalDate opprettetEtter, LocalDate familieHendelse) {

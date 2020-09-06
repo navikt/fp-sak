@@ -26,8 +26,7 @@ public enum BeregningAktivitetHandlingType implements Kodeverdi {
     UDEFINERT("-", "Ikke definert"),
     ;
     public static final String KODEVERK = "BEREGNING_AKTIVITET_HANDLING_TYPE";
-    @Deprecated
-    public static final String DISCRIMINATOR = "BEREGNING_AKTIVITET_HANDLING_TYPE";
+
     private static final Map<String, BeregningAktivitetHandlingType> KODER = new LinkedHashMap<>();
 
     static {

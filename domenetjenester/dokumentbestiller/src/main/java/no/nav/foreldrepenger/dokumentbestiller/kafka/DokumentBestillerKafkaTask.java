@@ -53,11 +53,11 @@ public class DokumentBestillerKafkaTask implements ProsessTaskHandler {
     }
 
     private static FagsakYtelseType mapYtelse(no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType fpsakYtelseKode) {
-        if (fpsakYtelseKode.gjelderEngangsstønad()) {
+        if (no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.ENGANGSTØNAD.equals(fpsakYtelseKode)) {
             return FagsakYtelseType.ENGANGSTØNAD;
-        } else if (fpsakYtelseKode.gjelderForeldrepenger()) {
+        } else if (no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.FORELDREPENGER.equals(fpsakYtelseKode)) {
             return FagsakYtelseType.FORELDREPENGER;
-        } else if (fpsakYtelseKode.gjelderSvangerskapspenger()) {
+        } else if (no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.SVANGERSKAPSPENGER.equals(fpsakYtelseKode)) {
             return FagsakYtelseType.SVANGERSKAPSPENGER;
         }
         throw DokumentbestillerKafkaFeil.FACTORY.fantIkkeYtelseType(fpsakYtelseKode.getKode()).toException();

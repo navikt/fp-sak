@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.anke;
 
 
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -27,7 +29,11 @@ public class AnkeRepository {
         this.entityManager = entityManager;
     }
 
-    public Optional<AnkeResultatEntitet> hentAnkeResultat(Behandling ankeBehandling) {
+    public AnkeResultatEntitet hentEllerOpprettAnkeResultat(Behandling ankeBehandling) {
+        return hentAnkeResultat(ankeBehandling).orElseGet(() -> leggTilAnkeResultat(ankeBehandling));
+    }
+
+    private Optional<AnkeResultatEntitet> hentAnkeResultat(Behandling ankeBehandling) {
         Long ankeBehandlingId = ankeBehandling.getId();
         Objects.requireNonNull(ankeBehandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
 
@@ -35,7 +41,7 @@ public class AnkeRepository {
             " FROM AnkeResultat " +
                 "   WHERE ankeBehandling.id = :behandlingId", AnkeResultatEntitet.class);// NOSONAR //$NON-NLS-1$
         query.setParameter("behandlingId", ankeBehandlingId);
-        return Optional.ofNullable(query.getSingleResult());
+        return hentUniktResultat(query);
     }
 
     private Optional<AnkeVurderingResultatEntitet> hentVurderingsResultaterForAnkeBehandling(Long behandlingId) {
@@ -48,14 +54,15 @@ public class AnkeRepository {
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
-    public void leggTilAnkeResultat(Behandling ankeBehandling) {
-        entityManager.persist(AnkeResultatEntitet.builder().medAnkeBehandling(ankeBehandling).build());
+    private AnkeResultatEntitet leggTilAnkeResultat(Behandling ankeBehandling) {
+        AnkeResultatEntitet nyttResultat = AnkeResultatEntitet.builder().medAnkeBehandling(ankeBehandling).build();
+        entityManager.persist(nyttResultat);
         entityManager.flush();
+        return nyttResultat;
     }
 
     public void settPåAnketBehandling(Behandling ankeBehandling, Behandling påAnketBehandling) {
-        Optional<AnkeResultatEntitet> ankeResultatOpt = hentAnkeResultat(ankeBehandling);
-        AnkeResultatEntitet ankeResultat = ankeResultatOpt.orElseThrow(() -> new IllegalStateException("fant ikke ankeResultat for behandling."));
+        AnkeResultatEntitet ankeResultat = hentEllerOpprettAnkeResultat(ankeBehandling);
         ankeResultat.settPåAnketBehandling(påAnketBehandling);
         entityManager.persist(ankeResultat);
         entityManager.flush();
@@ -70,10 +77,10 @@ public class AnkeRepository {
     }
 
     public Long lagreVurderingsResultat(Behandling ankeBehandling, AnkeVurderingResultatEntitet.Builder ankeVurderingResultatBuilder) {
-        Optional<AnkeResultatEntitet> ankeResultatOpt = hentAnkeResultat(ankeBehandling);
+        AnkeResultatEntitet ankeResultat = hentEllerOpprettAnkeResultat(ankeBehandling);
+        ankeVurderingResultatBuilder.medAnkeResultat(ankeResultat);
         Optional<AnkeVurderingResultatEntitet> eksisterende = hentAnkeVurderingResultat(ankeBehandling.getId());
         eksisterende.ifPresent(ankeVurderingResultat -> entityManager.remove(ankeVurderingResultat));
-        ankeResultatOpt.ifPresent(ankeVurderingResultatBuilder::medAnkeResultat);
         AnkeVurderingResultatEntitet nyAnkeVurderingResultat = ankeVurderingResultatBuilder.build();
         entityManager.persist(nyAnkeVurderingResultat);
         entityManager.flush();

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.domene.vedtak.xml.FatteVedtakXmlTjeneste;
@@ -66,9 +67,7 @@ public class RegenererVedtaksXmlTjeneste {
         } catch (JAXBException | XMLStreamException | SAXException e) {
             log.info("Vedtak med id {} og behandlingid {} var ikke gyldig.", lagretVedtak.getId(), behandling.getId(),e);
             String vedtak = null;
-            if (behandling.getFagsakYtelseType().gjelderForeldrepenger()) {
-                vedtak = fpSakVedtakXmlTjeneste.opprettVedtakXml(behandling.getId());
-            } else if (behandling.getFagsakYtelseType().gjelderEngangsstønad()) {
+            if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) || FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
                 vedtak = fpSakVedtakXmlTjeneste.opprettVedtakXml(behandling.getId());
             }
             lagretVedtakRepository.oppdater(lagretVedtak,vedtak);

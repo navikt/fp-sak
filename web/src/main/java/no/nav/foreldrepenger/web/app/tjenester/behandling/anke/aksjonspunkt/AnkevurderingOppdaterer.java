@@ -111,7 +111,7 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
 
     private void opprettHistorikkinnslag(Behandling behandling, AnkeVurderingResultatAksjonspunktDto dto,boolean endreAnke) {
         Optional<AnkeVurderingResultatEntitet> ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
-        Optional<AnkeResultatEntitet> ankeResultat = ankeRepository.hentAnkeResultat(behandling);
+        AnkeResultatEntitet ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(behandling);
         AnkeVurdering ankeVurdering = AnkeVurdering.fraKode(dto.getAnkeVurdering().getKode());
         AnkeVurderingOmgjør ankeVurderingOmgjør = dto.getAnkeVurderingOmgjoer() != null
             ? AnkeVurderingOmgjør.fraKode(dto.getAnkeVurderingOmgjoer().getKode()) : null;
@@ -174,10 +174,10 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
         return null;
     }
 
-    private void finnOgSettOppEndredeHistorikkFelter(AnkeVurderingResultatEntitet ankeVurderingResultat, HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder, AnkeVurderingResultatAksjonspunktDto dto, Optional<AnkeResultatEntitet> ankeResultatOpt, BasisKodeverdi årsakFraDto, HistorikkResultatType resultat) {
-        if (ankeResultatOpt.isPresent() && erVedtakOppdatert(ankeResultatOpt.get(), dto)) {
+    private void finnOgSettOppEndredeHistorikkFelter(AnkeVurderingResultatEntitet ankeVurderingResultat, HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder, AnkeVurderingResultatAksjonspunktDto dto, AnkeResultatEntitet ankeResultat, BasisKodeverdi årsakFraDto, HistorikkResultatType resultat) {
+        if (erVedtakOppdatert(ankeResultat, dto)) {
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.PA_ANKET_BEHANDLINGID,
-                hentPåanketBehandlingTekst(ankeResultatOpt.get().getPåAnketBehandling().map(Behandling::getId).orElse(null)),
+                hentPåanketBehandlingTekst(ankeResultat.getPåAnketBehandling().map(Behandling::getId).orElse(null)),
                 hentPåanketBehandlingTekst(dto.hentPåAnketBehandlingId()));
         }
         if (erAnkeVurderingEndret(ankeVurderingResultat, dto)) {

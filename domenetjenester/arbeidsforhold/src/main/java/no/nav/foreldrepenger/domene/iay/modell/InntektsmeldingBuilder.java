@@ -106,15 +106,6 @@ public class InntektsmeldingBuilder {
         return this;
     }
 
-    /**
-     * @deprecated bruk eksplisitt Intern/Ekstern arbeidforhold Id.
-     */
-    @Deprecated(forRemoval = true)
-    public InntektsmeldingBuilder medArbeidsforholdId(String arbeidsforholdId) {
-        precondition();
-        return medArbeidsforholdId(arbeidsforholdId == null ? null : InternArbeidsforholdRef.ref(arbeidsforholdId));
-    }
-
     public InntektsmeldingBuilder medArbeidsgiver(Arbeidsgiver arbeidsgiver) {
         precondition();
         kladd.setArbeidsgiver(arbeidsgiver);

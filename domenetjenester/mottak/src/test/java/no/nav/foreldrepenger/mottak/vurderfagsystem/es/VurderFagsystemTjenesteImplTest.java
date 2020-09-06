@@ -480,7 +480,7 @@ public class VurderFagsystemTjenesteImplTest {
         final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(null, null);
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
 
-        assertThat(fpFagsakUdefinert.getYtelseType().gjelderForeldrepenger() && fpFagsakUdefinert.erÅpen()).isTrue();
+        assertThat(FagsakYtelseType.FORELDREPENGER.equals(fpFagsakUdefinert.getYtelseType()) && fpFagsakUdefinert.erÅpen()).isTrue();
     }
 
     @Test

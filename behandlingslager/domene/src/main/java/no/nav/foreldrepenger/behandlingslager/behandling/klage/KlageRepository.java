@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.klage;
 
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,7 +29,7 @@ public class KlageRepository {
         this.entityManager = entityManager;
     }
 
-    public KlageResultatEntitet hentKlageResultat(Behandling klageBehandling) {
+    public KlageResultatEntitet hentEvtOpprettKlageResultat(Behandling klageBehandling) {
         Long behandlingId = klageBehandling.getId();
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
 
@@ -37,7 +39,7 @@ public class KlageRepository {
             KlageResultatEntitet.class);// NOSONAR
 
         query.setParameter("behandlingId", behandlingId);
-        return query.getSingleResult();
+        return hentUniktResultat(query).orElseGet(() -> leggTilKlageResultat(klageBehandling));
     }
 
     private List<KlageVurderingResultat> hentVurderingsResultaterForKlageBehandling(Long behandlingId) {
@@ -65,13 +67,15 @@ public class KlageRepository {
         return query.getResultList();
     }
 
-    public void leggTilKlageResultat(Behandling klageBehandling) {
-        entityManager.persist(KlageResultatEntitet.builder().medKlageBehandling(klageBehandling).build());
+    private KlageResultatEntitet leggTilKlageResultat(Behandling klageBehandling) {
+        KlageResultatEntitet resultatEntitet = KlageResultatEntitet.builder().medKlageBehandling(klageBehandling).build();
+        entityManager.persist(resultatEntitet);
         entityManager.flush();
+        return resultatEntitet;
     }
 
     public void settPåklagdBehandling(Behandling klageBehandling, Behandling påKlagdBehandling) {
-        KlageResultatEntitet klageResultat = hentKlageResultat(klageBehandling);
+        KlageResultatEntitet klageResultat = hentEvtOpprettKlageResultat(klageBehandling);
         klageResultat.settPåKlagdBehandling(påKlagdBehandling);
         klageResultat.settPåKlagdEksternBehandlingId(null);
 
@@ -80,7 +84,7 @@ public class KlageRepository {
     }
 
     public void settPåklagdEksternBehandlingUuid(Behandling klageBehandling, UUID påKlagdEksternBehandlingUuid) {
-        KlageResultatEntitet klageResultat = hentKlageResultat(klageBehandling);
+        KlageResultatEntitet klageResultat = hentEvtOpprettKlageResultat(klageBehandling);
         klageResultat.settPåKlagdEksternBehandlingId(påKlagdEksternBehandlingUuid);
         klageResultat.settPåKlagdBehandling(null);
 
@@ -143,7 +147,7 @@ public class KlageRepository {
     }
 
     public void lagreFormkrav(Behandling klageBehandling, KlageFormkravEntitet.Builder klageFormkravBuilder) {
-        klageFormkravBuilder.medKlageResultat(hentKlageResultat(klageBehandling));
+        klageFormkravBuilder.medKlageResultat(hentEvtOpprettKlageResultat(klageBehandling));
         KlageFormkravEntitet nyKlageFormkravEntitet = klageFormkravBuilder.build();
         Optional<KlageFormkravEntitet> optionalGammelFormkrav = hentKlageFormkravEntitet(klageBehandling, nyKlageFormkravEntitet.getKlageVurdertAv());
         if (optionalGammelFormkrav.isPresent()) {
@@ -154,7 +158,7 @@ public class KlageRepository {
     }
 
     public Long lagreVurderingsResultat(Behandling klageBehandling, KlageVurderingResultat.Builder klageVurderingResultatBuilder) {
-        klageVurderingResultatBuilder.medKlageResultat(hentKlageResultat(klageBehandling));
+        klageVurderingResultatBuilder.medKlageResultat(hentEvtOpprettKlageResultat(klageBehandling));
         KlageVurderingResultat nyKlageVurderingResultat = klageVurderingResultatBuilder.build();
         Optional<KlageVurderingResultat> optionalGammelVR = hentKlageVurderingResultat(klageBehandling.getId(), nyKlageVurderingResultat.getKlageVurdertAv());
         if (optionalGammelVR.isPresent()) {

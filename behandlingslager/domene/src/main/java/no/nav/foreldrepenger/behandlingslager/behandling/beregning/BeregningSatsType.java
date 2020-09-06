@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
@@ -24,8 +25,7 @@ public enum BeregningSatsType implements Kodeverdi {
     UDEFINERT("-", "Ikke definert"),
     ;
     public static final String KODEVERK = "SATS_TYPE";
-    @Deprecated
-    public static final String DISCRIMINATOR = "SATS_TYPE";
+
     private static final Map<String, BeregningSatsType> KODER = new LinkedHashMap<>();
 
     static {
@@ -87,7 +87,7 @@ public enum BeregningSatsType implements Kodeverdi {
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<BeregningSatsType, String> {
 

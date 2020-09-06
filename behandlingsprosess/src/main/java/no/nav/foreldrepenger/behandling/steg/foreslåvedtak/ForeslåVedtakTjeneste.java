@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingRes
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
 class ForeslåVedtakTjeneste {
@@ -120,7 +121,7 @@ class ForeslåVedtakTjeneste {
     }
 
     private boolean erRevurderingEtterFødselHendelseES(Behandling behandling) {
-        return behandling.getFagsakYtelseType().gjelderEngangsstønad() &&
+        return FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) &&
             behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
     }
 

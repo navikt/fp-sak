@@ -32,9 +32,6 @@ public enum VergeType implements Kodeverdi {
 
     public static final String KODEVERK = "VERGE_TYPE";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "VERGE_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -94,7 +91,7 @@ public enum VergeType implements Kodeverdi {
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     public static void main(String[] args) {
         System.out.println(KODER.keySet());
     }

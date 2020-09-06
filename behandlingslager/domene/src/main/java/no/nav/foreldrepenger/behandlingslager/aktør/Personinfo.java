@@ -148,13 +148,6 @@ public class Personinfo {
             return this;
         }
 
-        /** @deprecated Bruk {@link #medPersonIdent(PersonIdent)} i stedet! */
-        @Deprecated
-        public Builder medFnr(String fnr) {
-            personinfoMal.personIdent = PersonIdent.fra(fnr);
-            return this;
-        }
-
         public Builder medPersonIdent(PersonIdent fnr) {
             personinfoMal.personIdent = fnr;
             return this;

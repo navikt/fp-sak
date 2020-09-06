@@ -31,9 +31,6 @@ public enum InnsynResultatType implements Kodeverdi {
 
     public static final String KODEVERK = "INNSYN_RESULTAT_TYPE";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "INNSYN_RESULTAT_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -93,7 +90,7 @@ public enum InnsynResultatType implements Kodeverdi {
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     public static void main(String[] args) {
         System.out.println(KODER.keySet());
     }

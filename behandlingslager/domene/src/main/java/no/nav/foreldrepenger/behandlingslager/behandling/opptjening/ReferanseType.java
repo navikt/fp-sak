@@ -30,9 +30,6 @@ public enum ReferanseType implements Kodeverdi {
 
     public static final String KODEVERK = "REFERANSE_TYPE";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "REFERANSE_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {

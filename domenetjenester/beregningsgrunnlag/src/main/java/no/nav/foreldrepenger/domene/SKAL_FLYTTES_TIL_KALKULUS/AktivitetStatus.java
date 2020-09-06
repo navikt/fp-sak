@@ -43,8 +43,6 @@ public enum AktivitetStatus implements Kodeverdi {
     UDEFINERT("-", "Ikke definert", Inntektskategori.UDEFINERT);
 
     public static final String KODEVERK = "AKTIVITET_STATUS";
-    @Deprecated
-    public static final String DISCRIMINATOR = "AKTIVITET_STATUS";
 
     private static final Map<String, AktivitetStatus> KODER = new LinkedHashMap<>();
 

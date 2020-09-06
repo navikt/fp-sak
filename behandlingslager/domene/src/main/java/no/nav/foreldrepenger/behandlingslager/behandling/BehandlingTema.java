@@ -35,7 +35,7 @@ public enum BehandlingTema implements Kodeverdi {
     UDEFINERT("-", "Ikke definert", null),
 
     ;
-    
+
     private static final Map<String, BehandlingTema> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "BEHANDLING_TEMA";
@@ -67,7 +67,7 @@ public enum BehandlingTema implements Kodeverdi {
         this.offisiellKode = offisiellKode;
     }
 
-    
+
     @JsonCreator
     public static BehandlingTema fraKode(@JsonProperty("kode") String kode) {
         if (kode == null) {
@@ -100,7 +100,7 @@ public enum BehandlingTema implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return offisiellKode;
@@ -153,27 +153,27 @@ public enum BehandlingTema implements Kodeverdi {
     public static BehandlingTema fraFagsakHendelse(FagsakYtelseType ytelseType, FamilieHendelseType hendelseType) {
 
         if (FamilieHendelseType.gjelderFødsel(hendelseType)) {
-            if (ytelseType.gjelderEngangsstønad()) {
+            if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
                 return ENGANGSSTØNAD_FØDSEL;
             }
-            if (ytelseType.gjelderForeldrepenger()) {
+            if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
                 return FORELDREPENGER_FØDSEL;
             }
-            if (ytelseType.gjelderSvangerskapspenger()) {
+            if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
                 return SVANGERSKAPSPENGER;
             }
         } else if (FamilieHendelseType.gjelderAdopsjon(hendelseType)) {
-            if (ytelseType.gjelderEngangsstønad()) {
+            if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
                 return ENGANGSSTØNAD_ADOPSJON;
             }
-            if (ytelseType.gjelderForeldrepenger()) {
+            if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
                 return FORELDREPENGER_ADOPSJON;
             }
-        } else if (ytelseType.gjelderEngangsstønad()) {
+        } else if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
             return ENGANGSSTØNAD;
-        } else if (ytelseType.gjelderForeldrepenger()) {
+        } else if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
             return FORELDREPENGER;
-        } else if (ytelseType.gjelderSvangerskapspenger()) {
+        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
             return SVANGERSKAPSPENGER;
         }
 

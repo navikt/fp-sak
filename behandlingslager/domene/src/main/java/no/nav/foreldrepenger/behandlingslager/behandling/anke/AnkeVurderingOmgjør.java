@@ -23,16 +23,14 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum AnkeVurderingOmgjør implements Kodeverdi {
 
-ANKE_TIL_GUNST("ANKE_TIL_GUNST", "Gunst omgjør i anke"),
-ANKE_DELVIS_OMGJOERING_TIL_GUNST("ANKE_DELVIS_OMGJOERING_TIL_GUNST", "Delvis omgjøring, til gunst i anke"),
-ANKE_TIL_UGUNST("ANKE_TIL_UGUNST", "Ugunst omgjør i anke"),
-UDEFINERT("-", "Udefinert"),
-;
+    ANKE_TIL_GUNST("ANKE_TIL_GUNST", "Gunst omgjør i anke"),
+    ANKE_DELVIS_OMGJOERING_TIL_GUNST("ANKE_DELVIS_OMGJOERING_TIL_GUNST", "Delvis omgjøring, til gunst i anke"),
+    ANKE_TIL_UGUNST("ANKE_TIL_UGUNST", "Ugunst omgjør i anke"),
+    UDEFINERT("-", "Udefinert"),
+    ;
     private static final Map<String, AnkeVurderingOmgjør> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "ANKE_VURDERING_OMGJOER";
-
-    @Deprecated public static final String DISCRIMINATOR = "ANKE_VURDERING_OMGJOER";
 
     static {
         for (var v : values()) {
@@ -87,7 +85,7 @@ UDEFINERT("-", "Udefinert"),
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();

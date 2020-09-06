@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.iay.modell.kodeverk;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -24,16 +25,13 @@ public enum SkatteOgAvgiftsregelType implements Kodeverdi {
     NETTOLØNN("NETTOLØNN", "Nettolønn", "nettoloenn"),
     KILDESKATT_PÅ_PENSJONER("KILDESKATT_PÅ_PENSJONER", "Kildeskatt på pensjoner", "kildeskattPaaPensjoner"),
     JAN_MAYEN_OG_BILANDENE("JAN_MAYEN_OG_BILANDENE", "Inntekt på Jan Mayen og i norske biland i Antarktis", "janMayenOgBilandene"),
-    
+
     UDEFINERT("-", "Udefinert", "Ikke definert"),
     ;
 
     private static final Map<String, SkatteOgAvgiftsregelType> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "SKATTE_OG_AVGIFTSREGEL";
-
-    @Deprecated
-    public static final String DISCRIMINATOR = "SKATTE_OG_AVGIFTSREGEL";
 
     static {
         for (var v : values()) {
