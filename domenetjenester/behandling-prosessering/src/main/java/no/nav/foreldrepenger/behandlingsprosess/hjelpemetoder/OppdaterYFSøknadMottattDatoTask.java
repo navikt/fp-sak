@@ -150,14 +150,17 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
     }
 
     private boolean lik(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
-        return erOmsluttetAv(periode1, periode2)
+        var like = erOmsluttetAv(periode1, periode2)
             && Objects.equals(periode1.getÅrsak(), periode2.getÅrsak())
-            && Objects.equals(periode1.getArbeidsprosent(), periode2.getArbeidsprosent())
-            && periode1.getErArbeidstaker() == periode2.getErArbeidstaker()
-            && Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver())
             && Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType())
-            && Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent())
-            ;
+            && Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent());
+        if (like && periode1.erGradert()) {
+            return periode2.erGradert() &&
+                periode1.getErArbeidstaker() == periode2.getErArbeidstaker() &&
+                Objects.equals(periode1.getArbeidsprosent(), periode2.getArbeidsprosent()) &&
+                Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver());
+        }
+        return like;
     }
 
     private static boolean erOmsluttetAv(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
