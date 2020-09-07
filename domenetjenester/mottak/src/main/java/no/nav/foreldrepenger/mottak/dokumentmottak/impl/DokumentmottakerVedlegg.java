@@ -78,7 +78,9 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
     }
 
     private boolean mottattDokumentHarTypeAnnetEllerUdefinert(MottattDokument mottattDokument) {
-        return DokumentTypeId.ANNET.equals(mottattDokument.getDokumentType()) || DokumentTypeId.UDEFINERT.equals(mottattDokument.getDokumentType());
+        return DokumentTypeId.ANNET.equals(mottattDokument.getDokumentType()) ||
+            DokumentTypeId.UDEFINERT.equals(mottattDokument.getDokumentType()) ||
+            !DokumentTypeId.erKodeKjent(mottattDokument.getDokumentType().getKode());
     }
 
     private void håndterÅpenBehandling(Fagsak fagsak, Behandling behandling, MottattDokument mottattDokument) { //#V2

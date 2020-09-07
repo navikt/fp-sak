@@ -163,6 +163,13 @@ public class DokumentTypeId implements DokumentType {
         return ad;
     }
 
+    public static boolean erKodeKjent(String kode) {
+        if (kode == null) {
+            return false;
+        }
+        return KODER.get(kode) != null;
+    }
+
     @Override
     public String getNavn() {
         return getKode();
