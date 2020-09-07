@@ -31,7 +31,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
             StartpunktType.UDEFINERT;
         var iayGrunnlagDiffOpt = differanse.hentDelresultat(InntektArbeidYtelseGrunnlag.class);
         if (iayGrunnlagDiffOpt.map(EndringsresultatDiff::erSporedeFeltEndret).orElse(Boolean.FALSE)) {
-            startpunktType = StartpunktType.KONTROLLER_FAKTA;
+            startpunktType = StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
         }
         return startpunktType;
     }
