@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
@@ -209,7 +210,8 @@ public class VurderFagsystemFellesUtils {
     }
 
     private SorteringSaker sorterFagsakForStartdatoIM(Fagsak fagsak, LocalDate startdatoIM) {
-        Behandling behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElse(null);
+        Behandling behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId()).stream()
+            .findFirst().orElseGet(() -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null));
         if (behandling == null) {
             return SorteringSaker.TOM_SAK;
         }
@@ -227,7 +229,7 @@ public class VurderFagsystemFellesUtils {
         LocalDate førsteDagBehandling = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getFørsteUttaksdato();
         if (førsteDagBehandling.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(startdatoIM) && førsteDagBehandling.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(startdatoIM)) {
             return SorteringSaker.GRUNNLAG_DATO_MATCH;
-        } else if (fagsak.erÅpen() || erBehandlingAvsluttetFørOpplysningspliktIntervall(behandling)) {
+        } else if (erBehandlingAvsluttetFørOpplysningspliktIntervall(behandling)) {
             return SorteringSaker.GRUNNLAG_MULIG_MATCH;
         } else {
             return SorteringSaker.GRUNNLAG_MISMATCH;
