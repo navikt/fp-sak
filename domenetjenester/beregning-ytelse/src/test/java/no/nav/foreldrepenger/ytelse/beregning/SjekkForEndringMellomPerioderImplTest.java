@@ -14,9 +14,6 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.ytelse.beregning.SjekkForEndringMellomAndelerOgFOM;
-import no.nav.foreldrepenger.ytelse.beregning.SjekkForEndringMellomPerioder;
-import no.nav.foreldrepenger.ytelse.beregning.SjekkForIngenAndelerOgAndelerUtenDagsats;
 
 public class SjekkForEndringMellomPerioderImplTest {
 
@@ -30,8 +27,8 @@ public class SjekkForEndringMellomPerioderImplTest {
     private BeregningsresultatEntitet brRevurdering;
     private SjekkForIngenAndelerOgAndelerUtenDagsats sjekkForIngenAndelerOgAndelerUtenDagsats
         = Mockito.mock(SjekkForIngenAndelerOgAndelerUtenDagsats.class);
-    private SjekkForEndringMellomAndelerOgFOM sjekkForEndringMellomAndelerOgFOM
-        = Mockito.mock(SjekkForEndringMellomAndelerOgFOM.class);
+    private SjekkOmPerioderHarEndringIAndeler sjekkOmPerioderHarEndringIAndeler
+        = Mockito.mock(SjekkOmPerioderHarEndringIAndeler.class);
 
     @Before
     public void oppsett(){
@@ -45,7 +42,7 @@ public class SjekkForEndringMellomPerioderImplTest {
             .build();
         sjekkForEndringMellomPerioder = new SjekkForEndringMellomPerioder(
             sjekkForIngenAndelerOgAndelerUtenDagsats,
-            sjekkForEndringMellomAndelerOgFOM
+            sjekkOmPerioderHarEndringIAndeler
         );
     }
 
@@ -65,7 +62,7 @@ public class SjekkForEndringMellomPerioderImplTest {
         // Arrange
         BeregningsresultatPeriode gammel = opprettPeriode(brFørstegangsbehandling, IDAG);
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
-        when(sjekkForEndringMellomAndelerOgFOM.sjekk(any(), any())).thenReturn(true);
+        when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
         boolean erEndring = sjekkForEndringMellomPerioder.sjekk(null, gammel);
         // Assert
@@ -77,7 +74,7 @@ public class SjekkForEndringMellomPerioderImplTest {
         // Arrange
         BeregningsresultatPeriode gammel = opprettPeriode(brFørstegangsbehandling, IDAG);
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
-        when(sjekkForEndringMellomAndelerOgFOM.sjekk(any(), any())).thenReturn(true);
+        when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
         boolean erEndring = sjekkForEndringMellomPerioder.sjekk(null, gammel);
         // Assert
@@ -89,7 +86,7 @@ public class SjekkForEndringMellomPerioderImplTest {
         // Arrange
         BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, IDAG);
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
-        when(sjekkForEndringMellomAndelerOgFOM.sjekk(any(), any())).thenReturn(true);
+        when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
         boolean erEndring = sjekkForEndringMellomPerioder.sjekk(ny, null);
         // Assert
@@ -101,7 +98,7 @@ public class SjekkForEndringMellomPerioderImplTest {
         // Arrange
         BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, IDAG);
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
-        when(sjekkForEndringMellomAndelerOgFOM.sjekk(any(), any())).thenReturn(true);
+        when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
         boolean erEndring = sjekkForEndringMellomPerioder.sjekk(ny, null);
         // Assert
@@ -114,7 +111,7 @@ public class SjekkForEndringMellomPerioderImplTest {
         BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, IDAG);
         BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, IDAG);
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
-        when(sjekkForEndringMellomAndelerOgFOM.sjekk(any(), any())).thenReturn(false);
+        when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(false);
         // Act
         boolean erEndring = sjekkForEndringMellomPerioder.sjekk(ny, gammel);
         // Assert
@@ -127,7 +124,7 @@ public class SjekkForEndringMellomPerioderImplTest {
         BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, IDAG);
         BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, IDAG);
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
-        when(sjekkForEndringMellomAndelerOgFOM.sjekk(any(), any())).thenReturn(false);
+        when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(false);
         // Act
         boolean erEndring = sjekkForEndringMellomPerioder.sjekk(ny, gammel);
         // Assert
@@ -140,7 +137,7 @@ public class SjekkForEndringMellomPerioderImplTest {
         BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, IDAG);
         BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, IDAG.plusDays(1));
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
-        when(sjekkForEndringMellomAndelerOgFOM.sjekk(any(), any())).thenReturn(true);
+        when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
         boolean erEndring = sjekkForEndringMellomPerioder.sjekk(ny, gammel);
         // Assert
@@ -153,7 +150,7 @@ public class SjekkForEndringMellomPerioderImplTest {
         BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, IDAG);
         BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, IDAG.plusDays(1));
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
-        when(sjekkForEndringMellomAndelerOgFOM.sjekk(any(), any())).thenReturn(true);
+        when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
         boolean erEndring = sjekkForEndringMellomPerioder.sjekk(ny, gammel);
         // Assert

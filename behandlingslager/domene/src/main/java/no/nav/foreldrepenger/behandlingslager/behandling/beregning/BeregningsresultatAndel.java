@@ -309,7 +309,7 @@ public class BeregningsresultatAndel extends BaseEntitet {
         }
 
         private void verifyUtbetalingsgrad(BigDecimal utbetalingsgrad) {
-            Objects.requireNonNull(utbetalingsgrad, "uttaksgrad");
+            Objects.requireNonNull(utbetalingsgrad, "utbetalingsgrad");
             boolean mellomGyldigIntervall = utbetalingsgrad.compareTo(BigDecimal.ZERO) >= 0 &&
                 utbetalingsgrad.compareTo(BigDecimal.valueOf(100)) <= 0;
             if (!mellomGyldigIntervall) {
