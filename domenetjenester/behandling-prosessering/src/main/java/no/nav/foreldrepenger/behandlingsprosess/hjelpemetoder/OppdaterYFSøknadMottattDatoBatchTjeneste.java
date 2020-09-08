@@ -118,6 +118,7 @@ public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste 
             var sql = "select * from " +
                 "(select distinct f.id, bruker.AKTOER_ID from fagsak f " +
                 "join behandling b on f.id = b.fagsak_id " +
+                "join BEHANDLING_RESULTAT br on b.id = br.behandling_id and br.BEHANDLING_RESULTAT_TYPE <> :eskluderResultat " +
                 "join BRUKER bruker on f.BRUKER_ID = bruker.ID " +
                 "join GR_YTELSES_FORDELING gryf on gryf.behandling_id = b.id and gryf.aktiv = 'J'" +
                 "join YF_FORDELING yf on yf.id in (gryf.SO_FORDELING_ID, gryf.JUSTERT_FORDELING_ID, gryf.OVERSTYRT_FORDELING_ID) " +
@@ -127,6 +128,7 @@ public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste 
 
             var query = entityManager.createNativeQuery(sql);
             query.setParameter("antall", antall);
+            query.setParameter("eskluderResultat", BehandlingResultatType.MERGET_OG_HENLAGT.getKode());
             var resultList = (List<Object[]>) query.getResultList();
             return resultList.stream().map(o -> new FagsakIdMedBruker(((BigDecimal) o[0]).longValue(), (String) o[1])).collect(Collectors.toList());
         }
