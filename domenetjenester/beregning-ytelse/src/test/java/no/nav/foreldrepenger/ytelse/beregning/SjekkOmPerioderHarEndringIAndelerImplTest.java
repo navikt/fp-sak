@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.exception.TekniskException;
 
-public class SjekkOmPerioderInneholderSammeAndelerImplTest {
+public class SjekkOmPerioderHarEndringIAndelerImplTest {
 
     private static final String ORGNR1 = KUNSTIG_ORG;
     private static final String ORGNR2 = "2";
@@ -31,7 +31,7 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
-    private SjekkOmPerioderInneholderSammeAndeler sjekkOmPerioderInneholderSammeAndeler;
+    private SjekkOmPerioderHarEndringIAndeler sjekkOmPerioderHarEndringIAndeler;
     private BeregningsresultatPeriode nyPeriode;
     private BeregningsresultatPeriode gammelPeriode;
 
@@ -49,7 +49,7 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         LocalDate tom = LocalDate.now().plusWeeks(1);
         nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
-        sjekkOmPerioderInneholderSammeAndeler = new SjekkOmPerioderInneholderSammeAndeler();
+        sjekkOmPerioderHarEndringIAndeler = new SjekkOmPerioderHarEndringIAndeler();
     }
 
     @Test
@@ -65,9 +65,9 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
             ORGNR2,500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean sammeInnhold = sjekkOmPerioderInneholderSammeAndeler.sjekk(nyPeriode, gammelPeriode);
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
-        assertThat(sammeInnhold).isTrue();
+        assertThat(erEndring).isFalse();
     }
 
     @Test
@@ -83,9 +83,9 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
             ORGNR2,500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean sammeInnhold = sjekkOmPerioderInneholderSammeAndeler.sjekk(nyPeriode, gammelPeriode);
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
-        assertThat(sammeInnhold).isTrue();
+        assertThat(erEndring).isFalse();
     }
 
     @Test
@@ -101,9 +101,9 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
             ORGNR2,500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.ARBEID);
         // Act
-        boolean sammeInnhold = sjekkOmPerioderInneholderSammeAndeler.sjekk(nyPeriode, gammelPeriode);
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
-        assertThat(sammeInnhold).isTrue();
+        assertThat(erEndring).isFalse();
     }
 
     @Test
@@ -119,9 +119,9 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
             ORGNR2,500, BigDecimal.valueOf(50), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean sammeInnhold = sjekkOmPerioderInneholderSammeAndeler.sjekk(nyPeriode, gammelPeriode);
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
-        assertThat(sammeInnhold).isTrue();
+        assertThat(erEndring).isFalse();
     }
 
     @Test
@@ -137,9 +137,9 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
             ORGNR2,500, BigDecimal.valueOf(100), BigDecimal.valueOf(80), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean sammeInnhold = sjekkOmPerioderInneholderSammeAndeler.sjekk(nyPeriode, gammelPeriode);
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
-        assertThat(sammeInnhold).isTrue();
+        assertThat(erEndring).isFalse();
     }
 
     @Test
@@ -155,9 +155,9 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER,
             Inntektskategori.FRILANSER, ORGNR2,1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean sammeInnhold = sjekkOmPerioderInneholderSammeAndeler.sjekk(nyPeriode, gammelPeriode);
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
-        assertThat(sammeInnhold).isFalse();
+        assertThat(erEndring).isTrue();
     }
 
     @Test
@@ -173,9 +173,9 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER,
             ORGNR2,500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean sammeInnhold = sjekkOmPerioderInneholderSammeAndeler.sjekk(nyPeriode, gammelPeriode);
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
-        assertThat(sammeInnhold).isFalse();
+        assertThat(erEndring).isTrue();
     }
 
     @Test
@@ -191,9 +191,9 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
             ORGNR2,500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean sammeInnhold = sjekkOmPerioderInneholderSammeAndeler.sjekk(nyPeriode, gammelPeriode);
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
-        assertThat(sammeInnhold).isFalse();
+        assertThat(erEndring).isTrue();
     }
 
     @Test
@@ -209,9 +209,9 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, InternArbeidsforholdRef.nyRef(), AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
             ORGNR2,500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean sammeInnhold = sjekkOmPerioderInneholderSammeAndeler.sjekk(nyPeriode, gammelPeriode);
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
-        assertThat(sammeInnhold).isFalse();
+        assertThat(erEndring).isTrue();
     }
 
     @Test
@@ -227,9 +227,9 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER,
             Inntektskategori.FRILANSER, ORGNR2,500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean sammeInnhold = sjekkOmPerioderInneholderSammeAndeler.sjekk(nyPeriode, gammelPeriode);
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
-        assertThat(sammeInnhold).isFalse();
+        assertThat(erEndring).isTrue();
     }
 
     @Test
@@ -245,9 +245,9 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER,
             Inntektskategori.FRILANSER, ORGNR2,500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean sammeInnhold = sjekkOmPerioderInneholderSammeAndeler.sjekk(nyPeriode, gammelPeriode);
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
-        assertThat(sammeInnhold).isFalse();
+        assertThat(erEndring).isTrue();
     }
 
     @Test
@@ -261,9 +261,9 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
             Inntektskategori.ARBEIDSTAKER, ORGNR1,1000, BigDecimal.valueOf(80), BigDecimal.valueOf(80), 1000, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean sammeInnhold = sjekkOmPerioderInneholderSammeAndeler.sjekk(nyPeriode, gammelPeriode);
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
-        assertThat(sammeInnhold).isFalse();
+        assertThat(erEndring).isTrue();
     }
 
     @Test
@@ -282,7 +282,7 @@ public class SjekkOmPerioderInneholderSammeAndelerImplTest {
         expectedException.expect(TekniskException.class);
         expectedException.expectMessage(String.format("Fant flere korresponderende andeler for andel med id %s", andel.getId()));
         // Act
-        sjekkOmPerioderInneholderSammeAndeler.sjekk(nyPeriode, gammelPeriode);
+        sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
     }
 
     private BeregningsresultatPeriode opprettBeregningsresultatPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom, LocalDate tom){
