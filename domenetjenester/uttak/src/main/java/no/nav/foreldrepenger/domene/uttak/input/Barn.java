@@ -5,7 +5,7 @@ import java.util.Optional;
 
 /** Barn som inngår i foreldrepengergrunnlaget for ytelsen. */
 public class Barn {
-    private LocalDate dødsdato;
+    private final LocalDate dødsdato;
 
     public Barn(LocalDate dødsdato) {
         this.dødsdato = dødsdato;

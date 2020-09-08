@@ -11,8 +11,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Tilrett
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
+import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import org.slf4j.Logger;
@@ -69,7 +72,7 @@ public class BeregnTilrettleggingsperioderTjeneste {
             var aktuelleTilretteleggingerFiltrert = new TilretteleggingFilter(svpGrunnlag).getAktuelleTilretteleggingerFiltrert();
             Optional<InntektArbeidYtelseGrunnlag> grunnlag = iayTjeneste.finnGrunnlag(behandlingReferanse.getBehandlingId());
 
-            YrkesaktivitetFilter filter = grunnlag.map(g -> new YrkesaktivitetFilter(g.getArbeidsforholdInformasjon(), g.getAktørArbeidFraRegister(aktørId)))
+            YrkesaktivitetFilter filter = grunnlag.map(g -> new YrkesaktivitetFilter(g.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(aktørId, g)))
                     .orElse(YrkesaktivitetFilter.EMPTY);
 
             // beregner i henhold til stillingsprosent på arbeidsforholdene i AA-reg
@@ -77,8 +80,12 @@ public class BeregnTilrettleggingsperioderTjeneste {
                 .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isPresent() && ArbeidType.ORDINÆRT_ARBEIDSFORHOLD.equals(tilrettelegging.getArbeidType()))
                 .map(a -> {
                     Collection<AktivitetsAvtale> aktivitetsAvtalerForArbeid = filter.getAktivitetsAvtalerForArbeid(a.getArbeidsgiver().get(), a.getInternArbeidsforholdRef().isPresent() ? a.getInternArbeidsforholdRef().get() : InternArbeidsforholdRef.nullRef(), a.getBehovForTilretteleggingFom());
+                    Collection<Permisjon> velferdspermisjonerForArbeid = filter.getPermisjonerForArbeid(a.getArbeidsgiver().get(), a.getInternArbeidsforholdRef().isPresent() ? a.getInternArbeidsforholdRef().get() : InternArbeidsforholdRef.nullRef(), a.getBehovForTilretteleggingFom()).stream()
+                        .filter(p -> p.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.VELFERDSPERMISJON))
+                        .collect(Collectors.toList());
+
                     LOG.info("Beregner utbetalingsgrad for arbeidsgiver {} med disse aktivitetene: {}", a.getArbeidsgiver().get().getOrgnr(), aktivitetsAvtalerForArbeid);
-                    return UtbetalingsgradBeregner.beregn(aktivitetsAvtalerForArbeid, a, termindato);
+                    return UtbetalingsgradBeregner.beregn(aktivitetsAvtalerForArbeid, a, termindato, velferdspermisjonerForArbeid);
                 })
                 .collect(Collectors.toList());
 
@@ -94,6 +101,13 @@ public class BeregnTilrettleggingsperioderTjeneste {
             throw new IllegalStateException("Har ikke klart å beregne tilrettleggingsperiodene riktig for behandlingID" + behandlingReferanse.getBehandlingId());
         }
         return Collections.emptyList();
+    }
+
+    private Optional<AktørArbeid> finnSaksbehandletEllerRegister(AktørId aktørId, InntektArbeidYtelseGrunnlag g) {
+        if (g.harBlittSaksbehandlet()) {
+            return g.getSaksbehandletVersjon().flatMap(aggregat -> aggregat.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(aktørId)).findFirst());
+        }
+        return g.getAktørArbeidFraRegister(aktørId);
     }
 
     private LocalDate finnTermindato(Long behandlingId) {

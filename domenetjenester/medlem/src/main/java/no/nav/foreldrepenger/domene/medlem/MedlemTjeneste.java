@@ -37,7 +37,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.domene.medlem.api.EndringsresultatPersonopplysningerForMedlemskap;
 import no.nav.foreldrepenger.domene.medlem.api.EndringsresultatPersonopplysningerForMedlemskap.EndretAttributt;
@@ -119,7 +119,7 @@ public class MedlemTjeneste {
 
     /**
      * Sjekker endringer i personopplysninger som tilsier at bruker 'ikke er'/'skal miste' medlemskap.
-     * Sjekker statsborgerskap (kun mht endring i {@link Region}, ikke land),
+     * Sjekker statsborgerskap (kun mht endring i Region, ikke land),
      * {@link PersonstatusType}, og {@link AdresseType}
      * for intervall { max(seneste vedtatte medlemskapsperiode, skjæringstidspunkt), nå}.
      * <p>
@@ -129,7 +129,7 @@ public class MedlemTjeneste {
     public EndringsresultatPersonopplysningerForMedlemskap søkerHarEndringerIPersonopplysninger(Behandling revurderingBehandling) {
 
         EndringsresultatPersonopplysningerForMedlemskap.Builder builder = EndringsresultatPersonopplysningerForMedlemskap.builder();
-        if (revurderingBehandling.erRevurdering() && revurderingBehandling.getFagsakYtelseType().gjelderForeldrepenger()) {
+        if (revurderingBehandling.erRevurdering() && FagsakYtelseType.FORELDREPENGER.equals(revurderingBehandling.getFagsakYtelseType())) {
             AktørId aktørId = revurderingBehandling.getAktørId();
             Long behandlingId = revurderingBehandling.getId();
             DatoIntervallEntitet intervall = DatoIntervallEntitet.fraOgMedTilOgMed(finnStartdato(revurderingBehandling), LocalDate.now());

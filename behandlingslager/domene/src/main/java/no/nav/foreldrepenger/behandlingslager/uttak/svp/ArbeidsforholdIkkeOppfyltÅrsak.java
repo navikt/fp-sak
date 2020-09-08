@@ -32,9 +32,6 @@ public enum ArbeidsforholdIkkeOppfyltÅrsak implements Kodeverdi {
 
     public static final String KODEVERK = "SVP_ARBEIDSFORHOLD_IKKE_OPPFYLT_AARSAK";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "SVP_ARBEIDSFORHOLD_IKKE_OPPFYLT_AARSAK";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {

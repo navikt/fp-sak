@@ -120,18 +120,14 @@ public class ForretningshendelseMottak {
             return;
         }
 
-        // Case 2: Berørt (køet) behandling
-        if (behandlingSkalLeggesPåKøPåGrunnAvÅpenBehandlingPåMedforelder(sisteYtelsebehandling)) {
+        // Case 2: Berørt (køet) behandling eller behandling på medforelder
+        if (køKontroller.skalEvtNyBehandlingKøes(fagsak)) {
             håndterer.håndterKøetBehandling(fagsak, behandlingÅrsakType);
             return;
         }
 
         // Case 3: Åpen ytelsesbehandling
         if (!sisteYtelsebehandling.erStatusFerdigbehandlet()) {
-            if (erBehandlingBerørt(sisteYtelsebehandling) || harAlleredeKøetBehandling(sisteYtelsebehandling)) {
-                håndterer.håndterKøetBehandling(fagsak, behandlingÅrsakType);
-                return;
-            }
             håndterer.håndterÅpenBehandling(sisteYtelsebehandling, behandlingÅrsakType);
             return;
         }
@@ -139,7 +135,7 @@ public class ForretningshendelseMottak {
         Optional<Behandling> sisteInnvilgedeYtelsesbehandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId());
 
         // Case 4: Ytelsesbehandling finnes, men verken åpen eller innvilget. Antas å inntreffe sjelden
-        if (!sisteInnvilgedeYtelsesbehandling.isPresent()) {
+        if (sisteInnvilgedeYtelsesbehandling.isEmpty()) {
             FEILFACTORY.finnesYtelsebehandlingSomVerkenErÅpenEllerInnvilget(hendelseType.getKode(), fagsakId).log(LOGGER);
             return;
         }
@@ -162,23 +158,8 @@ public class ForretningshendelseMottak {
         prosessTaskRepository.lagre(taskData);
     }
 
-    private boolean behandlingSkalLeggesPåKøPåGrunnAvÅpenBehandlingPåMedforelder(Behandling sisteYtelsebehandling) {
-        Optional<Behandling> åpenBehandlingPåMedforelder = finnÅpenBehandlingPåMedforelder(sisteYtelsebehandling.getFagsak());
-        return åpenBehandlingPåMedforelder.isPresent()
-            && !køKontroller.skalSnikeIKø(sisteYtelsebehandling.getFagsak(), åpenBehandlingPåMedforelder.get());
-    }
-
     private Optional<Behandling> finnÅpenBehandlingPåMedforelder(Fagsak fagsak) {
         return revurderingRepository.finnÅpenBehandlingMedforelder(fagsak);
-    }
-
-    private boolean erBehandlingBerørt(Behandling behandling) {
-        return behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING);
-    }
-
-    private boolean harAlleredeKøetBehandling(Behandling behandling) {
-        Optional<Behandling> køetBehandling = revurderingRepository.finnKøetYtelsesbehandling(behandling.getFagsakId());
-        return køetBehandling.isPresent();
     }
 
     private static List<AktørId> mapToAktørIds(HendelseDto hendelseDto) {

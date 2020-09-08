@@ -88,7 +88,7 @@ public class BasicBehandlingBuilder {
                     .medPersonIdent(new PersonIdent("12345678901"))
                     .medNavn("Kari Nordmann")
                     .medFødselsdato(LocalDate.of(1990, JANUARY, 1))
-                    .medForetrukketSpråk(Språkkode.nb)
+                    .medForetrukketSpråk(Språkkode.NB)
                     .medNavBrukerKjønn(KVINNE)
                     .build());
         });

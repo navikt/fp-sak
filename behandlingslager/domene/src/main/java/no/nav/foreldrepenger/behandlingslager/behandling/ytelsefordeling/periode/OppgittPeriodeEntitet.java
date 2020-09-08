@@ -133,6 +133,10 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return IndexKey.createKey(uttakPeriodeType, årsakType, årsak, arbeidsgiver, periode);
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public UttakPeriodeType getPeriodeType() {
         return uttakPeriodeType;
     }

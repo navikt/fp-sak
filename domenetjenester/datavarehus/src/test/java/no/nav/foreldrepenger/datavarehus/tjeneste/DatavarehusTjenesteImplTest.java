@@ -298,7 +298,7 @@ public class DatavarehusTjenesteImplTest {
         Behandling påklagdBehandling = scenarioMorSøkerEngangsstønad.lagMocked();
         ScenarioKlageEngangsstønad scenarioKlageEngangsstønad = ScenarioKlageEngangsstønad.forFormKrav(scenarioMorSøkerEngangsstønad);
         Behandling klageBehandling = scenarioKlageEngangsstønad.lagMocked();
-        new AksjonspunktTestSupport().setTilUtført(klageBehandling.getAksjonspunktFor(VURDERING_AV_FORMKRAV_KLAGE_NFP), "Begrunnelse");
+        AksjonspunktTestSupport.setTilUtført(klageBehandling.getAksjonspunktFor(VURDERING_AV_FORMKRAV_KLAGE_NFP), "Begrunnelse");
         var klageResultat = KlageResultatEntitet.builder().medKlageBehandling(klageBehandling).medPåKlagdBehandling(påklagdBehandling).build();
 
         ArgumentCaptor<KlageFormkravDvh> captor = ArgumentCaptor.forClass(KlageFormkravDvh.class);
@@ -338,7 +338,7 @@ public class DatavarehusTjenesteImplTest {
             KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE);
         scenarioKlageEngangsstønad.medAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP, BehandlingStegType.KLAGE_NFP);
         Behandling klageBehandling = scenarioKlageEngangsstønad.lagMocked();
-        new AksjonspunktTestSupport().setTilUtført(klageBehandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), "Blah");
+        AksjonspunktTestSupport.setTilUtført(klageBehandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), "Blah");
         var klageResultat = KlageResultatEntitet.builder().medKlageBehandling(klageBehandling).medPåKlagdBehandling(påklagdBehandling).build();
 
         KlageVurderingResultat.Builder klageVurderingResultatBuilder = KlageVurderingResultat.builder();

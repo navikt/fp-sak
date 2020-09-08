@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.domene.uttak.testutilities.behandling.personopplysning;
 
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.personopplysning.PersonAdresse;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public final class PersonAdresse {
 
@@ -15,7 +14,6 @@ public final class PersonAdresse {
     private AdresseType adresseType;
     private String adresselinje1;
     private String postnummer;
-    private String poststed;
     private String land;
 
     public AktørId getAktørId() {
@@ -38,10 +36,6 @@ public final class PersonAdresse {
         return postnummer;
     }
 
-    public String getPoststed() {
-        return poststed;
-    }
-
     public String getLand() {
         return land;
     }
@@ -52,7 +46,6 @@ public final class PersonAdresse {
         this.adresseType = builder.adresseType;
         this.adresselinje1 = builder.adresselinje1;
         this.postnummer = builder.postnummer;
-        this.poststed = builder.poststed;
         this.land = builder.land;
     }
 
@@ -67,7 +60,6 @@ public final class PersonAdresse {
         private AdresseType adresseType;
         private String adresselinje1;
         private String postnummer;
-        private String poststed;
         private String land;
 
         private Builder() {

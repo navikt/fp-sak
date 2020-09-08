@@ -51,7 +51,6 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
     private BehandlingRepository behandlingRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private boolean erProd;
-    private boolean erT4;
 
     SakOgBehandlingTask() {
         //for CDI proxy
@@ -65,15 +64,10 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.erProd = Cluster.PROD_FSS.equals(Environment.current().getCluster());
-        this.erT4 = Cluster.DEV_FSS.equals(Environment.current().getCluster()) && "T4".equalsIgnoreCase(Environment.current().getNamespace().getNamespace());
     }
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        if (erT4) {
-            LOG.info("SOBKAFKA skipper melding i T4 for behandling {}", behandlingId);
-            return;
-        }
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (Set.of(BehandlingStatus.FATTER_VEDTAK, BehandlingStatus.IVERKSETTER_VEDTAK).contains(behandling.getStatus()))
             return;

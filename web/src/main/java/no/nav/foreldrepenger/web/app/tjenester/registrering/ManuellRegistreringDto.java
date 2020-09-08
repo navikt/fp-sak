@@ -72,6 +72,7 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String tilleggsopplysninger;
 
+    @ValidKodeverk
     private Språkkode språkkode;
 
     @Size(max = 4000)

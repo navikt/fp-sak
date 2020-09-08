@@ -23,8 +23,6 @@ class OppgittPeriodeUtil {
     /**
      * Finn første dato fra søknad som ikke er en utsettelse.
      *
-     * @param oppgittFordeling oppgitt fordeling.
-     *
      * @param oppgittePerioder
      * @return første dato fra søknad som ikke er en utsettelse.
      */

@@ -1,14 +1,10 @@
 package no.nav.foreldrepenger.domene.vedtak.innsyn;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktÃ¸r.SAKSBEHANDLER;
-
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -21,15 +17,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLÃ
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
 @ApplicationScoped
 public class InnsynTjeneste {
 
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private InnsynHistorikkTjeneste innsynHistorikkTjeneste;
-    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
+    private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -40,16 +34,12 @@ public class InnsynTjeneste {
     }
 
     @Inject
-    public InnsynTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                              InnsynHistorikkTjeneste innsynHistorikkTjeneste,
+    public InnsynTjeneste(BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                               FagsakRepository fagsakRepository,
                               BehandlingRepository behandlingRepository,
                               BehandlingsresultatRepository behandlingsresultatRepository,
-                              InnsynRepository innsynRepository,
-                              BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
-        this.innsynHistorikkTjeneste = innsynHistorikkTjeneste;
+                              InnsynRepository innsynRepository) {
+        this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
@@ -60,16 +50,7 @@ public class InnsynTjeneste {
         Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer)
             .orElseThrow(() -> InnsynFeil.FACTORY.tjenesteFinnerIkkeFagsakForInnsyn(saksnummer).toException());
 
-        BehandlingType behandlingType = BehandlingType.INNSYN;
-        Behandling nyBehandling = Behandling.nyBehandlingFor(fagsak, behandlingType).build();
-        nyBehandling.setBehandlendeEnhet(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
-
-        innsynHistorikkTjeneste.opprettHistorikkinnslag(nyBehandling, SAKSBEHANDLER);
-
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(nyBehandling);
-        behandlingskontrollTjeneste.opprettBehandling(kontekst, nyBehandling);
-
-        return nyBehandling;
+        return behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.INNSYN);
     }
 
     public void lagreVurderInnsynResultat(Behandling behandling, InnsynEntitet innsynResultat) {

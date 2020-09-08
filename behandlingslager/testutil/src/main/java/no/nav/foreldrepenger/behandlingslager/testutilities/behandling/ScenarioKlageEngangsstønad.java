@@ -193,8 +193,7 @@ public class ScenarioKlageEngangsstønad {
         BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
         BehandlingLås lås = behandlingRepository.taSkriveLås(klageBehandling);
         behandlingRepository.lagre(klageBehandling, lås);
-        klageRepository.leggTilKlageResultat(klageBehandling);
-        klageResultat = klageRepository.hentKlageResultat(klageBehandling);
+        klageResultat = klageRepository.hentEvtOpprettKlageResultat(klageBehandling);
         klageRepository.lagreFormkrav(klageBehandling, opprettFormkrav(KlageVurdertAv.NFP));
         if (vurderingNFP != null) {
             klageRepository.lagreVurderingsResultat(klageBehandling,vurderingResultatNFP.medKlageVurdertAv(KlageVurdertAv.NFP).medKlageVurdering(vurderingNFP)
@@ -214,13 +213,13 @@ public class ScenarioKlageEngangsstønad {
         }
 
         utførteAksjonspunktDefinisjoner.forEach((apDef, stegType) ->
-            new AksjonspunktTestSupport().leggTilAksjonspunkt(klageBehandling, apDef, stegType)
+            AksjonspunktTestSupport.leggTilAksjonspunkt(klageBehandling, apDef, stegType)
         );
 
-        klageBehandling.getAksjonspunkter().forEach(punkt ->  new AksjonspunktTestSupport().setTilUtført(punkt,"Test"));
+        klageBehandling.getAksjonspunkter().forEach(punkt ->  AksjonspunktTestSupport.setTilUtført(punkt,"Test"));
 
         opprettedeAksjonspunktDefinisjoner.forEach((apDef, stegType) ->
-            new AksjonspunktTestSupport().leggTilAksjonspunkt(klageBehandling, apDef, stegType)
+            AksjonspunktTestSupport.leggTilAksjonspunkt(klageBehandling, apDef, stegType)
         );
 
         if (startSteg != null) {
@@ -331,12 +330,10 @@ public class ScenarioKlageEngangsstønad {
             private KlageFormkravEntitet klageFormkrav;
 
             @Override
-            public void leggTilKlageResultat(Behandling klageBehandling) {
-                this.klageResultat = KlageResultatEntitet.builder().medKlageBehandling(klageBehandling).build();
-            }
-
-            @Override
-            public KlageResultatEntitet hentKlageResultat(Behandling klageBehandling) {
+            public KlageResultatEntitet hentEvtOpprettKlageResultat(Behandling klageBehandling) {
+                if (klageResultat == null) {
+                    this.klageResultat = KlageResultatEntitet.builder().medKlageBehandling(klageBehandling).build();
+                }
                 return klageResultat;
             }
 
@@ -396,7 +393,7 @@ public class ScenarioKlageEngangsstønad {
 
             @Override
             public void settPåklagdBehandling(Behandling klageBehandling, Behandling påKlagdBehandling) {
-                KlageResultatEntitet klageResultat = hentKlageResultat(klageBehandling);
+                KlageResultatEntitet klageResultat = hentEvtOpprettKlageResultat(klageBehandling);
                 klageResultat.settPåKlagdBehandling(påKlagdBehandling);
             }
         };

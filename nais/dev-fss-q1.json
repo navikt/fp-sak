@@ -10,7 +10,7 @@
   "maxReplicas": "2",
   "ingresses": [
     "https://fpsak-q1.nais.preprod.local/",
-    "https://fpsak.nais.preprod.local/"
+    "https://fpsak-q1.dev.adeo.no/"
   ],
   "env": {
     "APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
@@ -50,18 +50,19 @@
     "MQGATEWAY02_NAME": "MQ1LSC02",
     "MQGATEWAY02_HOSTNAME": "b27apvl176.preprod.local",
     "MQGATEWAY02_PORT": "1413",
-    "FPRISK_RISIKOKLASSIFISERING_HENT_URL": "https://fprisk-q1.nais.preprod.local/fprisk/api/risikovurdering/hent",
-    "FPABAKUS_URL": "http://fpabakus/fpabakus",
+    "FPRISK_RISIKOKLASSIFISERING_HENT_URL": "http://fprisk.teamforeldrepenger/fprisk/api/risikovurdering/hent",
+    "FPABAKUS_URL": "http://fpabakus.q1/fpabakus",
     "FPFORDEL_BASE_URL": "http://fpfordel.teamforeldrepenger/fpfordel",
+    "FPOPPDRAG_OVERRIDE_DIREKTE_URL": "http://fpoppdrag/fpoppdrag/api",
+    "FPTILBAKE_OVERRIDE_DIREKTE_URL": "http://fptilbake/fptilbake/api",
     "ABAC_PDP_ENDPOINT_URL": "https://wasapp-q1.adeo.no/asm-pdp/authorize",
-    "FPOPPDRAG_SIMULERINGRESULTAT_URL": "https://fpoppdrag-q1.nais.preprod.local/fpoppdrag/api/simulering/resultat",
     "SAK_RS_URL": "http://sak.q1/api/v1/saker",
     "AKTOER_V2_URL": "https://app-q1.adeo.no/aktoerregister/ws/Aktoer/v2",
     "JOURNAL_V3_URL": "https://dokarkiv-q1.nais.preprod.local/services/journal/v3",
     "ORGANISASJON_RS_URL": "https://modapp-q1.adeo.no/ereg/api/v1/organisasjon",
     "OPPGAVE_RS_URI": "http://oppgave.default/api/v1/oppgaver",
     "MEDL2_RS_URL": "https://app-q1.adeo.no/medl2/api/v1/medlemskapsunntak",
-    "ARBEIDSFORDELING_RS_URL": "https://app-q1.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
+    "ARBEIDSFORDELING_RS_URL": "http://norg2.default/norg2/api/v1/arbeidsfordeling/enheter",
     "PERSON_V3_URL": "https://wasapp-q1.adeo.no/tpsws/ws/Person/v3",
     "KODEVERK_V2_URL": "https://kodeverk.nais.preprod.local/ws/kodeverk/v2"
   }

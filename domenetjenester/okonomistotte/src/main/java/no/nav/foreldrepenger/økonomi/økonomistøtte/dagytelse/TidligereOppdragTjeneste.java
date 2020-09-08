@@ -172,10 +172,10 @@ public class TidligereOppdragTjeneste {
 
     private static KodeFagområdeTjeneste finnFagområdeTjeneste(OppdragInput behandlingInfo) {
         FagsakYtelseType ytelseType = behandlingInfo.getFagsakYtelseType();
-        if (ytelseType.gjelderForeldrepenger()) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
             return KodeFagområdeTjeneste.forForeldrepenger();
         }
-        if (ytelseType.gjelderSvangerskapspenger()) {
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
             return KodeFagområdeTjeneste.forSvangerskapspenger();
         }
         throw new IllegalArgumentException("Utvikler-feil: FagsakYtelseType " + ytelseType + " er ikke støttet her");

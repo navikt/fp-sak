@@ -86,7 +86,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     private FastsettePerioderRegelGrunnlagBygger grunnlagBygger;
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
-        return scenario.lagre(repositoryProvider, iayTjeneste::lagreIayAggregat, iayTjeneste::lagreOppgittOpptjening);
+        return scenario.lagre(repositoryProvider, iayTjeneste::lagreIayAggregat);
     }
 
     @Test
@@ -339,7 +339,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
-        lagreUttaksperiodegrense(farsBehandling, repositoryProvider.getUttaksperiodegrenseRepository());
+        lagreUttaksperiodegrense(repositoryProvider.getUttaksperiodegrenseRepository(), farsBehandling.getId());
         repositoryProvider.getYtelsesFordelingRepository().lagre(farsBehandling.getId(), new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato).build());
         lagreYrkesAktiviter(farsBehandling, virksomhet, Collections.singletonList(aktivitet.getArbeidsforholdId()),
             BigDecimal.valueOf(100), fødselsdato.minusYears(1));
@@ -452,10 +452,11 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         return behandling;
     }
 
-    private void lagreUttaksperiodegrense(Behandling behandling, UttaksperiodegrenseRepository repository) {
-        Uttaksperiodegrense grense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
+    private void lagreUttaksperiodegrense(UttaksperiodegrenseRepository repository, Long behandlingId) {
+        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
+        Uttaksperiodegrense grense = new Uttaksperiodegrense.Builder(br)
             .medFørsteLovligeUttaksdag(LocalDate.now().minusMonths(6)).medMottattDato(LocalDate.now().minusWeeks(2)).build();
-        repository.lagre(behandling.getId(), grense);
+        repository.lagre(behandlingId, grense);
     }
 
     private Arbeidsgiver lagVirksomhetArbeidsgiver(String orgnr) {
@@ -566,8 +567,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         AktivitetsAvtaleBuilder aktivitetsAvtale = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed))
             .medProsentsats(stillingsprosent)
-            .medAntallTimer(BigDecimal.valueOf(20.4d))
-            .medAntallTimerFulltid(BigDecimal.valueOf(10.2d));
+            .medSisteLønnsendringsdato(fraOgMed);
         AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed));
         yrkesaktivitetBuilder
@@ -588,7 +588,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(førsteUttaksdag).build());
 
         Behandling behandling = lagre(scenario);
-        lagreUttaksperiodegrense(behandling, repositoryProvider.getUttaksperiodegrenseRepository());
+        lagreUttaksperiodegrense(repositoryProvider.getUttaksperiodegrenseRepository(), behandling.getId());
         lagreStønadskontoer(behandling, repositoryProvider.getFagsakRelasjonRepository());
         return behandling;
     }

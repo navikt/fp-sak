@@ -31,9 +31,6 @@ public enum KlageVurderingOmgjør implements Kodeverdi {
 
     public static final String KODEVERK = "KLAGE_VURDERING_OMGJOER";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "KLAGE_VURDERING_OMGJOER";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -88,7 +85,7 @@ public enum KlageVurderingOmgjør implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();

@@ -489,7 +489,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
                     .medNavn("asdf")
                     .medAktørId(fagsakBuilder.getBrukerBuilder().getAktørId())
                     .medNavBrukerKjønn(getKjønnFraFagsak())
-                    .medForetrukketSpråk(Språkkode.nb)
+                    .medForetrukketSpråk(Språkkode.NB)
                     .build();
                 final NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(personinfo);
                 fagsakBuilder.medBruker(navBruker);

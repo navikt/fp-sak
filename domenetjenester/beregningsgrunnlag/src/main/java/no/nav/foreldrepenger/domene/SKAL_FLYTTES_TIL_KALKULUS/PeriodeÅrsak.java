@@ -37,9 +37,6 @@ public enum PeriodeÅrsak implements Kodeverdi {
 
     public static final String KODEVERK = "PERIODE_AARSAK";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "PERIODE_AARSAK";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {

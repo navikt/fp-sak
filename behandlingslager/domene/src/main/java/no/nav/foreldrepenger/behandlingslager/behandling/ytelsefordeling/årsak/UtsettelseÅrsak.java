@@ -32,8 +32,6 @@ public enum UtsettelseÅrsak implements Årsak {
 
     public static final String KODEVERK = "UTSETTELSE_AARSAK_TYPE";
 
-    @Deprecated public static final String DISCRIMINATOR = "UTSETTELSE_AARSAK_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {

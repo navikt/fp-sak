@@ -73,7 +73,7 @@ public class MedlemskapVilkårPeriodeRepositoryImplTest {
             .medLandkode(Landkoder.NOR)
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
             .medPersonIdent(new PersonIdent("12345678901"))
-            .medForetrukketSpråk(Språkkode.nb)
+            .medForetrukketSpråk(Språkkode.NB)
             .build();
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(personinfo));
         fagsakRepository.opprettNy(fagsak);

@@ -328,7 +328,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         Behandling behandling = opprettBehandling();
         opprettOppgittOpptjening(behandling);
         opprettInntektArbeidYtelseAggregatForMultiYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.ONE, behandling);
-        opprettAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD, LocalDateTime.now());
+        opprettAksjonspunkt(behandling, LocalDateTime.now());
 
         // Act
         Set<ArbeidsforholdWrapper> wrapperList = hentArbeidsforholdFerdigUtledet(behandling);
@@ -580,8 +580,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
             .medPeriode(periodeAA)
             .medProsentsats(prosentsats)
-            .medAntallTimer(BigDecimal.valueOf(20.4d))
-            .medAntallTimerFulltid(BigDecimal.valueOf(10.2d))
             .medBeskrivelse("Ser greit ut");
         AktivitetsAvtaleBuilder ansettelsesPeriode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(periodeYA, true);
 
@@ -641,7 +639,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
             .medLandkode(Landkoder.NOR)
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
             .medPersonIdent(new PersonIdent("12312"))
-            .medForetrukketSpråk(Språkkode.nb)
+            .medForetrukketSpråk(Språkkode.NB)
             .build();
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(personinfo));
         fagsakRepository.opprettNy(fagsak);
@@ -652,12 +650,10 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
     }
 
     private Aksjonspunkt opprettAksjonspunkt(Behandling behandling,
-                                             AksjonspunktDefinisjon aksjonspunktDefinisjon,
                                              LocalDateTime frist) {
 
-        AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
-        aksjonspunktRepository.setFrist(aksjonspunkt, frist, Venteårsak.UDEFINERT);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        AksjonspunktTestSupport.setFrist(aksjonspunkt, frist, Venteårsak.UDEFINERT);
         return aksjonspunkt;
     }
 }

@@ -74,10 +74,8 @@ public class VedtaksperioderHelper {
 
         if (førsteSøknadsdatoOptional.isPresent()) {
             LocalDate førsteSøknadsdato = førsteSøknadsdatoOptional.get();
-            if (periode.getFom().equals(førsteSøknadsdato) || periode.getFom().isAfter(førsteSøknadsdato)) {
-                //Perioder som starter på eller etter første søknadsdato skal filtreres bort
-                return false;
-            }
+            //Perioder som starter på eller etter første søknadsdato skal filtreres bort
+            return !periode.getFom().equals(førsteSøknadsdato) && !periode.getFom().isAfter(førsteSøknadsdato);
         }
         return true;
     }

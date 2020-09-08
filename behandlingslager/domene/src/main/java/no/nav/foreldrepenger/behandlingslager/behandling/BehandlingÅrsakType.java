@@ -22,26 +22,13 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum BehandlingÅrsakType implements Kodeverdi {
 
-    RE_MANGLER_FØDSEL("RE-MF", "Manglende informasjon om fødsel i folkeregisteret"),
-    RE_MANGLER_FØDSEL_I_PERIODE("RE-MFIP", "Manglende informasjon om fødsel i folkeregisteret mellom uke 26 og 29"),
-    RE_AVVIK_ANTALL_BARN("RE-AVAB", "Avvik i antall barn"),
+    // MANUELL OPPRETTING - GUI-anvendelse
     RE_FEIL_I_LOVANDVENDELSE("RE-LOV", "Feil lovanvendelse"),
     RE_FEIL_REGELVERKSFORSTÅELSE("RE-RGLF", "Feil regelverksforståelse"),
     RE_FEIL_ELLER_ENDRET_FAKTA("RE-FEFAKTA", "Feil eller endret fakta"),
     RE_FEIL_PROSESSUELL("RE-PRSSL", "Prosessuell feil"),
-    RE_ENDRING_FRA_BRUKER("RE-END-FRA-BRUKER", "Endringssøknad fra bruker"),
-    RE_ENDRET_INNTEKTSMELDING("RE-END-INNTEKTSMELD", "Mottatt ny inntektsmelding"),
-    BERØRT_BEHANDLING("BERØRT-BEHANDLING", "Endring i den andre forelderens uttak"),
     RE_ANNET("RE-ANNET", "Annet"),
-    RE_SATS_REGULERING("RE-SATS-REGULERING", "Regulering av grunnbeløp"),
-    //For automatiske informasjonsbrev
-    INFOBREV_BEHANDLING("INFOBREV_BEHANDLING", "Sende informasjonsbrev"),
-    INFOBREV_OPPHOLD("INFOBREV_OPPHOLD", "Sende informasjonsbrev om opphold det ikke er søkt om"),
-    //For å vurdere opphør av ytelse
-    OPPHØR_YTELSE_NYTT_BARN("OPPHØR-NYTT-BARN", "Identifisert overlapp av ytelser"),
-    // Manuelt opprettet revurdering (obs: årsakene kan også bli satt på en automatisk opprettet revurdering)
-    RE_KLAGE_UTEN_END_INNTEKT("RE-KLAG-U-INNTK", "Klage/ankebehandling uten endrede inntektsopplysninger"),
-    RE_KLAGE_MED_END_INNTEKT("RE-KLAG-M-INNTK", "Klage/ankebehandling med endrede inntektsopplysninger"),
+
     RE_OPPLYSNINGER_OM_MEDLEMSKAP("RE-MDL", "Nye opplysninger om medlemskap"),
     RE_OPPLYSNINGER_OM_OPPTJENING("RE-OPTJ", "Nye opplysninger om opptjening"),
     RE_OPPLYSNINGER_OM_FORDELING("RE-FRDLING", "Nye opplysninger om uttak"),
@@ -52,27 +39,52 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_OPPLYSNINGER_OM_SØKNAD_FRIST("RE-FRIST", "Nye opplysninger som kan påvirke vurderingen av søknadsfristen"),
     RE_OPPLYSNINGER_OM_BEREGNINGSGRUNNLAG("RE-BER-GRUN", "Nye opplysninger som kan påvirke beregningsgrunnlaget"),
 
+    // KLAGE - Manuelt opprettet revurdering (obs: årsakene kan også bli satt på en automatisk opprettet revurdering)
+    RE_KLAGE_UTEN_END_INNTEKT("RE-KLAG-U-INNTK", "Klage/ankebehandling uten endrede inntektsopplysninger"),
+    RE_KLAGE_MED_END_INNTEKT("RE-KLAG-M-INNTK", "Klage/ankebehandling med endrede inntektsopplysninger"),
     ETTER_KLAGE("ETTER_KLAGE", "Ny behandling eller revurdering etter klage eller anke"),
 
+    // Etterkontroll + funksjonell
+    RE_MANGLER_FØDSEL("RE-MF", "Manglende informasjon om fødsel i folkeregisteret"),
+    RE_MANGLER_FØDSEL_I_PERIODE("RE-MFIP", "Manglende informasjon om fødsel i folkeregisteret mellom uke 26 og 29"),
+    RE_AVVIK_ANTALL_BARN("RE-AVAB", "Avvik i antall barn"),
+
+    // Mottak
+    RE_ENDRING_FRA_BRUKER("RE-END-FRA-BRUKER", "Endringssøknad fra bruker"),
+    RE_ENDRET_INNTEKTSMELDING("RE-END-INNTEKTSMELD", "Mottatt ny inntektsmelding"),
+    BERØRT_BEHANDLING("BERØRT-BEHANDLING", "Endring i den andre forelderens uttak"),
+
+    // G-regulering
+    RE_SATS_REGULERING("RE-SATS-REGULERING", "Regulering av grunnbeløp"),
+
+    //For automatiske informasjonsbrev
+    INFOBREV_BEHANDLING("INFOBREV_BEHANDLING", "Sende informasjonsbrev"),
+    INFOBREV_OPPHOLD("INFOBREV_OPPHOLD", "Sende informasjonsbrev om opphold det ikke er søkt om"),
+
+    //For å vurdere opphør av ytelse
+    OPPHØR_YTELSE_NYTT_BARN("OPPHØR-NYTT-BARN", "Identifisert overlapp av ytelser"),
+
+    // Hendelser
     RE_HENDELSE_FØDSEL("RE-HENDELSE-FØDSEL", "Melding om registrert fødsel i folkeregisteret"),
     RE_HENDELSE_DØD_FORELDER("RE-HENDELSE-DØD-F", "Melding om registrert død på forelder i folkeregisteret"),
     RE_HENDELSE_DØD_BARN("RE-HENDELSE-DØD-B", "Melding om registrert død på barn i folkeregisteret"),
     RE_HENDELSE_DØDFØDSEL("RE-HENDELSE-DØDFØD", "Melding om registrert dødfødsel i folkeregisteret"),
 
 
-    // UTGÅTT. men ikke slett - er noen behandlinger med disse i årsak-tabellen + at det ligger ting i historikk-innslag (inntil evt konvertert).
+    // UTGÅTT. men ikke slett - BehandlingÅrsak-tabellen er rensket og ikke bruk disse som nye behandlingsårsaker!
+    // Det ligger en hel del i historikk-innslag (inntil evt konvertert) og de brukes til vise tekst frontend.
+    // OPPLYSNINGER_OM_YTELSER brukes til å lage nye historikkinnslag - de øvrige er historiske
 
-    @Deprecated // Registeroppdatering. Mange forkomster i behandling_aarsak, færre i HISTORIKKINNSLAG_FELT
-    RE_REGISTEROPPLYSNING("RE-REGISTEROPPL", "Nye registeropplysninger"),
-    @Deprecated // Registeroppdatering. Mange forkomster i behandling_aarsak, mange i HISTORIKKINNSLAG_FELT
+    @Deprecated // Registeroppdatering. 49450 forekomster i HISTORIKKINNSLAG_FELT
     RE_OPPLYSNINGER_OM_YTELSER("RE-YTELSE", "Nye opplysninger om ytelse"),
-    @Deprecated // Køing - i tillegg til aksjonspunkt. Mange forkomster i behandling_aarsak, mange i HISTORIKKINNSLAG_FELT
+
+    @Deprecated // Registeroppdatering. 1 forekomst i HISTORIKKINNSLAG_FELT
+    RE_REGISTEROPPLYSNING("RE-REGISTEROPPL", "Nye registeropplysninger"),
+    @Deprecated // Køing - i tillegg til aksjonspunkt. 532 forekomster i HISTORIKKINNSLAG_FELT
     KØET_BEHANDLING("KØET-BEHANDLING", "Søker eller den andre forelderen har en åpen behandling"),
-    @Deprecated // Infotrygd hendelse-feed. 2 behandlinger med forekomst
+    @Deprecated // Infotrygd hendelse-feed. 2 forekomster i HISTORIKKINNSLAG_FELT
     RE_TILSTØTENDE_YTELSE_INNVILGET("RE-TILST-YT-INNVIL", "Tilstøtende ytelse innvilget"),
-    @Deprecated // Ukjent intensjon. Ingen forekomster i DB. Kan slettes
-    RE_ENDRING_BEREGNINGSGRUNNLAG("RE-ENDR-BER-GRUN", "Nye opplysninger som kan påvirke beregningsgrunnlaget"),
-    @Deprecated // Infotrygd hendelse-feed. 2 behandlinger med forekomst
+    @Deprecated // Infotrygd hendelse-feed. 2 forekomster i HISTORIKKINNSLAG_FELT
     RE_TILSTØTENDE_YTELSE_OPPHØRT("RE-TILST-YT-OPPH", "Tilstøtende ytelse opphørt"),
 
     // La stå
@@ -162,8 +174,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     }
 
     public static Set<BehandlingÅrsakType> årsakerForAutomatiskRevurdering() {
-        return Set.of(RE_MANGLER_FØDSEL, RE_MANGLER_FØDSEL_I_PERIODE, RE_AVVIK_ANTALL_BARN,
-            RE_TILSTØTENDE_YTELSE_INNVILGET, RE_ENDRING_BEREGNINGSGRUNNLAG, RE_TILSTØTENDE_YTELSE_OPPHØRT);
+        return Set.of(RE_MANGLER_FØDSEL, RE_MANGLER_FØDSEL_I_PERIODE, RE_AVVIK_ANTALL_BARN);
     }
 
     public static Set<BehandlingÅrsakType> årsakerForEtterkontroll() {

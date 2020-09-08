@@ -60,7 +60,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <fp-uttak.version>4.0-20200703131606-daeeb9a</fp-uttak.version>
+        <fp-uttak.version>4.0-20200827082512-1373d81</fp-uttak.version>
 
         <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
 
@@ -71,7 +71,7 @@
 
         <fp-kontrakter.version>5.1-20200814082942-fd337ce</fp-kontrakter.version>
 
-        <kalkulus.version>1.0-2020.08.24.111501-e2cdfc2</kalkulus.version>
+        <kalkulus.version>1.0-2020.09.02.113849-509b15b</kalkulus.version>
 
         <swaggercore.version>2.1.4</swaggercore.version>
     </properties>
@@ -601,7 +601,7 @@
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.16.1</version>
+                <version>3.17.2</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>

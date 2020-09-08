@@ -5,6 +5,8 @@ import static no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbygge
 import static no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.InngangsvilkårGrunnlagBygger.fødselsvilkårOppfylt;
 import static no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.InngangsvilkårGrunnlagBygger.opptjeningsvilkåretOppfylt;
 
+import java.util.Optional;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -12,6 +14,10 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
@@ -28,7 +34,10 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
+import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
 public class ForvaltningUttakTjeneste {
@@ -42,6 +51,8 @@ public class ForvaltningUttakTjeneste {
     private UttakInputTjeneste uttakInputTjeneste;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private FagsakRepository fagsakRepository;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private HistorikkRepository historikkRepository;
 
     @Inject
     public ForvaltningUttakTjeneste(FpUttakRepository fpUttakRepository,
@@ -52,7 +63,9 @@ public class ForvaltningUttakTjeneste {
                                     BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste,
                                     UttakInputTjeneste uttakInputTjeneste,
                                     FagsakRelasjonRepository fagsakRelasjonRepository,
-                                    FagsakRepository fagsakRepository) {
+                                    FagsakRepository fagsakRepository,
+                                    YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                    HistorikkRepository historikkRepository) {
         this.fpUttakRepository = fpUttakRepository;
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
@@ -62,6 +75,8 @@ public class ForvaltningUttakTjeneste {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
         this.fagsakRepository = fagsakRepository;
+        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
+        this.historikkRepository = historikkRepository;
     }
 
     ForvaltningUttakTjeneste() {
@@ -153,5 +168,33 @@ public class ForvaltningUttakTjeneste {
         var fagsak = fagsakRepository.finnEksaktFagsak(input.getBehandlingReferanse().getFagsakId());
         fagsakRelasjonRepository.nullstillOverstyrtStønadskontoberegning(fagsak);
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
+    }
+
+    public void endreAnnenForelderHarRett(long behandlingId, boolean harRett) {
+
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
+        if (ytelseFordelingAggregat.getPerioderAnnenforelderHarRett().isEmpty()) {
+            throw new IllegalArgumentException("Kan ikke endre ettersom annen forelder har rett ikke er avklart");
+        }
+        if (UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, Optional.empty()) != harRett) {
+            ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandlingId, harRett);
+
+            lagHistorikkinnslag(harRett, behandlingId);
+        }
+
+    }
+
+    private void lagHistorikkinnslag(boolean harRett, Long behandlingId) {
+        var historikkinnslag = new Historikkinnslag();
+        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
+        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
+        historikkinnslag.setBehandlingId(behandlingId);
+
+        var begrunnelse = harRett ? "FORVALTNING - Endret til annen forelder har rett" : "FORVALTNING - Endret til annen forelder har ikke rett";
+        var historieBuilder = new HistorikkInnslagTekstBuilder()
+            .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
+            .medBegrunnelse(begrunnelse);
+        historieBuilder.build(historikkinnslag);
+        historikkRepository.lagre(historikkinnslag);
     }
 }

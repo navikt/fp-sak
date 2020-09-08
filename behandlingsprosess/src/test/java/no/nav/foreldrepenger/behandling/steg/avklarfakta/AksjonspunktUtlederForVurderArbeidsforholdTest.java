@@ -271,9 +271,8 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest {
             .medArbeidsforholdId(ref)
             .leggTilAktivitetsAvtale(yrkesaktivitetBuilderForType
                 .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(3)), false)
-                .medProsentsats(BigDecimal.valueOf(100))
-                .medAntallTimer(BigDecimal.valueOf(40))
-                .medAntallTimerFulltid(BigDecimal.valueOf(40)))
+                .medSisteLønnsendringsdato(LocalDate.now().minusMonths(3))
+                .medProsentsats(BigDecimal.valueOf(100)))
             .leggTilAktivitetsAvtale(yrkesaktivitetBuilderForType
                 .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(3)), true));
         arbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilderForType);

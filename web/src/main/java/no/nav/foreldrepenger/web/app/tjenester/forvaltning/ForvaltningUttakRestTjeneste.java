@@ -10,6 +10,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -61,6 +62,19 @@ public class ForvaltningUttakRestTjeneste {
         long behandlingId = dto.getBehandlingId();
 
         forvaltningUttakTjeneste.beregnKontoer(behandlingId);
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/endre-annen-forelder-rett")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Operation(description = "Endrer resultat av AP om annen forelder har rett", tags = "FORVALTNING-uttak")
+    @BeskyttetRessurs(action = CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    public Response endreAnnenForelderRett(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
+                                           @QueryParam(value = "harRett") @Valid Boolean harRett) {
+        var behandlingId = dto.getBehandlingId();
+
+        forvaltningUttakTjeneste.endreAnnenForelderHarRett(behandlingId, harRett);
         return Response.noContent().build();
     }
 }

@@ -385,7 +385,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
             .build();
         BehandlingBeregningsresultatBuilder builder = BehandlingBeregningsresultatBuilder.oppdatere(Optional.empty())
             .medBgBeregningsresultatFP(bgres);
-        return builder.build(behandling);
+        return builder.build(behandling.getId());
     }
 
     private static BeregningsresultatPeriode lagP1(BeregningsresultatEntitet beregningsresultat) {

@@ -49,7 +49,7 @@ public class RegistrerSøknadStegTest {
             .medAktørId(aktørId)
             .medNavn("Navn Navnesen")
             .medFødselsdato(LocalDate.now().minusYears(30))
-            .medForetrukketSpråk(Språkkode.nb)
+            .medForetrukketSpråk(Språkkode.NB)
             .build();
         Long fagsakId = repositoryProvider.getFagsakRepository()
             .opprettNy(new Fagsak(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(personinfo), RelasjonsRolleType.MORA, new Saksnummer("123")));
@@ -89,7 +89,7 @@ public class RegistrerSøknadStegTest {
             .medAktørId(aktørId)
             .medNavn("Navn Navnesen")
             .medFødselsdato(LocalDate.now().minusYears(30))
-            .medForetrukketSpråk(Språkkode.nb)
+            .medForetrukketSpråk(Språkkode.NB)
             .build();
         Long fagsakId = repositoryProvider.getFagsakRepository()
             .opprettNy(new Fagsak(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNy(personinfo), RelasjonsRolleType.MORA, new Saksnummer("124")));

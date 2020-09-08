@@ -12,16 +12,6 @@ public class Familierelasjon {
     private String adresse;
     private Boolean harSammeBosted;
 
-    /**
-     * @deprecated bruk ctor med PersonIdent
-     */
-    @Deprecated
-    public Familierelasjon(String fnr, RelasjonsRolleType relasjonsrolle, LocalDate fødselsdato,
-            String adresse, Boolean harSammeBosted) {
-
-        this(PersonIdent.fra(fnr), relasjonsrolle, fødselsdato, adresse, harSammeBosted);
-    }
-
     public Familierelasjon(PersonIdent personIdent,  RelasjonsRolleType relasjonsrolle, LocalDate fødselsdato,
             String adresse, Boolean harSammeBosted) {
         this.personIdent = personIdent;
@@ -29,14 +19,6 @@ public class Familierelasjon {
         this.fødselsdato = fødselsdato;
         this.adresse = adresse;
         this.harSammeBosted = harSammeBosted;
-    }
-
-    /**
-     * @deprecated bruk {@link #getPersonIdent()}
-     */
-    @Deprecated
-    public String getFnr() {
-        return personIdent.getIdent();
     }
 
     public PersonIdent getPersonIdent() {

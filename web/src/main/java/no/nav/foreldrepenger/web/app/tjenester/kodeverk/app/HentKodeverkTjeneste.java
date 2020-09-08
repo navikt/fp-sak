@@ -65,18 +65,19 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeliste;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentTypeIdKodeliste;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
@@ -117,6 +118,9 @@ public class HentKodeverkTjeneste {
         map.put(ForeldreType.class.getSimpleName(), ForeldreType.kodeMap().values());
         map.put(InnsynResultatType.class.getSimpleName(), InnsynResultatType.kodeMap().values());
         map.put(BehandlingType.class.getSimpleName(), BehandlingType.kodeMap().values());
+        map.put(Språkkode.class.getSimpleName(), Språkkode.kodeMap().values());
+        map.put(Region.class.getSimpleName(), Region.kodeMap().values());
+        map.put(Landkoder.class.getSimpleName(), Landkoder.kodeMap().values());
         map.put(ArbeidType.class.getSimpleName(), filtrerArbeidType(ArbeidType.kodeMap().values()));
         map.put(IkkeOppfyltÅrsak.class.getSimpleName(), IkkeOppfyltÅrsak.kodeMap().values());
         map.put(InnvilgetÅrsak.class.getSimpleName(), InnvilgetÅrsak.kodeMap().values());
@@ -169,10 +173,7 @@ public class HentKodeverkTjeneste {
         KODEVERDIER_SOM_BRUKES_PÅ_KLIENT = Collections.unmodifiableMap(mapFiltered);
 
     }
-    public static final List<Class<? extends Kodeliste>> KODEVERK_SOM_BRUKES_PÅ_KLIENT = List.of(
-        DokumentTypeIdKodeliste.class,
-        Landkoder.class,
-        Region.class);
+    public static final List<Class<? extends Kodeliste>> KODEVERK_SOM_BRUKES_PÅ_KLIENT = List.of(DokumentTypeIdKodeliste.class);
 
     private KodeverkRepository kodeverkRepository;
     private BehandlendeEnhetTjeneste enhetsTjeneste;
@@ -182,11 +183,11 @@ public class HentKodeverkTjeneste {
     }
 
     private static Collection<? extends Kodeverdi> filtrerMedlemskapManuellVurderingType(Collection<MedlemskapManuellVurderingType> values) {
-        return values.stream().filter(at -> at.visesPåKlient()).collect(Collectors.toSet());
+        return values.stream().filter(MedlemskapManuellVurderingType::visesPåKlient).collect(Collectors.toSet());
     }
 
     private static Collection<? extends Kodeverdi> filtrerArbeidType(Collection<ArbeidType> values) {
-        return values.stream().filter(at -> at.erAnnenOpptjening()).collect(Collectors.toSet());
+        return values.stream().filter(ArbeidType::erAnnenOpptjening).collect(Collectors.toSet());
     }
 
     @Inject
@@ -219,7 +220,7 @@ public class HentKodeverkTjeneste {
             // mindre sårbar for switch fra uoffisiell til offisiell kode i backend
             var offisielleKodeverdier = kodeverdier.stream()
                 .filter(k -> !Objects.equals(k.getKode(), k.getOffisiellKode()) && k.getOffisiellKode() != null)
-                .map(k -> new MyOffisiellKodeKodeliste(k))
+                .map(MyOffisiellKodeKodeliste::new)
                 .collect(Collectors.toSet());
 
             kodeverdier.addAll(offisielleKodeverdier);

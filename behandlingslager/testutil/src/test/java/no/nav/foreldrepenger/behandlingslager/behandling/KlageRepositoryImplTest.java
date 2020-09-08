@@ -36,10 +36,10 @@ public class KlageRepositoryImplTest {
     private Behandling behandling;
     private final EntityManager entityManager = repoRule.getEntityManager();
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-    
+
     @Inject
     private BehandlingRepository behandlingRepository;
-    
+
     @Inject
     private KlageRepository klageRepository;
 
@@ -103,7 +103,7 @@ public class KlageRepositoryImplTest {
         behandling = scenario.lagre(repositoryProvider, klageRepository);
         entityManager.flush();
 
-        KlageResultatEntitet klageResultat = klageRepository.hentKlageResultat(behandling);
+        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling);
         KlageFormkravEntitet.Builder builder1 = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK)
             .medBegrunnelse("Begrunnelse1");
 
@@ -139,7 +139,7 @@ public class KlageRepositoryImplTest {
         behandling = scenario.lagre(repositoryProvider, klageRepository);
         entityManager.flush();
 
-        KlageResultatEntitet klageResultat = klageRepository.hentKlageResultat(behandling);
+        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling);
         KlageVurderingResultat.Builder builder1 = opprettVurderingResultat(klageResultat, KlageVurdertAv.NFP)
             .medBegrunnelse("Begrunnelse1");
 
@@ -178,7 +178,7 @@ public class KlageRepositoryImplTest {
         entityManager.flush();
 
         // Arrange
-        KlageResultatEntitet klageResultat = klageRepository.hentKlageResultat(behandling);
+        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling);
         KlageFormkravEntitet.Builder builderNfp = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NFP)
             .medBegrunnelse("Begrunnelse1");
 

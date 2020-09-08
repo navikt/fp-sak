@@ -222,7 +222,7 @@ public class SøknadGrunnlagBygger {
     }
 
     private void leggTilDokumentasjon(YtelseFordelingAggregat ytelseFordelingAggregat, Dokumentasjon.Builder builder) {
-        List<PeriodeUtenOmsorgEntitet> perioderUtenOmsorg = ytelseFordelingAggregat.getPerioderUtenOmsorg().get().getPerioder();
+        List<PeriodeUtenOmsorgEntitet> perioderUtenOmsorg = ytelseFordelingAggregat.getPerioderUtenOmsorg().orElseThrow().getPerioder();
         for (PeriodeUtenOmsorgEntitet periodeUtenOmsorg : perioderUtenOmsorg) {
             builder.leggPeriodeUtenOmsorg(new no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeUtenOmsorg(periodeUtenOmsorg.getPeriode().getFomDato(),
                 periodeUtenOmsorg.getPeriode().getTomDato()));

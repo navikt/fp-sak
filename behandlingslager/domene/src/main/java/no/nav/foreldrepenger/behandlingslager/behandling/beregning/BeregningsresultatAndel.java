@@ -242,15 +242,6 @@ public class BeregningsresultatAndel extends BaseEntitet {
             return this;
         }
 
-        /**
-         * @deprecated Bruk {@link #medArbeidsforholdRef(InternArbeidsforholdRef)}
-         */
-        @Deprecated(forRemoval=true)
-        public Builder medArbeidsforholdRef(String arbeidsforholdRef) {
-            beregningsresultatAndelMal.arbeidsforholdRef = arbeidsforholdRef == null ? null : InternArbeidsforholdRef.ref(arbeidsforholdRef);
-            return this;
-        }
-
         public Builder medArbeidsforholdRef(InternArbeidsforholdRef arbeidsforholdRef) {
             beregningsresultatAndelMal.arbeidsforholdRef = arbeidsforholdRef;
             return this;

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -31,11 +32,11 @@ import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
 
@@ -86,7 +87,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
             .medLandkode(Landkoder.NOR)
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
             .medPersonIdent(new PersonIdent("12312"))
-            .medForetrukketSpråk(Språkkode.nb)
+            .medForetrukketSpråk(Språkkode.NB)
             .build();
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(personinfo));
         fagsakRepository.opprettNy(fagsak);

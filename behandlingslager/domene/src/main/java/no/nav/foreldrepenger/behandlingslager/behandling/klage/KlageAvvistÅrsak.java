@@ -42,9 +42,6 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
 
     public static final String KODEVERK = "KLAGE_AVVIST_AARSAK";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "KLAGE_AVVIST_AARSAK";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -102,18 +99,18 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getLovHjemmelData() {
         return lovHjemmel;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
-    
+
+
 
     public static void main(String[] args) {
         System.out.println(KODER.keySet());

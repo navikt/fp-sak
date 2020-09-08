@@ -36,15 +36,13 @@ public enum AktivitetStatus implements Kodeverdi {
     KOMBINERT_AT_FL_SN("AT_FL_SN", "Kombinert arbeidstaker, frilanser og selvstendig næringsdrivende", Inntektskategori.UDEFINERT),
     BRUKERS_ANDEL("BA", "Brukers andel", Inntektskategori.UDEFINERT),
     KUN_YTELSE("KUN_YTELSE", "Kun ytelse", Inntektskategori.UDEFINERT),
-    
+
     TTLSTØTENDE_YTELSE("TY", "Tilstøtende ytelse", Inntektskategori.UDEFINERT),
     VENTELØNN_VARTPENGER("VENTELØNN_VARTPENGER", "Ventelønn/Vartpenger", Inntektskategori.UDEFINERT),
-    
+
     UDEFINERT("-", "Ikke definert", Inntektskategori.UDEFINERT);
 
     public static final String KODEVERK = "AKTIVITET_STATUS";
-    @Deprecated
-    public static final String DISCRIMINATOR = "AKTIVITET_STATUS";
 
     private static final Map<String, AktivitetStatus> KODER = new LinkedHashMap<>();
 
@@ -126,7 +124,7 @@ public enum AktivitetStatus implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();

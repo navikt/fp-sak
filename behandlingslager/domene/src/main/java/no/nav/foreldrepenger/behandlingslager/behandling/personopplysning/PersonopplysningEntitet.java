@@ -16,9 +16,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.JoinColumnOrFormula;
-import org.hibernate.annotations.JoinFormula;
-
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -62,9 +59,8 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
     private LocalDate fødselsdato;
 
     @ChangeTracked
-    @ManyToOne
-    @JoinColumnOrFormula(column = @JoinColumn(name = "region", referencedColumnName = "kode", nullable = false))
-    @JoinColumnOrFormula(formula = @JoinFormula(referencedColumnName = "kodeverk", value = "'" + Region.DISCRIMINATOR + "'"))
+    @Convert(converter = Region.KodeverdiConverter.class)
+    @Column(name="region", nullable = false)
     private Region region = Region.UDEFINERT;
 
     @ManyToOne(optional = false)

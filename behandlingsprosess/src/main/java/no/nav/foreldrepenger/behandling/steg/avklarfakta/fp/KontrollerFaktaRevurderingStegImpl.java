@@ -55,8 +55,10 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepositor
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
@@ -75,6 +77,9 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private static final Set<AksjonspunktDefinisjon> AKSJONSPUNKT_SKAL_KOPIERES = Set.of(AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER);
 
     private static final Set<AktivitetStatus> ARENA_REGULERES = Set.of(AktivitetStatus.DAGPENGER, AktivitetStatus.ARBEIDSAVKLARINGSPENGER);
+
+    private static final Set<AktivitetStatus> SN_REGULERING = Set.of(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, AktivitetStatus.KOMBINERT_AT_SN,
+        AktivitetStatus.KOMBINERT_FL_SN, AktivitetStatus.KOMBINERT_AT_FL_SN);
 
     private BehandlingRepository behandlingRepository;
 
@@ -230,7 +235,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         }
 
         if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
-            return StartpunktType.BEREGNING_FORESLÅ;
+            return finnStartpunktForGRegulering(revurdering);
         }
 
         BeregningSats grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getFørsteUttaksdato());
@@ -247,9 +252,12 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
                 .anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL)
                     && a.getBeregningsgrunnlagPeriode().getBruttoPrÅr().compareTo(BigDecimal.valueOf(3).multiply(BigDecimal.valueOf(grunnbeløp.getVerdi()))) < 0);
-            if (over6G || erMilitærUnder3G) {
+            boolean erNæringsdrivende = forrigeBeregning.stream().flatMap(bg -> bg.getAktivitetStatuser().stream())
+                .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
+                .anyMatch(SN_REGULERING::contains);
+            if (over6G || erMilitærUnder3G || erNæringsdrivende) {
                 LOGGER.info("KOFAKREV Revurdering {} skal G-reguleres", revurdering.getId());
-                return StartpunktType.BEREGNING_FORESLÅ;
+                return finnStartpunktForGRegulering(revurdering);
             } else {
                 LOGGER.info("KOFAKREV Revurdering {} blir ikke G-regulert: brutto {} grense {}", revurdering.getId(), bruttoPrÅr, grenseverdi);
             }
@@ -263,6 +271,28 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         rydder.ryddRegisterdata();
     }
 
+    /**
+     * Om saken skal G-reguleres kan den enten starte fra start eller foreslå. Dette avhenger av om man har avklart informasjon i fakta om beregning som avhenger
+     * av størrelsen på G-beløpet. Dette gjelder søkere som har mottatt ytelse for en aktivitet (arbeidsforhold uten inntektsmelding eller frilans)
+     * og der denne ytelsen har blitt g-regulert. Derfor lar vi alle slike saker starte fra start av beregning.
+     *
+     * @param revurdering Revurdering
+     * @return Startpunkt for g-regulering
+     */
+    private StartpunktType finnStartpunktForGRegulering(Behandling revurdering) {
+        if (mottarYtelseForAktivitet(revurdering)) {
+            return StartpunktType.BEREGNING;
+        }
+        return StartpunktType.BEREGNING_FORESLÅ;
+    }
+
+    private boolean mottarYtelseForAktivitet(Behandling revurdering) {
+        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagEntitet = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId());
+        return beregningsgrunnlagEntitet.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
+            .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
+            .anyMatch(a -> a.mottarYtelse().orElse(false));
+    }
+
     private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering, BehandlingskontrollKontekst kontekst) {
         Behandling origBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
             .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
@@ -271,7 +301,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         revurdering = kopierUttaksperiodegrense(revurdering, origBehandling);
 
         if (StartpunktType.BEREGNING_FORESLÅ.equals(revurdering.getStartpunkt())) {
-            beregningsgrunnlagKopierOgLagreTjeneste.kopierResultatForGRegulering(origBehandling.getId(), revurdering.getId());
+            beregningsgrunnlagKopierOgLagreTjeneste.kopierResultatForGRegulering(finnBehandlingSomHarKjørtBeregning(origBehandling).getId(), revurdering.getId());
         }
 
         if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt())) {
@@ -279,6 +309,13 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         }
 
         tilbakestillOppgittFordelingBasertPåBehandlingType(revurdering);
+    }
+
+    private Behandling finnBehandlingSomHarKjørtBeregning(Behandling behandling) {
+        if (!behandling.erRevurdering() || hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(behandling.getId(), BeregningsgrunnlagTilstand.OPPRETTET).isPresent()) {
+            return behandling;
+        };
+        return finnBehandlingSomHarKjørtBeregning(behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling).orElseThrow(() -> new IllegalStateException("Forventer å finne original behandling")));
     }
 
     private void tilbakestillOppgittFordelingBasertPåBehandlingType(Behandling revurdering) {

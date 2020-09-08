@@ -41,9 +41,6 @@ public enum MedlemskapKildeType implements Kodeverdi {
 
     public static final String KODEVERK = "MEDLEMSKAP_KILDE";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "MEDLEMSKAP_KILDE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -98,7 +95,7 @@ public enum MedlemskapKildeType implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();

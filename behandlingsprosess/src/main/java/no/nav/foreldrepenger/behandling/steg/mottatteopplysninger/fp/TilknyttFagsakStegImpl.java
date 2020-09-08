@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE;
 
 import java.util.ArrayList;
@@ -19,21 +18,15 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.Kompletthetskontroller;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
 import no.nav.foreldrepenger.mottak.sakogenhet.KobleSakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
@@ -45,13 +38,9 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjenest
 public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     private BehandlingRepository behandlingRepository;
-    private FagsakRepository fagsakRepository;
     private KobleSakTjeneste kobleSakTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
-    private BehandlingRevurderingRepository revurderingRepository;
-    private Kompletthetskontroller kompletthetskontroller;
     private OppgaveTjeneste oppgaveTjeneste;
-    private KøKontroller køKontroller;
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
     TilknyttFagsakStegImpl() {
@@ -62,19 +51,13 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
     public TilknyttFagsakStegImpl(BehandlingRepositoryProvider provider, // NOSONAR
                                 KobleSakTjeneste kobleSakTjeneste,
                                 BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                                Kompletthetskontroller kompletthetskontroller,
                                 OppgaveTjeneste oppgaveTjeneste,
-                                InntektArbeidYtelseTjeneste iayTjeneste,
-                                KøKontroller køKontroller) {// NOSONAR
+                                InntektArbeidYtelseTjeneste iayTjeneste) {// NOSONAR
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
-        this.fagsakRepository = provider.getFagsakRepository();
         this.kobleSakTjeneste = kobleSakTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
-        this.revurderingRepository = provider.getBehandlingRevurderingRepository();
-        this.kompletthetskontroller = kompletthetskontroller;
         this.oppgaveTjeneste = oppgaveTjeneste;
-        this.køKontroller = køKontroller;
     }
 
     @Override
@@ -90,15 +73,6 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
         if (!behandling.harAksjonspunktMedType(MANUELL_MARKERING_AV_UTLAND_SAKSTYPE) && !behandling.erRevurdering() && harOppgittUtenlandskInntekt(kontekst.getBehandlingId())) {
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AUTOMATISK_MARKERING_AV_UTENLANDSSAK));
-        }
-        // Vurder kompletthet
-        // Sjekke om koblet medforelder har åpen behandling
-        // Legg til untak for køet behanling hvis annen forelders søknad har kommet inn for tidlig og hindrere behandling av første forelder
-        Fagsak fagsak = fagsakRepository.finnEksaktFagsak(kontekst.getFagsakId());
-        Optional<Behandling> åpenBehandlingPåMedforelder = finnÅpenBehandlingPåMedforelder(fagsak);
-        if (åpenBehandlingPåMedforelder.isPresent() && !køKontroller.skalSnikeIKø(fagsak, åpenBehandlingPåMedforelder.get())) {
-            kompletthetskontroller.oppdaterKompletthetForKøetBehandling(behandling);
-            aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_KØET_BEHANDLING, Venteårsak.VENT_ÅPEN_BEHANDLING, null));
         }
 
         return aksjonspunkter.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter() : BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
@@ -116,11 +90,6 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         }
         return oppgittOpptening.get().getOppgittArbeidsforhold().stream().anyMatch(OppgittArbeidsforhold::erUtenlandskInntekt);
     }
-
-    private Optional<Behandling> finnÅpenBehandlingPåMedforelder(Fagsak fagsak) {
-        return revurderingRepository.finnÅpenBehandlingMedforelder(fagsak);
-    }
-
 
     private void kobleSakerOppdaterEnhetVedBehov(Behandling behandling) {
         FagsakRelasjon kobling = kobleSakTjeneste.finnFagsakRelasjonDersomOpprettet(behandling).orElse(null);

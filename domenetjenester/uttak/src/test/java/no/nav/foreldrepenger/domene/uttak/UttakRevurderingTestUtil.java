@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -109,7 +108,7 @@ public class UttakRevurderingTestUtil {
             .medOppgittDekningsgrad(oppgittDekningsgrad);
 
         Behandling revurdering = lagre(revurderingsscenario);
-        lagreUttaksperiodegrense(revurdering);
+        lagreUttaksperiodegrense(revurdering.getId());
         kopierGrunnlagsdata(revurdering);
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(revurdering.getFagsak(), map(oppgittDekningsgrad));
         return revurdering;
@@ -117,7 +116,7 @@ public class UttakRevurderingTestUtil {
 
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
-        return scenario.lagre(repositoryProvider, iayTjeneste::lagreIayAggregat, iayTjeneste::lagreOppgittOpptjening);
+        return scenario.lagre(repositoryProvider, iayTjeneste::lagreIayAggregat);
     }
 
     private Dekningsgrad map(OppgittDekningsgradEntitet oppgittDekningsgrad) {
@@ -163,12 +162,13 @@ public class UttakRevurderingTestUtil {
         return new OppgittFordelingEntitet(Collections.singletonList(oppgittPeriodeBuilder.build()), true);
     }
 
-    private void lagreUttaksperiodegrense(Behandling behandling) {
-        Uttaksperiodegrense grense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
+    private void lagreUttaksperiodegrense(Long behandlingId) {
+        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
+        var grense = new Uttaksperiodegrense.Builder(br)
             .medFørsteLovligeUttaksdag(LocalDate.of(2018, 1, 1))
             .medMottattDato(FØDSELSDATO)
             .build();
-        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), grense);
+        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandlingId, grense);
     }
 
     private void opprettUttakResultat(Behandling førstegangsbehandling, List<UttakResultatPeriodeEntitet> perioder) {
@@ -188,7 +188,7 @@ public class UttakRevurderingTestUtil {
     }
 
     private void kopierGrunnlagsdata(Behandling revurdering) {
-        Long originalBehandlingId = revurdering.getOriginalBehandlingId().get();
+        Long originalBehandlingId = revurdering.getOriginalBehandlingId().orElseThrow();
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, revurdering.getId());
     }
 
@@ -213,7 +213,7 @@ public class UttakRevurderingTestUtil {
             .medPeriode(fom, tom)
             .medArbeidsgiver(getVirksomhet());
 
-        OppgittFordelingEntitet oppgittFordeling = new OppgittFordelingEntitet(asList(periode.build()), true);
+        OppgittFordelingEntitet oppgittFordeling = new OppgittFordelingEntitet(List.of(periode.build()), true);
         repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), oppgittFordeling);
         return oppgittFordeling;
     }
@@ -245,15 +245,20 @@ public class UttakRevurderingTestUtil {
         new InntektsmeldingTjeneste(iayTjeneste).lagreInntektsmelding(revurdering.getFagsak().getSaksnummer(), revurdering.getId(), inntektsmeldingBuilder);
     }
 
-    public Behandling byggFørstegangsbehandlingForRevurderingBerørtSak(AktørId aktørId, List<UttakResultatPeriodeEntitet> perioder, Optional<Fagsak> relatertFagsak) {
+    public Behandling byggFørstegangsbehandlingForRevurderingBerørtSak(AktørId aktørId, List<UttakResultatPeriodeEntitet> perioder) {
+        return byggFørstegangsbehandlingForRevurderingBerørtSak(aktørId, perioder, null);
+    }
+
+    public Behandling byggFørstegangsbehandlingForRevurderingBerørtSak(AktørId aktørId, List<UttakResultatPeriodeEntitet> perioder, Fagsak relatertFagsak) {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenario.medDefaultInntektArbeidYtelse();
         scenario.medBehandlingsresultat(new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         Behandling førstegangsbehandling = lagre(scenario);
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(førstegangsbehandling.getFagsak(), Dekningsgrad._100);
-        if (relatertFagsak.isPresent()) {
-            repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(førstegangsbehandling.getFagsak(), relatertFagsak.get(), førstegangsbehandling);
-        }opprettUttakResultat(førstegangsbehandling, perioder);
+        if (relatertFagsak != null) {
+            repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(førstegangsbehandling.getFagsak(), relatertFagsak, førstegangsbehandling);
+        }
+        opprettUttakResultat(førstegangsbehandling, perioder);
         avsluttBehandlingOgFagsak(førstegangsbehandling);
         return førstegangsbehandling;
     }
@@ -273,7 +278,7 @@ public class UttakRevurderingTestUtil {
             .medBehandlingType(BehandlingType.REVURDERING);
 
         Behandling revurdering = lagre(revurderingsscenario);
-        lagreUttaksperiodegrense(revurdering);
+        lagreUttaksperiodegrense(revurdering.getId());
         kopierGrunnlagsdata(revurdering);
         return revurdering;
     }

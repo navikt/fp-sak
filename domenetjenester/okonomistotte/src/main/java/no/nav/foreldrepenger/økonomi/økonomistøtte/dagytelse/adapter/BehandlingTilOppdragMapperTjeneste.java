@@ -96,11 +96,11 @@ public class BehandlingTilOppdragMapperTjeneste {
 
     private FamilieYtelseType finnFamilieYtelseType(Behandling behandling) {
         FagsakYtelseType fagsakYtelseType = behandling.getFagsakYtelseType();
-        if (fagsakYtelseType.gjelderForeldrepenger()) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             return gjelderFødsel(behandling.getId())
                 ? FamilieYtelseType.FØDSEL
                 : FamilieYtelseType.ADOPSJON;
-        } else if (fagsakYtelseType.gjelderSvangerskapspenger()) {
+        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
             return FamilieYtelseType.SVANGERSKAPSPENGER;
         } else {
             throw new IllegalArgumentException("Utvikler feil: Ikke støttet fagsak ytelse type: " + fagsakYtelseType);

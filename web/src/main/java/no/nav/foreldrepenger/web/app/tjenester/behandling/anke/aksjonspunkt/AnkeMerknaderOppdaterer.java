@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,23 +17,16 @@ import no.nav.foreldrepenger.behandling.anke.impl.AnkeVurderingAdapter;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AnkeMerknaderResultatAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class AnkeMerknaderOppdaterer implements AksjonspunktOppdaterer<AnkeMerknaderResultatAksjonspunktDto> {
-    private HistorikkRepository historikkRepository;
     private BehandlingRepository behandlingRepository;
     private AnkeRepository ankeRepository;
     private AnkeVurderingTjeneste ankeVurderingTjeneste;
@@ -50,10 +42,8 @@ public class AnkeMerknaderOppdaterer implements AksjonspunktOppdaterer<AnkeMerkn
     @Inject
     public AnkeMerknaderOppdaterer(BehandlingRepository behandlingRepository,
                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                   HistorikkRepository historikkRepository,
                                    AnkeRepository ankeRepository,
                                    AnkeVurderingTjeneste ankeVurderingTjeneste) {
-        this.historikkRepository = historikkRepository;
         this.behandlingRepository = behandlingRepository;
         this.ankeRepository = ankeRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -67,9 +57,11 @@ public class AnkeMerknaderOppdaterer implements AksjonspunktOppdaterer<AnkeMerkn
         if (!Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())) {
             lagBrevTilTrygderettenBasertPåUtfall(dto);
         }
-        settAnkebehandlingPåVentFraTrygderettenOgLagHistorikkInnslag(behandling);
+        if (!behandling.harAksjonspunktMedType(AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN)) {
+            settAnkebehandlingPåVentFraTrygderettenOgLagHistorikkInnslag(behandling);
+        }
 
-        return OppdateringResultat.utenTransisjon().medBeholdAksjonspunktÅpent().build();
+        return OppdateringResultat.utenTransisjon().build();
     }
 
     private void lagBrevTilTrygderettenBasertPåUtfall(AnkeMerknaderResultatAksjonspunktDto dto) { // NOSONAR - Fjern denne når TFP-1152 implementeres
@@ -84,33 +76,10 @@ public class AnkeMerknaderOppdaterer implements AksjonspunktOppdaterer<AnkeMerkn
     }
 
     private void settAnkebehandlingPåVentFraTrygderettenOgLagHistorikkInnslag(Behandling behandling) {
-        List<Aksjonspunkt> behandledeAksjonspunkter = behandling.getBehandledeAksjonspunkter();
-        Optional<Aksjonspunkt> autoVentAnkeOversendtTilTrygderetten = behandledeAksjonspunkter.stream()
-            .filter(a -> a.getAksjonspunktDefinisjon().equals(AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN))
-            .findFirst();
-
-        if(autoVentAnkeOversendtTilTrygderetten.isEmpty()) {
-            LocalDate settPåVentTom = LocalDate.now().plusYears(FRIST_VENT_PAA_ANKE_OVERSENDT_TIL_TRYGDERETTEN);
-            LocalDateTime frist = LocalDateTime.of(settPåVentTom, LocalTime.MIDNIGHT);
-            behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN, BehandlingStegType.ANKE_MERKNADER,
-                frist, Venteårsak.ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER);
-
-            lagHistorikkInnslagSattPåVent(behandling, frist);
-        }
-    }
-
-    private void lagHistorikkInnslagSattPåVent(Behandling behandling, LocalDateTime frist) {
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder();
-        builder.medHendelse(HistorikkinnslagType.BEH_VENT, frist.toLocalDate());
-        builder.medÅrsak(Venteårsak.ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER);
-
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        historikkinnslag.setType(HistorikkinnslagType.BEH_VENT);
-        historikkinnslag.setBehandlingId(behandling.getId());
-        historikkinnslag.setFagsakId(behandling.getFagsakId());
-        builder.build(historikkinnslag);
-        historikkRepository.lagre(historikkinnslag);
+        LocalDate settPåVentTom = LocalDate.now().plusYears(FRIST_VENT_PAA_ANKE_OVERSENDT_TIL_TRYGDERETTEN);
+        LocalDateTime frist = LocalDateTime.of(settPåVentTom, LocalTime.MIDNIGHT);
+        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN, BehandlingStegType.ANKE_MERKNADER,
+            frist, Venteårsak.ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER);
     }
 
     private void håndterAnkeVurdering(Behandling behandling, AnkeMerknaderResultatAksjonspunktDto dto) {

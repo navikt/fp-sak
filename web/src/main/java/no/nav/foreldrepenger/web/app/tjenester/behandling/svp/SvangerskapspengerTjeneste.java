@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
+import static no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval.TIDENES_ENDE;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,10 +19,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Svanger
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ApplicationScoped
 public class SvangerskapspengerTjeneste {
@@ -65,12 +76,17 @@ public class SvangerskapspengerTjeneste {
         if (svpGrunnlagOpt.isEmpty()) {
             throw SvangerskapsTjenesteFeil.FACTORY.kanIkkeFinneSvangerskapspengerGrunnlagForBehandling(behandlingId).toException();
         }
-        var arbeidsforholdInformasjon = iayTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdInformasjon()
+        InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
+        var arbeidsforholdInformasjon = iayGrunnlag.getArbeidsforholdInformasjon()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Fant ikke forventent arbeidsforholdinformasjon for behandling: " + behandlingId));
+
+        YrkesaktivitetFilter filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(behandling.getAktørId()));
+        Optional<InntektArbeidYtelseAggregat> saksbehandletVersjon = iayGrunnlag.getSaksbehandletVersjon();
+        YrkesaktivitetFilter saksbehandletFilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), saksbehandletVersjon.flatMap(iay -> iay.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(behandling.getAktørId())).findFirst()));
 
         var tilretteleggingFilter = new TilretteleggingFilter(svpGrunnlagOpt.get());
         var aktuelleTilretteleggingerUfiltrert = tilretteleggingFilter.getAktuelleTilretteleggingerUfiltrert().stream()
-            .map(svpTilretteleggingEntitet -> mapTilrettelegging(svpTilretteleggingEntitet, arbeidsforholdInformasjon))
+            .map(svpTilretteleggingEntitet -> mapTilrettelegging(svpTilretteleggingEntitet, arbeidsforholdInformasjon, filter, saksbehandletFilter))
             .collect(Collectors.toList());
         dto.setArbeidsforholdListe(aktuelleTilretteleggingerUfiltrert);
         dto.setSaksbehandlet(harSaksbehandletTilrettelegging(behandling));
@@ -87,7 +103,7 @@ public class SvangerskapspengerTjeneste {
         return aksjonspunkt.isPresent() && aksjonspunkt.get().erUtført();
     }
 
-    private SvpArbeidsforholdDto mapTilrettelegging(SvpTilretteleggingEntitet svpTilrettelegging, ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
+    private SvpArbeidsforholdDto mapTilrettelegging(SvpTilretteleggingEntitet svpTilrettelegging, ArbeidsforholdInformasjon arbeidsforholdInformasjon, YrkesaktivitetFilter filter, YrkesaktivitetFilter saksbehandletFilter) {
         SvpArbeidsforholdDto dto = new SvpArbeidsforholdDto();
         dto.setTilretteleggingId(svpTilrettelegging.getId());
         dto.setTilretteleggingBehovFom(svpTilrettelegging.getBehovForTilretteleggingFom());
@@ -105,7 +121,8 @@ public class SvangerskapspengerTjeneste {
             dto.setEksternArbeidsforholdReferanse(arbeidsforholdInformasjon.finnEkstern(arbeidsgiver, ref).getReferanse());
         });
         if (svpTilrettelegging.getArbeidsgiver().isPresent()) {
-            var arbeidsgiver = svpTilrettelegging.getArbeidsgiver().get();
+            var arbeidsgiver = svpTilrettelegging.getArbeidsgiver().get();;
+            dto.setVelferdspermisjoner(mapVelferdspermisjoner(svpTilrettelegging, filter, arbeidsgiver, saksbehandletFilter));
             ArbeidsgiverOpplysninger arbeidsgiverOpplysninger = arbeidsgiverTjeneste.hent(svpTilrettelegging.getArbeidsgiver().get());
             dto.setArbeidsgiverNavn(arbeidsgiverOpplysninger.getNavn());
             dto.setArbeidsgiverIdent(arbeidsgiver.getIdentifikator());
@@ -115,6 +132,42 @@ public class SvangerskapspengerTjeneste {
         }
         return dto;
     }
+
+    private List<VelferdspermisjonDto> mapVelferdspermisjoner(SvpTilretteleggingEntitet svpTilrettelegging, YrkesaktivitetFilter filter, Arbeidsgiver arbeidsgiver, YrkesaktivitetFilter saksbehandletFilter) {
+        return filter.getYrkesaktiviteter().stream()
+            .filter(ya -> ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(arbeidsgiver.getIdentifikator())
+                    && svpTilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()).gjelderFor(ya.getArbeidsforholdRef()))
+            .flatMap(ya -> ya.getPermisjon().stream())
+            .filter(p -> p.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.VELFERDSPERMISJON))
+            .map(p -> mapPermisjon(p, saksbehandletFilter))
+            .collect(Collectors.toList());
+    }
+
+    private VelferdspermisjonDto mapPermisjon(Permisjon p, YrkesaktivitetFilter saksbehandletFilter) {
+        Optional<Yrkesaktivitet> saksbehandletAktivitet = saksbehandletFilter.getYrkesaktiviteter().stream()
+            .filter(ya -> {
+                Yrkesaktivitet yrkesaktivitet = p.getYrkesaktivitet();
+                return ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(p.getYrkesaktivitet().getArbeidsgiver().getIdentifikator())
+                    && ya.getArbeidsforholdRef().gjelderFor(yrkesaktivitet.getArbeidsforholdRef());
+            }).findFirst();
+        return new VelferdspermisjonDto(p.getFraOgMed(),
+            p.getTilOgMed() == null || p.getTilOgMed().isEqual(TIDENES_ENDE) ? null : p.getTilOgMed(),
+            p.getProsentsats().getVerdi(),
+            p.getPermisjonsbeskrivelseType(),
+            erGyldig(p, saksbehandletAktivitet));
+    }
+
+    private Boolean erGyldig(Permisjon p, Optional<Yrkesaktivitet> saksbehandletAktivitet) {
+        if (saksbehandletAktivitet.isEmpty()) {
+            return null;
+        }
+        Collection<Permisjon> saksbehandletPermisjon = saksbehandletAktivitet.get().getPermisjon();
+        return saksbehandletPermisjon.stream().anyMatch(sp -> sp.getPermisjonsbeskrivelseType().equals(p.getPermisjonsbeskrivelseType())
+        && sp.getFraOgMed().isEqual(p.getFraOgMed())
+        && sp.getProsentsats().getVerdi().compareTo(p.getProsentsats().getVerdi()) == 0);
+    }
+
+
 
     private List<SvpTilretteleggingDatoDto> utledTilretteleggingDatoer(SvpTilretteleggingEntitet svpTilrettelegging) {
         return svpTilrettelegging.getTilretteleggingFOMListe().stream()

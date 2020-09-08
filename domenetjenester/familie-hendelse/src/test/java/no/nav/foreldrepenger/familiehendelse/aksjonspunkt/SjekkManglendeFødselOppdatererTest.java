@@ -289,7 +289,7 @@ public class SjekkManglendeFødselOppdatererTest {
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
 
         // Simuler at aksjonspunkt resettes
-        new AksjonspunktTestSupport().fjernToTrinnsBehandlingKreves(aksjonspunkt);
+        AksjonspunktTestSupport.fjernToTrinnsBehandlingKreves(aksjonspunkt);
 
         // Act
         OppdateringResultat oppdateringResultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste)

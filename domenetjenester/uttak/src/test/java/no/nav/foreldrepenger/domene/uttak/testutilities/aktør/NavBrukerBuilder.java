@@ -7,9 +7,6 @@ import java.util.Optional;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.domene.uttak.testutilities.aktør.NavBrukerBuilder;
-import no.nav.foreldrepenger.domene.uttak.testutilities.aktør.NavPersoninfoBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class NavBrukerBuilder {
@@ -19,7 +16,6 @@ public class NavBrukerBuilder {
     private AktørId aktørId = AktørId.dummy();
     private Personinfo personinfo;
     private NavBrukerKjønn kjønn;
-    private Språkkode språkkode;
 
     public NavBrukerBuilder() {
         // default ctor
@@ -45,17 +41,8 @@ public class NavBrukerBuilder {
         return this;
     }
 
-    public NavBrukerBuilder medForetrukketSpråk(Språkkode språkkode) {
-        this.språkkode = språkkode;
-        return this;
-    }
-
     public NavBrukerKjønn getKjønn() {
         return kjønn;
-    }
-
-    public Språkkode getSpråkkode() {
-        return språkkode;
     }
 
     public AktørId getAktørId() {
@@ -74,7 +61,6 @@ public class NavBrukerBuilder {
             personinfo = new NavPersoninfoBuilder()
                 .medAktørId(aktørId)
                 .medKjønn(Optional.ofNullable(kjønn).orElse(KVINNE))
-                .medForetrukketSpråk(språkkode)
                 .build();
         }
         return NavBruker.opprettNy(personinfo);

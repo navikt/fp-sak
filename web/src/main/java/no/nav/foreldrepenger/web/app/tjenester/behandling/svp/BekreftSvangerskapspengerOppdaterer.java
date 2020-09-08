@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.jetbrains.annotations.NotNull;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -27,6 +29,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilr
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
+import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
+import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -41,18 +55,21 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private BehandlingRepositoryProvider repositoryProvider;
     private FamilieHendelseRepository familieHendelseRepository;
     private TilgangerTjeneste tilgangerTjeneste;
+    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     @Inject
     public BekreftSvangerskapspengerOppdaterer(SvangerskapspengerRepository svangerskapspengerRepository,
                                                HistorikkTjenesteAdapter historikkAdapter,
                                                BehandlingRepositoryProvider repositoryProvider,
                                                FamilieHendelseRepository familieHendelseRepository,
-                                               TilgangerTjeneste tilgangerTjeneste) {
+                                               TilgangerTjeneste tilgangerTjeneste,
+                                               InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.historikkAdapter = historikkAdapter;
         this.repositoryProvider = repositoryProvider;
         this.familieHendelseRepository = familieHendelseRepository;
         this.tilgangerTjeneste = tilgangerTjeneste;
+        this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
     @Override
@@ -64,6 +81,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         boolean termindatoEndret = oppdaterFamiliehendelse(dto, behandling);
         boolean tilretteleggingEndret = oppdaterTilrettelegging(dto, behandling);
 
+        oppdaterPermisjon(dto, param, behandling);
+
         if (termindatoEndret || tilretteleggingEndret) {
             var begrunnelse = dto.getBegrunnelse();
             boolean erBegrunnelseEndret = param.erBegrunnelseEndret();
@@ -74,6 +93,45 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(termindatoEndret || tilretteleggingEndret).build();
 
+    }
+
+    private void oppdaterPermisjon(BekreftSvangerskapspengerDto dto, AksjonspunktOppdaterParameter param, Behandling behandling) {
+        InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
+        InntektArbeidYtelseAggregatBuilder saksbehandlet = InntektArbeidYtelseAggregatBuilder.oppdatere(finnAggregat(iayGrunnlag), VersjonType.SAKSBEHANDLET);
+        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = saksbehandlet.getAktørArbeidBuilder(param.getAktørId());
+        dto.getBekreftetSvpArbeidsforholdList().forEach(arbeidsforhold -> oppdaterPermisjonForArbeid(param, iayGrunnlag, aktørArbeidBuilder, arbeidsforhold));
+        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
+    }
+
+    private void oppdaterPermisjonForArbeid(AksjonspunktOppdaterParameter param, InntektArbeidYtelseGrunnlag iayGrunnlag, InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder, SvpArbeidsforholdDto arbeidsforhold) {
+        Optional<Yrkesaktivitet> yrkesaktivitet = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId()))
+            .getYrkesaktiviteter().stream()
+            .filter(ya -> ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(arbeidsforhold.getArbeidsgiverIdent()))
+            .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(InternArbeidsforholdRef.ref(arbeidsforhold.getInternArbeidsforholdReferanse())))
+            .findFirst();
+        List<VelferdspermisjonDto> velferdspermisjoner = arbeidsforhold.getVelferdspermisjoner();
+        if (yrkesaktivitet.isPresent() && velferdspermisjoner != null) {
+            List<Permisjon> inkludertePermisjoner = finnGyldigePermisjoner(yrkesaktivitet.get(), velferdspermisjoner);
+            YrkesaktivitetBuilder yrkesaktivitetBuilder = aktørArbeidBuilder
+                .getYrkesaktivitetBuilderForNøkkelAvType(Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(yrkesaktivitet.get().getArbeidsforholdRef(), yrkesaktivitet.get().getArbeidsgiver()), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .tilbakestillPermisjon();
+            inkludertePermisjoner.forEach(yrkesaktivitetBuilder::leggTilPermisjon);
+        }
+    }
+
+    private List<Permisjon> finnGyldigePermisjoner(Yrkesaktivitet yrkesaktivitet, List<VelferdspermisjonDto> velferdspermisjoner) {
+        return yrkesaktivitet.getPermisjon().stream()
+                    .filter(p -> !p.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.VELFERDSPERMISJON)
+                        || velferdspermisjoner.stream().noneMatch(vp -> vp.getPermisjonFom().isEqual(p.getFraOgMed()) && vp.getPermisjonsprosent().compareTo(p.getProsentsats().getVerdi()) == 0 && !vp.getErGyldig()))
+                    .collect(Collectors.toList());
+    }
+
+    private Optional<InntektArbeidYtelseAggregat> finnAggregat(InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        Optional<InntektArbeidYtelseAggregat> saksbehandletVersjon = iayGrunnlag.getSaksbehandletVersjon();
+        if (saksbehandletVersjon.isPresent()) {
+            return saksbehandletVersjon;
+        }
+        return iayGrunnlag.getRegisterVersjon();
     }
 
     private void verifiserUnikeDatoer(BekreftSvangerskapspengerDto dto) {

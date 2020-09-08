@@ -12,8 +12,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.anke.AnkeTjeneste;
-import no.nav.foreldrepenger.behandling.klage.KlageTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -26,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.domene.vedtak.innsyn.InnsynTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.feil.Feil;
@@ -41,9 +38,6 @@ public class BehandlingsoppretterApplikasjonTjeneste {
     private MottatteDokumentRepository mottatteDokumentRepository;
     private SaksbehandlingDokumentmottakTjeneste saksbehandlingDokumentmottakTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
-    private InnsynTjeneste innsynTjeneste;
-    private KlageTjeneste klageTjeneste;
-    private AnkeTjeneste ankeTjeneste;
 
     BehandlingsoppretterApplikasjonTjeneste() {
         // CDI
@@ -52,18 +46,12 @@ public class BehandlingsoppretterApplikasjonTjeneste {
     @Inject
     public BehandlingsoppretterApplikasjonTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                                        SaksbehandlingDokumentmottakTjeneste saksbehandlingDokumentmottakTjeneste,
-                                                       BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                                                       InnsynTjeneste innsynTjeneste,
-                                                       KlageTjeneste klageTjeneste,
-                                                       AnkeTjeneste ankeTjeneste) {
+                                                       BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
         Objects.requireNonNull(behandlingRepositoryProvider, "behandlingRepositoryProvider");
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.mottatteDokumentRepository = behandlingRepositoryProvider.getMottatteDokumentRepository();
         this.saksbehandlingDokumentmottakTjeneste = saksbehandlingDokumentmottakTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
-        this.innsynTjeneste = innsynTjeneste;
-        this.klageTjeneste = klageTjeneste;
-        this.ankeTjeneste = ankeTjeneste;
     }
 
     /** Opprett ny behandling. Returner Prosess Task gruppe for å ta den videre. */
@@ -134,28 +122,6 @@ public class BehandlingsoppretterApplikasjonTjeneste {
 
         OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
         return revurderingTjeneste.opprettManuellRevurdering(fagsak, behandlingÅrsakType, enhet);
-    }
-
-    public Behandling opprettInnsyn(Saksnummer saksnummer) {
-        // TODO (essv): Guard-betingelser for å opprette Innsyn?
-        Behandling behandling = innsynTjeneste.opprettManueltInnsyn(saksnummer);
-        return behandling;
-    }
-
-    public Behandling opprettKlageBehandling(Fagsak fagsak) {
-        Optional<Behandling> klageBehandling = klageTjeneste.opprettKlageBehandling(fagsak);
-        if (!klageBehandling.isPresent()) {
-            throw BehandlingsoppretterApplikasjonTjenesteFeil.FACTORY.kanIkkeOppretteKlage(fagsak.getId()).toException();
-        }
-        return klageBehandling.get();
-    }
-
-    public Behandling opprettAnke(Fagsak fagsak) {
-        Optional<Behandling> ankeBehandling = ankeTjeneste.opprettAnkeBehandling(fagsak);
-        if (!ankeBehandling.isPresent()) {
-            throw BehandlingsoppretterApplikasjonTjenesteFeil.FACTORY.kanIkkeOppretteAnke(fagsak.getId()).toException();
-        }
-        return ankeBehandling.get();
     }
 
     private MottattDokument finnSisteMottatteSøknadPåFagsak(Long fagsakId) {

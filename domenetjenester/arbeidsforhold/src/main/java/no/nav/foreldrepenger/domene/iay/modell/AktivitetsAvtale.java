@@ -5,20 +5,12 @@ import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
-import no.nav.foreldrepenger.domene.typer.AntallTimer;
-import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.vedtak.konfig.Tid;
 
 public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
-
-    @DiffIgnore
-    private AntallTimer antallTimer;
-
-    @DiffIgnore
-    private AntallTimer antallTimerFulltid;
 
     @ChangeTracked
     private Stillingsprosent prosentsats;
@@ -44,8 +36,6 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
      * Deep copy ctor
      */
     AktivitetsAvtale(AktivitetsAvtale aktivitetsAvtale) {
-        this.antallTimer = aktivitetsAvtale.getAntallTimer();
-        this.antallTimerFulltid = aktivitetsAvtale.getAntallTimerFulltid();
         this.prosentsats = aktivitetsAvtale.getProsentsats();
         this.beskrivelse = aktivitetsAvtale.getBeskrivelse();
         this.sisteLønnsendringsdato = aktivitetsAvtale.getSisteLønnsendringsdato();
@@ -60,43 +50,6 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
     @Override
     public String getIndexKey() {
         return IndexKey.createKey(periode, sisteLønnsendringsdato);
-    }
-
-    /**
-     * For timelønnede så vil antallet timer i arbeidsavtalen være satt her
-     *
-     * @return antall timer
-     * @deprecated Ikke lenger i bruk. Bruk sistelønnsendringsdato og evt. stillingsprosent for å avgjøre om det er en ansettelsesavtale
-     */
-    @Deprecated
-    public AntallTimer getAntallTimer() {
-        return antallTimer;
-    }
-
-    /**
-     * @deprecated Bruker ikke antall timer lenger. Dersom det brekker tester, bruk sisteLønnsendringsdato i stedf. antall timer for å definere som ansettelsesavtale
-     */
-    @Deprecated
-    void setAntallTimer(AntallTimer antallTimer) {
-        this.antallTimer = antallTimer;
-    }
-
-    /**
-     * Antall timer som tilsvarer fulltid (f.eks 40 timer)
-     * @return antall timer
-     * @deprecated Ikke lenger i bruk. Bruk sistelønnsendringsdato og evt. stillingsprosent for å avgjøre om det er en ansettelsesavtale
-     */
-    @Deprecated
-    public AntallTimer getAntallTimerFulltid() {
-        return antallTimerFulltid;
-    }
-
-    /**
-     * @deprecated Bruker ikke antall timer lenger. Dersom det brekker tester, bruk sisteLønnsendringsdato i stedf. antall timer for å definere som ansettelsesavtale
-     */
-    @Deprecated
-    void setAntallTimerFulltid(AntallTimer antallTimerFulltid) {
-        this.antallTimerFulltid = antallTimerFulltid;
     }
 
     /**
@@ -182,9 +135,7 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
         if (this == o) return true;
         if (o == null || !(o instanceof AktivitetsAvtale)) return false;
         AktivitetsAvtale that = (AktivitetsAvtale) o;
-        return Objects.equals(antallTimer, that.antallTimer) &&
-            Objects.equals(antallTimerFulltid, that.antallTimerFulltid) &&
-            Objects.equals(beskrivelse, that.beskrivelse) &&
+        return Objects.equals(beskrivelse, that.beskrivelse) &&
             Objects.equals(prosentsats, that.prosentsats) &&
             Objects.equals(periode, that.periode) &&
             Objects.equals(sisteLønnsendringsdato, that.sisteLønnsendringsdato);
@@ -192,15 +143,13 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
 
     @Override
     public int hashCode() {
-        return Objects.hash(antallTimer, antallTimerFulltid, beskrivelse, prosentsats, periode, sisteLønnsendringsdato);
+        return Objects.hash(beskrivelse, prosentsats, periode, sisteLønnsendringsdato);
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            "antallTimer=" + antallTimer + //$NON-NLS-1$
-            ", antallTimerFulltid=" + antallTimerFulltid + //$NON-NLS-1$
-            ", periode=" + periode + //$NON-NLS-1$
+            "periode=" + periode + //$NON-NLS-1$
             ", overstyrtPeriode=" + overstyrtPeriode + //$NON-NLS-1$
             ", prosentsats=" + prosentsats + //$NON-NLS-1$
             ", beskrivelse=" + beskrivelse + //$NON-NLS-1$
@@ -209,13 +158,11 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
     }
 
     boolean hasValues() {
-        return antallTimer != null || antallTimerFulltid != null || prosentsats != null || periode != null;
+        return sisteLønnsendringsdato != null || prosentsats != null || periode != null;
     }
 
     public boolean erAnsettelsesPeriode() {
-        return (antallTimer == null || antallTimer.getVerdi() == null)
-            && (antallTimerFulltid == null || antallTimerFulltid.getVerdi() == null)
-            && (prosentsats == null || prosentsats.erNulltall())
+        return (prosentsats == null || prosentsats.erNulltall())
             && sisteLønnsendringsdato == null;
     }
 }

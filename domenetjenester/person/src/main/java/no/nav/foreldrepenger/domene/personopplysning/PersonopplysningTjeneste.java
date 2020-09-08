@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapsho
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingsgrunnlagKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
@@ -32,11 +31,10 @@ public class PersonopplysningTjeneste extends AbstractPersonopplysningTjenesteIm
 
     @Inject
     public PersonopplysningTjeneste(PersonopplysningRepository personopplysningRepository,
-                                        BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository,
-                                        TpsAdapter tpsAdapter,
-                                        VergeRepository vergeRepository,
-                                        NavBrukerRepository navBrukerRepository) {
-        super(personopplysningRepository, behandlingsgrunnlagKodeverkRepository);
+                                    TpsAdapter tpsAdapter,
+                                    VergeRepository vergeRepository,
+                                    NavBrukerRepository navBrukerRepository) {
+        super(personopplysningRepository);
         this.tpsAdapter = tpsAdapter;
         this.navBrukerRepository = navBrukerRepository;
         this.vergeRepository = vergeRepository;

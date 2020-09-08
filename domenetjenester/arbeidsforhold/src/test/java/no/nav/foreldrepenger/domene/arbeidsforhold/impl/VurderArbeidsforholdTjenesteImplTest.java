@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,9 +40,11 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYS
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -205,6 +208,47 @@ public class VurderArbeidsforholdTjenesteImplTest {
         var sakInntektsmeldinger = iayTjeneste.hentInntektsmeldinger(behandling.getFagsak().getSaksnummer());
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> vurder = tjeneste.vurder(lagRef(behandling), iayGrunnlag, sakInntektsmeldinger, false);
         assertThat(vurder).isEmpty();
+    }
+
+
+
+
+    @Test
+    public void skal_gi_aksjonspunkt_for_fiske_uten_aktivt_arbeid_med_inntektsmelding() {
+        final var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        final Behandling behandling = scenario.lagre(repositoryProvider);
+
+        final InntektArbeidYtelseAggregatBuilder builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        final InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder arbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
+        final String orgnummer = "123";
+        final Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet(opprettVirksomhet(orgnummer));
+        var ref = EksternArbeidsforholdRef.ref("ref");
+        var internRef = builder.medNyInternArbeidsforholdRef(virksomhet, ref);
+
+        final YrkesaktivitetBuilder yrkesBuilder = arbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(internRef, virksomhet), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        yrkesBuilder.medArbeidsgiver(virksomhet)
+            .medArbeidsforholdId(internRef);
+        final AktivitetsAvtaleBuilder avtaleBuilder = yrkesBuilder.getAktivitetsAvtaleBuilder();
+        avtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMed(IDAG.minusYears(1)))
+            .medProsentsats(BigDecimal.TEN);
+        final AktivitetsAvtaleBuilder avtaleBuilder3 = yrkesBuilder.getAktivitetsAvtaleBuilder();
+        avtaleBuilder3.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(12), skjæringstidspunkt.minusDays(10)));
+        yrkesBuilder.leggTilAktivitetsAvtale(avtaleBuilder).leggTilAktivitetsAvtale(avtaleBuilder3);
+        arbeidBuilder.leggTilYrkesaktivitet(yrkesBuilder);
+
+        builder.leggTilAktørArbeid(arbeidBuilder);
+        iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
+        iayTjeneste.lagreOppgittOpptjening(behandling.getId(), OppgittOpptjeningBuilder.ny().leggTilEgneNæringer(List.of(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
+            .medPeriode(DatoIntervallEntitet.fraOgMed(skjæringstidspunkt.minusMonths(1)))
+        .medVirksomhetType(VirksomhetType.FISKE))));
+
+
+        sendNyInntektsmelding(behandling, virksomhet, ref);
+
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
+        var sakInntektsmeldinger = iayTjeneste.hentInntektsmeldinger(behandling.getFagsak().getSaksnummer());
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> vurder = tjeneste.vurder(lagRef(behandling), iayGrunnlag, sakInntektsmeldinger, false);
+        assertThat(vurder).isNotEmpty();
     }
 
     private void sendNyInntektsmelding(Behandling behandling, Arbeidsgiver arbeidsgiver,  EksternArbeidsforholdRef ref) {

@@ -26,9 +26,6 @@ public enum Tema implements Kodeverdi {
 
     public static final String KODEVERK = "TEMA";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "TEMA";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -86,7 +83,7 @@ public enum Tema implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return offisiellKode;

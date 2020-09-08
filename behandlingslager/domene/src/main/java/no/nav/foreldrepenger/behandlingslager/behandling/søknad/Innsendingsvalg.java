@@ -33,9 +33,6 @@ public enum Innsendingsvalg implements Kodeverdi {
 
     public static final String KODEVERK = "INNSENDINGSVALG";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "INNSENDINGSVALG";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -90,7 +87,7 @@ public enum Innsendingsvalg implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();

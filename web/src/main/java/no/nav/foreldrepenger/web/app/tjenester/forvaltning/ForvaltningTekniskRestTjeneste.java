@@ -331,7 +331,7 @@ public class ForvaltningTekniskRestTjeneste {
             .medMottattDato(dto.getMottattDato())
             .medElektroniskRegistrert(true)
             .medErEndringssøknad(false)
-            .medSpråkkode(Språkkode.nb)
+            .medSpråkkode(Språkkode.NB)
             .medRelasjonsRolleType(relrolletype)
             .medTilleggsopplysninger(dto.getTillegg())
             .medBegrunnelseForSenInnsending(dto.getForsent());

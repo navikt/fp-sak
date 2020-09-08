@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.impl.LeggTilResultat;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.PåkrevdeInntektsmeldingerTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.SakInntektsmeldinger;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.VurderPermisjonTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
@@ -44,6 +45,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.util.Tuple;
@@ -178,11 +180,7 @@ public class VurderArbeidsforholdTjeneste {
         if (inntektsmeldinger.isPresent()) {
             final InntektsmeldingAggregat aggregat = inntektsmeldinger.get();
             for (Inntektsmelding inntektsmelding : aggregat.getInntektsmeldingerSomSkalBrukes()) {
-                final Tuple<Long, Long> antallArbeidsforIArbeidsgiveren = antallArbeidsforHosArbeidsgiveren(behandlingReferanse, grunnlag,
-                    inntektsmelding.getArbeidsgiver(),
-                    inntektsmelding.getArbeidsforholdRef());
-                if (antallArbeidsforIArbeidsgiveren.getElement1() == 0 && antallArbeidsforIArbeidsgiveren.getElement2() == 0
-                    && IkkeTattStillingTil.vurder(inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef(), grunnlag)) {
+                if (harInntektsmeldingUtenArbeid(grunnlag, behandlingReferanse, inntektsmelding)) {
                     final Arbeidsgiver arbeidsgiver = inntektsmelding.getArbeidsgiver();
                     final Set<InternArbeidsforholdRef> arbeidsforholdRefs = trekkUtRef(inntektsmelding);
                     LeggTilResultat.leggTil(result, AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD, arbeidsgiver, arbeidsforholdRefs);
@@ -190,6 +188,36 @@ public class VurderArbeidsforholdTjeneste {
                 }
             }
         }
+    }
+
+    private boolean harInntektsmeldingUtenArbeid(InntektArbeidYtelseGrunnlag grunnlag, BehandlingReferanse behandlingReferanse, Inntektsmelding inntektsmelding) {
+        boolean harIngenArbeidsforhold = harIngenArbeidsforhold(grunnlag, behandlingReferanse, inntektsmelding);
+        return (harIngenArbeidsforhold || erFiskerUtenAktivtArbeid(grunnlag, behandlingReferanse, inntektsmelding))
+            && IkkeTattStillingTil.vurder(inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef(), grunnlag);
+    }
+
+    private boolean erFiskerUtenAktivtArbeid(InntektArbeidYtelseGrunnlag grunnlag, BehandlingReferanse behandlingReferanse, Inntektsmelding inntektsmelding) {
+        return harOppgittFiske(grunnlag) && harIngenAktiveArbeidsforhold(behandlingReferanse, inntektsmelding, grunnlag);
+    }
+
+    private boolean harIngenAktiveArbeidsforhold(BehandlingReferanse behandlingReferanse, Inntektsmelding inntektsmelding, InntektArbeidYtelseGrunnlag grunnlag) {
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(behandlingReferanse.getAktørId()));
+        LocalDate skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
+        return filter.getYrkesaktiviteter().stream()
+            .filter(ya -> gjelderInntektsmeldingFor(inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef(), ya))
+            .noneMatch(ya -> ya.getAlleAktivitetsAvtaler().stream()
+            .filter(AktivitetsAvtale::erAnsettelsesPeriode).anyMatch(aa -> aa.getPeriode().inkluderer(skjæringstidspunkt)));
+    }
+
+    private boolean harIngenArbeidsforhold(InntektArbeidYtelseGrunnlag grunnlag, BehandlingReferanse behandlingReferanse, Inntektsmelding inntektsmelding) {
+        final Tuple<Long, Long> antallArbeidsforIArbeidsgiveren = antallArbeidsforHosArbeidsgiveren(behandlingReferanse, grunnlag,
+            inntektsmelding.getArbeidsgiver(),
+            inntektsmelding.getArbeidsforholdRef());
+        return antallArbeidsforIArbeidsgiveren.getElement1() == 0 && antallArbeidsforIArbeidsgiveren.getElement2() == 0;
+    }
+
+    private boolean harOppgittFiske(InntektArbeidYtelseGrunnlag grunnlag) {
+        return grunnlag.getOppgittOpptjening().stream().anyMatch(oppgittOpptjening -> oppgittOpptjening.getEgenNæring().stream().anyMatch(en -> en.getVirksomhetType().equals(VirksomhetType.FISKE)));
     }
 
     private Set<InternArbeidsforholdRef> trekkUtRef(Inntektsmelding inntektsmelding) {
@@ -247,11 +275,15 @@ public class VurderArbeidsforholdTjeneste {
         long antall = 0;
         antall = filter.getYrkesaktiviteter()
             .stream()
-            .filter(yr -> ARBEIDSFORHOLD_TYPER.contains(yr.getArbeidType())
-                && yr.getArbeidsgiver().equals(arbeidsgiver)
-                && yr.getArbeidsforholdRef().gjelderFor(arbeidsforholdRef))
+            .filter(yr -> gjelderInntektsmeldingFor(arbeidsgiver, arbeidsforholdRef, yr))
             .count();
         return antall;
+    }
+
+    private boolean gjelderInntektsmeldingFor(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef, Yrkesaktivitet yr) {
+        return ARBEIDSFORHOLD_TYPER.contains(yr.getArbeidType())
+            && yr.getArbeidsgiver().equals(arbeidsgiver)
+            && yr.getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
     }
 
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> inntektsmeldingerPerArbeidsgiver(Optional<InntektsmeldingAggregat> inntektsmeldingAggregat) {

@@ -52,14 +52,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -188,9 +186,6 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     private VirksomhetTjeneste virksomhetTjeneste;
 
-    @Inject
-    private KodeverkRepository kodeverkRepository;
-
     @Before
     public void oppsett() {
         HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
@@ -199,7 +194,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
         virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste, kodeverkRepository);
+        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
 
         DvhPersonopplysningXmlTjenesteImpl dvhPersonopplysningXmlTjenesteImpl = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
             familieHendelseRepository,
@@ -345,10 +340,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     private void opprettPeriodeAleneomsorg(ScenarioMorSøkerForeldrepenger scenario) {
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
-        PerioderAleneOmsorgEntitet perioderAleneOmsorg = new PerioderAleneOmsorgEntitet();
-        perioderAleneOmsorg.leggTil(new PeriodeAleneOmsorgEntitet(LocalDate.now(), LocalDate.now().plusDays(10)));
-        perioderAleneOmsorg.leggTil(new PeriodeAleneOmsorgEntitet(LocalDate.now().plusDays(11), LocalDate.now().plusDays(22)));
-
+        PerioderAleneOmsorgEntitet perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(true);
         scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
     }
 

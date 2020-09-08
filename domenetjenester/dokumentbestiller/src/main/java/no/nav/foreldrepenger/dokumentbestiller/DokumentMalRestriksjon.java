@@ -28,9 +28,6 @@ public enum DokumentMalRestriksjon implements Kodeverdi {
 
     public static final String KODEVERK = "DOKUMENT_MAL_RESTRIKSJON";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "DOKUMENT_MAL_RESTRIKSJON";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -85,7 +82,7 @@ public enum DokumentMalRestriksjon implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();

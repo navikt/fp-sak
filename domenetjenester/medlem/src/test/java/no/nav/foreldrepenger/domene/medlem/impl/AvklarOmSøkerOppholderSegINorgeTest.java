@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingsgrunnlagKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
@@ -56,15 +55,13 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
 
     @Inject
     private InntektArbeidYtelseTjeneste iayTjeneste;
-    
-    @Inject
-    private BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository;
+
 
     private AvklarOmSøkerOppholderSegINorge tjeneste;
 
     @Before
     public void setUp() {
-        this.tjeneste = new AvklarOmSøkerOppholderSegINorge(provider, behandlingsgrunnlagKodeverkRepository, personopplysningTjeneste, iayTjeneste);
+        this.tjeneste = new AvklarOmSøkerOppholderSegINorge(provider, personopplysningTjeneste, iayTjeneste);
     }
 
     @Test
@@ -319,7 +316,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
         scenario.medSøknad().medMottattDato(LocalDate.now());
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.ESP);
         Behandling behandling = lagre(scenario);
-        
+
         leggTilInntekt(behandling, behandling.getAktørId(), fom, tom);
 
         // Act
@@ -365,7 +362,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.ESP);
 
         Behandling behandling = lagre(scenario);
-        
+
         leggTilInntekt(behandling, aktørId2, fom, tom);
 
         // Act
@@ -423,7 +420,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.ESP);
 
         Behandling behandling = lagre(scenario);
-        
+
         leggTilInntekt(behandling, behandling.getAktørId(), fom, tom);
 
         // Act

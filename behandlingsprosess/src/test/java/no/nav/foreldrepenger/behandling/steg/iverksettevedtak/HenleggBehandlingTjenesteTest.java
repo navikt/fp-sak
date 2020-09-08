@@ -145,7 +145,7 @@ public class HenleggBehandlingTjenesteTest {
     public void skal_henlegge_behandling_med_aksjonspunkt() throws Exception {
         // Arrange
         BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_FEILOPPRETTET;
-        Aksjonspunkt aksjonspunkt = new AksjonspunktTestSupport().leggTilAksjonspunkt(behandling,
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
             AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
         assertThat(aksjonspunkt.getStatus()).isEqualTo(AksjonspunktStatus.OPPRETTET);
 
@@ -177,8 +177,8 @@ public class HenleggBehandlingTjenesteTest {
     public void kan_henlegge_behandling_som_er_satt_på_vent() throws Exception {
         // Arrange
         AksjonspunktDefinisjon def = AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
-        Aksjonspunkt aksjonspunkt = new AksjonspunktTestSupport().leggTilAksjonspunkt(behandling, def);
-        new AksjonspunktTestSupport().setFrist(aksjonspunkt, LocalDateTime.now(), null);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, def);
+        AksjonspunktTestSupport.setFrist(aksjonspunkt, LocalDateTime.now(), null);
 
         manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, BehandlingStegType.INNHENT_SØKNADOPP);
 

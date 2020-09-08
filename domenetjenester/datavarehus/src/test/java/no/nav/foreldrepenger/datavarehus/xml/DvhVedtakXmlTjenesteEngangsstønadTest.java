@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -116,16 +115,13 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     private MedlemskapRepository medlemskapRepository;
 
     @Inject
-    private KodeverkRepository kodeverkRepository;
-
-    @Inject
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
     @Before
     public void oppsett() {
         HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
         vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
-        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste, kodeverkRepository);
+        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
         personopplysningXmlTjenesteEngangsstønad =
                 new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
                     familieHendelseRepository,

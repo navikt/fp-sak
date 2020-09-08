@@ -51,9 +51,6 @@ public enum RelatertYtelseType implements Kodeverdi {
 
     public static final String KODEVERK = "RELATERT_YTELSE_TYPE";
 
-    @Deprecated
-    public static final String DISCRIMINATOR = "RELATERT_YTELSE_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {

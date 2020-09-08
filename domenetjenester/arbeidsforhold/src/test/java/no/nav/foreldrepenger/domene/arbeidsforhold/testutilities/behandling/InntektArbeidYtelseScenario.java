@@ -323,8 +323,7 @@ public class InntektArbeidYtelseScenario {
             AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom))
                 .medProsentsats(aktivitetsAvtaleProsentsats)
-                .medAntallTimer(aktivitetsAvtaleAntallTimer)
-                .medAntallTimerFulltid(aktivitetsAvtaleAntallTimerFulltid);
+                .medSisteLønnsendringsdato(aktivitetsAvtaleFom);
 
             AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom));

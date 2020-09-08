@@ -78,7 +78,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     public OppdateringResultat oppdater(KlageFormkravAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         String aksjonspunktKode = dto.getKode();
         Behandling klageBehandling = behandlingRepository.hentBehandling(param.getBehandlingId());
-        KlageResultatEntitet klageResultat = klageRepository.hentKlageResultat(klageBehandling);
+        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(klageBehandling);
         KlageVurdertAv klageVurdertAv = getKlageVurdertAv(aksjonspunktKode);
         Optional<KlageFormkravEntitet> klageFormkrav = klageRepository.hentKlageFormkrav(klageBehandling, klageVurdertAv);
         AksjonspunktDefinisjon apDefFormkrav = AksjonspunktDefinisjon.fraKode(aksjonspunktKode);

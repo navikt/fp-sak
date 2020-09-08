@@ -49,7 +49,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -109,7 +108,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             .medBrukerKjønn(kjønn);
     }
 
-    protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
+    protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType,
+                                   RelasjonsRolleType brukerRolle,
                                    NavBrukerKjønn kjønn, AktørId aktørId) {
         this.fagsakBuilder = FagsakBuilder
             .nyFagsak(fagsakYtelseType, brukerRolle)
@@ -117,7 +117,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             .medBruker(new NavBrukerBuilder().medAktørId(aktørId).medKjønn(kjønn).build());
     }
 
-    protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
+    protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType,
+                                   RelasjonsRolleType brukerRolle,
                                    NavBruker navBruker) {
         this.fagsakBuilder = FagsakBuilder
             .nyFagsak(fagsakYtelseType, brukerRolle)
@@ -144,10 +145,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     public Behandling lagre(UttakRepositoryProvider repositoryProvider) {
         class LegacyBridgeIay implements LagreInntektArbeidYtelse {
-            @Override
-            public void lagreOppgittOpptjening(Long behandlingId, OppgittOpptjeningBuilder builder) {
-                throw new UnsupportedOperationException("Get outta here - no longer supporting this");
-            }
 
             @Override
             public void lagreInntektArbeidYtelseAggregat(Long behandlingId, InntektArbeidYtelseAggregatBuilder builder) {
@@ -160,14 +157,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     public Behandling lagre(UttakRepositoryProvider repositoryProvider,
-                            BiConsumer<Long, InntektArbeidYtelseAggregatBuilder> lagreIayAggregat,
-                            BiConsumer<Long, OppgittOpptjeningBuilder> lagreOppgittOpptjening) {
+                            BiConsumer<Long, InntektArbeidYtelseAggregatBuilder> lagreIayAggregat) {
 
         class LegacyBridgeIay implements LagreInntektArbeidYtelse {
-            @Override
-            public void lagreOppgittOpptjening(Long behandlingId, OppgittOpptjeningBuilder builder) {
-                lagreOppgittOpptjening.accept(behandlingId, builder);
-            }
 
             @Override
             public void lagreInntektArbeidYtelseAggregat(Long behandlingId, InntektArbeidYtelseAggregatBuilder builder) {
@@ -259,8 +251,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             PersonInformasjonBuilder.AdresseBuilder builder = personInformasjonBuilder.getAdresseBuilder(e.getAktørId(), e.getPeriode(), e.getAdresseType());
             builder.medAdresselinje1(e.getAdresselinje1())
                 .medLand(e.getLand())
-                .medPostnummer(e.getPostnummer())
-                .medPoststed(e.getPoststed());
+                .medPostnummer(e.getPostnummer());
 
             personInformasjonBuilder.leggTil(builder);
         });
@@ -365,12 +356,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 BrukerTjeneste brukerTjeneste = new BrukerTjeneste(new NavBrukerRepository(entityManager));
                 final Personinfo personinfo = new Personinfo.Builder()
                     .medFødselsdato(LocalDate.now())
-                    .medPersonIdent(PersonIdent.fra("123451234123"))
+                    .medPersonIdent(PersonIdent.fra("123"))
                     .medNavn("asdf")
                     .medAktørId(fagsakBuilder.getBrukerBuilder().getAktørId())
                     .medNavBrukerKjønn(getKjønnFraFagsak())
-                    .medForetrukketSpråk(
-                        fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode() : Språkkode.nb)
+                    .medForetrukketSpråk(Språkkode.NB)
                     .build();
                 final NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(personinfo);
                 fagsakBuilder.medBruker(navBruker);
@@ -412,13 +402,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     public AktørId getDefaultBrukerAktørId() {
         return fagsakBuilder.getBrukerBuilder().getAktørId();
-    }
-
-    public Behandling getBehandling() {
-        if (behandling == null) {
-            throw new IllegalStateException("Kan ikke hente Behandling før denne er bygd");
-        }
-        return behandling;
     }
 
     public OppgittAnnenPartBuilder medSøknadAnnenPart() {
@@ -501,7 +484,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     @SuppressWarnings("unchecked")
     public S medRegisterOpplysninger(PersonInformasjon personinfo) {
-        Objects.nonNull(personinfo);
+        Objects.requireNonNull(personinfo);
         if (!personinfo.getType().equals(PersonopplysningVersjonType.REGISTRERT)) {
             throw new IllegalStateException("Feil versjontype, må være PersonopplysningVersjonType.REGISTRERT");
         }
@@ -531,7 +514,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     interface LagreInntektArbeidYtelse {
-        void lagreOppgittOpptjening(Long behandlingId, OppgittOpptjeningBuilder builder);
         void lagreInntektArbeidYtelseAggregat(Long behandlingId, InntektArbeidYtelseAggregatBuilder builder);
     }
 }

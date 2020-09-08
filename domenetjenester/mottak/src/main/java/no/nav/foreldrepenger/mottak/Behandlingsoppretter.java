@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak;
 
 import static java.util.stream.Collectors.toList;
 
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +13,6 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -34,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.DokumentPersistererTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -43,6 +42,7 @@ public class Behandlingsoppretter {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
     private DokumentPersistererTjeneste dokumentPersistererTjeneste;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private MottatteDokumentRepository mottatteDokumentRepository;
@@ -58,10 +58,12 @@ public class Behandlingsoppretter {
     @Inject
     public Behandlingsoppretter(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                    BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                     DokumentPersistererTjeneste dokumentPersistererTjeneste,
                                     MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                     BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) { // NOSONAR
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.dokumentPersistererTjeneste = dokumentPersistererTjeneste;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
@@ -80,18 +82,10 @@ public class Behandlingsoppretter {
      * Opprett og Oppdater under vil opprette behandling og kopiere grunnlag, men ikke opprette start/fortsett tasks.
      */
     public Behandling opprettFørstegangsbehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Optional<Behandling> tidligereBehandling) {
-        BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
         if (!tidligereBehandling.map(Behandling::erSaksbehandlingAvsluttet).orElse(true)) {
             throw new IllegalStateException("Utviklerfeil: Prøver opprette ny behandling når det finnes åpen av samme type: " + fagsak.getId());
         }
-        return behandlingskontrollTjeneste.opprettNyBehandling(fagsak, behandlingType, (beh) -> {
-            if (!BehandlingÅrsakType.UDEFINERT.equals(behandlingÅrsakType)) {
-                BehandlingÅrsak.builder(behandlingÅrsakType).buildFor(beh);
-            }
-            beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()));
-            OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
-            beh.setBehandlendeEnhet(enhet);
-        }); // NOSONAR
+        return behandlingOpprettingTjeneste.opprettBehandlingUtenHistorikk(fagsak, BehandlingType.FØRSTEGANGSSØKNAD, behandlingÅrsakType);
     }
 
     public Behandling opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling forrigeBehandling, boolean kopierGrunnlag) {

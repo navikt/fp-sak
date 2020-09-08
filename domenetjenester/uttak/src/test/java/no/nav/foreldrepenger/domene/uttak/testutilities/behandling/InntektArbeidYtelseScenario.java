@@ -60,11 +60,7 @@ public class InntektArbeidYtelseScenario {
         private LocalDate aktivitetsAvtaleFom = LocalDate.now().minusYears(3L);
         private LocalDate aktivitetsAvtaleTom = LocalDate.now();
         private BigDecimal aktivitetsAvtaleProsentsats = BigDecimal.TEN;
-        private BigDecimal aktivitetsAvtaleAntallTimer = BigDecimal.valueOf(20.4d);
-        private BigDecimal aktivitetsAvtaleAntallTimerFulltid = BigDecimal.valueOf(10.2d);
 
-        // Virksomhet
-        private String orgNr = KUNSTIG_ORG;
         private AktørId aktørId = AktørId.dummy();
 
         // Yrkesaktivitet
@@ -76,7 +72,6 @@ public class InntektArbeidYtelseScenario {
         private LocalDate iverksettelsesDato = LocalDate.now().minusYears(5L);
         private RelatertYtelseTilstand relatertYtelseTilstand = RelatertYtelseTilstand.AVSLUTTET;
         private TemaUnderkategori ytelseBehandlingstema = TemaUnderkategori.FORELDREPENGER_SVANGERSKAPSPENGER;
-        private LocalDate tomDato;
         private Saksnummer saksnummer = new Saksnummer("00001");
         private Fagsystem ytelseKilde = Fagsystem.INFOTRYGD;
 
@@ -93,78 +88,18 @@ public class InntektArbeidYtelseScenario {
             return this;
         }
 
-        // AktivitetsAvtale
-        public InntektArbeidYtelseScenarioTestBuilder medAktivitetsAvtaleFom(LocalDate aktivitetsAvtaleFom) {
-            this.aktivitetsAvtaleFom = aktivitetsAvtaleFom;
-            return this;
-        }
-
-        public InntektArbeidYtelseScenarioTestBuilder medAktivitetsAvtaleTom(LocalDate aktivitetsAvtaleTom) {
-            this.aktivitetsAvtaleTom = aktivitetsAvtaleTom;
-            return this;
-        }
-
-        public InntektArbeidYtelseScenarioTestBuilder medAktivitetsAvtaleProsentsats(BigDecimal aktivitetsAvtaleProsentsats) {
-            this.aktivitetsAvtaleProsentsats = aktivitetsAvtaleProsentsats;
-            return this;
-        }
-
-        public InntektArbeidYtelseScenarioTestBuilder medAktivitetsAvtaleAntallTimer(BigDecimal aktivitetsAvtaleAntallTimer) {
-            this.aktivitetsAvtaleAntallTimer = aktivitetsAvtaleAntallTimer;
-            return this;
-        }
-
-        public InntektArbeidYtelseScenarioTestBuilder medAktivitetsAvtaleAntallTimerFulltid(BigDecimal aktivitetsAvtaleAntallTimerFulltid) {
-            this.aktivitetsAvtaleAntallTimerFulltid = aktivitetsAvtaleAntallTimerFulltid;
-            return this;
-        }
-
-        // Virksomhet
-        public InntektArbeidYtelseScenarioTestBuilder medOrgNr(String orgNr) {
-            this.orgNr = orgNr;
-            return this;
-        }
-
-        // Yrkesaktivitet
-        public InntektArbeidYtelseScenarioTestBuilder medYrkesaktivitetArbeidType(ArbeidType yrkesaktivitetArbeidType) {
-            this.yrkesaktivitetArbeidType = yrkesaktivitetArbeidType;
-            return this;
-        }
-
-        public InntektArbeidYtelseScenarioTestBuilder medYrkesaktivitetArbeidsforholdId(InternArbeidsforholdRef arbeidsforholdId) {
-            this.yrkesaktivitetArbeidsforholdId = arbeidsforholdId;
-            return this;
-        }
-
-        // Ytelse (YtelseType må settes)
-        public InntektArbeidYtelseScenarioTestBuilder medYtelseType(RelatertYtelseType ytelseType) {
-            this.ytelseType = ytelseType;
-            return this;
-        }
-
-        public InntektArbeidYtelseScenarioTestBuilder medYtelseTomDato(LocalDate tomDato) {
-            this.tomDato = tomDato;
-            return this;
-        }
-
-        public InntektArbeidYtelseScenarioTestBuilder medYtelseKilde(Fagsystem ytelseKilde) {
-            this.ytelseKilde = ytelseKilde;
-            return this;
-        }
-
         private YtelseBuilder buildRelaterteYtelserGrunnlag(RelatertYtelseType ytelseType) {
             return YtelseBuilder.oppdatere(Optional.empty())
                 .medKilde(ytelseKilde)
                 .medSaksnummer(saksnummer)
-                .medPeriode(
-                    tomDato != null ? DatoIntervallEntitet.fraOgMedTilOgMed(iverksettelsesDato, tomDato) : DatoIntervallEntitet.fraOgMed(iverksettelsesDato))
+                .medPeriode(DatoIntervallEntitet.fraOgMed(iverksettelsesDato))
                 .medStatus(relatertYtelseTilstand)
                 .medYtelseType(ytelseType)
                 .medBehandlingsTema(ytelseBehandlingstema);
         }
 
         public InntektArbeidYtelseAggregatBuilder build() {
-            final Opptjeningsnøkkel opptjeningsnøkkel = new Opptjeningsnøkkel(yrkesaktivitetArbeidsforholdId, orgNr, aktørId.getId());
+            final Opptjeningsnøkkel opptjeningsnøkkel = new Opptjeningsnøkkel(yrkesaktivitetArbeidsforholdId, KUNSTIG_ORG, aktørId.getId());
 
             InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(aktørId);
             YrkesaktivitetBuilder yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(opptjeningsnøkkel,
@@ -176,8 +111,7 @@ public class InntektArbeidYtelseScenario {
             AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom))
                 .medProsentsats(aktivitetsAvtaleProsentsats)
-                .medAntallTimer(aktivitetsAvtaleAntallTimer)
-                .medAntallTimerFulltid(aktivitetsAvtaleAntallTimerFulltid);
+                .medSisteLønnsendringsdato(aktivitetsAvtaleFom);
 
             AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom));
@@ -185,7 +119,7 @@ public class InntektArbeidYtelseScenario {
             @SuppressWarnings("unused")
             Yrkesaktivitet yrkesaktivitet = yrkesaktivitetBuilder
                 .medArbeidType(yrkesaktivitetArbeidType)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(orgNr))
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(KUNSTIG_ORG))
                 .medArbeidsforholdId(yrkesaktivitetArbeidsforholdId)
                 .tilbakestillAvtaler()
                 .leggTilAktivitetsAvtale(aktivitetsAvtale)

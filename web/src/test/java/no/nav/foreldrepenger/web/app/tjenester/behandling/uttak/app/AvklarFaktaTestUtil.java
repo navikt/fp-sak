@@ -6,6 +6,7 @@ import java.util.List;
 import org.junit.Rule;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -28,7 +29,8 @@ public class AvklarFaktaTestUtil {
     @Rule
     public static UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
 
-    private static YtelsesFordelingRepository fordelingRepository = new YtelsesFordelingRepository(repositoryRule.getEntityManager());
+    private static BehandlingsresultatRepository behandlingsresultatRepository = new BehandlingsresultatRepository(repositoryRule.getEntityManager());
+    private static YtelsesFordelingRepository ytelsesFordelingRepository = new YtelsesFordelingRepository(repositoryRule.getEntityManager());
 
     private AvklarFaktaTestUtil() {
     }
@@ -81,8 +83,9 @@ public class AvklarFaktaTestUtil {
             .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
-        fordelingRepository.lagre(behandling.getId(), new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
+        ytelsesFordelingRepository.lagre(behandling.getId(), new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
+        var behandlingsresultat = behandlingsresultatRepository.hent(behandling.getId());
+        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
             .medMottattDato(LocalDate.now().minusMonths(1))
             .medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1))
             .build();

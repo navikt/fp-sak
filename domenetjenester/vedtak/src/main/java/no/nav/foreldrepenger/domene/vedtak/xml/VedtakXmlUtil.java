@@ -8,9 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeliste;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.xml.felles.v2.BooleanOpplysning;
 import no.nav.vedtak.felles.xml.felles.v2.DateOpplysning;
@@ -88,16 +86,6 @@ public class VedtakXmlUtil {
         kodeverksOpplysning.setKode(kodeverdi.getKode());
         kodeverksOpplysning.setValue(kodeverdi.getNavn());
         kodeverksOpplysning.setKodeverk(kodeverdi.getKodeverk());
-        return kodeverksOpplysning;
-    }
-
-
-    public static KodeverksOpplysning lagKodeverksOpplysning(KodeverkRepository kodeverkRepository, Kodeliste kodeliste) {
-        Kodeliste kode = kodeverkRepository.finn(kodeliste.getClass(), kodeliste.getKode());
-        KodeverksOpplysning kodeverksOpplysning = fellesObjectFactory.createKodeverksOpplysning();
-        kodeverksOpplysning.setValue(kode.getNavn());
-        kodeverksOpplysning.setKode(kode.getKode());
-        kodeverksOpplysning.setKodeverk(kode.getKodeverk());
         return kodeverksOpplysning;
     }
 

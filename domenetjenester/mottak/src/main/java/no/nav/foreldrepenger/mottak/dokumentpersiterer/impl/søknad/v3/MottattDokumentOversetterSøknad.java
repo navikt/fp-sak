@@ -56,7 +56,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -132,7 +131,6 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     private FamilieHendelseRepository familieHendelseRepository;
     private SøknadRepository søknadRepository;
     private MedlemskapRepository medlemskapRepository;
-    private KodeverkRepository kodeverkRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private TpsTjeneste tpsTjeneste;
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
@@ -147,7 +145,6 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
     @Inject
     public MottattDokumentOversetterSøknad(BehandlingRepositoryProvider repositoryProvider,
-                                           KodeverkRepository kodeverkRepository,
                                            VirksomhetTjeneste virksomhetTjeneste,
                                            InntektArbeidYtelseTjeneste iayTjeneste,
                                            TpsTjeneste tpsTjeneste,
@@ -158,7 +155,6 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        this.kodeverkRepository = kodeverkRepository;
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.tpsTjeneste = tpsTjeneste;
@@ -245,7 +241,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             byggMedlemskap(wrapper, behandlingId, mottattDato);
         }
         if (skalByggeSøknadAnnenPart(wrapper)) {
-            byggSøknadAnnenPart(wrapper, behandlingId);
+            byggSøknadAnnenPart(wrapper, behandling);
         }
 
         byggYtelsesSpesifikkeFelter(wrapper, behandling, søknadBuilder);
@@ -829,10 +825,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private Språkkode getSpraakValg(MottattDokumentWrapperSøknad skjema) {
-        if (skjema.getSpråkvalg() != null) {
-            return kodeverkRepository.finn(Språkkode.class, skjema.getSpråkvalg().getKode());
-        }
-        return Språkkode.UDEFINERT;
+        return Språkkode.defaultNorsk(skjema.getSpråkvalg() == null ? null : skjema.getSpråkvalg().getKode());
     }
 
     private SøknadEntitet.Builder byggFelleselementerForSøknad(SøknadEntitet.Builder søknadBuilder,
@@ -869,7 +862,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         return (annenForelder != null);
     }
 
-    private void byggSøknadAnnenPart(MottattDokumentWrapperSøknad skjema, Long behandlingId) {
+    private void byggSøknadAnnenPart(MottattDokumentWrapperSøknad skjema, Behandling behandling) {
         OppgittAnnenPartBuilder oppgittAnnenPartBuilder = new OppgittAnnenPartBuilder();
 
         AnnenForelder annenForelder = null;
@@ -888,19 +881,21 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             AnnenForelderUtenNorskIdent annenForelderUtenNorskIdent = (AnnenForelderUtenNorskIdent) annenForelder;
             String annenPartIdentString = annenForelderUtenNorskIdent.getUtenlandskPersonidentifikator();
             if (PersonIdent.erGyldigFnr(annenPartIdentString)) {
-                tpsTjeneste.hentAktørForFnr(new PersonIdent(annenPartIdentString)).ifPresent(oppgittAnnenPartBuilder::medAktørId);
+                tpsTjeneste.hentAktørForFnr(new PersonIdent(annenPartIdentString))
+                    .filter(a -> !behandling.getAktørId().equals(a))
+                    .ifPresent(oppgittAnnenPartBuilder::medAktørId);
             }
             oppgittAnnenPartBuilder.medUtenlandskFnr(annenPartIdentString);
             Optional<String> funnetLandkode = Optional.ofNullable(annenForelderUtenNorskIdent.getLand()).map(Land::getKode);
             funnetLandkode.ifPresent(s -> oppgittAnnenPartBuilder.medUtenlandskFnrLand(finnLandkode(s)));
         }
 
-        personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder);
+        personopplysningRepository.lagre(behandling.getId(), oppgittAnnenPartBuilder);
 
     }
 
     private Landkoder finnLandkode(String landKode) {
-        return kodeverkRepository.finn(Landkoder.class, landKode);
+        return Landkoder.fraKode(landKode);
     }
 
     private void byggSøknadVedlegg(SøknadEntitet.Builder søknadBuilder, Vedlegg vedlegg, boolean påkrevd) {
@@ -913,22 +908,6 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private Innsendingsvalg tolkInnsendingsvalg(Innsendingstype innsendingstype) {
-        // FIXME (MAUR) Slå opp mot kodeverk..
-        switch (innsendingstype.getKode()) {
-            case "IKKE_VALGT":
-                return Innsendingsvalg.IKKE_VALGT;
-            case "LASTET_OPP":
-                return Innsendingsvalg.LASTET_OPP;
-            case "SEND_SENERE":
-                return Innsendingsvalg.SEND_SENERE;
-            case "SENDES_IKKE":
-                return Innsendingsvalg.SENDES_IKKE;
-            case "VEDLEGG_ALLEREDE_SENDT":
-                return Innsendingsvalg.VEDLEGG_ALLEREDE_SENDT;
-            case "VEDLEGG_SENDES_AV_ANDRE":
-                return Innsendingsvalg.VEDLEGG_SENDES_AV_ANDRE;
-            default:
-                return null;
-        }
+        return Innsendingsvalg.fraKode(innsendingstype.getKode());
     }
 }

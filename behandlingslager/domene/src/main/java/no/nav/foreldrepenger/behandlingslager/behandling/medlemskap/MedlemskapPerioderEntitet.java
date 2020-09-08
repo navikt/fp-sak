@@ -10,19 +10,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.JoinColumnOrFormula;
-import org.hibernate.annotations.JoinFormula;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 /**
  * Entitetsklasse for medlemskap perioder.
@@ -56,15 +51,13 @@ public class MedlemskapPerioderEntitet extends BaseEntitet implements Comparable
     private boolean erMedlem;
 
     @ChangeTracked
-    @ManyToOne(optional = false)
-    @JoinColumnOrFormula(column = @JoinColumn(name = "lovvalg_land", referencedColumnName = "kode", nullable = false))
-    @JoinColumnOrFormula(formula = @JoinFormula(referencedColumnName = "kodeverk", value = "'" + Landkoder.DISCRIMINATOR + "'"))
+    @Convert(converter = Landkoder.KodeverdiConverter.class)
+    @Column(name="lovvalg_land", nullable = false)
     private Landkoder lovvalgLand = Landkoder.UDEFINERT;
 
     @ChangeTracked
-    @ManyToOne(optional = false)
-    @JoinColumnOrFormula(column = @JoinColumn(name = "studie_land", referencedColumnName = "kode", nullable = false))
-    @JoinColumnOrFormula(formula = @JoinFormula(referencedColumnName = "kodeverk", value = "'" + Landkoder.DISCRIMINATOR + "'"))
+    @Convert(converter = Landkoder.KodeverdiConverter.class)
+    @Column(name="studie_land", nullable = false)
     private Landkoder studieLand = Landkoder.UDEFINERT;
 
     @Convert(converter = MedlemskapType.KodeverdiConverter.class)

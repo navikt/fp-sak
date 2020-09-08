@@ -42,7 +42,8 @@ public class UttaksresultatMapperTest {
         periode.avslå(no.nav.svangerskapspenger.domene.resultat.PeriodeIkkeOppfyltÅrsak.SØKT_FOR_SENT, "", "");
         perioder.leggTilPerioder(Arbeidsforhold.aktør(AktivitetType.ARBEID, aktørId.getId(), internRef), periode);
 
-        var uttakResultatEntitet = uttaksresultatMapper.tilEntiteter(behandling.getBehandlingsresultat(), perioder);
+        var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
+        var uttakResultatEntitet = uttaksresultatMapper.tilEntiteter(behandlingsresultat, perioder);
 
         assertThat(uttakResultatEntitet).isNotNull();
         assertThat(uttakResultatEntitet.getUttaksResultatArbeidsforhold()).hasSize(1);

@@ -45,20 +45,17 @@ public class SendBrevForAutopunktTest {
     private SendBrevForAutopunkt sendBrevForAutopunkt;
 
     private Behandling behandling;
-    private ScenarioMorSøkerForeldrepenger scenario;
-    private BehandlingRepositoryProvider repositoryProvider;
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
 
     @Before
     public void setUp() {
         initMocks(this);
-        scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultBekreftetTerminbekreftelse();
-        repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultBekreftetTerminbekreftelse();
+        BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PÅ_FØDSEL, BehandlingStegType.KONTROLLER_FAKTA);
         behandling = scenario.lagMocked();
         aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PÅ_FØDSEL).get();
 
-        aksjonspunktRepository.setFrist(aksjonspunkt, LocalDateTime.now().plusWeeks(4), Venteårsak.AVV_FODSEL);
+        AksjonspunktTestSupport.setFrist(aksjonspunkt, LocalDateTime.now().plusWeeks(4), Venteårsak.AVV_FODSEL);
 
         sendBrevForAutopunkt = new SendBrevForAutopunkt(dokumentBestillerApplikasjonTjeneste,
             dokumentBehandlingTjeneste,
@@ -82,7 +79,7 @@ public class SendBrevForAutopunktTest {
         BehandlingÅrsakType oppholdÅrsak = BehandlingÅrsakType.INFOBREV_BEHANDLING;
         BehandlingÅrsak.builder(List.of(oppholdÅrsak)).buildFor(behandling);
         Aksjonspunkt autopunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD).get();
-        aksjonspunktRepository.setFrist(autopunkt, LocalDate.now().plusWeeks(3).atStartOfDay(), Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV);
+        AksjonspunktTestSupport.setFrist(autopunkt, LocalDate.now().plusWeeks(3).atStartOfDay(), Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV);
         doReturn(false).when(dokumentBehandlingTjeneste).erDokumentBestilt(Mockito.eq(behandling.getId()), Mockito.any());
         doNothing().when(dokumentBestillerApplikasjonTjeneste).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN), Mockito.anyBoolean());
 
@@ -97,7 +94,7 @@ public class SendBrevForAutopunktTest {
         BehandlingÅrsakType oppholdÅrsak = BehandlingÅrsakType.INFOBREV_OPPHOLD;
         BehandlingÅrsak.builder(List.of(oppholdÅrsak)).buildFor(behandling);
         Aksjonspunkt autopunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD).get();
-        aksjonspunktRepository.setFrist(autopunkt, LocalDate.now().plusWeeks(3).atStartOfDay(), Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV);
+        AksjonspunktTestSupport.setFrist(autopunkt, LocalDate.now().plusWeeks(3).atStartOfDay(), Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV);
         doReturn(false).when(dokumentBehandlingTjeneste).erDokumentBestilt(Mockito.eq(behandling.getId()), Mockito.any());
         doNothing().when(dokumentBestillerApplikasjonTjeneste).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN), Mockito.anyBoolean());
 
@@ -111,7 +108,7 @@ public class SendBrevForAutopunktTest {
         scenarioMorSøkerForeldrepenger.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, BehandlingStegType.REGISTRER_SØKNAD);
         Behandling behandling = scenarioMorSøkerForeldrepenger.lagMocked();
         Aksjonspunkt autopunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD).get();
-        aksjonspunktRepository.setFrist(autopunkt, LocalDate.now().plusWeeks(3).atStartOfDay(), Venteårsak.AVV_DOK);
+        AksjonspunktTestSupport.setFrist(autopunkt, LocalDate.now().plusWeeks(3).atStartOfDay(), Venteårsak.AVV_DOK);
         doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.INNTEKTSMELDING_FOR_TIDLIG_DOK);
         doNothing().when(dokumentBestillerApplikasjonTjeneste).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN), Mockito.anyBoolean());
         sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling, autopunkt);

@@ -31,8 +31,7 @@ public enum BeregningsgrunnlagRegelType implements Kodeverdi {
     UDEFINERT("-", "Ikke definert"),
     ;
     public static final String KODEVERK = "BG_REGEL_TYPE";
-    @Deprecated
-    public static final String DISCRIMINATOR = "BG_REGEL_TYPE";
+
     private static final Map<String, BeregningsgrunnlagRegelType> KODER = new LinkedHashMap<>();
 
     static {

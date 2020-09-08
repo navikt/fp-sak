@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurde
 
 import java.util.Arrays;
 
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -23,9 +22,6 @@ import no.nav.foreldrepenger.dokumentbestiller.BrevFeil;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 
 public class VedtaksbrevUtleder {
-
-
-    public static final String FPSAK_FRITEKST_BREV_FOR_KLAGE = "fpsak.benytte.fritekstbrevmal.for.klage";
 
     private VedtaksbrevUtleder() {
     }
@@ -54,8 +50,7 @@ public class VedtaksbrevUtleder {
     public static DokumentMalType velgDokumentMalForVedtak(Behandling behandling, Behandlingsresultat behandlingsresultat,
                                                   BehandlingVedtak behandlingVedtak,
                                                   KlageRepository klageRepository,
-                                                  AnkeRepository ankeRepository,
-                                                   Unleash unleash) {
+                                                  AnkeRepository ankeRepository) {
         DokumentMalType dokumentMal = null;
 
         if (erLagetFritekstBrev(behandlingsresultat)) {
@@ -63,7 +58,7 @@ public class VedtaksbrevUtleder {
         } else if (erRevurderingMedUendretUtfall(behandlingVedtak)) {
             dokumentMal = DokumentMalType.UENDRETUTFALL_DOK;
         } else if (erKlageBehandling(behandlingVedtak)) {
-            dokumentMal = velgKlagemal(behandling, klageRepository,unleash);
+            dokumentMal = velgKlagemal(behandling, klageRepository);
         } else if (erAnkeBehandling(behandlingVedtak)) {
             dokumentMal = velgAnkemal(behandling, ankeRepository);
         } else if (erInnvilget(behandlingVedtak)) {
@@ -83,15 +78,15 @@ public class VedtaksbrevUtleder {
 
     public static DokumentMalType velgNegativVedtaksmal(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         FagsakYtelseType fagsakYtelseType = behandling.getFagsakYtelseType();
-        if (fagsakYtelseType.gjelderEngangsstønad()) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
             return DokumentMalType.AVSLAGSVEDTAK_DOK;
-        } else if (fagsakYtelseType.gjelderForeldrepenger()) {
+        } else if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
                 return DokumentMalType.OPPHØR_DOK;
             } else {
                 return DokumentMalType.AVSLAG_FORELDREPENGER_DOK;
             }
-        } else if (fagsakYtelseType.gjelderSvangerskapspenger()) {
+        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
             return null; //TODO Implementer
         }
         return null;
@@ -99,40 +94,29 @@ public class VedtaksbrevUtleder {
 
     public static DokumentMalType velgPositivtVedtaksmal(Behandling behandling) {
         FagsakYtelseType ytelse = behandling.getFagsakYtelseType();
-        return ytelse.gjelderForeldrepenger() ?
-            DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK : ytelse.gjelderEngangsstønad() ?
-            DokumentMalType.POSITIVT_VEDTAK_DOK : ytelse.gjelderSvangerskapspenger() ?
+        return FagsakYtelseType.FORELDREPENGER.equals(ytelse) ?
+            DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
+            DokumentMalType.POSITIVT_VEDTAK_DOK : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
             DokumentMalType.INNVILGELSE_SVANGERSKAPSPENGER_DOK : null;
     }
 
-    public static DokumentMalType velgKlagemal(Behandling behandling, KlageRepository klageRepository,Unleash unleash) {
+    public static DokumentMalType velgKlagemal(Behandling behandling, KlageRepository klageRepository) {
         KlageVurderingResultat klagevurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling).orElse(null);
         if (klagevurderingResultat == null) {
             return null;
         }
         KlageVurdering klagevurdering = klagevurderingResultat.getKlageVurdering();
 
-        if (unleash != null && unleash.isEnabled(FPSAK_FRITEKST_BREV_FOR_KLAGE,false)) {
-            if (KlageVurdering.AVVIS_KLAGE.equals(klagevurdering)) {
-                return DokumentMalType.KLAGE_AVVIST;
-            } else if (Arrays.asList(OPPHEVE_YTELSESVEDTAK, HJEMSENDE_UTEN_Å_OPPHEVE).contains(klagevurdering)) {
-                return DokumentMalType.KLAGE_HJEMSENDT;
-            } else if (MEDHOLD_I_KLAGE.equals(klagevurdering)) {
-                return DokumentMalType.KLAGE_OMGJØRING;
-            } else if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klagevurdering)) {
-                return DokumentMalType.KLAGE_STADFESTET;
-            }
+        if (KlageVurdering.AVVIS_KLAGE.equals(klagevurdering)) {
+            return DokumentMalType.KLAGE_AVVIST;
+        } else if (Arrays.asList(OPPHEVE_YTELSESVEDTAK, HJEMSENDE_UTEN_Å_OPPHEVE).contains(klagevurdering)) {
+            return DokumentMalType.KLAGE_HJEMSENDT;
+        } else if (MEDHOLD_I_KLAGE.equals(klagevurdering)) {
+            return DokumentMalType.KLAGE_OMGJØRING;
+        } else if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klagevurdering)) {
+            return DokumentMalType.KLAGE_STADFESTET;
         }
 
-        if (KlageVurdering.AVVIS_KLAGE.equals(klagevurdering)) {
-            return DokumentMalType.KLAGE_AVVIST_DOK;
-        } else if (Arrays.asList(OPPHEVE_YTELSESVEDTAK, HJEMSENDE_UTEN_Å_OPPHEVE).contains(klagevurdering)) {
-            return DokumentMalType.KLAGE_YTELSESVEDTAK_OPPHEVET_DOK;
-        } else if (MEDHOLD_I_KLAGE.equals(klagevurdering)) {
-            return DokumentMalType.VEDTAK_MEDHOLD;
-        } else if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klagevurdering)) {
-            return DokumentMalType.KLAGE_YTELSESVEDTAK_STADFESTET_DOK;
-        }
         return null;
     }
 

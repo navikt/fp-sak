@@ -36,7 +36,7 @@ public class NavBrukerEntityTest {
                 .medNavn("Kari Nordmann")
                 .medFødselsdato(LocalDate.of(1990, JANUARY, 1))
                 .medNavBrukerKjønn(KVINNE)
-                .medForetrukketSpråk(Språkkode.nb)
+                .medForetrukketSpråk(Språkkode.NB)
                 .build());
 
         repository.lagre(søker);

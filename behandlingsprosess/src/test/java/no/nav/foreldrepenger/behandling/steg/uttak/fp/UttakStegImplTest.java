@@ -169,7 +169,7 @@ public class UttakStegImplTest {
                 .medLandkode(Landkoder.NOR)
                 .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
                 .medPersonIdent(PersonIdent.fra("12312312312"))
-                .medForetrukketSpråk(Språkkode.nb)
+                .medForetrukketSpråk(Språkkode.NB)
                 .build())
             .build();
         fagsakRepository.opprettNy(fagsak);
@@ -616,8 +616,7 @@ public class UttakStegImplTest {
         AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed))
             .medProsentsats(BigDecimal.TEN)
-            .medAntallTimer(BigDecimal.valueOf(20.4d))
-            .medAntallTimerFulltid(BigDecimal.valueOf(10.2d));
+            .medSisteLønnsendringsdato(fraOgMed);
 
         yrkesaktivitetBuilder
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)

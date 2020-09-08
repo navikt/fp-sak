@@ -17,6 +17,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -67,7 +68,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     }
 
     private AksjonspunktUtlederInput lagInput(Behandling behandling) {
-        return new AksjonspunktUtlederInput(behandling);
+        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling));
     }
 
     @Test

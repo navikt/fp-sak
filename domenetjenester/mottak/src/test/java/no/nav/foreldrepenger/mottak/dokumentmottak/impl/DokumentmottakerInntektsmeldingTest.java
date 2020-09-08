@@ -74,8 +74,6 @@ public class DokumentmottakerInntektsmeldingTest {
     @Inject
     private ForeldrepengerUttakTjeneste fpUttakTjeneste;
 
-    private AksjonspunktTestSupport aksjonspunktRepository = new AksjonspunktTestSupport();
-
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
     @Mock
@@ -381,15 +379,15 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     private void simulerKøetBehandling(Behandling behandling) {
-        aksjonspunktRepository.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING);
+        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING);
     }
 
     private Aksjonspunkt opprettAksjonspunkt(Behandling behandling,
                                              AksjonspunktDefinisjon aksjonspunktDefinisjon,
                                              LocalDateTime frist) {
 
-        Aksjonspunkt aksjonspunkt = aksjonspunktRepository.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
-        aksjonspunktRepository.setFrist(aksjonspunkt, frist, Venteårsak.UDEFINERT);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
+        AksjonspunktTestSupport.setFrist(aksjonspunkt, frist, Venteårsak.UDEFINERT);
         return aksjonspunkt;
     }
 }

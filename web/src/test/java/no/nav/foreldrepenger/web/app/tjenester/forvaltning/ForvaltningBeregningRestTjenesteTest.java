@@ -39,7 +39,7 @@ public class ForvaltningBeregningRestTjenesteTest {
     private final BeregningsgrunnlagRepository beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
     private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
     private final ProsessTaskRepository prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, null);
-    private ForvaltningBeregningRestTjeneste forvaltningBeregningRestTjeneste = new ForvaltningBeregningRestTjeneste(beregningsgrunnlagRepository, behandlingRepository,
+    private ForvaltningBeregningRestTjeneste forvaltningBeregningRestTjeneste = new ForvaltningBeregningRestTjeneste(beregningsgrunnlagRepository, repositoryProvider,
         prosessTaskRepository, null, null);
 
 

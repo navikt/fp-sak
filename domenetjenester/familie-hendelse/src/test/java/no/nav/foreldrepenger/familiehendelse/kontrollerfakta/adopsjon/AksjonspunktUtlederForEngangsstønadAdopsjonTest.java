@@ -10,12 +10,12 @@ import java.util.List;
 
 import org.junit.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.adopsjon.AksjonspunktUtlederForEngangsstønadAdopsjon;
 
 public class AksjonspunktUtlederForEngangsstønadAdopsjonTest {
 
@@ -47,7 +47,7 @@ public class AksjonspunktUtlederForEngangsstønadAdopsjonTest {
     }
 
     private AksjonspunktUtlederInput lagInput(Behandling behandling) {
-        return new AksjonspunktUtlederInput(behandling);
+        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling));
     }
 
     private List<AksjonspunktResultat> aksjonspunktForFaktaForMor() {

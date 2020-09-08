@@ -1,11 +1,8 @@
 package no.nav.foreldrepenger.domene.ytelsefordeling;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
@@ -15,7 +12,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 class BekreftFaktaForOmsorgAksjonspunkt {
 
-    private YtelsesFordelingRepository ytelsesFordelingRepository;
+    private final YtelsesFordelingRepository ytelsesFordelingRepository;
 
     public BekreftFaktaForOmsorgAksjonspunkt(YtelsesFordelingRepository ytelsesFordelingRepository) {
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
@@ -42,19 +39,9 @@ class BekreftFaktaForOmsorgAksjonspunkt {
     }
 
     private void bekreftFaktaAleneomsorg(Long behandlingId, BekreftFaktaForOmsorgVurderingAksjonspunktDto adapter) {
-        PerioderAleneOmsorgEntitet perioderAleneOmsorgEntitet = new PerioderAleneOmsorgEntitet();
-        PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRettEntitet = new PerioderAnnenforelderHarRettEntitet();
-        if(Boolean.FALSE.equals(adapter.getAleneomsorg())) {
-            ytelsesFordelingRepository.lagre(behandlingId, perioderAleneOmsorgEntitet);
-            //Lagre annen forelder har rett
-            // Legger inn en dummy periode for å indikere saksbehandlers valg. Inntil vi faktisk har perioder her
-            perioderAnnenforelderHarRettEntitet.leggTil(new PeriodeAnnenforelderHarRettEntitet(LocalDate.now(), LocalDate.now()));
-        } else {
-            // Legger inn en dummy periode for å indikere saksbehandlers valg. Inntil vi faktisk har perioder her
-            perioderAleneOmsorgEntitet.leggTil(new PeriodeAleneOmsorgEntitet(LocalDate.now(), LocalDate.now()));
-            ytelsesFordelingRepository.lagre(behandlingId, new PerioderAleneOmsorgEntitet(perioderAleneOmsorgEntitet));
-        }
-        ytelsesFordelingRepository.lagre(behandlingId, perioderAnnenforelderHarRettEntitet);
+        var erAleneomsorg = !Boolean.FALSE.equals(adapter.getAleneomsorg());
+        ytelsesFordelingRepository.lagre(behandlingId, new PerioderAleneOmsorgEntitet(erAleneomsorg));
+        ytelsesFordelingRepository.lagre(behandlingId, new PerioderAnnenforelderHarRettEntitet(!erAleneomsorg));
     }
 
     private static List<PeriodeUtenOmsorgEntitet> mapPeriodeUtenOmsorgperioder(List<DatoIntervallEntitet> ikkeOmsorgPeriodes) {

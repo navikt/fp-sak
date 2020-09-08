@@ -78,19 +78,19 @@ public class AutomatiskMilSivReguleringBatchTjenesteTest {
 
     @Test
     public void skal_ikke_finne_saker_til_revurdering() {
-        opprettRevurderingsKandidat(BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats, gammelSats * 3);
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats, gammelSats * 3);
+        opprettRevurderingsKandidat(BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats, gammelSats * 3); // Har åpen behandling
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats, gammelSats * 3); // Uttak før "1/5"
         String svar = tjeneste.launch(null);
         assertThat(svar).isEqualTo(AutomatiskMilSivReguleringBatchTjeneste.BATCHNAME+"-0");
     }
 
     @Test
     public void skal_finne_to_saker_til_revurdering() {
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), gammelSats, gammelSats * 3);
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats, gammelSats * 2);
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats, gammelSats * 4);
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(2), gammelSats, gammelSats * 2);
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), nySats, gammelSats * 2);
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), gammelSats, gammelSats * 3); // Skal finnes
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats, gammelSats * 2);  // Skal finnes
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats, gammelSats * 4); // Over streken på 3G
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(2), gammelSats, gammelSats * 2); // Uttak før "1/5"
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), nySats, gammelSats * 2); // Har allerede ny G
         String svar = tjeneste.launch(null);
         assertThat(svar).isEqualTo(AutomatiskMilSivReguleringBatchTjeneste.BATCHNAME+"-2");
     }

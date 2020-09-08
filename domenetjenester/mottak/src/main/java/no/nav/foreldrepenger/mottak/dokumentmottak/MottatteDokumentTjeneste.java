@@ -11,6 +11,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -113,7 +114,8 @@ public class MottatteDokumentTjeneste {
     private boolean erAvsluttetPgaManglendeDokumentasjon(Behandling behandling) {
         Objects.requireNonNull(behandling, "Behandling");
         Optional<Behandlingsresultat> bRes = behandlingRepositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(behandling.getId());
-        return bRes.map(Behandlingsresultat::getAvslagsårsak).map(Avslagsårsak.MANGLENDE_DOKUMENTASJON::equals).orElse(Boolean.FALSE);
+        return bRes.filter(br -> BehandlingResultatType.AVSLÅTT.equals(br.getBehandlingResultatType()))
+            .map(Behandlingsresultat::getAvslagsårsak).map(Avslagsårsak.MANGLENDE_DOKUMENTASJON::equals).orElse(Boolean.FALSE);
     }
 
 }

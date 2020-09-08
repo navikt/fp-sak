@@ -52,17 +52,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingsgrunnlagKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
@@ -132,8 +129,6 @@ public class RegisterdataEndringshåndtererImplTest {
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     @Inject
     private BasisPersonopplysningTjeneste personopplysningTjeneste;
-    @Mock
-    private KodeverkRepository kodeverkRepository;
 
     private ScenarioMorSøkerEngangsstønad scenarioFødsel = ScenarioMorSøkerEngangsstønad.forFødsel();
     private ScenarioMorSøkerEngangsstønad scenarioAdopsjon = ScenarioMorSøkerEngangsstønad.forAdopsjon();
@@ -145,10 +140,7 @@ public class RegisterdataEndringshåndtererImplTest {
     private SkjæringstidspunktTjenesteImpl skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste = new OpplysningsPeriodeTjeneste(skjæringstidspunktTjeneste,
         Period.of(1, 0, 0), Period.of(0, 6, 0), Period.of(0, 4, 0), Period.of(1, 0, 0), Period.of(1, 0, 0), Period.of(0, 6, 0));
-    private HistorikkRepository historikkRepository = new HistorikkRepository(em);
     private AbakusInnhentingGrunnlagLoggRepository loggRepository = new AbakusInnhentingGrunnlagLoggRepository(em);
-    private BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository = new BehandlingsgrunnlagKodeverkRepository(
-        em);
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste = Mockito
         .spy(new BehandlingskontrollTjenesteImpl(behandlingskontrollServiceProvider
@@ -356,12 +348,10 @@ public class RegisterdataEndringshåndtererImplTest {
             personinfoAdapter,
             medlemTjeneste,
             repositoryProvider,
-            kodeverkRepository,
             familieHendelseTjeneste,
             abakusTjeneste,
             loggRepository,
             medlemskapRepository,
-            behandlingsgrunnlagKodeverkRepository,
             opplysningsPeriodeTjeneste,
             Period.parse("P1W"),
             Period.parse("P4W"));
@@ -399,22 +389,18 @@ public class RegisterdataEndringshåndtererImplTest {
         TestRegisterdataInnhenter(PersoninfoAdapter personinfoAdapter,
                                   MedlemTjeneste medlemTjeneste,
                                   BehandlingRepositoryProvider repositoryProvider,
-                                  KodeverkRepository kodeverkRepository,
                                   FamilieHendelseTjeneste familieHendelseTjeneste,
                                   AbakusTjeneste abakusTjeneste,
                                   AbakusInnhentingGrunnlagLoggRepository loggRepository,
                                   MedlemskapRepository medlemskapRepository,
-                                  BehandlingsgrunnlagKodeverkRepository behandlingsgrunnlagKodeverkRepository,
                                   OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
                                   Period etterkontrollTidsromFørSøknadsdato,
                                   Period etterkontrollTidsromEtterTermindato) {
             super(personinfoAdapter,
                 medlemTjeneste,
                 repositoryProvider,
-                kodeverkRepository,
                 familieHendelseTjeneste,
                 medlemskapRepository,
-                behandlingsgrunnlagKodeverkRepository,
                 opplysningsPeriodeTjeneste,
                 abakusTjeneste,
                 loggRepository,

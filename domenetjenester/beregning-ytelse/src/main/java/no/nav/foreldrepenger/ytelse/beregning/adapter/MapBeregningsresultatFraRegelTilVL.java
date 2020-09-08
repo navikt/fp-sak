@@ -7,6 +7,7 @@ import no.nav.folketrygdloven.kalkulator.adapter.util.BeregningsgrunnlagUtil;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.ReferanseType;
@@ -47,7 +48,7 @@ public class MapBeregningsresultatFraRegelTilVL {
             .medDagsatsFraBg(dagsatsFraBg)
             .medAktivitetStatus(AktivitetStatusMapper.fraRegelTilVl(bra))
             .medArbeidsforholdRef(bra.getArbeidsforhold() == null
-                ? null : bra.getArbeidsforhold().getArbeidsforholdId())
+                ? null : InternArbeidsforholdRef.ref(bra.getArbeidsforhold().getArbeidsforholdId()))
             .medInntektskategori(InntektskategoriMapper.fraRegelTilVL(bra.getInntektskategori()))
             .build(brp);
     }

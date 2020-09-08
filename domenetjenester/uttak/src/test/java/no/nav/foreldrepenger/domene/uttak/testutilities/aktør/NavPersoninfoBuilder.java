@@ -17,7 +17,7 @@ public class NavPersoninfoBuilder {
     private static final AktørId DEFAULT_AKTØR_ID = AktørId.dummy();
     private static final PersonIdent DEFAULT_OFF_TEST_FNR = PersonIdent.fra("10108000398");
     private static final LocalDate DEFAULT_FØDSELDATO = LocalDate.of(1980,10,10);
-    private static final Språkkode DEFAULT_FORETRUKKET_SPRÅK = Språkkode.nb;
+    private static final Språkkode DEFAULT_FORETRUKKET_SPRÅK = Språkkode.NB;
     private static final String DEFAULT_DISKRESJONSKODE = "6";
     private static final PersonstatusType DEFAULT_PERSONSTATUSTYPE = PersonstatusType.BOSA;
     private NavBrukerKjønn kjønn = KVINNE;
@@ -39,37 +39,8 @@ public class NavPersoninfoBuilder {
         return this;
     }
 
-    public NavPersoninfoBuilder medPersonIdent(PersonIdent personIdent) {
-        this.personIdent = personIdent;
-        return this;
-    }
-
-    public NavPersoninfoBuilder medNavn(String navn) {
-        this.navn = navn;
-        return this;
-    }
-
-    public NavPersoninfoBuilder medFødselsdato(LocalDate fødselsdato) {
-        this.fødselsdato = fødselsdato;
-        return this;
-    }
-
     public NavPersoninfoBuilder medKjønn(NavBrukerKjønn kjønn) {
         this.kjønn = kjønn;
-        return this;
-    }
-
-    public NavPersoninfoBuilder medForetrukketSpråk(Språkkode foretrukketSpråk) {
-        this.foretrukketSpråk = foretrukketSpråk;
-        return this;
-    }
-
-    public NavPersoninfoBuilder medDiskresjonskode(String diskresjonskode) {
-        this.diskresjonskode = diskresjonskode;
-        return this;
-    }
-    public NavPersoninfoBuilder medPersonstatusType(PersonstatusType personstatusType) {
-        this.personstatusType = personstatusType;
         return this;
     }
 

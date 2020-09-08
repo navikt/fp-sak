@@ -1,5 +1,17 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.modell;
 
+import static java.time.Month.JANUARY;
+import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.KVINNE;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.util.Optional;
+
+import javax.persistence.EntityManager;
+
+import org.junit.Rule;
+import org.junit.Test;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -15,16 +27,6 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
-import org.junit.Rule;
-import org.junit.Test;
-
-import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.util.Optional;
-
-import static java.time.Month.JANUARY;
-import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.KVINNE;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class RisikoklassifiseringRepositoryImplTest {
     @Rule
@@ -170,7 +172,7 @@ public class RisikoklassifiseringRepositoryImplTest {
                 .medPersonIdent(new PersonIdent("12345678901"))
                 .medNavn("Kari Nordmann")
                 .medFødselsdato(LocalDate.of(1990, JANUARY, 1))
-                .medForetrukketSpråk(Språkkode.nb)
+                .medForetrukketSpråk(Språkkode.NB)
                 .medNavBrukerKjønn(KVINNE)
                 .build());
 

@@ -2,9 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.aktør;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -108,7 +106,7 @@ public enum AdresseType implements Kodeverdi {
     public static void main(String[] args) {
         System.out.println(KODER.keySet().stream().map(k -> "'" + k + "'").collect(Collectors.toList()));
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<AdresseType, String> {
         @Override
@@ -121,9 +119,6 @@ public enum AdresseType implements Kodeverdi {
             return dbData == null ? null : fraKode(dbData);
         }
 
-        public static AdresseType finnForKodeverkEiersKode(String offisiellDokumentType) {
-            return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, offisiellDokumentType)).findFirst().orElse(UKJENT_ADRESSE);
-        }
     }
 
 
