@@ -6,6 +6,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRI
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -23,6 +24,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
+import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
+import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,6 +132,70 @@ public class ForvaltningFagsakRestTjeneste {
             oppdaterFagsakStatus.avsluttFagsakUtenAktiveBehandlinger(fagsak);
             return Response.ok().build();
         }
+    }
+
+    @POST
+    @Path("/revurderAvslutningForFagsaker")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Revurder avslutningsdato for fagsaker",
+        tags = "FORVALTNING-fagsak",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Revurderer avslutning av fagsaker.",
+                content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)
+                )
+            ),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+        })
+    @BeskyttetRessurs(action = CREATE)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response revurderAvslutningForFagsaker(@NotNull @Valid AbacSaksnummerListe saksnumre) {
+
+        for(String abacSaksnummer: saksnumre.get().orElseThrow()) {
+            Saksnummer saksnummer = new Saksnummer(abacSaksnummer);
+            Optional<Fagsak> fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
+            if (fagsak.isEmpty() || FagsakStatus.AVSLUTTET == fagsak.get().getStatus()) {
+                ForvaltningRestTjenesteFeil.FACTORY.ugyldigeSakStatus(saksnummer.getVerdi()).log(logger);
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+            ProsessTaskGruppe taskGruppe = new ProsessTaskGruppe();
+            Optional<Behandling> behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.orElseThrow().getId());
+            taskGruppe.setBehandling(fagsak.orElseThrow().getId(), behandling.orElseThrow().getId(), behandling.orElseThrow().getAktørId().getId());
+
+            ProsessTaskData task = new ProsessTaskData(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
+            task.setFagsakId(fagsak.orElseThrow().getId());
+            task.setPrioritet(50);
+            taskGruppe.addNesteSekvensiell(task);
+
+            prosessTaskRepository.lagre(taskGruppe);
+        }
+        return Response.ok().build();
+    }
+
+    @JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
+    public static class AbacSaksnummerListe implements AbacDto {
+
+        @JsonProperty("saksnumre")
+        List<String> saksnumre;
+        public AbacSaksnummerListe() {
+            // for Jackson
+        }
+
+        public AbacSaksnummerListe(List<String> saksnumre) {
+            this.saksnumre = saksnumre;
+        }
+
+        public Optional<List<String>> get() {
+            return Optional.ofNullable(saksnumre);
+        }
+
+        @Override
+        public AbacDataAttributter abacAttributter() {
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, get());
+        }
+
     }
 
     @POST
