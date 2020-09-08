@@ -149,7 +149,7 @@ public class ForvaltningFagsakRestTjeneste {
             ),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
         })
-    @BeskyttetRessurs(action = CREATE)
+    @BeskyttetRessurs(action = CREATE, ressurs = FAGSAK)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response revurderAvslutningForFagsaker(@NotNull @Valid AbacSaksnummerListe saksnumre) {
 
