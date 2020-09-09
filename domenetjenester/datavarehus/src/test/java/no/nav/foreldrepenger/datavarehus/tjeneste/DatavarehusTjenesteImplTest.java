@@ -393,7 +393,7 @@ public class DatavarehusTjenesteImplTest {
             .medBehandlingsresultat(behandlingsresultat)
             .build();
 
-        when(behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(any())).thenReturn(Optional.of(vedtak));
+        when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(any())).thenReturn(Optional.of(vedtak));
         return vedtak;
     }
 

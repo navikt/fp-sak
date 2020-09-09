@@ -46,7 +46,7 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
 
     @Override
     protected UttakResultatHolder getUttakResultat(Long behandlingId) {
-        var vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandlingId);
+        var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
         return new UttakResultatHolderFP(foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId), vedtak.orElse(null));
     }
 

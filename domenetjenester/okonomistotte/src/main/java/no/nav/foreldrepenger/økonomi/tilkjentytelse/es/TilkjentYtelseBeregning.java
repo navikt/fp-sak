@@ -40,7 +40,7 @@ public class TilkjentYtelseBeregning implements YtelseTypeTilkjentYtelseTjeneste
 
     @Override
     public List<TilkjentYtelsePeriodeV1> hentTilkjentYtelsePerioder(Long behandlingId) {
-        BehandlingVedtak vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandlingId)
+        BehandlingVedtak vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId)
             .orElseThrow(() -> new IllegalArgumentException("Vedtak er ikke fattet enda. Denne tjenesten er kun designet for bruk etter at vedta er fattet."));
 
         Behandlingsresultat behandlingsresultat = vedtak.getBehandlingsresultat();
@@ -68,7 +68,7 @@ public class TilkjentYtelseBeregning implements YtelseTypeTilkjentYtelseTjeneste
     public LocalDate hentEndringstidspunkt(Long behandlingId) {
         return null; //alltid null for ES
     }
-    
+
 
     interface TilkjentYtelseTjenesteFeil extends DeklarerteFeil {
         static final TilkjentYtelseTjenesteFeil FACTORY =  FeilFactory.create(TilkjentYtelseTjenesteFeil.class);

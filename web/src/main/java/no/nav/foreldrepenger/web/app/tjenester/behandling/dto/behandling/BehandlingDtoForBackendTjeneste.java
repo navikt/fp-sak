@@ -53,14 +53,15 @@ public class BehandlingDtoForBackendTjeneste {
     }
 
     public UtvidetBehandlingDto lagBehandlingDto(Behandling behandling, AsyncPollingStatus taskStatus) {
-        Optional<BehandlingVedtak> behandlingVedtak = vedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId());
+        Optional<BehandlingVedtak> behandlingVedtak = vedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
 
         return lagBehandlingDto(behandling, behandlingVedtak, taskStatus);
     }
 
     private UtvidetBehandlingDto lagBehandlingDto(Behandling behandling, Optional<BehandlingVedtak> behandlingVedtak, AsyncPollingStatus asyncStatus) {
         UtvidetBehandlingDto dto = new UtvidetBehandlingDto();
-        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, dto, erBehandlingGjeldendeVedtak(behandling));
+        var vedtaksDato = behandlingVedtak.map(bv -> bv.getVedtaksdato()).orElse(null);
+        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, dto, erBehandlingGjeldendeVedtak(behandling), vedtaksDato);
         if (asyncStatus != null && !asyncStatus.isPending()) {
             dto.setAsyncStatus(asyncStatus);
         }

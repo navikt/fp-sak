@@ -162,7 +162,7 @@ public class UttakPerioderDtoTjenesteTest {
     private UttakPerioderDtoTjeneste tjeneste() {
         return new UttakPerioderDtoTjeneste(uttakTjeneste, new RelatertBehandlingTjeneste(repositoryProvider),
             repositoryProvider.getYtelsesFordelingRepository(), new ArbeidsgiverDtoTjeneste(arbeidsgiverTjeneste),
-            repositoryProvider.getBehandlingsresultatRepository(), inntektArbeidYtelseTjeneste);
+            inntektArbeidYtelseTjeneste, repositoryProvider.getBehandlingVedtakRepository());
     }
 
     @Test

@@ -19,8 +19,11 @@ import no.nav.foreldrepenger.web.app.util.RestUtils;
 
 public class BehandlingDtoUtil {
 
-    static void settStandardfelterUtvidet(Behandling behandling, UtvidetBehandlingDto dto, boolean erBehandlingMedGjeldendeVedtak) {
-        setStandardfelter(behandling, dto, erBehandlingMedGjeldendeVedtak);
+    static void settStandardfelterUtvidet(Behandling behandling,
+                                          UtvidetBehandlingDto dto,
+                                          boolean erBehandlingMedGjeldendeVedtak,
+                                          LocalDate vedtaksDato) {
+        setStandardfelter(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
               dto.setAnsvarligBeslutter(behandling.getAnsvarligBeslutter());
         dto.setBehandlingHenlagt(behandling.isBehandlingHenlagt());
     }
@@ -49,7 +52,10 @@ public class BehandlingDtoUtil {
     }
 
 
-    static void setStandardfelter(Behandling behandling, BehandlingDto dto, boolean erBehandlingMedGjeldendeVedtak) {
+    static void setStandardfelter(Behandling behandling,
+                                  BehandlingDto dto,
+                                  boolean erBehandlingMedGjeldendeVedtak,
+                                  LocalDate vedtaksDato) {
         dto.setFagsakId(behandling.getFagsakId());
         dto.setId(behandling.getId());
         dto.setUuid(behandling.getUuid());
@@ -69,7 +75,7 @@ public class BehandlingDtoUtil {
         dto.setBehandlingPåVent(behandling.isBehandlingPåVent());
         getFristDatoBehandlingPåVent(behandling).ifPresent(dto::setFristBehandlingPåVent);
         getVenteÅrsak(behandling).ifPresent(dto::setVenteÅrsakKode);
-        dto.setOriginalVedtaksDato(behandling.getOriginalVedtaksDato());
+        dto.setOriginalVedtaksDato(vedtaksDato);
         dto.setBehandlingKøet(behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
         dto.setAnsvarligSaksbehandler(behandling.getAnsvarligSaksbehandler());
         dto.setToTrinnsBehandling(behandling.isToTrinnsBehandling());

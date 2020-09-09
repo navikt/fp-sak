@@ -221,7 +221,7 @@ public class HendelsePublisererTjenesteTest {
 
         repoRule.getEntityManager().flush();
 
-        Optional<BehandlingVedtak> hentBehandlingvedtakForBehandlingId = vedtakRepo.hentBehandlingvedtakForBehandlingId(behandlingId);
+        Optional<BehandlingVedtak> hentBehandlingvedtakForBehandlingId = vedtakRepo.hentForBehandlingHvisEksisterer(behandlingId);
         return hentBehandlingvedtakForBehandlingId.orElse(null);
     }
 

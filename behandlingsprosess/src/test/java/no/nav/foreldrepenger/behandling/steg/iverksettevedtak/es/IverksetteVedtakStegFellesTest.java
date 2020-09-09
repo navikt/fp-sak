@@ -125,7 +125,7 @@ public class IverksetteVedtakStegFellesTest {
         verify(opprettProsessTaskIverksett).opprettIverksettingTasks(eq(behandling));
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.SETT_PÅ_VENT);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId());
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
         assertThat(behandlingVedtakOpt).hasValueSatisfying(behandlingVedtak ->
             assertThat(behandlingVedtak.getIverksettingStatus()).isEqualTo(IverksettingStatus.IKKE_IVERKSATT)
         );

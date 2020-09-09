@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
@@ -24,6 +25,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 public class RevurderingBehandlingsresultatutleder extends RevurderingBehandlingsresultatutlederFelles {
 
     private SvangerskapspengerUttakResultatRepository uttakRepository;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
 
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
@@ -39,11 +41,13 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
             skjæringstidspunktTjeneste
         );
         this.uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
+        this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }
 
     @Override
     protected UttakResultatHolder getUttakResultat(Long behandlingId) {
-        return new UttakResultatHolderSVP(uttakRepository.hentHvisEksisterer(behandlingId));
+        var behandlingVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
+        return new UttakResultatHolderSVP(uttakRepository.hentHvisEksisterer(behandlingId), behandlingVedtak.orElse(null));
     }
 
     @Override

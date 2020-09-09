@@ -22,7 +22,7 @@ public class UttakResultatHolderImplTest {
     @Test
     public void skal_returnere_false_når_det_ikke_er_noe_uttaksresultat() {
         // Arrange
-        UttakResultatHolderSVP uttakResultatHolder = new UttakResultatHolderSVP(Optional.empty());
+        UttakResultatHolderSVP uttakResultatHolder = new UttakResultatHolderSVP(Optional.empty(), null);
 
         // Act
         boolean resultat = uttakResultatHolder.kontrollerErSisteUttakAvslåttMedÅrsak();
@@ -45,7 +45,7 @@ public class UttakResultatHolderImplTest {
             .medUttakResultatArbeidsforhold(arbeidsforhold1)
             .medUttakResultatArbeidsforhold(arbeidsforhold2)
             .build();
-        UttakResultatHolderSVP uttakResultatHolder = new UttakResultatHolderSVP(Optional.of(uttakResultat));
+        UttakResultatHolderSVP uttakResultatHolder = new UttakResultatHolderSVP(Optional.of(uttakResultat), null);
 
         // Act
         boolean resultat = uttakResultatHolder.kontrollerErSisteUttakAvslåttMedÅrsak();
@@ -72,7 +72,7 @@ public class UttakResultatHolderImplTest {
             .medUttakResultatArbeidsforhold(arbeidsforhold1)
             .medUttakResultatArbeidsforhold(arbeidsforhold2)
             .build();
-        UttakResultatHolderSVP uttakResultatHolder = new UttakResultatHolderSVP(Optional.of(uttakResultat));
+        UttakResultatHolderSVP uttakResultatHolder = new UttakResultatHolderSVP(Optional.of(uttakResultat), null);
 
         // Act
         boolean resultat = uttakResultatHolder.kontrollerErSisteUttakAvslåttMedÅrsak();
@@ -99,7 +99,7 @@ public class UttakResultatHolderImplTest {
             .medUttakResultatArbeidsforhold(arbeidsforhold1)
             .medUttakResultatArbeidsforhold(arbeidsforhold2)
             .build();
-        UttakResultatHolderSVP uttakResultatHolder = new UttakResultatHolderSVP(Optional.of(uttakResultat));
+        UttakResultatHolderSVP uttakResultatHolder = new UttakResultatHolderSVP(Optional.of(uttakResultat), null);
 
         // Act
         boolean resultat = uttakResultatHolder.kontrollerErSisteUttakAvslåttMedÅrsak();
