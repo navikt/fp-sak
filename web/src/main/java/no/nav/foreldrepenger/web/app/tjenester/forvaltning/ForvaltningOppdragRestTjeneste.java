@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -61,19 +62,27 @@ public class ForvaltningOppdragRestTjeneste {
     private AktørConsumerMedCache aktørConsumer;
     private ProsessTaskRepository prosessTaskRepository;
     private EntityManager entityManager;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
 
     public ForvaltningOppdragRestTjeneste() {
         // For CDI
     }
 
     @Inject
-    public ForvaltningOppdragRestTjeneste(BehandleØkonomioppdragKvittering økonomioppdragKvitteringTjeneste, ØkonomioppdragRepository økonomioppdragRepository, BehandlingRepository behandlingRepository, AktørConsumerMedCache aktørConsumer, ProsessTaskRepository prosessTaskRepository, EntityManager entityManager) {
+    public ForvaltningOppdragRestTjeneste(BehandleØkonomioppdragKvittering økonomioppdragKvitteringTjeneste,
+                                          ØkonomioppdragRepository økonomioppdragRepository,
+                                          BehandlingRepository behandlingRepository,
+                                          AktørConsumerMedCache aktørConsumer,
+                                          ProsessTaskRepository prosessTaskRepository,
+                                          EntityManager entityManager,
+                                          BehandlingVedtakRepository behandlingVedtakRepository) {
         this.økonomioppdragKvitteringTjeneste = økonomioppdragKvitteringTjeneste;
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.behandlingRepository = behandlingRepository;
         this.aktørConsumer = aktørConsumer;
         this.prosessTaskRepository = prosessTaskRepository;
         this.entityManager = entityManager;
+        this.behandlingVedtakRepository = behandlingVedtakRepository;
     }
 
     @POST
@@ -92,7 +101,7 @@ public class ForvaltningOppdragRestTjeneste {
         kvittering.setFagsystemId(kvitteringDto.getFagsystemId());
         kvittering.setAlvorlighetsgrad("00"); //kode som indikerer at alt er OK
 
-        logger.info("Kvitterer oppdrag OK for behandlingId={] fagsystemId={} oppdaterProsessTask=", kvitteringDto.getBehandlingId(), kvitteringDto.getFagsystemId(), oppdaterProsessTask);
+        logger.info("Kvitterer oppdrag OK for behandlingId={} fagsystemId={} oppdaterProsessTask={}", kvitteringDto.getBehandlingId(), kvitteringDto.getFagsystemId(), oppdaterProsessTask);
         økonomioppdragKvitteringTjeneste.behandleKvittering(kvittering, oppdaterProsessTask);
 
         return Response.ok().build();
@@ -153,7 +162,8 @@ public class ForvaltningOppdragRestTjeneste {
 
         kvitterBortEksisterendeOppdrag(dto, oppdragskontroll);
 
-        OppdragMapper mapper = new OppdragMapper(dto, behandling, fnrBruker);
+        var behandlingVedtak = behandlingVedtakRepository.hentForBehandling(behandling.getId());
+        OppdragMapper mapper = new OppdragMapper(dto, behandling, fnrBruker, behandlingVedtak);
         mapper.mapTil(oppdragskontroll);
         oppdragskontroll.setVenterKvittering(true);
         økonomioppdragRepository.lagre(oppdragskontroll);

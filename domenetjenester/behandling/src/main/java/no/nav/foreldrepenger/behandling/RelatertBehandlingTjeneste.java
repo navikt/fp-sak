@@ -84,7 +84,7 @@ public class RelatertBehandlingTjeneste {
     }
 
     private BehandlingVedtak vedtakForBehandling(Behandling behandling) {
-        return behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId()).orElseThrow();
+        return behandlingVedtakRepository.hentForBehandling(behandling.getId());
     }
 
     /**

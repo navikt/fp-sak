@@ -66,7 +66,7 @@ public class VurderBehandlingerUnderIverksettelse {
         // Finn behandlinger i samme sak. OBS på at berørt sniker i køen så man bør se på vedtakstidspunkt
         Optional<BehandlingVedtak> venter = finnBehandlingerUnderIverksetting(behandling).stream()
             .filter(beh -> BehandlingStegStatus.STARTET.equals(beh.getBehandlingStegStatus()))
-            .map(beh -> behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(beh.getId()).orElse(null))
+            .map(beh -> behandlingVedtakRepository.hentForBehandlingHvisEksisterer(beh.getId()).orElse(null))
             .filter(Objects::nonNull)
             .min(Comparator.comparing(BehandlingVedtak::getOpprettetTidspunkt));
         return venter.map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId).map(behandlingRepository::hentBehandling);
@@ -82,7 +82,7 @@ public class VurderBehandlingerUnderIverksettelse {
     }
 
     private LocalDateTime utledVedtakstidspunkt(Behandling behandling) {
-        return behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId())
+        return behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
             .map(BehandlingVedtak::getOpprettetTidspunkt).orElse(Tid.TIDENES_ENDE.atStartOfDay());
     }
 }

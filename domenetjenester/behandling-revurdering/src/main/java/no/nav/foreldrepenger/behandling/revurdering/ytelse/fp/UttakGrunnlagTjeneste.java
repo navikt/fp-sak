@@ -90,7 +90,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         var relatertFagsak = fagsakRelasjon.getRelatertFagsak(behandling.getFagsak());
         if (relatertFagsak.isPresent()) {
             Optional<Behandling> annenPartBehandling;
-            var harVedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId()).isPresent();
+            var harVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).isPresent();
             if (harVedtak) {
                 annenPartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(behandling);
             } else {

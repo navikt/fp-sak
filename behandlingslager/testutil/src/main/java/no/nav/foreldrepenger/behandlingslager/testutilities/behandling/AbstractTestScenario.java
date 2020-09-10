@@ -321,7 +321,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private BehandlingVedtakRepository mockBehandlingVedtakRepository() {
         BehandlingVedtakRepository behandlingVedtakRepository = mock(BehandlingVedtakRepository.class);
         BehandlingVedtak behandlingVedtak = mockBehandlingVedtak();
-        when(behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(Mockito.any())).thenReturn(Optional.of(behandlingVedtak));
+        when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(Mockito.any())).thenReturn(Optional.of(behandlingVedtak));
 
         return behandlingVedtakRepository;
     }
@@ -1050,7 +1050,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             // Må lagre Behandling for at Behandlingsresultat ikke skal være transient når BehandlingVedtak blir lagret:
             repoProvider.getBehandlingRepository().lagre(behandling, lås);
             behandlingVedtak = behandlingVedtakBuilder.medBehandlingsresultat(behandlingsresultat).build();
-            Whitebox.setInternalState(behandlingsresultat, "behandlingVedtak", behandlingVedtak);
             repoProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, lås);
         }
     }

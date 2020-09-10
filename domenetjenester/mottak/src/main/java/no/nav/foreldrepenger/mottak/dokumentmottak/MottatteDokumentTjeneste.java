@@ -106,7 +106,7 @@ public class MottatteDokumentTjeneste {
     public boolean harFristForInnsendingAvDokGåttUt(Fagsak sak) {
         Objects.requireNonNull(sak, "Fagsak");
         Optional<Behandling> behandlingOptional = behandlingRepositoryProvider.getBehandlingRepository().finnSisteAvsluttedeIkkeHenlagteBehandling(sak.getId());
-        return behandlingOptional.flatMap(b -> behandlingRepositoryProvider.getBehandlingVedtakRepository().hentBehandlingvedtakForBehandlingId(b.getId()))
+        return behandlingOptional.flatMap(b -> behandlingRepositoryProvider.getBehandlingVedtakRepository().hentForBehandlingHvisEksisterer(b.getId()))
             .map(BehandlingVedtak::getVedtaksdato)
             .map(dato -> dato.isBefore(LocalDate.now().minus(fristForInnsendingAvDokumentasjon))).orElse(Boolean.FALSE);
     }

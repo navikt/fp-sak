@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
@@ -74,8 +73,6 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
     private Behandlingsoppretter behandlingsoppretter;
     @Mock
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
-    @Mock
-    private KøKontroller køKontroller;
 
     private DokumentmottakerYtelsesesrelatertDokument dokumentmottaker;
 
@@ -198,7 +195,6 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
         behandlingRepository.lagre(behandling, behandlingLås);
 
         BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, avslag);
-        Whitebox.setInternalState(behandling.getBehandlingsresultat(), "behandlingVedtak", vedtak);
-        repository.lagre(behandling.getBehandlingsresultat());
+        repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, behandlingLås);
     }
 }

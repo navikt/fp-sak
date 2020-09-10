@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTaskProperties;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
-import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.Whitebox;
@@ -59,11 +58,7 @@ public class AvsluttBehandlingTest {
     private BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer;
 
     @Mock
-    private FamilieHendelseTjeneste familieHendelseTjeneste;
-
-    @Mock
     private ProsessTaskRepository prosessTaskRepository;
-    private VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse;
 
     private AvsluttBehandling avsluttBehandling;
     private Behandling behandling;
@@ -78,7 +73,7 @@ public class AvsluttBehandlingTest {
         behandling = lagBehandling(LocalDateTime.now().minusHours(1), LocalDateTime.now());
         fagsak = behandling.getFagsak();
 
-        vurderBehandlingerUnderIverksettelse = new VurderBehandlingerUnderIverksettelse(repositoryProvider);
+        VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse = new VurderBehandlingerUnderIverksettelse(repositoryProvider);
 
         avsluttBehandling = new AvsluttBehandling(repositoryProvider, behandlingskontrollTjeneste,
             behandlingVedtakEventPubliserer, vurderBehandlingerUnderIverksettelse, prosessTaskRepository);
@@ -112,7 +107,7 @@ public class AvsluttBehandlingTest {
     }
 
     private void verifiserIverksatt(Behandling behandling) {
-        BehandlingVedtak vedtak = behandling.getBehandlingsresultat().getBehandlingVedtak();
+        BehandlingVedtak vedtak = repositoryProvider.getBehandlingVedtakRepository().hentForBehandling(behandling.getId());
         verify(vedtak).setIverksettingStatus(IverksettingStatus.IVERKSATT);
         verify(repositoryProvider.getBehandlingVedtakRepository()).lagre(Mockito.eq(vedtak), any(BehandlingLås.class));
     }
@@ -253,8 +248,8 @@ public class AvsluttBehandlingTest {
 
         if (vedtaksdato != null) {
             BehandlingVedtak vedtak = lagMockedBehandlingVedtak(opprettet, vedtaksdato, behandling);
-            Whitebox.setInternalState(behandling.getBehandlingsresultat(), "behandlingVedtak", vedtak);
-            when(repositoryProvider.getBehandlingVedtakRepository().hentBehandlingvedtakForBehandlingId(behandling.getId())).thenReturn(Optional.of(vedtak));
+            when(repositoryProvider.getBehandlingVedtakRepository().hentForBehandlingHvisEksisterer(behandling.getId())).thenReturn(Optional.of(vedtak));
+            when(repositoryProvider.getBehandlingVedtakRepository().hentForBehandling(behandling.getId())).thenReturn(vedtak);
             Whitebox.setInternalState(behandling, "avsluttetDato", vedtaksdato);
         }
         Whitebox.setInternalState(behandling, "status", BehandlingStatus.IVERKSETTER_VEDTAK);

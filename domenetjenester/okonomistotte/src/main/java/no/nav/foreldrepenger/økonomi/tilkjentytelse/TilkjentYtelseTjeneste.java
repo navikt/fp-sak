@@ -45,7 +45,7 @@ public class TilkjentYtelseTjeneste {
 
     public TilkjentYtelse hentilkjentYtelse(Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        BehandlingVedtak vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandlingId)
+        BehandlingVedtak vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId)
             .orElseThrow(() -> new IllegalArgumentException("Vedtak er ikke fattet enda. Denne tjenesten er kun designet for bruk etter at vedtak er fattet."));
         Behandlingsresultat behandlingsresultat = vedtak.getBehandlingsresultat();
 

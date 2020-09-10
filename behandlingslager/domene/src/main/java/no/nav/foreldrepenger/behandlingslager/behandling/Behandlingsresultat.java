@@ -65,9 +65,6 @@ public class Behandlingsresultat extends BaseEntitet {
     @JoinColumn(name = "behandling_id", nullable = false, updatable = false)
     private Behandling behandling;
 
-    @OneToOne(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "behandlingsresultat")
-    private BehandlingVedtak behandlingVedtak;
-
     @Convert(converter = BehandlingResultatType.KodeverdiConverter.class)
     @Column(name = "behandling_resultat_type", nullable = false)
     private BehandlingResultatType behandlingResultatType = BehandlingResultatType.IKKE_FASTSATT;
@@ -154,10 +151,6 @@ public class Behandlingsresultat extends BaseEntitet {
      */
     void setBehandling(Behandling behandling) {
         this.behandling = behandling;
-    }
-
-    public BehandlingVedtak getBehandlingVedtak() {
-        return behandlingVedtak;
     }
 
     public BehandlingResultatType getBehandlingResultatType() {

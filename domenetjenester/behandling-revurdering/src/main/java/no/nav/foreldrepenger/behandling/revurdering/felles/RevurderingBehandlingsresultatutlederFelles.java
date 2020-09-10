@@ -171,11 +171,13 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     }
 
     private BehandlingVedtak tilBehandlingvedtak(Behandling b) {
-        return behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(b.getId()).orElse(null);
+        return behandlingVedtakRepository.hentForBehandlingHvisEksisterer(b.getId()).orElse(null);
     }
 
     private boolean erFattetEtter(Behandling sisteInnvilget, BehandlingVedtak vedtak) {
-        return vedtak != null && vedtak.getVedtaksdato().isAfter(sisteInnvilget.getOriginalVedtaksDato());
+        var sistInnvilgetVedtak = behandlingVedtakRepository.hentForBehandling(sisteInnvilget.getId());
+        var sistInnvilgetVedtaksdato = sistInnvilgetVedtak.getVedtaksdato();
+        return vedtak != null && vedtak.getVedtaksdato().isAfter(sistInnvilgetVedtaksdato);
     }
 
     private Predicate<BehandlingVedtak> opphørvedtak() {

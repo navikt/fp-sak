@@ -33,9 +33,9 @@ public class BehandlingVedtakRepositoryImplTest {
     private final BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
     private Behandling behandling;
-    
+
     private BasicBehandlingBuilder behandlingBuilder = new BasicBehandlingBuilder(entityManager);
-    
+
     private BehandlingsresultatRepository behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
 
     @Before
@@ -69,7 +69,7 @@ public class BehandlingVedtakRepositoryImplTest {
         // Act
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingVedtakRepository.lagre(behandlingVedtak, lås);
-        Optional<BehandlingVedtak> lagretVedtakOpt = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId());
+        Optional<BehandlingVedtak> lagretVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
 
         // Assert
         assertThat(lagretVedtakOpt).hasValueSatisfying(lagretVedtak -> {

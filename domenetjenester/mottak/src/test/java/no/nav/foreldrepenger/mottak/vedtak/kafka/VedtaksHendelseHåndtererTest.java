@@ -325,7 +325,7 @@ public class VedtaksHendelseHåndtererTest {
     }
 
     public YtelseV1 genererYtelseFpsak(Behandling behandling) {
-        final BehandlingVedtak vedtak = repositoryProvider.getBehandlingVedtakRepository().hentBehandlingvedtakForBehandlingId(behandling.getId()).orElseThrow();
+        final BehandlingVedtak vedtak = repositoryProvider.getBehandlingVedtakRepository().hentForBehandlingHvisEksisterer(behandling.getId()).orElseThrow();
 
         final Aktør aktør = new Aktør();
         aktør.setVerdi(behandling.getAktørId().getId());

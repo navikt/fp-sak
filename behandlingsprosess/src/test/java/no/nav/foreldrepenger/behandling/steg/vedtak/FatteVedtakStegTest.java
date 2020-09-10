@@ -205,7 +205,7 @@ public class FatteVedtakStegTest {
         fatteVedtakSteg.utførSteg(kontekst);
 
         // Assert
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(kontekst.getBehandlingId());
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(kontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         BehandlingVedtak behandlingVedtak = behandlingVedtakOpt.get();
         assertThat(behandlingVedtak).isNotNull();
@@ -232,7 +232,7 @@ public class FatteVedtakStegTest {
         oppdaterMedBehandlingsresultat(revurderingKontekst, false, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(revurderingKontekst.getBehandlingId());
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         BehandlingVedtak behandlingVedtak = behandlingVedtakOpt.get();
         assertThat(behandlingVedtak).isNotNull();
@@ -260,7 +260,7 @@ public class FatteVedtakStegTest {
         oppdaterMedBehandlingsresultat(revurderingKontekst, true, faktiskAntallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(revurderingKontekst.getBehandlingId());
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         BehandlingVedtak behandlingVedtak = behandlingVedtakOpt.get();
         assertThat(behandlingVedtak).isNotNull();
@@ -289,7 +289,7 @@ public class FatteVedtakStegTest {
         oppdaterMedBehandlingsresultat(revurderingKontekst, true, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(revurderingKontekst.getBehandlingId());
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         BehandlingVedtak behandlingVedtak = behandlingVedtakOpt.get();
         assertThat(behandlingVedtak).isNotNull();
@@ -326,7 +326,7 @@ public class FatteVedtakStegTest {
         oppdaterMedBehandlingsresultat(revurderingKontekst, false, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(revurderingKontekst.getBehandlingId());
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         BehandlingVedtak behandlingVedtak = behandlingVedtakOpt.get();
         assertThat(behandlingVedtak).isNotNull();
@@ -486,7 +486,7 @@ public class FatteVedtakStegTest {
         fatteVedtakSteg.utførSteg(kontekst);
 
         // Assert
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(kontekst.getBehandlingId());
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(kontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         BehandlingVedtak behandlingVedtak = behandlingVedtakOpt.get();
         assertThat(behandlingVedtak).isNotNull();

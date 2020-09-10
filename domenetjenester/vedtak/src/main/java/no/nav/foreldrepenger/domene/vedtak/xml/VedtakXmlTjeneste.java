@@ -129,12 +129,12 @@ public class VedtakXmlTjeneste {
     }
 
     private void setVedtaksdato(Behandling behandling, Vedtak vedtakKontrakt) {
-        Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId());
+        Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
         vedtak.ifPresent(v -> vedtakKontrakt.setVedtaksdato(v.getVedtaksdato()));
     }
 
     private void setVedtaksResultat(Vedtak vedtakKontrakt, Behandling behandling) {
-        Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId());
+        Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
         vedtak.ifPresent(v -> vedtakKontrakt.setVedtaksresultat((VedtakXmlUtil.lagKodeverksOpplysning(v.getVedtakResultatType()))));
     }
 }
