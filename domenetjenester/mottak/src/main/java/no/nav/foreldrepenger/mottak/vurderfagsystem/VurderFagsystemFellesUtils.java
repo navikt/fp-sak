@@ -229,7 +229,7 @@ public class VurderFagsystemFellesUtils {
         LocalDate førsteDagBehandling = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getFørsteUttaksdato();
         if (førsteDagBehandling.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(startdatoIM) && førsteDagBehandling.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(startdatoIM)) {
             return SorteringSaker.GRUNNLAG_DATO_MATCH;
-        } else if (erBehandlingAvsluttetFørOpplysningspliktIntervall(behandling)) {
+        } else if ((fagsak.erÅpen() && harSakOpprettetInnenIntervall(List.of(fagsak))) || erBehandlingAvsluttetFørOpplysningspliktIntervall(behandling)) {
             return SorteringSaker.GRUNNLAG_MULIG_MATCH;
         } else {
             return SorteringSaker.GRUNNLAG_MISMATCH;
