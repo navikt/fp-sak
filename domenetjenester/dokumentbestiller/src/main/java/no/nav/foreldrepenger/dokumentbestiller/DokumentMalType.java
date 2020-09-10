@@ -38,6 +38,7 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_OMGJØRING("KOMGJO", "Vedtak om omgjøring av klage"), // medhold
     KLAGE_OVERSENDT_KLAGEINSTANS("KOVKLA", "Klage oversendt til klageinstans"),
     KLAGE_HJEMSENDT("KHJEMS", "Klage hjemsendt/opphevet"),
+    INNVILGELSE_ENGANGSSTØNAD ("INNVES", "Innvilget engangsstønad"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated
