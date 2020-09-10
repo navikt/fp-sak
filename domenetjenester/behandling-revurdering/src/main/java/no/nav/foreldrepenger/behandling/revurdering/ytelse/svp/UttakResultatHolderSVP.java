@@ -18,11 +18,13 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 
 class UttakResultatHolderSVP implements UttakResultatHolder {
 
-    private Optional<SvangerskapspengerUttakResultatEntitet> uttakresultat;
+    private final Optional<SvangerskapspengerUttakResultatEntitet> uttakresultat;
+    private final BehandlingVedtak behandlingVedtak;
 
 
-    public UttakResultatHolderSVP(Optional<SvangerskapspengerUttakResultatEntitet> uttakresultat) {
+    public UttakResultatHolderSVP(Optional<SvangerskapspengerUttakResultatEntitet> uttakresultat, BehandlingVedtak behandlingVedtak) {
         this.uttakresultat = uttakresultat;
+        this.behandlingVedtak = behandlingVedtak;
     }
 
     public SvangerskapspengerUttakResultatEntitet getUttakResultat(){
@@ -41,7 +43,7 @@ class UttakResultatHolderSVP implements UttakResultatHolder {
 
     @Override
     public Optional<BehandlingVedtak> getBehandlingVedtak() {
-        return uttakresultat.map(svangerskapspengerUttakResultatEntitet -> svangerskapspengerUttakResultatEntitet.getBehandlingsresultat().getBehandlingVedtak());
+        return Optional.ofNullable(behandlingVedtak);
     }
 
     @Override

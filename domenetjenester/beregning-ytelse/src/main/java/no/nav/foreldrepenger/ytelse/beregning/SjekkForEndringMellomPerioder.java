@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 public class SjekkForEndringMellomPerioder {
 
     private SjekkForIngenAndelerOgAndelerUtenDagsats sjekkForIngenAndelerOgAndelerUtenDagsats;
-    private SjekkForEndringMellomAndelerOgFOM sjekkForEndringMellomAndelerOgFOM;
+    private SjekkOmPerioderHarEndringIAndeler sjekkOmPerioderHarEndringIAndeler;
 
     SjekkForEndringMellomPerioder(){
         // for CDI proxy
@@ -17,9 +17,9 @@ public class SjekkForEndringMellomPerioder {
 
     @Inject
     public SjekkForEndringMellomPerioder(SjekkForIngenAndelerOgAndelerUtenDagsats sjekkForIngenAndelerOgAndelerUtenDagsats,
-                                      SjekkForEndringMellomAndelerOgFOM sjekkForEndringMellomAndelerOgFOM){
+                                         SjekkOmPerioderHarEndringIAndeler sjekkOmPerioderHarEndringIAndeler){
         this.sjekkForIngenAndelerOgAndelerUtenDagsats = sjekkForIngenAndelerOgAndelerUtenDagsats;
-        this.sjekkForEndringMellomAndelerOgFOM = sjekkForEndringMellomAndelerOgFOM;
+        this.sjekkOmPerioderHarEndringIAndeler = sjekkOmPerioderHarEndringIAndeler;
     }
 
     /**
@@ -29,7 +29,7 @@ public class SjekkForEndringMellomPerioder {
      * - Return false hvis dette er tilfellet
      * Sjekker deretter om enten  ny eller gammel periode er null
      * - Return true hvis dette er tilfellet
-     * Sjekker deretter om det har skjedd en endring i andelene eller FOM datoen til periodene. Se {@link SjekkForEndringMellomAndelerOgFOM}
+     * Sjekker deretter om det har skjedd en endring i andelene. Se {@link SjekkOmPerioderHarEndringIAndeler}
      * - Return true hvis dette er tilfellet, false hvis ikke.
      * @param nyPeriode - Periode fra revurdering
      * @param gammelPeriode - Periode fra førstegangsbehandling
@@ -46,7 +46,7 @@ public class SjekkForEndringMellomPerioder {
         if (nyPeriode == null || gammelPeriode == null) {
             return true;
         }
-        return sjekkForEndringMellomAndelerOgFOM.sjekk(nyPeriode, gammelPeriode);
+        return sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
     }
 
 }

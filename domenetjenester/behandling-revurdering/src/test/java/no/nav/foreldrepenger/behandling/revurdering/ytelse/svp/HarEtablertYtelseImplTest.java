@@ -69,7 +69,7 @@ public class HarEtablertYtelseImplTest {
 
         // Act
         boolean etablertYtelse = resultatUtleder.harEtablertYtelse( null,true,
-            new UttakResultatHolderSVP(Optional.of(uttakResultatOriginal)));
+            new UttakResultatHolderSVP(Optional.of(uttakResultatOriginal), null));
 
         // Assert
         assertThat(etablertYtelse).isTrue();
@@ -86,7 +86,7 @@ public class HarEtablertYtelseImplTest {
         boolean finnesInnvilgetIkkeOpphørtVedtak = false;
         // Act
         boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, finnesInnvilgetIkkeOpphørtVedtak,
-            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal)));
+            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal), null));
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -102,7 +102,7 @@ public class HarEtablertYtelseImplTest {
         );
         // Act
         boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, true,
-            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal)));
+            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal), null));
 
         // Assert
         assertThat(etablertYtelse).isTrue();
@@ -118,7 +118,7 @@ public class HarEtablertYtelseImplTest {
         );
         // Act
         boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, false,
-            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal)));
+            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal), null));
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -134,7 +134,7 @@ public class HarEtablertYtelseImplTest {
         );
         // Act
         boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, true,
-            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal)));
+            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal), null));
 
         // Assert
         assertThat(etablertYtelse).isFalse();

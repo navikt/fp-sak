@@ -9,9 +9,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 
 @ApplicationScoped
-public class SjekkOmPerioderInneholderSammeAndeler {
+public class SjekkOmPerioderHarEndringIAndeler {
 
-    public SjekkOmPerioderInneholderSammeAndeler() {
+    public SjekkOmPerioderHarEndringIAndeler() {
         // for CDI proxy
     }
 
@@ -30,9 +30,9 @@ public class SjekkOmPerioderInneholderSammeAndeler {
         List<BeregningsresultatAndel> nyeAndeler = nyPeriode.getBeregningsresultatAndelList();
         List<BeregningsresultatAndel> gamleAndeler = gammelPeriode.getBeregningsresultatAndelList();
         if (nyeAndeler.size() != gamleAndeler.size()) {
-            return false;
+            return true;
         }
-        return nyeAndeler.stream().allMatch(nyAndel -> finnKorresponderendeAndel(nyAndel, gamleAndeler));
+        return !nyeAndeler.stream().allMatch(nyAndel -> finnKorresponderendeAndel(nyAndel, gamleAndeler));
     }
 
     private boolean finnKorresponderendeAndel(BeregningsresultatAndel nyAndel, List<BeregningsresultatAndel> gamleAndeler) {

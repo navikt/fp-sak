@@ -37,11 +37,15 @@ public class BehandlingVedtakRepository {
         return entityManager;
     }
 
-    public Optional<BehandlingVedtak> hentBehandlingvedtakForBehandlingId(Long behandlingId) {
+    public Optional<BehandlingVedtak> hentForBehandlingHvisEksisterer(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
         TypedQuery<BehandlingVedtak> query = getEntityManager().createQuery("from BehandlingVedtak where behandlingsresultat.behandling.id=:behandlingId", BehandlingVedtak.class);
         query.setParameter("behandlingId", behandlingId); // $NON-NLS-1$
         return optionalFirstVedtak(query.getResultList());
+    }
+
+    public BehandlingVedtak hentForBehandling(Long behandlingId) {
+        return hentForBehandlingHvisEksisterer(behandlingId).orElseThrow();
     }
 
     public BehandlingVedtak hentBehandlingVedtakFraRevurderingensOriginaleBehandling(Behandling behandling) {
@@ -50,7 +54,7 @@ public class BehandlingVedtakRepository {
         }
         Long originalBehandlingId = behandling.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
-        return hentBehandlingvedtakForBehandlingId(originalBehandlingId)
+        return hentForBehandlingHvisEksisterer(originalBehandlingId)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling har ikke behandlingsvedtak - skal ikke skje"));
     }
 
@@ -77,10 +81,9 @@ public class BehandlingVedtakRepository {
         //Før PFP-8620 hadde vedtak bare dato og ikke klokkeslett
         if (behandlingerMedSisteVedtakstidspunkt.size() > 1) {
             Long behandlingMedGjeldendeVedtak = sisteEndretVedtak(behandlingerMedSisteVedtakstidspunkt);
-            return hentBehandlingvedtakForBehandlingId(behandlingMedGjeldendeVedtak);
-        } else {
-            return hentBehandlingvedtakForBehandlingId(behandlingerMedSisteVedtakstidspunkt.get(0).getId());
+            return hentForBehandlingHvisEksisterer(behandlingMedGjeldendeVedtak);
         }
+        return hentForBehandlingHvisEksisterer(behandlingerMedSisteVedtakstidspunkt.get(0).getId());
     }
 
     private List<Behandling> behandlingMedSisteVedtakstidspunkt(List<Behandling> behandlinger) {
@@ -100,7 +103,7 @@ public class BehandlingVedtakRepository {
     }
 
     private LocalDateTime vedtakstidspunktForBehandling(Behandling behandling) {
-        return hentBehandlingvedtakForBehandlingId(behandling.getId()).orElseThrow().getVedtakstidspunkt();
+        return hentForBehandling(behandling.getId()).getVedtakstidspunkt();
     }
 
     private Long sisteEndretVedtak(List<Behandling> behandlinger) {
@@ -109,7 +112,7 @@ public class BehandlingVedtakRepository {
         }
         BehandlingVedtak sistEndretVedtak = null;
         for (Behandling behandling : behandlinger) {
-            BehandlingVedtak vedtak = hentBehandlingvedtakForBehandlingId(behandling.getId()).orElseThrow();
+            var vedtak = hentForBehandling(behandling.getId());
             if (sistEndretVedtak == null || vedtak.getOpprettetTidspunkt().isAfter(sistEndretVedtak.getOpprettetTidspunkt())) {
                 sistEndretVedtak = vedtak;
             }

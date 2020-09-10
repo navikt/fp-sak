@@ -79,7 +79,7 @@ public class BehandlingVedtakTjenesteTest {
         behandlingVedtakTjeneste.opprettBehandlingVedtak(revurderingKontekst, revurdering);
 
         // Assert
-        Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(revurdering.getId());
+        Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(revurdering.getId());
         assertThat(vedtak).isPresent();
         assertThat(vedtak.get().getVedtakResultatType()).isEqualTo(VedtakResultatType.OPPHØR);
     }

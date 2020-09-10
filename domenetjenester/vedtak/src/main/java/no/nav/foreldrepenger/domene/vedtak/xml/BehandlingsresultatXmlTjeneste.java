@@ -232,7 +232,7 @@ public class BehandlingsresultatXmlTjeneste {
     }
 
     private void setBehandlingsresultatType(Behandlingsresultat behandlingsresultat, Behandling behandling) {
-        Optional<BehandlingVedtak> behandlingVedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId());
+        Optional<BehandlingVedtak> behandlingVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
         if (behandlingVedtak.isPresent()) {
             BehandlingResultatType behandlingResultatType = behandlingVedtak.get().getBehandlingsresultat().getBehandlingResultatType();
             if (BehandlingResultatType.INNVILGET.equals(behandlingResultatType)) {

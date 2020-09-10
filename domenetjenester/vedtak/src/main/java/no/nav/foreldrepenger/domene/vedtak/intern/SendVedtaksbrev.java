@@ -59,8 +59,8 @@ public class SendVedtaksbrev {
     }
 
     void sendVedtaksbrev(Long behandlingId) {
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandlingId);
-        if (!behandlingVedtakOpt.isPresent()) {
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
+        if (behandlingVedtakOpt.isEmpty()) {
             log.info("Det foreligger ikke vedtak i behandling: {}, kan ikke sende vedtaksbrev", behandlingId); //$NON-NLS-1$
             return;
         }

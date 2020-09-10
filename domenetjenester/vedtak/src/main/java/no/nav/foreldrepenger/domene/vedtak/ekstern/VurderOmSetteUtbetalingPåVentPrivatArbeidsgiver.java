@@ -138,7 +138,7 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver {
     }
 
     private LocalDate hentVedtaksdato(Behandling behandling) {
-        return behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId())
+        return behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
             .map(BehandlingVedtak::getVedtaksdato)
             .orElseThrow(() -> new IllegalStateException(String.format("Finner ikke vedtaksdato for behandling %d", behandling.getId())));
     }

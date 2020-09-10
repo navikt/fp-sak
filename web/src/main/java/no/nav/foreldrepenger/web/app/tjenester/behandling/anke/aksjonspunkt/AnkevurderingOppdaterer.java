@@ -207,7 +207,7 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
             return "Ikke påanket et vedtak";
         }
         Behandling påAnketBehandling = behandlingRepository.hentBehandling(behandlingId);
-        Optional<LocalDate> vedtaksDatoPåanketBehandling = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandlingId).map(it -> it.getVedtaksdato());
+        Optional<LocalDate> vedtaksDatoPåanketBehandling = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId).map(it -> it.getVedtaksdato());
         return påAnketBehandling.getType().getNavn() + " " +
             vedtaksDatoPåanketBehandling
                 .map(dato -> dato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))

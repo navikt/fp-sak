@@ -154,7 +154,7 @@ public class BeregningsresultatAndelTest {
     @Test
     public void andel_hvor_utbetalingsgrad_ikke_er_satt() {
         expectedException.expect(NullPointerException.class);
-        expectedException.expectMessage("uttaksgrad");
+        expectedException.expectMessage("utbetalingsgrad");
         BeregningsresultatAndel.builder()
             .medBrukerErMottaker(true)
             .medDagsats(550)

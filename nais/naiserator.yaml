@@ -2,7 +2,7 @@ kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
   name: fpsak
-  namespace: {{namespace}}
+  namespace: teamforeldrepenger
   labels:
     team: teamforeldrepenger
 spec:

@@ -685,14 +685,6 @@ public class Behandling extends BaseEntitet {
         return erHenlagt();
     }
 
-    public LocalDate getOriginalVedtaksDato() {
-        Behandlingsresultat originaltBehandlingsResultat = getBehandlingsresultat();
-        if (originaltBehandlingsResultat == null || originaltBehandlingsResultat.getBehandlingVedtak() == null) {
-            return null;
-        }
-        return getBehandlingsresultat().getBehandlingVedtak().getVedtaksdato();
-    }
-
     public FagsakYtelseType getFagsakYtelseType() {
         return getFagsak().getYtelseType();
     }

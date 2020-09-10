@@ -127,8 +127,15 @@ public class FamiliehendelseDataDtoTjeneste {
             dto.setTermindato(terminbekreftelse.getTermindato());
             dto.setUtstedtdato(terminbekreftelse.getUtstedtdato());
             dto.setAntallBarnTermin(hendelse.getAntallBarn());
-            finnUkerUtISvangerskapet(terminbekreftelse, behandling.getOriginalVedtaksDato()).ifPresent(dto::setVedtaksDatoSomSvangerskapsuke);
+            var vedtaksdato = finnVedtaksdato(behandling);
+            finnUkerUtISvangerskapet(terminbekreftelse, vedtaksdato.orElse(null)).ifPresent(dto::setVedtaksDatoSomSvangerskapsuke);
         });
+    }
+
+    private Optional<LocalDate> finnVedtaksdato(Behandling behandling) {
+        var behandlingVedtak = repositoryProvider.getBehandlingVedtakRepository().hentForBehandlingHvisEksisterer(behandling.getId());
+        return behandlingVedtak.map(bv -> bv.getVedtaksdato());
+
     }
 
     private Optional<FamiliehendelseDto> mapFraType(Behandling behandling) {
