@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto;
+package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling;
 
 import java.util.List;
 
@@ -16,19 +16,19 @@ public class FordelBeregningsgrunnlagDto extends BekreftetAksjonspunktDto {
 
     @Valid
     @Size(max = 100)
-    private List<FastsettBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder;
+    private List<FordelBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder;
 
     FordelBeregningsgrunnlagDto() { // NOSONAR
         // Jackson
     }
 
-    public FordelBeregningsgrunnlagDto(List<FastsettBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder, String begrunnelse) { // NOSONAR
+    public FordelBeregningsgrunnlagDto(List<FordelBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder, String begrunnelse) { // NOSONAR
         super(begrunnelse);
         this.endretBeregningsgrunnlagPerioder = endretBeregningsgrunnlagPerioder;
     }
 
 
-    public List<FastsettBeregningsgrunnlagPeriodeDto> getEndretBeregningsgrunnlagPerioder() {
+    public List<FordelBeregningsgrunnlagPeriodeDto> getEndretBeregningsgrunnlagPerioder() {
         return endretBeregningsgrunnlagPerioder;
     }
 }

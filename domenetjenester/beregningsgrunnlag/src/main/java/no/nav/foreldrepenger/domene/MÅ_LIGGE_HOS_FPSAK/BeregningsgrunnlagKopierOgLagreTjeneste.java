@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
 import no.nav.folketrygdloven.kalkulator.BeregningsgrunnlagTjeneste;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.modell.behandling.BehandlingReferanse;
+import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
 import no.nav.folketrygdloven.kalkulator.output.BeregningResultatAggregat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -58,14 +58,14 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     }
 
     public List<BeregningAksjonspunktResultat> fastsettBeregningsaktiviteter(BeregningsgrunnlagInput input) {
-        var ref = input.getBehandlingReferanse();
+        var ref = input.getKoblingReferanse();
         BeregningResultatAggregat resultat = beregningsgrunnlagTjeneste.fastsettBeregningsaktiviteter(beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input));
         return lagreOgKopier(ref, resultat);
     }
 
     public void fastsettBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         BeregningResultatAggregat beregningResultatAggregat = beregningsgrunnlagTjeneste.fastsettBeregningsgrunnlag(beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input));
-        Long behandlingId = input.getBehandlingReferanse().getBehandlingId();
+        Long behandlingId = input.getKoblingReferanse().getKoblingId();
         BeregningsgrunnlagEntitet beregningsgrunnlag = beregningResultatAggregat.getBeregningsgrunnlagGrunnlag()
             .getBeregningsgrunnlag()
             .map(KalkulusTilBehandlingslagerMapper::mapBeregningsgrunnlag)
@@ -80,7 +80,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     public List<BeregningAksjonspunktResultat> vurderRefusjonBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         BeregningResultatAggregat resultat = beregningsgrunnlagTjeneste.vurderRefusjonskravForBeregninggrunnlag(beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input));
         BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(resultat.getBeregningsgrunnlagGrunnlag());
-        beregningsgrunnlagRepository.lagre(input.getBehandlingReferanse().getBehandlingId(), BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), VURDERT_REFUSJON);
+        beregningsgrunnlagRepository.lagre(input.getKoblingReferanse().getKoblingId(), BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), VURDERT_REFUSJON);
         return resultat.getBeregningAksjonspunktResultater();
     }
 
@@ -143,16 +143,16 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     }
 
     private Optional<BeregningsgrunnlagEntitet> finnForrigeBgFraTilstand(BeregningsgrunnlagInput input, BeregningsgrunnlagTilstand tilstandFraSteg) {
-        BehandlingReferanse behandlingReferanse = input.getBehandlingReferanse();
+        KoblingReferanse behandlingReferanse = input.getKoblingReferanse();
         return beregningsgrunnlagRepository
-            .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingReferanse.getBehandlingId(), behandlingReferanse.getOriginalBehandlingId(), tilstandFraSteg)
+            .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingReferanse.getKoblingId(), behandlingReferanse.getOriginalKoblingId(), tilstandFraSteg)
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
     }
 
     private Optional<BeregningsgrunnlagGrunnlagEntitet> finnForrigeGrunnlagFraTilstand(BeregningsgrunnlagInput input, BeregningsgrunnlagTilstand tilstandFraSteg) {
-        BehandlingReferanse referanse = input.getBehandlingReferanse();
+        KoblingReferanse referanse = input.getKoblingReferanse();
         return beregningsgrunnlagRepository
-            .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(referanse.getBehandlingId(), referanse.getOriginalBehandlingId(), tilstandFraSteg);
+            .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(referanse.getKoblingId(), referanse.getOriginalKoblingId(), tilstandFraSteg);
     }
 
     private void lagreOgKopier(BeregningsgrunnlagInput input,
@@ -160,8 +160,8 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
                                Optional<BeregningsgrunnlagEntitet> forrigeBekreftetBeregningsgrunnlag,
                                BeregningsgrunnlagEntitet nyttBg,
                                BeregningsgrunnlagTilstand tilstand, BeregningsgrunnlagTilstand bekreftetTilstand) {
-        BehandlingReferanse ref = input.getBehandlingReferanse();
-        Long behandlingId = ref.getBehandlingId();
+        KoblingReferanse ref = input.getKoblingReferanse();
+        Long behandlingId = ref.getKoblingId();
         boolean kanKopiereBekreftet = KopierBeregningsgrunnlag.kanKopiereFraForrigeBekreftetGrunnlag(
             beregningResultatAggregat.getBeregningAksjonspunktResultater(),
             nyttBg,
@@ -174,21 +174,21 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         }
     }
 
-    private List<BeregningAksjonspunktResultat> lagreOgKopier(BehandlingReferanse ref, BeregningResultatAggregat resultat) {
+    private List<BeregningAksjonspunktResultat> lagreOgKopier(KoblingReferanse ref, BeregningResultatAggregat resultat) {
         BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(resultat.getBeregningsgrunnlagGrunnlag());
         Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeBekreftetGrunnlag = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(
-            ref.getBehandlingId(),
+            ref.getKoblingId(),
             BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
         List<BeregningAksjonspunktResultat> beregningAksjonspunktResultater = resultat.getBeregningAksjonspunktResultater();
         boolean kanKopiereGrunnlag = KopierBeregningsgrunnlag.kanKopiereFraForrigeBekreftetGrunnlag(
             beregningAksjonspunktResultater,
             nyttGrunnlag,
-            beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.getBehandlingId(), BeregningsgrunnlagTilstand.OPPRETTET),
+            beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId(), BeregningsgrunnlagTilstand.OPPRETTET),
             forrigeBekreftetGrunnlag
         );
-        beregningsgrunnlagRepository.lagre(ref.getBehandlingId(), BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), BeregningsgrunnlagTilstand.OPPRETTET);
+        beregningsgrunnlagRepository.lagre(ref.getKoblingId(), BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), BeregningsgrunnlagTilstand.OPPRETTET);
         if (kanKopiereGrunnlag) {
-            forrigeBekreftetGrunnlag.ifPresent(gr -> beregningsgrunnlagRepository.lagre(ref.getBehandlingId(), BeregningsgrunnlagGrunnlagBuilder.oppdatere(gr), BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER));
+            forrigeBekreftetGrunnlag.ifPresent(gr -> beregningsgrunnlagRepository.lagre(ref.getKoblingId(), BeregningsgrunnlagGrunnlagBuilder.oppdatere(gr), BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER));
         }
         return beregningAksjonspunktResultater;
     }
@@ -198,8 +198,8 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeBekreftetGrunnlag,
                                BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag,
                                BeregningsgrunnlagEntitet nyttBg) {
-        BehandlingReferanse ref = input.getBehandlingReferanse();
-        Long behandlingId = ref.getBehandlingId();
+        KoblingReferanse ref = input.getKoblingReferanse();
+        Long behandlingId = ref.getKoblingId();
         boolean kanKopiereFraBekreftet = KopierBeregningsgrunnlag.kanKopiereFraForrigeBekreftetGrunnlag(
             beregningResultatAggregat.getBeregningAksjonspunktResultater(),
             nyttBg,
