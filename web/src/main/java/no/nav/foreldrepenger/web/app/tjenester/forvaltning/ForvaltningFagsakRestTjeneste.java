@@ -151,10 +151,10 @@ public class ForvaltningFagsakRestTjeneste {
         })
     @BeskyttetRessurs(action = CREATE, ressurs = FAGSAK)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response revurderAvslutningForFagsaker(@NotNull @Valid AbacSaksnummerListe saksnumre) {
+    public Response revurderAvslutningForFagsaker(@NotNull @Valid List<SaksnummerDto> saksnumre) {
 
-        for(String abacSaksnummer: saksnumre.get().orElseThrow()) {
-            Saksnummer saksnummer = new Saksnummer(abacSaksnummer);
+        for(SaksnummerDto abacSaksnummer: saksnumre) {
+            Saksnummer saksnummer = new Saksnummer(abacSaksnummer.getVerdi());
             Optional<Fagsak> fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
             if (fagsak.isEmpty() || FagsakStatus.AVSLUTTET == fagsak.get().getStatus()) {
                 ForvaltningRestTjenesteFeil.FACTORY.ugyldigeSakStatus(saksnummer.getVerdi()).log(logger);
@@ -172,30 +172,6 @@ public class ForvaltningFagsakRestTjeneste {
             prosessTaskRepository.lagre(taskGruppe);
         }
         return Response.ok().build();
-    }
-
-    @JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
-    public static class AbacSaksnummerListe implements AbacDto {
-
-        @JsonProperty("saksnumre")
-        List<String> saksnumre;
-        public AbacSaksnummerListe() {
-            // for Jackson
-        }
-
-        public AbacSaksnummerListe(List<String> saksnumre) {
-            this.saksnumre = saksnumre;
-        }
-
-        public Optional<List<String>> get() {
-            return Optional.ofNullable(saksnumre);
-        }
-
-        @Override
-        public AbacDataAttributter abacAttributter() {
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, get());
-        }
-
     }
 
     @POST
