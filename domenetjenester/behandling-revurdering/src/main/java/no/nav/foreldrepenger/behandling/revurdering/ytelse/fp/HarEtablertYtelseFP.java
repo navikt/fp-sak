@@ -58,7 +58,7 @@ public class HarEtablertYtelseFP {
     private UttakResultatHolder getAnnenPartUttak(Saksnummer saksnummer) {
         var annenpartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(saksnummer);
         if (annenpartBehandling.isPresent() && erTilknyttetLøpendeFagsak(annenpartBehandling.get())) {
-            var vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(annenpartBehandling.get().getId());
+            var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(annenpartBehandling.get().getId());
             return new UttakResultatHolderFP(uttakTjeneste.hentUttakHvisEksisterer(annenpartBehandling.get().getId()), vedtak.orElse(null));
         }
         return new UttakResultatHolderFP(Optional.empty(), null);

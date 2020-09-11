@@ -156,7 +156,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     @Override
     public void lagreNedBehandling(Behandling behandling) {
-        Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId());
+        Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
         lagreNedBehandling(behandling, vedtak);
     }
 
@@ -195,7 +195,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     @Override
     public void opprettOgLagreVedtakXml(Long behandlingId) {
-        var behandlingVedtakOpt = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandlingId);
+        var behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandlingVedtakOpt.isPresent()) {
             String vedtakXml = dvhVedtakXmlTjeneste.opprettDvhVedtakXml(behandlingId);
@@ -220,7 +220,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     @Override
     public void oppdaterVedtakXml(Long behandlingId) {
-        Optional<BehandlingVedtak> behandlingVedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandlingId);
+        Optional<BehandlingVedtak> behandlingVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
 
         if (behandlingVedtak.isPresent()) {

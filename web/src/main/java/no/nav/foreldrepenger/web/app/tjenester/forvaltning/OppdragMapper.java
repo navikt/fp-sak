@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -28,12 +29,14 @@ class OppdragMapper {
     private final Behandling behandling;
     private final String fnrBruker;
     private final String ansvarligSaksbehandler;
+    private final BehandlingVedtak behandlingVedtak;
 
-    public OppdragMapper(OppdragPatchDto dto, Behandling behandling, String fnrBruker) {
+    public OppdragMapper(OppdragPatchDto dto, Behandling behandling, String fnrBruker, BehandlingVedtak behandlingVedtak) {
         this.dto = dto;
         this.behandling = behandling;
         this.fnrBruker = fnrBruker;
         ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
+        this.behandlingVedtak = behandlingVedtak;
     }
 
     public void mapTil(Oppdragskontroll oppdragskontroll) {
@@ -65,7 +68,7 @@ class OppdragMapper {
             .medDelytelseId(linje.getDelytelseId())
             .medRefDelytelseId(linje.getRefDelytelseId())
             .medRefFagsystemId(linje.getRefFagsystemId())
-            .medVedtakId(behandling.getOriginalVedtaksDato().toString())
+            .medVedtakId(behandlingVedtak.getVedtaksdato().toString())
             .medKodeEndringLinje(linje.getKodeEndring())
             .medKodeKlassifik(linje.getKodeKlassifik());
         if (linje.getOpphørFom() != null) {
@@ -80,7 +83,7 @@ class OppdragMapper {
             Refusjonsinfo156.builder()
                 .medOppdragslinje150(oppdragslinje)
                 .medRefunderesId(Oppdragslinje150Util.endreTilElleveSiffer(dto.getArbeidsgiverOrgNr()))
-                .medDatoFom(behandling.getOriginalVedtaksDato())
+                .medDatoFom(behandlingVedtak.getVedtaksdato())
                 .medMaksDato(finnSisteDato())
                 .build();
         }

@@ -11,9 +11,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-
-import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -220,13 +217,4 @@ public class ScenarioAnkeEngangsstønad {
         this.startSteg = startSteg;
         return this;
     }
-
-    public BehandlingVedtak mockBehandlingVedtak() {
-        if (behandlingVedtak == null) {
-            behandlingVedtak = Mockito.mock(BehandlingVedtak.class);
-            when(abstractTestScenario.mockBehandlingRepositoryProvider().getBehandlingVedtakRepository().hentBehandlingvedtakForBehandlingId(ankeBehandling.getId())).thenReturn(Optional.of(behandlingVedtak));
-        }
-        return behandlingVedtak;
-    }
-
 }

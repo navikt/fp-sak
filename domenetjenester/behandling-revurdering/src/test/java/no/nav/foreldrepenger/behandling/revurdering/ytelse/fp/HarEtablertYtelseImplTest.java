@@ -121,9 +121,12 @@ public class HarEtablertYtelseImplTest {
             repositoryProvider.getBehandlingRepository().lagre(behandlingAnnenpart, repositoryProvider.getBehandlingLåsRepository().taLås(behandlingAnnenpart.getId()));
         });
 
+        var behandlingsresultat = uttakResultatOriginal.getBehandlingsresultat();
+        var behandlingVedtak = repositoryProvider.getBehandlingVedtakRepository()
+            .hentForBehandlingHvisEksisterer(behandlingsresultat.getBehandlingId());
         return harEtablertYtelse.vurder(behandlingSomSkalRevurderes, finnesInnvilgetIkkeOpphørtVedtak,
             new UttakResultatHolderFP(Optional.of(ForeldrepengerUttakTjeneste.map(uttakResultatOriginal)),
-                uttakResultatOriginal.getBehandlingsresultat().getBehandlingVedtak()));
+                behandlingVedtak.orElse(null)));
     }
 
     @Test

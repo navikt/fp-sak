@@ -146,11 +146,12 @@ public class BehandlingDtoTjeneste {
     private static BehandlingDto lagBehandlingDto(Behandling behandling,
                                                   Optional<BehandlingsresultatDto> behandlingsresultatDto,
                                                   boolean erBehandlingMedGjeldendeVedtak,
-                                                  SøknadRepository søknadRepository) {
+                                                  SøknadRepository søknadRepository,
+                                                  LocalDate vedtaksdato) {
         BehandlingDto dto = new BehandlingDto();
         UuidDto uuidDto = new UuidDto(behandling.getUuid());
         BehandlingIdDto idDto = new BehandlingIdDto(behandling.getId());
-        setStandardfelter(behandling, dto, erBehandlingMedGjeldendeVedtak);
+        setStandardfelter(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
         dto.setSpråkkode(getSpråkkode(behandling, søknadRepository));
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
 
@@ -213,7 +214,10 @@ public class BehandlingDtoTjeneste {
         return behandlinger.stream().map(behandling -> {
             boolean erBehandlingMedGjeldendeVedtak = erBehandlingMedGjeldendeVedtak(behandling, behandlingMedGjeldendeVedtak);
             var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
-            return lagBehandlingDto(behandling, behandlingsresultatDto, erBehandlingMedGjeldendeVedtak, søknadRepository);
+            var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).map(bv -> bv.getVedtaksdato())
+                .orElse(null);
+            return lagBehandlingDto(behandling, behandlingsresultatDto, erBehandlingMedGjeldendeVedtak,
+                søknadRepository, vedtaksdato);
         }).collect(Collectors.toList());
     }
 
@@ -238,7 +242,10 @@ public class BehandlingDtoTjeneste {
     }
 
     private void settStandardfelterUtvidet(Behandling behandling, UtvidetBehandlingDto dto, boolean erBehandlingMedGjeldendeVedtak) {
-        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, dto, erBehandlingMedGjeldendeVedtak);
+        var vedtaksDato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
+            .map(bv -> bv.getVedtaksdato())
+            .orElse(null);
+        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
         dto.setSpråkkode(getSpråkkode(behandling, søknadRepository));
         var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));

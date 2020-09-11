@@ -12,8 +12,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
@@ -33,26 +32,26 @@ public class UttakPerioderDtoTjeneste {
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private ArbeidsgiverDtoTjeneste arbeidsgiverDtoTjeneste;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-
-    public UttakPerioderDtoTjeneste() {
-        // For CDI
-    }
+    private BehandlingVedtakRepository behandlingVedtakRepository;
 
     @Inject
     public UttakPerioderDtoTjeneste(ForeldrepengerUttakTjeneste uttakTjeneste,
                                     RelatertBehandlingTjeneste relatertBehandlingTjeneste,
                                     YtelsesFordelingRepository ytelsesFordelingRepository,
                                     ArbeidsgiverDtoTjeneste arbeidsgiverDtoTjeneste,
-                                    BehandlingsresultatRepository behandlingsresultatRepository,
-                                    InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+                                    InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                    BehandlingVedtakRepository behandlingVedtakRepository) {
         this.uttakTjeneste = uttakTjeneste;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.arbeidsgiverDtoTjeneste = arbeidsgiverDtoTjeneste;
-        this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.behandlingVedtakRepository = behandlingVedtakRepository;
+    }
+
+    public UttakPerioderDtoTjeneste() {
+        // For CDI
     }
 
     public Optional<UttakResultatPerioderDto> mapFra(Behandling behandling) {
@@ -85,13 +84,15 @@ public class UttakPerioderDtoTjeneste {
     }
 
     private Optional<Behandling> annenpartBehandling(Behandling søkersBehandling) {
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(søkersBehandling.getId());
-        if (behandlingsresultat.isPresent()) {
-            if (behandlingsresultat.get().getBehandlingVedtak() != null) {
-                return relatertBehandlingTjeneste.hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(søkersBehandling);
-            }
+        if (harVedtak(søkersBehandling)) {
+            return relatertBehandlingTjeneste.hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(søkersBehandling);
         }
+
         return relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(søkersBehandling.getFagsak().getSaksnummer());
+    }
+
+    private boolean harVedtak(Behandling søkersBehandling) {
+        return behandlingVedtakRepository.hentForBehandlingHvisEksisterer(søkersBehandling.getId()).isPresent();
     }
 
     private List<UttakResultatPeriodeDto> finnUttakResultatPerioderSøker(Long behandling) {

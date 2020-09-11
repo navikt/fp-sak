@@ -27,7 +27,7 @@ public class MapBehandlingVedtak {
     }
 
     public BehandlingVedtakOppdrag map(Behandling behandling) {
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId());
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
 
         String ansvarligSaksbehandler = behandlingVedtakOpt.map(BehandlingVedtak::getAnsvarligSaksbehandler)
             .orElseGet(() -> FinnAnsvarligSaksbehandler.finn(behandling));

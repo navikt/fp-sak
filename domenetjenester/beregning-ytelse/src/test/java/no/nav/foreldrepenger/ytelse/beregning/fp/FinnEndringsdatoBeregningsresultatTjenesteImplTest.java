@@ -28,10 +28,9 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoBeregningsresultatTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoMellomPeriodeLister;
-import no.nav.foreldrepenger.ytelse.beregning.SjekkForEndringMellomAndelerOgFOM;
 import no.nav.foreldrepenger.ytelse.beregning.SjekkForEndringMellomPerioder;
 import no.nav.foreldrepenger.ytelse.beregning.SjekkForIngenAndelerOgAndelerUtenDagsats;
-import no.nav.foreldrepenger.ytelse.beregning.SjekkOmPerioderInneholderSammeAndeler;
+import no.nav.foreldrepenger.ytelse.beregning.SjekkOmPerioderHarEndringIAndeler;
 import no.nav.vedtak.exception.TekniskException;
 
 public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
@@ -57,9 +56,8 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         førstegangsbehandling = scenario.lagMocked();
         revurdering = opprettRevurdering(førstegangsbehandling);
         SjekkForIngenAndelerOgAndelerUtenDagsats sjekkForIngenAndelerOgAndelerUtenDagsats = new SjekkForIngenAndelerOgAndelerUtenDagsats();
-        SjekkOmPerioderInneholderSammeAndeler sjekkOmPerioderInneholderSammeAndeler = new SjekkOmPerioderInneholderSammeAndeler();
-        SjekkForEndringMellomAndelerOgFOM sjekkForEndringMellomAndelerOgFOM = new SjekkForEndringMellomAndelerOgFOM(sjekkOmPerioderInneholderSammeAndeler);
-        SjekkForEndringMellomPerioder sjekkForEndringMellomPerioder = new SjekkForEndringMellomPerioder(sjekkForIngenAndelerOgAndelerUtenDagsats, sjekkForEndringMellomAndelerOgFOM);
+        SjekkOmPerioderHarEndringIAndeler SjekkOmPerioderHarEndringIAndeler = new SjekkOmPerioderHarEndringIAndeler();
+        SjekkForEndringMellomPerioder sjekkForEndringMellomPerioder = new SjekkForEndringMellomPerioder(sjekkForIngenAndelerOgAndelerUtenDagsats, SjekkOmPerioderHarEndringIAndeler);
         FinnEndringsdatoMellomPeriodeLister finnEndringsdatoMellomPeriodeLister = new FinnEndringsdatoMellomPeriodeLister(sjekkForEndringMellomPerioder);
         finnEndringsdatoBeregningsresultatTjeneste = new FinnEndringsdatoBeregningsresultatTjenesteImpl(beregningsresultatRepository, finnEndringsdatoMellomPeriodeLister);
         brFørstegangsbehandling = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
@@ -336,7 +334,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     }
 
     @Test
-    public void skal_finne_endringsdato_hvor_siste_periode_i_revurdering_er_delt_i_to_perioder_men_andelene_er_uendret(){
+    public void skal_ikke_finne_endringsdato_hvor_siste_periode_i_revurdering_er_delt_i_to_perioder_men_andelene_er_uendret(){
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER, ORGNR,
@@ -359,7 +357,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
         // Assert
-        assertThat(endringsdato).hasValueSatisfying(ed -> assertThat(ed).isEqualTo(FØRSTE_AUGUST.plusDays(10)));
+        assertThat(endringsdato).isEmpty();
     }
 
     @Test
@@ -499,7 +497,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
         // Assert
-        assertThat(endringsdato).hasValueSatisfying(ed -> assertThat(ed).isEqualTo(FØRSTE_AUGUST.plusDays(7)));
+        assertThat(endringsdato).hasValueSatisfying(ed -> assertThat(ed).isEqualTo(FØRSTE_AUGUST.plusDays(14)));
     }
 
     private Behandling opprettRevurdering(Behandling førstegangsbehandling) {

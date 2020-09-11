@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Terminb
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -169,7 +168,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         Optional<LocalDate> termindato = grunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
         if (termindato.isPresent()) {
             LocalDate tidligsteTpsRegistreringsDato = termindato.get().minus(tpsRegistreringsTidsrom);
-            BehandlingVedtak vedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId()).orElseThrow();
+            var vedtak = behandlingVedtakRepository.hentForBehandling(behandling.getId());
             LocalDate vedtaksDato = vedtak.getVedtaksdato();
             if (vedtaksDato.isBefore(tidligsteTpsRegistreringsDato)) {
                 revurderingÅrsak = BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE;

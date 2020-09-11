@@ -65,7 +65,7 @@ public class MapBehandlingVedtakTest {
             .medVedtakResultatType(VedtakResultatType.OPPHØR)
             .medVedtakstidspunkt(vedtakstidspunkt)
             .build();
-        when(behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(any())).thenReturn(Optional.of(behandlingVedtak));
+        when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(any())).thenReturn(Optional.of(behandlingVedtak));
 
         // Act
         var behandlingVedtakFP = mapBehandlingVedtakFP.map(behandling);

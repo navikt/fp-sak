@@ -168,7 +168,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
             return "Ikke påklagd et vedtak";
         }
         Behandling påKlagdBehandling = behandlingRepository.hentBehandling(behandlingId);
-        Optional<LocalDate> vedtaksDatoPåklagdBehandling = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandlingId)
+        Optional<LocalDate> vedtaksDatoPåklagdBehandling = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId)
             .map(it -> it.getVedtaksdato());
         return påKlagdBehandling.getType().getNavn() + " " +
             vedtaksDatoPåklagdBehandling

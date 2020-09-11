@@ -57,7 +57,7 @@ public class MapBehandlingInfoES {
         Saksnummer saksnummer = behandling.getFagsak().getSaksnummer();
         // kallet kan fjernes en gang i fremtiden, når Oppdragssystemet ikke lenger krever fnr i sine meldinger.
         PersonIdent personIdent = tpsTjeneste.hentFnrForAktør(behandling.getAktørId());
-        BehandlingVedtak behVedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId()).orElse(null);
+        BehandlingVedtak behVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).orElse(null);
 
         String kodeKlassifik = mapKodeKlassifik(behandling);
         long sats = hentSatsFraBehandling(behandling.getId());
@@ -71,7 +71,7 @@ public class MapBehandlingInfoES {
         if (oppdrag110Opt.isPresent()) {
             Oppdrag110 tidligereOppdrag110 = oppdrag110Opt.get();
             long tidligereBehandlingId = tidligereOppdrag110.getOppdragskontroll().getBehandlingId();
-            BehandlingVedtak tidligereVedtak = behandlingVedtakRepository.hentBehandlingvedtakForBehandlingId(tidligereBehandlingId)
+            BehandlingVedtak tidligereVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(tidligereBehandlingId)
                 .orElseThrow(() -> MapBehandlingInfoESFeil.FACTORY
                     .fantIkkeTidligereBehandlingVedtak(tidligereBehandlingId).toException());
             long sats = hentSatsFraBehandling(tidligereBehandlingId);

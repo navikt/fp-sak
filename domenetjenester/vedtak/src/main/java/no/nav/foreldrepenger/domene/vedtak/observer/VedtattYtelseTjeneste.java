@@ -45,7 +45,7 @@ public class VedtattYtelseTjeneste {
     }
 
     public Ytelse genererYtelse(Behandling behandling) {
-        final BehandlingVedtak vedtak = vedtakRepository.hentBehandlingvedtakForBehandlingId(behandling.getId()).orElseThrow();
+        final BehandlingVedtak vedtak = vedtakRepository.hentForBehandling(behandling.getId());
         Optional<BeregningsresultatEntitet> berResultat = tilkjentYtelseRepository.hentBeregningsresultat(behandling.getId());
 
         final Aktør aktør = new Aktør();
