@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.oppdaterDtoForFødsel;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettBruker;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -10,9 +11,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Optional;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,20 +38,14 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeMottattDatoTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.MottattDokumentOversetterSøknad;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.MottattDokumentWrapperSøknad;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
 public class EndringssøknadSøknadMapperTest {
-    private static final DatatypeFactory DATATYPE_FACTORY;
-    static {
-        try {
-            DATATYPE_FACTORY = DatatypeFactory.newInstance();
-        } catch (DatatypeConfigurationException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
 
     private static final AktørId STD_KVINNE_AKTØR_ID = AktørId.dummy();
 
@@ -66,11 +58,13 @@ public class EndringssøknadSøknadMapperTest {
     private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
     private DatavarehusTjeneste datavarehusTjeneste = mock(DatavarehusTjeneste.class);
     private SvangerskapspengerRepository svangerskapspengerRepository = new SvangerskapspengerRepository(repositoryRule.getEntityManager());
+    private OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste =
+        new OppgittPeriodeMottattDatoTjeneste(new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
 
     private SøknadMapper ytelseSøknadMapper = new EndringssøknadSøknadMapper();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         tpsTjeneste = mock(TpsTjeneste.class);
         reset(tpsTjeneste);
         final Optional<AktørId> stdKvinneAktørId = Optional.of(STD_KVINNE_AKTØR_ID);
@@ -88,8 +82,7 @@ public class EndringssøknadSøknadMapperTest {
         when(iayTjeneste.hentGrunnlag(any(Long.class))).thenReturn(Mockito.mock(InntektArbeidYtelseGrunnlag.class));
     }
 
-
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void skal_treffe_guard_hvis_endringssøknad_sendes_inn_uten_at_det_er_reflektert_i_dokumenttypeid() {
         // Arrange
         NavBruker navBruker = opprettBruker();
@@ -97,7 +90,8 @@ public class EndringssøknadSøknadMapperTest {
         oppdaterDtoForFødsel(manuellRegistreringEndringsøknadDto, FamilieHendelseType.FØDSEL, true, LocalDate.now(), 1);
         Soeknad soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
-        MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste, iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository);
+        MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste,
+            iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDatoTjeneste);
 
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
@@ -111,7 +105,10 @@ public class EndringssøknadSøknadMapperTest {
             .medElektroniskRegistrert(true);
 
         // Act + Assert
-        oversetter.trekkUtDataOgPersister((MottattDokumentWrapperSøknad) MottattDokumentWrapperSøknad.tilXmlWrapper(soeknad), mottattDokumentBuilder.build(), behandling, Optional.empty());
+        var wrapper = (MottattDokumentWrapperSøknad) MottattDokumentWrapperSøknad.tilXmlWrapper(soeknad);
+        assertThatThrownBy(() -> {
+            oversetter.trekkUtDataOgPersister(wrapper, mottattDokumentBuilder.build(), behandling, Optional.empty());
+        }).isInstanceOf(IllegalArgumentException.class);
     }
 
 }

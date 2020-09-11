@@ -150,7 +150,7 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
     }
 
     private boolean lik(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
-        var like = erOmsluttetAv(periode1, periode2)
+        var like = periode1.erOmsluttetAv(periode2)
             && Objects.equals(periode1.getÅrsak(), periode2.getÅrsak())
             && Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType())
             && Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent());
@@ -161,9 +161,5 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
                 Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver());
         }
         return like;
-    }
-
-    private static boolean erOmsluttetAv(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
-        return !periode2.getFom().isAfter(periode1.getFom()) && !periode2.getTom().isBefore(periode1.getTom());
     }
 }
