@@ -24,7 +24,7 @@ import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.Beregn
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
-import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagRestInputFelles;
+import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagGUIInputFelles;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -122,7 +122,7 @@ public class BeregningsgrunnlagRestTjeneste {
         }).orElse(null);
     }
 
-    private BeregningsgrunnlagRestInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
+    private BeregningsgrunnlagGUIInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
         return inputTjenesteProvider.getRestInputTjeneste(ytelseType);
     }
 
