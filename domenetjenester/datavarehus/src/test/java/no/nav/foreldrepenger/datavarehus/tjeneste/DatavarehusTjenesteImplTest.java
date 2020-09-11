@@ -98,10 +98,7 @@ public class DatavarehusTjenesteImplTest {
     private TotrinnRepository totrinnRepository = mock(TotrinnRepository.class);
     private AnkeRepository ankeRepository = mock(AnkeRepository.class);
     private KlageRepository klageRepository = mock(KlageRepository.class);
-    private FamilieHendelseRepository familieHendelseRepository = mock(FamilieHendelseRepository.class);
-    private PersonopplysningRepository personopplysningRepository = mock(PersonopplysningRepository.class);
     private MottatteDokumentRepository mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
-    private BehandlingVedtakRepository behandlingVedtakRepository = mock(BehandlingVedtakRepository.class);
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste = mock(ForeldrepengerUttakTjeneste.class);
 
     private MottattDokument mottattDokument;
@@ -140,10 +137,7 @@ public class DatavarehusTjenesteImplTest {
             totrinnRepository,
             ankeRepository,
             klageRepository,
-            familieHendelseRepository,
-            personopplysningRepository,
             mottatteDokumentRepository,
-            behandlingVedtakRepository,
             dvhVedtakTjenesteEngangsstønad,
             foreldrepengerUttakTjeneste,
             skjæringstidspunktTjeneste);
@@ -392,8 +386,8 @@ public class DatavarehusTjenesteImplTest {
             .medVedtakResultatType(VedtakResultatType.INNVILGET)
             .medBehandlingsresultat(behandlingsresultat)
             .build();
+        repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, behandlingRepository.taSkriveLås(behandling));
 
-        when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(any())).thenReturn(Optional.of(vedtak));
         return vedtak;
     }
 
