@@ -6,6 +6,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
@@ -14,10 +15,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsatteVerdierDto;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBeregningsgrunnlagAndelDto;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBeregningsgrunnlagPeriodeDto;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FordelBeregningsgrunnlagDto;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling.FordelBeregningsgrunnlagAndelDto;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling.FordelFastsatteVerdierDto;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
@@ -58,7 +59,7 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
         List<BeregningsgrunnlagPeriode> perioder = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder();
         List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdOverstyringer();
         HistorikkInnslagTekstBuilder tekstBuilder = historikkTjenesteAdapter.tekstBuilder();
-        for (FastsettBeregningsgrunnlagPeriodeDto endretPeriode : dto.getEndretBeregningsgrunnlagPerioder()) {
+        for (FordelBeregningsgrunnlagPeriodeDto endretPeriode : dto.getEndretBeregningsgrunnlagPerioder()) {
             lagHistorikk(tekstBuilder, perioder, endretPeriode, arbeidsforholdOverstyringer);
         }
 
@@ -68,16 +69,16 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
     }
 
     private void lagHistorikk(HistorikkInnslagTekstBuilder tekstBuilder, List<BeregningsgrunnlagPeriode> perioder,
-                              FastsettBeregningsgrunnlagPeriodeDto endretPeriode, List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+                              FordelBeregningsgrunnlagPeriodeDto endretPeriode, List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         BeregningsgrunnlagPeriode korrektPeriode = getKorrektPeriode(perioder, endretPeriode);
-        for (FastsettBeregningsgrunnlagAndelDto endretAndel : endretPeriode.getAndeler()) {
+        for (FordelBeregningsgrunnlagAndelDto endretAndel : endretPeriode.getAndeler()) {
             Lønnsendring endring = lagEndringsoppsummeringForHistorikk(endretAndel).build();
             leggTilArbeidsforholdHistorikkinnslag(tekstBuilder, endring, korrektPeriode, tekstBuilder, arbeidsforholdOverstyringer);
         }
     }
 
-    private Lønnsendring.Builder lagEndringsoppsummeringForHistorikk(FastsettBeregningsgrunnlagAndelDto endretAndel) {
-        FastsatteVerdierDto fastsatteVerdier = endretAndel.getFastsatteVerdier();
+    private Lønnsendring.Builder lagEndringsoppsummeringForHistorikk(FordelBeregningsgrunnlagAndelDto endretAndel) {
+        FordelFastsatteVerdierDto fastsatteVerdier = endretAndel.getFastsatteVerdier();
         Lønnsendring.Builder endring = new Lønnsendring.Builder()
             .medAktivitetStatus(endretAndel.getAktivitetStatus())
             .medNyInntektskategori(fastsatteVerdier.getInntektskategori())
@@ -93,18 +94,18 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
         return endring;
     }
 
-    private boolean gjelderArbeidsforhold(FastsettBeregningsgrunnlagAndelDto endretAndel) {
+    private boolean gjelderArbeidsforhold(FordelBeregningsgrunnlagAndelDto endretAndel) {
         return endretAndel.getArbeidsgiverId() != null;
     }
 
 
-    private void settArbeidsforholdVerdier(FastsettBeregningsgrunnlagAndelDto endretAndel, Lønnsendring.Builder endring) {
+    private void settArbeidsforholdVerdier(FordelBeregningsgrunnlagAndelDto endretAndel, Lønnsendring.Builder endring) {
         endring
             .medArbeidsforholdRef(endretAndel.getArbeidsforholdId())
             .medArbeidsgiver(finnArbeidsgiver(endretAndel));
     }
 
-    private Arbeidsgiver finnArbeidsgiver(FastsettBeregningsgrunnlagAndelDto endretAndel) {
+    private Arbeidsgiver finnArbeidsgiver(FordelBeregningsgrunnlagAndelDto endretAndel) {
         Arbeidsgiver arbeidsgiver;
         if (OrgNummer.erGyldigOrgnr(endretAndel.getArbeidsgiverId())) {
             arbeidsgiver = Arbeidsgiver.virksomhet(endretAndel.getArbeidsgiverId());
@@ -115,7 +116,7 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
     }
 
 
-    private void settEndretFraVerdier(FastsettBeregningsgrunnlagAndelDto endretAndel, Lønnsendring.Builder endring) {
+    private void settEndretFraVerdier(FordelBeregningsgrunnlagAndelDto endretAndel, Lønnsendring.Builder endring) {
         endring
             .medGammelArbeidsinntektPrÅr(endretAndel.getForrigeArbeidsinntektPrÅr())
             .medGammelInntektskategori(endretAndel.getForrigeInntektskategori())
@@ -179,7 +180,7 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
     }
 
     private BeregningsgrunnlagPeriode getKorrektPeriode(List<BeregningsgrunnlagPeriode> perioder,
-                                                        FastsettBeregningsgrunnlagPeriodeDto endretPeriode) {
+                                                        FordelBeregningsgrunnlagPeriodeDto endretPeriode) {
         return perioder.stream()
             .filter(periode -> periode.getBeregningsgrunnlagPeriodeFom().equals(endretPeriode.getFom()))
             .findFirst()
