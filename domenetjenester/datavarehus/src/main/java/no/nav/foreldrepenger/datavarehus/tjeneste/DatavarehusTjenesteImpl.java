@@ -13,6 +13,9 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
@@ -62,6 +65,8 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @ApplicationScoped
 public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatavarehusTjenesteImpl.class);
+
     private DatavarehusRepository datavarehusRepository;
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
@@ -86,19 +91,16 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
                                    TotrinnRepository totrinnRepository,
                                    AnkeRepository ankeRepository,
                                    KlageRepository klageRepository,
-                                   FamilieHendelseRepository familieHendelseRepository,
-                                   PersonopplysningRepository personopplysningRepository,
                                    MottatteDokumentRepository mottatteDokumentRepository,
-                                   BehandlingVedtakRepository behandlingVedtakRepository,
                                    DvhVedtakXmlTjeneste dvhVedtakXmlTjeneste,
                                    ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.datavarehusRepository = datavarehusRepository;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.behandlingVedtakRepository = behandlingVedtakRepository;
-        this.personopplysningRepository = personopplysningRepository;
-        this.familieGrunnlagRepository = familieHendelseRepository;
+        this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
+        this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.totrinnRepository = totrinnRepository;
         this.klageRepository = klageRepository;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
@@ -166,7 +168,11 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         var uttak = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
         Optional<LocalDate> skjæringstidspunkt  = Optional.empty();
         if(uttak.isEmpty() && !FamilieHendelseType.UDEFINERT.equals(fh.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT))){
-            skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getSkjæringstidspunktHvisUtledet();
+            try {
+                skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getSkjæringstidspunktHvisUtledet();
+            } catch (Exception e) {
+                LOGGER.warn("Kunne ikke utlede skjæringstidspunkter for behandling {} antagelig henlagt ufullstendig behandling", behandling.getId());
+            }
         }
         LocalDateTime mottattTidspunkt = finnMottattTidspunkt(behandling);
         BehandlingDvh behandlingDvh = new BehandlingDvhMapper().map(behandling, mottattTidspunkt, vedtak, fh, gjeldendeKlagevurderingresultat,
