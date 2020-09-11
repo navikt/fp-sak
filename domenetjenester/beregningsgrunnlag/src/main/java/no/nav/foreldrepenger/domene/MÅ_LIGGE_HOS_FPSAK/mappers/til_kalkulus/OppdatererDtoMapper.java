@@ -362,8 +362,8 @@ public class OppdatererDtoMapper {
     private static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.FordelFastsatteVerdierDto mapTilFordelFastsatteVerdier(FordelFastsatteVerdierDto fastsatteVerdier) {
         return no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.FordelFastsatteVerdierDto.Builder.ny()
             .medInntektskategori(fastsatteVerdier.getInntektskategori() == null ? null : Inntektskategori.fraKode(fastsatteVerdier.getInntektskategori().getKode()))
-            .medFastsattBeløpPrMnd(fastsatteVerdier.getFastsattBeløp())
-            .medFastsattBeløpPrÅr(fastsatteVerdier.getFastsattÅrsbeløp())
+            .medFastsattBeløpPrÅrInklNaturalytelse(fastsatteVerdier.getFastsattÅrsbeløpInklNaturalytelse())
+            .medRefusjonPrÅr(fastsatteVerdier.getRefusjonPrÅr())
             .build();
     }
 

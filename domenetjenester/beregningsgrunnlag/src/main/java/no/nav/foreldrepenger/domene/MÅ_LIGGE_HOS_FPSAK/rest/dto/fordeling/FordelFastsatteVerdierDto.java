@@ -1,121 +1,56 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling;
 
-import java.math.BigDecimal;
-
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
 
 
 public class FordelFastsatteVerdierDto {
 
-    private static final int MÅNEDER_I_1_ÅR = 12;
-
     @Min(0)
     @Max(Integer.MAX_VALUE)
-    private Integer refusjon;
-
     private Integer refusjonPrÅr;
 
     @Min(0)
     @Max(Integer.MAX_VALUE)
-    private Integer fastsattBeløp;
-
-    @Min(0)
-    @Max(Integer.MAX_VALUE)
-    private Integer fastsattÅrsbeløp;
-
-    @Min(0)
-    @Max(Integer.MAX_VALUE)
+    @NotNull
     private Integer fastsattÅrsbeløpInklNaturalytelse;
 
+    @NotNull
     private Inntektskategori inntektskategori;
 
-    private Boolean skalHaBesteberegning;
 
     FordelFastsatteVerdierDto() { // NOSONAR
         // Jackson
     }
 
-    public FordelFastsatteVerdierDto(Integer refusjon,
-                                     Integer fastsattBeløp,
-                                     Inntektskategori inntektskategori,
-                                     Boolean skalHaBesteberegning) {
-        this.refusjon = refusjon;
-        this.refusjonPrÅr = refusjon == null ? null : refusjon*MÅNEDER_I_1_ÅR;
-        this.fastsattBeløp = fastsattBeløp;
+    public FordelFastsatteVerdierDto(@Min(0) @Max(Integer.MAX_VALUE) Integer refusjonPrÅr, @Min(0) @Max(Integer.MAX_VALUE) @NotNull Integer fastsattÅrsbeløpInklNaturalytelse, @NotNull Inntektskategori inntektskategori) {
+        this.refusjonPrÅr = refusjonPrÅr;
+        this.fastsattÅrsbeløpInklNaturalytelse = fastsattÅrsbeløpInklNaturalytelse;
         this.inntektskategori = inntektskategori;
-        this.skalHaBesteberegning = skalHaBesteberegning;
     }
 
-
-    public FordelFastsatteVerdierDto(Integer fastsattÅrsbeløp,
-                                     Inntektskategori inntektskategori,
-                                     Boolean skalHaBesteberegning) {
-        this.fastsattBeløp = fastsattÅrsbeløp / MÅNEDER_I_1_ÅR;
-        this.fastsattÅrsbeløp = fastsattÅrsbeløp;
+    public FordelFastsatteVerdierDto(@Min(0) @Max(Integer.MAX_VALUE) @NotNull Integer fastsattÅrsbeløpInklNaturalytelse, @NotNull Inntektskategori inntektskategori) {
+        this.fastsattÅrsbeløpInklNaturalytelse = fastsattÅrsbeløpInklNaturalytelse;
         this.inntektskategori = inntektskategori;
-        this.skalHaBesteberegning = skalHaBesteberegning;
-    }
-
-    public FordelFastsatteVerdierDto(Integer fastsattBeløp, Inntektskategori inntektskategori) {
-        this.inntektskategori = inntektskategori;
-        this.fastsattBeløp = fastsattBeløp;
-        this.fastsattÅrsbeløp = fastsattBeløp * MÅNEDER_I_1_ÅR;
-    }
-
-
-    public FordelFastsatteVerdierDto(Integer fastsattBeløp) {
-        this.fastsattBeløp = fastsattBeløp;
-        this.fastsattÅrsbeløp = fastsattBeløp * MÅNEDER_I_1_ÅR;
-    }
-
-    public Integer getRefusjon() {
-        return refusjon;
     }
 
     public Integer getRefusjonPrÅr() {
-        if (refusjonPrÅr != null) {
-            return refusjonPrÅr;
-        }
-        return refusjon == null ? null : refusjon * MÅNEDER_I_1_ÅR;
+        return refusjonPrÅr;
     }
 
     public void setRefusjonPrÅr(Integer refusjonPrÅr) {
         this.refusjonPrÅr = refusjonPrÅr;
     }
 
-    public Integer getFastsattBeløp() {
-        return fastsattBeløp;
-    }
-
-    public Integer getFastsattÅrsbeløp() {
-        return fastsattÅrsbeløp;
-    }
-
     public Integer getFastsattÅrsbeløpInklNaturalytelse() {
         return fastsattÅrsbeløpInklNaturalytelse;
-    }
-
-    public BigDecimal finnEllerUtregnFastsattBeløpPrÅr() {
-        if (fastsattÅrsbeløpInklNaturalytelse != null) {
-            return BigDecimal.valueOf(fastsattÅrsbeløpInklNaturalytelse);
-        }
-        if (fastsattÅrsbeløp != null) {
-            return BigDecimal.valueOf(fastsattÅrsbeløp);
-        }
-        if (fastsattBeløp == null) {
-            throw new IllegalStateException("Feil under oppdatering: Hverken årslønn eller månedslønn er satt.");
-        }
-        return BigDecimal.valueOf((long) fastsattBeløp * MÅNEDER_I_1_ÅR);
     }
 
     public Inntektskategori getInntektskategori() {
         return inntektskategori;
     }
 
-    public Boolean getSkalHaBesteberegning() {
-        return skalHaBesteberegning;
-    }
 }

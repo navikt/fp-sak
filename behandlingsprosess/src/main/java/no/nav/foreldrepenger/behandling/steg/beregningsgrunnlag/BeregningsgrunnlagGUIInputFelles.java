@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagRestInput;
+import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagGUIInput;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDtoBuilder;
@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import org.jetbrains.annotations.NotNull;
 
 
-public abstract class BeregningsgrunnlagRestInputFelles {
+public abstract class BeregningsgrunnlagGUIInputFelles {
 
     private BehandlingRepository behandlingRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -50,7 +50,7 @@ public abstract class BeregningsgrunnlagRestInputFelles {
 
 
     @Inject
-    public BeregningsgrunnlagRestInputFelles(BehandlingRepository behandlingRepository,
+    public BeregningsgrunnlagGUIInputFelles(BehandlingRepository behandlingRepository,
                                              InntektArbeidYtelseTjeneste iayTjeneste,
                                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                              AndelGraderingTjeneste andelGraderingTjeneste,
@@ -64,11 +64,11 @@ public abstract class BeregningsgrunnlagRestInputFelles {
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
     }
 
-    protected BeregningsgrunnlagRestInputFelles() {
+    protected BeregningsgrunnlagGUIInputFelles() {
         // for CDI proxy
     }
 
-    public BeregningsgrunnlagRestInput lagInput(Behandling behandling) {
+    public BeregningsgrunnlagGUIInput lagInput(Behandling behandling) {
         var behandlingId = behandling.getId();
         var iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
@@ -77,20 +77,20 @@ public abstract class BeregningsgrunnlagRestInputFelles {
         return lagInput(ref, iayGrunnlag).orElseThrow();
     }
 
-    public BeregningsgrunnlagRestInput lagInput(BehandlingReferanse referanse) {
+    public BeregningsgrunnlagGUIInput lagInput(BehandlingReferanse referanse) {
         var iayGrunnlag = iayTjeneste.hentGrunnlag(referanse.getBehandlingId());
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(referanse.getBehandlingId());
         return lagInput(referanse.medSkjæringstidspunkt(skjæringstidspunkt), iayGrunnlag).orElseThrow();
     }
 
-    public Optional<BeregningsgrunnlagRestInput> lagInput(Behandling behandling, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public Optional<BeregningsgrunnlagGUIInput> lagInput(Behandling behandling, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         return lagInput(ref, iayGrunnlag);
     }
 
     /** Returnerer input hvis data er på tilgjengelig for det, ellers Optional.empty(). */
-    private Optional<BeregningsgrunnlagRestInput> lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    private Optional<BeregningsgrunnlagGUIInput> lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var aktivitetGradering = andelGraderingTjeneste.utled(ref);
         List<RefusjonskravDato> refusjonskravDatoer = inntektsmeldingTjeneste.hentAlleRefusjonskravDatoerForFagsak(ref.getSaksnummer());
         List<Inntektsmelding> inntektsmeldingDiff = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
@@ -116,7 +116,7 @@ public abstract class BeregningsgrunnlagRestInputFelles {
         InntektArbeidYtelseGrunnlagDto iayGrunnlagMedArbeidsforholdOpplysninger = InntektArbeidYtelseGrunnlagDtoBuilder.oppdatere(iayGrunnlagDto)
             .medArbeidsgiverOpplysninger(mapArbeidsforholdOpplysninger(arbeidsgiverOpplysninger, iayGrunnlag.getArbeidsforholdOverstyringer()))
             .build();
-        return Optional.of(new BeregningsgrunnlagRestInput(
+        return Optional.of(new BeregningsgrunnlagGUIInput(
             MapBehandlingRef.mapRef(ref),
             iayGrunnlagMedArbeidsforholdOpplysninger,
             aktivitetGradering,
@@ -134,7 +134,7 @@ public abstract class BeregningsgrunnlagRestInputFelles {
     }
 
     /** Returnerer input hvis data er på tilgjengelig for det, ellers Optional.empty(). */
-    public BeregningsgrunnlagRestInput lagInput(Long behandlingId) {
+    public BeregningsgrunnlagGUIInput lagInput(Long behandlingId) {
         var iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         return lagInput(behandling, iayGrunnlag).orElseThrow();

@@ -82,7 +82,7 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
         Lønnsendring.Builder endring = new Lønnsendring.Builder()
             .medAktivitetStatus(endretAndel.getAktivitetStatus())
             .medNyInntektskategori(fastsatteVerdier.getInntektskategori())
-            .medNyArbeidsinntektPrÅr(fastsatteVerdier.finnEllerUtregnFastsattBeløpPrÅr().intValue())
+            .medNyArbeidsinntektPrÅr(fastsatteVerdier.getFastsattÅrsbeløpInklNaturalytelse())
             .medNyAndel(endretAndel.getNyAndel());
         if (gjelderArbeidsforhold(endretAndel)) {
             settArbeidsforholdVerdier(endretAndel, endring);
