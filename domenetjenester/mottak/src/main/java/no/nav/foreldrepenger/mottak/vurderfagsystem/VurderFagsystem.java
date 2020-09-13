@@ -135,7 +135,7 @@ public class VurderFagsystem {
     }
 
     public DokumentTypeId getDokumentTypeId() {
-        return dokumentTypeId;
+        return dokumentTypeId == null ? DokumentTypeId.UDEFINERT : dokumentTypeId;
     }
 
     public void setDokumentTypeId(DokumentTypeId dokumentTypeId) {
@@ -143,7 +143,7 @@ public class VurderFagsystem {
     }
 
     public DokumentKategori getDokumentKategori() {
-        return dokumentKategori;
+        return dokumentKategori == null ? DokumentKategori.UDEFINERT : dokumentKategori;
     }
 
     public void setDokumentKategori(DokumentKategori dokumentKategori) {

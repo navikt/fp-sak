@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.anke;
 import static java.util.Collections.singletonList;
 
 import java.util.List;
-import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -43,8 +42,6 @@ public class AnkeSteg implements BehandlingSteg {
 
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
-        if (!Objects.equals(BehandlingStegType.FATTE_VEDTAK, sisteSteg)) {
-            ankeRepository.slettAnkeVurderingResultat(kontekst.getBehandlingId());
-        }
+        ankeRepository.settAnkeGodkjentHosMedunderskriver(kontekst.getBehandlingId(), false);
     }
 }

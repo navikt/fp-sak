@@ -117,9 +117,10 @@ public class BehandlingOpprettingTjeneste {
         historikkinnslag.setType(type);
         historikkinnslag.setBehandlingId(behandling.getId());
         historikkinnslag.setFagsakId(behandling.getFagsakId());
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(type);
-        builder.build(historikkinnslag);
+
+        new HistorikkInnslagTekstBuilder().medHendelse(type)
+            .medBegrunnelse(type.getNavn())
+            .build(historikkinnslag);
 
         historikkRepository.lagre(historikkinnslag);
     }

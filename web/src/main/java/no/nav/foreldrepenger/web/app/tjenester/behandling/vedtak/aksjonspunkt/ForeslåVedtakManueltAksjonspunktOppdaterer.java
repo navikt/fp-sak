@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
@@ -31,13 +30,6 @@ class ForeslåVedtakManueltAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
 
     @Override
     public OppdateringResultat oppdater(ForeslaVedtakManueltAksjonspuntDto dto, AksjonspunktOppdaterParameter param) {
-        OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon();
-        if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
-            oppdaterFritekstVedtaksbrev(dto, param);
-            builder.medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FATTE_VEDTAK);
-        } else {
-            fjernFritekstBrevHvisEksisterer(param.getBehandlingId());
-        }
-        return builder.build();
+        return standardHåndteringUtenTotrinn(dto, param);
     }
 }

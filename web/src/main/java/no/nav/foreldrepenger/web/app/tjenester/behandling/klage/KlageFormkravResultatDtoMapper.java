@@ -9,8 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.TilbakekrevingVedtakDto;
 
@@ -18,29 +16,18 @@ class KlageFormkravResultatDtoMapper {
     private KlageFormkravResultatDtoMapper() {
     }
 
-    static Optional<KlageFormkravResultatDto> mapNFPKlageFormkravResultatDto(Behandling behandling, KlageRepository klageRepository, FptilbakeRestKlient fptilbakeRestKlient) {
-        Optional<KlageFormkravEntitet> resultatOpt = klageRepository.hentKlageFormkrav(behandling, KlageVurdertAv.NFP);
-        return resultatOpt.map((KlageFormkravEntitet klageFormkrav) -> lagDto(klageFormkrav,fptilbakeRestKlient));
-    }
-
-    static Optional<KlageFormkravResultatDto> mapKAKlageFormkravResultatDto(Behandling behandling, KlageRepository klageRepository, FptilbakeRestKlient fptilbakeRestKlient) {
-        Optional<KlageFormkravEntitet> resultatOpt = klageRepository.hentKlageFormkrav(behandling,KlageVurdertAv.NK);
-        return resultatOpt.map((KlageFormkravEntitet klageFormkrav) -> lagDto(klageFormkrav,fptilbakeRestKlient));
-    }
-
-    private static KlageFormkravResultatDto lagDto(KlageFormkravEntitet klageFormkrav, FptilbakeRestKlient fptilbakeRestKlient) {
-        Optional<Behandling> paKlagdBehandling = klageFormkrav.hentKlageResultat().getPåKlagdBehandling();
-        Optional<UUID> paKlagdEksternBehandlingUuid = klageFormkrav.hentKlageResultat().getPåKlagdEksternBehandling();
+    public static KlageFormkravResultatDto mapKlageFormkravResultatDto(KlageFormkravEntitet klageFormkrav, Optional<Behandling> påklagdBehandling, FptilbakeRestKlient fptilbakeRestKlient) {
+        Optional<UUID> paKlagdEksternBehandlingUuid = klageFormkrav.hentKlageResultat().getPåKlagdEksternBehandlingUuid();
         KlageFormkravResultatDto dto = new KlageFormkravResultatDto();
-        if (paKlagdBehandling.isEmpty() && paKlagdEksternBehandlingUuid.isPresent()) {
+        if (påklagdBehandling.isEmpty() && paKlagdEksternBehandlingUuid.isPresent()) {
             Optional<TilbakekrevingVedtakDto> tilbakekrevingVedtakDto = hentPåklagdBehandlingIdForEksternApplikasjon(paKlagdEksternBehandlingUuid.get(), fptilbakeRestKlient);
             if (tilbakekrevingVedtakDto.isPresent()) {
                 dto.setPaKlagdBehandlingId(tilbakekrevingVedtakDto.get().getBehandlingId());
                 dto.setPaklagdBehandlingType(BehandlingType.fraKode(tilbakekrevingVedtakDto.get().getTilbakekrevingBehandlingType()));
             }
         } else {
-            dto.setPaKlagdBehandlingId(paKlagdBehandling.map(Behandling::getId).orElse(null));
-            dto.setPaklagdBehandlingType(paKlagdBehandling.map(Behandling::getType).orElse(null));
+            dto.setPaKlagdBehandlingId(påklagdBehandling.map(Behandling::getId).orElse(null));
+            dto.setPaklagdBehandlingType(påklagdBehandling.map(Behandling::getType).orElse(null));
         }
         dto.setBegrunnelse(klageFormkrav.hentBegrunnelse());
         dto.setErKlagerPart(klageFormkrav.erKlagerPart());

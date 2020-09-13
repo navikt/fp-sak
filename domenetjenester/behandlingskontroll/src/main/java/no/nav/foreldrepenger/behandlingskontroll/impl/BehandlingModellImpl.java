@@ -361,9 +361,8 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
         while (entry != null) {
             logger.debug("Prosesserer steg: {}", entry);
             StegProsesseringResultat resultat = visitor.prosesser(entry);
-            BehandlingStegStatus nyStegStatus = resultat.getNyStegStatus();
 
-            if (!nyStegStatus.kanFortsetteTilNeste()) {
+            if (!kanFortsetteTilNeste(resultat)) {
                 // bryt flyten, og bli stående på dette steget
                 logger.debug("Avbryter etter steg: {}, transisjon={}", entry, resultat);
                 return new BehandlingStegUtfall(entry.getBehandlingStegType(), resultat.getNyStegStatus());
@@ -377,6 +376,10 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
         logger.debug("Avslutter, ingen flere steg");
         return null;
 
+    }
+
+    boolean kanFortsetteTilNeste(StegProsesseringResultat resultat) {
+        return resultat.getNyStegStatus().kanFortsetteTilNeste() || Transisjoner.finnTransisjon(resultat.getTransisjon()).getMålstegHvisHopp().isPresent();
     }
 
     void leggTil(BehandlingStegType stegType, BehandlingType behandlingType, FagsakYtelseType ytelseType) {
@@ -396,7 +399,7 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     protected void leggTilAksjonspunktDefinisjoner(BehandlingStegType stegType, BehandlingStegModellImpl entry) {
         AksjonspunktDefinisjon.finnAksjonspunktDefinisjoner(stegType, VurderingspunktType.INN)
             .forEach(ad -> entry.leggTilAksjonspunktVurderingInngang(ad.getKode()));
-        
+
         AksjonspunktDefinisjon.finnAksjonspunktDefinisjoner(stegType, VurderingspunktType.UT)
             .forEach(ad -> entry.leggTilAksjonspunktVurderingUtgang(ad.getKode()));
     }

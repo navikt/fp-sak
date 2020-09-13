@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
@@ -274,9 +275,9 @@ public class AksjonspunktApplikasjonTjeneste {
         }
     }
 
-    private void håndterEkstraAksjonspunktResultat(BehandlingskontrollKontekst kontekst, Behandling behandling, boolean totrinn, AksjonspunktDefinisjon apDef, AksjonspunktStatus nyStatus, boolean overstyring) {
-        Optional<Aksjonspunkt> eksisterendeAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(apDef);
-        Aksjonspunkt aksjonspunkt = eksisterendeAksjonspunkt.orElseGet(() -> opprettEkstraAksjonspunktForResultat(kontekst, behandling, apDef, overstyring));
+    private void håndterEkstraAksjonspunktResultat(BehandlingskontrollKontekst kontekst, Behandling behandling, boolean totrinn, AksjonspunktResultat apRes, AksjonspunktStatus nyStatus, boolean overstyring) {
+        Optional<Aksjonspunkt> eksisterendeAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(apRes.getAksjonspunktDefinisjon());
+        Aksjonspunkt aksjonspunkt = eksisterendeAksjonspunkt.orElseGet(() -> opprettEkstraAksjonspunktForResultat(kontekst, behandling, apRes, overstyring));
 
         if (totrinn && !AksjonspunktStatus.AVBRUTT.equals(nyStatus)  && aksjonspunktStøtterTotrinn(aksjonspunkt)) {
             aksjonspunktRepository.setToTrinnsBehandlingKreves(aksjonspunkt);
@@ -297,11 +298,14 @@ public class AksjonspunktApplikasjonTjeneste {
         }
     }
 
-    private Aksjonspunkt opprettEkstraAksjonspunktForResultat(BehandlingskontrollKontekst kontekst, Behandling behandling, AksjonspunktDefinisjon apDef, boolean overstyring) {
-        if (overstyring) {
-            return behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(apDef)).get(0);
+    private Aksjonspunkt opprettEkstraAksjonspunktForResultat(BehandlingskontrollKontekst kontekst, Behandling behandling, AksjonspunktResultat apRes, boolean overstyring) {
+        if (apRes.getAksjonspunktDefinisjon().erAutopunkt() && apRes.getFrist() != null) {
+            return behandlingskontrollTjeneste.settBehandlingPåVent(behandling, apRes.getAksjonspunktDefinisjon(), behandling.getAktivtBehandlingSteg(), apRes.getFrist(), apRes.getVenteårsak());
         }
-        return behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, behandling.getAktivtBehandlingSteg(), List.of(apDef)).get(0);
+        if (overstyring) {
+            return behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(apRes.getAksjonspunktDefinisjon())).get(0);
+        }
+        return behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, behandling.getAktivtBehandlingSteg(), List.of(apRes.getAksjonspunktDefinisjon())).get(0);
     }
 
 

@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.aksjonspunkt;
 import java.util.ArrayList;
 import java.util.List;
 
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -21,7 +22,7 @@ public class OppdateringResultat {
     private boolean avbrytAksjonspunkt = false;
     private boolean totrinnsKontroll = false;
     private TransisjonIdentifikator transisjonId;
-    private List<Tuple<AksjonspunktDefinisjon, AksjonspunktStatus>> ekstraAksjonspunktResultat = new ArrayList<>();
+    private List<Tuple<AksjonspunktResultat, AksjonspunktStatus>> ekstraAksjonspunktResultat = new ArrayList<>();
 
     private OppdateringResultat(BehandlingStegType nesteSteg, OverhoppKontroll overhoppKontroll, TransisjonIdentifikator transisjonId, boolean totrinn) {
         this.overhoppKontroll = overhoppKontroll;
@@ -112,7 +113,7 @@ public class OppdateringResultat {
         return totrinnsKontroll;
     }
 
-    public List<Tuple<AksjonspunktDefinisjon, AksjonspunktStatus>> getEkstraAksjonspunktResultat() {
+    public List<Tuple<AksjonspunktResultat, AksjonspunktStatus>> getEkstraAksjonspunktResultat() {
         return ekstraAksjonspunktResultat;
     }
 
@@ -178,7 +179,16 @@ public class OppdateringResultat {
          * NB: Vil legge til dersom ikke finnes fra før. Bruk helst andre mekanismer.
          */
         public Builder medEkstraAksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon, AksjonspunktStatus nyStatus) {
-            resultat.ekstraAksjonspunktResultat.add(new Tuple<>(aksjonspunktDefinisjon, nyStatus));
+            resultat.ekstraAksjonspunktResultat.add(new Tuple<>(AksjonspunktResultat.opprettForAksjonspunkt(aksjonspunktDefinisjon), nyStatus));
+            return this;
+        }
+
+        /*
+         * Brukes dersom man absolutt må sette på vent.
+         * NB: Vil legge til dersom ikke finnes fra før. Bruk helst andre mekanismer.
+         */
+        public Builder medEkstraAksjonspunktResultat(AksjonspunktResultat aksjonspunktResultat, AksjonspunktStatus nyStatus) {
+            resultat.ekstraAksjonspunktResultat.add(new Tuple<>(aksjonspunktResultat, nyStatus));
             return this;
         }
 

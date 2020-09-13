@@ -11,7 +11,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurde
 import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.STADFESTE_YTELSESVEDTAK;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -24,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
@@ -148,8 +146,8 @@ public class ScenarioKlageEngangsstønad {
             this.opprettedeAksjonspunktDefinisjoner.put(FORESLÅ_VEDTAK, BehandlingStegType.FORESLÅ_VEDTAK);
         }
         //setter default resultat NFP trenger kanskje en utledning fra resultattype
-        this.vurderingResultatNFP.medKlageAvvistÅrsak(KlageAvvistÅrsak.UDEFINERT).medBegrunnelse("DEFAULT")
-            .medKlageVurdering(KlageVurdering.AVVIS_KLAGE).medVedtaksdatoPåklagdBehandling(LocalDate.now());
+        this.vurderingResultatNFP.medBegrunnelse("DEFAULT")
+            .medKlageVurdering(KlageVurdering.AVVIS_KLAGE);
         return this;
     }
 
@@ -165,8 +163,8 @@ public class ScenarioKlageEngangsstønad {
         this.opprettedeAksjonspunktDefinisjoner.put(FORESLÅ_VEDTAK, BehandlingStegType.FORESLÅ_VEDTAK);
 
         //setter default resultat NFP trenger kanskje en utledning fra resultattype
-        this.vurderingResultatNK.medKlageAvvistÅrsak(KlageAvvistÅrsak.UDEFINERT).medBegrunnelse("DEFAULT")
-            .medKlageVurdering(KlageVurdering.AVVIS_KLAGE).medVedtaksdatoPåklagdBehandling(LocalDate.now());
+        this.vurderingResultatNK.medBegrunnelse("DEFAULT")
+            .medKlageVurdering(KlageVurdering.AVVIS_KLAGE);
         return this;
     }
 
@@ -191,15 +189,15 @@ public class ScenarioKlageEngangsstønad {
         BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
         BehandlingLås lås = behandlingRepository.taSkriveLås(klageBehandling);
         behandlingRepository.lagre(klageBehandling, lås);
-        klageResultat = klageRepository.hentEvtOpprettKlageResultat(klageBehandling);
+        klageResultat = klageRepository.hentEvtOpprettKlageResultat(klageBehandling.getId());
         klageRepository.lagreFormkrav(klageBehandling, opprettFormkrav(KlageVurdertAv.NFP));
         if (vurderingNFP != null) {
             klageRepository.lagreVurderingsResultat(klageBehandling,vurderingResultatNFP.medKlageVurdertAv(KlageVurdertAv.NFP).medKlageVurdering(vurderingNFP)
-                .medVedtaksdatoPåklagdBehandling(LocalDate.now()).medKlageResultat(klageResultat));
+                .medKlageResultat(klageResultat));
         }
         if (vurderingNK != null) {
             klageRepository.lagreVurderingsResultat(klageBehandling, vurderingResultatNK.medKlageVurdertAv(KlageVurdertAv.NK).medKlageVurdering(vurderingNK)
-                .medVedtaksdatoPåklagdBehandling(LocalDate.now()).medKlageResultat(klageResultat));
+                .medKlageResultat(klageResultat));
         }
         if (vurderingNFP != null) {
             Behandlingsresultat.builder().medBehandlingResultatType(
@@ -225,12 +223,6 @@ public class ScenarioKlageEngangsstønad {
         }
 
         return klageBehandling;
-    }
-
-    public ScenarioKlageEngangsstønad medKlageAvvistÅrsak(KlageAvvistÅrsak klageAvvistÅrsak) {
-        vurderingResultatNFP.medKlageAvvistÅrsak(klageAvvistÅrsak);
-        vurderingResultatNK.medKlageAvvistÅrsak(klageAvvistÅrsak);
-        return this;
     }
 
     public ScenarioKlageEngangsstønad medKlageMedholdÅrsak(KlageMedholdÅrsak klageMedholdÅrsak) {
@@ -297,7 +289,7 @@ public class ScenarioKlageEngangsstønad {
     }
 
     private KlageFormkravEntitet.Builder opprettFormkrav(KlageVurdertAv klageVurdertAv) {
-        return new KlageFormkravEntitet.Builder()
+        return KlageFormkravEntitet.builder()
             .medErKlagerPart(true)
             .medErFristOverholdt(true)
             .medErKonkret(true)
@@ -320,26 +312,11 @@ public class ScenarioKlageEngangsstønad {
             private KlageFormkravEntitet klageFormkrav;
 
             @Override
-            public KlageResultatEntitet hentEvtOpprettKlageResultat(Behandling klageBehandling) {
+            public KlageResultatEntitet hentEvtOpprettKlageResultat(Long klageBehandlingId) {
                 if (klageResultat == null) {
-                    this.klageResultat = KlageResultatEntitet.builder().medKlageBehandling(klageBehandling).build();
+                    this.klageResultat = KlageResultatEntitet.builder().medKlageBehandlingId(klageBehandlingId).build();
                 }
                 return klageResultat;
-            }
-
-            @Override
-            public void slettKlageVurderingResultat(Long klageBehandlingId, KlageVurdertAv klageVurdertAv) {
-                if (klageVurdertAv == KlageVurdertAv.NFP) {
-                    klageVurderingResultatNfp = null;
-                }
-                if (klageVurdertAv == KlageVurdertAv.NK) {
-                    klageVurderingResultatKa = null;
-                }
-            }
-
-            @Override
-            public void slettFormkrav(Behandling behandling, KlageVurdertAv klageVurdertAv) {
-                this.klageFormkrav = null;
             }
 
             @Override
@@ -367,12 +344,12 @@ public class ScenarioKlageEngangsstønad {
             }
 
             @Override
-            public Optional<KlageFormkravEntitet> hentKlageFormkrav(Behandling klageBehandling, KlageVurdertAv klageVurdertAv) {
+            public Optional<KlageFormkravEntitet> hentKlageFormkrav(Long klageBehandling, KlageVurdertAv klageVurdertAv) {
                 return Optional.ofNullable(this.klageFormkrav);
             }
 
             @Override
-            public Optional<KlageFormkravEntitet> hentGjeldendeKlageFormkrav(Behandling behandling) {
+            public Optional<KlageFormkravEntitet> hentGjeldendeKlageFormkrav(Long behandling) {
                 return Optional.ofNullable(this.klageFormkrav);
             }
 
@@ -382,9 +359,13 @@ public class ScenarioKlageEngangsstønad {
             }
 
             @Override
-            public void settPåklagdBehandling(Behandling klageBehandling, Behandling påKlagdBehandling) {
-                KlageResultatEntitet klageResultat = hentEvtOpprettKlageResultat(klageBehandling);
-                klageResultat.settPåKlagdBehandling(påKlagdBehandling);
+            public void settPåklagdBehandlingId(Long klageBehandlingId, Long påKlagdBehandlingId) {
+                KlageResultatEntitet klageResultat = hentEvtOpprettKlageResultat(klageBehandlingId);
+                klageResultat.settPåKlagdBehandlingId(påKlagdBehandlingId);
+            }
+
+            @Override
+            public void settKlageGodkjentHosMedunderskriver(Long klageBehandlingId, KlageVurdertAv vurdertAv, boolean vurdering) {
             }
         };
     }

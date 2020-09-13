@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
-import no.nav.foreldrepenger.behandling.anke.impl.AnkeVurderingAdapter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -64,54 +63,36 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
         Behandling behandling = param.getBehandling();
 
         Optional<AnkeVurderingResultatEntitet> ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
-        boolean ankeVurderingResultatHaddeVerdiFørHåndtering = ankeVurderingResultat.isPresent()?true:false;
+        boolean ankeVurderingResultatHaddeVerdiFørHåndtering = ankeVurderingResultat.isPresent();
 
-        håndterAnkeVurdering(dto, behandling,ankeVurderingResultat);
+        var builder = mapDto(dto, behandling);
+        ankeVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder, dto.hentPåAnketBehandlingId());
 
         opprettHistorikkinnslag(behandling, dto, ankeVurderingResultatHaddeVerdiFørHåndtering);
 
         return OppdateringResultat.utenOveropp();
     }
 
-    private void håndterAnkeVurdering(AnkeVurderingResultatAksjonspunktDto dto, Behandling behandling, Optional<AnkeVurderingResultatEntitet> ankeVurderingResultat) {
-
-        boolean erGodkjentAvMedunderskriver = false;
-        if (ankeVurderingResultat.isPresent()) {
-            erGodkjentAvMedunderskriver = ankeVurderingResultat.get().godkjentAvMedunderskriver();
-        }
-        final AnkeVurderingAdapter adapter = new AnkeVurderingAdapter.Builder()
-            .medAnkeVurderingKode(dto.getAnkeVurdering().getKode())
-            .medBegrunnelse(dto.getBegrunnelse())
-            .medAnkeOmgjoerArsakKode(getAnkeOmgjørÅrsak(dto))
-            .medFritekstTilBrev(dto.getFritekstTilBrev())
-            .medAnkeVurderingOmgjoer(getAnkeVurderingOmgjør(dto))
-            .medErSubsidiartRealitetsbehandles(dto.erSubsidiartRealitetsbehandles())
-            .medErGodkjentAvMedunderskriver(erGodkjentAvMedunderskriver)
-            .medErAnkerIkkePart(dto.erAnkerIkkePart())
-            .medErFristIkkeOverholdt(dto.erFristIkkeOverholdt())
-            .medErIkkeKonkret(dto.erIkkeKonkret())
-            .medErIkkeSignert(dto.erIkkeSignert())
-            .medPaaAnketBehandlingId(dto.hentPåAnketBehandlingId())
-            .medMerknaderFraBruker(dto.getMerknaderFraBruker())
-            .medErMerknaderMottatt(dto.erMerknaderMottatt())
-            .build();
-
-        ankeVurderingTjeneste.oppdater(behandling, adapter);
-
-        ankeVurderingTjeneste.oppdaterAnkeMedPåanketBehandling(behandling.getId(),dto.hentPåAnketBehandlingId());
-    }
-
-    private String getAnkeOmgjørÅrsak(AnkeVurderingResultatAksjonspunktDto dto) {
-        return dto.getAnkeOmgjoerArsak() == null ? null : dto.getAnkeOmgjoerArsak().getKode();
-    }
-
-    private String getAnkeVurderingOmgjør(AnkeVurderingResultatAksjonspunktDto dto) {
-        return dto.getAnkeVurderingOmgjoer() == null ? null : dto.getAnkeVurderingOmgjoer().getKode();
+    private AnkeVurderingResultatEntitet.Builder mapDto(AnkeVurderingResultatAksjonspunktDto apDto, Behandling behandling) {
+        var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling);
+        return builder.medAnkeVurdering(apDto.getAnkeVurdering())
+            .medBegrunnelse(apDto.getBegrunnelse())
+            .medAnkeOmgjørÅrsak(apDto.getAnkeOmgjoerArsak())
+            .medFritekstTilBrev(apDto.getFritekstTilBrev())
+            .medAnkeVurderingOmgjør(apDto.getAnkeVurderingOmgjoer())
+            .medErSubsidiartRealitetsbehandles(apDto.erSubsidiartRealitetsbehandles())
+            .medErAnkerIkkePart(apDto.erAnkerIkkePart())
+            .medErFristIkkeOverholdt(apDto.erFristIkkeOverholdt())
+            .medErIkkeKonkret(apDto.erIkkeKonkret())
+            .medErIkkeSignert(apDto.erIkkeSignert())
+            .medGjelderVedtak(apDto.hentPåAnketBehandlingId() != null)
+            .medMerknaderFraBruker(apDto.getMerknaderFraBruker())
+            .medErMerknaderMottatt(apDto.erMerknaderMottatt());
     }
 
     private void opprettHistorikkinnslag(Behandling behandling, AnkeVurderingResultatAksjonspunktDto dto,boolean endreAnke) {
         Optional<AnkeVurderingResultatEntitet> ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
-        AnkeResultatEntitet ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(behandling);
+        AnkeResultatEntitet ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(behandling.getId());
         AnkeVurdering ankeVurdering = AnkeVurdering.fraKode(dto.getAnkeVurdering().getKode());
         AnkeVurderingOmgjør ankeVurderingOmgjør = dto.getAnkeVurderingOmgjoer() != null
             ? AnkeVurderingOmgjør.fraKode(dto.getAnkeVurderingOmgjoer().getKode()) : null;
@@ -177,7 +158,7 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
     private void finnOgSettOppEndredeHistorikkFelter(AnkeVurderingResultatEntitet ankeVurderingResultat, HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder, AnkeVurderingResultatAksjonspunktDto dto, AnkeResultatEntitet ankeResultat, BasisKodeverdi årsakFraDto, HistorikkResultatType resultat) {
         if (erVedtakOppdatert(ankeResultat, dto)) {
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.PA_ANKET_BEHANDLINGID,
-                hentPåanketBehandlingTekst(ankeResultat.getPåAnketBehandling().map(Behandling::getId).orElse(null)),
+                hentPåanketBehandlingTekst(ankeResultat.getPåAnketBehandlingId().orElse(null)),
                 hentPåanketBehandlingTekst(dto.hentPåAnketBehandlingId()));
         }
         if (erAnkeVurderingEndret(ankeVurderingResultat, dto)) {
@@ -216,18 +197,15 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
 
     private boolean erVedtakOppdatert(AnkeResultatEntitet ankeResultat, AnkeVurderingResultatAksjonspunktDto dto) {
         Long nyPåAnketBehandling = dto.hentPåAnketBehandlingId();
-        boolean harLagretPåAnketBehandling = ankeResultat.getPåAnketBehandling().isPresent();
+        boolean harLagretPåAnketBehandling = ankeResultat.getPåAnketBehandlingId().isPresent();
 
         if (!harLagretPåAnketBehandling && nyPåAnketBehandling == null) {
             return false;
         }
-        if (!harLagretPåAnketBehandling && nyPåAnketBehandling != null) {
+        if (!harLagretPåAnketBehandling || nyPåAnketBehandling == null) {
             return true;
         }
-        if (harLagretPåAnketBehandling && nyPåAnketBehandling == null) {
-            return true;
-        }
-        return !ankeResultat.getPåAnketBehandling().get().getId().equals(nyPåAnketBehandling);
+        return !ankeResultat.getPåAnketBehandlingId().get().equals(nyPåAnketBehandling);
     }
 
     private boolean erAnkeVurderingEndret(AnkeVurderingResultatEntitet ankeVurderingResultat, AnkeVurderingResultatAksjonspunktDto dto) {

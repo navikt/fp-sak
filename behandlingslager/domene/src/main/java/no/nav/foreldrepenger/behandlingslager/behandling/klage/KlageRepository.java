@@ -29,26 +29,22 @@ public class KlageRepository {
         this.entityManager = entityManager;
     }
 
-    public KlageResultatEntitet hentEvtOpprettKlageResultat(Behandling klageBehandling) {
-        Long behandlingId = klageBehandling.getId();
+    public KlageResultatEntitet hentEvtOpprettKlageResultat(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
 
         final TypedQuery<KlageResultatEntitet> query = entityManager.createQuery(
-            " FROM KlageResultat " +
-                "   WHERE klageBehandling.id = :behandlingId", //$NON-NLS-1$
+            " FROM KlageResultat WHERE klageBehandlingId = :behandlingId", //$NON-NLS-1$
             KlageResultatEntitet.class);// NOSONAR
 
         query.setParameter("behandlingId", behandlingId);
-        return hentUniktResultat(query).orElseGet(() -> leggTilKlageResultat(klageBehandling));
+        return hentUniktResultat(query).orElseGet(() -> leggTilKlageResultat(behandlingId));
     }
 
     private List<KlageVurderingResultat> hentVurderingsResultaterForKlageBehandling(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
 
         final TypedQuery<KlageVurderingResultat> query = entityManager.createQuery(
-            " FROM KlageVurderingResultat" +
-                "        WHERE klageResultat = (FROM KlageResultat " +
-                "        WHERE klageBehandling.id = :behandlingId)", //$NON-NLS-1$
+            " FROM KlageVurderingResultat WHERE klageResultat.klageBehandlingId = :behandlingId", //$NON-NLS-1$
             KlageVurderingResultat.class);// NOSONAR
 
         query.setParameter("behandlingId", behandlingId);
@@ -59,114 +55,87 @@ public class KlageRepository {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
 
         final TypedQuery<KlageFormkravEntitet> query = entityManager.createQuery(
-            " FROM KlageFormkrav" +
-                "        WHERE klageResultat = (FROM KlageResultat" +
-                "        WHERE klageBehandling.id = :behandlingId)", //$NON-NLS-1$
+            " FROM KlageFormkrav WHERE klageResultat.klageBehandlingId = :behandlingId", //$NON-NLS-1$
             KlageFormkravEntitet.class);// NOSONAR
         query.setParameter("behandlingId", behandlingId);
         return query.getResultList();
     }
 
-    private KlageResultatEntitet leggTilKlageResultat(Behandling klageBehandling) {
-        KlageResultatEntitet resultatEntitet = KlageResultatEntitet.builder().medKlageBehandling(klageBehandling).build();
+    private KlageResultatEntitet leggTilKlageResultat(Long klageBehandlingId) {
+        KlageResultatEntitet resultatEntitet = KlageResultatEntitet.builder().medKlageBehandlingId(klageBehandlingId).build();
         entityManager.persist(resultatEntitet);
         entityManager.flush();
         return resultatEntitet;
     }
 
-    public void settPåklagdBehandling(Behandling klageBehandling, Behandling påKlagdBehandling) {
-        KlageResultatEntitet klageResultat = hentEvtOpprettKlageResultat(klageBehandling);
-        klageResultat.settPåKlagdBehandling(påKlagdBehandling);
-        klageResultat.settPåKlagdEksternBehandlingId(null);
+    public void settPåklagdBehandlingId(Long klageBehandlingId, Long påKlagdBehandlingId) {
+        KlageResultatEntitet klageResultat = hentEvtOpprettKlageResultat(klageBehandlingId);
+        klageResultat.settPåKlagdBehandlingId(påKlagdBehandlingId);
+        klageResultat.settPåKlagdEksternBehandlingUuid(null);
 
         entityManager.persist(klageResultat);
         entityManager.flush();
     }
 
-    public void settPåklagdEksternBehandlingUuid(Behandling klageBehandling, UUID påKlagdEksternBehandlingUuid) {
-        KlageResultatEntitet klageResultat = hentEvtOpprettKlageResultat(klageBehandling);
-        klageResultat.settPåKlagdEksternBehandlingId(påKlagdEksternBehandlingUuid);
-        klageResultat.settPåKlagdBehandling(null);
+    public void settPåklagdEksternBehandlingUuid(Long klageBehandlingId, UUID påKlagdEksternBehandlingUuid) {
+        KlageResultatEntitet klageResultat = hentEvtOpprettKlageResultat(klageBehandlingId);
+        klageResultat.settPåKlagdEksternBehandlingUuid(påKlagdEksternBehandlingUuid);
+        klageResultat.settPåKlagdBehandlingId(null);
 
         entityManager.persist(klageResultat);
         entityManager.flush();
     }
 
-    public Optional<KlageFormkravEntitet> hentGjeldendeKlageFormkrav(Behandling behandling) {
-        List<KlageFormkravEntitet> klageFormkravListe = hentKlageFormkravForKlageBehandling(behandling.getId());
+    public Optional<KlageFormkravEntitet> hentGjeldendeKlageFormkrav(Long behandlingId) {
+        List<KlageFormkravEntitet> klageFormkravListe = hentKlageFormkravForKlageBehandling(behandlingId);
 
-        Optional<KlageFormkravEntitet> klageFormkravNK = klageFormkravListe.stream()
+        var gjeldende = klageFormkravListe.stream()
             .filter(kf -> KlageVurdertAv.NK.equals(kf.getKlageVurdertAv()))
-            .findFirst();
+            .findFirst().orElseGet(() -> klageFormkravListe.stream().findFirst().orElse(null));
 
-        Optional<KlageFormkravEntitet> klageFormkravNFP = klageFormkravListe.stream()
-            .filter(kf -> KlageVurdertAv.NFP.equals(kf.getKlageVurdertAv()))
-            .findFirst();
-
-        if (klageFormkravNK.isPresent()) {
-            return klageFormkravNK;
-        }
-        return klageFormkravNFP;
+        return Optional.ofNullable(gjeldende);
     }
 
-    private List<KlageFormkravEntitet> hentKlageFormkravEntiteterForKlageBehandling(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
-
-        final TypedQuery<KlageFormkravEntitet> query = entityManager.createQuery(
-            " FROM KlageFormkrav" +
-                "        WHERE klageResultat = (FROM KlageResultat" +
-                "        WHERE klageBehandling.id = :behandlingId)", //$NON-NLS-1$
-            KlageFormkravEntitet.class);// NOSONAR
-        query.setParameter("behandlingId", behandlingId);
-        return query.getResultList();
-    }
-
-    private Optional<KlageFormkravEntitet> hentKlageFormkravEntitet(Behandling klageBehandling, KlageVurdertAv klageVurdertAv) {
-        List<KlageFormkravEntitet> klageFormkravList = hentKlageFormkravEntiteterForKlageBehandling(klageBehandling.getId());
+    public Optional<KlageFormkravEntitet> hentKlageFormkrav(Long klageBehandlingId, KlageVurdertAv klageVurdertAv) {
+        List<KlageFormkravEntitet> klageFormkravList = hentKlageFormkravForKlageBehandling(klageBehandlingId);
         return klageFormkravList.stream()
             .filter(kf -> klageVurdertAv.equals(kf.getKlageVurdertAv()))
             .findFirst();
     }
 
     public Optional<KlageVurderingResultat> hentGjeldendeKlageVurderingResultat(Behandling behandling) {
-
         List<KlageVurderingResultat> klageVurderingResultat = hentVurderingsResultaterForKlageBehandling(behandling.getId());
 
-        Optional<KlageVurderingResultat> klageVurderingResultatNK = klageVurderingResultat.stream()
+        var resultat = klageVurderingResultat.stream()
             .filter(kvr -> KlageVurdertAv.NK.equals(kvr.getKlageVurdertAv()))
-            .findFirst();
+            .findFirst()
+            .orElseGet(() -> klageVurderingResultat.stream().findFirst().orElse(null));
 
-        Optional<KlageVurderingResultat> klageVurderingResultatNFP = klageVurderingResultat.stream()
-            .filter(krv -> KlageVurdertAv.NFP.equals(krv.getKlageVurdertAv()))
-            .findFirst();
-
-        if (klageVurderingResultatNK.isPresent()) {
-            return klageVurderingResultatNK;
-        }
-        return klageVurderingResultatNFP;
+        return Optional.ofNullable(resultat);
     }
 
     public void lagreFormkrav(Behandling klageBehandling, KlageFormkravEntitet.Builder klageFormkravBuilder) {
-        klageFormkravBuilder.medKlageResultat(hentEvtOpprettKlageResultat(klageBehandling));
+        klageFormkravBuilder.medKlageResultat(hentEvtOpprettKlageResultat(klageBehandling.getId()));
         KlageFormkravEntitet nyKlageFormkravEntitet = klageFormkravBuilder.build();
-        Optional<KlageFormkravEntitet> optionalGammelFormkrav = hentKlageFormkravEntitet(klageBehandling, nyKlageFormkravEntitet.getKlageVurdertAv());
-        if (optionalGammelFormkrav.isPresent()) {
-            entityManager.remove(optionalGammelFormkrav.get());
-        }
+        hentKlageFormkrav(klageBehandling.getId(), nyKlageFormkravEntitet.getKlageVurdertAv()).ifPresent(entityManager::remove);
         entityManager.persist(nyKlageFormkravEntitet);
         entityManager.flush();
     }
 
     public Long lagreVurderingsResultat(Behandling klageBehandling, KlageVurderingResultat.Builder klageVurderingResultatBuilder) {
-        klageVurderingResultatBuilder.medKlageResultat(hentEvtOpprettKlageResultat(klageBehandling));
+        klageVurderingResultatBuilder.medKlageResultat(hentEvtOpprettKlageResultat(klageBehandling.getId()));
         KlageVurderingResultat nyKlageVurderingResultat = klageVurderingResultatBuilder.build();
-        Optional<KlageVurderingResultat> optionalGammelVR = hentKlageVurderingResultat(klageBehandling.getId(), nyKlageVurderingResultat.getKlageVurdertAv());
-        if (optionalGammelVR.isPresent()) {
-            entityManager.remove(optionalGammelVR.get());
-        }
+        hentKlageVurderingResultat(klageBehandling.getId(), nyKlageVurderingResultat.getKlageVurdertAv()).ifPresent(entityManager::remove);
         entityManager.persist(nyKlageVurderingResultat);
         entityManager.flush();
         return nyKlageVurderingResultat.getId();
+    }
+
+    public Long lagreVurderingsResultat(Long klageBehandlingId, KlageVurderingResultat klageVurderingResultat) {
+                hentKlageVurderingResultat(klageBehandlingId, klageVurderingResultat.getKlageVurdertAv()).ifPresent(entityManager::remove);
+        entityManager.persist(klageVurderingResultat);
+        entityManager.flush();
+        return klageVurderingResultat.getId();
     }
 
     public Optional<KlageVurderingResultat> hentKlageVurderingResultat(Long klageBehandlingId, KlageVurdertAv klageVurdertAv) {
@@ -176,30 +145,12 @@ public class KlageRepository {
             .findFirst();
     }
 
-    public Optional<KlageFormkravEntitet> hentKlageFormkrav(Behandling klageBehandling, KlageVurdertAv klageVurdertAv) {
-        List<KlageFormkravEntitet> klageFormkravList = hentKlageFormkravForKlageBehandling(klageBehandling.getId());
-        return klageFormkravList.stream()
-            .filter(kf -> klageVurdertAv.equals(kf.getKlageVurdertAv()))
-            .findFirst();
-    }
-
-    public void slettKlageVurderingResultat(Long klageBehandlingId, KlageVurdertAv klageVurdertAv) {
-
-        Optional<KlageVurderingResultat> klageVurderingResultatOptional = hentKlageVurderingResultat(klageBehandlingId, klageVurdertAv);
-        if (!klageVurderingResultatOptional.isPresent()) {
-            return;
-        }
-        entityManager.remove(klageVurderingResultatOptional.get());
-        entityManager.flush();
-    }
-
-    public void slettFormkrav(Behandling behandling, KlageVurdertAv klageVurdertAv) {
-        Optional<KlageFormkravEntitet> klageFormkrav = hentKlageFormkrav(behandling, klageVurdertAv);
-        if (!klageFormkrav.isPresent()) {
-            return;
-        }
-        entityManager.remove(klageFormkrav.get());
-        entityManager.flush();
+    public void settKlageGodkjentHosMedunderskriver(Long klageBehandlingId, KlageVurdertAv vurdertAv, boolean vurdering) {
+        hentKlageVurderingResultat(klageBehandlingId, vurdertAv).ifPresent(kvr -> {
+            kvr.setGodkjentAvMedunderskriver(vurdering);
+            entityManager.persist(kvr);
+            entityManager.flush();
+        });
     }
 
 }

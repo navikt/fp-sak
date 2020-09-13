@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.klage;
 import static java.util.Collections.singletonList;
 
 import java.util.List;
-import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -60,9 +59,7 @@ public class KlageNkSteg implements BehandlingSteg {
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
                                    BehandlingStegType sisteSteg) {
-        if (!Objects.equals(BehandlingStegType.FATTE_VEDTAK, sisteSteg)) {
-            klageRepository.slettKlageVurderingResultat(kontekst.getBehandlingId(),KlageVurdertAv.NK);
-        }
+        klageRepository.settKlageGodkjentHosMedunderskriver(kontekst.getBehandlingId(), KlageVurdertAv.NK, false);
     }
 
 }

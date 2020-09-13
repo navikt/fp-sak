@@ -16,6 +16,8 @@ import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Journalpost;
@@ -56,6 +58,10 @@ public class VurderFagsystemFellesTjeneste {
         BehandlingTema behandlingTema = vurderFagsystem.getBehandlingTema();
         FagsakYtelseType ytelseType = behandlingTema.getFagsakYtelseType();
         List<Fagsak> alleBrukersFagsaker =  fagsakTjeneste.finnFagsakerForAktør(vurderFagsystem.getAktørId());
+
+        if (DokumentTypeId.KLAGE_DOKUMENT.equals(vurderFagsystem.getDokumentTypeId()) || DokumentKategori.KLAGE_ELLER_ANKE.equals(vurderFagsystem.getDokumentKategori())) {
+            return fellesUtils.vurderFagsystemKlageAnke(alleBrukersFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
+        }
 
         if (BehandlingTema.UDEFINERT.equals(behandlingTema) || FagsakYtelseType.UDEFINERT.equals(ytelseType)) {
             return fellesUtils.standardUstrukturertDokumentVurdering(alleBrukersFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));

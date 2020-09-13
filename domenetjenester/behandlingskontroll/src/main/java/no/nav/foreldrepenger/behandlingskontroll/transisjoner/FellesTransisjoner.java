@@ -4,12 +4,14 @@ public class FellesTransisjoner {
 
     public static final String FREMHOPP_PREFIX = "fremhopp-til-";
     public static final String SPOLFREM_PREFIX = "revurdering-fremoverhopp-til-";
+    private static final String TILBAKEFØR_PREFIX = "tilbakeført-til-";
 
     public static final TransisjonIdentifikator UTFØRT = TransisjonIdentifikator.forId("utført");
     public static final TransisjonIdentifikator STARTET = TransisjonIdentifikator.forId("startet");
     public static final TransisjonIdentifikator HENLAGT = TransisjonIdentifikator.forId("henlagt");
     public static final TransisjonIdentifikator SETT_PÅ_VENT = TransisjonIdentifikator.forId("sett-på-vent");
-    public static final TransisjonIdentifikator TILBAKEFØRT_TIL_AKSJONSPUNKT = TransisjonIdentifikator.forId("tilbakeført-til-aksjonspunkt");
+    public static final TransisjonIdentifikator TILBAKEFØRT_TIL_AKSJONSPUNKT = TransisjonIdentifikator.forId(TILBAKEFØR_PREFIX + "aksjonspunkt");
+    public static final TransisjonIdentifikator TILBAKEFØRT_TIL_FORESLÅ_VEDTAK = TransisjonIdentifikator.forId(TILBAKEFØR_PREFIX + "foreslå-vedtak");
     public static final TransisjonIdentifikator FREMHOPP_TIL_FATTE_VEDTAK = TransisjonIdentifikator.forId(FREMHOPP_PREFIX + "fatte-vedtak");
     public static final TransisjonIdentifikator FREMHOPP_TIL_FORESLÅ_VEDTAK = TransisjonIdentifikator.forId(FREMHOPP_PREFIX + "foreslå-vedtak");
     public static final TransisjonIdentifikator FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT = TransisjonIdentifikator.forId(FREMHOPP_PREFIX + "foreslå-behandlingsresultat");

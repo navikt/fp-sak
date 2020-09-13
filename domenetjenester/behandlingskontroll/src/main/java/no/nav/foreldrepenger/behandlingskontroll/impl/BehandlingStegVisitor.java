@@ -168,12 +168,12 @@ class BehandlingStegVisitor {
 
     private BehandlingTransisjonEvent opprettEvent(StegProsesseringResultat stegResultat, StegTransisjon transisjon, BehandlingStegTilstand fraTilstand, BehandlingStegType tilSteg) {
 
-        return new BehandlingTransisjonEvent(kontekst, stegResultat.getTransisjon(), fraTilstand, tilSteg, transisjon.getMålstegHvisFremoverhopp().isPresent());
+        return new BehandlingTransisjonEvent(kontekst, stegResultat.getTransisjon(), fraTilstand, tilSteg, transisjon.getMålstegHvisHopp().isPresent());
     }
 
     private BehandlingStegType finnFremoverhoppSteg(BehandlingStegType stegType, StegTransisjon transisjon) {
         BehandlingStegType tilSteg = null;
-        if (transisjon.getMålstegHvisFremoverhopp().isPresent()) {
+        if (transisjon.getMålstegHvisHopp().isPresent()) {
             BehandlingStegModell fraStegModell = behandlingModell.finnSteg(stegType);
             BehandlingStegModell tilStegModell = transisjon.nesteSteg(fraStegModell);
             tilSteg = tilStegModell != null ? tilStegModell.getBehandlingStegType() : null;
@@ -273,8 +273,8 @@ class BehandlingStegVisitor {
         if (FellesTransisjoner.HENLAGT.getId().equals(transisjon.getId())) {
             return behandlingStegKonfigurasjon.getAvbrutt();
         }
-        if (transisjon.getMålstegHvisFremoverhopp().isPresent()) {
-            return behandlingStegKonfigurasjon.mapTilStatus(BehandlingStegResultat.FREMOVERFØRT);
+        if (transisjon.getMålstegHvisHopp().isPresent()) {
+            return behandlingStegKonfigurasjon.mapTilStatus(transisjon.getRetningForHopp());
         }
         if (FellesTransisjoner.UTFØRT.getId().equals(transisjon.getId())) {
             return utledUtgangStegStatus(stegModell.getBehandlingStegType());

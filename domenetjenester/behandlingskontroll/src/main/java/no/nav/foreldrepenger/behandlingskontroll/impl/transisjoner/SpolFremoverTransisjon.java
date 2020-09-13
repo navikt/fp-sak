@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingskontroll.impl.transisjoner;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -43,8 +44,13 @@ class SpolFremoverTransisjon implements StegTransisjon {
     }
 
     @Override
-    public Optional<BehandlingStegType> getMålstegHvisFremoverhopp() {
+    public Optional<BehandlingStegType> getMålstegHvisHopp() {
         return Optional.of(målsteg);
+    }
+
+    @Override
+    public BehandlingStegResultat getRetningForHopp() {
+        return BehandlingStegResultat.FREMOVERFØRT;
     }
 
     @Override

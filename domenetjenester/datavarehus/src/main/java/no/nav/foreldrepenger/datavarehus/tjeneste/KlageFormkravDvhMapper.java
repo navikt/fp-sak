@@ -12,7 +12,7 @@ public class KlageFormkravDvhMapper {
             .medErKonkret(klageFormkrav.erKonkret())
             .medErSignert(klageFormkrav.erSignert())
             .medGjelderVedtak(klageFormkrav.hentGjelderVedtak())
-            .medKlageBehandlingId(klageFormkrav.hentKlageResultat().getKlageBehandling().getId())
+            .medKlageBehandlingId(klageFormkrav.hentKlageResultat().getKlageBehandlingId())
             .medKlageVurdertAv(klageFormkrav.getKlageVurdertAv().getKode())
             .medOpprettetTidspunkt(klageFormkrav.getOpprettetTidspunkt())
             .build();
