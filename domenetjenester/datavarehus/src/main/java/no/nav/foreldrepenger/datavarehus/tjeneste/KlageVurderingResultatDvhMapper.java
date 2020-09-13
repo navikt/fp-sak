@@ -7,14 +7,12 @@ public class KlageVurderingResultatDvhMapper {
 
     public KlageVurderingResultatDvh map(KlageVurderingResultat klageVurderingResultat) {
         return KlageVurderingResultatDvh.builder()
-            .medKlageAvvistÅrsak(klageVurderingResultat.getKlageAvvistÅrsak().getKode())
             .medKlageMedholdÅrsak(klageVurderingResultat.getKlageMedholdÅrsak().getKode())
-            .medKlageBehandlingId(klageVurderingResultat.getKlageResultat().getKlageBehandling().getId())
+            .medKlageBehandlingId(klageVurderingResultat.getKlageResultat().getKlageBehandlingId())
             .medKlageVurdering(klageVurderingResultat.getKlageVurdering().getKode())
             .medKlageVurderingOmgjør(klageVurderingResultat.getKlageVurderingOmgjør().getKode())
             .medKlageVurdertAv(klageVurderingResultat.getKlageVurdertAv().getKode())
             .medOpprettetTidspunkt(klageVurderingResultat.getOpprettetTidspunkt())
-            .medVedtaksdatoPåklagdBehandling(klageVurderingResultat.getVedtaksdatoPåklagdBehandling())
             .build();
     }
 }

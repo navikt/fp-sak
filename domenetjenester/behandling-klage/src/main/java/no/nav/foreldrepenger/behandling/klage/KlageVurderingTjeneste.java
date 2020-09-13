@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.klage;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -12,12 +13,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
@@ -54,79 +55,111 @@ public class KlageVurderingTjeneste {
         this.behandlingRepository = behandlingRepository;
     }
 
-    public void oppdater(Behandling behandling, KlageVurderingAdapter adapter) {
-        byggOgLagreKlageVurderingResultat(behandling, adapter);
-        settBehandlingResultatTypeBasertPaaUtfall(behandling, adapter);
+    public KlageResultatEntitet hentEvtOpprettKlageResultat(Behandling behandling) {
+        return klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
     }
 
-    public void mellomlagreVurderingResultat(Behandling behandling, KlageVurderingAdapter adapter) {
-        byggOgLagreKlageVurderingResultat(behandling, adapter);
+    public Optional<KlageFormkravEntitet> hentKlageFormkrav(Behandling klageBehandling, KlageVurdertAv vurdertAv) {
+        return klageRepository.hentKlageFormkrav(klageBehandling.getId(), vurdertAv);
     }
 
-    public void mellomlagreVurderingResultatOgÅpneAksjonspunkt(Behandling behandling, KlageVurderingAdapter adapter) {
-        tilbakeførBehandling(behandling, adapter);
-        byggOgLagreKlageVurderingResultat(behandling, adapter);
+    public KlageFormkravEntitet.Builder hentKlageFormkravBuilder(Behandling klageBehandling, KlageVurdertAv vurdertAv) {
+        var eksisterende = klageRepository.hentKlageFormkrav(klageBehandling.getId(), vurdertAv);
+        return eksisterende.map(KlageFormkravEntitet::builder).orElse(KlageFormkravEntitet.builder()).medKlageVurdertAv(vurdertAv);
     }
 
-    private void tilbakeførBehandling(Behandling behandling, KlageVurderingAdapter adapter) {
+    public void oppdaterKlageMedPåklagetBehandling(Long klageBehandlingId, Long påklagetBehandlingId) {
+        klageRepository.settPåklagdBehandlingId(klageBehandlingId, påklagetBehandlingId);
+    }
+
+    public void oppdaterKlageMedPåklagetEksternBehandlingUuid(Long klageBehandlingId, UUID påklagetEksternBehandlingUuid){
+        klageRepository.settPåklagdEksternBehandlingUuid(klageBehandlingId, påklagetEksternBehandlingUuid);
+    }
+
+    public void lagreFormkrav(Behandling behandling, KlageFormkravEntitet.Builder builder) {
+        klageRepository.lagreFormkrav(behandling, builder);
+    }
+
+
+    public Optional<KlageVurderingResultat> hentKlageVurderingResultat(Behandling behandling, KlageVurdertAv vurdertAv) {
+        return klageRepository.hentKlageVurderingResultat(behandling.getId(), vurdertAv);
+    }
+
+    public Optional<KlageVurderingResultat> hentGjeldendeKlageVurderingResultat(Behandling behandling) {
+        return klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
+    }
+
+    public KlageVurderingResultat.Builder hentKlageVurderingResultatBuilder(Behandling behandling, KlageVurdertAv vurdertAv) {
+        var eksisterende = klageRepository.hentKlageVurderingResultat(behandling.getId(), vurdertAv);
+        return eksisterende.map(KlageVurderingResultat::builder).orElse(KlageVurderingResultat.builder()).medKlageVurdertAv(vurdertAv);
+    }
+
+    public void oppdaterBekreftetVurderingAksjonspunkt(Behandling behandling, KlageVurderingResultat.Builder builder, KlageVurdertAv vurdertAv) {
+        lagreKlageVurderingResultat(behandling, builder, vurdertAv, true);
+    }
+
+    public void lagreKlageVurderingResultat(Behandling behandling, KlageVurderingResultat.Builder builder, KlageVurdertAv vurdertAv) {
+        lagreKlageVurderingResultat(behandling, builder, vurdertAv, false);
+    }
+
+    private void lagreKlageVurderingResultat(Behandling behandling, KlageVurderingResultat.Builder builder, KlageVurdertAv vurdertAv, boolean erVurderingOppdaterer) {
+        var aksjonspunkt = KlageVurdertAv.NK.equals(vurdertAv) ? AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK : AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP;
+        var vurderingsteg = KlageVurdertAv.NK.equals(vurdertAv) ? BehandlingStegType.KLAGE_NK : BehandlingStegType.KLAGE_NFP;
+
+        var klageResultat = hentEvtOpprettKlageResultat(behandling);
+        var nyttresultat = builder.medKlageResultat(klageResultat).medKlageVurdertAv(vurdertAv).build();
+        var eksisterende = hentKlageVurderingResultat(behandling, vurdertAv).orElse(null);
+
+        var uendret = eksisterende != null && eksisterende.harLikVurdering(nyttresultat);
+        var endretBeslutterStatus = eksisterende != null && eksisterende.isGodkjentAvMedunderskriver() && !uendret;
+
+        if (eksisterende == null) {
+            nyttresultat.setGodkjentAvMedunderskriver(false);
+        } else {
+            nyttresultat.setGodkjentAvMedunderskriver(eksisterende.isGodkjentAvMedunderskriver() && uendret);
+            if (endretBeslutterStatus && KlageVurdertAv.NFP.equals(vurdertAv)) {
+                klageRepository.settKlageGodkjentHosMedunderskriver(behandling.getId(), KlageVurdertAv.NK, false);
+            }
+        }
+        var tilbakeføres = endretBeslutterStatus &&
+            !behandling.harÅpentAksjonspunktMedType(aksjonspunkt) &&
+            behandlingskontrollTjeneste.erStegPassert(behandling, vurderingsteg);
+        klageRepository.lagreVurderingsResultat(behandling.getId(), nyttresultat);
+        if (erVurderingOppdaterer || tilbakeføres) {
+            settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getKlageVurdering(), vurdertAv);
+        }
+        if (tilbakeføres) {
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+            tilbakeførBehandling(behandling, vurderingsteg);
+        }
+    }
+
+    private void tilbakeførBehandling(Behandling behandling, BehandlingStegType vurderingSteg) {
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling.getId());
-        BehandlingStegType stegType = adapter.getErNfpAksjonspunkt() ? BehandlingStegType.KLAGE_NFP : BehandlingStegType.KLAGE_NK;
-        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, stegType);
+        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, vurderingSteg);
         prosesseringAsynkTjeneste.asynkProsesserBehandling(behandling);
     }
 
-    private void byggOgLagreKlageVurderingResultat(Behandling behandling, KlageVurderingAdapter adapter) {
-        KlageVurdering klageVurdering = adapter.getKlageVurderingKode() != null
-            ? KlageVurdering.fraKode(adapter.getKlageVurderingKode())
-            : null;
-        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling);
-        KlageVurderingResultat.Builder klageVurderingResultatBuilder = new KlageVurderingResultat.Builder()
-            .medBegrunnelse(adapter.getBegrunnelse())
-            .medFritekstTilBrev(adapter.getFritekstTilBrev())
-            .medKlageVurdering(klageVurdering)
-            .medKlageVurdertAv(adapter.getErNfpAksjonspunkt() ? KlageVurdertAv.NFP : KlageVurdertAv.NK)
-            .medKlageResultat(klageResultat);
-
-        Optional<String> klageMedholdÅrsak = adapter.getKlageMedholdArsakKode();
-        klageMedholdÅrsak.ifPresent(medholdÅrsak -> klageVurderingResultatBuilder
-            .medKlageMedholdÅrsak(KlageMedholdÅrsak.fraKode(medholdÅrsak)));
-
-        Optional<String> klageVurderingOmgjør = adapter.getKlageVurderingOmgjoer();
-        klageVurderingOmgjør.ifPresent(vurdeingOmgjør -> klageVurderingResultatBuilder
-            .medKlageVurderingOmgjør(KlageVurderingOmgjør.fraKode(vurdeingOmgjør)));
-
-        klageVurderingResultatBuilder.medGodkjentAvMedunderskriver(erGodkjentAvMedunderskriver(behandling, klageVurderingResultatBuilder.build()));
-        klageRepository.lagreVurderingsResultat(behandling, klageVurderingResultatBuilder);
-    }
-
-    private boolean erGodkjentAvMedunderskriver(Behandling behandling, KlageVurderingResultat klageVurderingResultat) {
-        Optional<KlageVurderingResultat> gammeltKlageVurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
-        return gammeltKlageVurderingResultat.isPresent() && gammeltKlageVurderingResultat.get().isGodkjentAvMedunderskriver()
-            && gammeltKlageVurderingResultat.get().getKlageVurdering().equals(klageVurderingResultat.getKlageVurdering())
-            && gammeltKlageVurderingResultat.get().getKlageMedholdÅrsak().equals(klageVurderingResultat.getKlageMedholdÅrsak())
-            && gammeltKlageVurderingResultat.get().getKlageVurderingOmgjør().equals(klageVurderingResultat.getKlageVurderingOmgjør());
-    }
-
-    private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurderingAdapter adapter) {
-        KlageVurdering klageVurdering = KlageVurdering.fraKode(adapter.getKlageVurderingKode());
-        if (adapter.getErNfpAksjonspunkt() && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)
+    private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurdering klageVurdering, KlageVurdertAv vurdertAv) {
+        if (KlageVurdertAv.NFP.equals(vurdertAv) && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)
             && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())) {
 
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS);
             dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, false);
             oppdaterBehandlingMedNyFrist(behandling);
         }
-        if (behandling.getBehandlingsresultat() == null) {
-            Behandlingsresultat.opprettFor(behandling);
-        }
-        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling);
+        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
+        boolean erPåklagdEksternBehandling = klageResultatEntitet.getPåKlagdBehandlingId().isEmpty() && klageResultatEntitet.getPåKlagdEksternBehandlingUuid().isPresent();
+        BehandlingResultatType behandlingResultatType = BehandlingResultatType.tolkBehandlingResultatType(klageVurdering, erPåklagdEksternBehandling);
 
-        boolean erPåklagdEksternBehandling = false;
-        if(klageResultatEntitet.getPåKlagdBehandling().isEmpty() && klageResultatEntitet.getPåKlagdEksternBehandling().isPresent()){
-            erPåklagdEksternBehandling = true;
+        if (behandling.getBehandlingsresultat() != null) {
+            Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
+                .medBehandlingResultatType(behandlingResultatType);
+        } else {
+            Behandlingsresultat.builder()
+                .medBehandlingResultatType(behandlingResultatType)
+                .buildFor(behandling);
         }
-        Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
-            .medBehandlingResultatType(BehandlingResultatType.tolkBehandlingResultatType(klageVurdering, erPåklagdEksternBehandling));
     }
 
     private void oppdaterBehandlingMedNyFrist(Behandling behandling) {

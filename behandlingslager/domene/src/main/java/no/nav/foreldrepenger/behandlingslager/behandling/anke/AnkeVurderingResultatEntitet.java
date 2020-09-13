@@ -90,6 +90,28 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
         return new Builder();
     }
 
+    public static Builder builder(AnkeVurderingResultatEntitet ankeVurderingResultatEntitet) {
+        return new Builder(ankeVurderingResultatEntitet);
+    }
+
+    private AnkeVurderingResultatEntitet(AnkeVurderingResultatEntitet entitet) {
+        this.ankeResultat = entitet.ankeResultat;
+        this.ankeVurdering = entitet.ankeVurdering;
+        this.ankeOmgjørÅrsak = entitet.ankeOmgjørÅrsak;
+        this.ankeVurderingOmgjør = entitet.ankeVurderingOmgjør;
+        this.begrunnelse = entitet.begrunnelse;
+        this.fritekstTilBrev = entitet.fritekstTilBrev;
+        this.merknaderFraBruker = entitet.merknaderFraBruker;
+        this.erMerknaderMottatt = entitet.erMerknaderMottatt;
+        this.godkjentAvMedunderskriver = entitet.godkjentAvMedunderskriver;
+        this.gjelderVedtak = entitet.gjelderVedtak;
+        this.erAnkerIkkePart = entitet.erAnkerIkkePart;
+        this.erFristIkkeOverholdt = entitet.erFristIkkeOverholdt;
+        this.erIkkeKonkret = entitet.erIkkeKonkret;
+        this.erIkkeSignert = entitet.erIkkeSignert;
+        this.erSubsidiartRealitetsbehandles = entitet.erSubsidiartRealitetsbehandles;
+    }
+
     public Long getId() {
         return id;
     }
@@ -134,6 +156,10 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
         return godkjentAvMedunderskriver;
     }
 
+    public void setGodkjentAvMedunderskriver(boolean verdi) {
+        godkjentAvMedunderskriver = verdi;
+    }
+
     public boolean erAnkerIkkePart() {
         return erAnkerIkkePart;
     }
@@ -176,22 +202,36 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        } else if (!(obj instanceof AnkeVurderingResultatEntitet)) {
-            return false;
-        }
-        AnkeVurderingResultatEntitet other = (AnkeVurderingResultatEntitet) obj;
-        return Objects.equals(this.ankeVurdering, other.getAnkeVurdering())
-            && Objects.equals(this.getAnkeOmgjørÅrsak(), other.getAnkeOmgjørÅrsak())
-            && Objects.equals(this.begrunnelse, other.begrunnelse)
-            && Objects.equals(this.fritekstTilBrev, other.fritekstTilBrev);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AnkeVurderingResultatEntitet that = (AnkeVurderingResultatEntitet) o;
+        return harLikVurdering(that) &&
+            erMerknaderMottatt == that.erMerknaderMottatt &&
+            gjelderVedtak == that.gjelderVedtak &&
+            godkjentAvMedunderskriver == that.godkjentAvMedunderskriver &&
+            Objects.equals(ankeResultat, that.ankeResultat) &&
+            Objects.equals(fritekstTilBrev, that.fritekstTilBrev) &&
+            Objects.equals(merknaderFraBruker, that.merknaderFraBruker);
+    }
+
+    public boolean harLikVurdering(AnkeVurderingResultatEntitet that) {
+        if (this == that) return true;
+        if (that == null || getClass() != that.getClass()) return false;
+        return erAnkerIkkePart == that.erAnkerIkkePart &&
+            erFristIkkeOverholdt == that.erFristIkkeOverholdt &&
+            erIkkeKonkret == that.erIkkeKonkret &&
+            erIkkeSignert == that.erIkkeSignert &&
+            erSubsidiartRealitetsbehandles == that.erSubsidiartRealitetsbehandles &&
+            ankeVurdering == that.ankeVurdering &&
+            ankeOmgjørÅrsak == that.ankeOmgjørÅrsak &&
+            ankeVurderingOmgjør == that.ankeVurderingOmgjør &&
+            Objects.equals(begrunnelse, that.begrunnelse);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAnkeVurdering(), getAnkeOmgjørÅrsak(), begrunnelse, fritekstTilBrev);
+        return Objects.hash(ankeResultat, ankeVurdering, ankeOmgjørÅrsak, ankeVurderingOmgjør, begrunnelse, fritekstTilBrev, merknaderFraBruker, erMerknaderMottatt, gjelderVedtak, erAnkerIkkePart, erFristIkkeOverholdt, erIkkeKonkret, erIkkeSignert, erSubsidiartRealitetsbehandles);
     }
 
     @Override
@@ -209,10 +249,13 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
     public static class Builder {
         private AnkeVurderingResultatEntitet ankeVurderingResultatMal;
 
-        public Builder() {
+        private Builder() {
             ankeVurderingResultatMal = new AnkeVurderingResultatEntitet();
         }
 
+        private Builder(AnkeVurderingResultatEntitet ankeVurderingResultatEntitet) {
+            ankeVurderingResultatMal = new AnkeVurderingResultatEntitet(ankeVurderingResultatEntitet);
+        }
 
         public Builder medAnkeVurdering(AnkeVurdering ankeVurdering) {
             ankeVurderingResultatMal.ankeVurdering = ankeVurdering == null ? AnkeVurdering.UDEFINERT : ankeVurdering;

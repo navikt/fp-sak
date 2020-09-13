@@ -26,8 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrs
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
@@ -39,6 +37,7 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgru
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.FatterVedtakAksjonspunkt;
+import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnRepository;
@@ -70,12 +69,10 @@ public class AksjonspunktOppdatererTest {
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
 
     private LagretVedtakRepository lagretVedtakRepository = new LagretVedtakRepository(entityManager);
-    private InnsynRepository innsynRepository = new InnsynRepository(entityManager);
     private KlageRepository klageRepository = new KlageRepository(entityManager);
     private AnkeRepository ankeRepository = new AnkeRepository(entityManager);
 
     private FatterVedtakAksjonspunkt fatterVedtakAksjonspunkt;
-    private HistorikkRepository historikkRepository = new HistorikkRepository(entityManager);
     private TotrinnRepository totrinnRepository;
 
     @Inject
@@ -105,10 +102,9 @@ public class AksjonspunktOppdatererTest {
             totrinnTjeneste,
             iayTjeneste
             );
-
-        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(lagretVedtakRepository, repositoryProvider, klageRepository, totrinnTjeneste,
-            innsynRepository, ankeRepository);
-        fatterVedtakAksjonspunkt = new FatterVedtakAksjonspunkt(behandlingskontrollTjeneste, klageRepository, ankeRepository, vedtakTjeneste, totrinnTjeneste);
+        var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
+        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(lagretVedtakRepository, repositoryProvider, klageAnkeVedtakTjeneste, totrinnTjeneste);
+        fatterVedtakAksjonspunkt = new FatterVedtakAksjonspunkt(behandlingskontrollTjeneste, klageAnkeVedtakTjeneste, vedtakTjeneste, totrinnTjeneste);
     }
 
     @Test
@@ -119,11 +115,12 @@ public class AksjonspunktOppdatererTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         ForeslaVedtakAksjonspunktDto dto = new ForeslaVedtakAksjonspunktDto(BEGRUNNELSE, null, null, false);
+        var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(mock(KlageRepository.class), mock(AnkeRepository.class));
         ForeslåVedtakAksjonspunktOppdaterer foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
             repositoryProvider, mock(HistorikkTjenesteAdapter.class),
             opprettTotrinnsgrunnlag,
             vedtakTjeneste,
-            behandlingDokumentRepository) {
+            behandlingDokumentRepository, klageAnkeVedtakTjeneste) {
             @Override
             protected String getCurrentUserId() {
                 // return test verdi
@@ -147,11 +144,12 @@ public class AksjonspunktOppdatererTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         ForeslaVedtakAksjonspunktDto dto = new ForeslaVedtakAksjonspunktDto(BEGRUNNELSE, OVERSKRIFT, FRITEKST, true);
+        var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(mock(KlageRepository.class), mock(AnkeRepository.class));
         ForeslåVedtakAksjonspunktOppdaterer foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
             repositoryProvider, mock(HistorikkTjenesteAdapter.class),
             opprettTotrinnsgrunnlag,
             vedtakTjeneste,
-            behandlingDokumentRepository);
+            behandlingDokumentRepository, klageAnkeVedtakTjeneste);
 
         // Act
         foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
@@ -179,11 +177,12 @@ public class AksjonspunktOppdatererTest {
         behandlingDokumentRepository.lagreOgFlush(eksisterendeDok);
 
         ForeslaVedtakAksjonspunktDto dto = new ForeslaVedtakAksjonspunktDto(null, null, null, false);
+        var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(mock(KlageRepository.class), mock(AnkeRepository.class));
         ForeslåVedtakAksjonspunktOppdaterer foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
             repositoryProvider, mock(HistorikkTjenesteAdapter.class),
             opprettTotrinnsgrunnlag,
             vedtakTjeneste,
-            behandlingDokumentRepository);
+            behandlingDokumentRepository, klageAnkeVedtakTjeneste);
 
         // Act
         foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));

@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
+import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
@@ -25,6 +26,7 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
 
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag;
+    private KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste;
 
     ForeslåVedtakAksjonspunktOppdaterer() {
         // for CDI proxy
@@ -35,18 +37,24 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
                                                HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
                                                OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag,
                                                VedtakTjeneste vedtakTjeneste,
-                                               BehandlingDokumentRepository behandlingDokumentRepository) {
+                                               BehandlingDokumentRepository behandlingDokumentRepository,
+                                               KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste) {
         super(repositoryProvider, historikkApplikasjonTjeneste, vedtakTjeneste, behandlingDokumentRepository);
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.opprettToTrinnsgrunnlag = opprettToTrinnsgrunnlag;
+        this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(ForeslaVedtakAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         String begrunnelse = dto.getBegrunnelse();
         Behandling behandling = param.getBehandling();
-        oppdaterBegrunnelse(behandling, begrunnelse);
+        // Unntak for Klageinstans ettersom Frontend sender samme Dto uansett hvilket knapp man velger (5018 -> Ferdigstill -> entrinn, men kommer hit)
+        if (KlageAnkeVedtakTjeneste.behandlingErKlageEllerAnke(behandling) && klageAnkeVedtakTjeneste.erGodkjentHosMedunderskriver(behandling)) {
+            return standardHåndteringUtenTotrinn(dto, param);
+        }
 
+        oppdaterBegrunnelse(behandling, begrunnelse);
         OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon();
         if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
             oppdaterFritekstVedtaksbrev(dto, param);

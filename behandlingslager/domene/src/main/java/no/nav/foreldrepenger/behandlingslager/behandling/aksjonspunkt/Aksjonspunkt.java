@@ -242,20 +242,6 @@ public class Aksjonspunkt extends BaseEntitet {
         this.venteårsak = venteårsak;
     }
 
-    public boolean gjelderKlageFormkrav() {
-        return (AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP.equals(getAksjonspunktDefinisjon())
-            || AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA.equals(getAksjonspunktDefinisjon()));
-    }
-
-    public boolean gjelderKlageVurderingResultat() {
-        return (AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.equals(getAksjonspunktDefinisjon())
-            || AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK.equals(getAksjonspunktDefinisjon()));
-    }
-
-    public boolean gjelderAnkeVurderingResultat() {
-        return (AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE.equals(getAksjonspunktDefinisjon()));
-    }
-
     /**
      * Intern Builder. Bruk Repository-klasser til å legge til og endre {@link Aksjonspunkt}.
      */

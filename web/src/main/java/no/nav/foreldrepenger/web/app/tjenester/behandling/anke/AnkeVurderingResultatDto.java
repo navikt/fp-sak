@@ -16,6 +16,8 @@ public class AnkeVurderingResultatDto {
     private boolean erIkkeKonkret;
     private boolean erIkkeSignert;
     private boolean erSubsidiartRealitetsbehandles;
+    private boolean erMerknaderMottatt;
+    private String merknadKommentar;
     private Long paAnketBehandlingId;
     private UUID paAnketBehandlingUuid;
 
@@ -124,6 +126,22 @@ public class AnkeVurderingResultatDto {
 
     public void setErSubsidiartRealitetsbehandles(boolean erSubsidiartRealitetsbehandles) {
         this.erSubsidiartRealitetsbehandles = erSubsidiartRealitetsbehandles;
+    }
+
+    public boolean isErMerknaderMottatt() {
+        return erMerknaderMottatt;
+    }
+
+    public void setErMerknaderMottatt(boolean erMerknaderMottatt) {
+        this.erMerknaderMottatt = erMerknaderMottatt;
+    }
+
+    public String getMerknadKommentar() {
+        return merknadKommentar;
+    }
+
+    public void setMerknadKommentar(String merknadKommentar) {
+        this.merknadKommentar = merknadKommentar;
     }
 
     public void setPaAnketBehandlingId(Long paAnketBehandlingId) {

@@ -231,11 +231,11 @@ public class OpprettNyFørstegangsbehandlingTest {
         BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
         BehandlingLås lås = behandlingRepository.taSkriveLås(klage);
         behandlingRepository.lagre(klage, lås);
-        klageRepository.hentEvtOpprettKlageResultat(klage);
+        klageRepository.hentEvtOpprettKlageResultat(klage.getId());
 
         klageRepository.lagreVurderingsResultat(klage,KlageVurderingResultat.builder()
                 .medKlageVurdertAv(KlageVurdertAv.NFP).medKlageMedholdÅrsak(KlageMedholdÅrsak.NYE_OPPLYSNINGER).medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE)
-                .medBegrunnelse("bla bla").medVedtaksdatoPåklagdBehandling(LocalDate.now()));
+                .medBegrunnelse("bla bla"));
         klage.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(klage, repositoryProvider.getBehandlingRepository().taSkriveLås(klage));
 

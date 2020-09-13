@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.klage;
 
-import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.persistence.Column;
@@ -37,12 +36,6 @@ public class KlageVurderingResultat extends BaseEntitet {
     @Column(name = "klagevurdering", nullable = false)
     private KlageVurdering klageVurdering = KlageVurdering.UDEFINERT;
 
-    // Avvisningsårsaker vil nå ligge under formkrav.
-    @Convert(converter = KlageAvvistÅrsak.KodeverdiConverter.class)
-    @Column(name = "klage_avvist_aarsak", nullable = false)
-    @Deprecated
-    private KlageAvvistÅrsak klageAvvistÅrsak = KlageAvvistÅrsak.UDEFINERT;
-
     @Convert(converter = KlageMedholdÅrsak.KodeverdiConverter.class)
     @Column(name = "klage_medhold_aarsak", nullable = false)
     private KlageMedholdÅrsak klageMedholdÅrsak = KlageMedholdÅrsak.UDEFINERT;
@@ -57,15 +50,23 @@ public class KlageVurderingResultat extends BaseEntitet {
     @Column(name = "fritekst_til_brev")
     private String fritekstTilBrev;
 
-    @Column(name = "vedtaksdato_paklagd_behandling")
-    private LocalDate vedtaksdatoPåklagdBehandling;
-
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "godkjent_av_medunderskriver", nullable = false)
     private boolean godkjentAvMedunderskriver;
 
     public KlageVurderingResultat() {
         // Hibernate
+    }
+
+    private KlageVurderingResultat(KlageVurderingResultat entitet) {
+        this.klageResultat = entitet.klageResultat;
+        this.klageVurdertAv = entitet.klageVurdertAv;
+        this.klageVurdering = entitet.klageVurdering;
+        this.klageMedholdÅrsak = entitet.klageMedholdÅrsak;
+        this.klageVurderingOmgjør = entitet.klageVurderingOmgjør;
+        this.begrunnelse = entitet.begrunnelse;
+        this.fritekstTilBrev = entitet.fritekstTilBrev;
+        this.godkjentAvMedunderskriver = entitet.godkjentAvMedunderskriver;
     }
 
     public Long getId() {
@@ -78,11 +79,6 @@ public class KlageVurderingResultat extends BaseEntitet {
 
     public KlageVurdering getKlageVurdering() {
         return klageVurdering;
-    }
-
-    @Deprecated
-    public KlageAvvistÅrsak getKlageAvvistÅrsak() {
-        return klageAvvistÅrsak;
     }
 
     public KlageMedholdÅrsak getKlageMedholdÅrsak() {
@@ -109,39 +105,57 @@ public class KlageVurderingResultat extends BaseEntitet {
         return godkjentAvMedunderskriver;
     }
 
+    public void setGodkjentAvMedunderskriver() {
+        godkjentAvMedunderskriver = true;
+    }
+
+    public void setGodkjentAvMedunderskriver(boolean godkjent) {
+        godkjentAvMedunderskriver = godkjent;
+    }
+
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        } else if (!(obj instanceof KlageVurderingResultat)) {
-            return false;
-        }
-        KlageVurderingResultat other = (KlageVurderingResultat) obj;
-        return Objects.equals(this.getKlageVurdertAv(), other.getKlageVurdertAv())
-            && Objects.equals(this.getKlageVurdering(), other.getKlageVurdering())
-            && Objects.equals(this.getKlageMedholdÅrsak(), other.getKlageMedholdÅrsak())
-            && Objects.equals(this.begrunnelse, other.begrunnelse)
-            && Objects.equals(this.fritekstTilBrev, other.fritekstTilBrev);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KlageVurderingResultat that = (KlageVurderingResultat) o;
+        return harLikVurdering(that) &&
+            godkjentAvMedunderskriver == that.godkjentAvMedunderskriver &&
+            Objects.equals(klageResultat, that.klageResultat) &&
+            Objects.equals(fritekstTilBrev, that.fritekstTilBrev);
+    }
+
+    public boolean harLikVurdering(KlageVurderingResultat that) {
+        if (this == that) return true;
+        if (that == null || getClass() != that.getClass()) return false;
+        return klageVurdertAv == that.klageVurdertAv &&
+            klageVurdering == that.klageVurdering &&
+            klageMedholdÅrsak == that.klageMedholdÅrsak &&
+            klageVurderingOmgjør == that.klageVurderingOmgjør &&
+            Objects.equals(begrunnelse, that.begrunnelse);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getKlageVurdertAv(), getKlageVurdering(), getKlageAvvistÅrsak(), begrunnelse, fritekstTilBrev);
-    }
-
-    public LocalDate getVedtaksdatoPåklagdBehandling() {
-        return vedtaksdatoPåklagdBehandling;
+        return Objects.hash(klageResultat, klageVurdertAv, klageVurdering, klageMedholdÅrsak, klageVurderingOmgjør, begrunnelse, fritekstTilBrev, godkjentAvMedunderskriver);
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
+    public static Builder builder(KlageVurderingResultat klageVurderingResultat) {
+        return new Builder(klageVurderingResultat);
+    }
+
     public static class Builder {
         private KlageVurderingResultat klageVurderingResultatMal;
 
-        public Builder() {
+        private Builder() {
             klageVurderingResultatMal = new KlageVurderingResultat();
+        }
+
+        private Builder(KlageVurderingResultat klageVurderingResultat) {
+            klageVurderingResultatMal = new KlageVurderingResultat(klageVurderingResultat);
         }
 
         public Builder medKlageVurdertAv(KlageVurdertAv klageVurdertAv) {
@@ -151,11 +165,6 @@ public class KlageVurderingResultat extends BaseEntitet {
 
         public Builder medKlageVurdering(KlageVurdering klageVurdering) {
             klageVurderingResultatMal.klageVurdering = klageVurdering == null ? KlageVurdering.UDEFINERT : klageVurdering;
-            return this;
-        }
-
-        public Builder medKlageAvvistÅrsak(KlageAvvistÅrsak klageAvvistÅrsak) {
-            klageVurderingResultatMal.klageAvvistÅrsak = klageAvvistÅrsak == null ? KlageAvvistÅrsak.UDEFINERT : klageAvvistÅrsak;
             return this;
         }
 
@@ -176,11 +185,6 @@ public class KlageVurderingResultat extends BaseEntitet {
 
         public Builder medFritekstTilBrev(String fritekstTilBrev) {
             klageVurderingResultatMal.fritekstTilBrev = fritekstTilBrev;
-            return this;
-        }
-
-        public Builder medVedtaksdatoPåklagdBehandling(LocalDate vedtaksdatoPåklagdBehandling) {
-            klageVurderingResultatMal.vedtaksdatoPåklagdBehandling = vedtaksdatoPåklagdBehandling;
             return this;
         }
 

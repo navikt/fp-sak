@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -94,7 +95,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
     public BehandlendeFagsystem vurderFagsystemUstrukturert(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
         List<Fagsak> kompatibleFagsaker = fellesUtils.filtrerSakerForBehandlingTema(sakerGittYtelseType, vurderFagsystem.getBehandlingTema());
 
-        if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && (vurderFagsystem.getDokumentTypeId() == null || !vurderFagsystem.getDokumentTypeId().erEndringsSøknadType())) {
+        if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && (DokumentTypeId.UDEFINERT.equals(vurderFagsystem.getDokumentTypeId()) || !vurderFagsystem.getDokumentTypeId().erEndringsSøknadType())) {
             // Inntil videre kan man ikke se periode. OBS på forskjell mot ES: FP-saker lever mye lenger.
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -51,14 +50,6 @@ public class BehandlingStegKonfigurasjon {
 
     private BehandlingStegStatus mapTilStatusEntitet(BehandlingStegStatus status) {
         return statuser.get(statuser.indexOf(status));
-    }
-
-    /** Kun for test. Lager en dummy av alle tilgjengelige statuser. */
-    public static BehandlingStegKonfigurasjon lagDummy() {
-        List<BehandlingStegStatus> statuser = Arrays.asList(BehandlingStegStatus.AVBRUTT, BehandlingStegStatus.STARTET, BehandlingStegStatus.INNGANG,
-                BehandlingStegStatus.VENTER, BehandlingStegStatus.UTGANG, BehandlingStegStatus.UTFØRT,
-                BehandlingStegStatus.TILBAKEFØRT);
-        return new BehandlingStegKonfigurasjon(statuser);
     }
 
 }

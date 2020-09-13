@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.behandling.klage.KlageFormkravTjeneste;
+import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
@@ -76,7 +76,7 @@ public class DokumentmottakerKlageTest {
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
 
     @Inject
-    private KlageFormkravTjeneste klageFormkravTjeneste;
+    private KlageVurderingTjeneste klageVurderingTjeneste;
 
     @Inject
     private KlageRepository klageRepository;
@@ -98,7 +98,7 @@ public class DokumentmottakerKlageTest {
         prosessTaskRepository = mock(ProsessTaskRepository.class);
         BehandlendeEnhetTjeneste behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
         historikkinnslagTjeneste = mock(HistorikkinnslagTjeneste.class);
-        klageFormkravTjeneste = mock(KlageFormkravTjeneste.class);
+        klageVurderingTjeneste = mock(KlageVurderingTjeneste.class);
         OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("4806", "NAV Drammen");
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
 
@@ -110,7 +110,7 @@ public class DokumentmottakerKlageTest {
         var behOpprettTjeneste = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste, mock(HistorikkRepository.class), prosessTaskRepository);
 
         dokumentmottaker = new DokumentmottakerKlage(repositoryProvider, behOpprettTjeneste, dokumentmottakerFelles,
-                klageFormkravTjeneste);
+            klageVurderingTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
     }
 

@@ -12,21 +12,15 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 
 @ApplicationScoped
 class ForeslåVedtakTjeneste {
@@ -35,9 +29,7 @@ class ForeslåVedtakTjeneste {
 
     private SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste;
     private FagsakRepository fagsakRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private KlageRepository klageRepository;
-    private AnkeRepository ankeRepository;
+    private KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste;
 
     protected ForeslåVedtakTjeneste() {
         // CDI proxy
@@ -45,15 +37,11 @@ class ForeslåVedtakTjeneste {
 
     @Inject
     ForeslåVedtakTjeneste(FagsakRepository fagsakRepository,
-                          AnkeRepository ankeRepository,
-                          KlageRepository klageRepository,
-                          BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                          KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
                           SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste) {
         this.sjekkMotEksisterendeOppgaverTjeneste = sjekkMotEksisterendeOppgaverTjeneste;
         this.fagsakRepository = fagsakRepository;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.klageRepository = klageRepository;
-        this.ankeRepository = ankeRepository;
+        this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
     }
 
     public BehandleStegResultat foreslåVedtak(Behandling behandling, BehandlingskontrollKontekst kontekst) {
@@ -65,19 +53,13 @@ class ForeslåVedtakTjeneste {
 
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new ArrayList<>();
         if (!BehandlingType.KLAGE.equals(behandling.getType()) && !BehandlingType.ANKE.equals(behandling.getType())) {
-            aksjonspunktDefinisjoner = sjekkMotEksisterendeOppgaverTjeneste.sjekkMotEksisterendeGsakOppgaver(behandling.getAktørId(), behandling);
-        } else {
-            if (erKlageResultatHjemsendt(behandling)) {
-                behandling.nullstillToTrinnsBehandling();
-                settForeslåOgFatterVedtakAksjonspunkterAvbrutt(behandling, kontekst);
-                return BehandleStegResultat.utførtUtenAksjonspunkter();
-            }
-            if (erKlageEllerAnkeGodkjentHosMedunderskriver(behandling)) {
-                behandling.nullstillToTrinnsBehandling();
-                settForeslåOgFatterVedtakAksjonspunkterAvbrutt(behandling, kontekst);
-                aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
-                return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjoner);
-            }
+            aksjonspunktDefinisjoner.addAll(sjekkMotEksisterendeOppgaverTjeneste.sjekkMotEksisterendeGsakOppgaver(behandling.getAktørId(), behandling));
+        } else if (klageAnkeVedtakTjeneste.erKlageResultatHjemsendt(behandling)) {
+            behandling.nullstillToTrinnsBehandling();
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }  else if (klageAnkeVedtakTjeneste.erGodkjentHosMedunderskriver(behandling)) {
+            behandling.nullstillToTrinnsBehandling();
+            return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL));
         }
 
         Optional<Aksjonspunkt> vedtakUtenTotrinnskontroll = behandling
@@ -87,13 +69,13 @@ class ForeslåVedtakTjeneste {
             return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjoner);
         }
 
-        håndterToTrinn(behandling, kontekst, aksjonspunktDefinisjoner);
+        håndterToTrinn(behandling, aksjonspunktDefinisjoner);
 
         return aksjonspunktDefinisjoner.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter()
             : BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjoner);
     }
 
-    private void håndterToTrinn(Behandling behandling, BehandlingskontrollKontekst kontekst, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
+    private void håndterToTrinn(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
         if (skalUtføreTotrinnsbehandling(behandling)) {
             if (!behandling.isToTrinnsBehandling()) {
                 behandling.setToTrinnsBehandling();
@@ -103,7 +85,6 @@ class ForeslåVedtakTjeneste {
         } else {
             behandling.nullstillToTrinnsBehandling();
             logger.info("To-trinn fjernet på behandling={}", behandling.getId());
-            settForeslåOgFatterVedtakAksjonspunkterAvbrutt(behandling, kontekst);
             if (skalOppretteForeslåVedtakManuelt(behandling)) {
                 aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
             }
@@ -123,36 +104,5 @@ class ForeslåVedtakTjeneste {
     private boolean erRevurderingEtterFødselHendelseES(Behandling behandling) {
         return FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) &&
             behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
-    }
-
-    private boolean erKlageResultatHjemsendt(Behandling behandling) {
-        if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            Optional<KlageVurderingResultat> klageVurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
-            return klageVurderingResultat.filter(kvr -> KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE.equals(kvr.getKlageVurdering())).isPresent();
-        }
-        return false;
-    }
-
-    private boolean erKlageEllerAnkeGodkjentHosMedunderskriver(Behandling behandling) {
-        if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            Optional<KlageVurderingResultat> klageVurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
-            return klageVurderingResultat.isPresent() && klageVurderingResultat.get().getKlageVurdertAv().equals(KlageVurdertAv.NK)
-                && klageVurderingResultat.get().isGodkjentAvMedunderskriver();
-        } else if (BehandlingType.ANKE.equals(behandling.getType())) {
-            Optional<AnkeVurderingResultatEntitet> ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
-            return ankeVurderingResultat.isPresent() && ankeVurderingResultat.get().godkjentAvMedunderskriver();
-        }
-        return false;
-    }
-
-    private void settForeslåOgFatterVedtakAksjonspunkterAvbrutt(Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        // TODO: Hører ikke hjemme her. Bør bruke generisk stegresultat eller flyttes. Hva er use-case for disse tilfellene?
-        //  Er det grunn til å tro at disse finnes når man er i FORVED-steg - de skal utledes i steget?
-        List<Aksjonspunkt> skalAvbrytes = new ArrayList<>();
-        behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.FORESLÅ_VEDTAK).ifPresent(skalAvbrytes::add);
-        behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.FATTER_VEDTAK).ifPresent(skalAvbrytes::add);
-        if (!skalAvbrytes.isEmpty()) {
-            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), skalAvbrytes);
-        }
     }
 }

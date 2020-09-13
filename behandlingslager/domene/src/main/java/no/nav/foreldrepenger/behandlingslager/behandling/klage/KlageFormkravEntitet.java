@@ -60,6 +60,17 @@ public class KlageFormkravEntitet extends BaseEntitet {
         // Hibernate
     }
 
+    private KlageFormkravEntitet(KlageFormkravEntitet entitet) {
+        this.klageResultat = entitet.klageResultat;
+        this.klageVurdertAv = entitet.klageVurdertAv;
+        this.gjelderVedtak = entitet.gjelderVedtak;
+        this.erKlagerPart = entitet.erKlagerPart;
+        this.erFristOverholdt = entitet.erFristOverholdt;
+        this.erKonkret = entitet.erKonkret;
+        this.erSignert = entitet.erSignert;
+        this.begrunnelse = entitet.begrunnelse;
+    }
+
     public void setKlageVurdertAv(KlageVurdertAv klageVurdertAv) {
         this.klageVurdertAv = klageVurdertAv;
     }
@@ -146,37 +157,48 @@ public class KlageFormkravEntitet extends BaseEntitet {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        } else if (!(obj instanceof KlageFormkravEntitet)) {
-            return false;
-        }
-        KlageFormkravEntitet other = (KlageFormkravEntitet) obj;
-        return Objects.equals(this.hentKlageResultat(), other.hentKlageResultat())
-            && Objects.equals(this.getKlageVurdertAv(), other.getKlageVurdertAv())
-            && Objects.equals(this.hentGjelderVedtak(), other.hentGjelderVedtak())
-            && Objects.equals(this.erKlagerPart(), other.erKlagerPart())
-            && Objects.equals(this.erFristOverholdt(), other.erFristOverholdt())
-            && Objects.equals(this.erKonkret(), other.erKonkret())
-            && Objects.equals(this.erSignert(), other.erSignert())
-            && Objects.equals(this.hentBegrunnelse(), other.hentBegrunnelse());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KlageFormkravEntitet that = (KlageFormkravEntitet) o;
+        return harLikVurdering(that) &&
+            Objects.equals(klageResultat, that.klageResultat);
+    }
+
+    public boolean harLikVurdering(KlageFormkravEntitet that) {
+        if (this == that) return true;
+        if (that == null || getClass() != that.getClass()) return false;
+        return gjelderVedtak == that.gjelderVedtak &&
+            erKlagerPart == that.erKlagerPart &&
+            erFristOverholdt == that.erFristOverholdt &&
+            erKonkret == that.erKonkret &&
+            erSignert == that.erSignert &&
+            klageVurdertAv == that.klageVurdertAv &&
+            Objects.equals(begrunnelse, that.begrunnelse);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(hentKlageResultat(), getKlageVurdertAv(), getOpprettetTidspunkt(), hentBegrunnelse());
+        return Objects.hash(klageResultat, klageVurdertAv, gjelderVedtak, erKlagerPart, erFristOverholdt, erKonkret, erSignert, begrunnelse);
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
+    public static Builder builder(KlageFormkravEntitet klageFormkravEntitet) {
+        return new Builder(klageFormkravEntitet);
+    }
+
     public static class Builder {
         private KlageFormkravEntitet klageFormkravEntitetMal;
 
-        public Builder() {
+        private Builder() {
             klageFormkravEntitetMal = new KlageFormkravEntitet();
+        }
+
+        private Builder(KlageFormkravEntitet klageFormkravEntitet) {
+            klageFormkravEntitetMal = new KlageFormkravEntitet(klageFormkravEntitet);
         }
 
         public Builder medKlageResultat(KlageResultatEntitet klageResultat) {

@@ -11,7 +11,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
@@ -44,58 +43,6 @@ public class KlageRepositoryImplTest {
     private KlageRepository klageRepository;
 
     @Test
-    public void skal_slette_klage_resultat() {
-        // Arrange
-        Repository repository = repoRule.getRepository();
-        var scenario = ScenarioKlageEngangsstønad.forAvvistNK(ScenarioFarSøkerEngangsstønad.forAdopsjon());
-        behandling = scenario.lagre(repositoryProvider, klageRepository);
-        entityManager.flush();
-
-        // Asserting arrangement
-        Long klageBehandlingId = behandling.getId();
-        assertThat(klageRepository.hentKlageVurderingResultat(klageBehandlingId, KlageVurdertAv.NFP))
-            .as("Mangler KlageVurderingResultat gitt av NFP").isPresent();
-        assertThat(klageRepository.hentKlageVurderingResultat(klageBehandlingId, KlageVurdertAv.NK))
-            .as("Mangler KlageVurderingResultat gitt av NK").isPresent();
-
-        // Act
-        klageRepository.slettKlageVurderingResultat(klageBehandlingId, KlageVurdertAv.NK);
-        klageRepository.slettKlageVurderingResultat(klageBehandlingId, KlageVurdertAv.NFP);
-        repository.flushAndClear();
-
-
-        // Assert
-        assertThat(klageRepository.hentKlageVurderingResultat(klageBehandlingId, KlageVurdertAv.NFP))
-            .as("KlageVurderingResultat gitt av NFP ikke fjernet.").isNotPresent();
-        assertThat(klageRepository.hentKlageVurderingResultat(klageBehandlingId, KlageVurdertAv.NK))
-            .as("KlageVurderingResultat gitt av NK ikke fjernet.").isNotPresent();
-    }
-
-    @Test
-    public void skal_slette_formkrav() {
-        // Arrange
-        Repository repository = repoRule.getRepository();
-        var scenario = ScenarioKlageEngangsstønad.forAvvistNK(ScenarioFarSøkerEngangsstønad.forAdopsjon());
-        behandling = scenario.lagre(repositoryProvider, klageRepository);
-        entityManager.flush();
-
-        // Asserting arrangement
-        Behandling behandlingMedKlageVR = behandlingRepository.hentBehandling(behandling.getId());
-        assertThat(klageRepository.hentKlageFormkrav(behandlingMedKlageVR, KlageVurdertAv.NFP))
-            .as("Mangler KlageVurderingResultat gitt av NFP").isPresent();
-
-        // Act
-        klageRepository.slettFormkrav(behandlingMedKlageVR, KlageVurdertAv.NFP);
-        repository.flushAndClear();
-
-        // Assert
-        Behandling behandlingEtterSletting = behandlingRepository.hentBehandling(behandling.getId());
-        assertThat(klageRepository.hentKlageFormkrav(behandlingEtterSletting, KlageVurdertAv.NFP))
-            .as("KlageVurderingResultat gitt av NFP ikke fjernet.").isNotPresent();
-    }
-
-
-    @Test
     public void skal_lagre_og_oppdatere_formkrav() {
         // Arrange
         Repository repository = repoRule.getRepository();
@@ -103,7 +50,7 @@ public class KlageRepositoryImplTest {
         behandling = scenario.lagre(repositoryProvider, klageRepository);
         entityManager.flush();
 
-        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling);
+        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
         KlageFormkravEntitet.Builder builder1 = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK)
             .medBegrunnelse("Begrunnelse1");
 
@@ -112,7 +59,7 @@ public class KlageRepositoryImplTest {
         repository.flushAndClear();
 
         // Assert
-        Optional<KlageFormkravEntitet> klageFormkrav = klageRepository.hentKlageFormkrav(behandling, KlageVurdertAv.NK);
+        Optional<KlageFormkravEntitet> klageFormkrav = klageRepository.hentKlageFormkrav(behandling.getId(), KlageVurdertAv.NK);
         assertThat(klageFormkrav).as("Formkrav NK opprettet").isPresent();
         assertThat(klageFormkrav.get().hentBegrunnelse()).isEqualTo("Begrunnelse1");
 
@@ -125,7 +72,7 @@ public class KlageRepositoryImplTest {
         repository.flushAndClear();
 
         // Assert
-        Optional<KlageFormkravEntitet> klageFormkrav2 = klageRepository.hentKlageFormkrav(behandling, KlageVurdertAv.NK);
+        Optional<KlageFormkravEntitet> klageFormkrav2 = klageRepository.hentKlageFormkrav(behandling.getId(), KlageVurdertAv.NK);
         assertThat(klageFormkrav2).as("Formkrav NK opprettet").isPresent();
         assertThat(klageFormkrav2.get().hentBegrunnelse()).isEqualTo("Begrunnelse2");
 
@@ -139,7 +86,7 @@ public class KlageRepositoryImplTest {
         behandling = scenario.lagre(repositoryProvider, klageRepository);
         entityManager.flush();
 
-        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling);
+        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
         KlageVurderingResultat.Builder builder1 = opprettVurderingResultat(klageResultat, KlageVurdertAv.NFP)
             .medBegrunnelse("Begrunnelse1");
 
@@ -156,7 +103,6 @@ public class KlageRepositoryImplTest {
         // Arrange
         KlageVurderingResultat.Builder builder2 = opprettVurderingResultat(klageResultat, KlageVurdertAv.NFP)
             .medKlageVurdering(KlageVurdering.AVVIS_KLAGE)
-            .medKlageAvvistÅrsak(KlageAvvistÅrsak.KLAGE_UGYLDIG)
             .medBegrunnelse("Begrunnelse2");
 
         // Act
@@ -178,7 +124,7 @@ public class KlageRepositoryImplTest {
         entityManager.flush();
 
         // Arrange
-        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling);
+        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
         KlageFormkravEntitet.Builder builderNfp = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NFP)
             .medBegrunnelse("Begrunnelse1");
 
@@ -187,7 +133,7 @@ public class KlageRepositoryImplTest {
         repository.flushAndClear();
 
         // Assert
-        Optional<KlageFormkravEntitet> klageFormkravNfp = klageRepository.hentGjeldendeKlageFormkrav(behandling);
+        Optional<KlageFormkravEntitet> klageFormkravNfp = klageRepository.hentGjeldendeKlageFormkrav(behandling.getId());
         assertThat(klageFormkravNfp).as("Formkrav Nfp opprettet").isPresent();
         assertThat(klageFormkravNfp.get().getKlageVurdertAv()).isEqualTo(KlageVurdertAv.NFP);
 
@@ -200,14 +146,14 @@ public class KlageRepositoryImplTest {
         repository.flushAndClear();
 
         // Assert
-        Optional<KlageFormkravEntitet> klageFormkravKa = klageRepository.hentGjeldendeKlageFormkrav(behandling);
+        Optional<KlageFormkravEntitet> klageFormkravKa = klageRepository.hentGjeldendeKlageFormkrav(behandling.getId());
         assertThat(klageFormkravKa).as("Formkrav opprettet").isPresent();
         assertThat(klageFormkravKa.get().getKlageVurdertAv()).isEqualTo(KlageVurdertAv.NK);
     }
 
 
     private KlageVurderingResultat.Builder opprettVurderingResultat(KlageResultatEntitet klageResultat, KlageVurdertAv klageVurdertAv) {
-        return new KlageVurderingResultat.Builder()
+        return KlageVurderingResultat.builder()
             .medKlageResultat(klageResultat)
             .medKlageVurdertAv(klageVurdertAv)
             .medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE)
@@ -216,7 +162,7 @@ public class KlageRepositoryImplTest {
 
 
     private KlageFormkravEntitet.Builder opprettFormkravBuilder(KlageResultatEntitet klageResultat, KlageVurdertAv klageVurdertAv) {
-        return new KlageFormkravEntitet.Builder()
+        return KlageFormkravEntitet.builder()
             .medErKlagerPart(true)
             .medErFristOverholdt(true)
             .medErKonkret(true)
