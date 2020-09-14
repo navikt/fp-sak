@@ -2,11 +2,13 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
+import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRIFT;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -25,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
+import no.nav.foreldrepenger.familiehendelse.rest.PeriodeDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,6 +133,47 @@ public class ForvaltningFagsakRestTjeneste {
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/revurderAvslutningForFagsakerITidsrom")
+    @Operation(description = "RevurderAvslutningForSakerITidsrom",
+        tags = "FORVALTNING-fagsak",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Revurderer avslutning av fagsaker.",
+                content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)
+                )
+            ),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+        })
+    @BeskyttetRessurs(action = READ, ressurs = DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response revurderAvslutningForFagsakerITidsrom(@NotNull @Valid PeriodeDto periode) {
+
+        List<Fagsak> fagsaker = fagsakRepository.hentIkkeAvsluttedeFagsakerIPeriode(periode.getPeriodeFom().atStartOfDay(), periode.getPeriodeTom().plusDays(1).atStartOfDay());
+
+        List<ProsessTaskGruppe> prosessTaskGruppeList = fagsaker.stream()
+            .map(Fagsak::getId)
+            .map(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling)
+            .flatMap(Optional::stream).collect(
+            Collectors.mapping(behandling -> {
+                ProsessTaskGruppe taskGruppe = new ProsessTaskGruppe();
+                taskGruppe.setBehandling(behandling.getFagsak().getId(), behandling.getId(), behandling.getAktørId().getId());
+                ProsessTaskData task = new ProsessTaskData(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
+                task.setFagsakId(behandling.getFagsak().getId());
+                task.setPrioritet(50);
+                taskGruppe.addNesteSekvensiell(task);
+                return taskGruppe;
+            }, Collectors.toList()
+        ));
+        return Response.ok(prosessTaskGruppeList).build();
+
+    }
+
+    @POST
     @Path("/revurderAvslutningForFagsaker")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -144,7 +188,7 @@ public class ForvaltningFagsakRestTjeneste {
             ),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
         })
-    @BeskyttetRessurs(action = CREATE, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response revurderAvslutningForFagsaker(@NotNull @Valid List<SaksnummerDto> saksnumre) {
 
