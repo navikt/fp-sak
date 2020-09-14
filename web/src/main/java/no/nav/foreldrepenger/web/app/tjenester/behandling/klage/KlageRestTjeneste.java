@@ -5,6 +5,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDAT
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -31,9 +32,12 @@ import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -51,10 +55,15 @@ public class KlageRestTjeneste {
     public static final String KLAGE_V2_PATH = BASE_PATH + KLAGE_V2_PART_PATH;
     private static final String MELLOMLAGRE_PART_PATH = "/klage/mellomlagre-klage";
     public static final String MELLOMLAGRE_PATH = BASE_PATH + MELLOMLAGRE_PART_PATH;
+    private static final String MOTTATT_KLAGEDOKUMENT_PART_PATH = "/klage/mottatt-klagedokument";
+    public static final String MOTTATT_KLAGEDOKUMENT_PATH = BASE_PATH + MOTTATT_KLAGEDOKUMENT_PART_PATH; //NOSONAR TFP-2234
+    private static final String MOTTATT_KLAGEDOKUMENT_V2_PART_PATH = "/klage/mottatt-klagedokument-v2";
+    public static final String MOTTATT_KLAGEDOKUMENT_V2_PATH = BASE_PATH + MOTTATT_KLAGEDOKUMENT_V2_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private FptilbakeRestKlient fptilbakeRestKlient;
+    private MottatteDokumentRepository mottatteDokumentRepository;
 
     public KlageRestTjeneste() {
         // for CDI proxy
@@ -63,10 +72,12 @@ public class KlageRestTjeneste {
     @Inject
     public KlageRestTjeneste(BehandlingRepository behandlingRepository,
                              KlageVurderingTjeneste klageVurderingTjeneste,
-                             FptilbakeRestKlient fptilbakeRestKlient) {
+                             FptilbakeRestKlient fptilbakeRestKlient,
+                             MottatteDokumentRepository mottatteDokumentRepository) {
         this.behandlingRepository = behandlingRepository;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.fptilbakeRestKlient = fptilbakeRestKlient;
+        this.mottatteDokumentRepository = mottatteDokumentRepository;
     }
 
     @GET
@@ -134,6 +145,69 @@ public class KlageRestTjeneste {
         klageVurderingTjeneste.lagreKlageVurderingResultat(behandling, builder, vurdertAv);
         return Response.ok().build();
     }
+
+    @GET
+    @Path(MOTTATT_KLAGEDOKUMENT_PART_PATH)
+    @Operation(description = "Hent mottatt klagedokument for en klagebehandling",
+        summary = "Kan returnere dokument uten verdier i hvis det ikke finnes noe klagedokument på behandlingen",
+        tags = "klage",
+        responses = {
+            @ApiResponse(responseCode = "200",
+                description = "Returnerer mottatt klagedokument",
+                content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = KlagebehandlingDto.class)
+                )
+            )
+        })
+    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public MottattKlagedokumentDto getMottattKlagedokument(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
+        List<MottattDokument> mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandlingIdDto.getBehandlingId());
+        Optional<MottattDokument> mottattDokument = mottatteDokumenter.stream().filter(dok -> DokumentTypeId.KLAGE_DOKUMENT.equals(dok.getDokumentType())).findFirst();
+
+        return mapMottattKlagedokumentDto(mottattDokument);
+    }
+
+    @GET
+    @Path(MOTTATT_KLAGEDOKUMENT_V2_PART_PATH)
+    @Operation(description = "Hent mottatt klagedokument for en klagebehandling",
+        summary = "Kan returnere dokument uten verdier i hvis det ikke finnes noe klagedokument på behandlingen",
+        tags = "klage",
+        responses = {
+            @ApiResponse(responseCode = "200",
+                description = "Returnerer mottatt klagedokument",
+                content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = KlagebehandlingDto.class)
+                )
+            )
+        })
+    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public MottattKlagedokumentDto getMottattKlagedokument(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        return getMottattKlagedokument(new BehandlingIdDto(behandling.getId()));
+    }
+
+    private MottattKlagedokumentDto mapMottattKlagedokumentDto(Optional<MottattDokument> mottattDokument) {
+        MottattKlagedokumentDto mottattKlagedokumentDto = new MottattKlagedokumentDto();
+
+        if (mottattDokument.isPresent()) {
+            MottattDokument dokument = mottattDokument.get();
+            mottattKlagedokumentDto.setJournalpostId(dokument.getJournalpostId().getVerdi());
+            mottattKlagedokumentDto.setDokumentTypeId(dokument.getDokumentType().getKode());
+            mottattKlagedokumentDto.setDokumentKategori(dokument.getDokumentKategori().getKode());
+            mottattKlagedokumentDto.setBehandlingId(dokument.getBehandlingId());
+            mottattKlagedokumentDto.setMottattDato(dokument.getMottattDato());
+            mottattKlagedokumentDto.setMottattTidspunkt(dokument.getMottattTidspunkt());
+            mottattKlagedokumentDto.setXmlPayload(dokument.getPayloadXml());
+            mottattKlagedokumentDto.setElektroniskRegistrert(dokument.getElektroniskRegistrert());
+            mottattKlagedokumentDto.setFagsakId(dokument.getFagsakId());
+        }
+        return mottattKlagedokumentDto;
+    }
+
 
     private KlagebehandlingDto mapFra(Behandling behandling) {
         KlagebehandlingDto dto = new KlagebehandlingDto();

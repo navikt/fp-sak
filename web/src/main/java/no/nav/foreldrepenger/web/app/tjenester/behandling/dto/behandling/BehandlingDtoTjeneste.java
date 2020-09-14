@@ -177,6 +177,7 @@ public class BehandlingDtoTjeneste {
 
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             dto.leggTil(get(KlageRestTjeneste.KLAGE_V2_PATH, "klage-vurdering", uuidDto));
+            dto.leggTil(get(KlageRestTjeneste.MOTTATT_KLAGEDOKUMENT_V2_PATH, "mottatt-klagedokument", uuidDto));
         }
 
         if (!BehandlingType.INNSYN.equals(behandling.getType())) {
