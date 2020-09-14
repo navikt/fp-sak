@@ -177,7 +177,6 @@ public class BehandlingDtoTjeneste {
 
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             dto.leggTil(get(KlageRestTjeneste.KLAGE_V2_PATH, "klage-vurdering", uuidDto));
-            dto.leggTil(get(KlageRestTjeneste.MOTTATT_KLAGEDOKUMENT_V2_PATH, "mottatt-klagedokument", uuidDto));
         }
 
         if (!BehandlingType.INNSYN.equals(behandling.getType())) {
@@ -310,6 +309,7 @@ public class BehandlingDtoTjeneste {
     private UtvidetBehandlingDto utvideBehandlingDtoKlage(Behandling behandling, UtvidetBehandlingDto dto) {
         UuidDto uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(KlageRestTjeneste.KLAGE_V2_PATH, "klage-vurdering", uuidDto));
+        dto.leggTil(get(KlageRestTjeneste.MOTTATT_KLAGEDOKUMENT_V2_PATH, "mottatt-klagedokument", uuidDto));
         return dto;
     }
 
