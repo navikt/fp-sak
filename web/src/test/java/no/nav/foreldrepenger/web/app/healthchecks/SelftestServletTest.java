@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import com.codahale.metrics.health.HealthCheck;
 
-import no.nav.modig.core.test.LogSniffer;
+import no.nav.foreldrepenger.web.app.exceptions.LogSniffer;
 
 public class SelftestServletTest {
 

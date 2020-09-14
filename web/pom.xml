@@ -320,8 +320,8 @@
 
 		<!-- test-jars for å omgå MQ lokalt -->
 		<dependency>
-			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-			<artifactId>felles-integrasjon-jms</artifactId>
+            <groupId>no.nav.foreldrepenger.felles.ukelonn.integrasjon</groupId>
+            <artifactId>felles-integrasjon-jms</artifactId>
 			<scope>test</scope>
 			<type>test-jar</type>
 		</dependency>
