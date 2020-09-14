@@ -280,14 +280,20 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
      * @return Startpunkt for g-regulering
      */
     private StartpunktType finnStartpunktForGRegulering(Behandling revurdering) {
-        if (mottarYtelseForAktivitet(revurdering)) {
+        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagEntitet = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId());
+        if (mottarYtelseForAktivitet(beregningsgrunnlagEntitet) || harBesteberegning(beregningsgrunnlagEntitet)) {
             return StartpunktType.BEREGNING;
         }
         return StartpunktType.BEREGNING_FORESLÅ;
     }
 
-    private boolean mottarYtelseForAktivitet(Behandling revurdering) {
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagEntitet = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId());
+    private boolean harBesteberegning(Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagEntitet) {
+        return beregningsgrunnlagEntitet.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
+            .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
+            .anyMatch(a -> a.getBesteberegningPrÅr() != null);
+    }
+
+    private boolean mottarYtelseForAktivitet(Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagEntitet) {
         return beregningsgrunnlagEntitet.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
             .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
             .anyMatch(a -> a.mottarYtelse().orElse(false));
