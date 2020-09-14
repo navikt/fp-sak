@@ -115,10 +115,10 @@ class UtbetalingsgradBeregner {
         return aktiviteter.size() == 1 ?
             nullBlirTilHundre(aktiviteter.get(0).getProsentsats() == null ? null : aktiviteter.get(0).getProsentsats().getVerdi()) :
             aktiviteter.stream()
-            .map(AktivitetsAvtale::getProsentsats)
-            .reduce(UtbetalingsgradBeregner::summerStillingsprosent)
-            .map(Stillingsprosent::getVerdi)
-            .orElse(NULL_PROSENT);
+                .map(AktivitetsAvtale::getProsentsats)
+                .reduce(UtbetalingsgradBeregner::summerStillingsprosent)
+                .map(Stillingsprosent::getVerdi)
+                .orElse(NULL_PROSENT);
     }
 
     private static LocalDateSegment<BigDecimal> regnUtUtbetalingsgrad(LocalDateInterval di,
@@ -130,16 +130,18 @@ class UtbetalingsgradBeregner {
         if (aareg != null && tilrettelegging != null) {
             BigDecimal opprinnelig = aareg.getValue();
             BigDecimal ny = tilrettelegging.getValue().stillingsprosent;
-            BigDecimal sum = opprinnelig
-                .subtract(ny)
-                .divide(opprinnelig, 2, RoundingMode.HALF_UP)
-                .multiply(HUNDRE_PROSENT);
+            BigDecimal sum = opprinnelig.compareTo(NULL_PROSENT) == 0 ? NULL_PROSENT :
+                opprinnelig
+                    .subtract(ny)
+                    .divide(opprinnelig, 2, RoundingMode.HALF_UP)
+                    .multiply(HUNDRE_PROSENT);
 
             // negativ sum blir satt til 0 utbetalingsgrad (Betaler ikke ut hvis man jobber mer...)
             if (sum.compareTo(BigDecimal.ZERO) < 0) {
                 sum = BigDecimal.ZERO;
             }
-            return new LocalDateSegment<>(di, sum.setScale(0, RoundingMode.HALF_UP)); } else if (aareg == null) {
+            return new LocalDateSegment<>(di, sum.setScale(0, RoundingMode.HALF_UP));
+        } else if (aareg == null) {
             return new LocalDateSegment<>(di, TUSEN);
         }
         return new LocalDateSegment<>(di, null);
