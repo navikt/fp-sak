@@ -18,8 +18,7 @@ public enum AppAbacAttributtType implements AbacAttributtType {
     ABAC_ANSVALIG_SAKSBEHANDLER("ansvarlig_saksbehandler"),
     ABAC_BEHANDLING_STATUS("behandling_status"),
     ABAC_SAK_STATUS("sak_status"),
-    ABAC_AKSJONSPUNKT_TYPE("aksjonspunkt_type"),
-    PERIODE("periode")
+    ABAC_AKSJONSPUNKT_TYPE("aksjonspunkt_type")
     ;
 
     public static AbacAttributtType AKSJONSPUNKT_KODE = StandardAbacAttributtType.AKSJONSPUNKT_KODE;

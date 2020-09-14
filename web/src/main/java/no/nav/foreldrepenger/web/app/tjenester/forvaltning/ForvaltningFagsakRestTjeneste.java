@@ -155,21 +155,20 @@ public class ForvaltningFagsakRestTjeneste {
 
         List<Fagsak> fagsaker = fagsakRepository.hentIkkeAvsluttedeFagsakerIPeriode(periode.getPeriodeFom().atStartOfDay(), periode.getPeriodeTom().plusDays(1).atStartOfDay());
 
-        List<ProsessTaskGruppe> prosessTaskGruppeList = fagsaker.stream()
+        fagsaker.stream()
             .map(Fagsak::getId)
-            .map(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling)
-            .flatMap(Optional::stream).collect(
-            Collectors.mapping(behandling -> {
-                ProsessTaskGruppe taskGruppe = new ProsessTaskGruppe();
-                taskGruppe.setBehandling(behandling.getFagsak().getId(), behandling.getId(), behandling.getAktørId().getId());
-                ProsessTaskData task = new ProsessTaskData(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
-                task.setFagsakId(behandling.getFagsak().getId());
-                task.setPrioritet(50);
-                taskGruppe.addNesteSekvensiell(task);
-                return taskGruppe;
-            }, Collectors.toList()
-        ));
-        return Response.ok(prosessTaskGruppeList).build();
+            .map(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling).forEach(behandling -> {
+                if(behandling.isPresent()) {
+                    ProsessTaskGruppe taskGruppe = new ProsessTaskGruppe();
+                    taskGruppe.setBehandling(behandling.orElseThrow().getFagsak().getId(), behandling.orElseThrow().getId(), behandling.orElseThrow().getAktørId().getId());
+                    ProsessTaskData task = new ProsessTaskData(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
+                    task.setFagsakId(behandling.orElseThrow().getFagsak().getId());
+                    task.setPrioritet(50);
+                    taskGruppe.addNesteSekvensiell(task);
+                    prosessTaskRepository.lagre(taskGruppe);
+                }
+            });
+        return Response.ok(fagsaker.size()).build();
 
     }
 

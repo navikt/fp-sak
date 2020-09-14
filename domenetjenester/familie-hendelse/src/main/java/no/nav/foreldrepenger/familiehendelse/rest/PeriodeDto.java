@@ -38,6 +38,6 @@ public class PeriodeDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.PERIODE, getPeriodeFom() + " - " +getPeriodeTom());
+        return AbacDataAttributter.opprett();
     }
 }
