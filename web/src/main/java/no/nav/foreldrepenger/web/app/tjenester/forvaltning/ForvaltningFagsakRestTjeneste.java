@@ -26,9 +26,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
 import no.nav.foreldrepenger.familiehendelse.rest.PeriodeDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,22 +156,17 @@ public class ForvaltningFagsakRestTjeneste {
     public Response revurderAvslutningForFagsakerITidsrom(@NotNull @Valid PeriodeDto periode) {
 
         List<Fagsak> fagsaker = fagsakRepository.hentIkkeAvsluttedeFagsakerIPeriode(periode.getPeriodeFom().atStartOfDay(), periode.getPeriodeTom().plusDays(1).atStartOfDay());
+        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
 
-        fagsaker.stream()
-            .map(Fagsak::getId)
-            .map(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling).forEach(behandling -> {
-                if(behandling.isPresent()) {
-                    ProsessTaskGruppe taskGruppe = new ProsessTaskGruppe();
-                    taskGruppe.setBehandling(behandling.orElseThrow().getFagsak().getId(), behandling.orElseThrow().getId(), behandling.orElseThrow().getAktørId().getId());
-                    ProsessTaskData task = new ProsessTaskData(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
-                    task.setFagsakId(behandling.orElseThrow().getFagsak().getId());
-                    task.setPrioritet(50);
-                    taskGruppe.addNesteSekvensiell(task);
-                    prosessTaskRepository.lagre(taskGruppe);
-                }
-            });
+        fagsaker.stream().forEach(f -> opprettJusteringTask(f.getId(), f.getAktørId(), callId));
         return Response.ok(fagsaker.size()).build();
+    }
 
+    private void opprettJusteringTask(Long fagsakId, AktørId aktørId, String callId) {
+        ProsessTaskData prosessTaskData = new ProsessTaskData(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
+        prosessTaskData.setFagsak(fagsakId, aktørId.getId());
+        prosessTaskData.setCallId(callId + fagsakId);
+        prosessTaskRepository.lagre(prosessTaskData);
     }
 
     @POST
