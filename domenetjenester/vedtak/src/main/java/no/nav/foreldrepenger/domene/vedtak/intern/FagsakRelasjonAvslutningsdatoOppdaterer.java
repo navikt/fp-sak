@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.intern;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Comparator;
 import java.util.List;
@@ -23,8 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
-import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
@@ -102,8 +101,9 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
         if( stønadRest > 0 ) {
             //rest er allerede lagt til i maksDatoUttak, men der mangler 'buffer'
             avslutningsdatoFraMaksDatoUttak =  avslutningsdatoFraMaksDatoUttak.plusMonths(JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER).with(TemporalAdjusters.lastDayOfMonth());
-            if(uttakInput != null && uttakInput.getYtelsespesifiktGrunnlag() != null && uttakInput.getYtelsespesifiktGrunnlag() instanceof  ForeldrepengerGrunnlag && ((ForeldrepengerGrunnlag)uttakInput.getYtelsespesifiktGrunnlag()).getFamilieHendelser() != null) {
-                avslutningsdatoFraMaksDatoUttak = beskjærMotAbsoluttMaksDato(uttakInput, avslutningsdatoFraMaksDatoUttak);
+            var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
+            if(familieHendelseGrunnlag.isPresent() && familieHendelseGrunnlag.get().finnGjeldendeFødselsdato() != null){
+                avslutningsdatoFraMaksDatoUttak = beskjærMotAbsoluttMaksDato(familieHendelseGrunnlag.orElseThrow().finnGjeldendeFødselsdato(), avslutningsdatoFraMaksDatoUttak);
             }
         }
 
@@ -111,13 +111,9 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
             avslutningsdatoFraMaksDatoUttak : avsluttningsdato;
     }
 
-    private LocalDate beskjærMotAbsoluttMaksDato(UttakInput uttakInput, LocalDate beregnetMaksDato) {
-        Optional<LocalDate> fødselsdato = ((ForeldrepengerGrunnlag)uttakInput.getYtelsespesifiktGrunnlag()).getFamilieHendelser().getSøknadFamilieHendelse().getFødselsdato();
-        if(fødselsdato.isPresent()){
-            LocalDate absoluttMaksDato = fødselsdato.get().plusYears(3);
+    private LocalDate beskjærMotAbsoluttMaksDato(LocalDate fødselsdato, LocalDate beregnetMaksDato) {
+            LocalDate absoluttMaksDato = fødselsdato.plus(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.GRENSE_ETTER_FØDSELSDATO, Period.class, LocalDate.now()));
             return absoluttMaksDato.isBefore(beregnetMaksDato)? absoluttMaksDato : beregnetMaksDato;
-        }
-        return beregnetMaksDato;
     }
 
     protected LocalDate avsluttningsdatoHvisDetIkkeErGjortUttak(Behandling behandling, LocalDate avsluttningsdato) {
