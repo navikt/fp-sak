@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -26,9 +27,11 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -39,6 +42,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.medlem.UtledVurderingsdatoerForMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.medlem.VurderMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat;
+import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttaksstegTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @BehandlingStegRef(kode = "KOFAK_LOP_MEDL")
@@ -58,10 +62,6 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
 
     private BehandlingFlytkontroll flytkontroll;
 
-    KontrollerFaktaLøpendeMedlemskapStegRevurdering() {
-        //CDI
-    }
-
     @Inject
     public KontrollerFaktaLøpendeMedlemskapStegRevurdering(UtledVurderingsdatoerForMedlemskapTjeneste vurderingsdatoer,
                                                            BehandlingRepositoryProvider provider,
@@ -76,6 +76,10 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
         this.flytkontroll = flytkontroll;
     }
 
+    KontrollerFaktaLøpendeMedlemskapStegRevurdering() {
+        //CDI
+    }
+
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         Long behandlingId = kontekst.getBehandlingId();
@@ -85,8 +89,8 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_KØET_BEHANDLING, Venteårsak.VENT_ÅPEN_BEHANDLING, null));
         }
 
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         if (skalVurdereLøpendeMedlemskap(kontekst.getBehandlingId())) {
-            Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
             if (!(behandling.erRevurdering() && FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()))) {
                 throw new IllegalStateException("Utvikler-feil: Behandler bare revudering i foreldrepengerkontekst!.");
             }
@@ -101,7 +105,18 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
                 aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP));
             }
         }
-        return aksjonspunkter.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter() : BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
+        var behandlingsårsaker = behandlingsårsaker(behandling);
+        if (SkalKopiereUttaksstegTjeneste.skalKopiereStegResultat(behandlingsårsaker)) {
+            return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(FellesTransisjoner.FREMHOPP_TIL_BEREGN_YTELSE, aksjonspunkter);
+        }
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
+    }
+
+    private List<BehandlingÅrsakType> behandlingsårsaker(Behandling behandling) {
+        return behandling.getBehandlingÅrsaker()
+            .stream()
+            .map(behandlingÅrsak -> behandlingÅrsak.getBehandlingÅrsakType())
+            .collect(Collectors.toList());
     }
 
     private boolean skalVurdereLøpendeMedlemskap(Long behandlingId) {

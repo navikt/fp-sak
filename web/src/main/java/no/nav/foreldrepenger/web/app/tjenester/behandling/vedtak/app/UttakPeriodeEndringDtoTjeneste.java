@@ -40,7 +40,7 @@ public class UttakPeriodeEndringDtoTjeneste {
                 return avklarFaktaUttakTjeneste.finnEndringMellomOppgittOgGjeldendePerioder(
                     totrinnresultatgrunnlag.flatMap(Totrinnresultatgrunnlag::getYtelseFordelingGrunnlagEntitetId).get()); // NOSONAR
             }
-            return avklarFaktaUttakTjeneste.finnEndringMellomOppgittOgGjeldendePerioder(behandling);
+            return avklarFaktaUttakTjeneste.finnEndringMellomOppgittOgGjeldendePerioderForBehandling(behandling.getId());
         }
         if (aksjonspunkt.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER) ||
             aksjonspunkt.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER) ||
@@ -49,7 +49,7 @@ public class UttakPeriodeEndringDtoTjeneste {
                 return fastsettePerioderEndringTjeneste
                     .finnEndringerMellomOpprinneligOgOverstyrt(totrinnresultatgrunnlag.flatMap(Totrinnresultatgrunnlag::getUttakResultatEntitetId).get()); // NOSONAR
             }
-            return fastsettePerioderEndringTjeneste.finnEndringerMellomOpprinneligOgOverstyrt(behandling);
+            return fastsettePerioderEndringTjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(behandling.getId());
         }
         return Collections.emptyList();
     }

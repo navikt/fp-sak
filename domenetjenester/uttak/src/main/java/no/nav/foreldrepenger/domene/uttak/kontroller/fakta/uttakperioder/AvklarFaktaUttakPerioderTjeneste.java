@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -119,8 +118,8 @@ public class AvklarFaktaUttakPerioderTjeneste {
         return finnEndringMellomOppgittOgGjeldendePerioder(ytelseFordelingAggregat);
     }
 
-    public List<UttakPeriodeEndringDto> finnEndringMellomOppgittOgGjeldendePerioder(Behandling behandling) {
-        YtelseFordelingAggregat ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandling.getId());
+    public List<UttakPeriodeEndringDto> finnEndringMellomOppgittOgGjeldendePerioderForBehandling(Long behandlingId) {
+        YtelseFordelingAggregat ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
         return finnEndringMellomOppgittOgGjeldendePerioder(ytelseFordelingAggregat);
     }
 

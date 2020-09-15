@@ -46,7 +46,7 @@ public class FastsettePerioderEndringTjenesteTest {
             .build();
         FastsettePerioderEndringTjeneste tjeneste = tjeneste(uttakResultat);
 
-        List<UttakPeriodeEndringDto> endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrt(BEHANDLING);
+        List<UttakPeriodeEndringDto> endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(BEHANDLING.getId());
 
         assertThat(endringer).hasSize(1);
         assertThat(endringer.get(0).getFom()).isEqualTo(opprinneligPeriode.getFom());
@@ -77,7 +77,7 @@ public class FastsettePerioderEndringTjenesteTest {
             .build();
         FastsettePerioderEndringTjeneste tjeneste = tjeneste(uttakResultat);
 
-        List<UttakPeriodeEndringDto> endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrt(BEHANDLING);
+        List<UttakPeriodeEndringDto> endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(BEHANDLING.getId());
 
         assertThat(endringer).hasSize(3);
         assertThat(endringer.get(0).getFom()).isEqualTo(opprinneligPeriode.getFom());
@@ -111,7 +111,7 @@ public class FastsettePerioderEndringTjenesteTest {
             .build();
         FastsettePerioderEndringTjeneste tjeneste = tjeneste(uttakResultat);
 
-        List<UttakPeriodeEndringDto> endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrt(BEHANDLING);
+        List<UttakPeriodeEndringDto> endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(BEHANDLING.getId());
 
         assertThat(endringer).isEmpty();
     }
@@ -140,7 +140,7 @@ public class FastsettePerioderEndringTjenesteTest {
             .build();
         FastsettePerioderEndringTjeneste tjeneste = tjeneste(uttakResultat);
 
-        List<UttakPeriodeEndringDto> endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrt(BEHANDLING);
+        List<UttakPeriodeEndringDto> endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(BEHANDLING.getId());
 
         assertThat(endringer).hasSize(1);
         assertThat(endringer.get(0).getFom()).isEqualTo(opprinneligPeriode.getFom());

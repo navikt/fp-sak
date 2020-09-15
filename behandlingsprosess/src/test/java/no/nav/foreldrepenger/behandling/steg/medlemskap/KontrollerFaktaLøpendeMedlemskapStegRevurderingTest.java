@@ -90,8 +90,11 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
 
     @Before
     public void setUp() {
-        steg = new KontrollerFaktaLøpendeMedlemskapStegRevurdering(utlederTjeneste, provider, vurderMedlemskapTjeneste, skjæringstidspunktTjeneste, flytkontroll);
+        steg = new KontrollerFaktaLøpendeMedlemskapStegRevurdering(utlederTjeneste, provider, vurderMedlemskapTjeneste,
+            skjæringstidspunktTjeneste, flytkontroll);
     }
+
+
 
     @Test
     public void skal_kontrollere_fakta_for_løpende_medlemskap() {
