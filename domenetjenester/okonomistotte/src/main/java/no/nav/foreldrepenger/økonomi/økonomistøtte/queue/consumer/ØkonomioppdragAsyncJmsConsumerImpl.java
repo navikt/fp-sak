@@ -23,8 +23,8 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragSkjemaConstants;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje150;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.BehandleØkonomioppdragKvittering;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomiKvittering;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.queue.ØkonomioppdragMeldingFeil;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomiKvittering;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
@@ -34,7 +34,6 @@ import no.nav.vedtak.felles.integrasjon.jms.InternalQueueConsumer;
 import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
 import no.nav.vedtak.felles.integrasjon.jms.precond.DefaultDatabaseOppePreconditionChecker;
 import no.nav.vedtak.felles.integrasjon.jms.precond.PreconditionChecker;
-import no.nav.vedtak.felles.integrasjon.okonomistottejms.consumer.ØkonomioppdragAsyncJmsConsumer;
 
 @ApplicationScoped
 public class ØkonomioppdragAsyncJmsConsumerImpl extends InternalQueueConsumer implements ØkonomioppdragAsyncJmsConsumer {

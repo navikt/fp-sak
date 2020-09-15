@@ -13,8 +13,9 @@ import javax.inject.Inject;
 
 import no.nav.folketrygdloven.beregningsgrunnlag.Grunnbeløp;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.modell.behandling.BehandlingReferanse;
+import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -56,19 +57,19 @@ public class BeregningTilInputTjeneste {
     }
 
     private BeregningsgrunnlagInput lagInputMedBeregningsgrunnlag(BeregningsgrunnlagInput input) {
-        Long behandlingId = input.getBehandlingReferanse().getBehandlingId();
+        Long behandlingId = input.getKoblingReferanse().getKoblingId();
         Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagEntitetOpt = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
         BeregningsgrunnlagInput newInput = lagInputMedGrunnbeløpSatser(input);
         if (grunnlagEntitetOpt.isPresent()) {
             BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = grunnlagEntitetOpt.get();
             BeregningsgrunnlagEntitet beregningsgrunnlag = grunnlagEntitet.getBeregningsgrunnlag()
                 .orElseThrow(INGEN_BG_EXCEPTION_SUPPLIER);
-            var ref = oppdaterBehandlingreferanseMedSkjæringstidspunktBeregning(input.getBehandlingReferanse(), grunnlagEntitet.getGjeldendeAktiviteter(), beregningsgrunnlag);
+            var ref = oppdaterBehandlingreferanseMedSkjæringstidspunktBeregning(input.getKoblingReferanse(), grunnlagEntitet.getGjeldendeAktiviteter(), beregningsgrunnlag);
             newInput = newInput
                 .medBehandlingReferanse(ref)
                 .medBeregningsgrunnlagGrunnlag(BehandlingslagerTilKalkulusMapper.mapGrunnlag(grunnlagEntitet, input.getInntektsmeldinger()));
         }
-        Optional<Long> orginalBehandling = input.getBehandlingReferanse().getOriginalBehandlingId();
+        Optional<Long> orginalBehandling = input.getKoblingReferanse().getOriginalKoblingId();
         Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag = orginalBehandling.flatMap(beh -> beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(beh));
         if (forrigeGrunnlag.isPresent()) {
             // Trenger ikke vite hvilke ander i orginalbehandling som hadde inntektsmeldinger
@@ -90,7 +91,7 @@ public class BeregningTilInputTjeneste {
     private BeregningsgrunnlagInput lagBeregningsgrunnlagHistorikk(BeregningsgrunnlagInput input) {
         BeregningsgrunnlagTilstand[] tilstander = BeregningsgrunnlagTilstand.values();
         for (BeregningsgrunnlagTilstand tilstand : tilstander) {
-            Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(input.getBehandlingReferanse().getBehandlingId(), input.getBehandlingReferanse().getOriginalBehandlingId(), tilstand);
+            Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(input.getKoblingReferanse().getKoblingId(), input.getKoblingReferanse().getOriginalKoblingId(), tilstand);
             sisteBg.ifPresent(gr -> input.leggTilBeregningsgrunnlagIHistorikk(BehandlingslagerTilKalkulusMapper.mapGrunnlag(gr, input.getInntektsmeldinger()),
                 no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand.fraKode(tilstand.getKode())));
         }
@@ -108,7 +109,7 @@ public class BeregningTilInputTjeneste {
     }
 
 
-    private BehandlingReferanse oppdaterBehandlingreferanseMedSkjæringstidspunktBeregning(BehandlingReferanse ref,
+    private KoblingReferanse oppdaterBehandlingreferanseMedSkjæringstidspunktBeregning(KoblingReferanse ref,
                                                                                           BeregningAktivitetAggregatEntitet beregningAktivitetAggregat,
                                                                                           BeregningsgrunnlagEntitet beregningsgrunnlag) {
         LocalDate skjæringstidspunktOpptjening = beregningAktivitetAggregat.getSkjæringstidspunktOpptjening();

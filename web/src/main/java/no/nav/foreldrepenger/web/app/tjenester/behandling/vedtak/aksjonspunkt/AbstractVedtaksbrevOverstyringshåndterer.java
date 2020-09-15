@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -98,6 +99,17 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         }
 
         builder.medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.FATTER_VEDTAK, AksjonspunktStatus.OPPRETTET);
+    }
+
+    OppdateringResultat standardHåndteringUtenTotrinn(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param) {
+        OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon();
+        if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
+            oppdaterFritekstVedtaksbrev(dto, param);
+            builder.medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FATTE_VEDTAK);
+        } else {
+            fjernFritekstBrevHvisEksisterer(param.getBehandlingId());
+        }
+        return builder.build();
     }
 
     void opprettHistorikkinnslag(Behandling behandling) {

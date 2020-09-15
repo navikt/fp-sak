@@ -45,8 +45,8 @@ import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt.FaktaUttakOppdaterer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaPeriodeLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SlettetUttakPeriodeDto;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
@@ -164,7 +164,7 @@ public class FaktaUttakOppdatererTest {
         var resultat = faktaUttakOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         boolean finnesAvbrutt = resultat.getEkstraAksjonspunktResultat().stream()
-            .anyMatch(aer -> aer.getElement1().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_UTTAK) && AksjonspunktStatus.AVBRUTT.equals(aer.getElement2()));
+            .anyMatch(aer -> aer.getElement1().getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_UTTAK) && AksjonspunktStatus.AVBRUTT.equals(aer.getElement2()));
 
 
         assertThat(finnesAvbrutt).isTrue();

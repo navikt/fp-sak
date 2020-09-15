@@ -62,6 +62,8 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeMottattDatoTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.MottattDokumentOversetterSøknad;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.MottattDokumentWrapperSøknad;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
@@ -83,6 +85,7 @@ import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
 public class SøknadMapperTest {
     private static final DatatypeFactory DATATYPE_FACTORY;
+
     static {
         try {
             DATATYPE_FACTORY = DatatypeFactory.newInstance();
@@ -104,9 +107,11 @@ public class SøknadMapperTest {
     private SvangerskapspengerRepository svangerskapspengerRepository = new SvangerskapspengerRepository(repositoryRule.getEntityManager());
 
     private SøknadMapper ytelseSøknadMapper;
+    private OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste =
+        new OppgittPeriodeMottattDatoTjeneste(new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         tpsTjeneste = mock(TpsTjeneste.class);
         reset(tpsTjeneste);
         final Optional<AktørId> stdKvinneAktørId = Optional.of(STD_KVINNE_AKTØR_ID);
@@ -177,7 +182,6 @@ public class SøknadMapperTest {
         assertThat(fordeling).isNotNull();
         assertThat(fordeling.getPerioder()).hasSize(4); //Forventer å ha en periode for hver av: permisjonPeriode, utsettelseperiode, Overfoeringsperiode og Graderingsperiode.
     }
-
 
 
     @Test
@@ -450,7 +454,9 @@ public class SøknadMapperTest {
         manuellRegistreringForeldrepengerDto.setAnnenForelder(annenForelderDto);
 
         final Soeknad soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringForeldrepengerDto, navBruker);
-        final MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste, iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository);
+        final MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider,
+            virksomhetTjeneste, iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository,
+            oppgittPeriodeMottattDatoTjeneste);
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         final Behandling.Builder builder = Behandling.forFørstegangssøknad(fagsak);
         final Behandling behandling = builder.build();
@@ -501,7 +507,7 @@ public class SøknadMapperTest {
         manuellRegistreringForeldrepengerDto.setAnnenForelder(annenForelderDto);
 
         final Soeknad soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringForeldrepengerDto, navBruker);
-        final MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste, iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository);
+        final MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste, iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDatoTjeneste);
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         final Behandling.Builder builder = Behandling.forFørstegangssøknad(fagsak);
         final Behandling behandling = builder.build();
@@ -595,7 +601,7 @@ public class SøknadMapperTest {
         Soeknad soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringForeldrepengerDto, navBruker);
 
         MottattDokument.Builder mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now()).medFagsakId(behandling.getFagsakId()).medElektroniskRegistrert(true);
-        MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste, iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository);
+        MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste, iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDatoTjeneste);
 
         // Act
         oversetter.trekkUtDataOgPersister((MottattDokumentWrapperSøknad) MottattDokumentWrapperSøknad.tilXmlWrapper(soeknad), mottattDokument.build(), behandling, Optional.empty());
@@ -626,7 +632,7 @@ public class SøknadMapperTest {
         Soeknad soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringForeldrepengerDto, navBruker);
 
         MottattDokument.Builder mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now()).medFagsakId(behandling.getFagsakId()).medElektroniskRegistrert(true);
-        MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste, iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository);
+        MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste, iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDatoTjeneste);
 
         // Act
         oversetter.trekkUtDataOgPersister((MottattDokumentWrapperSøknad) MottattDokumentWrapperSøknad.tilXmlWrapper(soeknad), mottattDokument.build(), behandling, Optional.empty());

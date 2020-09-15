@@ -11,8 +11,10 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Terminb
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -61,6 +65,7 @@ public class VurderFagsystemFellesUtils {
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
 
     public VurderFagsystemFellesUtils(){
         //Injected normal scoped bean is now proxyable
@@ -71,6 +76,7 @@ public class VurderFagsystemFellesUtils {
                                       InntektsmeldingTjeneste inntektsmeldingTjeneste, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
+        this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -267,9 +273,18 @@ public class VurderFagsystemFellesUtils {
         return Optional.empty();
     }
 
+    public Optional<BehandlendeFagsystem> vurderFagsystemKlageAnke(List<Fagsak> sakerTilVurdering) {
+        // Ruter inn på sak med nyeste vedtaksdato
+        return sakerTilVurdering.stream()
+            .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
+            .filter(Objects::nonNull)
+            .max(Comparator.comparing(b -> behandlingVedtakRepository.hentForBehandling(b.getId()).getVedtakstidspunkt()))
+            .map(b -> new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(b.getFagsak().getSaksnummer()));
+    }
+
     public static boolean erSøknad(VurderFagsystem vurderFagsystem) {
-        return (vurderFagsystem.getDokumentTypeId() != null && DokumentTypeId.getSøknadTyper().contains(vurderFagsystem.getDokumentTypeId().getKode())) ||
-            (vurderFagsystem.getDokumentKategori() != null && DokumentKategori.SØKNAD.equals(vurderFagsystem.getDokumentKategori()));
+        return (DokumentTypeId.getSøknadTyper().contains(vurderFagsystem.getDokumentTypeId().getKode())) ||
+            (DokumentKategori.SØKNAD.equals(vurderFagsystem.getDokumentKategori()));
     }
 
     private static boolean erPassendeFødselsSak(VurderFagsystem vurderFagsystem, FamilieHendelseGrunnlagEntitet grunnlag) {

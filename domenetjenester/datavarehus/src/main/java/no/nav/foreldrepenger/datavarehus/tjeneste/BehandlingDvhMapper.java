@@ -73,7 +73,7 @@ public class BehandlingDvhMapper {
      */
     private Long getRelatertBehandling(Behandling behandling, Optional<KlageVurderingResultat> klageVurderingResultat) {
         if (BehandlingType.KLAGE.equals(behandling.getType()) && klageVurderingResultat.isPresent()) {
-            return klageVurderingResultat.get().getKlageResultat().getPåKlagdBehandling().map(Behandling::getId).orElse(null);
+            return klageVurderingResultat.get().getKlageResultat().getPåKlagdBehandlingId().orElse(null);
         }
         return behandling.getOriginalBehandlingId().orElse(null);
     }

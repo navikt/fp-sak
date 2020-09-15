@@ -16,9 +16,7 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomiOppdragKøTjeneste;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
-import no.nav.vedtak.felles.integrasjon.okonomistottejms.ØkonomioppdragJmsProducer;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.queue.producer.ØkonomioppdragJmsProducer;
 
 public class ØkonomiOppdragKøTjenesteTest {
     private final Long behandlingId = 1L;

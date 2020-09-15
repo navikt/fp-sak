@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus;
 
-import no.nav.folketrygdloven.kalkulator.modell.behandling.BehandlingReferanse;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FagsakYtelseType;
+import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.Skjæringstidspunkt;
 import no.nav.folketrygdloven.kalkulator.modell.typer.AktørId;
+import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FagsakYtelseType;
 
 //TODO(OJR) skal fjernes
 public class MapBehandlingRef {
 
-    public static BehandlingReferanse mapRef(no.nav.foreldrepenger.behandling.BehandlingReferanse behandlingReferanse) {
-        return BehandlingReferanse.fra(FagsakYtelseType.fraKode(behandlingReferanse.getFagsakYtelseType().getKode()),
+    public static KoblingReferanse mapRef(no.nav.foreldrepenger.behandling.BehandlingReferanse behandlingReferanse) {
+        return KoblingReferanse.fra(FagsakYtelseType.fraKode(behandlingReferanse.getFagsakYtelseType().getKode()),
             new AktørId(behandlingReferanse.getAktørId().getId()),
             behandlingReferanse.getBehandlingId(),
             behandlingReferanse.getBehandlingUuid(),

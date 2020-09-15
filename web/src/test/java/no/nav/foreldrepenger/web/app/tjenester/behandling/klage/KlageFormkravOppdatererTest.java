@@ -17,7 +17,6 @@ import org.junit.Test;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandling.klage.KlageFormkravTjeneste;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -57,12 +56,11 @@ public class KlageFormkravOppdatererTest {
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
     private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
     private KlageRepository klageRepository = new KlageRepository(repositoryProvider.getEntityManager());
-    private KlageFormkravTjeneste klageFormkravTjeneste = new KlageFormkravTjeneste(behandlingRepository,klageRepository);
     private HistorikkTjenesteAdapter historikkTjenesteAdapter = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(),new HistorikkInnslagKonverter(), mock(DokumentArkivTjeneste.class));
-    private KlageVurderingTjeneste mockKlageVurderingTjeneste = mock(KlageVurderingTjeneste.class);
+    private KlageVurderingTjeneste klageVurderingTjeneste = new KlageVurderingTjeneste(null, null, behandlingRepository, klageRepository, null);
     private FptilbakeRestKlient mockFptilbakeRestKlient = mock(FptilbakeRestKlient.class);
 
-    private KlageFormkravOppdaterer klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageFormkravTjeneste,mockKlageVurderingTjeneste, historikkTjenesteAdapter,behandlingRepository,klageRepository,repositoryProvider.getBehandlingVedtakRepository(),mockFptilbakeRestKlient);
+    private KlageFormkravOppdaterer klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, historikkTjenesteAdapter,behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(),mockFptilbakeRestKlient);
 
     private ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
     private Behandling behandling;
@@ -71,7 +69,7 @@ public class KlageFormkravOppdatererTest {
     public void setup(){
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP, BehandlingStegType.KLAGE_NFP);
         behandling = scenario.lagre(repositoryProvider);
-        klageRepository.hentEvtOpprettKlageResultat(behandling);
+        klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
     }
 
     @Test
@@ -85,9 +83,9 @@ public class KlageFormkravOppdatererTest {
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
 
-        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling);
-        assertThat(klageResultatEntitet.getPåKlagdBehandling()).isEmpty();
-        assertThat(klageResultatEntitet.getPåKlagdEksternBehandling()).isEqualTo(Optional.of(TILBAKEKREVING_BEHANDLING_UUID));
+        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
+        assertThat(klageResultatEntitet.getPåKlagdBehandlingId()).isEmpty();
+        assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isEqualTo(Optional.of(TILBAKEKREVING_BEHANDLING_UUID));
     }
 
     @Test
@@ -98,17 +96,17 @@ public class KlageFormkravOppdatererTest {
         assertThat(oppdateringResultat.getNesteAksjonspunktStatus()).isEqualToComparingFieldByField(AksjonspunktStatus.UTFØRT);
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
-        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling);
-        assertThat(klageResultatEntitet.getPåKlagdBehandling()).isNotEmpty();
+        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
+        assertThat(klageResultatEntitet.getPåKlagdBehandlingId()).isNotEmpty();
 
         KlageTilbakekrevingDto klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(), TILBAKEKREVING_BEHANDLING_TYPE);
         klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true,klageTilbakekrevingDto);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto,aksjonspunktOppdaterParameter);
 
         fellesKlageAssert();
-        klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling);
-        assertThat(klageResultatEntitet.getPåKlagdBehandling()).isEmpty();
-        assertThat(klageResultatEntitet.getPåKlagdEksternBehandling()).isEqualTo(Optional.of(TILBAKEKREVING_BEHANDLING_UUID));
+        klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
+        assertThat(klageResultatEntitet.getPåKlagdBehandlingId()).isEmpty();
+        assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isEqualTo(Optional.of(TILBAKEKREVING_BEHANDLING_UUID));
 
         List<HistorikkinnslagDto> historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer());
         assertThat(historikkInnslager.size()).isEqualTo(2);
@@ -140,8 +138,8 @@ public class KlageFormkravOppdatererTest {
         assertThat(oppdateringResultat.getNesteAksjonspunktStatus()).isEqualToComparingFieldByField(AksjonspunktStatus.UTFØRT);
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
-        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling);
-        assertThat(klageResultatEntitet.getPåKlagdEksternBehandling()).isNotEmpty();
+        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
+        assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isNotEmpty();
 
         UUID nyTilbakekrevingUUID = UUID.randomUUID();
         LocalDate vedtakDato = LocalDate.now().minusDays(1);
@@ -151,9 +149,9 @@ public class KlageFormkravOppdatererTest {
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto,aksjonspunktOppdaterParameter);
 
         fellesKlageAssert();
-        klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling);
-        assertThat(klageResultatEntitet.getPåKlagdBehandling()).isEmpty();
-        assertThat(klageResultatEntitet.getPåKlagdEksternBehandling()).isEqualTo(Optional.of(nyTilbakekrevingUUID));
+        klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
+        assertThat(klageResultatEntitet.getPåKlagdBehandlingId()).isEmpty();
+        assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isEqualTo(Optional.of(nyTilbakekrevingUUID));
 
         List<HistorikkinnslagDto> historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer());
         assertThat(historikkInnslager.size()).isEqualTo(2);
@@ -184,8 +182,8 @@ public class KlageFormkravOppdatererTest {
         assertThat(oppdateringResultat.getNesteAksjonspunktStatus()).isEqualToComparingFieldByField(AksjonspunktStatus.UTFØRT);
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
-        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling);
-        assertThat(klageResultatEntitet.getPåKlagdEksternBehandling()).isNotEmpty();
+        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
+        assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isNotEmpty();
 
         when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(new TilbakekrevingVedtakDto(1L,klageTilbakekrevingDto.getTilbakekrevingVedtakDato(),klageTilbakekrevingDto.getTilbakekrevingBehandlingType()));
         klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto.KlageFormkravNfpAksjonspunktDto(true,true,true,true,null,"test",false,null);
@@ -220,8 +218,8 @@ public class KlageFormkravOppdatererTest {
         assertThat(oppdateringResultat.getNesteAksjonspunktStatus()).isEqualToComparingFieldByField(AksjonspunktStatus.UTFØRT);
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
-        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling);
-        assertThat(klageResultatEntitet.getPåKlagdEksternBehandling()).isNotEmpty();
+        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
+        assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isNotEmpty();
 
         when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(new TilbakekrevingVedtakDto(1L,klageTilbakekrevingDto.getTilbakekrevingVedtakDato(),klageTilbakekrevingDto.getTilbakekrevingBehandlingType()));
         klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto.KlageFormkravNfpAksjonspunktDto(true,true,true,true,behandling.getId(),"test",false,null);
@@ -248,7 +246,7 @@ public class KlageFormkravOppdatererTest {
 
 
     private void fellesKlageAssert() {
-        Optional<KlageFormkravEntitet> klageFormkravEntitet = klageRepository.hentKlageFormkrav(behandling, KlageVurdertAv.NFP);
+        Optional<KlageFormkravEntitet> klageFormkravEntitet = klageRepository.hentKlageFormkrav(behandling.getId(), KlageVurdertAv.NFP);
         assertThat(klageFormkravEntitet).isPresent();
         KlageFormkravEntitet formkravEntitet = klageFormkravEntitet.get(); //NOSONAR
         assertThat(formkravEntitet.erFristOverholdt()).isTrue();

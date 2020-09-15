@@ -45,6 +45,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
@@ -97,7 +98,8 @@ public class ForeslåVedtakTjenesteTest {
         when(dokumentBehandlingTjeneste.erDokumentBestilt(anyLong(), any())).thenReturn(true);
 
         SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(historikkRepository, oppgaveTjeneste);
-        tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, ankeRepository, klageRepository, behandlingskontrollTjeneste, sjekkMotEksisterendeOppgaverTjeneste);
+        var klageAnke = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
+        tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, klageAnke, sjekkMotEksisterendeOppgaverTjeneste);
     }
 
     @Test
@@ -287,21 +289,6 @@ public class ForeslåVedtakTjenesteTest {
         assertThat(stegResultat.getAksjonspunktListe().get(0)).isEqualTo(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
     }
 
-    @Test
-    public void skalAvbryteForeslåOgFatteVedtakAksjonspunkterNårDeFinnesPåBehandlingUtenTotrinnskontroll() {
-        // Arrange
-        leggTilAksjonspunkt(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, false);
-        leggTilAksjonspunkt(AksjonspunktDefinisjon.FATTER_VEDTAK, false);
-
-        // Act
-        tjeneste.foreslåVedtak(behandling, kontekst);
-
-        // Assert
-        assertThat(behandling.isToTrinnsBehandling()).isFalse();
-        assertThat(behandling.getAksjonspunkter()).hasSize(2);
-        assertThat(behandling.getAksjonspunktFor(AksjonspunktDefinisjon.FORESLÅ_VEDTAK).getStatus()).isEqualTo(AksjonspunktStatus.AVBRUTT);
-        assertThat(behandling.getAksjonspunktFor(AksjonspunktDefinisjon.FATTER_VEDTAK).getStatus()).isEqualTo(AksjonspunktStatus.AVBRUTT);
-    }
 
     @Test
     public void skalUtføreUtenAksjonspunkterHvisKlageHarResultatHjemsendt() {

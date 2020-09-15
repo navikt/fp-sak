@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.klage;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -129,8 +127,4 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
         }
     }
 
-    /** Kun til invortes bruk i tester. Ingen garanti for at dette dekker alle konstanter. */
-    public static Map<String, KlageAvvistÅrsak> getHardkodedeKonstanter() {
-        return Set.of(values()).stream().collect(Collectors.toMap(v -> v.getKode(), v -> v));
-    }
 }

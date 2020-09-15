@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -20,17 +19,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTotrinnsvurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -38,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtakMedBehandlingType;
+import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
@@ -51,8 +45,7 @@ public class VedtakTjeneste {
     private HistorikkRepository historikkRepository;
     private LagretVedtakRepository lagretVedtakRepository;
     private TotrinnTjeneste totrinnTjeneste;
-    private KlageRepository klageRepository;
-    private AnkeRepository ankeRepository;
+    private KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste;
 
     VedtakTjeneste() {
         // CDI
@@ -61,17 +54,14 @@ public class VedtakTjeneste {
     @Inject
     public VedtakTjeneste(LagretVedtakRepository lagretVedtakRepository,
                           BehandlingRepositoryProvider repositoryProvider,
-                          KlageRepository klageRepository,
-                          TotrinnTjeneste totrinnTjeneste,
-                          InnsynRepository innsynRepository,
-                          AnkeRepository ankeRepository) {
+                          KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
+                          TotrinnTjeneste totrinnTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
         this.lagretVedtakRepository = lagretVedtakRepository;
         this.totrinnTjeneste = totrinnTjeneste;
-        this.klageRepository = klageRepository;
-        this.ankeRepository = ankeRepository;
+        this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
     }
 
     public List<LagretVedtakMedBehandlingType> hentLagreteVedtakPåFagsak(Long fagsakId) {
@@ -93,7 +83,7 @@ public class VedtakTjeneste {
                 lagHistorikkInnslagVurderPåNytt(behandling, totrinnsvurderings);
                 return;
             }
-            if (behandlingErKlageEllerAnke(behandling) && erGodkjentHosMedunderskriver(behandling)) {
+            if (behandlingErKlageEllerAnke(behandling) && klageAnkeVedtakTjeneste.erGodkjentHosMedunderskriver(behandling)) {
                 lagHistorikkInnslagGodkjentAvMedunderskriver(behandling, totrinnsvurderings);
                 return;
             }
@@ -103,18 +93,6 @@ public class VedtakTjeneste {
 
     private boolean behandlingErKlageEllerAnke(Behandling behandling) {
         return BehandlingType.ANKE.equals(behandling.getType()) || BehandlingType.KLAGE.equals(behandling.getType());
-    }
-
-    private boolean erGodkjentHosMedunderskriver(Behandling behandling) {
-        if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            Optional<KlageVurderingResultat> klageVurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
-            return klageVurderingResultat.isPresent() && klageVurderingResultat.get().getKlageVurdertAv().equals(KlageVurdertAv.NK)
-                && klageVurderingResultat.get().isGodkjentAvMedunderskriver();
-        } else if (BehandlingType.ANKE.equals(behandling.getType())) {
-            Optional<AnkeVurderingResultatEntitet> ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
-            return ankeVurderingResultat.isPresent() && ankeVurderingResultat.get().godkjentAvMedunderskriver();
-        }
-        return false;
     }
 
     private boolean sendesTilbakeTilSaksbehandler(Collection<Totrinnsvurdering> medTotrinnskontroll) {
@@ -146,11 +124,19 @@ public class VedtakTjeneste {
 
 
     private void lagHistorikkInnslagVurderPåNytt(Behandling behandling, Collection<Totrinnsvurdering> medTotrinnskontroll) {
+        lagHistorikkInnslagVedtakReturEllerNK(HistorikkinnslagType.SAK_RETUR, behandling, medTotrinnskontroll);
+    }
+
+    private void lagHistorikkInnslagGodkjentAvMedunderskriver(Behandling behandling, Collection<Totrinnsvurdering> medTotrinnskontroll) {
+        lagHistorikkInnslagVedtakReturEllerNK(HistorikkinnslagType.SAK_GODKJENT, behandling, medTotrinnskontroll);
+    }
+
+    private void lagHistorikkInnslagVedtakReturEllerNK(HistorikkinnslagType hendelse, Behandling behandling, Collection<Totrinnsvurdering> medTotrinnskontroll) {
         Map<SkjermlenkeType, List<HistorikkinnslagTotrinnsvurdering>> vurdering = new HashMap<>();
         List<HistorikkinnslagTotrinnsvurdering> vurderingUtenLenke = new ArrayList<>();
 
         HistorikkInnslagTekstBuilder delBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.SAK_RETUR);
+            .medHendelse(hendelse);
 
         for (Totrinnsvurdering ttv : medTotrinnskontroll) {
             HistorikkinnslagTotrinnsvurdering totrinnsVurdering = lagHistorikkinnslagTotrinnsvurdering(ttv);
@@ -165,22 +151,8 @@ public class VedtakTjeneste {
         }
         delBuilder.medTotrinnsvurdering(vurdering, vurderingUtenLenke);
 
-        historikkRepository.lagre(lagHistorikkinnslag(behandling, HistorikkinnslagType.SAK_RETUR, delBuilder));
-    }
+        historikkRepository.lagre(lagHistorikkinnslag(behandling, hendelse, delBuilder));
 
-    private void lagHistorikkInnslagGodkjentAvMedunderskriver(Behandling behandling, Collection<Totrinnsvurdering> medTotrinnskontroll) {
-        HistorikkInnslagTekstBuilder delBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.SAK_GODKJENT);
-
-        for (Totrinnsvurdering ttv : medTotrinnskontroll) {
-            SkjermlenkeType skjermlenkeType = SkjermlenkeType.finnSkjermlenkeType(ttv.getAksjonspunktDefinisjon(), behandling);
-            if (skjermlenkeType != null && !SkjermlenkeType.UDEFINERT.equals(skjermlenkeType)) {
-                delBuilder.medSkjermlenke(skjermlenkeType);
-            }
-            delBuilder.medBegrunnelse(ttv.getBegrunnelse());
-        }
-
-        historikkRepository.lagre(lagHistorikkinnslag(behandling, HistorikkinnslagType.SAK_GODKJENT, delBuilder));
     }
 
     private Historikkinnslag lagHistorikkinnslag(Behandling behandling, HistorikkinnslagType historikkinnslagType,

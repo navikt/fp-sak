@@ -43,7 +43,7 @@ import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingTest {
 
     private static final Period FRIST_INNSENDING_PERIODE = Period.ofWeeks(6);
-    
+
     private final LocalDate DATO_ETTER_FRISTEN = LocalDate.now().minus(FRIST_INNSENDING_PERIODE.plusDays(2));
     private final LocalDate DATO_FØR_FRISTEN = LocalDate.now().minus(FRIST_INNSENDING_PERIODE.minusDays(2));
     private final AktørId AKTØR_ID = AktørId.dummy();
@@ -151,15 +151,16 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
 
     @Test
     public void skalTilManuellVurderingHvisBehandlingstypeErKlage() {
-        opprettBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.AVSLÅTT, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING, VedtakResultatType.AVSLAG, DATO_FØR_FRISTEN);
+        var behandling = opprettBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.AVSLÅTT, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING, VedtakResultatType.AVSLAG, DATO_FØR_FRISTEN);
         VurderFagsystem vfData = opprettVurderFagsystem(BehandlingTema.UDEFINERT);
         vfData.setDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT);
         //Act
         BehandlendeFagsystem resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         //Assert
-        assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
-        assertThat(resultat.getSaksnummer()).isEmpty();
+        assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(resultat.getSaksnummer()).isPresent();
+        assertThat(resultat.getSaksnummer().get()).isEqualTo(behandling.getFagsak().getSaksnummer());
     }
 
 

@@ -24,8 +24,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.KontrollerFaktaInngangsVilkårUtleder;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
@@ -41,7 +41,8 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @Dependent
 public class Endringskontroller {
     private static final Logger LOGGER = LoggerFactory.getLogger(Endringskontroller.class);
-    private static final Set<StartpunktType> STARTPUNKT_INNGANG_VILKÅR = StartpunktType.inngangsVilkårStartpunkt();
+    private static final Set<BehandlingStegType> STARTPUNKT_STEG_INNGANG_VILKÅR = StartpunktType.inngangsVilkårStartpunkt().stream().map(StartpunktType::getBehandlingSteg).collect(Collectors.toSet());
+    private static final AksjonspunktDefinisjon SPESIALHÅNDTERT_AKSJONSPUNKT = AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
     private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;
@@ -55,7 +56,6 @@ public class Endringskontroller {
 
     @Inject
     public Endringskontroller(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                              BehandlingRepositoryProvider provider,
                               @Any Instance<StartpunktTjeneste> startpunktTjenester,
                               OppgaveTjeneste oppgaveTjeneste,
                               RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste,
@@ -95,7 +95,11 @@ public class Endringskontroller {
 
     private void doSpolTilStartpunkt(BehandlingReferanse ref, Behandling behandling, StartpunktType startpunktType) {
         BehandlingStegType fraSteg = behandling.getAktivtBehandlingSteg();
-        BehandlingStegType tilSteg = startpunktType.getBehandlingSteg();
+        BehandlingStegType startPunktSteg = startpunktType.getBehandlingSteg();
+        boolean skalSpesialHåndteres = behandling.getÅpentAksjonspunktMedDefinisjonOptional(SPESIALHÅNDTERT_AKSJONSPUNKT).isPresent() &&
+            behandlingskontrollTjeneste.sammenlignRekkefølge(behandling.getFagsakYtelseType(), behandling.getType(),
+                SPESIALHÅNDTERT_AKSJONSPUNKT.getBehandlingSteg(), startPunktSteg) < 0;
+        BehandlingStegType tilSteg = skalSpesialHåndteres ? SPESIALHÅNDTERT_AKSJONSPUNKT.getBehandlingSteg() : startPunktSteg;
 
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         // Inkluderer tilbakeføring samme steg UTGANG->INNGANG
@@ -104,8 +108,8 @@ public class Endringskontroller {
         oppdaterStartpunktVedBehov(behandling, startpunktType);
 
         // Gjør aksjonspunktutledning utenom steg kun for startpunkt inne i inngangsvilkårene
-        if (harUtførtKontrollerFakta(behandling) && STARTPUNKT_INNGANG_VILKÅR.contains(startpunktType)) {
-            utledAksjonspunkterTilHøyreForStartpunkt(kontekst, startpunktType, ref, behandling, tilbakeføres);
+        if (harUtførtKontrollerFakta(behandling) && STARTPUNKT_STEG_INNGANG_VILKÅR.contains(tilSteg)) {
+            utledAksjonspunkterTilHøyreForStartpunkt(kontekst, tilSteg, ref, behandling, tilbakeføres);
         }
 
         if (tilbakeføres) {
@@ -159,8 +163,8 @@ public class Endringskontroller {
     }
 
     // Orkestrerer aksjonspunktene for kontroll av fakta som utføres ifm tilbakehopp til et sted innen inngangsvilkår
-    private void utledAksjonspunkterTilHøyreForStartpunkt(BehandlingskontrollKontekst kontekst, StartpunktType startpunkt, BehandlingReferanse ref, Behandling behandling, boolean tilbakeføres) {
-        var tidligsteSteg = tilbakeføres ? startpunkt.getBehandlingSteg() : behandling.getAktivtBehandlingSteg();
+    private void utledAksjonspunkterTilHøyreForStartpunkt(BehandlingskontrollKontekst kontekst, BehandlingStegType tilSteg, BehandlingReferanse ref, Behandling behandling, boolean tilbakeføres) {
+        var tidligsteSteg = tilbakeføres ? tilSteg : behandling.getAktivtBehandlingSteg();
         var resultater = FagsakYtelseTypeRef.Lookup.find(KontrollerFaktaInngangsVilkårUtleder.class, kontrollerFaktaTjenester, ref.getFagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.getFagsakYtelseType().getKode()))
             .utledAksjonspunkterFomSteg(ref, tidligsteSteg);

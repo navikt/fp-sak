@@ -19,9 +19,10 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt {
 
     //TODO(OJR) burde kanskje innfører en egenskap som tilsier at MEDLEMSKAPSVILKÅRET_LØPENDE ikke er et inngangsvilkår?
     public static boolean vurder(Behandlingsresultat revurdering) {
-        return revurdering.getVilkårResultat().getVilkårene().stream()
+        return revurdering.isVilkårAvslått() || revurdering.getVilkårResultat().getVilkårene().stream()
             .filter(v -> !MEDLEMSKAPSVILKÅRET_LØPENDE.equals(v.getVilkårType()))
-            .anyMatch(v -> !VilkårUtfallType.OPPFYLT.equals(v.getGjeldendeVilkårUtfall()));
+            .map(Vilkår::getGjeldendeVilkårUtfall)
+            .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
     }
 
     public static Behandlingsresultat fastsett(Behandling revurdering, Behandlingsresultat behandlingsresultat) {

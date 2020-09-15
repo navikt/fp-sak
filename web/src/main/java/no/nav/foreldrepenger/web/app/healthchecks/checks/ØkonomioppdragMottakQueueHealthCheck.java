@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.web.app.healthchecks.checks;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.vedtak.felles.integrasjon.okonomistottejms.consumer.ØkonomioppdragAsyncJmsConsumer;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.queue.consumer.ØkonomioppdragAsyncJmsConsumer;
 
 @ApplicationScoped
 public class ØkonomioppdragMottakQueueHealthCheck extends QueueHealthCheck {

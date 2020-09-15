@@ -7,8 +7,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.guitjenester.BeregningsgrunnlagDtoTjeneste;
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagRestInput;
-import no.nav.folketrygdloven.kalkulator.modell.behandling.BehandlingReferanse;
+import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagGUIInput;
+import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
@@ -32,43 +32,36 @@ public class BeregningDtoTjeneste {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
     }
 
-    public Optional<BeregningsgrunnlagDto> lagBeregningsgrunnlagDto(BeregningsgrunnlagRestInput input) {
-        BehandlingReferanse ref = input.getBehandlingReferanse();
-        Optional<BeregningsgrunnlagGrunnlagEntitet> beregningsgrunnlagGrunnlagEntitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(ref.getBehandlingId());
+    public Optional<BeregningsgrunnlagDto> lagBeregningsgrunnlagDto(BeregningsgrunnlagGUIInput input) {
+        KoblingReferanse ref = input.getKoblingReferanse();
+        Optional<BeregningsgrunnlagGrunnlagEntitet> beregningsgrunnlagGrunnlagEntitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId());
         if (beregningsgrunnlagGrunnlagEntitet.isEmpty()) {
             return Optional.empty();
         }
-        Optional<BeregningsgrunnlagGrunnlagEntitet> orginaltGrunnlag = ref.getOriginalBehandlingId().flatMap(id -> beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(id));
-        BeregningsgrunnlagRestInput inputMedBeregningsgrunnlag = settBeregningsgrunnlagPåInput(input, beregningsgrunnlagGrunnlagEntitet.get(), orginaltGrunnlag);
+        Optional<BeregningsgrunnlagGrunnlagEntitet> orginaltGrunnlag = ref.getOriginalKoblingId().flatMap(id -> beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(id));
+        BeregningsgrunnlagGUIInput inputMedBeregningsgrunnlag = settBeregningsgrunnlagPåInput(input, beregningsgrunnlagGrunnlagEntitet.get(), orginaltGrunnlag);
         return Optional.of(beregningsgrunnlagDtoTjeneste.lagBeregningsgrunnlagDto(inputMedBeregningsgrunnlag));
     }
 
-    private BeregningsgrunnlagRestInput settBeregningsgrunnlagPåInput(BeregningsgrunnlagRestInput input,
+    private BeregningsgrunnlagGUIInput settBeregningsgrunnlagPåInput(BeregningsgrunnlagGUIInput input,
                                                                       BeregningsgrunnlagGrunnlagEntitet beregningsgrunnlagGrunnlagEntitet,
                                                                       Optional<BeregningsgrunnlagGrunnlagEntitet> orginaltGrunnlag) {
         BeregningsgrunnlagGrunnlagDto bgRestDto = BehandlingslagerTilKalkulusMapper.mapGrunnlag(beregningsgrunnlagGrunnlagEntitet, input.getInntektsmeldinger());
-        BeregningsgrunnlagRestInput inputMedBg = input.medBeregningsgrunnlagGrunnlag(bgRestDto);
+        BeregningsgrunnlagGUIInput inputMedBg = input.medBeregningsgrunnlagGrunnlag(bgRestDto);
         if (orginaltGrunnlag.isPresent() && orginaltGrunnlag.get().getBeregningsgrunnlag().isPresent()) {
             // Trenger ikke inntektsmeldinger på orginalt grunnlag
             BeregningsgrunnlagGrunnlagDto orginaltBG = BehandlingslagerTilKalkulusMapper.mapGrunnlag(orginaltGrunnlag.get(), Collections.emptyList());
-            BeregningsgrunnlagRestInput inputMedOrginaltBG = inputMedBg.medBeregningsgrunnlagGrunnlagFraForrigeBehandling(orginaltBG);
-            lagBeregningsgrunnlagHistorikk(inputMedOrginaltBG);
-            return inputMedOrginaltBG;
+            BeregningsgrunnlagGUIInput inputMedOrginaltBG = inputMedBg.medBeregningsgrunnlagGrunnlagFraForrigeBehandling(orginaltBG);
+            return leggTilFordelBeregningsgrunnlag(inputMedOrginaltBG);
         } else {
-            lagBeregningsgrunnlagHistorikk(inputMedBg);
-            return inputMedBg;
+            return leggTilFordelBeregningsgrunnlag(inputMedBg);
         }
     }
 
-    private BeregningsgrunnlagRestInput lagBeregningsgrunnlagHistorikk(BeregningsgrunnlagRestInput input) {
-        BeregningsgrunnlagTilstand[] tilstander = BeregningsgrunnlagTilstand.values();
-        for (BeregningsgrunnlagTilstand tilstand : tilstander) {
-            Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(input.getBehandlingReferanse().getBehandlingId(), tilstand);
-            sisteBg.ifPresent(gr -> input.leggTilBeregningsgrunnlagIHistorikk(BehandlingslagerTilKalkulusMapper.mapGrunnlag(gr, input.getInntektsmeldinger()),
-                no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand.fraKode(tilstand.getKode())));
-        }
-        return input;
+    private BeregningsgrunnlagGUIInput leggTilFordelBeregningsgrunnlag(BeregningsgrunnlagGUIInput input) {
+        Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(input.getKoblingReferanse().getKoblingId(), BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING);
+        return sisteBg.map(gr -> BehandlingslagerTilKalkulusMapper.mapGrunnlag(gr, input.getInntektsmeldinger()))
+            .map(input::medBeregningsgrunnlagGrunnlagFraFordel).orElse(input);
     }
-
 
 }

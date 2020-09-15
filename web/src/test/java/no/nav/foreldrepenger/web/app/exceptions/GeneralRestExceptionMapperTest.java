@@ -13,7 +13,6 @@ import org.junit.Test;
 
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
-import no.nav.modig.core.test.LogSniffer;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;

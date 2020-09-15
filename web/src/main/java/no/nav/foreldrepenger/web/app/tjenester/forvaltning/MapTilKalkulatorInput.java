@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import no.nav.folketrygdloven.beregningsgrunnlag.Grunnbeløp;
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.SvangerskapspengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.gradering.AndelGradering;
@@ -32,7 +31,6 @@ import no.nav.folketrygdloven.kalkulus.beregning.v1.AktivitetGraderingDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.AndelGraderingDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.ForeldrepengerGrunnlag;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.GraderingDto;
-import no.nav.folketrygdloven.kalkulus.beregning.v1.GrunnbeløpDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.PeriodeMedUtbetalingsgradDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.RefusjonskravDatoDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.UtbetalingsgradArbeidsforholdDto;
@@ -83,7 +81,6 @@ class MapTilKalkulatorInput {
             return null;
         }
         KalkulatorInputDto kalkulatorInputDto = new KalkulatorInputDto(
-            mapGrunnbeløpSatser(beregningsgrunnlagInput),
             mapIayGrunnlag(beregningsgrunnlagInput, aktørId),
             mapOpptjeningAktiviteter(beregningsgrunnlagInput.getOpptjeningAktiviteterForBeregning()),
             beregningsgrunnlagInput.getSkjæringstidspunktOpptjening()
@@ -435,16 +432,4 @@ class MapTilKalkulatorInput {
         return arbeidsgiver.getErVirksomhet() ? new Organisasjon(arbeidsgiver.getIdentifikator()) : new AktørIdPersonident(arbeidsgiver.getIdentifikator());
     }
 
-    private static List<GrunnbeløpDto> mapGrunnbeløpSatser(BeregningsgrunnlagInput beregningsgrunnlagInput) {
-        return beregningsgrunnlagInput.getGrunnbeløpsatser() == null ? null :
-            beregningsgrunnlagInput.getGrunnbeløpsatser().stream().map(MapTilKalkulatorInput::mapGrunnbeløpSats).collect(Collectors.toList());
-    }
-
-    private static GrunnbeløpDto mapGrunnbeløpSats(Grunnbeløp grunnbeløp) {
-        return grunnbeløp == null ? null : new GrunnbeløpDto(
-            new Periode(grunnbeløp.getFom(), grunnbeløp.getTom()),
-            grunnbeløp.getGSnitt() == null ? null : BigDecimal.valueOf(grunnbeløp.getGSnitt()),
-            grunnbeløp.getGVerdi() == null ? null : BigDecimal.valueOf(grunnbeløp.getGVerdi())
-        );
-    }
 }

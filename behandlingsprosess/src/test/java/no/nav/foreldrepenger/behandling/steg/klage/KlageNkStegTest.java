@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-import no.nav.foreldrepenger.behandling.steg.klage.KlageNkSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -12,6 +11,7 @@ import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -79,8 +79,7 @@ public class KlageNkStegTest {
         steg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, null, null);
 
         // Assert
-        assertThat(klageRepository.hentKlageVurderingResultat(klageBehandling.getId(), KlageVurdertAv.NK)).isEmpty();
-//        verify(klageRepository).slettKlageVurderingResultat(eq(klageBehandling), eq(KlageVurdertAv.NK));
+        assertThat(klageRepository.hentKlageVurderingResultat(klageBehandling.getId(), KlageVurdertAv.NK).filter(KlageVurderingResultat::isGodkjentAvMedunderskriver)).isEmpty();
     }
 
 }

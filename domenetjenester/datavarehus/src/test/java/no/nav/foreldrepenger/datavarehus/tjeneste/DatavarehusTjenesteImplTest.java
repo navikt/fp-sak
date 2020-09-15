@@ -14,6 +14,7 @@ import static no.nav.foreldrepenger.datavarehus.tjeneste.DvhTestDataUtil.SAKSNUM
 import static no.nav.foreldrepenger.datavarehus.tjeneste.DvhTestDataUtil.VEDTAK_DATO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,8 +46,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
@@ -55,12 +54,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
@@ -98,10 +95,7 @@ public class DatavarehusTjenesteImplTest {
     private TotrinnRepository totrinnRepository = mock(TotrinnRepository.class);
     private AnkeRepository ankeRepository = mock(AnkeRepository.class);
     private KlageRepository klageRepository = mock(KlageRepository.class);
-    private FamilieHendelseRepository familieHendelseRepository = mock(FamilieHendelseRepository.class);
-    private PersonopplysningRepository personopplysningRepository = mock(PersonopplysningRepository.class);
     private MottatteDokumentRepository mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
-    private BehandlingVedtakRepository behandlingVedtakRepository = mock(BehandlingVedtakRepository.class);
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste = mock(ForeldrepengerUttakTjeneste.class);
 
     private MottattDokument mottattDokument;
@@ -140,10 +134,7 @@ public class DatavarehusTjenesteImplTest {
             totrinnRepository,
             ankeRepository,
             klageRepository,
-            familieHendelseRepository,
-            personopplysningRepository,
             mottatteDokumentRepository,
-            behandlingVedtakRepository,
             dvhVedtakTjenesteEngangsstønad,
             foreldrepengerUttakTjeneste,
             skjæringstidspunktTjeneste);
@@ -299,7 +290,7 @@ public class DatavarehusTjenesteImplTest {
         ScenarioKlageEngangsstønad scenarioKlageEngangsstønad = ScenarioKlageEngangsstønad.forFormKrav(scenarioMorSøkerEngangsstønad);
         Behandling klageBehandling = scenarioKlageEngangsstønad.lagMocked();
         AksjonspunktTestSupport.setTilUtført(klageBehandling.getAksjonspunktFor(VURDERING_AV_FORMKRAV_KLAGE_NFP), "Begrunnelse");
-        var klageResultat = KlageResultatEntitet.builder().medKlageBehandling(klageBehandling).medPåKlagdBehandling(påklagdBehandling).build();
+        var klageResultat = KlageResultatEntitet.builder().medKlageBehandlingId(klageBehandling.getId()).medPåKlagdBehandlingId(påklagdBehandling.getId()).build();
 
         ArgumentCaptor<KlageFormkravDvh> captor = ArgumentCaptor.forClass(KlageFormkravDvh.class);
         BehandlingRepositoryProvider behandlingRepositoryProvider = scenarioKlageEngangsstønad.mockBehandlingRepositoryProvider();
@@ -316,7 +307,7 @@ public class DatavarehusTjenesteImplTest {
             .medBegrunnelse("dette er en begrunnelse.");
         KlageFormkravEntitet klageFormkrav = formkravBuilder.build();
 
-        when(klageRepository.hentGjeldendeKlageFormkrav(any())).thenReturn(Optional.of(klageFormkrav));
+        when(klageRepository.hentGjeldendeKlageFormkrav(anyLong())).thenReturn(Optional.of(klageFormkrav));
 
         datavarehusTjeneste.oppdaterHvisKlageEllerAnke(klageBehandling.getId(), klageBehandling.getAksjonspunkter());
 
@@ -334,22 +325,20 @@ public class DatavarehusTjenesteImplTest {
 
         ScenarioMorSøkerEngangsstønad scenarioMorSøkerEngangsstønad = opprettFørstegangssøknad();
         Behandling påklagdBehandling = scenarioMorSøkerEngangsstønad.lagMocked();
-        ScenarioKlageEngangsstønad scenarioKlageEngangsstønad = opprettKlageScenario(scenarioMorSøkerEngangsstønad, null, KlageMedholdÅrsak.NYE_OPPLYSNINGER,
+        ScenarioKlageEngangsstønad scenarioKlageEngangsstønad = opprettKlageScenario(scenarioMorSøkerEngangsstønad, KlageMedholdÅrsak.NYE_OPPLYSNINGER,
             KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE);
         scenarioKlageEngangsstønad.medAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP, BehandlingStegType.KLAGE_NFP);
         Behandling klageBehandling = scenarioKlageEngangsstønad.lagMocked();
         AksjonspunktTestSupport.setTilUtført(klageBehandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), "Blah");
-        var klageResultat = KlageResultatEntitet.builder().medKlageBehandling(klageBehandling).medPåKlagdBehandling(påklagdBehandling).build();
+        var klageResultat = KlageResultatEntitet.builder().medKlageBehandlingId(klageBehandling.getId()).medPåKlagdBehandlingId(påklagdBehandling.getId()).build();
 
         KlageVurderingResultat.Builder klageVurderingResultatBuilder = KlageVurderingResultat.builder();
         klageVurderingResultatBuilder
             .medKlageResultat(klageResultat)
-            .medKlageAvvistÅrsak(null)
             .medKlageMedholdÅrsak(KlageMedholdÅrsak.NYE_OPPLYSNINGER)
             .medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE)
             .medKlageVurderingOmgjør(KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE)
-            .medKlageVurdertAv(KlageVurdertAv.NFP)
-            .medVedtaksdatoPåklagdBehandling(LocalDate.now().minusDays(2));
+            .medKlageVurdertAv(KlageVurdertAv.NFP);
 
         KlageVurderingResultat klageVurderingResultat = klageVurderingResultatBuilder.build();
 
@@ -364,18 +353,16 @@ public class DatavarehusTjenesteImplTest {
 
         verify(datavarehusRepository).lagre(captor.capture());
         assertThat(captor.getValue().getOpprettetTidspunkt()).isEqualTo(klageVurderingResultat.getOpprettetTidspunkt());
-        assertThat(captor.getValue().getKlageAvvistÅrsak()).isEqualTo(klageVurderingResultat.getKlageAvvistÅrsak().getKode());
         assertThat(captor.getValue().getKlageMedholdÅrsak()).isEqualTo(klageVurderingResultat.getKlageMedholdÅrsak().getKode());
         assertThat(captor.getValue().getKlageVurdering()).isEqualTo(klageVurderingResultat.getKlageVurdering().getKode());
         assertThat(captor.getValue().getKlageVurderingOmgjør()).isEqualTo(klageVurderingResultat.getKlageVurderingOmgjør().getKode());
         assertThat(captor.getValue().getKlageVurdertAv()).isEqualTo(klageVurderingResultat.getKlageVurdertAv().getKode());
-        assertThat(captor.getValue().getVedtaksdatoPåklagdBehandling()).isEqualTo(klageVurderingResultat.getVedtaksdatoPåklagdBehandling());
     }
 
-    private ScenarioKlageEngangsstønad opprettKlageScenario(AbstractTestScenario<?> abstractTestScenario, KlageAvvistÅrsak klageAvvistÅrsak,
+    private ScenarioKlageEngangsstønad opprettKlageScenario(AbstractTestScenario<?> abstractTestScenario,
                                                             KlageMedholdÅrsak klageMedholdÅrsak, KlageVurderingOmgjør klageVurderingOmgjør) {
         ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forMedholdNFP(abstractTestScenario);
-        return scenario.medKlageAvvistÅrsak(klageAvvistÅrsak).medKlageMedholdÅrsak(klageMedholdÅrsak).medKlageVurderingOmgjør(klageVurderingOmgjør);
+        return scenario.medKlageMedholdÅrsak(klageMedholdÅrsak).medKlageVurderingOmgjør(klageVurderingOmgjør);
     }
 
     private BehandlingVedtak byggBehandlingVedtak() {
@@ -392,8 +379,8 @@ public class DatavarehusTjenesteImplTest {
             .medVedtakResultatType(VedtakResultatType.INNVILGET)
             .medBehandlingsresultat(behandlingsresultat)
             .build();
+        repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, behandlingRepository.taSkriveLås(behandling));
 
-        when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(any())).thenReturn(Optional.of(vedtak));
         return vedtak;
     }
 

@@ -8,7 +8,7 @@ public class AnkeVurderingResultatDvhMapper {
     public AnkeVurderingResultatDvh map(AnkeVurderingResultatEntitet ankevurderingresultat) {
         return AnkeVurderingResultatDvh.builder()
             .medAnkeOmgjørÅrsak(ankevurderingresultat.getAnkeOmgjørÅrsak().getKode())
-            .medAnkeBehandlingId(ankevurderingresultat.getAnkeResultat().getAnkeBehandling().getId())
+            .medAnkeBehandlingId(ankevurderingresultat.getAnkeResultat().getAnkeBehandlingId())
             .medAnkeVurdering(ankevurderingresultat.getAnkeVurdering().getKode())
             .medAnkeVurderingOmgjør(ankevurderingresultat.getAnkeVurderingOmgjør().getKode())
             .medErMerknaderMottatt(ankevurderingresultat.getErMerknaderMottatt())

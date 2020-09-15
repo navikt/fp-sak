@@ -124,7 +124,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     }
 
     @Test
-    public void skal_teste_at_inngangsvilkår_ikke_vurdert_gir_negativt_utfall() {
+    public void skal_teste_at_inngangsvilkår_ikke_vurdert_gir_samme_som_omliggende() {
         // Arrange
         VilkårResultat.builder()
             .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
@@ -136,7 +136,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
         boolean oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(revurderingResultat);
 
         // Assert
-        assertThat(oppfyllerIkkjeInngangsvilkår).isTrue();
+        assertThat(oppfyllerIkkjeInngangsvilkår).isFalse();
     }
 
     @Test

@@ -42,8 +42,7 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
             .map(KlageVurderingResultat::getKlageVurdering)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Skal alltid ha klagevurdering fra NFP "));
         if (klageVurderingResultat.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)) {
-            return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(
-                AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA));
+            return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA));
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
