@@ -8,7 +8,6 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAG
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -29,7 +28,6 @@ import javax.ws.rs.core.Response;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
 import no.nav.foreldrepenger.familiehendelse.rest.PeriodeDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
