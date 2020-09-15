@@ -54,11 +54,7 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
         Optional<OppdragskontrollManager> manager = factory.getManager(behandling, tidligereOppdragFinnes);
         if (manager.isPresent()) {
             Oppdragskontroll oppdrag = manager.get().opprettØkonomiOppdrag(behandling, oppdragskontroll);
-            boolean postconditionEnabled = unleash.isEnabled("fpsak.oppdragskontroll.postcondition", true);
-            logger.info("fpsak.oppdragskontroll.postcondition er " + (postconditionEnabled ? "på" : "av"));
-            if (postconditionEnabled) {
-                OppdragskontrollPostConditionCheck.valider(oppdrag);
-            }
+            OppdragskontrollPostConditionCheck.valider(oppdrag);
             return Optional.of(oppdrag);
         } else {
             return Optional.empty();
