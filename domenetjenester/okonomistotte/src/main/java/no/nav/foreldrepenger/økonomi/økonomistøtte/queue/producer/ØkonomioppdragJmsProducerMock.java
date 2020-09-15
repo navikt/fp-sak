@@ -34,7 +34,7 @@ public class ØkonomioppdragJmsProducerMock extends ØkonomioppdragJmsProducer {
     public void sendØkonomiOppdrag(String oppdragXML) {
         LOG.info("invoke: sendØkonomiOppdrag - mottar og sender oppdragskvittering");
         try {
-            String kvittering = lagInputFraOppdragFraOutputTilOppdrag(getInput("statusOk.xml"), oppdragXML);
+            String kvittering = lagInputFraOppdragFraOutputTilOppdrag(getInput("ØkonomioppdragJmsProducerMock/statusOk.xml"), oppdragXML);
             LOG.debug(kvittering);
             økonomioppdragAsyncJmsConsumer.handle(kvittering);
         } catch (IOException | URISyntaxException e) {
