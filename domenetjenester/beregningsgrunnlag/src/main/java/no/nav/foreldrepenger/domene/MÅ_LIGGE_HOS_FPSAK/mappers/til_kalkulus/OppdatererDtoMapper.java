@@ -393,7 +393,7 @@ public class OppdatererDtoMapper {
         return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.RedigerbarAndelFaktaOmBeregningDto(
             redigerbarAndel.getAndelsnr(),
             redigerbarAndel.getNyAndel(),
-            AktivitetStatus.fraKode(redigerbarAndel.getAktivitetStatus().getKode()),
+            redigerbarAndel.getAktivitetStatus() == null ? null : AktivitetStatus.fraKode(redigerbarAndel.getAktivitetStatus().getKode()),
             redigerbarAndel.getLagtTilAvSaksbehandler());
     }
 }
