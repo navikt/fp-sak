@@ -23,6 +23,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
+import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
@@ -99,11 +101,20 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
 
         if( stønadRest > 0 ) {
             //rest er allerede lagt til i maksDatoUttak, men der mangler 'buffer'
-            avslutningsdatoFraMaksDatoUttak = avslutningsdatoFraMaksDatoUttak.plusMonths(JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER)
-                .with(TemporalAdjusters.lastDayOfMonth());
+            avslutningsdatoFraMaksDatoUttak = beskjærMotAbsoluttMaksDato(uttakInput, avslutningsdatoFraMaksDatoUttak.plusMonths(JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER).with(TemporalAdjusters.lastDayOfMonth()));
         }
+
         return avslutningsdatoFraMaksDatoUttak.isAfter(LocalDate.now()) && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, avslutningsdatoFraMaksDatoUttak)?
             avslutningsdatoFraMaksDatoUttak : avsluttningsdato;
+    }
+
+    private LocalDate beskjærMotAbsoluttMaksDato(UttakInput uttakInput, LocalDate beregnetMaksDato) {
+        Optional<LocalDate> fødselsdato = ((ForeldrepengerGrunnlag)uttakInput.getYtelsespesifiktGrunnlag()).getFamilieHendelser().getSøknadFamilieHendelse().getFødselsdato();
+        if(fødselsdato.isPresent()){
+            LocalDate absoluttMaksDato = fødselsdato.get().plusYears(3);
+            return absoluttMaksDato.isBefore(beregnetMaksDato)? absoluttMaksDato : beregnetMaksDato;
+        }
+        return beregnetMaksDato;
     }
 
     protected LocalDate avsluttningsdatoHvisDetIkkeErGjortUttak(Behandling behandling, LocalDate avsluttningsdato) {
