@@ -14,6 +14,8 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -37,6 +39,7 @@ public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
     private static final Logger log = LoggerFactory.getLogger(IverksetteVedtakStegFelles.class);
 
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private HistorikkRepository historikkRepository;
     private OpprettProsessTaskIverksett opprettProsessTaskIverksett;
@@ -51,6 +54,7 @@ public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
                                       OpprettProsessTaskIverksett opprettProsessTaskIverksett,
                                       VurderBehandlingerUnderIverksettelse tidligereBehandlingUnderIverksettelse) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
         this.opprettProsessTaskIverksett = opprettProsessTaskIverksett;
@@ -60,7 +64,12 @@ public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
     @Override
     public final BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         long behandlingId = kontekst.getBehandlingId();
+        Behandlingsresultat behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
         Optional<BehandlingVedtak> fantVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
+        if (behandlingsresultat.isBehandlingHenlagt() && fantVedtak.isEmpty()) {
+            // Gå til avslutning. Dersom alle henlagte skal innom her så bør man sjekke behov for Berørt og andre IVED.VENTER
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
         if (fantVedtak.isEmpty()) {
             throw new IllegalStateException(String.format("Utviklerfeil: Kan ikke iverksette, behandling mangler vedtak %s", behandlingId));
         }
