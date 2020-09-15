@@ -101,7 +101,10 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
 
         if( stønadRest > 0 ) {
             //rest er allerede lagt til i maksDatoUttak, men der mangler 'buffer'
-            avslutningsdatoFraMaksDatoUttak = beskjærMotAbsoluttMaksDato(uttakInput, avslutningsdatoFraMaksDatoUttak.plusMonths(JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER).with(TemporalAdjusters.lastDayOfMonth()));
+            avslutningsdatoFraMaksDatoUttak =  avslutningsdatoFraMaksDatoUttak.plusMonths(JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER).with(TemporalAdjusters.lastDayOfMonth());
+            if(uttakInput != null && uttakInput.getYtelsespesifiktGrunnlag() != null && uttakInput.getYtelsespesifiktGrunnlag() instanceof  ForeldrepengerGrunnlag && ((ForeldrepengerGrunnlag)uttakInput.getYtelsespesifiktGrunnlag()).getFamilieHendelser() != null) {
+                avslutningsdatoFraMaksDatoUttak = beskjærMotAbsoluttMaksDato(uttakInput, avslutningsdatoFraMaksDatoUttak);
+            }
         }
 
         return avslutningsdatoFraMaksDatoUttak.isAfter(LocalDate.now()) && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, avslutningsdatoFraMaksDatoUttak)?
