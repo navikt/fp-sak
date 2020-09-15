@@ -188,6 +188,8 @@ public class ForvaltningFagsakRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response revurderAvslutningForFagsaker(@NotNull @Valid List<SaksnummerDto> saksnumre) {
 
+        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
+
         for(SaksnummerDto abacSaksnummer: saksnumre) {
             Saksnummer saksnummer = new Saksnummer(abacSaksnummer.getVerdi());
             Optional<Fagsak> fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
@@ -195,16 +197,8 @@ public class ForvaltningFagsakRestTjeneste {
                 ForvaltningRestTjenesteFeil.FACTORY.ugyldigeSakStatus(saksnummer.getVerdi()).log(logger);
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
-            ProsessTaskGruppe taskGruppe = new ProsessTaskGruppe();
-            Optional<Behandling> behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.orElseThrow().getId());
-            taskGruppe.setBehandling(fagsak.orElseThrow().getId(), behandling.orElseThrow().getId(), behandling.orElseThrow().getAktørId().getId());
+            opprettJusteringTask(fagsak.orElseThrow().getId(), fagsak.orElseThrow().getAktørId(), callId);
 
-            ProsessTaskData task = new ProsessTaskData(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
-            task.setFagsakId(fagsak.orElseThrow().getId());
-            task.setPrioritet(50);
-            taskGruppe.addNesteSekvensiell(task);
-
-            prosessTaskRepository.lagre(taskGruppe);
         }
         return Response.ok().build();
     }
