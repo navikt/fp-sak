@@ -7,7 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.vedtak.felles.integrasjon.okonomistottejms.ØkonomioppdragJmsProducer;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.queue.producer.ØkonomioppdragJmsProducer;
 
 @ApplicationScoped
 public class ØkonomiOppdragKøTjeneste {
@@ -21,13 +21,14 @@ public class ØkonomiOppdragKøTjeneste {
 
     @Inject
     public ØkonomiOppdragKøTjeneste(ØkonomioppdragRepository økonomioppdragRepository,
-                                        ØkonomioppdragJmsProducer økonomioppdragJmsProducer) {
+                                    ØkonomioppdragJmsProducer økonomioppdragJmsProducer) {
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.økonomioppdragJmsProducer = økonomioppdragJmsProducer;
     }
 
     /**
      * Skal legge økonomi oppdrag på kø
+     *
      * @param behandlingId
      */
     public void leggOppdragPåKø(Long behandlingId) {

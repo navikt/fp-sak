@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
 
-import no.nav.vedtak.felles.integrasjon.okonomistottejms.ØkonomioppdragJmsProducer;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.queue.producer.ØkonomioppdragJmsProducer;
 
 
 public class ØkonomioppdragSendQueueHealthCheckTest {
