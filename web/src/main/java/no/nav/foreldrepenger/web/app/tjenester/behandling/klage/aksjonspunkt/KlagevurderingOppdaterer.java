@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 
-import java.util.Objects;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -9,7 +7,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandling.klage.KlageVurderingAdapter;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -22,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
@@ -68,26 +66,26 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     }
 
     private void håndterKlageVurdering(KlageVurderingResultatAksjonspunktDto dto, Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        final KlageVurderingAdapter adapter = new KlageVurderingAdapter(dto.getKlageVurdering().getKode(),
-            dto.getBegrunnelse(), getKlageMedholdÅrsak(dto), erNfpAksjonspunkt(aksjonspunktDefinisjon), dto.getFritekstTilBrev(),
-            getKlageVurderingOmgjør(dto), dto.isErGodkjentAvMedunderskriver());
+        KlageVurdertAv vurdertAv = erNfpAksjonspunkt(aksjonspunktDefinisjon) ? KlageVurdertAv.NFP : KlageVurdertAv.NK;
+        var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv)
+            .medKlageVurdering(dto.getKlageVurdering())
+            .medKlageVurderingOmgjør(dto.getKlageVurderingOmgjoer())
+            .medKlageMedholdÅrsak(dto.getKlageMedholdArsak())
+            .medGodkjentAvMedunderskriver(dto.isErGodkjentAvMedunderskriver())
+            .medBegrunnelse(dto.getBegrunnelse())
+            .medFritekstTilBrev(dto.getFritekstTilBrev());
 
-        klageVurderingTjeneste.oppdater(behandling, adapter);
+        klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder, vurdertAv);
     }
 
     private boolean håndterToTrinnsBehandling(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, KlageVurdering klageVurdering) {
-        if (erNfpAksjonspunkt(aksjonspunktDefinisjon)) {
-            if (!KlageVurdering.STADFESTE_YTELSESVEDTAK.getKode()
-                .equals(klageVurdering.getKode())) {
-                return true;
-            } else {
-                // Må fjerne totrinnsbehandling i tilfeller hvor totrinn er satt for NFP (klagen ikke er innom NK),
-                // beslutter sender behandlingen tilbake til NFP, og NFP deretter gjør et valgt som sender
-                // behandlingen til NK. Da skal ikke aksjonspunkt NFP totrinnsbehandles.
-                fjernToTrinnsBehandling(behandling, aksjonspunktDefinisjon);
-            }
+        if (erNfpAksjonspunkt(aksjonspunktDefinisjon) && KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klageVurdering)) {
+            // Må fjerne totrinnsbehandling i tilfeller hvor totrinn er satt for NFP (klagen ikke er innom NK),
+            // beslutter sender behandlingen tilbake til NFP, og NFP deretter gjør et valgt som sender
+            // behandlingen til NK. Da skal ikke aksjonspunkt NFP totrinnsbehandles.
+            fjernToTrinnsBehandling(behandling, aksjonspunktDefinisjon);
         }
-        return false;
+        return erNfpAksjonspunkt(aksjonspunktDefinisjon) && !KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klageVurdering);
     }
 
     private void fjernToTrinnsBehandling(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
@@ -97,18 +95,9 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
         }
     }
 
-    private String getKlageMedholdÅrsak(KlageVurderingResultatAksjonspunktDto dto) {
-        return dto.getKlageMedholdArsak() == null ? null : dto.getKlageMedholdArsak().getKode();
-    }
-
-    private String getKlageVurderingOmgjør(KlageVurderingResultatAksjonspunktDto dto) {
-        return dto.getKlageVurderingOmgjoer() == null ? null : dto.getKlageVurderingOmgjoer().getKode();
-    }
-
     private void opprettHistorikkinnslag(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, KlageVurderingResultatAksjonspunktDto dto) {
-        KlageVurdering klageVurdering = KlageVurdering.fraKode(dto.getKlageVurdering().getKode());
-        KlageVurderingOmgjør klageVurderingOmgjør = dto.getKlageVurderingOmgjoer() != null
-            ? KlageVurderingOmgjør.fraKode(dto.getKlageVurderingOmgjoer().getKode()) : null;
+        KlageVurdering klageVurdering = dto.getKlageVurdering();
+        KlageVurderingOmgjør klageVurderingOmgjør = dto.getKlageVurderingOmgjoer() != null ? dto.getKlageVurderingOmgjoer() : null;
         boolean erNfpAksjonspunkt = erNfpAksjonspunkt(aksjonspunktDefinisjon);
         HistorikkinnslagType historikkinnslagType = erNfpAksjonspunkt ? HistorikkinnslagType.KLAGE_BEH_NFP : HistorikkinnslagType.KLAGE_BEH_NK;
         BasisKodeverdi årsak = null;
@@ -174,10 +163,8 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     }
 
     private void oppdatereDatavarehus(KlageVurderingResultatAksjonspunktDto dto, Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        KlageVurdering klageVurdering = KlageVurdering.fraKode(dto.getKlageVurdering().getKode());
+        KlageVurdering klageVurdering = dto.getKlageVurdering();
         if (erNfpAksjonspunkt(aksjonspunktDefinisjon) && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)) {
-
-            // TODO(FLUORITT): Midlertidig hardkodet inn for Klageinstans da den ikke kommer med i response fra NORG. Fjern dette når det er på plass.
             behandlingsutredningApplikasjonTjeneste.byttBehandlendeEnhet(behandling.getId(),behandlendeEnhetTjeneste.getKlageInstans(),
                 "", //Det er ikke behov for en begrunnelse i dette tilfellet.
                 HistorikkAktør.VEDTAKSLØSNINGEN);
@@ -185,6 +172,6 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     }
 
     private boolean erNfpAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        return Objects.equals(aksjonspunktDefinisjon.getKode(), AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.getKode());
+        return AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.equals(aksjonspunktDefinisjon);
     }
 }

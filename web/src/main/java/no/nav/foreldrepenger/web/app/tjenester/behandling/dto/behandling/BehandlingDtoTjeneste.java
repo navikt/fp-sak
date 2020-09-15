@@ -271,11 +271,9 @@ public class BehandlingDtoTjeneste {
         }
         if (BehandlingType.ANKE.equals(behandling.getType())) {
             dto.leggTil(post(AnkeRestTjeneste.MELLOMLAGRE_ANKE_PATH, "mellomlagre-anke", new AnkeVurderingResultatAksjonspunktMellomlagringDto()));
-            dto.leggTil(post(AnkeRestTjeneste.MELLOMLAGRE_GJENAPNE_ANKE_PATH, "mellomlagre-gjennapne-anke", new AnkeVurderingResultatAksjonspunktMellomlagringDto()));
         }
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             dto.leggTil(post(KlageRestTjeneste.MELLOMLAGRE_PATH, "mellomlagre-klage", new KlageVurderingResultatAksjonspunktMellomlagringDto()));
-            dto.leggTil(post(KlageRestTjeneste.MELLOMLAGRE_GJENAPNE_KLAGE_PATH, "mellomlagre-gjennapne-klage", new KlageVurderingResultatAksjonspunktMellomlagringDto()));
         }
     }
 

@@ -56,13 +56,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-			<artifactId>felles-integrasjon-jms</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-			<artifactId>okonomistotte-jms</artifactId>
+            <groupId>no.nav.foreldrepenger.felles.ukelonn.integrasjon</groupId>
+            <artifactId>felles-integrasjon-jms</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>no.nav.foreldrepenger</groupId>

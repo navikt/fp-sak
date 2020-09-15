@@ -155,13 +155,13 @@ public class FastsettUttakOppdatererTest {
             .medTidsperiode(fom, fom.plusMonths(1))
             .medBegrunnelse(" ")
             .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
-            .build();;
+            .build();
         FastsetteUttakDto dto = new FastsetteUttakDto.FastsetteUttakPerioderDto(List.of(dtoPeriode));
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         boolean avbrutt = resultat.getEkstraAksjonspunktResultat().stream()
-            .anyMatch(aer -> AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER.equals(aer.getElement1())
+            .anyMatch(aer -> AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER.equals(aer.getElement1().getAksjonspunktDefinisjon())
                 && AksjonspunktStatus.AVBRUTT.equals(aer.getElement2()));
         assertThat(avbrutt).isTrue();
     }

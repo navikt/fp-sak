@@ -78,6 +78,7 @@ import no.nav.foreldrepenger.domene.vedtak.es.PersonopplysningXmlTjenesteImpl;
 import no.nav.foreldrepenger.domene.vedtak.es.VilkårsgrunnlagXmlTjenesteImpl;
 import no.nav.foreldrepenger.domene.vedtak.es.YtelseXmlTjenesteImpl;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
+import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.domene.vedtak.xml.BehandlingsresultatXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.BeregningsgrunnlagXmlTjeneste;
@@ -161,12 +162,14 @@ public class FatteVedtakStegTest {
         FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
             new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
             behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
-        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageRepository, mock(TotrinnTjeneste.class), innsynRepository, ankeRepository);
+        var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
+        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageAnkeVedtakTjeneste, mock(TotrinnTjeneste.class));
 
         BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer = mock(BehandlingVedtakEventPubliserer.class);
 
         behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider);
-        var fatteVedtakTjeneste = new FatteVedtakTjeneste(vedtakRepository, fpSakVedtakXmlTjeneste, vedtakTjeneste,
+        var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
+        var fatteVedtakTjeneste = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste,
             oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);
         fatteVedtakSteg = new FatteVedtakSteg(repositoryProvider, fatteVedtakTjeneste, simuler);
@@ -365,8 +368,8 @@ public class FatteVedtakStegTest {
         FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
             new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
             behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
-        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageRepository, mock(TotrinnTjeneste.class), innsynRepository,
-            ankeRepository);
+        var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
+        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageAnkeVedtakTjeneste, mock(TotrinnTjeneste.class));
 
         int antallBarn = 2;
         BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK, List.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL));
@@ -382,8 +385,8 @@ public class FatteVedtakStegTest {
         List<Totrinnsvurdering> totrinnsvurderings = new ArrayList<>();
         totrinnsvurderings.add(ttvurdering);
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)).thenReturn(totrinnsvurderings);
-
-        FatteVedtakTjeneste fvtei = new FatteVedtakTjeneste(vedtakRepository, fpSakVedtakXmlTjeneste, vedtakTjeneste,
+        var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
+        FatteVedtakTjeneste fvtei = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste,
             oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
 
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);
@@ -428,8 +431,8 @@ public class FatteVedtakStegTest {
         FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
             new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
             behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
-        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageRepository, mock(TotrinnTjeneste.class), innsynRepository,
-            ankeRepository);
+        var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
+        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageAnkeVedtakTjeneste, mock(TotrinnTjeneste.class));
 
         int antallBarn = 2;
         BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK, List.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET, AksjonspunktDefinisjon.FORESLÅ_VEDTAK));
@@ -451,8 +454,8 @@ public class FatteVedtakStegTest {
         totrinnsvurderings.add(vurderesPåNytt);
         totrinnsvurderings.add(vurderesOk);
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)).thenReturn(totrinnsvurderings);
-
-        FatteVedtakTjeneste fvtei = new FatteVedtakTjeneste(vedtakRepository, fpSakVedtakXmlTjeneste, vedtakTjeneste,
+        var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
+        FatteVedtakTjeneste fvtei = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste,
             oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
 
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);

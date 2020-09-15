@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandling.klage.KlageFormkravTjeneste;
+import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -36,16 +36,16 @@ class DokumentmottakerKlage implements Dokumentmottaker {
     private BehandlingRepository behandlingRepository;
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
     private DokumentmottakerFelles dokumentmottakerFelles;
-    private KlageFormkravTjeneste klageFormkravTjeneste;
+    private KlageVurderingTjeneste klageVurderingTjeneste;
 
     @Inject
     public DokumentmottakerKlage(BehandlingRepositoryProvider repositoryProvider, BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                  DokumentmottakerFelles dokumentmottakerFelles,
-                                 KlageFormkravTjeneste klageFormkravTjeneste) {
+                                 KlageVurderingTjeneste klageVurderingTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.dokumentmottakerFelles = dokumentmottakerFelles;
-        this.klageFormkravTjeneste = klageFormkravTjeneste;
+        this.klageVurderingTjeneste = klageVurderingTjeneste;
     }
 
     @Override
@@ -66,7 +66,7 @@ class DokumentmottakerKlage implements Dokumentmottaker {
         }
         opprettKlagebehandling(fagsak).ifPresent(behandling -> { //#K1
             dokumentmottakerFelles.persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
-            klageFormkravTjeneste.opprettKlage(behandling);
+            klageVurderingTjeneste.hentEvtOpprettKlageResultat(behandling);
             dokumentmottakerFelles.opprettTaskForÅStarteBehandling(behandling);
             dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument);
         });

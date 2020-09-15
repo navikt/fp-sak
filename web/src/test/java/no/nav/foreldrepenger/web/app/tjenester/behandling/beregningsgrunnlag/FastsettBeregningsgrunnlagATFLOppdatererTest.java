@@ -14,7 +14,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
@@ -89,7 +90,7 @@ public class FastsettBeregningsgrunnlagATFLOppdatererTest {
 
         //Assert
         assertThat(resultat.getEkstraAksjonspunktResultat()).hasSize(1);
-        assertThat(resultat.getEkstraAksjonspunktResultat().get(0).getElement1()).isEqualTo(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);
+        assertThat(resultat.getEkstraAksjonspunktResultat().get(0).getElement1().getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);
         assertThat(resultat.getEkstraAksjonspunktResultat().get(0).getElement2()).isEqualTo(AksjonspunktStatus.AVBRUTT);
     }
 }

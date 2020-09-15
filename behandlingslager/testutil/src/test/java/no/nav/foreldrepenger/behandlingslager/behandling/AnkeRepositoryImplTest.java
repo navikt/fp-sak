@@ -50,10 +50,10 @@ public class AnkeRepositoryImplTest {
     public void skal_legge_til_og_hente_ankeresultat() {
 
         // Act
-        AnkeResultatEntitet hentetAnkeResultat = ankeRepository.hentEllerOpprettAnkeResultat(ankeBehandling);
+        AnkeResultatEntitet hentetAnkeResultat = ankeRepository.hentEllerOpprettAnkeResultat(ankeBehandling.getId());
 
         // Assert
-        assertThat(hentetAnkeResultat.getAnkeBehandling()).isEqualTo(ankeBehandling);
+        assertThat(hentetAnkeResultat.getAnkeBehandlingId()).isEqualTo(ankeBehandling.getId());
     }
 
     @Test
@@ -64,13 +64,14 @@ public class AnkeRepositoryImplTest {
         ankeBehandling = scenario.lagre(repositoryProvider);
         entityManager.flush();
 
-        AnkeResultatEntitet ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(ankeBehandling);
+        AnkeResultatEntitet ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(ankeBehandling.getId());
         AnkeVurderingResultatEntitet.Builder ankeVurderingResultatBuilder = opprettVurderingResultat(ankeResultat)
+            .medAnkeResultat(ankeResultat)
             .medBegrunnelse("Begrunnelse1")
             .medFritekstTilBrev("Fritekstbrev1");
 
         // Act
-        Long ankeVurderingResultatId = ankeRepository.lagreVurderingsResultat(ankeBehandling, ankeVurderingResultatBuilder);
+        Long ankeVurderingResultatId = ankeRepository.lagreVurderingsResultat(ankeBehandling.getId(), ankeVurderingResultatBuilder.build());
         repository.flushAndClear();
         assertThat(ankeVurderingResultatId).isNotNull();
         Optional<AnkeVurderingResultatEntitet> hentetAnkeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(ankeBehandling.getId());
@@ -82,37 +83,16 @@ public class AnkeRepositoryImplTest {
     }
 
     @Test
-    public void skal_kunne_slette_ankevurderingResultat() {
-        // Arrange
-        Repository repository = repoRule.getRepository();
-        ScenarioAnkeEngangsstønad scenario = ScenarioAnkeEngangsstønad.forOpphevOgHjemsende(ScenarioFarSøkerEngangsstønad.forAdopsjon());
-        ankeBehandling = scenario.lagre(repositoryProvider);
-
-        AnkeResultatEntitet ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(ankeBehandling);
-        AnkeVurderingResultatEntitet.Builder ankeVurderingResultatBuilder = opprettVurderingResultat(ankeResultat)
-            .medBegrunnelse("Begrunnelse1");
-
-        // Act
-        Long ankeVurderingResultatId = ankeRepository.lagreVurderingsResultat(ankeBehandling, ankeVurderingResultatBuilder);
-        repository.flushAndClear();
-        assertThat(ankeVurderingResultatId).isNotNull();
-        ankeRepository.slettAnkeVurderingResultat(ankeBehandling.getId());
-
-        // Assert
-        assertThat(ankeRepository.hentAnkeVurderingResultat(ankeBehandling.getId())).isEmpty();
-    }
-
-    @Test
     public void settPåAnketBehandling() {
         ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         Behandling ankeBehandling = scenario.lagre(repositoryProvider);
         ScenarioFarSøkerEngangsstønad scenario2 = ScenarioFarSøkerEngangsstønad.forFødsel();
         Behandling påAnketBehandling = scenario2.lagre(repositoryProvider);
-        ankeRepository.settPåAnketBehandling(ankeBehandling, påAnketBehandling);
+        ankeRepository.settPåAnketBehandling(ankeBehandling.getId(), påAnketBehandling.getId());
     }
 
     private AnkeVurderingResultatEntitet.Builder opprettVurderingResultat(AnkeResultatEntitet ankeResultat) {
-        return new AnkeVurderingResultatEntitet.Builder()
+        return AnkeVurderingResultatEntitet.builder()
             .medAnkeResultat(ankeResultat)
             .medAnkeVurdering(AnkeVurdering.ANKE_OMGJOER)
             .medAnkeOmgjørÅrsak(AnkeOmgjørÅrsak.ULIK_VURDERING);

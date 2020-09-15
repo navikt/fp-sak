@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsatteVerdie
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBeregningsgrunnlagATFLDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBeregningsgrunnlagAndelDto;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBeregningsgrunnlagPeriodeDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBgKunYtelseDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBruttoBeregningsgrunnlagSNDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto;
@@ -31,7 +30,6 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettEtterl�
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettMånedsinntektFLDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettMånedsinntektUtenInntektsmeldingAndelDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettMånedsinntektUtenInntektsmeldingDto;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FordelBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.InntektPrAndelDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.MottarYtelseDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.RedigerbarAndelDto;
@@ -45,6 +43,11 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderRefusjonB
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderTidsbegrensetArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling.FordelBeregningsgrunnlagAndelDto;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling.FordelFastsatteVerdierDto;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling.FordelRedigerbarAndelDto;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle;
 
 public class OppdatererDtoMapper {
@@ -70,8 +73,8 @@ public class OppdatererDtoMapper {
         return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FastsettBruttoBeregningsgrunnlagSNDto(dto.getBruttoBeregningsgrunnlag());
     }
 
-    public static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FordelBeregningsgrunnlagDto mapFordelBeregningsgrunnlagDto(FordelBeregningsgrunnlagDto dto) {
-        return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FordelBeregningsgrunnlagDto(mapTilEndredePerioderList(dto.getEndretBeregningsgrunnlagPerioder()));
+    public static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.FordelBeregningsgrunnlagDto mapFordelBeregningsgrunnlagDto(FordelBeregningsgrunnlagDto dto) {
+        return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.FordelBeregningsgrunnlagDto(mapTilEndredePerioderList(dto.getEndretBeregningsgrunnlagPerioder()));
     }
 
     public static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.VurderRefusjonBeregningsgrunnlagDto mapVurderRefusjonBeregningsgrunnlag(VurderRefusjonBeregningsgrunnlagDto dto) {
@@ -321,17 +324,31 @@ public class OppdatererDtoMapper {
             .build();
     }
 
-    private static List<no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FastsettBeregningsgrunnlagPeriodeDto> mapTilEndredePerioderList(List<FastsettBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder) {
-        return endretBeregningsgrunnlagPerioder.stream().map(OppdatererDtoMapper::mapTilFastsettBeregningsgrunnlagPeriodeDto).collect(Collectors.toList());
+    private static List<no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.FordelBeregningsgrunnlagPeriodeDto> mapTilEndredePerioderList(List<FordelBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder) {
+        return endretBeregningsgrunnlagPerioder.stream().map(OppdatererDtoMapper::mapTilFordelBeregningsgrunnlagPeriodeDto).collect(Collectors.toList());
     }
 
-    private static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FastsettBeregningsgrunnlagPeriodeDto mapTilFastsettBeregningsgrunnlagPeriodeDto(FastsettBeregningsgrunnlagPeriodeDto fastsettBeregningsgrunnlagPeriodeDto) {
-        return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FastsettBeregningsgrunnlagPeriodeDto(mapFastsettBeregningsgrunnlagPeriodeAndeler(fastsettBeregningsgrunnlagPeriodeDto.getAndeler()), fastsettBeregningsgrunnlagPeriodeDto.getFom(), fastsettBeregningsgrunnlagPeriodeDto.getTom());
+    private static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.FordelBeregningsgrunnlagPeriodeDto mapTilFordelBeregningsgrunnlagPeriodeDto(FordelBeregningsgrunnlagPeriodeDto fastsettBeregningsgrunnlagPeriodeDto) {
+        return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.FordelBeregningsgrunnlagPeriodeDto(mapFordelBeregningsgrunnlagPeriodeAndeler(fastsettBeregningsgrunnlagPeriodeDto.getAndeler()), fastsettBeregningsgrunnlagPeriodeDto.getFom(), fastsettBeregningsgrunnlagPeriodeDto.getTom());
+    }
+
+    private static List<no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.FordelBeregningsgrunnlagAndelDto> mapFordelBeregningsgrunnlagPeriodeAndeler(List<FordelBeregningsgrunnlagAndelDto> andeler) {
+        return andeler.stream().map(OppdatererDtoMapper::mapFordelBeregningsgrunnlagPeriodeAndelDto).collect(Collectors.toList());
     }
 
     private static List<no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FastsettBeregningsgrunnlagAndelDto> mapFastsettBeregningsgrunnlagPeriodeAndeler(List<FastsettBeregningsgrunnlagAndelDto> andeler) {
         return andeler.stream().map(OppdatererDtoMapper::mapFastsettBeregningsgrunnlagPeriodeAndelDto).collect(Collectors.toList());
     }
+
+    private static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.FordelBeregningsgrunnlagAndelDto mapFordelBeregningsgrunnlagPeriodeAndelDto(FordelBeregningsgrunnlagAndelDto fastsettBeregningsgrunnlagAndelDto) {
+        return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.FordelBeregningsgrunnlagAndelDto(
+            mapTilFordelRedigerbarAndelDto(fastsettBeregningsgrunnlagAndelDto),
+            mapTilFordelFastsatteVerdier(fastsettBeregningsgrunnlagAndelDto.getFastsatteVerdier()),
+            fastsettBeregningsgrunnlagAndelDto.getForrigeInntektskategori() == null ? null : Inntektskategori.fraKode(fastsettBeregningsgrunnlagAndelDto.getForrigeInntektskategori().getKode()),
+            fastsettBeregningsgrunnlagAndelDto.getForrigeRefusjonPrÅr(),
+            fastsettBeregningsgrunnlagAndelDto.getForrigeArbeidsinntektPrÅr());
+    }
+
 
     private static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FastsettBeregningsgrunnlagAndelDto mapFastsettBeregningsgrunnlagPeriodeAndelDto(FastsettBeregningsgrunnlagAndelDto fastsettBeregningsgrunnlagAndelDto) {
         return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FastsettBeregningsgrunnlagAndelDto(
@@ -342,19 +359,25 @@ public class OppdatererDtoMapper {
             fastsettBeregningsgrunnlagAndelDto.getForrigeArbeidsinntektPrÅr());
     }
 
+    private static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.FordelFastsatteVerdierDto mapTilFordelFastsatteVerdier(FordelFastsatteVerdierDto fastsatteVerdier) {
+        return no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.FordelFastsatteVerdierDto.Builder.ny()
+            .medInntektskategori(fastsatteVerdier.getInntektskategori() == null ? null : Inntektskategori.fraKode(fastsatteVerdier.getInntektskategori().getKode()))
+            .medFastsattBeløpPrÅrInklNaturalytelse(fastsatteVerdier.getFastsattÅrsbeløpInklNaturalytelse())
+            .medRefusjonPrÅr(fastsatteVerdier.getRefusjonPrÅr())
+            .build();
+    }
+
     private static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FastsatteVerdierDto mapTilFastsatteVerdier(FastsatteVerdierDto fastsatteVerdier) {
         return no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.FastsatteVerdierDto.Builder.ny()
-            .medRefusjonPrÅr(fastsatteVerdier.getRefusjonPrÅr())
             .medSkalHaBesteberegning(fastsatteVerdier.getSkalHaBesteberegning())
             .medInntektskategori(fastsatteVerdier.getInntektskategori() == null ? null : Inntektskategori.fraKode(fastsatteVerdier.getInntektskategori().getKode()))
             .medFastsattBeløpPrMnd(fastsatteVerdier.getFastsattBeløp())
             .medFastsattBeløpPrÅr(fastsatteVerdier.getFastsattÅrsbeløp())
-            .medFastsattBeløpPrÅrInklNaturalytelse(fastsatteVerdier.getFastsattÅrsbeløpInklNaturalytelse())
             .build();
     }
 
-    private static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.RedigerbarAndelDto mapTilRedigerbarAndelDto(RedigerbarAndelDto redigerbarAndel) {
-        return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.RedigerbarAndelDto(
+    private static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.RedigerbarAndelDto mapTilFordelRedigerbarAndelDto(FordelRedigerbarAndelDto redigerbarAndel) {
+        return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.RedigerbarAndelDto(
             redigerbarAndel.getAndelsnr(),
             redigerbarAndel.getArbeidsgiverId(),
             redigerbarAndel.getArbeidsforholdId().getReferanse(),
@@ -364,5 +387,13 @@ public class OppdatererDtoMapper {
             redigerbarAndel.getLagtTilAvSaksbehandler(),
             redigerbarAndel.getBeregningsperiodeFom(),
             redigerbarAndel.getBeregningsperiodeTom());
+    }
+
+    private static no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.RedigerbarAndelFaktaOmBeregningDto mapTilRedigerbarAndelDto(RedigerbarAndelDto redigerbarAndel) {
+        return new no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.RedigerbarAndelFaktaOmBeregningDto(
+            redigerbarAndel.getAndelsnr(),
+            redigerbarAndel.getNyAndel(),
+            AktivitetStatus.fraKode(redigerbarAndel.getAktivitetStatus().getKode()),
+            redigerbarAndel.getLagtTilAvSaksbehandler());
     }
 }

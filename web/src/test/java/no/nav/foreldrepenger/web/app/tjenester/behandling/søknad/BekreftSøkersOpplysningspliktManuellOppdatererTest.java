@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -71,7 +72,7 @@ public class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
         assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo(HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT.getKode());
 
-        Set<AksjonspunktDefinisjon> aksjonspunktSet = resultat.getEkstraAksjonspunktResultat().stream().map(Tuple::getElement1).collect(Collectors.toSet());
+        Set<AksjonspunktDefinisjon> aksjonspunktSet = resultat.getEkstraAksjonspunktResultat().stream().map(Tuple::getElement1).map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toSet());
 
         assertThat(aksjonspunktSet).isEmpty();
     }

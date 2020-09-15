@@ -432,9 +432,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AUTO_VENT_AAP_DP_ENESTE_AKTIVITET_SVP(AksjonspunktKodeDefinisjon.AUTO_VENT_AAP_DP_ENESTE_AKTIVITET_SVP_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt AAP/DP eneste aktivitet SVP",
             BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER(AksjonspunktKodeDefinisjon.AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt anke venter på merknader fra bruker",
-            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
+            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, FORBLI, "P3W", EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN(AksjonspunktKodeDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt anke oversendt til Trygderetten",
-            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
+            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, "P2Y", EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_FLERE_ARBEIDSFORHOLD_SAMME_ORG_SVP(AksjonspunktKodeDefinisjon.AUTO_VENT_FLERE_ARBEIDSFORHOLD_SAMME_ORG_SVP_KODE, AksjonspunktType.AUTOPUNKT,
             "Autopunkt Flere arbeidsforhold i samme virksomhet SVP", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT,
         UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
@@ -486,6 +486,14 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     private static final Set<String> UTELUKKENDE_AKSJONSPUNKT = Set.of(
         AksjonspunktKodeDefinisjon.SJEKK_MANGLENDE_FØDSEL_KODE,
         AksjonspunktKodeDefinisjon.AVKLAR_TERMINBEKREFTELSE_KODE);
+
+    private static final Map<String, Set<AksjonspunktDefinisjon>> UTELUKKENDE_AP_MAP = Map.ofEntries(
+        Map.entry(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL.getKode(), Set.of(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)),
+        Map.entry(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE.getKode(), Set.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL)),
+        Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK.getKode(), Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL)),
+        Map.entry(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL.getKode(), Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, AksjonspunktDefinisjon.FORESLÅ_VEDTAK)),
+        Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.getKode(), Set.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktDefinisjon.FORESLÅ_VEDTAK))
+    );
 
     @JsonIgnore
     private AksjonspunktType aksjonspunktType = AksjonspunktType.UDEFINERT;
@@ -638,6 +646,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     /** Returnerer kode verdi for aksjonspunkt utelukket av denne. */
     public Set<String> getUtelukkendeApdef() {
+        // TODO: Til vurdering UTELUKKENDE_AP_MAP.getOrDefault(kode, Set.of()).stream().map(AksjonspunktDefinisjon::getKode).collect(Collectors.toSet());
         return UTELUKKENDE_AKSJONSPUNKT.stream().filter(ap -> !Objects.equals(kode, ap)).collect(Collectors.toSet());
     }
 

@@ -50,7 +50,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBereg
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -244,7 +243,7 @@ public class VedtakXmlTest {
     public void skal_opprette_xml_med_klage_avvist() {
         // Arrange
         Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forAvvistNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon()),
-            KlageAvvistÅrsak.KLAGET_FOR_SENT, null);
+            null);
         try {
             // Act
             String xml = tjeneste.opprettVedtakXml(behandling.getId());
@@ -258,7 +257,7 @@ public class VedtakXmlTest {
     @Test
     public void skal_opprette_xml_med_klage_medhold() {
         // Arrange
-        Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forMedholdNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon()), null,
+        Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forMedholdNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon()),
             KlageMedholdÅrsak.NYE_OPPLYSNINGER);
         try {
             // Act
@@ -273,7 +272,7 @@ public class VedtakXmlTest {
     @Test
     public void skal_opprette_xml_med_klage_oppheve_ytelsesvedtak() {
         // Arrange
-        Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forOpphevetNK(ScenarioMorSøkerEngangsstønad.forAdopsjon()), null,
+        Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forOpphevetNK(ScenarioMorSøkerEngangsstønad.forAdopsjon()),
             KlageMedholdÅrsak.PROSESSUELL_FEIL);
         try {
             // Act
@@ -293,7 +292,7 @@ public class VedtakXmlTest {
             .medAdopsjon(adopsjon.medSøknadHendelse().getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(LocalDate.now().plusDays(40)))
             .medAntallBarn(3);
-        Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forStadfestetNK(adopsjon), null, null);
+        Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forStadfestetNK(adopsjon), null);
 
         try {
             // Act
@@ -305,8 +304,8 @@ public class VedtakXmlTest {
         }
     }
 
-    private Behandling opprettKlageBehandling(ScenarioKlageEngangsstønad scenario, KlageAvvistÅrsak klageAvvistÅrsak, KlageMedholdÅrsak klageMedholdÅrsak) {
-        Behandling behandling = scenario.medKlageAvvistÅrsak(klageAvvistÅrsak).medKlageMedholdÅrsak(klageMedholdÅrsak)
+    private Behandling opprettKlageBehandling(ScenarioKlageEngangsstønad scenario, KlageMedholdÅrsak klageMedholdÅrsak) {
+        Behandling behandling = scenario.medKlageMedholdÅrsak(klageMedholdÅrsak)
             .medBegrunnelse(KLAGE_BEGRUNNELSE).medBehandlendeEnhet(BEHANDLENDE_ENHET_ID).lagre(repositoryProvider, klageRepository);
 
         Behandlingsresultat behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);

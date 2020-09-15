@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 public class BeregningsgrunnlagInputProvider {
 
     private Instance<BeregningsgrunnlagInputFelles> beregningsgrunnlagInputTjeneste;
-    private Instance<BeregningsgrunnlagRestInputFelles> beregningsgrunnlagRestInputTjeneste;
+    private Instance<BeregningsgrunnlagGUIInputFelles> beregningsgrunnlagRestInputTjeneste;
 
 
     public BeregningsgrunnlagInputProvider() {
@@ -20,7 +20,7 @@ public class BeregningsgrunnlagInputProvider {
     }
 
     @Inject
-    public BeregningsgrunnlagInputProvider(@Any Instance<BeregningsgrunnlagInputFelles> beregningsgrunnlagInputTjeneste, @Any Instance<BeregningsgrunnlagRestInputFelles> beregningsgrunnlagRestInputTjeneste) {
+    public BeregningsgrunnlagInputProvider(@Any Instance<BeregningsgrunnlagInputFelles> beregningsgrunnlagInputTjeneste, @Any Instance<BeregningsgrunnlagGUIInputFelles> beregningsgrunnlagRestInputTjeneste) {
         this.beregningsgrunnlagInputTjeneste = beregningsgrunnlagInputTjeneste;
         this.beregningsgrunnlagRestInputTjeneste = beregningsgrunnlagRestInputTjeneste;
     }
@@ -29,7 +29,7 @@ public class BeregningsgrunnlagInputProvider {
         return FagsakYtelseTypeRef.Lookup.find(beregningsgrunnlagInputTjeneste, fagsakYtelseType).orElseThrow();
     }
 
-    public BeregningsgrunnlagRestInputFelles getRestInputTjeneste(FagsakYtelseType fagsakYtelseType) {
+    public BeregningsgrunnlagGUIInputFelles getRestInputTjeneste(FagsakYtelseType fagsakYtelseType) {
         return FagsakYtelseTypeRef.Lookup.find(beregningsgrunnlagRestInputTjeneste, fagsakYtelseType).orElseThrow();
     }
 

@@ -20,7 +20,11 @@ public class SaksnummerDto implements AbacDto {
     @JsonProperty("saksnummer")
     @NotNull
     @Digits(integer = 18, fraction = 0)
-    private final String saksnummer;
+    private String saksnummer;
+
+    public SaksnummerDto() {
+        //For Jackson
+    }
 
     public SaksnummerDto(Long saksnummer) {
         Objects.requireNonNull(saksnummer, "saksnummer");
@@ -30,7 +34,7 @@ public class SaksnummerDto implements AbacDto {
     public SaksnummerDto(String saksnummer) {
         this.saksnummer = saksnummer;
     }
-    
+
     public SaksnummerDto(Saksnummer saksnummer) {
         this.saksnummer = saksnummer.getVerdi();
     }

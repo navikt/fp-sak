@@ -9,12 +9,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 
 
 @Entity(name = "KlageResultat")
@@ -24,96 +21,103 @@ public class KlageResultatEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_KLAGE_RESULTAT")
     private Long id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "klage_behandling_id", nullable = false, updatable = false)
-    private Behandling klageBehandling;
+    @Column(name = "klage_behandling_id", nullable = false)
+    private Long klageBehandlingId;
 
-    @ManyToOne
-    @JoinColumn(name = "paaklagd_behandling_id")
-    private Behandling påKlagdBehandling;
+    @Column(name = "paaklagd_behandling_id")
+    private Long påKlagdBehandlingId;
 
     @Column(name = "paaklagd_ekstern_uuid")
-    private UUID påKlagdEksternBehandlingUuId;
+    private UUID påKlagdEksternBehandlingUuid;
 
     public KlageResultatEntitet() {
         // Hibernate
+    }
+
+    private KlageResultatEntitet(KlageResultatEntitet entitet) {
+        this.klageBehandlingId = entitet.klageBehandlingId;
+        this.påKlagdBehandlingId = entitet.påKlagdBehandlingId;
+        this.påKlagdEksternBehandlingUuid = entitet.påKlagdEksternBehandlingUuid;
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
+    public static Builder builder(KlageResultatEntitet klageResultatEntitet) {
+        return new Builder(klageResultatEntitet);
+    }
+
     public Long getId() {
         return id;
     }
 
-    public Behandling getKlageBehandling() {
-        return klageBehandling;
+    public Long getKlageBehandlingId() {
+        return klageBehandlingId;
     }
 
-    public Optional<Behandling> getPåKlagdBehandling() {
-        return Optional.ofNullable(påKlagdBehandling);
+    public Optional<Long> getPåKlagdBehandlingId() {
+        return Optional.ofNullable(påKlagdBehandlingId);
     }
 
-    public Optional<UUID> getPåKlagdEksternBehandling() {
-        return Optional.ofNullable(påKlagdEksternBehandlingUuId);
+    public Optional<UUID> getPåKlagdEksternBehandlingUuid() {
+        return Optional.ofNullable(påKlagdEksternBehandlingUuid);
     }
 
-    public void settPåKlagdBehandling(Behandling behandling) {
-        this.påKlagdBehandling = behandling;
+    public void settPåKlagdBehandlingId(Long behandlingId) {
+        this.påKlagdBehandlingId = behandlingId;
     }
 
-    public void settPåKlagdEksternBehandlingId(UUID påKlagdEksternBehandlingId) {
-        this.påKlagdEksternBehandlingUuId = påKlagdEksternBehandlingId;
+    public void settPåKlagdEksternBehandlingUuid(UUID påKlagdEksternBehandlingUuid) {
+        this.påKlagdEksternBehandlingUuid = påKlagdEksternBehandlingUuid;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        } else if (!(obj instanceof KlageResultatEntitet)) {
-            return false;
-        }
-        KlageResultatEntitet other = (KlageResultatEntitet) obj;
-        return Objects.equals(this.getId(), other.getId()) //Skal det sammenliknes på id?
-            && Objects.equals(this.getKlageBehandling(), other.getKlageBehandling());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KlageResultatEntitet that = (KlageResultatEntitet) o;
+        return Objects.equals(klageBehandlingId, that.klageBehandlingId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getKlageBehandling());
+        return Objects.hash(klageBehandlingId);
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + //$NON-NLS-1$
             (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            + "klageBehandling=" + getKlageBehandling() + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "klageBehandlingId=" + getKlageBehandlingId() + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + ">"; //$NON-NLS-1$
     }
 
     public static class Builder {
         private KlageResultatEntitet klageResultatEntitetMal;
 
-        public Builder() {
+        private Builder() {
             klageResultatEntitetMal = new KlageResultatEntitet();
         }
 
-        public Builder medKlageBehandling(Behandling klageBehandling) {
-            klageResultatEntitetMal.klageBehandling = klageBehandling;
+        private Builder(KlageResultatEntitet klageResultatEntitet) {
+            klageResultatEntitetMal = new KlageResultatEntitet(klageResultatEntitet);
+        }
+
+        public Builder medKlageBehandlingId(Long klageBehandlingId) {
+            klageResultatEntitetMal.klageBehandlingId = klageBehandlingId;
             return this;
         }
 
-        public Builder medPåKlagdBehandling(Behandling påKlagdBehandling) {
-            klageResultatEntitetMal.påKlagdBehandling = påKlagdBehandling;
+        public Builder medPåKlagdBehandlingId(Long påKlagdBehandlingId) {
+            klageResultatEntitetMal.påKlagdBehandlingId = påKlagdBehandlingId;
             return this;
         }
 
-        public Builder medPåKlagdEksternBehandling(UUID påKlagdEksternBehandlingId) {
-            klageResultatEntitetMal.påKlagdEksternBehandlingUuId = påKlagdEksternBehandlingId;
+        public Builder medPåKlagdEksternBehandlingUuid(UUID påKlagdEksternBehandlingUuid) {
+            klageResultatEntitetMal.påKlagdEksternBehandlingUuid = påKlagdEksternBehandlingUuid;
             return this;
         }
-
 
         public KlageResultatEntitet build() {
             verifyStateForBuild();
@@ -121,7 +125,7 @@ public class KlageResultatEntitet extends BaseEntitet {
         }
 
         public void verifyStateForBuild() {
-            Objects.requireNonNull(klageResultatEntitetMal.klageBehandling, "KlageBehandling");
+            Objects.requireNonNull(klageResultatEntitetMal.klageBehandlingId, "KlageBehandling");
         }
     }
 }

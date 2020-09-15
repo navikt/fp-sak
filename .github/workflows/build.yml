@@ -67,7 +67,7 @@ jobs:
 
       - name: Bygg og push docker-image for distribuering
         if: success()
-        uses: whoan/docker-build-with-cache-action@v5.4.1
+        uses: whoan/docker-build-with-cache-action@v5.6.0
         with:
           username: x-access-token
           password: "${{ secrets.GITHUB_ACCESS_TOKEN }}"
@@ -75,18 +75,6 @@ jobs:
           image_tag: ${{ env.TAG }},latest
           push_git_tag: true
           registry: docker.pkg.github.com
-
-      - name: Bygg og push docker-image for bruk under testing
-        if: success()
-        uses: whoan/docker-build-with-cache-action@v5.4.1
-        with:
-          username: x-access-token
-          password: "${{ secrets.GITHUB_ACCESS_TOKEN }}"
-          image_name: ${{ github.repository }}/fpsak-test
-          image_tag: ${{ env.TAG }},latest
-          registry: docker.pkg.github.com
-          dockerfile: vtp/Dockerfile
-          build_extra_args: "--build-arg DOWNLOAD_SCRIPT=getmqclients-GA.sh --build-arg TOKEN_CARRIER=${{ secrets.GITHUB_ACCESS_TOKEN }} --build-arg VERSION=${{ env.TAG }}"
 
       - name: Opprett deployment issue
         if: success()

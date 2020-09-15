@@ -9,7 +9,7 @@ import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.Foreldrepenge
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
-import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagRestInputFelles;
+import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagGUIInputFelles;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
@@ -22,17 +22,17 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")
-public class BeregningsgrunnlagRestInputTjeneste extends BeregningsgrunnlagRestInputFelles {
+public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInputFelles {
 
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
 
-    protected BeregningsgrunnlagRestInputTjeneste() {
+    protected BeregningsgrunnlagGUIInputTjeneste() {
         //CDI proxy
     }
 
     @Inject
-    public BeregningsgrunnlagRestInputTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
+    public BeregningsgrunnlagGUIInputTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                                InntektArbeidYtelseTjeneste iayTjeneste,
                                                SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                AndelGraderingTjeneste andelGraderingTjeneste,

@@ -289,6 +289,10 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         this.mottattDato = mottattDato;
     }
 
+    public boolean erOmsluttetAv(OppgittPeriodeEntitet periode2) {
+        return !periode2.getFom().isAfter(getFom()) && !periode2.getTom().isBefore(getTom());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

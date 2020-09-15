@@ -66,12 +66,13 @@
 
         <felles.version>2.0.0-20200702160706-bb063e2</felles.version>
         <prosesstask.version>2.4.2-20200703105213-95d753a</prosesstask.version>
+        <ukelonn.felles.version>1.0.0-20200914112449-039464d</ukelonn.felles.version>
 
         <metrics.version>4.1.12.1</metrics.version>
 
         <fp-kontrakter.version>5.1-20200814082942-fd337ce</fp-kontrakter.version>
 
-        <kalkulus.version>1.0-2020.09.02.113849-509b15b</kalkulus.version>
+        <kalkulus.version>1.0-2020.09.11.082401-6e66fd9</kalkulus.version>
 
         <swaggercore.version>2.1.4</swaggercore.version>
     </properties>
@@ -96,6 +97,11 @@
                 <groupId>no.nav.folketrygdloven.kalkulus</groupId>
                 <artifactId>felles</artifactId>
                 <version>${kalkulus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.ukelonn.integrasjon</groupId>
+                <artifactId>felles-integrasjon-jms</artifactId>
+                <version>${ukelonn.felles.version}</version>
             </dependency>
 
             <dependency>
@@ -240,16 +246,9 @@
 
             <!-- test-jar for å omgå MQ i lokal utvikling -->
             <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <groupId>no.nav.foreldrepenger.felles.ukelonn.integrasjon</groupId>
                 <artifactId>felles-integrasjon-jms</artifactId>
-                <version>${felles.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>okonomistotte-jms</artifactId>
-                <version>${felles.version}</version>
+                <version>${ukelonn.felles.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>

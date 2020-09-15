@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
@@ -29,17 +28,15 @@ public class AnkeRepository {
         this.entityManager = entityManager;
     }
 
-    public AnkeResultatEntitet hentEllerOpprettAnkeResultat(Behandling ankeBehandling) {
-        return hentAnkeResultat(ankeBehandling).orElseGet(() -> leggTilAnkeResultat(ankeBehandling));
+    public AnkeResultatEntitet hentEllerOpprettAnkeResultat(Long ankeBehandlingId) {
+        return hentAnkeResultat(ankeBehandlingId).orElseGet(() -> leggTilAnkeResultat(ankeBehandlingId));
     }
 
-    private Optional<AnkeResultatEntitet> hentAnkeResultat(Behandling ankeBehandling) {
-        Long ankeBehandlingId = ankeBehandling.getId();
+    private Optional<AnkeResultatEntitet> hentAnkeResultat(Long ankeBehandlingId) {
         Objects.requireNonNull(ankeBehandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
 
         final TypedQuery<AnkeResultatEntitet> query = entityManager.createQuery(
-            " FROM AnkeResultat " +
-                "   WHERE ankeBehandling.id = :behandlingId", AnkeResultatEntitet.class);// NOSONAR //$NON-NLS-1$
+            " FROM AnkeResultat WHERE ankeBehandlingId = :behandlingId", AnkeResultatEntitet.class);// NOSONAR //$NON-NLS-1$
         query.setParameter("behandlingId", ankeBehandlingId);
         return hentUniktResultat(query);
     }
@@ -47,52 +44,45 @@ public class AnkeRepository {
     private Optional<AnkeVurderingResultatEntitet> hentVurderingsResultaterForAnkeBehandling(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
         final TypedQuery<AnkeVurderingResultatEntitet> query = entityManager.createQuery(
-            " FROM AnkeVurderingResultat" +
-                "        WHERE ankeResultat = (FROM AnkeResultat " +
-                "        WHERE ankeBehandling.id = :behandlingId)", AnkeVurderingResultatEntitet.class);// NOSONAR //$NON-NLS-1$
+            " FROM AnkeVurderingResultat WHERE ankeResultat.ankeBehandlingId = :behandlingId", AnkeVurderingResultatEntitet.class);// NOSONAR //$NON-NLS-1$
         query.setParameter("behandlingId", behandlingId);
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
-    private AnkeResultatEntitet leggTilAnkeResultat(Behandling ankeBehandling) {
-        AnkeResultatEntitet nyttResultat = AnkeResultatEntitet.builder().medAnkeBehandling(ankeBehandling).build();
+    private AnkeResultatEntitet leggTilAnkeResultat(Long ankeBehandlingId) {
+        AnkeResultatEntitet nyttResultat = AnkeResultatEntitet.builder().medAnkeBehandlingId(ankeBehandlingId).build();
         entityManager.persist(nyttResultat);
         entityManager.flush();
         return nyttResultat;
     }
 
-    public void settPåAnketBehandling(Behandling ankeBehandling, Behandling påAnketBehandling) {
-        AnkeResultatEntitet ankeResultat = hentEllerOpprettAnkeResultat(ankeBehandling);
-        ankeResultat.settPåAnketBehandling(påAnketBehandling);
+    public void settPåAnketBehandling(Long ankeBehandlingId, Long påAnketBehandlingId) {
+        AnkeResultatEntitet ankeResultat = hentEllerOpprettAnkeResultat(ankeBehandlingId);
+        if (Objects.equals(påAnketBehandlingId, ankeResultat.getPåAnketBehandlingId().orElse(null))) {
+            return;
+        }
+        ankeResultat.settPåAnketBehandling(påAnketBehandlingId);
         entityManager.persist(ankeResultat);
         entityManager.flush();
     }
 
-    public void slettAnkeVurderingResultat(Long ankeBehandlingId) {
-        Optional<AnkeVurderingResultatEntitet> ankeVurderingResultat = hentAnkeVurderingResultat(ankeBehandlingId);
-        ankeVurderingResultat.ifPresent(avr -> {
-            entityManager.remove(avr);
+    public void settAnkeGodkjentHosMedunderskriver(Long ankeBehandlingId, boolean godkjent) {
+        hentAnkeVurderingResultat(ankeBehandlingId).ifPresent(avr -> {
+            avr.setGodkjentAvMedunderskriver(godkjent);
+            entityManager.persist(avr);
             entityManager.flush();
         });
     }
 
-    public Long lagreVurderingsResultat(Behandling ankeBehandling, AnkeVurderingResultatEntitet.Builder ankeVurderingResultatBuilder) {
-        AnkeResultatEntitet ankeResultat = hentEllerOpprettAnkeResultat(ankeBehandling);
-        ankeVurderingResultatBuilder.medAnkeResultat(ankeResultat);
-        Optional<AnkeVurderingResultatEntitet> eksisterende = hentAnkeVurderingResultat(ankeBehandling.getId());
-        eksisterende.ifPresent(ankeVurderingResultat -> entityManager.remove(ankeVurderingResultat));
-        AnkeVurderingResultatEntitet nyAnkeVurderingResultat = ankeVurderingResultatBuilder.build();
-        entityManager.persist(nyAnkeVurderingResultat);
+    public Long lagreVurderingsResultat(Long ankeBehandlingId, AnkeVurderingResultatEntitet ankeVurderingResultat) {
+        hentAnkeVurderingResultat(ankeBehandlingId).ifPresent(entityManager::remove);
+        entityManager.persist(ankeVurderingResultat);
         entityManager.flush();
-        return nyAnkeVurderingResultat.getId();
+        return ankeVurderingResultat.getId();
     }
 
     public Optional<AnkeVurderingResultatEntitet> hentAnkeVurderingResultat(Long ankeBehandlingId) {
-        Optional<AnkeVurderingResultatEntitet> ankeVurderingResultatEntitet = hentVurderingsResultaterForAnkeBehandling(ankeBehandlingId);
-        if (ankeVurderingResultatEntitet.isPresent()){
-            return Optional.of(ankeVurderingResultatEntitet.get());
-        }
-        return Optional.empty();
+        return hentVurderingsResultaterForAnkeBehandling(ankeBehandlingId);
     }
 
 }

@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -25,6 +26,9 @@ public class DokumentBestillerApplikasjonTjeneste {
 
     private BrevHistorikkinnslag brevHistorikkinnslag;
     private DokumentKafkaBestiller dokumentKafkaBestiller;
+    private Unleash unleash;
+
+
 
     public DokumentBestillerApplikasjonTjeneste() {
         // for cdi proxy
@@ -35,12 +39,14 @@ public class DokumentBestillerApplikasjonTjeneste {
                                                 KlageRepository klageRepository,
                                                 AnkeRepository ankeRepository,
                                                 BrevHistorikkinnslag brevHistorikkinnslag,
-                                                DokumentKafkaBestiller dokumentKafkaBestiller) {
+                                                DokumentKafkaBestiller dokumentKafkaBestiller,
+                                                Unleash unleash) {
         this.behandlingRepository = behandlingRepository;
         this.klageRepository = klageRepository;
         this.ankeRepository = ankeRepository;
         this.brevHistorikkinnslag = brevHistorikkinnslag;
         this.dokumentKafkaBestiller = dokumentKafkaBestiller;
+        this.unleash = unleash;
     }
 
     public void produserVedtaksbrev(BehandlingVedtak behandlingVedtak) {
@@ -51,7 +57,7 @@ public class DokumentBestillerApplikasjonTjeneste {
         }
 
         var behandling = behandlingRepository.hentBehandling(behandlingsresultat.getBehandlingId());
-        DokumentMalType dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak, klageRepository, ankeRepository);
+        DokumentMalType dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak, klageRepository, ankeRepository, unleash);
         dokumentKafkaBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 

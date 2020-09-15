@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.web.app.healthchecks.checks;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.vedtak.felles.integrasjon.okonomistottejms.ØkonomioppdragJmsProducer;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.queue.producer.ØkonomioppdragJmsProducer;
 
 
 @ApplicationScoped

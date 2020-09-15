@@ -741,7 +741,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         behandlingFramføringTilSenereBehandlingSteg(kontekst, tilSteg);
 
         // Publiser tranisjonsevent (eventobserver(e) håndterer tilhørende tranisjonsregler)
-        BehandlingTransisjonEvent event = new BehandlingTransisjonEvent(kontekst, transisjonId, stegTilstandFør.orElse(null), tilSteg, transisjon.getMålstegHvisFremoverhopp().isPresent());
+        BehandlingTransisjonEvent event = new BehandlingTransisjonEvent(kontekst, transisjonId, stegTilstandFør.orElse(null), tilSteg, transisjon.getMålstegHvisHopp().isPresent());
         eventPubliserer.fireEvent(event);
     }
 

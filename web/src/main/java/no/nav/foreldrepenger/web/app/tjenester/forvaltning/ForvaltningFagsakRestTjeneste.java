@@ -2,10 +2,12 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
+import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRIFT;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -23,6 +25,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
+import no.nav.foreldrepenger.familiehendelse.rest.PeriodeDto;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,6 +130,75 @@ public class ForvaltningFagsakRestTjeneste {
             oppdaterFagsakStatus.avsluttFagsakUtenAktiveBehandlinger(fagsak);
             return Response.ok().build();
         }
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/revurderAvslutningForFagsakerITidsrom")
+    @Operation(description = "RevurderAvslutningForSakerITidsrom",
+        tags = "FORVALTNING-fagsak",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Revurderer avslutning av fagsaker.",
+                content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)
+                )
+            ),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+        })
+    @BeskyttetRessurs(action = READ, ressurs = DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response revurderAvslutningForFagsakerITidsrom(@NotNull @Valid PeriodeDto periode) {
+
+        List<Fagsak> fagsaker = fagsakRepository.hentIkkeAvsluttedeFagsakerIPeriode(periode.getPeriodeFom().atStartOfDay(), periode.getPeriodeTom().plusDays(1).atStartOfDay());
+        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
+
+        fagsaker.stream().forEach(f -> opprettJusteringTask(f.getId(), f.getAktørId(), callId));
+        return Response.ok(fagsaker.size()).build();
+    }
+
+    private void opprettJusteringTask(Long fagsakId, AktørId aktørId, String callId) {
+        ProsessTaskData prosessTaskData = new ProsessTaskData(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
+        prosessTaskData.setFagsak(fagsakId, aktørId.getId());
+        prosessTaskData.setCallId(callId + fagsakId);
+        prosessTaskRepository.lagre(prosessTaskData);
+    }
+
+    @POST
+    @Path("/revurderAvslutningForFagsaker")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Revurder avslutningsdato for fagsaker",
+        tags = "FORVALTNING-fagsak",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Revurderer avslutning av fagsaker.",
+                content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)
+                )
+            ),
+            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+        })
+    @BeskyttetRessurs(action = CREATE, ressurs = DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response revurderAvslutningForFagsaker(@NotNull @Valid List<SaksnummerDto> saksnumre) {
+
+        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
+
+        for(SaksnummerDto abacSaksnummer: saksnumre) {
+            Saksnummer saksnummer = new Saksnummer(abacSaksnummer.getVerdi());
+            Optional<Fagsak> fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
+            if (fagsak.isEmpty() || FagsakStatus.AVSLUTTET == fagsak.get().getStatus()) {
+                ForvaltningRestTjenesteFeil.FACTORY.ugyldigeSakStatus(saksnummer.getVerdi()).log(logger);
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+            opprettJusteringTask(fagsak.orElseThrow().getId(), fagsak.orElseThrow().getAktørId(), callId);
+
+        }
+        return Response.ok().build();
     }
 
     @POST

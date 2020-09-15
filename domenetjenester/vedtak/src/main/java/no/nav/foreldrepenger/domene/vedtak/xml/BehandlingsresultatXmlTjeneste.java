@@ -109,7 +109,7 @@ public class BehandlingsresultatXmlTjeneste {
 
     private void leggTilKlageVerdier(Klagevurderingresultat klagevurderingresultat, Behandling behandling) {
         Optional<KlageVurderingResultat> optionalGjeldendeKlagevurderingresultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
-        Optional<KlageFormkravEntitet> optionalKlageFormkrav = klageRepository.hentGjeldendeKlageFormkrav(behandling);
+        Optional<KlageFormkravEntitet> optionalKlageFormkrav = klageRepository.hentGjeldendeKlageFormkrav(behandling.getId());
         if (optionalGjeldendeKlagevurderingresultat.isPresent() && optionalKlageFormkrav.isPresent()) {
             KlageVurderingResultat gjeldendeKlagevurderingresultat = optionalGjeldendeKlagevurderingresultat.get();
             klagevurderingresultat.setKlageAvvistAarsak(hentKlageAvvistårsak(optionalKlageFormkrav.get()));
