@@ -90,7 +90,7 @@ public class FagsakRepository {
 
     public List<Fagsak> hentIkkeAvsluttedeFagsakerIPeriode(LocalDateTime fom, LocalDateTime tom) {
         TypedQuery<Fagsak> query = entityManager.createQuery(
-            "select f from Fagsak f join FagsakRelasjon fr on f.id =fagsak_en_id " +
+            "select f from Fagsak f join FagsakRelasjon fr on f.id = fr.fagsakNrEn " +
             "where fagsak_status<>'AVSLU' and aktiv='J' "+
             "and fr.avsluttningsdato >= '01.09.2020' "+
             "and nvl(fr.endretTidspunkt, fr.opprettetTidspunkt) > :fom "+
