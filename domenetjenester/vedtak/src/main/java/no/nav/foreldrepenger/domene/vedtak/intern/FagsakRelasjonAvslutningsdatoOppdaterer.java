@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.intern;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Comparator;
 import java.util.List;
@@ -99,11 +100,20 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
 
         if( stønadRest > 0 ) {
             //rest er allerede lagt til i maksDatoUttak, men der mangler 'buffer'
-            avslutningsdatoFraMaksDatoUttak = avslutningsdatoFraMaksDatoUttak.plusMonths(JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER)
-                .with(TemporalAdjusters.lastDayOfMonth());
+            avslutningsdatoFraMaksDatoUttak =  avslutningsdatoFraMaksDatoUttak.plusMonths(JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER).with(TemporalAdjusters.lastDayOfMonth());
+            var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
+            if(familieHendelseGrunnlag.isPresent() && familieHendelseGrunnlag.get().finnGjeldendeFødselsdato() != null){
+                avslutningsdatoFraMaksDatoUttak = beskjærMotAbsoluttMaksDato(familieHendelseGrunnlag.orElseThrow().finnGjeldendeFødselsdato(), avslutningsdatoFraMaksDatoUttak);
+            }
         }
+
         return avslutningsdatoFraMaksDatoUttak.isAfter(LocalDate.now()) && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, avslutningsdatoFraMaksDatoUttak)?
             avslutningsdatoFraMaksDatoUttak : avsluttningsdato;
+    }
+
+    private LocalDate beskjærMotAbsoluttMaksDato(LocalDate fødselsdato, LocalDate beregnetMaksDato) {
+            LocalDate absoluttMaksDato = fødselsdato.plus(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.GRENSE_ETTER_FØDSELSDATO, Period.class, LocalDate.now()));
+            return absoluttMaksDato.isBefore(beregnetMaksDato)? absoluttMaksDato : beregnetMaksDato;
     }
 
     protected LocalDate avsluttningsdatoHvisDetIkkeErGjortUttak(Behandling behandling, LocalDate avsluttningsdato) {
