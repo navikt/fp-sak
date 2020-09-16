@@ -5,6 +5,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static no.nav.foreldrepenger.behandling.revurdering.satsregulering.AutomatiskArenaReguleringBatchArguments.DATE_PATTERN;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,8 +22,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -125,13 +128,21 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 
         BeregningsresultatEntitet brFP = BeregningsresultatEntitet.builder()
-                .medRegelInput("clob1")
-                .medRegelSporing("clob2")
-                .build();
-        BeregningsresultatPeriode.builder()
+            .medRegelInput("clob1")
+            .medRegelSporing("clob2")
+            .build();
+        BeregningsresultatPeriode brFPper = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
             .medBeregningsresultatAndeler(Collections.emptyList())
             .build(brFP);
+        BeregningsresultatAndel.builder()
+            .medDagsats(1000)
+            .medDagsatsFraBg(1000)
+            .medBrukerErMottaker(true)
+            .medStillingsprosent(new BigDecimal(100))
+            .medInntektskategori(Inntektskategori.ARBEIDSAVKLARINGSPENGER)
+            .medUtbetalingsgrad(new BigDecimal(100))
+            .build(brFPper);
         repositoryProvider.getBeregningsresultatRepository().lagre(behandling, brFP);
         repoRule.getRepository().flushAndClear();
         return repoRule.getEntityManager().find(Behandling.class, behandling.getId());
