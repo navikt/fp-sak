@@ -25,10 +25,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
-import no.nav.foreldrepenger.familiehendelse.rest.PeriodeDto;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +45,12 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatus;
+import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
+import no.nav.foreldrepenger.familiehendelse.rest.PeriodeDto;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.KobleFagsakerDto;
@@ -59,7 +58,9 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.OverstyrDekningsg
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.util.Tuple;
 
 @Path("/forvaltningFagsak")
 @ApplicationScoped
@@ -153,10 +154,10 @@ public class ForvaltningFagsakRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response revurderAvslutningForFagsakerITidsrom(@NotNull @Valid PeriodeDto periode) {
 
-        List<Fagsak> fagsaker = fagsakRepository.hentIkkeAvsluttedeFagsakerIPeriode(periode.getPeriodeFom().atStartOfDay(), periode.getPeriodeTom().plusDays(1).atStartOfDay());
+        List<Tuple<Long, AktørId>> fagsaker = fagsakRepository.hentIkkeAvsluttedeFagsakerIPeriodeNaticve(periode.getPeriodeFom(), periode.getPeriodeTom());
         final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
 
-        fagsaker.stream().forEach(f -> opprettJusteringTask(f.getId(), f.getAktørId(), callId));
+        fagsaker.forEach(f -> opprettJusteringTask(f.getElement1(), f.getElement2(), callId));
         return Response.ok(fagsaker.size()).build();
     }
 
