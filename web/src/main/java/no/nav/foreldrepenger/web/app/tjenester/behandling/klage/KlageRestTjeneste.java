@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
@@ -139,11 +140,23 @@ public class KlageRestTjeneste {
 
         KlageVurdertAv vurdertAv = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.getKode().equals(apDto.getKode()) ? KlageVurdertAv.NFP : KlageVurdertAv.NK;
         Behandling behandling = behandlingRepository.hentBehandling(apDto.getBehandlingId());
-        var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv)
-            .medFritekstTilBrev(apDto.getFritekstTilBrev());
+        var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv);
+
+        if ((KlageVurdertAv.NK.equals(vurdertAv) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK)) ||
+            (KlageVurdertAv.NFP.equals(vurdertAv) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP))) {
+            mapMellomlagreKlage(apDto, builder);
+        }
+        builder.medFritekstTilBrev(apDto.getFritekstTilBrev());
 
         klageVurderingTjeneste.lagreKlageVurderingResultat(behandling, builder, vurdertAv);
         return Response.ok().build();
+    }
+
+    private void mapMellomlagreKlage(KlageVurderingResultatAksjonspunktMellomlagringDto dto, KlageVurderingResultat.Builder builder) {
+        builder.medKlageVurdering(dto.getKlageVurdering())
+            .medKlageVurderingOmgjør(dto.getKlageVurderingOmgjoer())
+            .medKlageMedholdÅrsak(dto.getKlageMedholdArsak())
+            .medBegrunnelse(dto.getBegrunnelse());
     }
 
     @GET

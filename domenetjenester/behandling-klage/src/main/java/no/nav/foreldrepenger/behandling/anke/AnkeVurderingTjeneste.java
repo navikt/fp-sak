@@ -70,6 +70,13 @@ public class AnkeVurderingTjeneste {
         ankeRepository.lagreVurderingsResultat(behandling.getId(), builder.build());
     }
 
+    public void lagreAnkeVurderingResultat(Behandling behandling, AnkeVurderingResultatEntitet.Builder builder, Long påanketBehandlingId) {
+        if (!behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE))
+            throw new IllegalArgumentException("Utviklerfeil: Skal ikke kalle denne når aksjonspunkt er utført");
+        ankeRepository.settPåAnketBehandling(behandling.getId(), påanketBehandlingId);
+        lagreAnkeVurderingResultat(behandling, builder, false);
+    }
+
     public void lagreAnkeVurderingResultat(Behandling behandling, AnkeVurderingResultatEntitet.Builder builder) {
         lagreAnkeVurderingResultat(behandling, builder, false);
     }

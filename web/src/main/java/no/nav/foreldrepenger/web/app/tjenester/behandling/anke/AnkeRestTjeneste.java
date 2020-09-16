@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
@@ -138,11 +139,32 @@ public class AnkeRestTjeneste {
     public Response mellomlagreAnke(@Parameter(description = "AnkeVurderingAdapter tilpasset til mellomlagring.") @Valid AnkeVurderingResultatAksjonspunktMellomlagringDto apDto) {
 
         Behandling behandling = behandlingRepository.hentBehandling(apDto.getBehandlingId());
-        ankeVurderingTjeneste.lagreAnkeVurderingResultat(behandling, mapDto(apDto, behandling));
+        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)) {
+            var builder = mapMellomlagreVurdering(apDto, behandling);
+            ankeVurderingTjeneste.lagreAnkeVurderingResultat(behandling, builder, apDto.hentPåAnketBehandlingId());
+        } else {
+            var builder = mapMellomlagreTekst(apDto, behandling);
+            ankeVurderingTjeneste.lagreAnkeVurderingResultat(behandling, builder);
+        }
         return Response.ok().build();
     }
 
-    private AnkeVurderingResultatEntitet.Builder mapDto(AnkeVurderingResultatAksjonspunktMellomlagringDto apDto, Behandling behandling) {
+    private AnkeVurderingResultatEntitet.Builder mapMellomlagreVurdering(AnkeVurderingResultatAksjonspunktMellomlagringDto apDto, Behandling behandling) {
+        var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling);
+        return builder.medAnkeVurdering(apDto.getAnkeVurdering())
+            .medBegrunnelse(apDto.getBegrunnelse())
+            .medAnkeOmgjørÅrsak(apDto.getAnkeOmgjoerArsak())
+            .medFritekstTilBrev(apDto.getFritekstTilBrev())
+            .medAnkeVurderingOmgjør(apDto.getAnkeVurderingOmgjoer())
+            .medErSubsidiartRealitetsbehandles(apDto.erSubsidiartRealitetsbehandles())
+            .medErAnkerIkkePart(apDto.erIkkeAnkerPart())
+            .medErFristIkkeOverholdt(apDto.erFristIkkeOverholdt())
+            .medErIkkeKonkret(apDto.erIkkeKonkret())
+            .medErIkkeSignert(apDto.erIkkeSignert())
+            .medGjelderVedtak(apDto.hentPåAnketBehandlingId() != null);
+    }
+
+    private AnkeVurderingResultatEntitet.Builder mapMellomlagreTekst(AnkeVurderingResultatAksjonspunktMellomlagringDto apDto, Behandling behandling) {
         var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling);
         return builder.medFritekstTilBrev(apDto.getFritekstTilBrev());
     }

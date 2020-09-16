@@ -325,12 +325,6 @@
 			<scope>test</scope>
 			<type>test-jar</type>
 		</dependency>
-		<dependency>
-			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-			<artifactId>okonomistotte-jms</artifactId>
-			<scope>test</scope>
-			<type>test-jar</type>
-		</dependency>
 
     </dependencies>
 

@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingskontroll.StegProsesseringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegTilstandEndringEvent;
 import no.nav.foreldrepenger.behandlingskontroll.impl.transisjoner.Transisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
@@ -379,7 +380,8 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     }
 
     boolean kanFortsetteTilNeste(StegProsesseringResultat resultat) {
-        return resultat.getNyStegStatus().kanFortsetteTilNeste() || Transisjoner.finnTransisjon(resultat.getTransisjon()).getMålstegHvisHopp().isPresent();
+        StegTransisjon transisjon = finnTransisjon(resultat.getTransisjon()); // TODO (jol) rydd opp henleggelse. HENLEGGELSE er avbrutt, ikke framoverført
+        return resultat.getNyStegStatus().kanFortsetteTilNeste() || (transisjon.getMålstegHvisHopp().isPresent() && !FellesTransisjoner.HENLAGT.getId().equals(transisjon.getId()));
     }
 
     void leggTil(BehandlingStegType stegType, BehandlingType behandlingType, FagsakYtelseType ytelseType) {
