@@ -60,6 +60,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.util.Tuple;
 
 @Path("/forvaltningFagsak")
 @ApplicationScoped
@@ -153,10 +154,10 @@ public class ForvaltningFagsakRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response revurderAvslutningForFagsakerITidsrom(@NotNull @Valid PeriodeDto periode) {
 
-        List<Fagsak> fagsaker = fagsakRepository.hentIkkeAvsluttedeFagsakerIPeriode(periode.getPeriodeFom().atStartOfDay(), periode.getPeriodeTom().plusDays(1).atStartOfDay());
+        List<Tuple<Long, AktørId>> fagsaker = fagsakRepository.hentIkkeAvsluttedeFagsakerIPeriodeNaticve(periode.getPeriodeFom(), periode.getPeriodeTom());
         final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
 
-        fagsaker.forEach(f -> opprettJusteringTask(f.getId(), f.getAktørId(), callId));
+        fagsaker.forEach(f -> opprettJusteringTask(f.getElement1(), f.getElement2(), callId));
         return Response.ok(fagsaker.size()).build();
     }
 
