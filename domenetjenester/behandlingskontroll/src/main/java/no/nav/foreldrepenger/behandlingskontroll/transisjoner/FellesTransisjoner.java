@@ -17,6 +17,7 @@ public class FellesTransisjoner {
     public static final TransisjonIdentifikator FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT = TransisjonIdentifikator.forId(FREMHOPP_PREFIX + "foreslå-behandlingsresultat");
     public static final TransisjonIdentifikator FREMHOPP_TIL_KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT = TransisjonIdentifikator.forId(FREMHOPP_PREFIX + "kontroller-søkers-opplysningsplikt");
     public static final TransisjonIdentifikator FREMHOPP_TIL_UTTAKSPLAN = TransisjonIdentifikator.forId(FREMHOPP_PREFIX + "uttaksplan");
+    public static final TransisjonIdentifikator FREMHOPP_TIL_BEREGN_YTELSE = TransisjonIdentifikator.forId(FREMHOPP_PREFIX + "beregn-ytelse");
     public static final TransisjonIdentifikator FREMHOPP_TIL_IVERKSETT_VEDTAK = TransisjonIdentifikator.forId(FREMHOPP_PREFIX + "iverksett-vedtak");
     // Proxy-transisjon. Mappes til en av de over avhengig av tilstand på fagsaken. Brukes PT i aksjonspunktoppdaterer + tilsvarende finnes ved inngangsvilkårsteg
     public static final TransisjonIdentifikator FREMHOPP_VED_AVSLAG_VILKÅR = TransisjonIdentifikator.forId(FREMHOPP_PREFIX + "avslag-vilkår");

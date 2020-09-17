@@ -64,16 +64,8 @@ public class UttakResultatEntitet extends BaseEntitet {
         return overstyrtPerioder != null ? overstyrtPerioder : opprinneligPerioder;
     }
 
-    public void setOpprinneligPerioder(UttakResultatPerioderEntitet opprinneligPerioder) {
-        this.opprinneligPerioder = opprinneligPerioder;
-    }
-
     public UttakResultatPerioderEntitet getOverstyrtPerioder() {
         return overstyrtPerioder;
-    }
-
-    public void setOverstyrtPerioder(UttakResultatPerioderEntitet overstyrtPerioder) {
-        this.overstyrtPerioder = overstyrtPerioder;
     }
 
     public void deaktiver() {
@@ -91,18 +83,18 @@ public class UttakResultatEntitet extends BaseEntitet {
 
         public Builder medOpprinneligPerioder(UttakResultatPerioderEntitet opprinneligPerioder) {
             Objects.requireNonNull(opprinneligPerioder);
-            kladd.setOpprinneligPerioder(opprinneligPerioder);
+            kladd.opprinneligPerioder = opprinneligPerioder;
             return this;
         }
 
         public Builder medOverstyrtPerioder(UttakResultatPerioderEntitet overstyrtPerioder) {
-            kladd.setOverstyrtPerioder(overstyrtPerioder);
+            kladd.overstyrtPerioder = overstyrtPerioder;
             return this;
         }
 
         public Builder nullstill() {
-            kladd.setOpprinneligPerioder(null);
-            kladd.setOverstyrtPerioder(null);
+            kladd.opprinneligPerioder = null;
+            kladd.overstyrtPerioder = null;
             return this;
         }
 

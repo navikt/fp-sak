@@ -9,7 +9,6 @@ import java.util.Objects;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -37,8 +36,8 @@ public class FastsettePerioderEndringTjeneste {
         return lagEndringDto(uttakResultat);
     }
 
-    public List<UttakPeriodeEndringDto> finnEndringerMellomOpprinneligOgOverstyrt(Behandling behandling) {
-        UttakResultatEntitet uttakResultat = fpUttakRepository.hentUttakResultat(behandling.getId());
+    public List<UttakPeriodeEndringDto> finnEndringerMellomOpprinneligOgOverstyrtForBehandling(Long behandlingId) {
+        UttakResultatEntitet uttakResultat = fpUttakRepository.hentUttakResultat(behandlingId);
         return lagEndringDto(uttakResultat);
     }
 

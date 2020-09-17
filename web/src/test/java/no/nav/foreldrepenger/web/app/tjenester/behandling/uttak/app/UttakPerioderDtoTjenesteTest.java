@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
@@ -97,8 +96,6 @@ public class UttakPerioderDtoTjenesteTest {
             .medUtbetalingsgrad(new Utbetalingsgrad(1))
             .build();
         perioder.leggTilPeriode(periode);
-        UttakResultatEntitet uttakResultat = new UttakResultatEntitet();
-        uttakResultat.setOpprinneligPerioder(perioder);
 
         Behandling behandling = morBehandlingMedUttak(perioder);
 
@@ -183,8 +180,6 @@ public class UttakPerioderDtoTjenesteTest {
         periode2.leggTilAktivitet(periodeAktivitet(periode2, orgnr));
         perioder.leggTilPeriode(periode1);
         perioder.leggTilPeriode(periode2);
-        UttakResultatEntitet uttakResultat = new UttakResultatEntitet();
-        uttakResultat.setOpprinneligPerioder(perioder);
 
         var behandling = morBehandlingMedUttak(perioder);
 
@@ -233,8 +228,6 @@ public class UttakPerioderDtoTjenesteTest {
         periode.leggTilAktivitet(periodeAktivitet);
 
         perioder.leggTilPeriode(periode);
-        UttakResultatEntitet uttakResultat = new UttakResultatEntitet();
-        uttakResultat.setOpprinneligPerioder(perioder);
 
         var behandling = morBehandlingMedUttak(perioder);
 
@@ -258,8 +251,6 @@ public class UttakPerioderDtoTjenesteTest {
         periode2Søker.leggTilAktivitet(periodeAktivitet(periode2Søker, orgnr));
         perioderSøker.leggTilPeriode(periode1Søker);
         perioderSøker.leggTilPeriode(periode2Søker);
-        UttakResultatEntitet uttakResultatSøker = new UttakResultatEntitet();
-        uttakResultatSøker.setOpprinneligPerioder(perioderSøker);
 
         UttakResultatPerioderEntitet perioderAnnenpart = new UttakResultatPerioderEntitet();
         LocalDate periode1FomAnnenpart = periode2TomSøker.plusDays(1);
@@ -267,8 +258,6 @@ public class UttakPerioderDtoTjenesteTest {
         UttakResultatPeriodeEntitet periode1Annenpart = periodeBuilder(periode1FomAnnenpart, periode1TomAnnenpart).build();
         periode1Annenpart.leggTilAktivitet(periodeAktivitet(periode1Annenpart, orgnr));
         perioderAnnenpart.leggTilPeriode(periode1Annenpart);
-        UttakResultatEntitet uttakResultatAnnenpart = new UttakResultatEntitet();
-        uttakResultatAnnenpart.setOpprinneligPerioder(perioderAnnenpart);
 
         var behandlingSøker = morBehandlingMedUttak(perioderSøker, LocalDateTime.now());
         var behandlingAnnenpart = farBehandlingMedUttak(perioderAnnenpart, LocalDateTime.now().minusDays(1));
@@ -297,8 +286,6 @@ public class UttakPerioderDtoTjenesteTest {
         UttakResultatPeriodeEntitet periode1Søker = periodeBuilder(periode1FomSøker, periode1TomSøker).build();
         periode1Søker.leggTilAktivitet(periodeAktivitet(periode1Søker, orgnr, internArbeidsforholdIdSøker));
         perioderSøker.leggTilPeriode(periode1Søker);
-        UttakResultatEntitet uttakResultatSøker = new UttakResultatEntitet();
-        uttakResultatSøker.setOpprinneligPerioder(perioderSøker);
 
         UttakResultatPerioderEntitet perioderAnnenpart = new UttakResultatPerioderEntitet();
         LocalDate periode1FomAnnenpart = periode1TomSøker.plusDays(1);
@@ -306,8 +293,6 @@ public class UttakPerioderDtoTjenesteTest {
         UttakResultatPeriodeEntitet periode1Annenpart = periodeBuilder(periode1FomAnnenpart, periode1TomAnnenpart).build();
         periode1Annenpart.leggTilAktivitet(periodeAktivitet(periode1Annenpart, KUNSTIG_ORG, internArbeidsforholdIdAnnenPart));
         perioderAnnenpart.leggTilPeriode(periode1Annenpart);
-        UttakResultatEntitet uttakResultatAnnenpart = new UttakResultatEntitet();
-        uttakResultatAnnenpart.setOpprinneligPerioder(perioderAnnenpart);
 
         var behandlingSøker = morBehandlingMedUttak(perioderSøker, LocalDateTime.now());
         var behandlingAnnenpart = farBehandlingMedUttak(perioderAnnenpart, LocalDateTime.now().minusDays(1));
@@ -365,8 +350,6 @@ public class UttakPerioderDtoTjenesteTest {
         periode.leggTilAktivitet(periodeAktivitet);
 
         perioder.leggTilPeriode(periode);
-        UttakResultatEntitet uttakResultat = new UttakResultatEntitet();
-        uttakResultat.setOpprinneligPerioder(perioder);
 
         var behandling = morBehandlingMedUttak(perioder);
 
@@ -380,10 +363,6 @@ public class UttakPerioderDtoTjenesteTest {
 
     @Test
     public void skal_setteAleneomsorgOgAnnenForelderHarRettFalse_nårYtelsefordelingMangler() {
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
-        UttakResultatEntitet uttakResultat = new UttakResultatEntitet();
-        uttakResultat.setOpprinneligPerioder(perioder);
-
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(null);
         var behandling = scenario.lagre(repositoryProvider);
@@ -399,9 +378,6 @@ public class UttakPerioderDtoTjenesteTest {
     @Test
     public void skal_setteAleneomsorgOgAnnenForelderHarRettTrue_nårYtelsefordelingForeliggerOgDetStemmer() {
         UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
-        UttakResultatEntitet uttakResultat = new UttakResultatEntitet();
-        uttakResultat.setOpprinneligPerioder(perioder);
-
 
         UttakResultatPerioderEntitet perioderAnnenpart = new UttakResultatPerioderEntitet();
         LocalDate periode1FomAnnenpart = LocalDate.now().plusDays(16);
@@ -409,8 +385,6 @@ public class UttakPerioderDtoTjenesteTest {
         UttakResultatPeriodeEntitet periode1Annenpart = periodeBuilder(periode1FomAnnenpart, periode1TomAnnenpart).build();
         periode1Annenpart.leggTilAktivitet(periodeAktivitet(periode1Annenpart, orgnr));
         perioderAnnenpart.leggTilPeriode(periode1Annenpart);
-        UttakResultatEntitet uttakResultatAnnenpart = new UttakResultatEntitet();
-        uttakResultatAnnenpart.setOpprinneligPerioder(perioderAnnenpart);
 
         Behandling behandling = morBehandlingMedUttak(perioder);
         repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), new OppgittRettighetEntitet(true, true, true));
