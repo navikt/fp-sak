@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -63,6 +65,8 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
 
+    private BehandlingFlytkontroll flytkontroll = mock(BehandlingFlytkontroll.class);
+
     private BehandlendeEnhetTjeneste enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
 
 
@@ -97,7 +101,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     }
 
     private void createTask() {
-        task = new AutomatiskGrunnbelopReguleringTask(repositoryProvider, prosessTaskRepositoryMock, enhetsTjeneste);
+        task = new AutomatiskGrunnbelopReguleringTask(repositoryProvider, prosessTaskRepositoryMock, enhetsTjeneste, flytkontroll);
 
     }
 
@@ -114,6 +118,24 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         task.doTask(prosessTaskData);
 
         assertIngenRevurdering(behandling.getFagsak());
+    }
+
+    @Test
+    public void skal_køe_revurdering_dersom_åpen_berørt_på_fagsak() {
+        Behandling behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
+        when(flytkontroll.nyRevurderingSkalVente(any())).thenReturn(true);
+        when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
+
+        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
+        prosessTaskData.setSekvens("1");
+
+        createTask();
+        task.doTask(prosessTaskData);
+
+        Optional<Behandling> regulering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
+        assertThat(regulering.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING))).isPresent();
+        verify(flytkontroll).settNyRevurderingPåVent(regulering.get());
     }
 
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status) {

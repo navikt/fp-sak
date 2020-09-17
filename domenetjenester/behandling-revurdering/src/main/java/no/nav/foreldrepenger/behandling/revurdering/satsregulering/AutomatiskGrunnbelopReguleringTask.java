@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -32,6 +33,7 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
     private ProsessTaskRepository prosessTaskRepository;
     private FagsakRepository fagsakRepository;
     private BehandlendeEnhetTjeneste enhetTjeneste;
+    private BehandlingFlytkontroll flytkontroll;
 
     AutomatiskGrunnbelopReguleringTask() {
         // for CDI proxy
@@ -40,16 +42,19 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
     @Inject
     public AutomatiskGrunnbelopReguleringTask(BehandlingRepositoryProvider repositoryProvider,
                                               ProsessTaskRepository prosessTaskRepository,
-                                              BehandlendeEnhetTjeneste enhetTjeneste) {
+                                              BehandlendeEnhetTjeneste enhetTjeneste,
+                                              BehandlingFlytkontroll flytkontroll) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.prosessTaskRepository = prosessTaskRepository;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.enhetTjeneste = enhetTjeneste;
+        this.flytkontroll = flytkontroll;
     }
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+        // Implisitt precondition fra utvalget i batches: Ingen ytelsesbehandlinger utenom evt berørt behandling.
         boolean åpneYtelsesBehandlinger = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId);
         if (åpneYtelsesBehandlinger) {
             log.info("GrunnbeløpRegulering finnes allerede åpen revurdering på fagsakId = {}", fagsakId);
@@ -57,15 +62,20 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
         }
 
         Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+        boolean skalKøes = flytkontroll.nyRevurderingSkalVente(fagsak);
         var enhet = enhetTjeneste.finnBehandlendeEnhetFor(fagsak);
         RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
         Behandling revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.RE_SATS_REGULERING, enhet);
 
         log.info("GrunnbeløpRegulering har opprettet revurdering på fagsak med fagsakId = {}", fagsakId);
 
-        ProsessTaskData fortsettTaskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
-        fortsettTaskData.setBehandling(revurdering.getFagsakId(), revurdering.getId(), revurdering.getAktørId().getId());
-        fortsettTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(fortsettTaskData);
+        if (skalKøes) {
+            flytkontroll.settNyRevurderingPåVent(revurdering);
+        } else {
+            ProsessTaskData fortsettTaskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
+            fortsettTaskData.setBehandling(revurdering.getFagsakId(), revurdering.getId(), revurdering.getAktørId().getId());
+            fortsettTaskData.setCallIdFraEksisterende();
+            prosessTaskRepository.lagre(fortsettTaskData);
+        }
     }
 }

@@ -114,6 +114,11 @@ public class KøKontroller {
         if (behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId()).isEmpty()) {
             return false;
         }
+        var åpenBehandling = behandlingRevurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId());
+        if (åpenBehandling.isPresent()) {
+            // Køes hvis finnes berørt, ellers legg dokument på åpen behandling
+            return åpenBehandling.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)).isPresent();
+        }
         return behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId()).isPresent() || flytkontroll.nyRevurderingSkalVente(fagsak);
     }
 
