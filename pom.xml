@@ -72,7 +72,7 @@
 
         <fp-kontrakter.version>5.1-20200814082942-fd337ce</fp-kontrakter.version>
 
-        <kalkulus.version>1.0-2020.09.11.082401-6e66fd9</kalkulus.version>
+        <kalkulus.version>1.0-2020.09.17.142941-f806aaf</kalkulus.version>
 
         <swaggercore.version>2.1.4</swaggercore.version>
     </properties>
