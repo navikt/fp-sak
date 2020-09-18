@@ -89,17 +89,6 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     }
 
     @Test
-    public void skal_feile_hvis_den_originale_behandlingen_til_revurderingen_ikke_har_noen_beregningsresultaltperioder() {
-        // Arrange : Førstegangbehandling
-        beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
-        // Expect
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage(String.format("Fant ikke beregningsresultatperiode for beregningsresultat med id %s", brFørstegangsbehandling.getId()));
-        // Act
-        finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
-    }
-
-    @Test
     public void skal_feile_hvis_revurderingen_ikke_har_noen_beregningsresultaltperioder() {
         // Arrange : Førstegangsbehandling
         opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));

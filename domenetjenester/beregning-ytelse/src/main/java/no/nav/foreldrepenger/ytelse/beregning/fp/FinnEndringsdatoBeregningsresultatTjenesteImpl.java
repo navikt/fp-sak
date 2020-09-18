@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning.fp;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,11 +54,15 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImpl implements FinnEndri
         }
         BeregningsresultatEntitet originalBeregningsresultat = originalBeregningsresultatFPOpt.get();
         List<BeregningsresultatPeriode> originalePerioder = originalBeregningsresultat.getBeregningsresultatPerioder();
-        if (originalePerioder.isEmpty()) {
-            Long id = originalBeregningsresultat.getId();
-            throw FinnEndringsdatoFeil.FACTORY.manglendeBeregningsresultatPeriode(id).toException();
-        }
         List<BeregningsresultatPeriode> revurderingPerioder = revurderingBeregningsresultat.getBeregningsresultatPerioder();
+        if (originalePerioder.isEmpty()) {
+            if (revurderingPerioder.isEmpty()) {
+                // Dette skal ikkje vere mulig for foreldrepenger?
+                Long id = revurderingBeregningsresultat.getId();
+                throw FinnEndringsdatoFeil.FACTORY.manglendeBeregningsresultatPeriode(id).toException();
+            }
+            return revurderingPerioder.stream().map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom).min(Comparator.naturalOrder());
+        }
         if (revurderingPerioder.isEmpty()) {
             Long id = revurderingBeregningsresultat.getId();
             throw FinnEndringsdatoFeil.FACTORY.manglendeBeregningsresultatPeriode(id).toException();

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning.svp;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,11 +59,17 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImpl implements FinnEndri
         }
         BeregningsresultatEntitet originalBeregningsresultat = originalBeregningsresultatFPOpt.get();
         List<BeregningsresultatPeriode> originalePerioder = originalBeregningsresultat.getBeregningsresultatPerioder();
-        if (originalePerioder.isEmpty()) {
-            Long id = originalBeregningsresultat.getId();
-            throw FinnEndringsdatoFeil.FACTORY.manglendeBeregningsresultatPeriode(id).toException();
-        }
         List<BeregningsresultatPeriode> revurderingPerioder = revurderingBeregningsresultat.getBeregningsresultatPerioder();
+        if (originalePerioder.isEmpty()) {
+            if (revurderingPerioder.isEmpty()) {
+                //Dersom det ikke er noen ny perioder i revurdering, så bruk første tilretteleggingsbehovsdato
+                var grunnlagOpt = svangerskapspengerRepository.hentGrunnlag(revurdering.getId());
+                if (grunnlagOpt.isPresent()) {
+                    return new TilretteleggingFilter(grunnlagOpt.get()).getFørsteTilretteleggingsbehovdatoFiltrert();
+                }
+            }
+            return revurderingPerioder.stream().map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom).min(Comparator.naturalOrder());
+        }
         if (revurderingPerioder.isEmpty()) {
             //Dersom det ikke er noen ny perioder i revurdering, så bruk første tilretteleggingsbehovsdato
             var grunnlagOpt = svangerskapspengerRepository.hentGrunnlag(revurdering.getId());
