@@ -53,6 +53,8 @@ spec:
         kvPath: {{ldapserviceuser}}
       - mountPath: /var/run/secrets/nais.io/vault
         kvPath: /kv/{{cluster}}/fss/fpsak/{{namespace}}
+      - mountPath: /var/run/secrets/nais.io/azuread
+        kvPath: /azuread/data/prod/creds/fp-sak
   env:
   {{#each env}}
    - name: {{@key}}
