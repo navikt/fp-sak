@@ -54,7 +54,7 @@ spec:
       - mountPath: /var/run/secrets/nais.io/vault
         kvPath: /kv/{{cluster}}/fss/fpsak/{{namespace}}
       - mountPath: /var/run/secrets/nais.io/azuread
-        kvPath: /azuread/data/prod/creds/fp-sak
+        kvPath: {{azureadsecret}}
   env:
   {{#each env}}
    - name: {{@key}}
