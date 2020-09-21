@@ -7,6 +7,6 @@
 	<sequence-generator name="SEQ_BEH_OVERLAPP_INFOTRYGD" allocation-size="50" sequence-name="SEQ_BEH_OVERLAPP_INFOTRYGD" />
 
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak" />
-	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygd" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak" />
 
 </entity-mappings>

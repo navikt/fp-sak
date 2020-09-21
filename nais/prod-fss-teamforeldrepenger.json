@@ -63,6 +63,8 @@
     "MEDL2_RS_URL": "https://app.adeo.no/medl2/api/v1/medlemskapsunntak",
     "ARBEIDSFORDELING_RS_URL": "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
     "PERSON_V3_URL": "https://wasapp.adeo.no/tpsws/ws/Person/v3",
-    "KODEVERK_V2_URL": "https://kodeverk.nais.adeo.no/ws/kodeverk/v2"
+    "KODEVERK_V2_URL": "https://kodeverk.nais.adeo.no/ws/kodeverk/v2",
+    "SPOKELSE_GRUNNLAG_SCOPES": "2cfc9652-f3c7-4b23-a43b-e8844f49aeca/.default",
+    "SPOKELSE_GRUNNLAG_URL": "http://spokelse.tbd/grunnlag"
   }
 }
