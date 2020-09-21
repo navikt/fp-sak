@@ -431,14 +431,7 @@ public class BeregningsgrunnlagRepository {
         beregningsgrunnlag.ifPresent(orig -> lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.of(Kopimaskin.deepCopy(orig))), beregningsgrunnlagTilstand));
     }
 
-    public void kopierGrunnlagForGRegulering(Long gammelBehandlingId, Long nyBehandlingId) {
-        boolean oppdatert = oppdaterGrunnlagMedGrunnbeløp(gammelBehandlingId, nyBehandlingId, BeregningsgrunnlagTilstand.KOFAKBER_UT);
-        if (!oppdatert) {
-            oppdaterGrunnlagMedGrunnbeløp(gammelBehandlingId, nyBehandlingId, BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER);
-        }
-    }
-
-    private boolean oppdaterGrunnlagMedGrunnbeløp(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand tilstand) {
+    public boolean oppdaterGrunnlagMedGrunnbeløp(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand tilstand) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> beregningsgrunnlag = hentSisteBeregningsgrunnlagGrunnlagEntitet(gammelBehandlingId, tilstand);
         if (beregningsgrunnlag.isPresent()) {
             BeregningsgrunnlagEntitet bg = beregningsgrunnlag.get().getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha BG"));
