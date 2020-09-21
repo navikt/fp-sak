@@ -6,6 +6,7 @@
   "oracledvhsecret": "oracle/data/prod/creds/fpsak-fpsak_hist",
   "fpsakserviceuser": "serviceuser/data/prod/srvengangsstonad",
   "ldapserviceuser": "serviceuser/data/prod/srvssolinux",
+  "azureadsecret": "/azuread/data/prod/creds/fp-sak",
   "minReplicas": "4",
   "maxReplicas": "9",
   "ingresses": [
