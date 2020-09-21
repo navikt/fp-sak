@@ -1257,8 +1257,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         return (S) this;
     }
 
-    public void leggTilAksjonspunkt(AksjonspunktDefinisjon apDef, BehandlingStegType stegType) {
+    @SuppressWarnings("unchecked")
+    public S leggTilAksjonspunkt(AksjonspunktDefinisjon apDef, BehandlingStegType stegType) {
         aksjonspunktDefinisjoner.put(apDef, stegType);
+        return (S) this;
     }
 
     public void leggTilMedlemskapPeriode(MedlemskapPerioderEntitet medlemskapPeriode) {
@@ -1266,7 +1268,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     @SuppressWarnings("unchecked")
-
     public S medDefaultSøknadTerminbekreftelse() {
         final FamilieHendelseBuilder.TerminbekreftelseBuilder terminbekreftelse = medSøknadHendelse().getTerminbekreftelseBuilder()
             .medTermindato(LocalDate.now().plusDays(40))
