@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.kafka;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 public class RisikovurderingRequest {
 

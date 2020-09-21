@@ -2,30 +2,32 @@ package no.nav.foreldrepenger.web.app.healthchecks.checks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.vedtak.felles.integrasjon.jms.QueueSelftest;
 
-
+@ExtendWith(MockitoExtension.class)
 public class QueueHealthCheckTest {
 
     private QueueHealthCheck queueHealthCheck; // objektet vi tester
 
+    @Mock
     private QueueSelftest mockJmsSelftestSupport;
 
     private static final String DESCR_SUFFIX = "my-oh-my";
 
-    @Before
+    @BeforeEach
     public void setup() {
-        mockJmsSelftestSupport = mock(QueueSelftest.class);
         queueHealthCheck = new MyQueueHealthCheck(mockJmsSelftestSupport);
     }
 
@@ -103,7 +105,7 @@ public class QueueHealthCheckTest {
         assertThat(res.getException()).isNotNull();
     }
 
-    //----------------
+    // ----------------
 
     private static class MyQueueHealthCheck extends QueueHealthCheck {
 

@@ -7,7 +7,6 @@ import java.time.Period;
 
 import org.junit.Test;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårMellomregning;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 

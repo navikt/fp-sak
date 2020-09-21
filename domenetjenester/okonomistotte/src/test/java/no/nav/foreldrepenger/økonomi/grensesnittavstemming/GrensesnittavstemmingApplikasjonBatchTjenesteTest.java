@@ -25,8 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.økonomi.grensesnittavstemming.GrensesnittavstemmingApplikasjonBatchTjeneste;
-import no.nav.foreldrepenger.økonomi.grensesnittavstemming.GrensesnittavstemmingBatchArguments;
 import no.nav.foreldrepenger.økonomi.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.BehandleØkonomioppdragKvitteringImplTest;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;

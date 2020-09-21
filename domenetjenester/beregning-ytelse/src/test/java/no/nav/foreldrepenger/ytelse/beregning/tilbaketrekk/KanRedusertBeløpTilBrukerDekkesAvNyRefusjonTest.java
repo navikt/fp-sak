@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.KanRedusertBeløpTilBrukerDekkesAvNyRefusjon;
-
 public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
     @Test

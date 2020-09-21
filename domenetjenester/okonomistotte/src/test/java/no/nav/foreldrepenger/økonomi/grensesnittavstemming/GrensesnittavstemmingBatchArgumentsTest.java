@@ -1,12 +1,10 @@
 package no.nav.foreldrepenger.økonomi.grensesnittavstemming;
 
-import org.junit.Test;
-
-import no.nav.foreldrepenger.økonomi.grensesnittavstemming.GrensesnittavstemmingBatchArguments;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 
 public class GrensesnittavstemmingBatchArgumentsTest {

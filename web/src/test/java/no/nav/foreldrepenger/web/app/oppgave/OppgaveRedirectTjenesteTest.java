@@ -9,8 +9,8 @@ import java.util.Optional;
 import javax.servlet.ServletException;
 import javax.ws.rs.core.Response;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -36,12 +36,12 @@ public class OppgaveRedirectTjenesteTest {
 
     private final Saksnummer saksnummer = new Saksnummer("22");
 
-    @Before
+    @BeforeEach
     public void setContextPath() {
         ContextPathHolder.instance("/fpsak");
     }
 
-    @Before
+    @BeforeEach
     public void setLoadBalancerUrl() {
         redirectFactory.setLoadBalancerUrl("https://erstatter.nav.no");
     }
@@ -56,7 +56,8 @@ public class OppgaveRedirectTjenesteTest {
     }
 
     @Test
-    public void skal_lage_url_med_feilmelding_når_både_oppgaveId_og_sakId_finnes_i_url_men_ikke_finnes_ikke_i_vl() throws ServletException, IOException {
+    public void skal_lage_url_med_feilmelding_når_både_oppgaveId_og_sakId_finnes_i_url_men_ikke_finnes_ikke_i_vl()
+            throws ServletException, IOException {
         Response response = tjeneste.doRedirect(new OppgaveIdDto("1"), new SaksnummerDto("2"));
         String feilmelding = "Det+finnes+ingen+sak+med+dette+saksnummeret%3A+2";
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
@@ -64,7 +65,7 @@ public class OppgaveRedirectTjenesteTest {
     }
 
     @Test
-    public void skal_lage_url_med_saksnummer_og_behandlingId_når_oppgave_finnes_og_sakId_ikke_finnes_i_url() throws ServletException, IOException {
+    public void skal_lage_url_med_saksnummer_og_behandlingId_når_oppgave_finnes_og_sakId_ikke_finnes_i_url() throws ServletException {
         var behandlingId = 10L;
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null, null, saksnummer);
         fagsak.setId(2L);
@@ -77,7 +78,8 @@ public class OppgaveRedirectTjenesteTest {
 
         Response response = tjeneste.doRedirect(new OppgaveIdDto("1"), null);
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
-        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/fagsak/22/behandling/10/?punkt=default&fakta=default");
+        assertThat(response.getLocation().toString())
+                .isEqualTo("https://erstatter.nav.no/fpsak/fagsak/22/behandling/10/?punkt=default&fakta=default");
     }
 
     @Test
@@ -108,7 +110,8 @@ public class OppgaveRedirectTjenesteTest {
 
         Response response = tjeneste.doRedirect(new OppgaveIdDto("1"), new SaksnummerDto(saksnummer));
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
-        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/fagsak/22/behandling/11/?punkt=default&fakta=default");
+        assertThat(response.getLocation().toString())
+                .isEqualTo("https://erstatter.nav.no/fpsak/fagsak/22/behandling/11/?punkt=default&fakta=default");
     }
 
     @Test

@@ -11,7 +11,6 @@ import org.junit.rules.ExpectedException;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
 
 public class KodeFagområdeTjenesteTest {
 

@@ -26,9 +26,9 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @ApplicationScoped
 public class VurderOmArenaYtelseSkalOpphøre {

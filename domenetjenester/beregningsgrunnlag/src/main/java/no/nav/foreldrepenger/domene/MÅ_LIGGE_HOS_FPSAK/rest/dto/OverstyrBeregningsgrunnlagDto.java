@@ -1,15 +1,17 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk.Lønnsendring;
+import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk.Lønnsendring;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_BEREGNINGSGRUNNLAG_KODE)
 public class OverstyrBeregningsgrunnlagDto extends OverstyringAksjonspunktDto {

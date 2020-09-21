@@ -6,6 +6,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
 import no.nav.vedtak.felles.lokal.dbstoette.DatabaseStøtte;
 
@@ -14,6 +17,7 @@ import no.nav.vedtak.felles.lokal.dbstoette.DatabaseStøtte;
  */
 public final class Databaseskjemainitialisering {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Databaseskjemainitialisering.class);
     private static final Pattern placeholderPattern = Pattern.compile("\\$\\{(.*)\\}");
 
     private static final AtomicBoolean GUARD_SKJEMAER = new AtomicBoolean();
@@ -26,6 +30,7 @@ public final class Databaseskjemainitialisering {
     public static void settOppSkjemaer() {
         if (GUARD_SKJEMAER.compareAndSet(false, true)) {
             try {
+                LOG.info("settOppSkjemaer");
                 settSchemaPlaceholder(DatasourceConfiguration.UNIT_TEST.getRaw());
                 DatabaseStøtte.kjørMigreringFor(DatasourceConfiguration.DBA.get());
             } catch (FileNotFoundException e) {
@@ -39,6 +44,7 @@ public final class Databaseskjemainitialisering {
 
         if (GUARD_UNIT_TEST_SKJEMAER.compareAndSet(false, true)) {
             try {
+                LOG.info("kjørMigreringFor");
                 DatabaseStøtte.kjørMigreringFor(DatasourceConfiguration.UNIT_TEST.get());
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
@@ -48,7 +54,9 @@ public final class Databaseskjemainitialisering {
 
     public static void settPlaceholdereOgJdniOppslag() {
         try {
+            LOG.info("settSchemaPlaceholder");
             Databaseskjemainitialisering.settSchemaPlaceholder(DatasourceConfiguration.UNIT_TEST.getRaw());
+            LOG.info("settOppJndiForDefaultDataSource");
             DatabaseStøtte.settOppJndiForDefaultDataSource(DatasourceConfiguration.UNIT_TEST.get());
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -61,6 +69,7 @@ public final class Databaseskjemainitialisering {
             if (matcher.matches()) {
                 String placeholder = matcher.group(1);
                 if (System.getProperty(placeholder) == null) {
+                    LOG.info("setProperty {} to {}", placeholder, dbcp.getDefaultSchema());
                     System.setProperty(placeholder, dbcp.getDefaultSchema());
                 }
             }

@@ -14,8 +14,6 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoMellomPeriodeLister;
-import no.nav.foreldrepenger.ytelse.beregning.SjekkForEndringMellomPerioder;
 
 public class FinnEndringsdatoMellomPeriodeListerImplTest {
 

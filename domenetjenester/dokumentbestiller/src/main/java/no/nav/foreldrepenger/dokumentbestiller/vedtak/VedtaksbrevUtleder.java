@@ -1,5 +1,11 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.MEDHOLD_I_KLAGE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.OPPHEVE_YTELSESVEDTAK;
+
+import java.util.Arrays;
+
 import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -15,10 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.BrevFeil;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-
-import java.util.Arrays;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.*;
 
 public class VedtaksbrevUtleder {
     private static final String FPSAK_FRITEKSTBREV_FOR_INNV_ENGANGSSTONAD = "fpsak.fritekstForInnvilgelseEngangsstonad";

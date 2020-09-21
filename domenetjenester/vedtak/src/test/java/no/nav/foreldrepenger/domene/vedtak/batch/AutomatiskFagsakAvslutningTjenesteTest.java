@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -16,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;

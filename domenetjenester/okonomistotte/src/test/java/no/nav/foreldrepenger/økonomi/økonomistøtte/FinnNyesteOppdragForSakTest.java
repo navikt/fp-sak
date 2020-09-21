@@ -15,8 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.FinnNyesteOppdragForSak;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class FinnNyesteOppdragForSakTest {

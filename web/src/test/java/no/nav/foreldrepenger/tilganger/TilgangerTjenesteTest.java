@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.tilganger;
 
-
-import no.nav.vedtak.felles.integrasjon.ldap.LdapBruker;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import no.nav.vedtak.felles.integrasjon.ldap.LdapBruker;
 
 public class TilgangerTjenesteTest {
 
@@ -21,9 +21,10 @@ public class TilgangerTjenesteTest {
     private static final Boolean skalViseDetaljerteFeilmeldinger = true;
     private TilgangerTjeneste tilgangerTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        tilgangerTjeneste = new TilgangerTjeneste(gruppenavnSaksbehandler, gruppenavnVeileder, gruppenavnBeslutter, gruppenavnOverstyrer, gruppenavnEgenAnsatt, gruppenavnKode6, gruppenavnKode7, skalViseDetaljerteFeilmeldinger);
+        tilgangerTjeneste = new TilgangerTjeneste(gruppenavnSaksbehandler, gruppenavnVeileder, gruppenavnBeslutter, gruppenavnOverstyrer,
+                gruppenavnEgenAnsatt, gruppenavnKode6, gruppenavnKode7, skalViseDetaljerteFeilmeldinger);
     }
 
     @Test
@@ -31,7 +32,8 @@ public class TilgangerTjenesteTest {
         LdapBruker brukerUtenforSaksbehandlerGruppe = getTestBruker();
         LdapBruker brukerISaksbehandlerGruppe = getTestBruker(gruppenavnSaksbehandler);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforSaksbehandlerGruppe);
+        InnloggetNavAnsattDto innloggetBrukerUtenSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null,
+                brukerUtenforSaksbehandlerGruppe);
         InnloggetNavAnsattDto innloggetBrukerMedSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerISaksbehandlerGruppe);
 
         assertThat(innloggetBrukerUtenSaksbehandlerRettighet.getKanSaksbehandle()).isFalse();
@@ -113,6 +115,5 @@ public class TilgangerTjenesteTest {
     private static LdapBruker getTestBruker(String... grupper) {
         return new LdapBruker("Testbruker", List.of(grupper));
     }
-
 
 }

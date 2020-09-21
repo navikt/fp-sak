@@ -24,8 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.EngangsstønadVilkårUtleder;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår;
 
 public class EngangsstønadVilkårUtlederTest {
 

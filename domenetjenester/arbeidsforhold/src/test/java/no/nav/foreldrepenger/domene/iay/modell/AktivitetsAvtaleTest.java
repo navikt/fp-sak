@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class AktivitetsAvtaleTest {
 

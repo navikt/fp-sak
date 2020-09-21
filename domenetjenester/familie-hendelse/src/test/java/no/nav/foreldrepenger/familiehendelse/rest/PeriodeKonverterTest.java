@@ -9,9 +9,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import no.nav.foreldrepenger.familiehendelse.rest.PeriodeDto;
-import no.nav.foreldrepenger.familiehendelse.rest.PeriodeKonverter;
-
 public class PeriodeKonverterTest {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 

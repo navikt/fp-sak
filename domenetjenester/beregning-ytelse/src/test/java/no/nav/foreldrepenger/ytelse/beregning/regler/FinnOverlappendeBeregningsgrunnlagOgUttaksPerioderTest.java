@@ -5,12 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
@@ -27,7 +24,6 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Ber
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrArbeidsforhold;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Periode;
-import no.nav.foreldrepenger.ytelse.beregning.regler.FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
 

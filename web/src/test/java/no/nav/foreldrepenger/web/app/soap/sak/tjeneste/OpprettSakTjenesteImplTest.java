@@ -2,17 +2,17 @@ package no.nav.foreldrepenger.web.app.soap.sak.tjeneste;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
@@ -22,22 +22,17 @@ import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.produksjonsstyring.opprettgsak.OpprettGSakTjeneste;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class OpprettSakTjenesteImplTest {
-
-    @Rule
-    public final MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+@ExtendWith(MockitoExtension.class)
+public class OpprettSakTjenesteImplTest extends EntityManagerAwareTest {
 
     @Mock
     private TpsTjeneste tpsTjenesteMock;
@@ -50,20 +45,21 @@ public class OpprettSakTjenesteImplTest {
     private AktørId aktørId = AktørId.dummy();
 
     private Personinfo personinfo;
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        //Mock TpsTjeneste
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         personinfo = new Personinfo.Builder()
-            .medPersonIdent(PersonIdent.fra("12345612345"))
-            .medNavn("Kari Nordmann")
-            .medFødselsdato(LocalDate.of(1980, 1, 1))
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medAktørId(aktørId)
-            .medForetrukketSpråk(Språkkode.NB).build();
-        when(tpsTjenesteMock.hentBrukerForAktør(any(AktørId.class))).thenReturn(Optional.of(personinfo));
+                .medPersonIdent(PersonIdent.fra("12345612345"))
+                .medNavn("Kari Nordmann")
+                .medFødselsdato(LocalDate.of(1980, 1, 1))
+                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
+                .medAktørId(aktørId)
+                .medForetrukketSpråk(Språkkode.NB).build();
+        lenient().when(tpsTjenesteMock.hentBrukerForAktør(any(AktørId.class))).thenReturn(Optional.of(personinfo));
 
-        //Mock BersonTjeneste
+        // Mock BersonTjeneste
         NavBruker navBruker = NavBruker.opprettNy(personinfo);
         when(brukerTjenesteMock.hentEllerOpprettFraAktorId(any(Personinfo.class))).thenReturn(navBruker);
 

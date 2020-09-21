@@ -10,7 +10,6 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.abakus.iaygrunnlag.request.InntektsmeldingDiffRequest;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -33,6 +32,7 @@ import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.RefusjonskravDatoerDto;
 import no.nav.abakus.iaygrunnlag.request.AktørDatoRequest;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest;
+import no.nav.abakus.iaygrunnlag.request.InntektsmeldingDiffRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerMottattRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerRequest;
 import no.nav.abakus.iaygrunnlag.request.KopierGrunnlagRequest;

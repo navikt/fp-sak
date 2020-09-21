@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.batch.feil;
 
+import java.util.Set;
+
 import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-
-import java.util.Set;
 
 public interface BatchFeil extends DeklarerteFeil {
 

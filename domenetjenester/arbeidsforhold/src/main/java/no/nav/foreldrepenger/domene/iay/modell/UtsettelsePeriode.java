@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.persistence.Convert;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;

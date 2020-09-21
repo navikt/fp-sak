@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.konsument;
 
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
 import no.nav.familie.topic.Topic;
 import no.nav.familie.topic.TopicManifest;
 import no.nav.vedtak.konfig.KonfigVerdi;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
 
 @Dependent
 public class RisikoklassifiseringStreamKafkaProperties {

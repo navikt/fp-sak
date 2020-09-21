@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.fp;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
 

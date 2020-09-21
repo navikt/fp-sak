@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public final class OmfordelRevurderingsandelerUtenReferanse {
 

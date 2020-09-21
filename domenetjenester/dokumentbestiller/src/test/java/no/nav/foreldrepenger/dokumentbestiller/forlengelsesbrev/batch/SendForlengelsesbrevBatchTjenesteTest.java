@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.batch.BatchStatus;
-import no.nav.foreldrepenger.dokumentbestiller.forlengelsesbrev.batch.SendForlengelsesbrevBatchTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.forlengelsesbrev.tjeneste.SendForlengelsesbrevTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.TaskStatus;
