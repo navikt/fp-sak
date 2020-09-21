@@ -10,7 +10,6 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.abakus.iaygrunnlag.request.InntektsmeldingDiffRequest;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -33,12 +32,14 @@ import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.RefusjonskravDatoerDto;
 import no.nav.abakus.iaygrunnlag.request.AktørDatoRequest;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest;
+import no.nav.abakus.iaygrunnlag.request.InntektsmeldingDiffRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerMottattRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerRequest;
 import no.nav.abakus.iaygrunnlag.request.KopierGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.request.OppgittOpptjeningMottattRequest;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagSakSnapshotDto;
+import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
@@ -72,6 +73,7 @@ public class AbakusTjeneste {
     private URI endpointInntektsmeldinger;
     private URI endpointRefusjonskravdatoer;
     private URI endpointInntektsmeldingerDiff;
+    private URI endpointYtelser;
 
 
     AbakusTjeneste() {
@@ -94,7 +96,7 @@ public class AbakusTjeneste {
         this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
         this.endpointRefusjonskravdatoer = toUri("/api/iay/inntektsmeldinger/v1/hentRefusjonskravDatoer");
         this.endpointInntektsmeldingerDiff = toUri("/api/iay/inntektsmeldinger/v1/hentDiff");
-
+        this.endpointYtelser = toUri("/api/ytelse/v1/hentVedtakForAktoer");
 
     }
 
@@ -183,6 +185,25 @@ public class AbakusTjeneste {
         var json = iayJsonWriter.writeValueAsString(request);
 
         return hentFraAbakus(endpoint, responseHandler, json);
+    }
+
+    public List<Ytelse> hentVedtakForAktørId(AktørDatoRequest request) throws IOException {
+        var endpoint = endpointYtelser;
+        var reader = iayMapper.readerFor(Ytelse[].class);
+        var responseHandler = new ObjectReaderResponseHandler<Ytelse[]>(endpoint, reader);
+
+        try {
+            var json = iayJsonWriter.writeValueAsString(request);
+            Ytelse[] ytelser = hentFraAbakus(endpoint, responseHandler, json);
+            if (ytelser == null) {
+                return Collections.emptyList();
+            }
+            return Arrays.asList(ytelser);
+        } catch (JsonProcessingException e) {
+            throw AbakusTjenesteFeil.FEIL.feilVedJsonParsing(e.getMessage()).toException();
+        } catch (IOException e) {
+            throw AbakusTjenesteFeil.FEIL.feilVedKallTilAbakus(e.getMessage()).toException();
+        }
     }
 
     private <T> T hentFraAbakus(URI endpoint, ObjectReaderResponseHandler<T> responseHandler, String json) throws IOException {

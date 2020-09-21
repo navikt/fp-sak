@@ -38,9 +38,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygd;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -51,7 +51,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappendeEksternYtelseTjeneste;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -61,7 +61,7 @@ import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
 public class VedtaksHendelseHåndtererTest {
     private VedtaksHendelseHåndterer vedtaksHendelseHåndterer;
-    private LoggOverlappendeEksternYtelseTjeneste overlappTjeneste;
+    private LoggOverlappEksterneYtelserTjeneste overlappTjeneste;
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private final EntityManager entityManager = repoRule.getEntityManager();
@@ -69,7 +69,7 @@ public class VedtaksHendelseHåndtererTest {
     private ProsessTaskEventPubliserer eventPubliserer = Mockito.mock(ProsessTaskEventPubliserer.class);
     private ProsessTaskRepository prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, eventPubliserer);
     private BeregningsresultatRepository beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
-    private BehandlingOverlappInfotrygdRepository overlappInfotrygdRepository = new BehandlingOverlappInfotrygdRepository(entityManager);
+    private OverlappVedtakRepository overlappInfotrygdRepository = new OverlappVedtakRepository(entityManager);
     private FagsakTjeneste fagsakTjeneste;
     private FagsakStatusEventPubliserer eventFagsak = Mockito.mock(FagsakStatusEventPubliserer.class);
 
@@ -79,7 +79,9 @@ public class VedtaksHendelseHåndtererTest {
     public void setUp()  {
         initMocks(this);
         fagsakTjeneste = new FagsakTjeneste(repositoryProvider, eventFagsak);
-        overlappTjeneste = new LoggOverlappendeEksternYtelseTjeneste(beregningsresultatRepository, overlappInfotrygdRepository, repositoryProvider.getBehandlingRepository());
+        overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsresultatRepository, null,
+            null, null, null, null,
+            overlappInfotrygdRepository, repositoryProvider.getBehandlingRepository());
         vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer(fagsakTjeneste, overlappTjeneste, repositoryProvider, prosessTaskRepository);
     }
 
@@ -145,9 +147,9 @@ public class VedtaksHendelseHåndtererTest {
 
         YtelseV1 ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList );
 
-        vedtaksHendelseHåndterer.sjekkVedtakOverlapp(ytelseV1);
+        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1);
 
-        assertThat(overlappInfotrygdRepository.hentForBehandling(svp.getId())).isEmpty();
+        assertThat(overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer())).isEmpty();
     }
 
     @Test
@@ -174,12 +176,12 @@ public class VedtaksHendelseHåndtererTest {
 
         YtelseV1 ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList );
 
-        vedtaksHendelseHåndterer.sjekkVedtakOverlapp(ytelseV1);
+        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1);
 
-        List<BehandlingOverlappInfotrygd> behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForBehandling(svp.getId());
+        List<OverlappVedtak> behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
         assertThat(behandlingOverlappInfotrygd.get(0).getBehandlingId()).isEqualTo(svp.getId());
-        assertThat(behandlingOverlappInfotrygd.get(0).getPeriodeVL()).isEqualByComparingTo(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(berResSvp.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeFom(),
+        assertThat(behandlingOverlappInfotrygd.get(0).getPeriode()).isEqualByComparingTo(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(berResSvp.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeFom(),
             berResSvp.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeTom()));
     }
 
@@ -208,9 +210,9 @@ public class VedtaksHendelseHåndtererTest {
 
         YtelseV1 ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList );
 
-        vedtaksHendelseHåndterer.sjekkVedtakOverlapp(ytelseV1);
+        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1);
 
-        assertThat(overlappInfotrygdRepository.hentForBehandling(svp.getId())).isEmpty();
+        assertThat(overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer())).isEmpty();
     }
 
     @Test
@@ -238,13 +240,42 @@ public class VedtaksHendelseHåndtererTest {
 
         YtelseV1 ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList );
 
-        vedtaksHendelseHåndterer.sjekkVedtakOverlapp(ytelseV1);
+        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1);
 
-        List<BehandlingOverlappInfotrygd> behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForBehandling(svp.getId());
+        List<OverlappVedtak> behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
         assertThat(behandlingOverlappInfotrygd.get(0).getBehandlingId()).isEqualTo(svp.getId());
-        assertThat(behandlingOverlappInfotrygd.get(0).getPeriodeVL()).isEqualByComparingTo(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(berResSvp.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeFom(),
+        assertThat(behandlingOverlappInfotrygd.get(0).getPeriode()).isEqualByComparingTo(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(berResSvp.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeFom(),
             berResSvp.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeTom()));
+    }
+
+    @Test
+    public void overlappOpplæringspengerSVP() {
+        //SVP sak
+        Behandling svp = lagBehandlingSVP();
+        BeregningsresultatEntitet berResSvp = lagBeregningsresultat(LocalDate.of(2020,3, 1), LocalDate.of(2020, 3, 31), 100);
+        leggTilBerPeriode(berResSvp, LocalDate.of(2020,5,1), LocalDate.of(2020,5,25),442, 100, 100 );
+        beregningsresultatRepository.lagre(svp, berResSvp);
+        //Omsorgspenger vedtak
+        final Aktør aktør = new Aktør();
+        aktør.setVerdi(svp.getAktørId().getId());
+        Periode periode = new Periode();
+        periode.setFom(LocalDate.of(2020,4, 1));
+        periode.setTom(LocalDate.of(2020,5, 4));
+        List<Anvisning> anvistList = new ArrayList<>();
+        Desimaltall utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
+
+        Anvisning anvist1 = genererAnvist(LocalDate.of(2020,4,1), LocalDate.of(2020,4,30), utbetgrad);
+        Anvisning anvist2 = genererAnvist(LocalDate.of(2020,5,1), LocalDate.of(2020,5,4), utbetgrad);
+
+        anvistList.add(anvist1);
+        anvistList.add(anvist2);
+
+        YtelseV1 ytelseV1 = genererYtelseAbakus(YtelseType.OPPLÆRINGSPENGER, aktør, periode, anvistList );
+
+        boolean erOverlapp = vedtaksHendelseHåndterer.sjekkVedtakOverlapp(ytelseV1);
+
+        assertThat(erOverlapp).isTrue();
     }
 
     public Behandling lagBehandlingFP() {

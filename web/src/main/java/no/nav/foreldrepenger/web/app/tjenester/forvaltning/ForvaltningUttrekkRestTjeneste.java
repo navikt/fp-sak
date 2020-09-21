@@ -35,8 +35,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygd;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygdRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemTask;
@@ -58,7 +58,7 @@ public class ForvaltningUttrekkRestTjeneste {
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
-    private BehandlingOverlappInfotrygdRepository overlappRepository;
+    private OverlappVedtakRepository overlappRepository;
 
     public ForvaltningUttrekkRestTjeneste() {
         // For CDI
@@ -68,7 +68,7 @@ public class ForvaltningUttrekkRestTjeneste {
     public ForvaltningUttrekkRestTjeneste( EntityManager entityManager,
                                           BehandlingRepositoryProvider repositoryProvider,
                                           ProsessTaskRepository prosessTaskRepository,
-                                          BehandlingOverlappInfotrygdRepository overlappRepository) {
+                                          OverlappVedtakRepository overlappRepository) {
         this.entityManager = entityManager;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -166,7 +166,6 @@ public class ForvaltningUttrekkRestTjeneste {
         ProsessTaskData prosessTaskData = new ProsessTaskData(VedtakOverlappAvstemTask.TASKTYPE);
         prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TEMA_KEY_KEY, VedtakOverlappAvstemTask.LOG_TEMA_BOTH_KEY);
         prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_SAKSNUMMER_KEY, s.getSaksnummer());
-        prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_PREFIX_KEY, "AvstemSak-");
         prosessTaskData.setCallIdFraEksisterende();
 
         prosessTaskRepository.lagre(prosessTaskData);
@@ -181,11 +180,9 @@ public class ForvaltningUttrekkRestTjeneste {
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response hentAvstemtSakOverlappTrex(@Parameter(description = "Saksnummer") @BeanParam @Valid AvstemmingSaksnummerDto s) {
-        var resultat = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(s.getSaksnummer()))
-                .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()))
-                .map(b -> overlappRepository.hentForBehandling(b.getId())).orElse(List.of()).stream()
-                .sorted(Comparator.comparing(BehandlingOverlappInfotrygd::getOpprettetTidspunkt).reversed())
-                .collect(Collectors.toList());
+        var resultat = overlappRepository.hentForSaksnummer(new Saksnummer(s.getSaksnummer())).stream()
+            .sorted(Comparator.comparing(OverlappVedtak::getOpprettetTidspunkt).reversed())
+            .collect(Collectors.toList());
         return Response.ok(resultat).build();
     }
 }

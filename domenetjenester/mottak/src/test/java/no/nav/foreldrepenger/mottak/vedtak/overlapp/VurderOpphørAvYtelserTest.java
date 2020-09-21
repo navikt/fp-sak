@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.vedtak;
+package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,8 +51,6 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.SjekkOverlappForeldrepengerInfotrygdTjeneste;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelser;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -76,7 +74,7 @@ public class VurderOpphørAvYtelserTest {
     private static final AktørId MEDF_AKTØR_ID = AktørId.dummy();
 
     private VurderOpphørAvYtelser vurderOpphørAvYtelser;
-    private SjekkOverlappForeldrepengerInfotrygdTjeneste sjekkInfotrygdTjeneste = mock(SjekkOverlappForeldrepengerInfotrygdTjeneste.class);
+    private OverlappFPInfotrygdTjeneste sjekkInfotrygdTjeneste = mock(OverlappFPInfotrygdTjeneste.class);
 
 
     @Rule

@@ -13,52 +13,49 @@ import org.junit.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class BehandlingOverlappInfotrygdRepositoryImplTest {
+public class OverlappVedtakRepositoryTest {
 
     @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private final EntityManager entityManager = repoRule.getEntityManager();
-    private Repository repository = repoRule.getRepository();
 
-    private BehandlingOverlappInfotrygdRepository behandlingOverlappInfotrygdRepository;
+    private OverlappVedtakRepository overlappVedtakRepository;
 
     private BasicBehandlingBuilder behandlingBuilder = new BasicBehandlingBuilder(entityManager);
 
     @Before
     public void setup() {
-        behandlingOverlappInfotrygdRepository = new BehandlingOverlappInfotrygdRepository(entityManager);
+        overlappVedtakRepository = new OverlappVedtakRepository(entityManager);
     }
 
     @Test
     public void lagre() {
         // Arrange
         Behandling behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
-        ÅpenDatoIntervallEntitet periodeInfotrygd = ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 12, 1), LocalDate.of(2019, 1, 1));
         ÅpenDatoIntervallEntitet periodeVL = ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 1, 1), LocalDate.of(2019, 5, 1));
         String ytelseInfotrygd = "BS";
-        BehandlingOverlappInfotrygd behandlingOverlappInfotrygd = BehandlingOverlappInfotrygd.builder()
+        OverlappVedtak.Builder builder = OverlappVedtak.builder()
             .medSaksnummer(behandling.getFagsak().getSaksnummer())
             .medBehandlingId(behandling.getId())
-            .medPeriodeInfotrygd(periodeInfotrygd)
-            .medPeriodeVL(periodeVL)
-            .medYtelseInfotrygd(ytelseInfotrygd)
-            .build();
+            .medPeriode(periodeVL)
+            .medHendelse("TEST")
+            .medUtbetalingsprosent(100L)
+            .medFagsystem(Fagsystem.INFOTRYGD.getKode())
+            .medYtelse(ytelseInfotrygd);
 
         // Act
-        Long id = behandlingOverlappInfotrygdRepository.lagre(behandlingOverlappInfotrygd);
-        repository.clear();
+        overlappVedtakRepository.lagre(builder);
 
         // Assert
-        BehandlingOverlappInfotrygd hentet = repository.hent(BehandlingOverlappInfotrygd.class, id);
+        OverlappVedtak hentet = overlappVedtakRepository.hentForSaksnummer(behandling.getFagsak().getSaksnummer()).get(0);
         assertThat(hentet.getBehandlingId()).isEqualTo(behandling.getId());
         assertThat(hentet.getSaksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer());
-        assertThat(hentet.getPeriodeInfotrygd()).isEqualTo(periodeInfotrygd);
-        assertThat(hentet.getPeriodeVL()).isEqualTo(periodeVL);
-        assertThat(hentet.getYtelseInfotrygd()).isEqualTo(ytelseInfotrygd);
+        assertThat(hentet.getPeriode()).isEqualTo(periodeVL);
+        assertThat(hentet.getYtelse()).isEqualTo(ytelseInfotrygd);
 
     }
 }

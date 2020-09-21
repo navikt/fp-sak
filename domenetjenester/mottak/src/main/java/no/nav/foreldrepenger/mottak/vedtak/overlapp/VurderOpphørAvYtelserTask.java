@@ -29,7 +29,7 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
     public static final String K9_FOM_KEY = "k9fom";
     public static final String K9_TOM_KEY = "k9tom";
 
-    private IdentifiserOverlappendeInfotrygdYtelseTjeneste overlappsLoggerTjeneste;
+    private LoggOverlappEksterneYtelserTjeneste overlappsLoggerTjeneste;
     private BehandlingRepository behandlingRepository;
 
 
@@ -41,7 +41,7 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
 
     @Inject
     public VurderOpphørAvYtelserTask(VurderOpphørAvYtelser tjeneste,
-                                     IdentifiserOverlappendeInfotrygdYtelseTjeneste overlappsLoggerTjeneste,
+                                     LoggOverlappEksterneYtelserTjeneste overlappsLoggerTjeneste,
                                      BehandlingRepositoryProvider repositoryProvider) {
         super();
         this.tjeneste = tjeneste;
@@ -63,7 +63,7 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
         }
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         //kjøres for førstegangsvedtak og revurderingsvedtak for fp og SVP
-        overlappsLoggerTjeneste.vurderOglagreEventueltOverlapp(behandlingId);
+        overlappsLoggerTjeneste.loggOverlappForVedtakFPSAK(behandlingId, behandling.getFagsak().getSaksnummer(), behandling.getAktørId());
         //kjøres kun for førstegangsvedtak for svp og fp
         if (!behandling.erRevurdering()) {
             tjeneste.vurderOpphørAvYtelser(prosessTaskData.getFagsakId(), behandlingId);

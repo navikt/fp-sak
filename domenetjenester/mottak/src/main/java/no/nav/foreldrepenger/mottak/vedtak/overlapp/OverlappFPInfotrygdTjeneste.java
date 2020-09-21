@@ -24,20 +24,20 @@ import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Vedtak;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
-public class SjekkOverlappForeldrepengerInfotrygdTjeneste {
+public class OverlappFPInfotrygdTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SjekkOverlappForeldrepengerInfotrygdTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OverlappFPInfotrygdTjeneste.class);
 
 
     private InfotrygdFPGrunnlag tjeneste ;
     private AktørConsumerMedCache aktørConsumer;
 
-    SjekkOverlappForeldrepengerInfotrygdTjeneste() {
+    OverlappFPInfotrygdTjeneste() {
         // CDI
     }
 
     @Inject
-    public SjekkOverlappForeldrepengerInfotrygdTjeneste(InfotrygdFPGrunnlag tjeneste, AktørConsumerMedCache aktørConsumer) {
+    public OverlappFPInfotrygdTjeneste(InfotrygdFPGrunnlag tjeneste, AktørConsumerMedCache aktørConsumer) {
         this.tjeneste = tjeneste;
         this.aktørConsumer = aktørConsumer;
     }

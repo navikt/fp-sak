@@ -9,10 +9,11 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -27,14 +28,13 @@ public class VedtakOverlappAvstemTask extends GenerellProsessTask {
     public static final String LOG_TEMA_FOR_KEY = "temaFOR";
     public static final String LOG_TEMA_OTH_KEY = "temaOTH";
     public static final String LOG_TEMA_BOTH_KEY = "temaALL";
-    public static final String LOG_PREFIX_KEY = "logprefix";
     public static final String LOG_FOM_KEY = "logfom";
     public static final String LOG_TOM_KEY = "logtom";
     public static final String LOG_SAKSNUMMER_KEY = "logsaksnummer";
 
 
     private InformasjonssakRepository informasjonssakRepository;
-    private IdentifiserOverlappendeInfotrygdYtelseTjeneste syklogger;
+    private LoggOverlappEksterneYtelserTjeneste syklogger;
     private LoggHistoriskOverlappFPInfotrygdVLTjeneste loggertjeneste;
 
     VedtakOverlappAvstemTask() {
@@ -44,42 +44,42 @@ public class VedtakOverlappAvstemTask extends GenerellProsessTask {
     @Inject
     public VedtakOverlappAvstemTask(InformasjonssakRepository informasjonssakRepository,
                                     LoggHistoriskOverlappFPInfotrygdVLTjeneste loggertjeneste,
-                                    IdentifiserOverlappendeInfotrygdYtelseTjeneste syklogger) {
+                                    LoggOverlappEksterneYtelserTjeneste syklogger) {
         super();
         this.informasjonssakRepository = informasjonssakRepository;
         this.syklogger = syklogger;
         this.loggertjeneste = loggertjeneste;
-
     }
 
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         String saksnr = prosessTaskData.getPropertyValue(LOG_SAKSNUMMER_KEY);
-        String prefix = prosessTaskData.getPropertyValue(LOG_PREFIX_KEY);
         if (saksnr != null) {
-            loggOverlappFOR(null, null, saksnr, prefix);
-            loggOverlappOTH(null, null, saksnr, prefix);
+            loggOverlappFOR(null, null, saksnr, OverlappVedtak.HENDELSE_AVSTEM_SAK);
+            loggOverlappOTH(null, null, saksnr, OverlappVedtak.HENDELSE_AVSTEM_SAK);
         } else {
             LocalDate fom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
             LocalDate tom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
             if (LOG_TEMA_FOR_KEY.equalsIgnoreCase(prosessTaskData.getPropertyValue(LOG_TEMA_KEY_KEY))) {
-                loggOverlappFOR(fom, tom, saksnr, prefix);
+                loggOverlappFOR(fom, tom, saksnr, OverlappVedtak.HENDELSE_AVSTEM_PERIODE);
             } else if (LOG_TEMA_OTH_KEY.equalsIgnoreCase(prosessTaskData.getPropertyValue(LOG_TEMA_KEY_KEY))) {
-                loggOverlappOTH(fom, tom, saksnr, prefix);
+                loggOverlappOTH(fom, tom, saksnr, OverlappVedtak.HENDELSE_AVSTEM_PERIODE);
             }
         }
     }
 
-    private void loggOverlappFOR(LocalDate fom, LocalDate tom, String saksnr, String prefix) {
+    private void loggOverlappFOR(LocalDate fom, LocalDate tom, String saksnr, String hendelse) {
         if (fom != null) LOG.info("FPSAK DETEKTOR FPSV PERIODE {} til {}", fom, tom);
-        var saker = informasjonssakRepository.finnSakerOpprettetInnenIntervallMedSisteVedtak(fom, tom, saksnr);
-        saker.forEach(o -> loggertjeneste.vurderOglagreEventueltOverlapp(prefix, o.getBehandlingId(), o.getAnnenPartAktørId(), o.getTidligsteDato()));
+        // Finner alle behandlinger med vedtaksdato innen intervall (evt med gitt saksnummer) - tidligste dato = Første uttaksdato
+        var saker = informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedSisteVedtak(fom, tom, saksnr);
+        saker.forEach(o -> loggertjeneste.vurderOglagreEventueltOverlapp(hendelse, o));
     }
 
-    private void loggOverlappOTH(LocalDate fom, LocalDate tom, String saksnr, String prefix) {
+    private void loggOverlappOTH(LocalDate fom, LocalDate tom, String saksnr, String hendelse) {
         if (fom != null) LOG.info("FPSAK DETEKTOR SPBS PERIODE {} til {}", fom, tom);
-        var saker = informasjonssakRepository.finnSakerOpprettetInnenIntervallMedKunUtbetalte(fom, tom, saksnr);
-        saker.forEach(o -> syklogger.vurderOglagreEventueltOverlapp(prefix, o.getBehandlingId(), o.getTidligsteDato()));
+        // Finner alle behandlinger med vedtaksdato innen intervall (evt med gitt saksnummer) - tidligste dato = tidligeste dato med utbetaling
+        var saker = informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(fom, tom, saksnr);
+        saker.forEach(o -> syklogger.loggOverlappForAvstemming(hendelse, o.getBehandlingId(), o.getSaksnummer(), o.getAktørId()));
     }
 
 }
