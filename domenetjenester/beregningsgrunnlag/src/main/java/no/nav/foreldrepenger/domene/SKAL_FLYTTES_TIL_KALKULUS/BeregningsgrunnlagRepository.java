@@ -460,7 +460,11 @@ public class BeregningsgrunnlagRepository {
 
         BeregningsgrunnlagTilstand gjeldendeTilstand = sisteBeregningsgrunnlag.get().getBeregningsgrunnlagTilstand();
 
-        if (gjeldendeTilstand.erFør(nesteTilstand) || gjeldendeTilstand.equals(nesteTilstand)) {
+        if (gjeldendeTilstand.erFør(forrigeTilstand)) {
+            return Optional.empty();
+        }
+
+        if (gjeldendeTilstand.equals(forrigeTilstand) || gjeldendeTilstand.equals(nesteTilstand)) {
             return sisteBeregningsgrunnlag;
         }
 
