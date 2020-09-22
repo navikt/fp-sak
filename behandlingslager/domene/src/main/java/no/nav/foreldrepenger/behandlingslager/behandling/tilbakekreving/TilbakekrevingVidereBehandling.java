@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
@@ -54,11 +55,12 @@ public enum TilbakekrevingVidereBehandling implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static TilbakekrevingVidereBehandling fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static TilbakekrevingVidereBehandling fraKode(@JsonProperty(value = "kode") Object node) {
+        if (node == null) {
             return null;
         }
+        String kode = TempAvledeKode.getVerdi(TilbakekrevingVidereBehandling.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent TilbakekrevingVidereBehandling: " + kode);
@@ -86,12 +88,12 @@ public enum TilbakekrevingVidereBehandling implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     public static void main(String[] args) {
         System.out.println(KODER.keySet());
     }
