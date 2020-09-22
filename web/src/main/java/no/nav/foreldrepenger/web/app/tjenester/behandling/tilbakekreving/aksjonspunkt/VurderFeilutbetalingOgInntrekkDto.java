@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_INNTREKK_KODE)
 public class VurderFeilutbetalingOgInntrekkDto extends BekreftetAksjonspunktDto {
@@ -14,6 +15,7 @@ public class VurderFeilutbetalingOgInntrekkDto extends BekreftetAksjonspunktDto 
 
     private Boolean grunnerTilReduksjon; //null når !erTilbakekrevingVilkårOppfylt
 
+    @ValidKodeverk
     private TilbakekrevingVidereBehandling videreBehandling;  //null når erTilbakekrevingVilkårOppfylt
 
 

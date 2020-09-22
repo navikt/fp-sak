@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -151,7 +152,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), p.getKalkulertUtbetalingsgrad()))
             .collect(Collectors.toList());
 
-        return new LocalDateTimeline<>(segments, StandardCombinators::sum);
+        return new LocalDateTimeline<>(segments, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
     }
 
     private LocalDateTimeline<BigDecimal> lagTidslinjeforYtelseV1(YtelseV1 ytelse) {
@@ -159,7 +160,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), utbetalingsgradHundreHvisNull(p.getUtbetalingsgrad())))
             .filter(s -> s.getValue().compareTo(BigDecimal.ZERO) > 0)
             .collect(Collectors.toList());
-        return new LocalDateTimeline<>(graderteSegments, StandardCombinators::sum);
+        return new LocalDateTimeline<>(graderteSegments, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
     }
 
     public void vurderOmOverlappInfotrygd(PersonIdent ident, LocalDate førsteUttaksDatoFP, LocalDateTimeline<BigDecimal> perioderFp, List<OverlappVedtak.Builder> overlappene) {
@@ -197,7 +198,8 @@ public class LoggOverlappEksterneYtelserTjeneste {
                         .map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), utbetalingsgradHundreHvisNull(p.getGrad())))
                         .filter(s -> s.getValue().compareTo(BigDecimal.ZERO) > 0)
                         .collect(Collectors.toList());
-                    var ytelseTidslinje = new LocalDateTimeline<>(graderteSegments, StandardCombinators::sum);
+                    var ytelseTidslinje = new LocalDateTimeline<>(graderteSegments, LoggOverlappEksterneYtelserTjeneste::max)
+                        .compress(this::like, this::kombiner);
                     overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.VLSP.getKode(), YtelseType.SYKEPENGER.getKode(), y.getVedtaksreferanse(), ytelseTidslinje));
                 });
         }
@@ -230,7 +232,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .map(p-> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), new BigDecimal(p.getUtbetalingsgrad())))
             .collect(Collectors.toList());
 
-        return new LocalDateTimeline<>(segmenter, StandardCombinators::sum);
+        return new LocalDateTimeline<>(segmenter, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
     }
 
     private OverlappVedtak.Builder opprettOverlappBuilder(LocalDateInterval periode, BigDecimal utbetaling) {
@@ -241,6 +243,27 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     private PersonIdent getFnrFraAktørId(AktørId aktørId) {
         return aktørConsumer.hentPersonIdentForAktørId(aktørId.getId()).map(PersonIdent::new).orElseThrow();
+    }
+
+    private static LocalDateSegment<BigDecimal> max(LocalDateInterval dateInterval, LocalDateSegment<BigDecimal> lhs, LocalDateSegment<BigDecimal> rhs) {
+        if (lhs == null && rhs == null)
+            return null;
+        if (lhs == null || rhs == null)
+            return new LocalDateSegment<>(dateInterval, lhs == null ? rhs.getValue() : lhs.getValue());
+        return new LocalDateSegment<>(dateInterval, lhs.getValue().compareTo(rhs.getValue()) > 0 ? lhs.getValue() : rhs.getValue());
+    }
+
+    private boolean like(BigDecimal a, BigDecimal b) {
+        if (a == null || b == null) return Objects.equals(a,b);
+        return a.compareTo(b) == 0;
+    }
+
+    private LocalDateSegment<BigDecimal> kombiner(LocalDateInterval i, LocalDateSegment<BigDecimal> lhs, LocalDateSegment<BigDecimal> rhs) {
+        if (lhs == null)
+            return rhs;
+        if (rhs == null)
+            return lhs;
+        return new LocalDateSegment<>(i, lhs.getValue());
     }
 
 }
