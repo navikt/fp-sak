@@ -52,16 +52,26 @@ public class BeregningDtoTjeneste {
             // Trenger ikke inntektsmeldinger på orginalt grunnlag
             BeregningsgrunnlagGrunnlagDto orginaltBG = BehandlingslagerTilKalkulusMapper.mapGrunnlag(orginaltGrunnlag.get(), Collections.emptyList());
             BeregningsgrunnlagGUIInput inputMedOrginaltBG = inputMedBg.medBeregningsgrunnlagGrunnlagFraForrigeBehandling(orginaltBG);
-            return leggTilFordelBeregningsgrunnlag(inputMedOrginaltBG);
+            return leggTilTilstandgrunnlag(inputMedOrginaltBG);
         } else {
-            return leggTilFordelBeregningsgrunnlag(inputMedBg);
+            return leggTilTilstandgrunnlag(inputMedBg);
         }
     }
 
-    private BeregningsgrunnlagGUIInput leggTilFordelBeregningsgrunnlag(BeregningsgrunnlagGUIInput input) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(input.getKoblingReferanse().getKoblingId(), BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING);
+    private BeregningsgrunnlagGUIInput leggTilTilstandgrunnlag(BeregningsgrunnlagGUIInput input) {
+        KoblingReferanse ref = input.getKoblingReferanse();
+
+        // Fakta om beregning
+        Optional<BeregningsgrunnlagGrunnlagEntitet> kofakbergGrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagForPreutfylling(ref.getKoblingId(), ref.getOriginalKoblingId(),
+            BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER, BeregningsgrunnlagTilstand.KOFAKBER_UT);
+        BeregningsgrunnlagGUIInput inputMedBGKofakber = kofakbergGrunnlag.map(gr -> BehandlingslagerTilKalkulusMapper.mapGrunnlag(gr, input.getInntektsmeldinger()))
+            .map(input::medBeregningsgrunnlagGrunnlagFraFaktaOmBeregning).orElse(input);
+
+
+        // Fordeling
+        Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId(), BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING);
         return sisteBg.map(gr -> BehandlingslagerTilKalkulusMapper.mapGrunnlag(gr, input.getInntektsmeldinger()))
-            .map(input::medBeregningsgrunnlagGrunnlagFraFordel).orElse(input);
+            .map(inputMedBGKofakber::medBeregningsgrunnlagGrunnlagFraFordel).orElse(inputMedBGKofakber);
     }
 
 }
