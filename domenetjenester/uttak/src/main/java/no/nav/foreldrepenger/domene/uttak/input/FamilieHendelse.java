@@ -11,12 +11,12 @@ public class FamilieHendelse {
     private final LocalDate fødselsdato;
     private final LocalDate omsorgsovertakelse;
     private final List<Barn> barna;
-    private final int antallBarn;
+    private final Integer antallBarn;
     private final LocalDate ankomstNorge;
     private final boolean stebarnsadopsjon;
 
     private FamilieHendelse(List<Barn> barna,
-                            int antallBarn,
+                            Integer antallBarn,
                             LocalDate termindato,
                             LocalDate fødselsdato,
                             LocalDate omsorgsovertakelse,
@@ -34,13 +34,13 @@ public class FamilieHendelse {
     public static FamilieHendelse forFødsel(LocalDate termindato,
                                             LocalDate fødselsdato,
                                             List<Barn> barna,
-                                            int antallBarn) {
+                                            Integer antallBarn) {
         return new FamilieHendelse(barna, antallBarn, termindato, fødselsdato, null, null, false);
     }
 
     public static FamilieHendelse forAdopsjonOmsorgsovertakelse(LocalDate omsorgsovertakelse,
                                                                 List<Barn> barna,
-                                                                int antallBarn,
+                                                                Integer antallBarn,
                                                                 LocalDate ankomstNorge,
                                                                 boolean stebarnsadopsjon) {
         Objects.requireNonNull(omsorgsovertakelse, "omsorgsovertakelse");
@@ -63,8 +63,8 @@ public class FamilieHendelse {
         return Optional.ofNullable(omsorgsovertakelse);
     }
 
-    public int getAntallBarn() {
-        return antallBarn;
+    public Optional<Integer> getAntallBarn() {
+        return Optional.ofNullable(antallBarn);
     }
 
     public LocalDate getFamilieHendelseDato() {
@@ -89,7 +89,7 @@ public class FamilieHendelse {
         return (int)getBarna().stream().filter(b -> b.getDødsdato().isEmpty()).count();
     }
 
-    public LocalDate sisteBarnsDød() {
-        return getBarna().stream().filter(b -> b.getDødsdato().isPresent()).map(b -> b.getDødsdato().get()).max(LocalDate::compareTo).get();
+    public Optional<LocalDate> sisteBarnsDød() {
+        return getBarna().stream().filter(b -> b.getDødsdato().isPresent()).map(b -> b.getDødsdato().get()).max(LocalDate::compareTo);
     }
 }

@@ -53,6 +53,8 @@ public class StønadskontoRegelOversetter {
         } else {
             grunnlagBuilder.medOmsorgsovertakelseDato(gjeldendeFamilieHendelse.getOmsorgsovertakelse().orElseThrow());
         }
-        grunnlagBuilder.medDødsdato(gjeldendeFamilieHendelse.sisteBarnsDød());
+        if(gjeldendeFamilieHendelse.sisteBarnsDød().isPresent()){
+            grunnlagBuilder.medDødsdato(gjeldendeFamilieHendelse.sisteBarnsDød().get());
+        }
     }
 }
