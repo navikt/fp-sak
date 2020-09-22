@@ -450,6 +450,15 @@ public class BeregningsgrunnlagRepository {
         return false;
     }
 
+    /**
+     *
+     * @param behandlingId id på nåværende behandling
+     * @param originalBehandlingId id på orginal behandling, om den finnes.
+     * @param forrigeTilstand tilstanden før aksjonspunkt er løst (altså tilstanden som returneres fra steget)
+     * @param nesteTilstand tilstanden etter at aksjonspunktet er løst.
+     * @return finner grunnlaget som skal brukes til preutfylling i GUI. Enten det forrige grunnlaget som ble
+     * hadde denne tilstanden eller grunlaget i orginalbehandlingen som hadde denne tilstanden om det finnes.
+     */
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentBeregningsgrunnlagForPreutfylling(Long behandlingId, Optional<Long> originalBehandlingId,
                                                                                              BeregningsgrunnlagTilstand forrigeTilstand, BeregningsgrunnlagTilstand nesteTilstand) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBeregningsgrunnlag = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
