@@ -5,6 +5,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class FastsattBrukersAndel {
 
@@ -19,6 +20,7 @@ public class FastsattBrukersAndel {
     @Max(Integer.MAX_VALUE)
     private Integer fastsattBeløp;
     @NotNull
+    @ValidKodeverk
     private Inntektskategori inntektskategori;
 
     FastsattBrukersAndel() {
