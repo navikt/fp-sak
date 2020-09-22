@@ -71,6 +71,6 @@ public class DatoerGrunnlagBygger {
     }
 
     private boolean erAlleBarnDøde(ForeldrepengerGrunnlag fpGrunnlag) {
-        return fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().erAlleBarnDøde();
+        return fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().antallLevendeBarn() == 0;
     }
 }

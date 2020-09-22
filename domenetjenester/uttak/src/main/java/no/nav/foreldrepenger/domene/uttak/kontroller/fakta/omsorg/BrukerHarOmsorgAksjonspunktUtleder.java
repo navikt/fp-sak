@@ -70,7 +70,7 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
         var bekreftetFH = familieHendelser.getBekreftetFamilieHendelse();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
 
-        if (familieHendelser.getGjeldendeFamilieHendelse().erAlleBarnDøde()) {
+        if (familieHendelser.getGjeldendeFamilieHendelse().antallLevendeBarn() == 0) {
             return List.of();
         }
 

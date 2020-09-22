@@ -26,7 +26,7 @@ public class StønadskontoRegelOversetter {
         var annenForeldreHarRett = UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartsGjeldendeUttaksplan);
 
         var grunnlagBuilder = BeregnKontoerGrunnlag.builder()
-            .medAntallBarn(familieHendelse.getAntallBarn())
+            .medAntallLevendeBarn(familieHendelse.antallLevendeBarn())
             .medDekningsgrad(map(fagsakRelasjon.getGjeldendeDekningsgrad().getVerdi()));
 
         leggTilFamileHendelseDatoer(grunnlagBuilder, familieHendelse, fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel());
@@ -53,5 +53,6 @@ public class StønadskontoRegelOversetter {
         } else {
             grunnlagBuilder.medOmsorgsovertakelseDato(gjeldendeFamilieHendelse.getOmsorgsovertakelse().orElseThrow());
         }
+        grunnlagBuilder.medDødsdato(gjeldendeFamilieHendelse.sisteBarnsDød());
     }
 }

@@ -85,7 +85,11 @@ public class FamilieHendelse {
         return stebarnsadopsjon;
     }
 
-    public boolean erAlleBarnDøde() {
-        return getBarna().stream().allMatch(b -> b.getDødsdato().isPresent());
+    public Integer antallLevendeBarn() {
+        return (int)getBarna().stream().filter(b -> b.getDødsdato().isEmpty()).count();
+    }
+
+    public LocalDate sisteBarnsDød() {
+        return getBarna().stream().filter(b -> b.getDødsdato().isPresent()).map(b -> b.getDødsdato().get()).max(LocalDate::compareTo).get();
     }
 }
