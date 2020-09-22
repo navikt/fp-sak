@@ -97,9 +97,8 @@ public class OppgaveRedirectTjenesteTest {
     @Test
     public void skal_lage_url_med_behandlingsid_og_saksnummer_når_oppgave_finnes() throws ServletException, IOException {
         var behandlingId = 11L;
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
-        Whitebox.setInternalState(fagsak, "id", 5l);
-        Whitebox.setInternalState(fagsak, "saksnummer", saksnummer);
+        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null, null, saksnummer);
+        fagsak.setId(5l);
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
         Whitebox.setInternalState(behandling, "id", behandlingId);
         OppgaveBehandlingKobling kobling = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1", saksnummer, behandlingId);

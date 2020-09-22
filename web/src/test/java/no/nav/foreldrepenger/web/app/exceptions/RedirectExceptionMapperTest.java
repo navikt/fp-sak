@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,11 +25,7 @@ public class RedirectExceptionMapperTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-
-        exceptionMapper = new RedirectExceptionMapper();
-        Whitebox.setInternalState(exceptionMapper, "loadBalancerUrl", "https://erstatter.nav.no");
-        Whitebox.setInternalState(exceptionMapper, "generalRestExceptionMapper", generalRestExceptionMapper);
-
+        exceptionMapper = new RedirectExceptionMapper("https://erstatter.nav.no", generalRestExceptionMapper);
         ContextPathHolder.instance("/fpsak");
     }
 

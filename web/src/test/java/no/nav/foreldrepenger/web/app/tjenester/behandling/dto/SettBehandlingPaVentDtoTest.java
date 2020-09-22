@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;

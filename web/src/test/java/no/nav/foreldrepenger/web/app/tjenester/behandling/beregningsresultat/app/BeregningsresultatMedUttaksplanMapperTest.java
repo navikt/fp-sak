@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -63,7 +63,8 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     private VirksomhetTjeneste virksomhetTjeneste = Mockito.mock(VirksomhetTjeneste.class);
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjenesteMock = Mockito.mock(InntektArbeidYtelseTjeneste.class);
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(null, virksomhetTjeneste);
-    private BeregningsresultatMedUttaksplanMapper beregningsresultatMedUttaksplanMapper = new BeregningsresultatMedUttaksplanMapper(arbeidsgiverTjeneste, inntektArbeidYtelseTjenesteMock);
+    private BeregningsresultatMedUttaksplanMapper beregningsresultatMedUttaksplanMapper = new BeregningsresultatMedUttaksplanMapper(
+            arbeidsgiverTjeneste, inntektArbeidYtelseTjenesteMock);
 
     @Test
     public void skalLageDto() {
@@ -71,7 +72,8 @@ public class BeregningsresultatMedUttaksplanMapperTest {
         Behandlingsresultat.opprettFor(behandling);
         BehandlingBeregningsresultatEntitet beregningsresultat = lagBeregningsresultatAggregatFP(behandling); // Beregingsresultat uten perioder
 
-        BeregningsresultatMedUttaksplanDto dto = beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(behandling, beregningsresultat, Optional.empty());
+        BeregningsresultatMedUttaksplanDto dto = beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(behandling,
+                beregningsresultat, Optional.empty());
 
         assertThat(dto.getSokerErMor()).isTrue();
         assertThat(dto.getPerioder()).isEmpty();
@@ -81,14 +83,17 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     public void skalLageEnPeriodePerBeregningsresultatPeriode() {
         Behandling behandling = lagBehandling(); // Behandling
         Behandlingsresultat.opprettFor(behandling);
-        BeregningsresultatEntitet beregningsresultat = lagBeregningsresultatAggregatFP(behandling).getBgBeregningsresultatFP(); // Beregingsresultat uten perioder
+        BeregningsresultatEntitet beregningsresultat = lagBeregningsresultatAggregatFP(behandling).getBgBeregningsresultatFP(); // Beregingsresultat
+                                                                                                                                // uten perioder
         Arbeidsgiver virksomhet = arbeidsgiver("123");
         var aktivitetEntitet = ordinærtArbeidsforholdUttakAktivitet(virksomhet, InternArbeidsforholdRef.nyRef());
-        var uttakResultat = lagUttakPeriodeMedEnPeriode(Collections.singletonList(aktivitetEntitet)); // Uttaksplan med én periode som inneholder de to beregningsresultatperiodene
+        var uttakResultat = lagUttakPeriodeMedEnPeriode(Collections.singletonList(aktivitetEntitet)); // Uttaksplan med én periode som inneholder de
+                                                                                                      // to beregningsresultatperiodene
 
         lagP1(beregningsresultat); // Legg til en periode
 
-        List<BeregningsresultatPeriodeDto> periodeDtoer = beregningsresultatMedUttaksplanMapper.lagPerioder(behandling.getId(), beregningsresultat, Optional.of(uttakResultat));
+        List<BeregningsresultatPeriodeDto> periodeDtoer = beregningsresultatMedUttaksplanMapper.lagPerioder(behandling.getId(), beregningsresultat,
+                Optional.of(uttakResultat));
 
         assertThat(periodeDtoer).hasSize(1);
 
@@ -113,17 +118,18 @@ public class BeregningsresultatMedUttaksplanMapperTest {
 
     @Test
     public void skalLageEnPeriodePerBeregningsresultatPeriodeUtenUttakResultat() {
-        //Arrange
+        // Arrange
         Behandling behandling = lagBehandling(); // Behandling
         Behandlingsresultat.opprettFor(behandling);
         BehandlingBeregningsresultatEntitet beregningsresultat = lagBeregningsresultatAggregatFP(behandling); // Beregingsresultat uten perioder
 
         BeregningsresultatPeriode bgrPeriode = lagP1(beregningsresultat.getBgBeregningsresultatFP()); // Legg til en periode
         lagAndelTilSøker(bgrPeriode, 1000, arbeidsgiver("12345"));
-        //Act
-        BeregningsresultatMedUttaksplanDto uttaksplan = beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(behandling, beregningsresultat, Optional.empty());
+        // Act
+        BeregningsresultatMedUttaksplanDto uttaksplan = beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(behandling,
+                beregningsresultat, Optional.empty());
 
-        //Assert
+        // Assert
         List<BeregningsresultatPeriodeDto> perioder = List.of(uttaksplan.getPerioder());
         assertThat(uttaksplan.getOpphoersdato()).isNull();
 
@@ -167,9 +173,9 @@ public class BeregningsresultatMedUttaksplanMapperTest {
 
     private Virksomhet lagVirksomhet(String orgnr) {
         var virksomhet = new Virksomhet.Builder()
-            .medOrgnr(orgnr)
-            .medNavn("Virknavn " + orgnr)
-            .build();
+                .medOrgnr(orgnr)
+                .medNavn("Virknavn " + orgnr)
+                .build();
         when(virksomhetTjeneste.hentOrganisasjon(orgnr)).thenReturn(virksomhet);
 
         return virksomhet;
@@ -189,17 +195,19 @@ public class BeregningsresultatMedUttaksplanMapperTest {
         BeregningsresultatPeriode beregningsresultatPeriode = lagP1(beregningsresultat.getBgBeregningsresultatFP()); // Periode uten andeler
         InternArbeidsforholdRef arbeidsforholdId = uttakAktivitet1.getArbeidsforholdRef();
         lagAndelTilSøker(beregningsresultatPeriode, 100, uttakAktivitet1.getArbeidsgiver().get(),
-            arbeidsforholdId); // Legg til en andel til søker
+                arbeidsforholdId); // Legg til en andel til søker
 
-        List<BeregningsresultatPeriodeAndelDto> andeler = beregningsresultatMedUttaksplanMapper.lagAndeler(beregningsresultatPeriode, Optional.of(uttakResultat),
-            Collections.emptyMap(), Optional.empty());
+        List<BeregningsresultatPeriodeAndelDto> andeler = beregningsresultatMedUttaksplanMapper.lagAndeler(beregningsresultatPeriode,
+                Optional.of(uttakResultat),
+                Collections.emptyMap(), Optional.empty());
 
         assertThat(andeler).hasSize(1);
 
         // Arrange 2: Andel for søker og arbeidsgiver
         lagAndelTilArbeidsgiver(beregningsresultatPeriode, virksomhet, 100, arbeidsforholdId); // Legg til en andel til arbeidsgiver
 
-        andeler = beregningsresultatMedUttaksplanMapper.lagAndeler(beregningsresultatPeriode, Optional.of(uttakResultat), Collections.emptyMap(), Optional.empty());
+        andeler = beregningsresultatMedUttaksplanMapper.lagAndeler(beregningsresultatPeriode, Optional.of(uttakResultat), Collections.emptyMap(),
+                Optional.empty());
 
         assertThat(andeler).hasSize(1);
         assertAndelArbeidsgiver(andeler, virksomhet.getIdentifikator(), 100);
@@ -218,13 +226,20 @@ public class BeregningsresultatMedUttaksplanMapperTest {
 
         BehandlingBeregningsresultatEntitet beregningsresultat = lagBeregningsresultatAggregatFP(behandling); // Beregingsresultat
         BeregningsresultatPeriode beregningsresultatPeriode = lagP1(beregningsresultat.getBgBeregningsresultatFP()); // Periode uten andeler
-        lagAndelTilSøker(beregningsresultatPeriode, 100, uttakAktivitet1.getArbeidsgiver().get(), uttakAktivitet1.getArbeidsforholdRef()); // Legg til en andel til søker
-        lagAndelTilSøker(beregningsresultatPeriode, 200, uttakAktivitet2.getArbeidsgiver().get(), uttakAktivitet2.getArbeidsforholdRef()); // Legg til en andel til søker
+        lagAndelTilSøker(beregningsresultatPeriode, 100, uttakAktivitet1.getArbeidsgiver().get(), uttakAktivitet1.getArbeidsforholdRef()); // Legg til
+                                                                                                                                           // en andel
+                                                                                                                                           // til
+                                                                                                                                           // søker
+        lagAndelTilSøker(beregningsresultatPeriode, 200, uttakAktivitet2.getArbeidsgiver().get(), uttakAktivitet2.getArbeidsforholdRef()); // Legg til
+                                                                                                                                           // en andel
+                                                                                                                                           // til
+                                                                                                                                           // søker
         lagAndelTilArbeidsgiver(beregningsresultatPeriode, virksomhet1, 200, uttakAktivitet1.getArbeidsforholdRef());
         lagAndelTilArbeidsgiver(beregningsresultatPeriode, virksomhet2, 100, uttakAktivitet2.getArbeidsforholdRef());
 
-        List<BeregningsresultatPeriodeAndelDto> andeler = beregningsresultatMedUttaksplanMapper.lagAndeler(beregningsresultatPeriode, Optional.of(uttakResultat),
-            Collections.emptyMap(), Optional.empty());
+        List<BeregningsresultatPeriodeAndelDto> andeler = beregningsresultatMedUttaksplanMapper.lagAndeler(beregningsresultatPeriode,
+                Optional.of(uttakResultat),
+                Collections.emptyMap(), Optional.empty());
 
         assertThat(andeler).hasSize(2);
         assertAndelArbeidsgiver(andeler, virksomhet1.getIdentifikator(), 200);
@@ -237,9 +252,8 @@ public class BeregningsresultatMedUttaksplanMapperTest {
         Behandling behandling = lagBehandling();
         Behandlingsresultat.opprettFor(behandling);
         var uttakResultat = lagUttakPeriodeMedEnPeriode(List.of(
-            new ForeldrepengerUttakAktivitet(UttakArbeidType.ANNET),
-            new ForeldrepengerUttakAktivitet(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE))
-        );
+                new ForeldrepengerUttakAktivitet(UttakArbeidType.ANNET),
+                new ForeldrepengerUttakAktivitet(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE)));
 
         BehandlingBeregningsresultatEntitet beregningsresultat = lagBeregningsresultatAggregatFP(behandling); // Beregingsresultat
         BeregningsresultatPeriode beregningsresultatPeriode = lagP1(beregningsresultat.getBgBeregningsresultatFP()); // Periode uten andeler
@@ -247,12 +261,15 @@ public class BeregningsresultatMedUttaksplanMapperTest {
         lagAndelTilSøkerMedAktivitetStatus(beregningsresultatPeriode, 1000, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
         lagAndelTilSøkerMedAktivitetStatus(beregningsresultatPeriode, 2000, AktivitetStatus.DAGPENGER);
 
-        List<BeregningsresultatPeriodeAndelDto> andeler = beregningsresultatMedUttaksplanMapper.lagAndeler(beregningsresultatPeriode, Optional.of(uttakResultat),
-            Collections.emptyMap(), Optional.empty());
+        List<BeregningsresultatPeriodeAndelDto> andeler = beregningsresultatMedUttaksplanMapper.lagAndeler(beregningsresultatPeriode,
+                Optional.of(uttakResultat),
+                Collections.emptyMap(), Optional.empty());
 
         assertThat(andeler).hasSize(2);
-        BeregningsresultatPeriodeAndelDto andel1 = andeler.stream().filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)).findFirst().orElse(null);
-        BeregningsresultatPeriodeAndelDto andel2 = andeler.stream().filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.DAGPENGER)).findFirst().orElse(null);
+        BeregningsresultatPeriodeAndelDto andel1 = andeler.stream()
+                .filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)).findFirst().orElse(null);
+        BeregningsresultatPeriodeAndelDto andel2 = andeler.stream().filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.DAGPENGER)).findFirst()
+                .orElse(null);
         assertThat(andel1.getTilSoker()).isEqualTo(1000);
         assertThat(andel2.getTilSoker()).isEqualTo(2000);
         assertThat(andel1.getRefusjon()).isEqualTo(0);
@@ -280,8 +297,9 @@ public class BeregningsresultatMedUttaksplanMapperTest {
         lagAndelTilArbeidsgiver(beregningsresultatPeriode, virksomhet, 250, uttakAktivitet.getArbeidsforholdRef());
         lagAndelTilArbeidsgiver(beregningsresultatPeriode, virksomhet, 500, uttakAktivitet.getArbeidsforholdRef());
 
-        List<BeregningsresultatPeriodeAndelDto> andeler = beregningsresultatMedUttaksplanMapper.lagAndeler(beregningsresultatPeriode, Optional.of(uttakResultat),
-            Collections.emptyMap(), Optional.empty());
+        List<BeregningsresultatPeriodeAndelDto> andeler = beregningsresultatMedUttaksplanMapper.lagAndeler(beregningsresultatPeriode,
+                Optional.of(uttakResultat),
+                Collections.emptyMap(), Optional.empty());
 
         assertThat(andeler).hasSize(1);
         assertThat(andeler.get(0).getTilSoker()).isEqualTo(1500);
@@ -314,23 +332,28 @@ public class BeregningsresultatMedUttaksplanMapperTest {
         lagAndelTilArbeidsgiver(beregningsresultatPeriode2, uttakAktivitet3.getArbeidsgiver().get(), 250, uttakAktivitet3.getArbeidsforholdRef());
         lagAndelTilSøker(beregningsresultatPeriode3, 0, uttakAktivitet3.getArbeidsgiver().get(), uttakAktivitet3.getArbeidsforholdRef());
 
-        //Act
-        List<BeregningsresultatPeriodeDto> andeler = beregningsresultatMedUttaksplanMapper.lagPerioder(behandling.getId(), beregningsresultat.getBgBeregningsresultatFP(), Optional.of(uttakResultat));
+        // Act
+        List<BeregningsresultatPeriodeDto> andeler = beregningsresultatMedUttaksplanMapper.lagPerioder(behandling.getId(),
+                beregningsresultat.getBgBeregningsresultatFP(), Optional.of(uttakResultat));
 
-        //Assert
-        andeler.stream().flatMap(a -> Arrays.stream(a.getAndeler())).filter(andel -> andel.getArbeidsgiverOrgnr().equals(virksomhet1.getIdentifikator()))
-            .forEach(andel1 -> assertThat(andel1.getSisteUtbetalingsdato()).isEqualTo(P1_TOM));
-        andeler.stream().flatMap(a -> Arrays.stream(a.getAndeler())).filter(andel -> andel.getArbeidsgiverOrgnr().equals(virksomhet2.getIdentifikator()))
-            .forEach(andel1 -> assertThat(andel1.getSisteUtbetalingsdato()).isEqualTo(P2_TOM));
-        andeler.stream().flatMap(a -> Arrays.stream(a.getAndeler())).filter(andel -> andel.getArbeidsgiverOrgnr().equals(virksomhet3.getIdentifikator()))
-            .forEach(andel1 -> assertThat(andel1.getSisteUtbetalingsdato()).isEqualTo(P2_TOM));
+        // Assert
+        andeler.stream().flatMap(a -> Arrays.stream(a.getAndeler()))
+                .filter(andel -> andel.getArbeidsgiverOrgnr().equals(virksomhet1.getIdentifikator()))
+                .forEach(andel1 -> assertThat(andel1.getSisteUtbetalingsdato()).isEqualTo(P1_TOM));
+        andeler.stream().flatMap(a -> Arrays.stream(a.getAndeler()))
+                .filter(andel -> andel.getArbeidsgiverOrgnr().equals(virksomhet2.getIdentifikator()))
+                .forEach(andel1 -> assertThat(andel1.getSisteUtbetalingsdato()).isEqualTo(P2_TOM));
+        andeler.stream().flatMap(a -> Arrays.stream(a.getAndeler()))
+                .filter(andel -> andel.getArbeidsgiverOrgnr().equals(virksomhet3.getIdentifikator()))
+                .forEach(andel1 -> assertThat(andel1.getSisteUtbetalingsdato()).isEqualTo(P2_TOM));
     }
 
-    private ForeldrepengerUttakAktivitet ordinærtArbeidsforholdUttakAktivitet(Arbeidsgiver virksomhet, InternArbeidsforholdRef arbeidsforholdRef) {
+    private static ForeldrepengerUttakAktivitet ordinærtArbeidsforholdUttakAktivitet(Arbeidsgiver virksomhet,
+            InternArbeidsforholdRef arbeidsforholdRef) {
         return new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, virksomhet, arbeidsforholdRef);
     }
 
-    private void assertAndelArbeidsgiver(List<BeregningsresultatPeriodeAndelDto> andeler, String arbeidsgiver, int forventetRefusjon) {
+    private static void assertAndelArbeidsgiver(List<BeregningsresultatPeriodeAndelDto> andeler, String arbeidsgiver, int forventetRefusjon) {
         Optional<BeregningsresultatPeriodeAndelDto> andel = hentAndelForArbeidgiver(andeler, arbeidsgiver);
         assertThat(andel).as("arbeidsgiverAndel").hasValueSatisfying(a -> {
             assertThat(a.getArbeidsgiverOrgnr()).as("arbeidsgiver").isEqualTo(arbeidsgiver);
@@ -338,21 +361,22 @@ public class BeregningsresultatMedUttaksplanMapperTest {
         });
     }
 
-    private Optional<BeregningsresultatPeriodeAndelDto> hentAndelForArbeidgiver(List<BeregningsresultatPeriodeAndelDto> andeler, String arbeidsgiver) {
+    private static Optional<BeregningsresultatPeriodeAndelDto> hentAndelForArbeidgiver(List<BeregningsresultatPeriodeAndelDto> andeler,
+            String arbeidsgiver) {
         return andeler.stream().filter(a -> a.getArbeidsgiverOrgnr().equals(arbeidsgiver)).findFirst();
     }
 
     private static Behandling lagBehandling() {
         NavBruker søker = NavBruker.opprettNy(new Personinfo.Builder()
-            .medAktørId(AKTØR_ID)
-            .medPersonIdent(PersonIdent.fra("42424242424"))
-            .medNavn("42")
-            .medFødselsdato(LocalDate.of(42, 42 % 12 + 1, 42 % 31 + 1))
-            .medNavBrukerKjønn(NavBrukerKjønn.UDEFINERT)
-            .build());
+                .medAktørId(AKTØR_ID)
+                .medPersonIdent(PersonIdent.fra("42424242424"))
+                .medNavn("42")
+                .medFødselsdato(LocalDate.of(42, 42 % 12 + 1, 42 % 31 + 1))
+                .medNavBrukerKjønn(NavBrukerKjønn.UDEFINERT)
+                .build());
         Fagsak fagsak = FagsakBuilder.nyForeldrepengerForMor().medBruker(søker).build();
         var behandling = Behandling.forFørstegangssøknad(fagsak)
-            .build();
+                .build();
         Whitebox.setInternalState(behandling, "id", 1L);
         return behandling;
     }
@@ -361,49 +385,50 @@ public class BeregningsresultatMedUttaksplanMapperTest {
         return lagUttakPeriodeMedEnPeriode(P1_FOM, P1_TOM, uttakAktiviteter);
     }
 
-    private static ForeldrepengerUttak lagUttakPeriodeMedEnPeriode(LocalDate p1Fom, LocalDate p1Tom, List<ForeldrepengerUttakAktivitet> uttakAktiviteter) {
+    private static ForeldrepengerUttak lagUttakPeriodeMedEnPeriode(LocalDate p1Fom, LocalDate p1Tom,
+            List<ForeldrepengerUttakAktivitet> uttakAktiviteter) {
         var periodeAktiviteter = uttakAktiviteter.stream()
-            .map(ua -> new ForeldrepengerUttakPeriodeAktivitet.Builder()
-                .medAktivitet(ua)
-                .medTrekkonto(StønadskontoType.FELLESPERIODE)
-                .medTrekkdager(new Trekkdager(20))
-                .medArbeidsprosent(BigDecimal.ZERO)
-                .build())
-            .collect(Collectors.toList());
+                .map(ua -> new ForeldrepengerUttakPeriodeAktivitet.Builder()
+                        .medAktivitet(ua)
+                        .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                        .medTrekkdager(new Trekkdager(20))
+                        .medArbeidsprosent(BigDecimal.ZERO)
+                        .build())
+                .collect(Collectors.toList());
         var uttakPeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(p1Fom, p1Tom)
-            .medResultatType(PeriodeResultatType.INNVILGET)
-            .medAktiviteter(periodeAktiviteter)
-            .build();
+                .medTidsperiode(p1Fom, p1Tom)
+                .medResultatType(PeriodeResultatType.INNVILGET)
+                .medAktiviteter(periodeAktiviteter)
+                .build();
         return new ForeldrepengerUttak(List.of(uttakPeriode));
     }
 
     private static BehandlingBeregningsresultatEntitet lagBeregningsresultatAggregatFP(Behandling behandling) {
         BeregningsresultatEntitet bgres = BeregningsresultatEntitet.builder()
-            .medRegelInput("")
-            .medRegelSporing("")
-            .build();
+                .medRegelInput("")
+                .medRegelSporing("")
+                .build();
         BehandlingBeregningsresultatBuilder builder = BehandlingBeregningsresultatBuilder.oppdatere(Optional.empty())
-            .medBgBeregningsresultatFP(bgres);
+                .medBgBeregningsresultatFP(bgres);
         return builder.build(behandling.getId());
     }
 
     private static BeregningsresultatPeriode lagP1(BeregningsresultatEntitet beregningsresultat) {
         return BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(P1_FOM, P1_TOM)
-            .build(beregningsresultat);
+                .medBeregningsresultatPeriodeFomOgTom(P1_FOM, P1_TOM)
+                .build(beregningsresultat);
     }
 
     private static BeregningsresultatPeriode lagP2(BeregningsresultatEntitet beregningsresultat) {
         return BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(P2_FOM, P2_TOM)
-            .build(beregningsresultat);
+                .medBeregningsresultatPeriodeFomOgTom(P2_FOM, P2_TOM)
+                .build(beregningsresultat);
     }
 
     private static BeregningsresultatPeriode lagP3(BeregningsresultatEntitet beregningsresultat) {
         return BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(P3_FOM, P3_TOM)
-            .build(beregningsresultat);
+                .medBeregningsresultatPeriodeFomOgTom(P3_FOM, P3_TOM)
+                .build(beregningsresultat);
     }
 
     private static BeregningsresultatAndel lagAndelTilArbeidsgiver(BeregningsresultatPeriode periode, Arbeidsgiver arbeidsgiver, int refusjon) {
@@ -411,50 +436,52 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     private static BeregningsresultatAndel lagAndelTilArbeidsgiver(BeregningsresultatPeriode periode,
-                                                                   Arbeidsgiver arbeidsgiver,
-                                                                   int refusjon,
-                                                                   InternArbeidsforholdRef arbeidsforholdId) {
+            Arbeidsgiver arbeidsgiver,
+            int refusjon,
+            InternArbeidsforholdRef arbeidsforholdId) {
         return BeregningsresultatAndel.builder()
-            .medArbeidsgiver(arbeidsgiver)
-            .medDagsats(refusjon)
-            .medArbeidsforholdRef(arbeidsforholdId)
-            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-            .medDagsatsFraBg(refusjon)
-            .medStillingsprosent(BigDecimal.valueOf(100))
-            .medUtbetalingsgrad(BigDecimal.valueOf(100))
-            .medBrukerErMottaker(false)
-            .build(periode);
+                .medArbeidsgiver(arbeidsgiver)
+                .medDagsats(refusjon)
+                .medArbeidsforholdRef(arbeidsforholdId)
+                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+                .medDagsatsFraBg(refusjon)
+                .medStillingsprosent(BigDecimal.valueOf(100))
+                .medUtbetalingsgrad(BigDecimal.valueOf(100))
+                .medBrukerErMottaker(false)
+                .build(periode);
     }
 
     private static BeregningsresultatAndel lagAndelTilSøker(BeregningsresultatPeriode periode, int tilSøker, Arbeidsgiver virksomhet) {
         return lagAndelTilSøker(periode, tilSøker, virksomhet, null);
     }
 
-    private static BeregningsresultatAndel lagAndelTilSøker(BeregningsresultatPeriode periode, int tilSøker, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdId) {
+    private static BeregningsresultatAndel lagAndelTilSøker(BeregningsresultatPeriode periode, int tilSøker, Arbeidsgiver arbeidsgiver,
+            InternArbeidsforholdRef arbeidsforholdId) {
         return BeregningsresultatAndel.builder()
-            .medArbeidsgiver(arbeidsgiver)
-            .medDagsats(tilSøker)
-            .medArbeidsforholdRef(arbeidsforholdId)
-            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-            .medDagsatsFraBg(tilSøker)
-            .medStillingsprosent(BigDecimal.valueOf(100))
-            .medUtbetalingsgrad(BigDecimal.valueOf(100))
-            .medBrukerErMottaker(true)
-            .build(periode);
+                .medArbeidsgiver(arbeidsgiver)
+                .medDagsats(tilSøker)
+                .medArbeidsforholdRef(arbeidsforholdId)
+                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+                .medDagsatsFraBg(tilSøker)
+                .medStillingsprosent(BigDecimal.valueOf(100))
+                .medUtbetalingsgrad(BigDecimal.valueOf(100))
+                .medBrukerErMottaker(true)
+                .build(periode);
     }
 
-    private static BeregningsresultatAndel lagAndelTilSøkerMedAktivitetStatus(BeregningsresultatPeriode periode, int tilSøker, AktivitetStatus aktivitetStatus) {
+    private static BeregningsresultatAndel lagAndelTilSøkerMedAktivitetStatus(BeregningsresultatPeriode periode, int tilSøker,
+            AktivitetStatus aktivitetStatus) {
         return BeregningsresultatAndel.builder()
-            .medArbeidsgiver(null)
-            .medDagsats(tilSøker)
-            .medAktivitetStatus(aktivitetStatus)
-            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-            .medDagsatsFraBg(tilSøker)
-            .medStillingsprosent(BigDecimal.valueOf(100))
-            .medUtbetalingsgrad(BigDecimal.valueOf(100))
-            .medBrukerErMottaker(true)
-            .build(periode);
+                .medArbeidsgiver(null)
+                .medDagsats(tilSøker)
+                .medAktivitetStatus(aktivitetStatus)
+                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+                .medDagsatsFraBg(tilSøker)
+                .medStillingsprosent(BigDecimal.valueOf(100))
+                .medUtbetalingsgrad(BigDecimal.valueOf(100))
+                .medBrukerErMottaker(true)
+                .build(periode);
     }
 }

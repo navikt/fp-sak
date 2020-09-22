@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
@@ -14,8 +15,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
@@ -48,14 +49,15 @@ public class AksjonspunktRestTjenesteTest {
     private Behandling behandling = mock(Behandling.class);
     private TotrinnTjeneste totrinnTjeneste = mock(TotrinnTjeneste.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(behandling.getUuid()).thenReturn(UUID.randomUUID());
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(behandling);
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
         when(behandling.getStatus()).thenReturn(no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.OPPRETTET);
         doNothing().when(behandlingsutredningApplikasjonTjenesteMock).kanEndreBehandling(anyLong(), anyLong());
-        aksjonspunktRestTjeneste = new AksjonspunktRestTjeneste(aksjonspunktApplikasjonTjenesteMock, behandlingRepository, behandlingsutredningApplikasjonTjenesteMock, totrinnTjeneste);
+        aksjonspunktRestTjeneste = new AksjonspunktRestTjeneste(aksjonspunktApplikasjonTjenesteMock, behandlingRepository,
+                behandlingsutredningApplikasjonTjenesteMock, totrinnTjeneste);
 
     }
 
@@ -63,12 +65,11 @@ public class AksjonspunktRestTjenesteTest {
     public void skal_bekrefte_terminbekreftelse() throws URISyntaxException {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         aksjonspunkt.add(
-            new BekreftTerminbekreftelseAksjonspunktDto(
-                begrunnelse,
-                termindato,
-                utstedtdato,
-                antallBarn
-                ));
+                new BekreftTerminbekreftelseAksjonspunktDto(
+                        begrunnelse,
+                        termindato,
+                        utstedtdato,
+                        antallBarn));
 
         aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt));
 
@@ -78,13 +79,13 @@ public class AksjonspunktRestTjenesteTest {
     @Test
     public void skal_bekrefte_fødsel() throws URISyntaxException {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
-        UidentifisertBarnDto[] uidentifiserteBarn = {new UidentifisertBarnDto(fødselsdato, null)};
+        UidentifisertBarnDto[] uidentifiserteBarn = { new UidentifisertBarnDto(fødselsdato, null) };
         aksjonspunkt.add(
-            new SjekkManglendeFodselDto(
-                begrunnelse,
-                true,
-                false,
-                List.of(uidentifiserteBarn)));
+                new SjekkManglendeFodselDto(
+                        begrunnelse,
+                        true,
+                        false,
+                        List.of(uidentifiserteBarn)));
 
         aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt));
 
@@ -95,11 +96,11 @@ public class AksjonspunktRestTjenesteTest {
     public void skal_bekrefte_antall_barn() throws URISyntaxException {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         aksjonspunkt.add(
-            new SjekkManglendeFodselDto(
-                begrunnelse,
-                false,
-                false,
-                new ArrayList<>()));
+                new SjekkManglendeFodselDto(
+                        begrunnelse,
+                        false,
+                        false,
+                        new ArrayList<>()));
 
         aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt));
 
@@ -115,27 +116,27 @@ public class AksjonspunktRestTjenesteTest {
         AksjonspunktGodkjenningDto godkjentAksjonspunkt = opprettetGodkjentAksjonspunkt(true);
         aksjonspunktGodkjenningDtos.add(godkjentAksjonspunkt);
         aksjonspunkt.add(
-            new FatterVedtakAksjonspunktDto(
-                begrunnelse,
-                aksjonspunktGodkjenningDtos));
+                new FatterVedtakAksjonspunktDto(
+                        begrunnelse,
+                        aksjonspunktGodkjenningDtos));
 
         aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktApplikasjonTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
 
-    @Test(expected = FunksjonellException.class)
+    @Test
     public void skal_ikke_kunne_bekrefte_andre_aksjonspunkt_ved_status_fatter_vedtak() throws URISyntaxException {
         when(behandling.getStatus()).thenReturn(BehandlingStatus.FATTER_VEDTAK);
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         aksjonspunkt.add(
-            new SjekkManglendeFodselDto(
-                begrunnelse,
-                false,
-                false,
-                new ArrayList<>())
-        );
-        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt));
+                new SjekkManglendeFodselDto(
+                        begrunnelse,
+                        false,
+                        false,
+                        new ArrayList<>()));
+        assertThrows(FunksjonellException.class,
+                () -> aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt)));
     }
 
     private AksjonspunktGodkjenningDto opprettetGodkjentAksjonspunkt(boolean godkjent) {
