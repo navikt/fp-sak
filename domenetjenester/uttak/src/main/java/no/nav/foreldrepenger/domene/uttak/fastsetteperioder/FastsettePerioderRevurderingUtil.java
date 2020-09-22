@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatDokRegelEnti
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.fp.VedtaksperioderHelper;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.SamtidigUttaksprosent;
@@ -19,7 +20,6 @@ public final class FastsettePerioderRevurderingUtil {
 
     private FastsettePerioderRevurderingUtil() {
     }
-
 
     public static List<UttakResultatPeriodeEntitet> perioderFørDato(UttakResultatEntitet opprinneligUttak, LocalDate endringsdato) {
         List<UttakResultatPeriodeEntitet> opprinneligePerioder = opprinneligUttak.getGjeldendePerioder().getPerioder();
@@ -37,6 +37,14 @@ public final class FastsettePerioderRevurderingUtil {
         }
 
         return perioderFør;
+    }
+
+    public static UttakResultatPerioderEntitet kopier(UttakResultatPerioderEntitet perioder) {
+        var nyePerioder = new UttakResultatPerioderEntitet();
+        for (UttakResultatPeriodeEntitet periode : perioder.getPerioder()) {
+            nyePerioder.leggTilPeriode(kopierPeriode(periode));
+        }
+        return perioder;
     }
 
     private static UttakResultatPeriodeEntitet splittPeriode(UttakResultatPeriodeEntitet periode, LocalDate endringsdato) {

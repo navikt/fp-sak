@@ -1,31 +1,11 @@
-package no.nav.foreldrepenger.mottak.vedtak;
+package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.*;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygd;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingOverlappInfotrygdRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.IdentifiserOverlappendeInfotrygdYtelseTjeneste;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
-import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.*;
-import no.nav.foreldrepenger.mottak.vedtak.rest.*;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,23 +14,56 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
+import javax.persistence.EntityManager;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdPSGrunnlag;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
+import no.nav.foreldrepenger.mottak.vedtak.spokelse.SpokelseKlient;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Tema;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.TemaKode;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Vedtak;
+import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
-public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
+public class LoggOverlappEksterneYtelserTjenesteTest {
 
-    private IdentifiserOverlappendeInfotrygdYtelseTjeneste overlappendeInfotrygdYtelseTjeneste;
+    private LoggOverlappEksterneYtelserTjeneste overlappendeInfotrygdYtelseTjeneste;
 
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private final EntityManager entityManager = repoRule.getEntityManager();
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     private BeregningsresultatRepository beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
-    private BehandlingOverlappInfotrygdRepository overlappRepository = new BehandlingOverlappInfotrygdRepository(entityManager);
+    private OverlappVedtakRepository overlappRepository = new OverlappVedtakRepository(entityManager);
 
     @Mock
     private AktørConsumerMedCache aktørConsumerMock;
@@ -58,6 +71,7 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
     private InfotrygdPSGrunnlag infotrygdPSGrTjenesteMock;
     @Mock
     private InfotrygdSPGrunnlag infotrygdSPGrTjenesteMock;
+
 
     private Behandling behandlingFP;
     private LocalDate førsteUttaksdatoFp;
@@ -70,7 +84,8 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         aktørConsumerMock = mock(AktørConsumerMedCache.class);
         infotrygdPSGrTjenesteMock = mock(InfotrygdPSGrunnlag.class);
         infotrygdSPGrTjenesteMock = mock(InfotrygdSPGrunnlag.class);
-        overlappendeInfotrygdYtelseTjeneste = new IdentifiserOverlappendeInfotrygdYtelseTjeneste(beregningsresultatRepository, aktørConsumerMock,infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock , overlappRepository, mock(BehandlingRepository.class));
+        overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsresultatRepository, aktørConsumerMock,infotrygdPSGrTjenesteMock,
+            infotrygdSPGrTjenesteMock, mock(AbakusTjeneste.class), mock(SpokelseKlient.class), overlappRepository, mock(BehandlingRepository.class));
         førsteUttaksdatoFp = LocalDate.now().minusMonths(4).minusWeeks(2);
         førsteUttaksdatoFp = VirkedagUtil.fomVirkedag(førsteUttaksdatoFp);
 
@@ -102,11 +117,12 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(), behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
 
-        // Assert
+            // Assert
+        List<OverlappVedtak> overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).hasSize(1);
-        assertThat(overlappIT.get(0).getPeriodeInfotrygd().getTomDato()).isEqualTo(førsteUttaksdatoFp);
+        assertThat(overlappIT.get(0).getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp);
     }
 
     @Test
@@ -124,9 +140,10 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(), behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
 
         // Assert
+        List<OverlappVedtak> overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).isEmpty();
 
         // Arrange2
@@ -138,11 +155,12 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag2));
 
         // Act
-        List<BehandlingOverlappInfotrygd> overlappIT2 = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(), behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
 
         // Assert
+        List<OverlappVedtak> overlappIT2 = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT2).hasSize(1);
-        assertThat(overlappIT2.get(0).getPeriodeInfotrygd().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(4));
+        assertThat(overlappIT2.get(0).getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(4));
     }
 
     @Test
@@ -168,10 +186,11 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        List<BehandlingOverlappInfotrygd> flereSomOverlapper = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(), behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
 
         // Assert
-        assertThat(flereSomOverlapper).hasSize(2);
+        List<OverlappVedtak> overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        assertThat(overlappIT).hasSize(2);
     }
 
     @Test
@@ -197,11 +216,12 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        List<BehandlingOverlappInfotrygd> flereSomOverlapper = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(), behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
 
         // Assert
-        assertThat(flereSomOverlapper).hasSize(1);
-        assertThat(flereSomOverlapper.get(0).getPeriodeInfotrygd().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(3));
+        List<OverlappVedtak> overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        assertThat(overlappIT).hasSize(1);
+        assertThat(overlappIT.get(0).getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(3));
     }
 
     @Test
@@ -218,10 +238,11 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(), behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
 
         // Assert
-        assertThat(overlappIT).hasSize(0);
+        List<OverlappVedtak> overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        assertThat(overlappIT).isEmpty();
     }
 
     @Test
@@ -234,9 +255,10 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        List<BehandlingOverlappInfotrygd> overlappIT = overlappendeInfotrygdYtelseTjeneste.vurderOmOverlappInfotrygd("", behandlingFP, null);
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(), behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
 
         // Assert
+        List<OverlappVedtak> overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).isEmpty();
     }
 
@@ -244,23 +266,19 @@ public class IdentifiserOverlappendeInfotrygdYtelseTjenesteTest {
         Periode periode= new Periode(fom, tom);
         Tema tema = new Tema(TemaKode.BS, "Pleiepenger");
 
-        Grunnlag grunnlagIT = new Grunnlag(null, tema, null, null, null, null, periode, null, null, null, tom, 0, LocalDate.now().minusMonths(1), LocalDate.now().minusMonths(1), "", vedtakPerioder);
-        return grunnlagIT;
+        return new Grunnlag(null, tema, null, null, null, null, periode, null, null, null, tom, 0, LocalDate.now().minusMonths(1), LocalDate.now().minusMonths(1), "", vedtakPerioder);
     }
 
     public Vedtak lagVedtakForGrunnlag(LocalDate fom, LocalDate tom, int utbetGrad) {
         Periode periode = new Periode(fom, tom);
-        Vedtak vedtak = new Vedtak(periode, utbetGrad);
-
-        return vedtak;
+        return  new Vedtak(periode, utbetGrad);
     }
 
     public Grunnlag lagGrunnlagSPIT(LocalDate fom, LocalDate tom, List<Vedtak> vedtakPerioder) {
         Periode periode= new Periode(fom, tom);
         Tema tema = new Tema(TemaKode.SP, "Sykepenger");
 
-        Grunnlag grunnlagIT = new Grunnlag(null, tema, null, null, null, null, periode, null, null, null, tom, 0, LocalDate.now().minusMonths(1), LocalDate.now().minusMonths(1), "", vedtakPerioder);
-        return grunnlagIT;
+        return new Grunnlag(null, tema, null, null, null, null, periode, null, null, null, tom, 0, LocalDate.now().minusMonths(1), LocalDate.now().minusMonths(1), "", vedtakPerioder);
     }
 
     private BeregningsresultatEntitet lagBeregningsresultatFP(LocalDate periodeFom, LocalDate periodeTom) {

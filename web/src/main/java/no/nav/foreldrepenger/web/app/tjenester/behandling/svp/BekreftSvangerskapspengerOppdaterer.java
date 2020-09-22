@@ -103,7 +103,10 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
     }
 
-    private void oppdaterPermisjonForArbeid(AksjonspunktOppdaterParameter param, InntektArbeidYtelseGrunnlag iayGrunnlag, InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder, SvpArbeidsforholdDto arbeidsforhold) {
+    private void oppdaterPermisjonForArbeid(AksjonspunktOppdaterParameter param,
+                                            InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                            InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder,
+                                            SvpArbeidsforholdDto arbeidsforhold) {
         Optional<Yrkesaktivitet> yrkesaktivitet = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId()))
             .getYrkesaktiviteter().stream()
             .filter(ya -> ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(arbeidsforhold.getArbeidsgiverIdent()))
@@ -113,7 +116,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         if (yrkesaktivitet.isPresent() && velferdspermisjoner != null) {
             List<Permisjon> inkludertePermisjoner = finnGyldigePermisjoner(yrkesaktivitet.get(), velferdspermisjoner);
             YrkesaktivitetBuilder yrkesaktivitetBuilder = aktørArbeidBuilder
-                .getYrkesaktivitetBuilderForNøkkelAvType(Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(yrkesaktivitet.get().getArbeidsforholdRef(), yrkesaktivitet.get().getArbeidsgiver()), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .getYrkesaktivitetBuilderForNøkkelAvType(Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(yrkesaktivitet.get().getArbeidsforholdRef(), yrkesaktivitet.get().getArbeidsgiver()), yrkesaktivitet.get().getArbeidType())
                 .tilbakestillPermisjon();
             inkludertePermisjoner.forEach(yrkesaktivitetBuilder::leggTilPermisjon);
         }

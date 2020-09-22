@@ -2,11 +2,16 @@ package no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp;
 
 import static java.util.Collections.singletonList;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -16,11 +21,14 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttaksstegTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.fp.FastsettUttaksgrunnlagTjeneste;
 
 @BehandlingStegRef(kode = "SØKNADSFRIST_FP")
@@ -29,32 +37,36 @@ import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.fp.FastsettUtta
 @ApplicationScoped
 public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements BehandlingSteg {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FastsettUttaksgrunnlagOgVurderSøknadsfristSteg.class);
+
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private SøknadsfristTjeneste søknadsfristForeldrepengerTjeneste;
+    private VurderSøknadsfristTjeneste vurderSøknadsfristTjeneste;
     private FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(UttakInputTjeneste uttakInputTjeneste,
                                                           YtelsesFordelingRepository ytelsesFordelingRepository,
-                                                          SøknadsfristTjeneste søknadsfristForeldrepengerTjeneste,
-                                                          FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste) {
+                                                          @FagsakYtelseTypeRef("FP") VurderSøknadsfristTjeneste vurderSøknadsfristTjeneste,
+                                                          FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste,
+                                                          BehandlingRepository behandlingRepository) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
-        this.søknadsfristForeldrepengerTjeneste = søknadsfristForeldrepengerTjeneste;
+        this.vurderSøknadsfristTjeneste = vurderSøknadsfristTjeneste;
         this.fastsettUttaksgrunnlagTjeneste = fastsettUttaksgrunnlagTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        Long behandlingId = kontekst.getBehandlingId();
-
-        var input = uttakInputTjeneste.lagInput(behandlingId);
+        var behandlingId = kontekst.getBehandlingId();
 
         //Sjekk søknadsfrist for søknadsperioder
-        Optional<AksjonspunktDefinisjon> søknadfristAksjonspunktDefinisjon = søknadsfristForeldrepengerTjeneste.vurderSøknadsfristForForeldrepenger(kontekst);
+        var søknadfristAksjonspunktDefinisjon = vurderSøknadsfristTjeneste.vurder(kontekst.getBehandlingId());
 
         //Fastsett uttaksgrunnlag
+        var input = uttakInputTjeneste.lagInput(behandlingId);
         fastsettUttaksgrunnlagTjeneste.fastsettUttaksgrunnlag(input);
 
         //Returner eventuelt aksjonspunkt ifm søknadsfrist
@@ -72,6 +84,26 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
                 rydd(kontekst.getBehandlingId(), opprinnelig.get());
             }
         }
+    }
+
+    @Override
+    public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst,
+                                    BehandlingStegModell modell,
+                                    BehandlingStegType førsteSteg,
+                                    BehandlingStegType sisteSteg) {
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        if (SkalKopiereUttaksstegTjeneste.skalKopiereStegResultat(behandlingsårsaker(behandling))) {
+            var originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId()).getOriginalBehandlingId().orElseThrow();
+            LOG.info("Kopierer yfgrunnlag fra behandling {}, til behandling {}", originalBehandling, kontekst.getBehandlingId());
+            ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandling, kontekst.getBehandlingId());
+        }
+    }
+
+    private List<BehandlingÅrsakType> behandlingsårsaker(Behandling behandling) {
+        return behandling.getBehandlingÅrsaker()
+            .stream()
+            .map(behandlingÅrsak -> behandlingÅrsak.getBehandlingÅrsakType())
+            .collect(Collectors.toList());
     }
 
     private void rydd(Long behandlingId, YtelseFordelingAggregat ytelseFordelingAggregat) {

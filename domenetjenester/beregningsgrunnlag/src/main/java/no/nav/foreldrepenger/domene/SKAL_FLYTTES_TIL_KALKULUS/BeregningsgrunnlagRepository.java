@@ -431,14 +431,7 @@ public class BeregningsgrunnlagRepository {
         beregningsgrunnlag.ifPresent(orig -> lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.of(Kopimaskin.deepCopy(orig))), beregningsgrunnlagTilstand));
     }
 
-    public void kopierGrunnlagForGRegulering(Long gammelBehandlingId, Long nyBehandlingId) {
-        boolean oppdatert = oppdaterGrunnlagMedGrunnbeløp(gammelBehandlingId, nyBehandlingId, BeregningsgrunnlagTilstand.KOFAKBER_UT);
-        if (!oppdatert) {
-            oppdaterGrunnlagMedGrunnbeløp(gammelBehandlingId, nyBehandlingId, BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER);
-        }
-    }
-
-    private boolean oppdaterGrunnlagMedGrunnbeløp(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand tilstand) {
+    public boolean oppdaterGrunnlagMedGrunnbeløp(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand tilstand) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> beregningsgrunnlag = hentSisteBeregningsgrunnlagGrunnlagEntitet(gammelBehandlingId, tilstand);
         if (beregningsgrunnlag.isPresent()) {
             BeregningsgrunnlagEntitet bg = beregningsgrunnlag.get().getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha BG"));
@@ -450,6 +443,15 @@ public class BeregningsgrunnlagRepository {
         return false;
     }
 
+    /**
+     *
+     * @param behandlingId id på nåværende behandling
+     * @param originalBehandlingId id på orginal behandling, om den finnes.
+     * @param forrigeTilstand tilstanden før aksjonspunkt er løst (altså tilstanden som returneres fra steget)
+     * @param nesteTilstand tilstanden etter at aksjonspunktet er løst.
+     * @return finner grunnlaget som skal brukes til preutfylling i GUI. Enten det forrige grunnlaget som ble
+     * hadde denne tilstanden eller grunlaget i orginalbehandlingen som hadde denne tilstanden om det finnes.
+     */
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentBeregningsgrunnlagForPreutfylling(Long behandlingId, Optional<Long> originalBehandlingId,
                                                                                              BeregningsgrunnlagTilstand forrigeTilstand, BeregningsgrunnlagTilstand nesteTilstand) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBeregningsgrunnlag = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
@@ -460,7 +462,11 @@ public class BeregningsgrunnlagRepository {
 
         BeregningsgrunnlagTilstand gjeldendeTilstand = sisteBeregningsgrunnlag.get().getBeregningsgrunnlagTilstand();
 
-        if (gjeldendeTilstand.erFør(nesteTilstand) || gjeldendeTilstand.equals(nesteTilstand)) {
+        if (gjeldendeTilstand.erFør(forrigeTilstand)) {
+            return Optional.empty();
+        }
+
+        if (gjeldendeTilstand.equals(forrigeTilstand) || gjeldendeTilstand.equals(nesteTilstand)) {
             return sisteBeregningsgrunnlag;
         }
 

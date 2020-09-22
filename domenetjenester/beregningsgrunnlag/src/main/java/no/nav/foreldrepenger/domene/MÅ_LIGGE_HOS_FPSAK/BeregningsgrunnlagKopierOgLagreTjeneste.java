@@ -19,9 +19,11 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FASTSATT;
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FASTSATT_INN;
@@ -40,6 +42,12 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
 
     private static final String UTVIKLER_FEIL_SKAL_HA_BEREGNINGSGRUNNLAG_HER = "Utvikler-feil: skal ha beregningsgrunnlag her";
     private static final Supplier<IllegalStateException> INGEN_BG_EXCEPTION_SUPPLIER = () -> new IllegalStateException(UTVIKLER_FEIL_SKAL_HA_BEREGNINGSGRUNNLAG_HER);
+    public static final Comparator<BeregningsgrunnlagTilstand> TILSTAND_COMPARATOR = (t1, t2) -> {
+        if (t1.equals(t2)) {
+            return 0;
+        }
+        return t1.erFør(t2) ? -1 : 1;
+    };
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private BeregningTilInputTjeneste beregningTilInputTjeneste;
@@ -128,11 +136,21 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     }
 
     public void kopierBeregningsresultatFraOriginalBehandling(Long originalBehandlingId, Long behandlingId) {
-        beregningsgrunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, behandlingId, FASTSATT);
+        kopierBeregningsgrunnlagFraStartTilOgMedTilstand(originalBehandlingId, behandlingId, FASTSATT);
+    }
+
+    private void kopierBeregningsgrunnlagFraStartTilOgMedTilstand(Long originalBehandlingId, Long behandlingId, BeregningsgrunnlagTilstand gjeldendeTilstand) {
+        Stream.of(BeregningsgrunnlagTilstand.values())
+            .filter(tilstand -> tilstand.erFør(gjeldendeTilstand) || tilstand.equals(gjeldendeTilstand))
+            .sorted(TILSTAND_COMPARATOR)
+            .forEach(tilstand -> beregningsgrunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, behandlingId, tilstand));
     }
 
     public void kopierResultatForGRegulering(Long originalBehandlingId, Long behandlingId) {
-        beregningsgrunnlagRepository.kopierGrunnlagForGRegulering(originalBehandlingId, behandlingId);
+        Stream.of(BeregningsgrunnlagTilstand.values())
+            .filter(tilstand -> tilstand.erFør(KOFAKBER_UT) || tilstand.equals(KOFAKBER_UT))
+            .sorted(TILSTAND_COMPARATOR)
+            .forEach(tilstand -> beregningsgrunnlagRepository.oppdaterGrunnlagMedGrunnbeløp(originalBehandlingId, behandlingId, tilstand));
     }
 
     /**

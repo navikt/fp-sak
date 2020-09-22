@@ -28,7 +28,7 @@ public class VurderOpphørAvYtelserTaskTest {
     private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
 
     private VurderOpphørAvYtelserTask vurderOpphørAvYtelserTask;
-    private IdentifiserOverlappendeInfotrygdYtelseTjeneste identifiserOverlappendeInfotrygdYtelser = Mockito.mock(IdentifiserOverlappendeInfotrygdYtelseTjeneste.class);
+    private LoggOverlappEksterneYtelserTjeneste identifiserOverlappendeInfotrygdYtelser = Mockito.mock(LoggOverlappEksterneYtelserTjeneste.class);
     private VurderOpphørAvYtelser vurderOpphørAvYtelser = Mockito.mock(VurderOpphørAvYtelser.class);
 
     @Before
@@ -46,7 +46,7 @@ public class VurderOpphørAvYtelserTaskTest {
 
         vurderOpphørAvYtelserTask.doTask(prosessTaskData);
 
-        verify(identifiserOverlappendeInfotrygdYtelser, times(1)).vurderOglagreEventueltOverlapp(behandling.getId());
+        verify(identifiserOverlappendeInfotrygdYtelser, times(1)).loggOverlappForVedtakFPSAK(behandling.getId(), behandling.getFagsak().getSaksnummer(), behandling.getAktørId());
         verify(vurderOpphørAvYtelser, times(1)).vurderOpphørAvYtelser(behandling.getFagsak().getId(), behandling.getId());
     }
 
@@ -59,7 +59,7 @@ public class VurderOpphørAvYtelserTaskTest {
 
         vurderOpphørAvYtelserTask.doTask(prosessTaskData);
 
-        verify(identifiserOverlappendeInfotrygdYtelser, times(1)).vurderOglagreEventueltOverlapp(behandling.getId());
+        verify(identifiserOverlappendeInfotrygdYtelser, times(1)).loggOverlappForVedtakFPSAK(behandling.getId(), behandling.getFagsak().getSaksnummer(), behandling.getAktørId());
         verify(vurderOpphørAvYtelser, times(0)).vurderOpphørAvYtelser(behandling.getFagsak().getId(), behandling.getId());
     }
 

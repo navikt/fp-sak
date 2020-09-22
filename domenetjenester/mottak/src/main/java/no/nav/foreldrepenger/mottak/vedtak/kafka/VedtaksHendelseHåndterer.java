@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,7 +40,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.json.JacksonJsonConfig;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappendeEksternYtelseTjeneste;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -71,9 +69,10 @@ public class VedtaksHendelseHåndterer {
         YtelseType.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER
     );
     private static final Set<YtelseType> DB_LOGGES = Set.of(YtelseType.FRISINN, YtelseType.OMSORGSPENGER);
+    private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
 
     private FagsakTjeneste fagsakTjeneste;
-    private LoggOverlappendeEksternYtelseTjeneste eksternOverlappLogger;
+    private LoggOverlappEksterneYtelserTjeneste eksternOverlappLogger;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository tilkjentYtelseRepository;
     private Validator validator;
@@ -85,7 +84,7 @@ public class VedtaksHendelseHåndterer {
 
     @Inject
     public VedtaksHendelseHåndterer(FagsakTjeneste fagsakTjeneste,
-                                    LoggOverlappendeEksternYtelseTjeneste eksternOverlappLogger,
+                                    LoggOverlappEksterneYtelserTjeneste eksternOverlappLogger,
                                     BehandlingRepositoryProvider repositoryProvider,
                                     ProsessTaskRepository prosessTaskRepository) {
         this.fagsakTjeneste = fagsakTjeneste;
@@ -114,7 +113,7 @@ public class VedtaksHendelseHåndterer {
         } catch (IOException e) {
             YtelseFeil.FACTORY.parsingFeil(key, payload, e).log(LOG);
         } catch (Exception e) {
-            LOG.warn("Vedtatt-Ytelse exception ved håndtering av vedtaksmelding key=" + LoggerUtils.removeLineBreaks(payload) + ". Meldingen ble ignorert", e);
+            LOG.warn("Vedtatt-Ytelse exception ved håndtering av vedtaksmelding, ignorerer key={}", LoggerUtils.removeLineBreaks(payload), e);
         }
     }
 
@@ -125,6 +124,8 @@ public class VedtaksHendelseHåndterer {
 
         if (Fagsystem.FPSAK.equals(ytelse.getFagsystem())) {
             oprettTasksForFpsakVedtak(ytelse);
+        } else if (DB_LOGGES.contains(ytelse.getType())) {
+            loggVedtakOverlapp(ytelse);
         } else {
             LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getFagsystem(), ytelse.getSaksnummer(), ytelse.getType());
             sjekkVedtakOverlapp(ytelse);
@@ -134,59 +135,55 @@ public class VedtaksHendelseHåndterer {
     void oprettTasksForFpsakVedtak(YtelseV1 ytelse) {
         FagsakYtelseType fagsakYtelseType = YTELSE_TYPE_MAP.getOrDefault(ytelse.getType(), FagsakYtelseType.UDEFINERT);
 
-        if (FagsakYtelseType.UDEFINERT.equals(fagsakYtelseType)) {
-            LOG.error("Utviklerfeil: ukjent ytelsestype for innkommende vedtak {}", ytelse.getType());
+        if (!VURDER_OVERLAPP.contains(fagsakYtelseType)) {
+            if (FagsakYtelseType.UDEFINERT.equals(fagsakYtelseType)) {
+                LOG.error("Vedtatt-Ytelse Utviklerfeil: ukjent ytelsestype for innkommende vedtak {}", ytelse.getType());
+            }
             return;
         }
 
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
-            return;
-        }
-
-        Behandling behandling;
         try {
             UUID behandlingUuid = UUID.fromString(ytelse.getVedtakReferanse());
-            behandling = behandlingRepository.hentBehandling(behandlingUuid);
+            Behandling behandling = behandlingRepository.hentBehandling(behandlingUuid);
+
+            // Unngå gå i beina på på iverksettingstasker med sen respons
+            if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
+                lagreProsesstaskFor(behandling, StartBerørtBehandlingTask.TASKTYPE, 0);
+                lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 2);
+            } else { //SVP
+                lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 0);
+            }
         } catch (Exception e) {
-            return;
-        }
-        // Unngå gå i beina på på iverksettingstasker med sen respons
-        if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-            lagreProsesstaskFor(behandling, StartBerørtBehandlingTask.TASKTYPE, 0);
-            lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 2);
-        } else { //SVP
-            lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 0);
+            LOG.error("Vedtatt-Ytelse mottok vedtak med ugyldig behandling-UUID som ikke finnes i database");
         }
     }
 
-    void sjekkVedtakOverlapp(YtelseV1 ytelse) {
-        // OBS Flere av K9SAK-ytelsene har fom/tom i helg ... ikke bruk VirkedagUtil på dem
+    // Flytt flere eksterne ytelser hit når de er etablert. Utbetalinggrad null = 100.
+    void loggVedtakOverlapp(YtelseV1 ytelse) {
+        List<Fagsak> fagsaker = getFagsakerFor(ytelse);
+
+        eksternOverlappLogger.loggOverlappForVedtakK9SAK(ytelse, fagsaker);
+    }
+
+    // Kommende ytelser - gi varsel i applikasjonslogg før databaselogging
+    boolean sjekkVedtakOverlapp(YtelseV1 ytelse) {
+        List<Fagsak> fagsaker = getFagsakerFor(ytelse);
+
+        // OBS Flere av K9SAK-ytelsene har fom/tom i helg ... ikke bruk VirkedagUtil på dem.
         List<LocalDateSegment<Boolean>> ytelsesegments = ytelse.getAnvist().stream()
             // .filter(p -> p.getUtbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) > 0)
             .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), Boolean.TRUE))
             .collect(Collectors.toList());
-        if (ytelsesegments.isEmpty())
-            return;
+        if (ytelsesegments.isEmpty() || fagsaker.isEmpty())
+            return false;
 
-        List<Fagsak> fagsaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(ytelse.getAktør().getVerdi())).stream()
-            .filter(f -> !FagsakYtelseType.ENGANGSTØNAD.equals(f.getYtelseType()))
-            .collect(Collectors.toList());
-        if (fagsaker.isEmpty())
-            return;
         LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}", ytelse.getType(), fagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList()));
 
         var minYtelseDato = ytelsesegments.stream().map(LocalDateSegment::getFom).min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
         var ytelseTidslinje = new LocalDateTimeline<>(ytelsesegments, StandardCombinators::alwaysTrueForMatch).compress();
 
-        // Flytt flere eksterne ytelser hit når de er etablert. Frisinn må logges ugradert.
-        if (DB_LOGGES.contains(ytelse.getType())) {
-            loggOverlappTilDB(ytelse, fagsaker, minYtelseDato, ytelseTidslinje);
-            return;
-        }
-
         List<Behandling> behandlinger = fagsaker.stream()
-            .map(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()))
-            .flatMap(Optional::stream)
+            .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
             .filter(b -> sjekkOverlappFor(minYtelseDato, ytelseTidslinje, b))
             .sorted(Comparator.comparing(Behandling::getOpprettetDato).reversed())
             .collect(Collectors.toList());
@@ -199,20 +196,13 @@ public class VedtaksHendelseHåndterer {
             // vurderOpphørAvYtelser.opprettTaskForÅVurdereKonsekvens(behandlinger.get(0).getFagsakId(), behandlinger.get(0).getBehandlendeEnhet(),
             //    beskrivelse, Optional.of(ytelse.getAktør().getVerdi()));
         }
+        return !behandlinger.isEmpty();
     }
 
-    private void loggOverlappTilDB(YtelseV1 ytelse, List<Fagsak> fagsaker, LocalDate minYtelseDato, LocalDateTimeline<Boolean> ytelseTidslinje) {
-        var harSattUtbetalingsgrad = ytelse.getAnvist().stream().anyMatch(a -> a.getUtbetalingsgrad() != null && a.getUtbetalingsgrad().getVerdi() != null);
-        if (!harSattUtbetalingsgrad) {
-            eksternOverlappLogger.loggOverlappUtenGradering(ytelse, minYtelseDato, ytelseTidslinje, fagsaker);
-        } else {
-            List<LocalDateSegment<BigDecimal>> graderteSegments = ytelse.getAnvist().stream()
-                .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), p.getUtbetalingsgrad().getVerdi()))
-                .collect(Collectors.toList());
-            var gradertTidslinje = new LocalDateTimeline<>(graderteSegments, StandardCombinators::sum).filterValue(v -> v.compareTo(BigDecimal.ZERO) > 0);
-
-            eksternOverlappLogger.loggOverlappMedGradering(ytelse, minYtelseDato, gradertTidslinje, fagsaker);
-        }
+    private List<Fagsak> getFagsakerFor(YtelseV1 ytelse) {
+        return fagsakTjeneste.finnFagsakerForAktør(new AktørId(ytelse.getAktør().getVerdi())).stream()
+            .filter(f -> VURDER_OVERLAPP.contains(f.getYtelseType()))
+            .collect(Collectors.toList());
     }
 
     private boolean sjekkOverlappFor(LocalDate minYtelseDato, LocalDateTimeline<Boolean> ytelseTidslinje, Behandling behandling) {

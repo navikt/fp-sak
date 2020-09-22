@@ -1,17 +1,20 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøknadsfristPeriode;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøktPeriodeTjeneste;
-import no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp.SøknadsfristTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakPeriodegrenseDto;
@@ -20,20 +23,17 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakPeriode
 public class UttakPeriodegrenseDtoTjeneste {
 
     private SøknadRepository søknadRepository;
-    private SøknadsfristTjeneste vurderSøknadsfristTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-
-    public UttakPeriodegrenseDtoTjeneste() {
-        // For CDI
-    }
 
     @Inject
     public UttakPeriodegrenseDtoTjeneste(SøknadRepository søknadRepository,
-                                         BehandlingsresultatRepository behandlingsresultatRepository,
-                                         SøknadsfristTjeneste søknadsfristTjeneste) {
+                                         BehandlingsresultatRepository behandlingsresultatRepository) {
         this.behandlingsresultatRepository = behandlingsresultatRepository;
-        this.vurderSøknadsfristTjeneste = søknadsfristTjeneste;
         this.søknadRepository = søknadRepository;
+    }
+
+    UttakPeriodegrenseDtoTjeneste() {
+        // For CDI
     }
 
     public Optional<UttakPeriodegrenseDto> mapFra(UttakInput input) {
@@ -60,7 +60,7 @@ public class UttakPeriodegrenseDtoTjeneste {
         var søktPeriodeOpt = FagsakYtelseTypeRef.Lookup.find(SøktPeriodeTjeneste.class, ref.getFagsakYtelseType()).orElseThrow().finnSøktPeriode(input);
 
         søktPeriodeOpt.ifPresent(søktPeriode -> {
-            var søknadsfrist = vurderSøknadsfristTjeneste.finnSøknadsfristForPeriodeMedStart(søktPeriode.getFomDato());
+            var søknadsfrist = finnSøknadsfristForPeriodeMedStart(søktPeriode.getFomDato(), ref.getFagsakYtelseType());
             var søknad = søknadRepository.hentSøknad(ref.getBehandlingId());
             dto.setSoknadsperiodeStart(søktPeriode.getFomDato());
             dto.setSoknadsperiodeSlutt(søktPeriode.getTomDato());
@@ -69,6 +69,11 @@ public class UttakPeriodegrenseDtoTjeneste {
                 dto.setAntallDagerLevertForSent(ChronoUnit.DAYS.between(søknadsfrist, søknad.getMottattDato()));
             }
         });
+    }
+
+    LocalDate finnSøknadsfristForPeriodeMedStart(LocalDate periodeStart, FagsakYtelseType fagsakYtelseType) {
+        var søknadsfristPeriode = FagsakYtelseTypeRef.Lookup.find(SøknadsfristPeriode.class, fagsakYtelseType).orElseThrow().getValue();
+        return periodeStart.plus(søknadsfristPeriode).with(TemporalAdjusters.lastDayOfMonth());
     }
 
 }
