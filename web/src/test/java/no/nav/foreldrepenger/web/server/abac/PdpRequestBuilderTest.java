@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.web.server.abac;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -10,10 +12,12 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -22,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.tjeneste.virksomhet.journal.v3.HentKjerneJournalpostListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.journal.v3.HentKjerneJournalpostListeUgyldigInput;
 import no.nav.tjeneste.virksomhet.journal.v3.informasjon.Journalposttyper;
 import no.nav.tjeneste.virksomhet.journal.v3.informasjon.Journaltilstand;
@@ -37,6 +40,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 
+@ExtendWith(MockitoExtension.class)
 public class PdpRequestBuilderTest {
 
     private static final String DUMMY_ID_TOKEN = "dummyheader.dymmypayload.dummysignaturee";
@@ -54,42 +58,50 @@ public class PdpRequestBuilderTest {
 
     private static final String PERSON_0 = "00000000000";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    @Mock
+    private PipRepository pipRepository;
+    @Mock
+    private AktørConsumerMedCache aktørConsumer;
 
-    private PipRepository pipRepository = Mockito.mock(PipRepository.class);
-    private AktørConsumerMedCache aktørConsumer = Mockito.mock(AktørConsumerMedCache.class);
+    private AppPdpRequestBuilderImpl requestBuilder;
 
-    private AppPdpRequestBuilderImpl requestBuilder = new AppPdpRequestBuilderImpl(pipRepository, aktørConsumer);
+    @BeforeEach
+    public void beforeEach() {
+        requestBuilder = new AppPdpRequestBuilderImpl(pipRepository, aktørConsumer);
+
+    }
 
     @Test
     public void skal_hente_saksstatus_og_behandlingsstatus_når_behandlingId_er_input() throws Exception {
         AbacAttributtSamling attributter = byggAbacAttributtSamling().leggTil(AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.BEHANDLING_ID, BEHANDLING_ID));
+                .leggTil(AppAbacAttributtType.BEHANDLING_ID, BEHANDLING_ID));
 
-        when(pipRepository.fagsakIdForJournalpostId(Collections.singleton(JOURNALPOST_ID))).thenReturn(Collections.singleton(FAGSAK_ID));
-        when(pipRepository.hentAktørIdKnyttetTilFagsaker(Collections.singleton(FAGSAK_ID))).thenReturn(Collections.singleton(AKTØR_1));
+        lenient().when(pipRepository.fagsakIdForJournalpostId(Collections.singleton(JOURNALPOST_ID))).thenReturn(Collections.singleton(FAGSAK_ID));
+        lenient().when(pipRepository.hentAktørIdKnyttetTilFagsaker(Collections.singleton(FAGSAK_ID))).thenReturn(Collections.singleton(AKTØR_1));
         String behandligStatus = BehandlingStatus.OPPRETTET.getKode();
         String ansvarligSaksbehandler = "Z123456";
         String fagsakStatus = FagsakStatus.UNDER_BEHANDLING.getKode();
-        when(pipRepository.hentDataForBehandling(BEHANDLING_ID)).thenReturn(Optional.of(new PipBehandlingsData(behandligStatus, ansvarligSaksbehandler, BigDecimal.valueOf(FAGSAK_ID), fagsakStatus)));
+        lenient().when(pipRepository.hentDataForBehandling(BEHANDLING_ID)).thenReturn(
+                Optional.of(new PipBehandlingsData(behandligStatus, ansvarligSaksbehandler, BigDecimal.valueOf(FAGSAK_ID), fagsakStatus)));
 
         PdpRequest request = requestBuilder.lagPdpRequest(attributter);
         assertThat(request.getListOfString(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)).containsOnly(AKTØR_1.getId());
         assertThat(request.getString(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_ANSVARLIG_SAKSBEHANDLER)).isEqualTo(ansvarligSaksbehandler);
-        assertThat(request.getString(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_BEHANDLINGSSTATUS)).isEqualTo(AbacBehandlingStatus.OPPRETTET.getEksternKode());
-        assertThat(request.getString(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_SAKSSTATUS)).isEqualTo(AbacFagsakStatus.UNDER_BEHANDLING.getEksternKode());
+        assertThat(request.getString(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_BEHANDLINGSSTATUS))
+                .isEqualTo(AbacBehandlingStatus.OPPRETTET.getEksternKode());
+        assertThat(request.getString(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_SAKSSTATUS))
+                .isEqualTo(AbacFagsakStatus.UNDER_BEHANDLING.getEksternKode());
     }
 
     @Test
-    public void skal_angi_aktørId_gitt_journalpost_id_som_input() throws HentKjerneJournalpostListeSikkerhetsbegrensning, HentKjerneJournalpostListeUgyldigInput {
+    public void skal_angi_aktørId_gitt_journalpost_id_som_input() throws HentKjerneJournalpostListeUgyldigInput {
         AbacAttributtSamling attributter = byggAbacAttributtSamling().leggTil(AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.JOURNALPOST_ID, JOURNALPOST_ID.getVerdi()));
+                .leggTil(AppAbacAttributtType.JOURNALPOST_ID, JOURNALPOST_ID.getVerdi()));
         final HentKjerneJournalpostListeResponse mockJournalResponse = initJournalMockResponse(false);
 
-        when(pipRepository.fagsakIdForJournalpostId(Collections.singleton(JOURNALPOST_ID))).thenReturn(Collections.singleton(FAGSAK_ID));
-        when(pipRepository.fagsakIdForSaksnummer(Collections.singleton(SAKSNUMMER))).thenReturn(Collections.singleton(FAGSAK_ID));
-        when(pipRepository.hentAktørIdKnyttetTilFagsaker(Collections.singleton(FAGSAK_ID))).thenReturn(Collections.singleton(AKTØR_1));
+        lenient().when(pipRepository.fagsakIdForJournalpostId(Collections.singleton(JOURNALPOST_ID))).thenReturn(Collections.singleton(FAGSAK_ID));
+        lenient().when(pipRepository.fagsakIdForSaksnummer(Collections.singleton(SAKSNUMMER))).thenReturn(Collections.singleton(FAGSAK_ID));
+        lenient().when(pipRepository.hentAktørIdKnyttetTilFagsaker(Collections.singleton(FAGSAK_ID))).thenReturn(Collections.singleton(AKTØR_1));
 
         PdpRequest request = requestBuilder.lagPdpRequest(attributter);
         assertThat(request.getListOfString(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)).containsOnly(AKTØR_1.getId());
@@ -113,7 +125,8 @@ public class PdpRequestBuilderTest {
         when(pipRepository.hentAktørIdKnyttetTilFagsaker(fagsakIder)).thenReturn(aktører);
 
         PdpRequest request = requestBuilder.lagPdpRequest(attributter);
-        assertThat(request.getListOfString(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)).containsOnly(AKTØR_0.getId(), AKTØR_1.getId(), AKTØR_2.getId());
+        assertThat(request.getListOfString(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)).containsOnly(AKTØR_0.getId(),
+                AKTØR_1.getId(), AKTØR_2.getId());
     }
 
     @Test
@@ -129,9 +142,8 @@ public class PdpRequestBuilderTest {
     public void skal_ta_inn_aksjonspunkt_id_og_sende_videre_aksjonspunkt_typer() throws Exception {
         AbacAttributtSamling attributter = byggAbacAttributtSamling();
         attributter.leggTil(AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, "0000")
-            .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, "0001")
-        );
+                .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, "0000")
+                .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, "0001"));
 
         Set<String> koder = new HashSet<>();
         koder.add("0000");
@@ -157,16 +169,15 @@ public class PdpRequestBuilderTest {
     @Test
     public void skal_ikke_godta_at_det_sendes_inn_fagsak_id_og_behandling_id_som_ikke_stemmer_overens() throws Exception {
 
-        expectedException.expect(ManglerTilgangException.class);
-        expectedException.expectMessage("Ugyldig input. Ikke samsvar mellom behandlingId 1234 og fagsakId [123]");
-
         AbacAttributtSamling attributter = byggAbacAttributtSamling();
         attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FAGSAK_ID, 123L));
         attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_ID, 1234L));
 
-        when(pipRepository.hentDataForBehandling(1234L)).thenReturn(Optional.of(new PipBehandlingsData(BehandlingStatus.OPPRETTET.getKode(), "Z1234", BigDecimal.valueOf(666), FagsakStatus.OPPRETTET.getKode())));
+        when(pipRepository.hentDataForBehandling(1234L)).thenReturn(Optional.of(
+                new PipBehandlingsData(BehandlingStatus.OPPRETTET.getKode(), "Z1234", BigDecimal.valueOf(666), FagsakStatus.OPPRETTET.getKode())));
 
-        requestBuilder.lagPdpRequest(attributter);
+        var e = assertThrows(ManglerTilgangException.class, () -> requestBuilder.lagPdpRequest(attributter));
+        assertThat(e.getMessage()).contains("Ugyldig input. Ikke samsvar mellom behandlingId 1234 og fagsakId [123]");
 
     }
 
@@ -188,6 +199,5 @@ public class PdpRequestBuilderTest {
         response.getJournalpostListe().add(dummy);
         return response;
     }
-
 
 }

@@ -2,20 +2,20 @@ package no.nav.foreldrepenger.web.app.exceptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.spi.ApplicationException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
-@SuppressWarnings("deprecation")
+@ExtendWith(MockitoExtension.class)
 public class RedirectExceptionMapperTest {
 
     @Mock
@@ -23,27 +23,21 @@ public class RedirectExceptionMapperTest {
 
     private RedirectExceptionMapper exceptionMapper;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
-
-        exceptionMapper = new RedirectExceptionMapper();
-        Whitebox.setInternalState(exceptionMapper, "loadBalancerUrl", "https://erstatter.nav.no");
-        Whitebox.setInternalState(exceptionMapper, "generalRestExceptionMapper", generalRestExceptionMapper);
-
+        exceptionMapper = new RedirectExceptionMapper("https://erstatter.nav.no", generalRestExceptionMapper);
         ContextPathHolder.instance("/fpsak");
     }
 
     @Test
-    @SuppressWarnings("resource")
     public void skalMappeValideringsfeil() {
         // Arrange
         String feilmelding = "feilmelding";
         FeilType feilType = FeilType.MANGLER_TILGANG_FEIL;
         Response generalResponse = Response.status(Response.Status.FORBIDDEN)
-            .entity(new FeilDto(feilType, feilmelding))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+                .entity(new FeilDto(feilType, feilmelding))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
 
         ApplicationException exception = new ApplicationException(null);
         when(generalRestExceptionMapper.toResponse(exception)).thenReturn(generalResponse);
@@ -55,9 +49,9 @@ public class RedirectExceptionMapperTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
         assertThat(response.getMediaType()).isNull();
         assertThat(response.getMetadata().get("Content-Encoding").get(0))
-            .isEqualTo("UTF-8");
+                .isEqualTo("UTF-8");
         assertThat(response.getMetadata().get("Location").get(0).toString())
-            .isEqualTo("https://erstatter.nav.no/fpsak/#?errorcode=feilmelding");
+                .isEqualTo("https://erstatter.nav.no/fpsak/#?errorcode=feilmelding");
     }
 
 }

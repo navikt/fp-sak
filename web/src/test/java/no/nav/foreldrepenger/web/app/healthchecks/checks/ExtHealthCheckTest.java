@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.web.app.healthchecks.checks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.codahale.metrics.health.HealthCheck;
 
@@ -15,7 +15,7 @@ public class ExtHealthCheckTest {
 
     private ExtHealthCheck.InternalResult internalResult;
 
-    @Before
+    @BeforeEach
     public void setup() {
         check = new MyExtHealthCheck();
         internalResult = null;
@@ -38,7 +38,7 @@ public class ExtHealthCheckTest {
         internalResult = new InternalResult();
         internalResult.setOk(false);
         internalResult.setMessage("alltid min feil");
-        //internalResult.setException(new RuntimeException(("au")));
+        // internalResult.setException(new RuntimeException(("au")));
 
         HealthCheck.Result result = check.check();
 
@@ -60,7 +60,7 @@ public class ExtHealthCheckTest {
         assertThat(result.getMessage()).isNotNull();
     }
 
-    //-------
+    // -------
 
     private class MyExtHealthCheck extends ExtHealthCheck {
 

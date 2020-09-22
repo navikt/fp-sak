@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.batch;
 
-import no.nav.foreldrepenger.batch.feil.BatchFeil;
-
 import java.util.Map;
+
+import no.nav.foreldrepenger.batch.feil.BatchFeil;
 
 public abstract class BatchArguments {
 

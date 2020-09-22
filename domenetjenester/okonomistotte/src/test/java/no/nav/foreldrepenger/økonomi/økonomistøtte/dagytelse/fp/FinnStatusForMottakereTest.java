@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragsmottakerSt
 import no.nav.foreldrepenger.økonomi.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.FinnStatusForMottakere;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.adapter.TilkjentYtelseMapper;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp.OppdragInput;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.BehandlingVedtakOppdrag;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.ForrigeOppdragInput;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.TilkjentYtelse;

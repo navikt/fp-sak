@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.FastsettOppdragskontroll;
 
 public class FastsettOppdragskontrollTest {
     private static final long BEHANDLING_ID = 1;

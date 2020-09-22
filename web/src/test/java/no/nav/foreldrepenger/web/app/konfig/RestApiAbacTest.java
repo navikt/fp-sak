@@ -12,7 +12,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -21,7 +21,8 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 /**
- * Sjekker at alle REST endepunkt har definert tilgangskontroll konfigurert for ABAC (Attribute Based Access Control).
+ * Sjekker at alle REST endepunkt har definert tilgangskontroll konfigurert for
+ * ABAC (Attribute Based Access Control).
  */
 public class RestApiAbacTest {
 
@@ -42,13 +43,16 @@ public class RestApiAbacTest {
     }
 
     /**
-     * IKKE ignorer denne testen, helper til med at input til tilgangskontroll blir riktig
+     * IKKE ignorer denne testen, helper til med at input til tilgangskontroll blir
+     * riktig
      * <p>
-     * Kontakt Team Humle hvis du trenger hjelp til å endre koden din slik at den går igjennom her     *
+     * Kontakt Team Humle hvis du trenger hjelp til å endre koden din slik at den
+     * går igjennom her *
      */
     @Test
     public void test_at_alle_input_parametre_til_restmetoder_implementer_AbacDto_eller_spesifiserer_AbacDataSupplier() throws Exception {
-        String feilmelding = "Parameter på %s.%s av type %s må implementere " + AbacDto.class.getSimpleName() + ", eller være annotatert med @TilpassetAbacAttributt.\n";
+        String feilmelding = "Parameter på %s.%s av type %s må implementere " + AbacDto.class.getSimpleName()
+                + ", eller være annotatert med @TilpassetAbacAttributt.\n";
         StringBuilder feilmeldinger = new StringBuilder();
 
         for (Method restMethode : RestApiTester.finnAlleRestMetoder()) {
@@ -60,11 +64,13 @@ public class RestApiAbacTest {
                     @SuppressWarnings("rawtypes")
                     Class<?> aClass = (Class) (type.getActualTypeArguments()[0]);
                     if (!harAbacKonfigurasjon(parameterAnnotations[0], aClass)) {
-                        feilmeldinger.append(String.format(feilmelding, restMethode.getDeclaringClass().getSimpleName(), restMethode.getName(), aClass.getSimpleName()));
+                        feilmeldinger.append(String.format(feilmelding, restMethode.getDeclaringClass().getSimpleName(), restMethode.getName(),
+                                aClass.getSimpleName()));
                     }
                 } else {
                     if (!harAbacKonfigurasjon(parameterAnnotations[0], parameterType)) {
-                        feilmeldinger.append(String.format(feilmelding, restMethode.getDeclaringClass().getSimpleName(), restMethode.getName(), parameterType.getSimpleName()));
+                        feilmeldinger.append(String.format(feilmelding, restMethode.getDeclaringClass().getSimpleName(), restMethode.getName(),
+                                parameterType.getSimpleName()));
                     }
                 }
             }
@@ -76,7 +82,7 @@ public class RestApiAbacTest {
 
     private boolean harAbacKonfigurasjon(Annotation[] parameterAnnotations, Class<?> parameterType) {
         var ret = AbacDto.class.isAssignableFrom(parameterType) || IgnorerteInputTyper.ignore(parameterType);
-        if(!ret) {
+        if (!ret) {
             ret = List.of(parameterAnnotations).stream().anyMatch(a -> TilpassetAbacAttributt.class.equals(a.annotationType()));
         }
         return ret;
@@ -89,14 +95,15 @@ public class RestApiAbacTest {
             if (annotation.property().equals("abac.attributt.drift")) {
                 return;
             }
-            fail(klasse.getSimpleName() + "." + metode.getName() + " @" + annotation.getClass().getSimpleName() + " bruker ikke-støttet property: " + annotation.property());
+            fail(klasse.getSimpleName() + "." + metode.getName() + " @" + annotation.getClass().getSimpleName() + " bruker ikke-støttet property: "
+                    + annotation.property());
         }
         if (annotation != null && annotation.action() == BeskyttetRessursActionAttributt.DUMMY) {
             fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
-                + BeskyttetRessursActionAttributt.class.getSimpleName());
+                    + BeskyttetRessursActionAttributt.class.getSimpleName());
         } else if (annotation != null && annotation.ressurs() == BeskyttetRessursResourceAttributt.DUMMY) {
             fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
-                + BeskyttetRessursResourceAttributt.class.getSimpleName());
+                    + BeskyttetRessursResourceAttributt.class.getSimpleName());
         }
     }
 

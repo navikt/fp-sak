@@ -1,8 +1,7 @@
 package no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import java.time.LocalDate;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -15,8 +14,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
-import java.time.LocalDate;
-import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @Entity(name = "BeregningRefusjonPeriode")
 @Table(name = "BG_REFUSJON_PERIODE")

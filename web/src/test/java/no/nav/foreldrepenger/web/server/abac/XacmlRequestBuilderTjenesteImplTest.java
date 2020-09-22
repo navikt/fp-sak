@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.server.abac;
 
 import static no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -18,9 +17,12 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
@@ -33,19 +35,18 @@ import no.nav.vedtak.sikkerhet.pdp.PdpKlientImpl;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
 
+@ExtendWith(MockitoExtension.class)
 public class XacmlRequestBuilderTjenesteImplTest {
 
     public static final String JWT_TOKEN = "eyAidHlwIjogIkpXVCIsICJraWQiOiAiU0gxSWVSU2sxT1VGSDNzd1orRXVVcTE5VHZRPSIsICJhbGciOiAiUlMyNTYiIH0.eyAiYXRfaGFzaCI6ICIyb2c1RGk5ZW9LeFhOa3VPd0dvVUdBIiwgInN1YiI6ICJzMTQyNDQzIiwgImF1ZGl0VHJhY2tpbmdJZCI6ICI1NTM0ZmQ4ZS03MmE2LTRhMWQtOWU5YS1iZmEzYThhMTljMDUtNjE2NjA2NyIsICJpc3MiOiAiaHR0cHM6Ly9pc3NvLXQuYWRlby5ubzo0NDMvaXNzby9vYXV0aDIiLCAidG9rZW5OYW1lIjogImlkX3Rva2VuIiwgImF1ZCI6ICJPSURDIiwgImNfaGFzaCI6ICJiVWYzcU5CN3dTdi0wVlN0bjhXLURnIiwgIm9yZy5mb3JnZXJvY2sub3BlbmlkY29ubmVjdC5vcHMiOiAiMTdhOGZiMzYtMGI0Ny00YzRkLWE4YWYtZWM4Nzc3Y2MyZmIyIiwgImF6cCI6ICJPSURDIiwgImF1dGhfdGltZSI6IDE0OTgwMzk5MTQsICJyZWFsbSI6ICIvIiwgImV4cCI6IDE0OTgwNDM1MTUsICJ0b2tlblR5cGUiOiAiSldUVG9rZW4iLCAiaWF0IjogMTQ5ODAzOTkxNSB9.S2DKQweQWZIfjaAT2UP9_dxrK5zqpXj8IgtjDLt5PVfLYfZqpWGaX-ckXG0GlztDVBlRK4ylmIYacTmEAUV_bRa_qWKRNxF83SlQRgHDSiE82SGv5WHOGEcAxf2w_d50XsgA2KDBCyv0bFIp9bCiKzP11uWPW0v4uIkyw2xVxMVPMCuiMUtYFh80sMDf9T4FuQcFd0LxoYcSFDEDlwCdRiF3ufw73qtMYBlNIMbTGHx-DZWkZV7CgukmCee79gwQIvGwdLrgaDrHFCJUDCbB1FFEaE3p3_BZbj0T54fCvL69aHyWm1zEd9Pys15yZdSh3oSSr4yVNIxhoF-nQ7gY-g;";
     private static final String PEP_ID = "pepId";
     private PdpKlientImpl pdpKlient;
+    @Mock
     private PdpConsumer pdpConsumerMock;
-    private AppXacmlRequestBuilderTjenesteImpl xamlRequestBuilderTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        pdpConsumerMock = mock(PdpConsumer.class);
-        xamlRequestBuilderTjeneste = new AppXacmlRequestBuilderTjenesteImpl();
-        pdpKlient = new PdpKlientImpl(pdpConsumerMock, xamlRequestBuilderTjeneste);
+        pdpKlient = new PdpKlientImpl(pdpConsumerMock, new AppXacmlRequestBuilderTjenesteImpl());
     }
 
     @Test
@@ -107,7 +108,6 @@ public class XacmlRequestBuilderTjenesteImplTest {
         personnr.add("12345678901");
         personnr.add("12345678902");
 
-
         PdpRequest pdpRequest = lagPdpRequest();
         pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, personnr);
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
@@ -147,7 +147,7 @@ public class XacmlRequestBuilderTjenesteImplTest {
         }
     }
 
-    private PdpRequest lagPdpRequest() {
+    private static PdpRequest lagPdpRequest() {
         PdpRequest request = new PdpRequest();
         request.put(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE, "foreldrepenger");
         request.put(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID, BeskyttetRessursActionAttributt.READ.getEksternKode());
@@ -155,7 +155,6 @@ public class XacmlRequestBuilderTjenesteImplTest {
         return request;
     }
 
-    @SuppressWarnings("resource")
     private XacmlResponseWrapper createResponse(String jsonFile) throws FileNotFoundException {
         File file = new File(getClass().getClassLoader().getResource(jsonFile).getFile());
         JsonReader reader = Json.createReader(new FileReader(file));

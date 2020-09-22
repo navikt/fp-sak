@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.økonomi.økonomistøtte;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 
 public class OppdragMedPositivKvitteringTestUtil {
     public static Oppdragskontroll opprett(OppdragskontrollTjeneste oppdragskontrollTjeneste, Behandling behandling) {

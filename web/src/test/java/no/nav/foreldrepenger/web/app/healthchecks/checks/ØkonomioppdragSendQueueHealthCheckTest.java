@@ -3,10 +3,9 @@ package no.nav.foreldrepenger.web.app.healthchecks.checks;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.økonomi.økonomistøtte.queue.producer.ØkonomioppdragJmsProducer;
-
 
 public class ØkonomioppdragSendQueueHealthCheckTest {
 

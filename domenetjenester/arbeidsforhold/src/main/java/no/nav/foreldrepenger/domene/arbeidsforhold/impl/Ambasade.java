@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * https://jira.adeo.no/browse/TFP-2367

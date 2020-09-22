@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.uttak;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeliste;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class KodeMapperTest {
 

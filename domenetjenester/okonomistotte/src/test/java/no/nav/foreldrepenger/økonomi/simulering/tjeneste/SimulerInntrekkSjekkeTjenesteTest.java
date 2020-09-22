@@ -24,8 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.økonomi.simulering.kontrakt.SimuleringResultatDto;
-import no.nav.foreldrepenger.økonomi.simulering.tjeneste.SimulerInntrekkSjekkeTjeneste;
-import no.nav.foreldrepenger.økonomi.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragApplikasjonTjeneste;
 
 public class SimulerInntrekkSjekkeTjenesteTest {

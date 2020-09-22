@@ -27,9 +27,16 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 
 /**
- * Provider for å enklere å kunne hente ut ulike repository uten for mange injection points.
+ * Provider for å enklere å kunne hente ut ulike repository uten for mange
+ * injection points.
  */
 @ApplicationScoped
+/**
+ *
+ * @depecated Ikke bruk denne monstertklassen som indireksjon for å få tak i
+ *            repositories, bruk de enkelte direkte.
+ */
+@Deprecated(since = "4.0.x", forRemoval = true)
 public class BehandlingRepositoryProvider {
 
     private EntityManager entityManager;
@@ -63,11 +70,12 @@ public class BehandlingRepositoryProvider {
     }
 
     @Inject
-    public BehandlingRepositoryProvider( EntityManager entityManager) {
+    public BehandlingRepositoryProvider(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
 
-        // VIS HENSYN - IKKE FORSØPLE MER FLERE REPOS HER. TA GJERNE NOEN UT HVIS DU SER DETTE.
+        // VIS HENSYN - IKKE FORSØPLE MER FLERE REPOS HER. TA GJERNE NOEN UT HVIS DU SER
+        // DETTE.
 
         // fp spesifikke behandling aggregater
         this.ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
@@ -99,13 +107,14 @@ public class BehandlingRepositoryProvider {
         this.historikkRepository = new HistorikkRepository(entityManager);
         this.behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
         this.behandlingRevurderingRepository = new BehandlingRevurderingRepository(entityManager, behandlingRepository, fagsakRelasjonRepository,
-            søknadRepository, behandlingLåsRepository);
+                søknadRepository, behandlingLåsRepository);
 
         this.svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
         this.svangerskapspengerRepository = new SvangerskapspengerRepository(entityManager);
 
         // ********
-        // VIS HENSYN - IKKE FORSØPLE MER FLERE REPOS HER. DET SKAPER AVHENGIGHETER. TA GJERNE NOEN UT HVIS DU SER DETTE.
+        // VIS HENSYN - IKKE FORSØPLE MER FLERE REPOS HER. DET SKAPER AVHENGIGHETER. TA
+        // GJERNE NOEN UT HVIS DU SER DETTE.
         // ********
     }
 

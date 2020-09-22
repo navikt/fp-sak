@@ -9,7 +9,6 @@ import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import no.nav.foreldrepenger.domene.uttak.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 /**

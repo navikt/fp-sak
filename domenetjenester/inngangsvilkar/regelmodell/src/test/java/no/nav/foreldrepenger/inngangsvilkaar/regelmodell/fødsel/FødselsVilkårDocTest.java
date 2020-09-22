@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel;
 
 import org.junit.Test;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårMor;
 import no.nav.fpsak.nare.doc.RuleDescriptionDigraph;
 import no.nav.fpsak.nare.specification.Specification;
 

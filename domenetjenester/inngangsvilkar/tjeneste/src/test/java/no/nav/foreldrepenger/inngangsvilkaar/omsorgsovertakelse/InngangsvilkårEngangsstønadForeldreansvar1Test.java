@@ -7,7 +7,6 @@ import org.junit.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
-import no.nav.foreldrepenger.inngangsvilkaar.omsorgsovertakelse.InngangsvilkårEngangsstønadForeldreansvar1;
 
 public class InngangsvilkårEngangsstønadForeldreansvar1Test {
 

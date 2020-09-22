@@ -9,9 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.UuidDto;
@@ -38,9 +36,6 @@ public class TilbakekrevingRestTjenesteTest {
     private TilbakekrevingRepository tilbakekrevingRepository = mock(TilbakekrevingRepository.class);
     private TilbakekrevingRestTjeneste tilbakekrevingRestTjeneste = new TilbakekrevingRestTjeneste(behandlingRepository, tilbakekrevingRepository);
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Before
     public void setup() {
         when(behandlingRepository.hentBehandling((Long) Mockito.any())).thenAnswer(invocation -> lagBehandling());
@@ -49,8 +44,10 @@ public class TilbakekrevingRestTjenesteTest {
 
     @Test
     public void skal_hentTilbakekrevingValg_når_tilbakekrevingsvalg_finnes() {
-        when(tilbakekrevingRepository.hent(Mockito.any())).thenReturn(Optional.of(TilbakekrevingValg.medMulighetForInntrekk(true, true, TilbakekrevingVidereBehandling.INNTREKK)));
-        TilbakekrevingValgDto tilbakekrevingValgDto = tilbakekrevingRestTjeneste.hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
+        when(tilbakekrevingRepository.hent(Mockito.any()))
+                .thenReturn(Optional.of(TilbakekrevingValg.medMulighetForInntrekk(true, true, TilbakekrevingVidereBehandling.INNTREKK)));
+        TilbakekrevingValgDto tilbakekrevingValgDto = tilbakekrevingRestTjeneste
+                .hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
         assertThat(tilbakekrevingValgDto).isNotNull();
         assertThat(tilbakekrevingValgDto.erTilbakekrevingVilkårOppfylt()).isTrue();
     }
@@ -58,28 +55,31 @@ public class TilbakekrevingRestTjenesteTest {
     @Test
     public void skal_feil_hentTilbakekrevingValg_når_tilbakekrevingsvalg_ikke_finnes() {
         when(tilbakekrevingRepository.hent(Mockito.any())).thenReturn(Optional.empty());
-        TilbakekrevingValgDto tilbakekrevingValgDto = tilbakekrevingRestTjeneste.hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
+        TilbakekrevingValgDto tilbakekrevingValgDto = tilbakekrevingRestTjeneste
+                .hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
         assertThat(tilbakekrevingValgDto).isNull();
     }
 
     @Test
     public void skal_hente_varseltekst_ved_henting_av_tilbakekrevingsvalg() {
         String forventetVarselTekst = "varseltekst her";
-        when(tilbakekrevingRepository.hent(Mockito.any())).thenReturn(Optional.of(TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.INNTREKK, forventetVarselTekst)));
-        TilbakekrevingValgDto tilbakekrevingValgDto = tilbakekrevingRestTjeneste.hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
+        when(tilbakekrevingRepository.hent(Mockito.any()))
+                .thenReturn(Optional.of(TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.INNTREKK, forventetVarselTekst)));
+        TilbakekrevingValgDto tilbakekrevingValgDto = tilbakekrevingRestTjeneste
+                .hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
         assertThat(tilbakekrevingValgDto.getVarseltekst()).isEqualTo(forventetVarselTekst);
 
     }
 
     private Behandling lagBehandling() {
         Personinfo personinfo = new Personinfo.Builder()
-            .medAktørId(AktørId.dummy())
-            .medPersonIdent(new PersonIdent("12345678901"))
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medNavn("navn")
-            .medFødselsdato(LocalDate.now().minusYears(25))
-            .medForetrukketSpråk(Språkkode.NB)
-            .build();
+                .medAktørId(AktørId.dummy())
+                .medPersonIdent(new PersonIdent("12345678901"))
+                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
+                .medNavn("navn")
+                .medFødselsdato(LocalDate.now().minusYears(25))
+                .medForetrukketSpråk(Språkkode.NB)
+                .build();
         NavBruker navBruker = NavBruker.opprettNy(personinfo);
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, RelasjonsRolleType.MORA, new Saksnummer("123456"));
         return Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();

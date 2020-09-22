@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.økonomi.økonomistøtte.queue.consumer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
+
 import no.nav.vedtak.felles.integrasjon.jms.BaseJmsKonfig;
 
 @Named("økonomioppdragjmsconsumerkonfig")

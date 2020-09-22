@@ -41,6 +41,7 @@ public class VurderFeilutbetalingOgInntrekkOppdatererTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         this.behandling = scenario.lagMocked();
     }
+
     @Test
     public void skal_lagre_at_videre_behandling_er_med_inntrekk_når_riktige_felter_er_valgt() {
         var dto = new VurderFeilutbetalingOgInntrekkDto("lorem ipsum", true, false, null);
@@ -75,6 +76,5 @@ public class VurderFeilutbetalingOgInntrekkOppdatererTest {
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
 
     }
-
 
 }
