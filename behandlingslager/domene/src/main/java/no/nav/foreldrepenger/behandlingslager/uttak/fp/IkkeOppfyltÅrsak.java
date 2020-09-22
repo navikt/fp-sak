@@ -29,6 +29,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak.MyIkkeOppfyltPeriodeResultatÅrsakSerializer;
 import no.nav.vedtak.konfig.Tid;
 
@@ -193,11 +194,12 @@ public enum IkkeOppfyltÅrsak implements PeriodeResultatÅrsak {
         return gyldigTom;
     }
 
-    @JsonCreator
-    public static IkkeOppfyltÅrsak fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static IkkeOppfyltÅrsak fraKode(@JsonProperty(value = "kode") Object node) {
+        if (node == null) {
             return null;
         }
+        String kode = TempAvledeKode.getVerdi(IkkeOppfyltÅrsak.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent IkkeOppfyltÅrsak: " + kode);

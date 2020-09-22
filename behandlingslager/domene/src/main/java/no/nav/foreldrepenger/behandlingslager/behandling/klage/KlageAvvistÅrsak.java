@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ÅrsakskodeMedLovreferanse;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
@@ -65,11 +66,12 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
         this.lovHjemmel = lovHjemmel;
     }
 
-    @JsonCreator
-    public static KlageAvvistÅrsak fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static KlageAvvistÅrsak fraKode(@JsonProperty(value = "kode") Object node) {
+        if (node == null) {
             return null;
         }
+        String kode = TempAvledeKode.getVerdi(KlageAvvistÅrsak.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent KlageAvvistÅrsak: " + kode);
