@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
@@ -27,16 +28,16 @@ public enum FamilieHendelseType implements Kodeverdi {
     FØDSEL("FODSL", "Fødsel"),
     TERMIN("TERM", "Termin"),
     UDEFINERT("-", "Ikke satt eller valgt kode"),
-    
+
     ;
 
     private static final Map<String, FamilieHendelseType> KODER = new LinkedHashMap<>();
-    
+
     public static final String KODEVERK = "FAMILIE_HENDELSE_TYPE";
 
     @JsonIgnore
     private String navn;
-    
+
     private String kode;
 
     private FamilieHendelseType(String kode) {
@@ -48,18 +49,19 @@ public enum FamilieHendelseType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static FamilieHendelseType fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static FamilieHendelseType fraKode(@JsonProperty(value = "kode") Object node) {
+        if (node == null) {
             return null;
         }
+        String kode = TempAvledeKode.getVerdi(FamilieHendelseType.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent FamilieHendelseType: " + kode);
         }
         return ad;
     }
-    
+
     public static Map<String, FamilieHendelseType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -92,12 +94,12 @@ public enum FamilieHendelseType implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -105,7 +107,7 @@ public enum FamilieHendelseType implements Kodeverdi {
             }
         }
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<FamilieHendelseType, String> {
         @Override

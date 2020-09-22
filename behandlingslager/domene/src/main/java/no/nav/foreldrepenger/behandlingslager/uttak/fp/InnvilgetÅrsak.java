@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak.MyInnvilgetÅrsakPeriodeResultatÅrsakSerializer;
 import no.nav.vedtak.konfig.Tid;
 
@@ -148,11 +149,12 @@ public enum InnvilgetÅrsak implements PeriodeResultatÅrsak {
         return valgbarForKonto;
     }
 
-    @JsonCreator
-    public static InnvilgetÅrsak fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static InnvilgetÅrsak fraKode(@JsonProperty(value = "kode") Object node) {
+        if (node == null) {
             return null;
         }
+        String kode = TempAvledeKode.getVerdi(InnvilgetÅrsak.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent InnvilgetÅrsak: " + kode);
