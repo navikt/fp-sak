@@ -39,16 +39,10 @@ class AppStartupInfoLogger {
     private static final String OPPSTARTSINFO = "OPPSTARTSINFO";
     private static final String HILITE_SLUTT = "********";
     private static final String HILITE_START = HILITE_SLUTT;
-    private static final String KONFIGURASJON = "Konfigurasjon";
     private static final String SELFTEST = "Selftest";
     private static final String APPLIKASJONENS_STATUS = "Applikasjonens status";
     private static final String START = "start:";
     private static final String SLUTT = "slutt.";
-
-    private static final List<String> IGNORE = List.of("TCP_ADDR", "PORT_HTTP", "SERVICE_HOST",
-            "TCP_PROTO", "_TCP", "_PORT");
-
-    private static final Environment ENV = Environment.current();
 
     @Inject
     AppStartupInfoLogger(Selftests selftests) {
@@ -58,24 +52,8 @@ class AppStartupInfoLogger {
     void logAppStartupInfo() {
         log(HILITE_START + " " + OPPSTARTSINFO + " " + START + " " + HILITE_SLUTT);
         logVersjoner();
-        logKonfigurasjon();
         logSelftest();
         log(HILITE_START + " " + OPPSTARTSINFO + " " + SLUTT + " " + HILITE_SLUTT);
-    }
-
-    private void logKonfigurasjon() {
-        log(KONFIGURASJON + " " + START);
-        log(SYSTEM_PROPERTIES);
-        log(ENV_PROPERTIES);
-        log(APP_PROPERTIES);
-        log(KONFIGURASJON + " " + SLUTT);
-    }
-
-    private void log(StandardPropertySource source) {
-        fromProperties(ENV.getProperties(source).getVerdier()).entrySet()
-                .stream()
-                .sorted(comparingByKey())
-                .forEach(e -> log(source, e));
     }
 
     private void logSelftest() {
@@ -91,32 +69,6 @@ class AppStartupInfoLogger {
 
         log(APPLIKASJONENS_STATUS + ": {}", samletResultat.getAggregateResult());
         log(SELFTEST + " " + SLUTT);
-    }
-
-    private static void log(StandardPropertySource source, Entry<String, String> entry) {
-        String value = secret(entry.getKey()) ? hide(entry.getValue()) : entry.getValue();
-        log(ignore(entry.getKey()), "{}: {}={}", source.getName(), entry.getKey(), value);
-    }
-
-    private static boolean ignore(String key) {
-        return matchEndsWith(key, IGNORE);
-    }
-
-    private static boolean secret(String key) {
-        return matchEndsWith(key, SECRETS);
-    }
-
-    private static boolean matchEndsWith(String key, List<String> elems) {
-        for (String elem : elems) {
-            if (key.toLowerCase().endsWith(elem.toLowerCase())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static String hide(String val) {
-        return "*".repeat(val.length());
     }
 
     private static void log(String msg, Object... args) {
