@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -43,7 +43,7 @@ public class SøknadsfristVilkårOppdatererTest {
         ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET,
-            BehandlingStegType.VURDER_SØKNADSFRISTVILKÅR);
+                BehandlingStegType.VURDER_SØKNADSFRISTVILKÅR);
         scenario.lagMocked();
 
         Behandling behandling = scenario.getBehandling();

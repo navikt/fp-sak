@@ -60,11 +60,13 @@ public class VurderFaresignalerOppdatererTest {
     public void skal_oppdatere_korrekt_ved_ingen_innvirkning() {
         // Arrange
         VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", false);
-        risikoklassifiseringRepository.lagreRisikoklassifisering(lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT), behandling.getId());
+        risikoklassifiseringRepository.lagreRisikoklassifisering(lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT),
+                behandling.getId());
 
         // Act
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
-        Optional<RisikoklassifiseringEntitet> oppdatertEntitet = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(behandling.getId());
+        Optional<RisikoklassifiseringEntitet> oppdatertEntitet = risikoklassifiseringRepository
+                .hentRisikoklassifiseringForBehandling(behandling.getId());
 
         // Assert
         assertThat(oppdatertEntitet).isPresent();
@@ -76,11 +78,13 @@ public class VurderFaresignalerOppdatererTest {
     public void skal_oppdatere_korrekt_ved_har_hatt_innvirkning() {
         // Arrange
         VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true);
-        risikoklassifiseringRepository.lagreRisikoklassifisering(lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT), behandling.getId());
+        risikoklassifiseringRepository.lagreRisikoklassifisering(lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT),
+                behandling.getId());
 
         // Act
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
-        Optional<RisikoklassifiseringEntitet> oppdatertEntitet = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(behandling.getId());
+        Optional<RisikoklassifiseringEntitet> oppdatertEntitet = risikoklassifiseringRepository
+                .hentRisikoklassifiseringForBehandling(behandling.getId());
 
         // Assert
         assertThat(oppdatertEntitet).isPresent();
@@ -92,7 +96,8 @@ public class VurderFaresignalerOppdatererTest {
     public void skal_lage_korrekt_historikkinnslag_når_det_ikke_finnes_tidligere_vurdering() {
         // Arrange
         VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true);
-        risikoklassifiseringRepository.lagreRisikoklassifisering(lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT), behandling.getId());
+        risikoklassifiseringRepository.lagreRisikoklassifisering(lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT),
+                behandling.getId());
 
         // Act
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
@@ -105,7 +110,8 @@ public class VurderFaresignalerOppdatererTest {
         assertThat(deler).hasSize(1);
         assertThat(historikkinnslagFelt).hasSize(3);
 
-        Optional<HistorikkinnslagFelt> faresignaler = historikkinnslagFelt.stream().filter(he -> he.getNavn().equals(HistorikkEndretFeltType.FARESIGNALER.getKode())).findFirst();
+        Optional<HistorikkinnslagFelt> faresignaler = historikkinnslagFelt.stream()
+                .filter(he -> he.getNavn().equals(HistorikkEndretFeltType.FARESIGNALER.getKode())).findFirst();
 
         assertThat(faresignaler).isPresent();
         assertThat(faresignaler.get().getTilVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.INNVIRKNING.getKode());
@@ -116,7 +122,8 @@ public class VurderFaresignalerOppdatererTest {
     public void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_ingen_innvirkning() {
         // Arrange
         VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true);
-        risikoklassifiseringRepository.lagreRisikoklassifisering(lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.INGEN_INNVIRKNING), behandling.getId());
+        risikoklassifiseringRepository.lagreRisikoklassifisering(lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.INGEN_INNVIRKNING),
+                behandling.getId());
 
         // Act
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
@@ -129,7 +136,8 @@ public class VurderFaresignalerOppdatererTest {
         assertThat(deler).hasSize(1);
         assertThat(historikkinnslagFelt).hasSize(3);
 
-        Optional<HistorikkinnslagFelt> faresignaler = historikkinnslagFelt.stream().filter(he -> he.getNavn().equals(HistorikkEndretFeltType.FARESIGNALER.getKode())).findFirst();
+        Optional<HistorikkinnslagFelt> faresignaler = historikkinnslagFelt.stream()
+                .filter(he -> he.getNavn().equals(HistorikkEndretFeltType.FARESIGNALER.getKode())).findFirst();
 
         assertThat(faresignaler).isPresent();
         assertThat(faresignaler.get().getTilVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.INNVIRKNING.getKode());
@@ -140,7 +148,8 @@ public class VurderFaresignalerOppdatererTest {
     public void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_innvirkning() {
         // Arrange
         VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", false);
-        risikoklassifiseringRepository.lagreRisikoklassifisering(lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.INNVIRKNING), behandling.getId());
+        risikoklassifiseringRepository.lagreRisikoklassifisering(lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.INNVIRKNING),
+                behandling.getId());
 
         // Act
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
@@ -153,21 +162,23 @@ public class VurderFaresignalerOppdatererTest {
         assertThat(deler).hasSize(1);
         assertThat(historikkinnslagFelt).hasSize(3);
 
-        Optional<HistorikkinnslagFelt> faresignaler = historikkinnslagFelt.stream().filter(he -> he.getNavn().equals(HistorikkEndretFeltType.FARESIGNALER.getKode())).findFirst();
+        Optional<HistorikkinnslagFelt> faresignaler = historikkinnslagFelt.stream()
+                .filter(he -> he.getNavn().equals(HistorikkEndretFeltType.FARESIGNALER.getKode())).findFirst();
 
         assertThat(faresignaler).isPresent();
         assertThat(faresignaler.get().getTilVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.INGEN_INNVIRKNING.getKode());
         assertThat(faresignaler.get().getFraVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.INNVIRKNING.getKode());
     }
 
-    @Test( expected = IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void skal_feile_om_det_ikke_finnes_en_risikoklassifisering_for_behandlingen() {
         // Arrange
         VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true);
 
         // Act
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
-        Optional<RisikoklassifiseringEntitet> oppdatertEntitet = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(behandling.getId());
+        Optional<RisikoklassifiseringEntitet> oppdatertEntitet = risikoklassifiseringRepository
+                .hentRisikoklassifiseringForBehandling(behandling.getId());
 
         // Assert
         assertThat(oppdatertEntitet).isPresent();
@@ -175,14 +186,11 @@ public class VurderFaresignalerOppdatererTest {
         assertThat(oppdatertEntitet.get().getKontrollresultat()).isEqualTo(Kontrollresultat.HØY);
     }
 
-
-
     private RisikoklassifiseringEntitet lagRisikoklassifisering(Kontrollresultat kontrollresultat, FaresignalVurdering faresignalVurdering) {
         return RisikoklassifiseringEntitet.builder()
-            .medKontrollresultat(kontrollresultat)
-            .medFaresignalVurdering(faresignalVurdering)
-            .buildFor(behandling.getId());
+                .medKontrollresultat(kontrollresultat)
+                .medFaresignalVurdering(faresignalVurdering)
+                .buildFor(behandling.getId());
     }
-
 
 }

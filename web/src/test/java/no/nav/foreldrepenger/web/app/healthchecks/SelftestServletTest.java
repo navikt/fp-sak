@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.healthchecks;
 
+import static no.nav.vedtak.log.util.MemoryAppender.sniff;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
@@ -15,18 +16,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.health.HealthCheck;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import no.nav.vedtak.log.util.MemoryAppender;
 
 public class SelftestServletTest {
 
     private static MemoryAppender logSniffer;
-    private static Logger LOG;
     private HealthCheckRestService healthCheckRestService; // objektet vi tester
 
     private HttpServletRequest mockRequest;
@@ -37,20 +34,14 @@ public class SelftestServletTest {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        LOG = Logger.class.cast(LoggerFactory.getLogger(HttpServletRequest.class));
-        LOG.setLevel(Level.INFO);
-        logSniffer = new MemoryAppender(LOG.getName());
-        LOG.addAppender(logSniffer);
-        logSniffer.start();
+        logSniffer = sniff(HttpServletRequest.class);
     }
 
     @BeforeEach
     public void setup() {
         mockRequest = mock(HttpServletRequest.class);
         when(mockRequest.getContentType()).thenReturn(MediaType.APPLICATION_JSON);
-
         mockSelftests = mock(Selftests.class);
-
         healthCheckRestService = new HealthCheckRestService();
         healthCheckRestService.setSelftests(mockSelftests);
     }
