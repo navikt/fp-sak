@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.økonomi.økonomistøtte;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -27,7 +27,7 @@ public class HentOppdragMedPositivKvitteringTest {
     private Oppdragskontroll oppdragskontroll;
     private Saksnummer saksnummer;
 
-    @Before
+    @BeforeEach
     public void setup() {
         behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         saksnummer = behandling.getFagsak().getSaksnummer();
@@ -45,134 +45,114 @@ public class HentOppdragMedPositivKvitteringTest {
 
     @Test
     public void skalHenteOppdrag110MedPositivKvitteringForBehandling() {
-        // Arrange
+
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
 
-        // Act
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(behandling);
 
-        // Assert
         assertThat(resultater).hasSize(1);
     }
 
     @Test
     public void skalHenteOppdrag110MedNegativOgPositivKvitteringForBehandling() {
-        // Arrange
+
         lagToOppdrag110MedPositivOgNegativKvittering();
 
-        // Act
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(behandling);
 
-        // Assert
         assertThat(resultater).hasSize(1);
     }
 
     @Test
     public void skalIkkeHenteOppdrag110MedNegativKvitteringForBehandling() {
-        // Arrange
+
         OppdragKvitteringTestUtil.lagNegativeKvitteringer(oppdragskontroll);
 
-        // Act
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(behandling);
 
-        // Assert
         assertThat(resultater).isEmpty();
     }
 
     @Test
     public void skalIkkeHenteOppdrag110UtenKvitteringForBehandling() {
-        // Act
+
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(behandling);
 
-        // Assert
         assertThat(resultater).isEmpty();
     }
 
     @Test
     public void skalHenteOppdrag110MedPositivKvitteringForBehandlingFeilHvisVenter() {
-        // Arrange
+
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
 
-        // Act
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling);
 
-        // Assert
         assertThat(resultater).hasSize(1);
     }
 
     @Test
     public void skalHenteOppdrag110MedNegativOgPositivKvitteringForBehandlingFeilHvisVenter() {
-        // Arrange
+
         lagToOppdrag110MedPositivOgNegativKvittering();
 
-        // Act
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling);
 
-        // Assert
         assertThat(resultater).hasSize(1);
     }
 
     @Test
     public void skalIkkeHenteOppdrag110MedNegativKvitteringForBehandlingFeilHvisVenter() {
-        // Arrange
+
         OppdragKvitteringTestUtil.lagNegativeKvitteringer(oppdragskontroll);
 
-        // Act
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling);
 
-        // Assert
         assertThat(resultater).isEmpty();
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void skalIkkeHenteOppdrag110UtenKvitteringForBehandlingFeilHvisVenter() {
-        // Act
-        var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling);
+
+        assertThrows(IllegalStateException.class, () -> hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling));
 
     }
 
     @Test
     public void skalHenteOppdrag110MedPositivKvitteringForSaksnummer() {
-        // Arrange
+
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
 
-        // Act
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(saksnummer);
 
-        // Assert
         assertThat(resultater).hasSize(1);
     }
 
     @Test
     public void skalHenteOppdrag110MedNegativOgPositivKvitteringForSaksnummer() {
-        // Arrange
+
         lagToOppdrag110MedPositivOgNegativKvittering();
 
-        // Act
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(saksnummer);
 
-        // Assert
         assertThat(resultater).hasSize(1);
     }
 
     @Test
     public void skalIkkeHenteOppdrag110MedNegativKvitteringForSaksnummer() {
-        // Arrange
+
         OppdragKvitteringTestUtil.lagNegativeKvitteringer(oppdragskontroll);
 
-        // Act
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(saksnummer);
 
-        // Assert
         assertThat(resultater).isEmpty();
     }
 
     @Test
     public void skalIkkeHenteOppdrag110UtenKvitteringForSaksnummer() {
-        // Act
+
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(saksnummer);
 
-        // Assert
         assertThat(resultater).isEmpty();
     }
 
@@ -192,7 +172,7 @@ public class HentOppdragMedPositivKvitteringTest {
      */
     @Test
     public void skalKunHenteOppdrag110MedPositivKvitteringForSaksnummer() {
-        // Arrange
+
         Oppdragskontroll oppdragskontroll = OppdragTestDataHelper.buildOppdragskontroll();
         var oppdrag1 = OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 1L);
         OppdragKvitteringTestUtil.lagPositivKvitting(oppdrag1);
@@ -202,15 +182,11 @@ public class HentOppdragMedPositivKvitteringTest {
         OppdragKvitteringTestUtil.lagPositivKvitting(oppdrag3);
         mockRepository(oppdragskontroll);
 
-        // Act
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(saksnummer);
 
-        // Assert
         assertThat(resultater).hasSize(2);
-        assertThat(resultater).anySatisfy(oppdrag110 ->
-            assertThat(oppdrag110.getFagsystemId()).isEqualTo(1L));
-        assertThat(resultater).anySatisfy(oppdrag110 ->
-            assertThat(oppdrag110.getFagsystemId()).isEqualTo(3L));
+        assertThat(resultater).anySatisfy(oppdrag110 -> assertThat(oppdrag110.getFagsystemId()).isEqualTo(1L));
+        assertThat(resultater).anySatisfy(oppdrag110 -> assertThat(oppdrag110.getFagsystemId()).isEqualTo(3L));
     }
 
     private void lagToOppdrag110MedPositivOgNegativKvittering() {

@@ -26,7 +26,7 @@ class DataSourceKonfig {
                 new DBConnProp(createDatasource("dvhDS"), MIGRATIONS_LOCATION + "dvhDS"));
     }
 
-    private DataSource createDatasource(String dataSourceName) {
+    private static DataSource createDatasource(String dataSourceName) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(ENV.getProperty(dataSourceName + ".url"));
         config.setUsername(ENV.getProperty(dataSourceName + ".username"));

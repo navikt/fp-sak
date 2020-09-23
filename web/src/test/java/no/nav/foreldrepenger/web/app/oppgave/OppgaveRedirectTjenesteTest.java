@@ -3,10 +3,8 @@ package no.nav.foreldrepenger.web.app.oppgave;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.Optional;
 
-import javax.servlet.ServletException;
 import javax.ws.rs.core.Response;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +45,7 @@ public class OppgaveRedirectTjenesteTest {
     }
 
     @Test
-    public void skal_lage_url_med_feilmelding_når_hverken_oppgaveId_eller_sakId_finnes() throws ServletException, IOException {
+    public void skal_lage_url_med_feilmelding_når_hverken_oppgaveId_eller_sakId_finnes() {
         Response response = tjeneste.doRedirect(null, null);
 
         String feilmelding = "Sak+kan+ikke+%C3%A5pnes%2C+da+referanse+mangler.";
@@ -56,8 +54,7 @@ public class OppgaveRedirectTjenesteTest {
     }
 
     @Test
-    public void skal_lage_url_med_feilmelding_når_både_oppgaveId_og_sakId_finnes_i_url_men_ikke_finnes_ikke_i_vl()
-            throws ServletException, IOException {
+    public void skal_lage_url_med_feilmelding_når_både_oppgaveId_og_sakId_finnes_i_url_men_ikke_finnes_ikke_i_vl() {
         Response response = tjeneste.doRedirect(new OppgaveIdDto("1"), new SaksnummerDto("2"));
         String feilmelding = "Det+finnes+ingen+sak+med+dette+saksnummeret%3A+2";
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
@@ -65,7 +62,7 @@ public class OppgaveRedirectTjenesteTest {
     }
 
     @Test
-    public void skal_lage_url_med_saksnummer_og_behandlingId_når_oppgave_finnes_og_sakId_ikke_finnes_i_url() throws ServletException {
+    public void skal_lage_url_med_saksnummer_og_behandlingId_når_oppgave_finnes_og_sakId_ikke_finnes_i_url() {
         var behandlingId = 10L;
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null, null, saksnummer);
         fagsak.setId(2L);
@@ -83,7 +80,7 @@ public class OppgaveRedirectTjenesteTest {
     }
 
     @Test
-    public void skal_lage_url_med_saksnummer_når_oppgave_ikke_finnes() throws ServletException, IOException {
+    public void skal_lage_url_med_saksnummer_når_oppgave_ikke_finnes() {
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null, null, saksnummer);
         fagsak.setId(12L);
         when(fagsakRepo.hentSakGittSaksnummer(saksnummer)).thenReturn(Optional.of(fagsak));
@@ -95,7 +92,7 @@ public class OppgaveRedirectTjenesteTest {
     }
 
     @Test
-    public void skal_lage_url_med_behandlingsid_og_saksnummer_når_oppgave_finnes() throws ServletException, IOException {
+    public void skal_lage_url_med_behandlingsid_og_saksnummer_når_oppgave_finnes() {
         var behandlingId = 11L;
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null, null, saksnummer);
         fagsak.setId(5l);
@@ -114,7 +111,7 @@ public class OppgaveRedirectTjenesteTest {
     }
 
     @Test
-    public void skal_lage_url_med_saksnummer_når_oppgave_ikke_oppgitt() throws ServletException, IOException {
+    public void skal_lage_url_med_saksnummer_når_oppgave_ikke_oppgitt() {
         Saksnummer saksnummer = new Saksnummer("22");
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null, null, saksnummer);
         when(fagsakRepo.hentSakGittSaksnummer(saksnummer)).thenReturn(Optional.of(fagsak));

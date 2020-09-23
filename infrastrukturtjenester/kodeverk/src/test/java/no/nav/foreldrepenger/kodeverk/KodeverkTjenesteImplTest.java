@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.kodeverk;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,7 +30,7 @@ public class KodeverkTjenesteImplTest {
     private KodeverkConsumer kodeverkConsumer = mock(KodeverkConsumer.class);
     private KodeverkTjeneste kodeverkTjeneste;
 
-    private LocalDate MAX_DATE = LocalDate.of(9999, 12,31);
+    private LocalDate MAX_DATE = LocalDate.of(9999, 12, 31);
 
     @Before
     public void before() {
@@ -51,41 +50,42 @@ public class KodeverkTjenesteImplTest {
         assertThat(kodeverkKodeMap).hasSize(4);
 
         KodeverkKode kodeverkKode1 = new KodeverkKode.Builder()
-            .medKodeverk("Postnummer")
-            .medKode("7808")
-            .medNavn("NAMSOS")
-            .medGyldigFom(LocalDate.of(2003, 12, 3))
-            .medGyldigTom(MAX_DATE)
-            .build();
+                .medKodeverk("Postnummer")
+                .medKode("7808")
+                .medNavn("NAMSOS")
+                .medGyldigFom(LocalDate.of(2003, 12, 3))
+                .medGyldigTom(MAX_DATE)
+                .build();
         KodeverkKode kodeverkKode2 = new KodeverkKode.Builder()
-            .medKodeverk("Postnummer")
-            .medKode("7810")
-            .medNavn("NAMSOS")
-            .medGyldigFom(LocalDate.of(2012, 9, 14))
-            .medGyldigTom(MAX_DATE)
-            .build();
+                .medKodeverk("Postnummer")
+                .medKode("7810")
+                .medNavn("NAMSOS")
+                .medGyldigFom(LocalDate.of(2012, 9, 14))
+                .medGyldigTom(MAX_DATE)
+                .build();
         KodeverkKode kodeverkKode3 = new KodeverkKode.Builder()
-            .medKodeverk("Postnummer")
-            .medKode("7817")
-            .medNavn("SALSNES")
-            .medGyldigFom(LocalDate.of(1900, 1, 1))
-            .medGyldigTom(MAX_DATE)
-            .build();
+                .medKodeverk("Postnummer")
+                .medKode("7817")
+                .medNavn("SALSNES")
+                .medGyldigFom(LocalDate.of(1900, 1, 1))
+                .medGyldigTom(MAX_DATE)
+                .build();
         KodeverkKode kodeverkKode4 = new KodeverkKode.Builder()
-            .medKodeverk("Postnummer")
-            .medKode("7818")
-            .medNavn("LUND")
-            .medGyldigFom(LocalDate.of(1900, 1, 1))
-            .medGyldigTom(MAX_DATE)
-            .build();
+                .medKodeverk("Postnummer")
+                .medKode("7818")
+                .medNavn("LUND")
+                .medGyldigFom(LocalDate.of(1900, 1, 1))
+                .medGyldigTom(MAX_DATE)
+                .build();
         assertThat(kodeverkKodeMap.values()).containsExactlyInAnyOrder(kodeverkKode1, kodeverkKode2, kodeverkKode3, kodeverkKode4);
     }
 
     @Test
-    public void skal_handtere_kodeverkikkefunnet_exception_fra_consumer()  {
+    public void skal_handtere_kodeverkikkefunnet_exception_fra_consumer() {
         try {
             // Arrange
-            HentKodeverkHentKodeverkKodeverkIkkeFunnet kodeverkIkkeFunnet = new HentKodeverkHentKodeverkKodeverkIkkeFunnet("Feil", new KodeverkIkkeFunnet());
+            HentKodeverkHentKodeverkKodeverkIkkeFunnet kodeverkIkkeFunnet = new HentKodeverkHentKodeverkKodeverkIkkeFunnet("Feil",
+                    new KodeverkIkkeFunnet());
             doThrow(kodeverkIkkeFunnet).when(kodeverkConsumer).hentKodeverk(any(HentKodeverkRequest.class));
 
             // Act
@@ -104,19 +104,19 @@ public class KodeverkTjenesteImplTest {
         enkeltKodeverk.setNavn("Postnummer");
         enkeltKodeverk.setVersjonsnummer("6");
         enkeltKodeverk.getKode().add(lagKode("7808", "NAMSOS",
-            LocalDate.of(2003, 12, 3), MAX_DATE));
+                LocalDate.of(2003, 12, 3), MAX_DATE));
         enkeltKodeverk.getKode().add(lagKode("7810", "NAMSOS",
-            LocalDate.of(2012, 9, 14), MAX_DATE));
+                LocalDate.of(2012, 9, 14), MAX_DATE));
         enkeltKodeverk.getKode().add(lagKode("7817", "SALSNES",
-            LocalDate.of(1900, 1, 1), MAX_DATE));
+                LocalDate.of(1900, 1, 1), MAX_DATE));
         enkeltKodeverk.getKode().add(lagKode("7818", "LUND",
-            LocalDate.of(1900, 1, 1), MAX_DATE));
+                LocalDate.of(1900, 1, 1), MAX_DATE));
         HentKodeverkResponse response = new HentKodeverkResponse();
         response.setKodeverk(enkeltKodeverk);
         return response;
     }
 
-    private Kode lagKode(String kodeNavn, String termNavn, LocalDate fom, LocalDate tom) {
+    private static Kode lagKode(String kodeNavn, String termNavn, LocalDate fom, LocalDate tom) {
         Periode periode = new Periode();
         periode.setFom(DateUtil.convertToXMLGregorianCalendar(fom));
         periode.setTom(DateUtil.convertToXMLGregorianCalendar(tom));

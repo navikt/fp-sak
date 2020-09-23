@@ -21,8 +21,6 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 @Dependent
 class AppStartupInfoLogger {
 
-    private static final List<String> SECRETS = List.of("passord", "password", "passwd");
-
     private static final Logger LOG = LoggerFactory.getLogger(AppStartupInfoLogger.class);
 
     private Selftests selftests;
@@ -96,7 +94,7 @@ class AppStartupInfoLogger {
         return isHealthy ? "OK" : "ERROR";
     }
 
-    private void logVersjoner() {
+    private static void logVersjoner() {
         // Noen biblioteker er bundlet med jboss og kan skape konflikter, eller jboss
         // overstyrer vår overstyring via modul classpath
         // her logges derfor hva som er effektivt tilgjengelig av ulike biblioteker som

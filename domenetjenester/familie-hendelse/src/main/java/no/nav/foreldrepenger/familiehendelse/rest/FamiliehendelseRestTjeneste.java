@@ -58,66 +58,57 @@ public class FamiliehendelseRestTjeneste {
     @POST
     @Path(FAMILIEHENDELSE_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer info om familiehendelse, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamiliehendelseDto.class)))
-        })
+    @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer info om familiehendelse, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamiliehendelseDto.class)))
+    })
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public FamiliehendelseDto getAvklartFamiliehendelseDto(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public FamiliehendelseDto getAvklartFamiliehendelseDto(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         Optional<FamiliehendelseDto> dtoOpt = dtoMapper.mapFra(behandling);
         return dtoOpt.orElse(null);
     }
 
     @GET
     @Path(FAMILIEHENDELSE_PART_PATH)
-    @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer info om familiehendelse, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamiliehendelseDto.class)))
-        })
+    @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer info om familiehendelse, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamiliehendelseDto.class)))
+    })
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public FamiliehendelseDto getAvklartFamiliehendelseDto(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public FamiliehendelseDto getAvklartFamiliehendelseDto(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getAvklartFamiliehendelseDto(new BehandlingIdDto(uuidDto));
     }
 
     @POST
     @Path(FAMILIEHENDELSE_V2_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer hele FamilieHendelse grunnlaget",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamilieHendelseGrunnlagDto.class)))
-        })
+    @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer hele FamilieHendelse grunnlaget", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamilieHendelseGrunnlagDto.class)))
+    })
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public FamilieHendelseGrunnlagDto getFamiliehendelseGrunnlagDto(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public FamilieHendelseGrunnlagDto getFamiliehendelseGrunnlagDto(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         return dtoMapper.mapGrunnlagFra(behandling);
     }
 
     @GET
     @Path(FAMILIEHENDELSE_V2_PART_PATH)
-    @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer hele FamilieHendelse grunnlaget",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamilieHendelseGrunnlagDto.class)))
-        })
+    @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer hele FamilieHendelse grunnlaget", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamilieHendelseGrunnlagDto.class)))
+    })
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public FamilieHendelseGrunnlagDto getFamiliehendelseGrunnlagDto(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto
-    ) {
+    public FamilieHendelseGrunnlagDto getFamiliehendelseGrunnlagDto(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getFamiliehendelseGrunnlagDto(new BehandlingIdDto(uuidDto));
     }
 }

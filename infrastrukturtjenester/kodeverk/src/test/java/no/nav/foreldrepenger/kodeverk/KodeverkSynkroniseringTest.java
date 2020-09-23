@@ -32,13 +32,13 @@ import no.nav.vedtak.felles.integrasjon.kodeverk.KodeverkConsumer;
 
 public class KodeverkSynkroniseringTest {
 
-    
     @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    
-    private LocalDate MAX_DATE = LocalDate.of(9999, 12,31);
 
-    private KodeverkSynkroniseringRepository kodeverkSynkroniseringRepository = Mockito.spy(new KodeverkSynkroniseringRepository(repoRule.getEntityManager()));
+    private LocalDate MAX_DATE = LocalDate.of(9999, 12, 31);
+
+    private KodeverkSynkroniseringRepository kodeverkSynkroniseringRepository = Mockito
+            .spy(new KodeverkSynkroniseringRepository(repoRule.getEntityManager()));
     private KodeverkSynkronisering kodeverkSynkronisering;
     private KodeverkConsumer kodeverkConsumer = mock(KodeverkConsumer.class);
 
@@ -52,13 +52,13 @@ public class KodeverkSynkroniseringTest {
     @Before
     public void setup() throws Exception {
         kodeverkSynkronisering = new KodeverkSynkronisering(kodeverkSynkroniseringRepository, new KodeverkTjeneste(kodeverkConsumer));
-        
+
         // reset oppdateringmetoder slik at de ikke endrer noe
         Mockito.doNothing().when(kodeverkSynkroniseringRepository).oppdaterEksisterendeKode(any(), any(), any(), any(), any(), any());
         Mockito.doNothing().when(kodeverkSynkroniseringRepository).oppdaterEksisterendeKodeverk(any(), any(), any());
-        
+
         Mockito.doNothing().when(kodeverkSynkroniseringRepository).opprettNyKode(any(), any(), any(), any(), any(), any());
-        
+
     }
 
     @Test
@@ -70,15 +70,17 @@ public class KodeverkSynkroniseringTest {
         Map<String, String> eierNavnMap = new HashMap<>();
         eierNavnMap.put("Postnummer", "POSTSTED");
         when(kodeverkSynkroniseringRepository.hentKodeverkEierNavnMap()).thenReturn(eierNavnMap);
-        
+
         when(kodeverkConsumer.finnKodeverkListe(any())).thenReturn(opprettEnkeltKodeverkListeResponse("Postnummer", "0051"));
 
         // Act
         kodeverkSynkronisering.synkroniserAlleKodeverk();
 
         // Assert
-        verify(kodeverkSynkroniseringRepository, times(1)).opprettNyKode(anyString(), anyString(), anyString(), anyString(), any(LocalDate.class), any(LocalDate.class));
-        verify(kodeverkSynkroniseringRepository, times(1)).oppdaterEksisterendeKode(anyString(), anyString(), anyString(), anyString(), any(LocalDate.class), any(LocalDate.class));
+        verify(kodeverkSynkroniseringRepository, times(1)).opprettNyKode(anyString(), anyString(), anyString(), anyString(), any(LocalDate.class),
+                any(LocalDate.class));
+        verify(kodeverkSynkroniseringRepository, times(1)).oppdaterEksisterendeKode(anyString(), anyString(), anyString(), anyString(),
+                any(LocalDate.class), any(LocalDate.class));
     }
 
     @Test
@@ -86,20 +88,23 @@ public class KodeverkSynkroniseringTest {
         // Arrange
         HentKodeverkResponse kodeverkResponse = opprettEnkeltKodeverkResponse();
         when(kodeverkConsumer.hentKodeverk(argThat(kodeverkRequestArgumentMatcher))).thenReturn(kodeverkResponse);
-        
+
         Map<String, String> eierNavnMap = new HashMap<>();
         eierNavnMap.put("Postnummer", "POSTSTED");
-        when(kodeverkConsumer.finnKodeverkListe(any())).thenReturn(opprettEnkeltKodeverkListeResponse("Postnummer", "7"));  // pt er versjon 7 registrert i script
+        when(kodeverkConsumer.finnKodeverkListe(any())).thenReturn(opprettEnkeltKodeverkListeResponse("Postnummer", "7")); // pt er versjon 7
+                                                                                                                           // registrert i script
 
         // Act
         kodeverkSynkronisering.synkroniserAlleKodeverk();
 
         // Assert
-        verify(kodeverkSynkroniseringRepository, times(0)).opprettNyKode(anyString(), anyString(), anyString(), anyString(), any(LocalDate.class), any(LocalDate.class));
-        verify(kodeverkSynkroniseringRepository, times(0)).oppdaterEksisterendeKode(anyString(), anyString(), anyString(), anyString(), any(LocalDate.class), any(LocalDate.class));
+        verify(kodeverkSynkroniseringRepository, times(0)).opprettNyKode(anyString(), anyString(), anyString(), anyString(), any(LocalDate.class),
+                any(LocalDate.class));
+        verify(kodeverkSynkroniseringRepository, times(0)).oppdaterEksisterendeKode(anyString(), anyString(), anyString(), anyString(),
+                any(LocalDate.class), any(LocalDate.class));
     }
 
-    private FinnKodeverkListeResponse opprettEnkeltKodeverkListeResponse(String navn, String versjon) {
+    private static FinnKodeverkListeResponse opprettEnkeltKodeverkListeResponse(String navn, String versjon) {
         no.nav.tjeneste.virksomhet.kodeverk.v2.informasjon.finnkodeverkliste.Kodeverk element = new no.nav.tjeneste.virksomhet.kodeverk.v2.informasjon.finnkodeverkliste.Kodeverk();
         element.setEier("Koderverksforvaltning");
         element.setNavn(navn);
@@ -116,15 +121,15 @@ public class KodeverkSynkroniseringTest {
         enkeltKodeverk.setNavn("Postnummer");
         enkeltKodeverk.setVersjonsnummer("6");
         enkeltKodeverk.getKode().add(lagKode("7818", "LUND", null,
-            LocalDate.of(1900, 1, 1), MAX_DATE));
+                LocalDate.of(1900, 1, 1), MAX_DATE));
         enkeltKodeverk.getKode().add(lagKode("8888", "DALSTROKA INNAFOR", null,
-            LocalDate.of(2017, 1, 1), MAX_DATE));
+                LocalDate.of(2017, 1, 1), MAX_DATE));
         HentKodeverkResponse response = new HentKodeverkResponse();
         response.setKodeverk(enkeltKodeverk);
         return response;
     }
 
-    private Kode lagKode(String kodeNavn, String termNavn, String uri, LocalDate fom, LocalDate tom) {
+    private static Kode lagKode(String kodeNavn, String termNavn, String uri, LocalDate fom, LocalDate tom) {
         Periode periode = new Periode();
         periode.setFom(DateUtil.convertToXMLGregorianCalendar(fom));
         periode.setTom(DateUtil.convertToXMLGregorianCalendar(tom));

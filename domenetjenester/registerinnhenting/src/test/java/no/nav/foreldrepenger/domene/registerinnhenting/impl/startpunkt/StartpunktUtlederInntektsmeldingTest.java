@@ -39,7 +39,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-
 public class StartpunktUtlederInntektsmeldingTest {
 
     private static final BigDecimal INNTEKTBELØP_DEFAULT = new BigDecimal(30000);
@@ -68,7 +67,6 @@ public class StartpunktUtlederInntektsmeldingTest {
     InntektArbeidYtelseGrunnlag revurderingGrunnlagIAY;
 
     private StartpunktUtlederInntektsmelding utleder;
-    private static final BigDecimal ARBEIDSPROSENT_30 = new BigDecimal(30);
 
     @Before
     public void oppsett() {
@@ -89,7 +87,8 @@ public class StartpunktUtlederInntektsmeldingTest {
         Behandling revurdering = opprettRevurdering(førstegangsbehandling);
 
         LocalDate endretUttaksdato = førsteUttaksdato.plusWeeks(1);
-        List<Inntektsmelding> revurderingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, INNTEKTBELØP_DEFAULT, endretUttaksdato, ARBEIDSID_DEFAULT);
+        List<Inntektsmelding> revurderingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, INNTEKTBELØP_DEFAULT, endretUttaksdato,
+                ARBEIDSID_DEFAULT);
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(revurdering.getId())).thenReturn(Optional.of(revurderingGrunnlagIAY));
         BehandlingReferanse ref = lagReferanse(revurdering, førsteUttaksdato);
 
@@ -114,8 +113,8 @@ public class StartpunktUtlederInntektsmeldingTest {
         // Arrange - opprette revurderingsbehandling
         Behandling revurdering = opprettRevurdering(førstegangsbehandling);
 
-        List<Inntektsmelding> inntektsmeldingerMottattEtterVedtak =
-            lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, INNTEKTBELØP_DEFAULT, førsteUttaksdato, ARBEIDSID_DEFAULT);
+        List<Inntektsmelding> inntektsmeldingerMottattEtterVedtak = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, INNTEKTBELØP_DEFAULT,
+                førsteUttaksdato, ARBEIDSID_DEFAULT);
         BehandlingReferanse ref = lagReferanse(revurdering, førsteUttaksdato);
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(revurdering.getId())).thenReturn(Optional.of(revurderingGrunnlagIAY));
         when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(Collections.emptyList());
@@ -133,16 +132,16 @@ public class StartpunktUtlederInntektsmeldingTest {
         LocalDate førsteUttaksdato = LocalDate.now();
 
         BigDecimal førstegangsbehandlingInntekt = new BigDecimal(30000);
-        List<Inntektsmelding> førstegangsbehandlingIM =
-            lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt, førsteUttaksdato, ARBEIDSID_DEFAULT);
+        List<Inntektsmelding> førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt,
+                førsteUttaksdato, ARBEIDSID_DEFAULT);
         when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
 
         // Arrange - opprette revurderingsbehandling
         Behandling revurdering = opprettRevurdering(behandling);
 
         BigDecimal revurderingInntekt = new BigDecimal(30000);
-        List<Inntektsmelding> inntektsmeldingerMottattEtterVedtak =
-            lagInntektsmeldingMedEndringIRefusjon(InntektsmeldingInnsendingsårsak.ENDRING, revurderingInntekt, førsteUttaksdato, ARBEIDSID_DEFAULT, førsteUttaksdato.plusWeeks(2));
+        List<Inntektsmelding> inntektsmeldingerMottattEtterVedtak = lagInntektsmeldingMedEndringIRefusjon(InntektsmeldingInnsendingsårsak.ENDRING,
+                revurderingInntekt, førsteUttaksdato, ARBEIDSID_DEFAULT, førsteUttaksdato.plusWeeks(2));
         BehandlingReferanse ref = lagReferanse(revurdering, førsteUttaksdato);
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())).thenReturn(Optional.of(førstegangsbehandlingGrunnlagIAY));
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(revurdering.getId())).thenReturn(Optional.of(revurderingGrunnlagIAY));
@@ -160,16 +159,16 @@ public class StartpunktUtlederInntektsmeldingTest {
         LocalDate førsteUttaksdato = LocalDate.now();
 
         BigDecimal førstegangsbehandlingInntekt = new BigDecimal(30000);
-        List<Inntektsmelding> førstegangsbehandlingIM =
-            lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt, førsteUttaksdato, ARBEIDSID_DEFAULT);
+        List<Inntektsmelding> førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt,
+                førsteUttaksdato, ARBEIDSID_DEFAULT);
         when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
 
         // Arrange - opprette revurderingsbehandling
         Behandling revurdering = opprettRevurdering(behandling);
 
         BigDecimal revurderingInntekt = førstegangsbehandlingInntekt.add(new BigDecimal(1000));
-        List<Inntektsmelding> inntektsmeldingerMottattEtterVedtak =
-            lagInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, revurderingInntekt, førsteUttaksdato, ARBEIDSID_DEFAULT);
+        List<Inntektsmelding> inntektsmeldingerMottattEtterVedtak = lagInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, revurderingInntekt,
+                førsteUttaksdato, ARBEIDSID_DEFAULT);
         BehandlingReferanse ref = lagReferanse(revurdering, førsteUttaksdato);
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())).thenReturn(Optional.of(førstegangsbehandlingGrunnlagIAY));
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(revurdering.getId())).thenReturn(Optional.of(revurderingGrunnlagIAY));
@@ -189,17 +188,19 @@ public class StartpunktUtlederInntektsmeldingTest {
         BigDecimal førstegangsbehandlingInntekt = new BigDecimal(30000);
         BigDecimal revurderingInntekt = førstegangsbehandlingInntekt.add(new BigDecimal(1000));
 
-        List<Inntektsmelding> førstegangsbehandlingIM =
-            lagInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, revurderingInntekt, førsteUttaksdato, ARBEIDSID_DEFAULT);
-            lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt, førsteUttaksdato, ARBEIDSID_EKSTRA, førstegangsbehandlingIM);
+        List<Inntektsmelding> førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, revurderingInntekt,
+                førsteUttaksdato, ARBEIDSID_DEFAULT);
+        lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt, førsteUttaksdato, ARBEIDSID_EKSTRA,
+                førstegangsbehandlingIM);
         when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
 
         // Arrange - opprette revurderingsbehandling
         Behandling revurdering = opprettRevurdering(behandling);
 
-        List<Inntektsmelding> inntektsmeldingerMottattEtterVedtak =
-            lagInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, revurderingInntekt, førsteUttaksdato, ARBEIDSID_DEFAULT);
-            lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, revurderingInntekt, førsteUttaksdato, ARBEIDSID_EKSTRA, inntektsmeldingerMottattEtterVedtak);
+        List<Inntektsmelding> inntektsmeldingerMottattEtterVedtak = lagInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, revurderingInntekt,
+                førsteUttaksdato, ARBEIDSID_DEFAULT);
+        lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, revurderingInntekt, førsteUttaksdato, ARBEIDSID_EKSTRA,
+                inntektsmeldingerMottattEtterVedtak);
         BehandlingReferanse ref = lagReferanse(revurdering, førsteUttaksdato);
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())).thenReturn(Optional.of(førstegangsbehandlingGrunnlagIAY));
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(revurdering.getId())).thenReturn(Optional.of(revurderingGrunnlagIAY));
@@ -216,13 +217,16 @@ public class StartpunktUtlederInntektsmeldingTest {
 
         LocalDate førsteUttaksdato = LocalDate.now();
 
-        List<Inntektsmelding> førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, INNTEKTBELØP_DEFAULT, førsteUttaksdato, ARBEIDSID_DEFAULT);
+        List<Inntektsmelding> førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, INNTEKTBELØP_DEFAULT, førsteUttaksdato,
+                ARBEIDSID_DEFAULT);
         when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
 
         // Arrange - opprette revurderingsbehandling
         Behandling revurdering = opprettRevurdering(behandling);
 
-        List<Inntektsmelding> inntektsmeldingerMottattEtterVedtak = lagInntektsmeldingMedNaturalytelse(InntektsmeldingInnsendingsårsak.ENDRING, INNTEKTBELØP_DEFAULT, førsteUttaksdato, ARBEIDSID_DEFAULT, new NaturalYtelse(LocalDate.now(), LocalDate.now().plusDays(1), new BigDecimal(30), null));
+        List<Inntektsmelding> inntektsmeldingerMottattEtterVedtak = lagInntektsmeldingMedNaturalytelse(InntektsmeldingInnsendingsårsak.ENDRING,
+                INNTEKTBELØP_DEFAULT, førsteUttaksdato, ARBEIDSID_DEFAULT,
+                new NaturalYtelse(LocalDate.now(), LocalDate.now().plusDays(1), new BigDecimal(30), null));
         BehandlingReferanse ref = lagReferanse(revurdering, førsteUttaksdato);
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())).thenReturn(Optional.of(førstegangsbehandlingGrunnlagIAY));
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(revurdering.getId())).thenReturn(Optional.of(revurderingGrunnlagIAY));
@@ -239,15 +243,15 @@ public class StartpunktUtlederInntektsmeldingTest {
 
         LocalDate førsteUttaksdato = LocalDate.now();
 
-        List<Inntektsmelding> førstegangsbehandlingIM =
-            lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, INNTEKTBELØP_DEFAULT, førsteUttaksdato, ARBEIDSID_DEFAULT);
+        List<Inntektsmelding> førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, INNTEKTBELØP_DEFAULT, førsteUttaksdato,
+                ARBEIDSID_DEFAULT);
         when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
 
         // Arrange - opprette revurderingsbehandling
         Behandling revurdering = opprettRevurdering(behandling);
 
-        List<Inntektsmelding> inntektsmeldingerMottattEtterVedtak =
-            lagInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, INNTEKTBELØP_DEFAULT, førsteUttaksdato, ARBEIDSID_DEFAULT);
+        List<Inntektsmelding> inntektsmeldingerMottattEtterVedtak = lagInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, INNTEKTBELØP_DEFAULT,
+                førsteUttaksdato, ARBEIDSID_DEFAULT);
         BehandlingReferanse ref = lagReferanse(revurdering, førsteUttaksdato);
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())).thenReturn(Optional.of(førstegangsbehandlingGrunnlagIAY));
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(revurdering.getId())).thenReturn(Optional.of(revurderingGrunnlagIAY));
@@ -259,8 +263,8 @@ public class StartpunktUtlederInntektsmeldingTest {
 
     private Behandling opprettRevurdering(Behandling førstegangsbehandling) {
         ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING)
-            .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.UDEFINERT);
+                .medBehandlingType(BehandlingType.REVURDERING)
+                .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.UDEFINERT);
         return revurderingScenario.lagre(repositoryProvider);
     }
 
@@ -273,46 +277,51 @@ public class StartpunktUtlederInntektsmeldingTest {
         return førstegangsbehandling;
     }
 
-    private List<Inntektsmelding> lagInntektsmelding(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato, InternArbeidsforholdRef arbeidID) {
+    private List<Inntektsmelding> lagInntektsmelding(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato,
+            InternArbeidsforholdRef arbeidID) {
         List<Inntektsmelding> inntektsmeldingerGrunnlag = new ArrayList<>();
         Inntektsmelding inntektsmelding = getInntektsmeldingBuilder()
-            .medBeløp(beløp)
-            .medArbeidsforholdId(arbeidID)
-            .medStartDatoPermisjon(førsteUttaksdato)
-            .medJournalpostId(InntektsmeldingInnsendingsårsak.NY.equals(innsendingsårsak) ? lagArbeidsgiver().getIdentifikator() : lagArbeidsgiver().getIdentifikator()+"E")
-            .medArbeidsgiver(lagArbeidsgiver())
-            .medInntektsmeldingaarsak(innsendingsårsak)
-            .build();
+                .medBeløp(beløp)
+                .medArbeidsforholdId(arbeidID)
+                .medStartDatoPermisjon(førsteUttaksdato)
+                .medJournalpostId(InntektsmeldingInnsendingsårsak.NY.equals(innsendingsårsak) ? lagArbeidsgiver().getIdentifikator()
+                        : lagArbeidsgiver().getIdentifikator() + "E")
+                .medArbeidsgiver(lagArbeidsgiver())
+                .medInntektsmeldingaarsak(innsendingsårsak)
+                .build();
 
         inntektsmeldingerGrunnlag.add(inntektsmelding);
         return inntektsmeldingerGrunnlag;
     }
 
-    private List<Inntektsmelding> lagInntektsmeldingMedEndringIRefusjon(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato, InternArbeidsforholdRef arbeidID, LocalDate refusjonsEndringFra) {
+    private List<Inntektsmelding> lagInntektsmeldingMedEndringIRefusjon(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp,
+            LocalDate førsteUttaksdato, InternArbeidsforholdRef arbeidID, LocalDate refusjonsEndringFra) {
         List<Inntektsmelding> inntektsmeldingerGrunnlag = new ArrayList<>();
         Inntektsmelding inntektsmelding = getInntektsmeldingBuilder()
-            .medBeløp(beløp)
-            .medArbeidsforholdId(arbeidID)
-            .medJournalpostId(InntektsmeldingInnsendingsårsak.NY.equals(innsendingsårsak) ? lagArbeidsgiver().getIdentifikator() : lagArbeidsgiver().getIdentifikator()+"E")
-            .medStartDatoPermisjon(førsteUttaksdato)
-            .medArbeidsgiver(lagArbeidsgiver())
-            .medInntektsmeldingaarsak(innsendingsårsak)
-            .leggTil(new Refusjon(BigDecimal.valueOf(10000), refusjonsEndringFra))
-            .build();
+                .medBeløp(beløp)
+                .medArbeidsforholdId(arbeidID)
+                .medJournalpostId(InntektsmeldingInnsendingsårsak.NY.equals(innsendingsårsak) ? lagArbeidsgiver().getIdentifikator()
+                        : lagArbeidsgiver().getIdentifikator() + "E")
+                .medStartDatoPermisjon(førsteUttaksdato)
+                .medArbeidsgiver(lagArbeidsgiver())
+                .medInntektsmeldingaarsak(innsendingsårsak)
+                .leggTil(new Refusjon(BigDecimal.valueOf(10000), refusjonsEndringFra))
+                .build();
 
         inntektsmeldingerGrunnlag.add(inntektsmelding);
         return inntektsmeldingerGrunnlag;
     }
 
-    private void lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato, InternArbeidsforholdRef arbeidID, List<Inntektsmelding> im ) {
+    private void lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato,
+            InternArbeidsforholdRef arbeidID, List<Inntektsmelding> im) {
         Inntektsmelding inntektsmelding = getInntektsmeldingBuilder()
-            .medBeløp(beløp)
-            .medArbeidsforholdId(arbeidID)
-            .medStartDatoPermisjon(førsteUttaksdato)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet("456"))
-            .medJournalpostId(InntektsmeldingInnsendingsårsak.NY.equals(innsendingsårsak) ? "456" : "456E")
-            .medInntektsmeldingaarsak(innsendingsårsak)
-            .build();
+                .medBeløp(beløp)
+                .medArbeidsforholdId(arbeidID)
+                .medStartDatoPermisjon(førsteUttaksdato)
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("456"))
+                .medJournalpostId(InntektsmeldingInnsendingsårsak.NY.equals(innsendingsårsak) ? "456" : "456E")
+                .medInntektsmeldingaarsak(innsendingsårsak)
+                .build();
 
         im.add(inntektsmelding);
     }
@@ -325,24 +334,25 @@ public class StartpunktUtlederInntektsmeldingTest {
         return InntektsmeldingBuilder.builder().medInnsendingstidspunkt(LocalDateTime.now());
     }
 
-
-    private List<Inntektsmelding> lagInntektsmeldingMedNaturalytelse(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato, InternArbeidsforholdRef arbeidID, NaturalYtelse naturalYtelse) {
+    private List<Inntektsmelding> lagInntektsmeldingMedNaturalytelse(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp,
+            LocalDate førsteUttaksdato, InternArbeidsforholdRef arbeidID, NaturalYtelse naturalYtelse) {
         List<Inntektsmelding> inntektsmeldingerGrunnlag = new ArrayList<>();
         Inntektsmelding inntektsmelding = getInntektsmeldingBuilder()
-            .medBeløp(beløp)
-            .medArbeidsforholdId(arbeidID)
-            .medArbeidsgiver(lagArbeidsgiver())
-            .medStartDatoPermisjon(førsteUttaksdato)
-            .medInntektsmeldingaarsak(innsendingsårsak)
-            .leggTil(naturalYtelse)
-            .build();
+                .medBeløp(beløp)
+                .medArbeidsforholdId(arbeidID)
+                .medArbeidsgiver(lagArbeidsgiver())
+                .medStartDatoPermisjon(førsteUttaksdato)
+                .medInntektsmeldingaarsak(innsendingsårsak)
+                .leggTil(naturalYtelse)
+                .build();
 
         inntektsmeldingerGrunnlag.add(inntektsmelding);
         return inntektsmeldingerGrunnlag;
     }
 
     private BehandlingReferanse lagReferanse(Behandling behandling, LocalDate førsteUttaksdato) {
-        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteUttaksdato).medUtledetSkjæringstidspunkt(førsteUttaksdato).build();
-        return BehandlingReferanse.fra(behandling,skjæringstidspunkt);
-     }
+        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteUttaksdato)
+                .medUtledetSkjæringstidspunkt(førsteUttaksdato).build();
+        return BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+    }
 }
