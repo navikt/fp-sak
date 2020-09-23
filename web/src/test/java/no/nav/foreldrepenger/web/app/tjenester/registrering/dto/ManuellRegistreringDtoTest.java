@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.dto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
@@ -17,6 +17,6 @@ public class ManuellRegistreringDtoTest {
         ManuellRegistreringDto dto = new ManuellRegistreringEngangsstonadDto();
 
         assertThat(dto.abacAttributter()).isEqualTo(AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, AksjonspunktKodeDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD_KODE));
+                .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, AksjonspunktKodeDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD_KODE));
     }
 }

@@ -6,8 +6,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.codahale.metrics.health.HealthCheck;
 
@@ -19,7 +19,7 @@ public class IntegrasjonstatusTjenesteTest {
     private Selftests selftests;
     private IntegrasjonstatusTjeneste integrasjonstatusTjeneste;
 
-    @Before
+    @BeforeEach
     public void before() {
         selftests = mock(Selftests.class);
         integrasjonstatusTjeneste = new IntegrasjonstatusTjeneste(selftests);
@@ -31,13 +31,13 @@ public class IntegrasjonstatusTjenesteTest {
         SelftestResultat selftestResultat = new SelftestResultat();
         HealthCheck.ResultBuilder systemSomErOppeBuilder = HealthCheck.Result.builder();
         systemSomErOppeBuilder.healthy()
-            .withDetail("description", "Test av web service Arbeidsforhold #di_team_registre")
-            .withDetail("endpoint", "endpoint1");
+                .withDetail("description", "Test av web service Arbeidsforhold #di_team_registre")
+                .withDetail("endpoint", "endpoint1");
         selftestResultat.leggTilResultatForKritiskTjeneste(systemSomErOppeBuilder.build());
         HealthCheck.ResultBuilder systemSomErNedeBuilder = HealthCheck.Result.builder();
         systemSomErNedeBuilder.unhealthy(new Exception("Feilmelding"))
-            .withDetail("description", "Test av meldingskø for Økonomioppdrag Mottak")
-            .withDetail("endpoint", "endpoint2");
+                .withDetail("description", "Test av meldingskø for Økonomioppdrag Mottak")
+                .withDetail("endpoint", "endpoint2");
         selftestResultat.leggTilResultatForKritiskTjeneste(systemSomErNedeBuilder.build());
         when(selftests.run()).thenReturn(selftestResultat);
 
@@ -58,9 +58,9 @@ public class IntegrasjonstatusTjenesteTest {
         SelftestResultat selftestResultat = new SelftestResultat();
         HealthCheck.ResultBuilder systemSomErNedeBuilder = HealthCheck.Result.builder();
         systemSomErNedeBuilder.unhealthy()
-            .withDetail("description", "Test av meldingskø for Økonomioppdrag Mottak")
-            .withDetail("endpoint", "endpoint2")
-            .withMessage("Feilmelding fra message");
+                .withDetail("description", "Test av meldingskø for Økonomioppdrag Mottak")
+                .withDetail("endpoint", "endpoint2")
+                .withMessage("Feilmelding fra message");
         selftestResultat.leggTilResultatForKritiskTjeneste(systemSomErNedeBuilder.build());
         when(selftests.run()).thenReturn(selftestResultat);
 

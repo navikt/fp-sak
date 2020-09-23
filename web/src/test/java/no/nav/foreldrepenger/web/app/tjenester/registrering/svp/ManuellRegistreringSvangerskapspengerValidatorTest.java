@@ -1,15 +1,16 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.svp;
 
-import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.EgenVirksomhetDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.FrilansDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.VirksomhetDto;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Collections;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.EgenVirksomhetDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.FrilansDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.VirksomhetDto;
 
 public class ManuellRegistreringSvangerskapspengerValidatorTest {
 
@@ -89,8 +90,8 @@ public class ManuellRegistreringSvangerskapspengerValidatorTest {
         frilansDto.setHarSokerPeriodeMedFrilans(false);
         dto.setFrilans(frilansDto);
 
-        var termindato = LocalDate.of(2019, 12,24);
-        dto.setTermindato(LocalDate.of(2019, 12,24));
+        var termindato = LocalDate.of(2019, 12, 24);
+        dto.setTermindato(LocalDate.of(2019, 12, 24));
         dto.setMottattDato(termindato.minusMonths(5));
 
         return dto;

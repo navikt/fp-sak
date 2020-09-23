@@ -1,13 +1,6 @@
 package no.nav.foreldrepenger.web.app.startupinfo;
 
-import static com.google.common.collect.Maps.fromProperties;
-import static java.util.Map.Entry.comparingByKey;
-import static no.nav.vedtak.konfig.StandardPropertySource.APP_PROPERTIES;
-import static no.nav.vedtak.konfig.StandardPropertySource.ENV_PROPERTIES;
-import static no.nav.vedtak.konfig.StandardPropertySource.SYSTEM_PROPERTIES;
-
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.spi.CDI;
@@ -22,9 +15,7 @@ import com.codahale.metrics.health.HealthCheck;
 
 import no.nav.foreldrepenger.web.app.healthchecks.Selftests;
 import no.nav.foreldrepenger.web.app.healthchecks.checks.ExtHealthCheck;
-import no.nav.vedtak.konfig.StandardPropertySource;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.util.env.Environment;
 
 /** Dependent scope siden vi lukker denne når vi er ferdig. */
 @Dependent
