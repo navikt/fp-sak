@@ -21,14 +21,14 @@ public class AppStartupServletContextListener implements ServletContextListener 
         thread.setDaemon(true);
         thread.start();
 
-        CDI.current().select(HealthCheckRestService.class).get().setIsReady(Boolean.TRUE);
+        CDI.current().select(HealthCheckRestService.class).get().setIsContextStartupReady(Boolean.TRUE);
     }
 
     private void startupLogging() {
         // Henter dependent instance og destroyer etterpå.
         AppStartupInfoLogger appStartupInfoLogger = null;
         try {
-            Thread.sleep(30L * 1000L); // La verden gå litt videre får vi dumper ut
+            Thread.sleep(5L * 1000L); // La verden gå litt videre får vi dumper ut
             appStartupInfoLogger = CDI.current().select(AppStartupInfoLogger.class).get();
             appStartupInfoLogger.logAppStartupInfo();
         } catch (Exception e) {

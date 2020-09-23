@@ -68,8 +68,6 @@
         <prosesstask.version>2.4.2-20200703105213-95d753a</prosesstask.version>
         <ukelonn.felles.version>1.0.0-20200914112449-039464d</ukelonn.felles.version>
 
-        <metrics.version>4.1.12.1</metrics.version>
-
         <fp-kontrakter.version>5.1-20200814082942-fd337ce</fp-kontrakter.version>
 
         <kalkulus.version>1.0-2020.09.21.155520-2f805eb</kalkulus.version>
@@ -252,16 +250,6 @@
                 <version>${ukelonn.felles.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-servlets</artifactId>
-                <version>${metrics.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-healthchecks</artifactId>
-                <version>${metrics.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>

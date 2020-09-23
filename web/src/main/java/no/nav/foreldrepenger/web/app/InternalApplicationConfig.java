@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.web.app;
 
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -14,7 +12,7 @@ import no.nav.foreldrepenger.web.app.healthchecks.HealthCheckRestService;
 import no.nav.foreldrepenger.web.app.metrics.PrometheusRestService;
 
 /**
- * Konfigurer Prometheus og Healthchecks (healthchecks bruker Dropwizards interface)
+ * Konfigurer Prometheus og Healthchecks
  */
 @ApplicationScoped
 @ApplicationPath(InternalApplicationConfig.INTERNAL_URI)
@@ -29,11 +27,8 @@ public class InternalApplicationConfig extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        Set<Class<?>> classes = new HashSet<>();
-        classes.add(PrometheusRestService.class);
-        classes.add(HealthCheckRestService.class);
 
-        return Collections.unmodifiableSet(classes);
+        return Set.of(PrometheusRestService.class, HealthCheckRestService.class);
     }
 
 

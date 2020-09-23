@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.startupinfo;
 
-import java.util.List;
-
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
@@ -11,10 +9,8 @@ import org.jboss.weld.util.reflection.Formats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.codahale.metrics.health.HealthCheck;
-
+import no.nav.foreldrepenger.web.app.healthchecks.SelftestResultat;
 import no.nav.foreldrepenger.web.app.healthchecks.Selftests;
-import no.nav.foreldrepenger.web.app.healthchecks.checks.ExtHealthCheck;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 /** Dependent scope siden vi lukker denne når vi er ferdig. */
@@ -53,8 +49,7 @@ class AppStartupInfoLogger {
         var samletResultat = selftests.run();
         MDCOperations.removeCallId();
 
-        samletResultat.getAlleResultater().stream()
-                .forEach(AppStartupInfoLogger::log);
+        samletResultat.getAlleResultater().forEach(AppStartupInfoLogger::log);
 
         log(APPLIKASJONENS_STATUS + ": {}", samletResultat.getAggregateResult());
         log(SELFTEST + " " + SLUTT);
@@ -72,22 +67,11 @@ class AppStartupInfoLogger {
         }
     }
 
-    private static void log(HealthCheck.Result result) {
-        if (result.getDetails() != null) {
-            OppstartFeil.FACTORY.selftestStatus(
-                    getStatus(result.isHealthy()),
-                    (String) result.getDetails().get(ExtHealthCheck.DETAIL_DESCRIPTION),
-                    (String) result.getDetails().get(ExtHealthCheck.DETAIL_ENDPOINT),
-                    (String) result.getDetails().get(ExtHealthCheck.DETAIL_RESPONSE_TIME),
-                    result.getMessage()).log(LOG);
-        } else {
-            OppstartFeil.FACTORY.selftestStatus(
-                    getStatus(result.isHealthy()),
-                    null,
-                    null,
-                    null,
-                    result.getMessage()).log(LOG);
-        }
+    private static void log(SelftestResultat.InternalResult result) {
+        OppstartFeil.FACTORY.selftestStatus(
+            getStatus(result.isReady()),
+            result.getDescription(),
+            result.getEndpoint()).log(LOG);
     }
 
     private static String getStatus(boolean isHealthy) {

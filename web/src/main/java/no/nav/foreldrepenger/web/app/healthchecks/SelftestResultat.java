@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.codahale.metrics.health.HealthCheck;
-
 public class SelftestResultat {
 
     public enum AggregateResult {
@@ -23,19 +21,16 @@ public class SelftestResultat {
     }
 
     private String application;
-    private String version;
-    private String revision;
     private LocalDateTime timestamp;
-    private String buildTime;
-    private List<HealthCheck.Result> kritiskeResultater = new ArrayList<>();
-    private List<HealthCheck.Result> ikkeKritiskeResultater = new ArrayList<>();
+    private List<InternalResult> kritiskeResultater = new ArrayList<>();
+    private List<InternalResult> ikkeKritiskeResultater = new ArrayList<>();
 
-    public void leggTilResultatForKritiskTjeneste(HealthCheck.Result resultat) {
-        kritiskeResultater.add(resultat);
+    public void leggTilResultatForKritiskTjeneste(boolean ready, String description, String endpoint) {
+        kritiskeResultater.add(new InternalResult(ready, description, endpoint));
     }
 
-    public void leggTilResultatForIkkeKritiskTjeneste(HealthCheck.Result resultat) {
-        ikkeKritiskeResultater.add(resultat);
+    public void leggTilResultatForIkkeKritiskTjeneste(boolean ready, String description, String endpoint) {
+        ikkeKritiskeResultater.add(new InternalResult(ready, description, endpoint));
     }
 
     public String getApplication() {
@@ -44,30 +39,6 @@ public class SelftestResultat {
 
     public void setApplication(String application) {
         this.application = application;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getRevision() {
-        return revision;
-    }
-
-    public void setRevision(String revision) {
-        this.revision = revision;
-    }
-
-    public String getBuildTime() {
-        return buildTime;
-    }
-
-    public void setBuildTime(String buildTime) {
-        this.buildTime = buildTime;
     }
 
     public LocalDateTime getTimestamp() {
@@ -79,31 +50,59 @@ public class SelftestResultat {
     }
 
     public AggregateResult getAggregateResult() {
-        for (HealthCheck.Result result : kritiskeResultater) {
-            if (!result.isHealthy()) {
+        for (InternalResult result : kritiskeResultater) {
+            if (!result.isReady()) {
                 return AggregateResult.ERROR;
             }
         }
-        for (HealthCheck.Result result : ikkeKritiskeResultater) {
-            if (!result.isHealthy()) {
+        for (InternalResult result : ikkeKritiskeResultater) {
+            if (!result.isReady()) {
                 return AggregateResult.WARNING;
             }
         }
         return AggregateResult.OK;
     }
 
-    public List<HealthCheck.Result> getIkkeKritiskeResultater() {
-        return ikkeKritiskeResultater;
-    }
-
-    public List<HealthCheck.Result> getKritiskeResultater() {
-        return kritiskeResultater;
-    }
-
-    public List<HealthCheck.Result> getAlleResultater() {
-        List<HealthCheck.Result> alle = new ArrayList<>();
+    public List<InternalResult> getAlleResultater() {
+        List<InternalResult> alle = new ArrayList<>();
         alle.addAll(kritiskeResultater);
         alle.addAll(ikkeKritiskeResultater);
         return alle;
+    }
+
+    public static class InternalResult {
+        private boolean ready = false;
+        private String description;
+        private String endpoint;
+
+        public InternalResult(boolean ready, String description, String endpoint) {
+            this.ready = ready;
+            this.description = description;
+            this.endpoint = endpoint;
+        }
+
+        public boolean isReady() {
+            return ready;
+        }
+
+        public void setReady(boolean ready) {
+            this.ready = ready;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public String getEndpoint() {
+            return endpoint;
+        }
+
+        public void setEndpoint(String endpoint) {
+            this.endpoint = endpoint;
+        }
     }
 }
