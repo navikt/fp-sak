@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.startupinfo;
 
-import java.util.List;
-
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
