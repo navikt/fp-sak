@@ -26,6 +26,9 @@ public class HealthCheckRestService {
         this.selftests = selftests;
     }
 
+    public HealthCheckRestService() {
+    }
+
     /**
      * Bruk annet svar enn 200 dersom man ønsker trafikk dirigert vekk (eller få nais til å oppskalere)
      */
