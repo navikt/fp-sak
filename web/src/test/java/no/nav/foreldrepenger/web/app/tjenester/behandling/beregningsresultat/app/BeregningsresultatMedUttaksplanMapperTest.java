@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,8 +12,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -50,6 +53,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatPeriodeDto;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
+@ExtendWith(MockitoExtension.class)
 public class BeregningsresultatMedUttaksplanMapperTest {
 
     private static final LocalDate P1_FOM = LocalDate.now();
@@ -60,11 +64,19 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     private static final LocalDate P3_TOM = LocalDate.now().plusDays(30);
     private static final AktørId AKTØR_ID = AktørId.dummy();
 
-    private VirksomhetTjeneste virksomhetTjeneste = Mockito.mock(VirksomhetTjeneste.class);
-    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjenesteMock = Mockito.mock(InntektArbeidYtelseTjeneste.class);
-    private ArbeidsgiverTjeneste arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(null, virksomhetTjeneste);
-    private BeregningsresultatMedUttaksplanMapper beregningsresultatMedUttaksplanMapper = new BeregningsresultatMedUttaksplanMapper(
-            arbeidsgiverTjeneste, inntektArbeidYtelseTjenesteMock);
+    @Mock
+    private VirksomhetTjeneste virksomhetTjeneste;
+    @Mock
+    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjenesteMock;
+    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
+    private BeregningsresultatMedUttaksplanMapper beregningsresultatMedUttaksplanMapper;
+
+    @BeforeEach
+    public void before() {
+        arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(null, virksomhetTjeneste);
+        beregningsresultatMedUttaksplanMapper = new BeregningsresultatMedUttaksplanMapper(
+                arbeidsgiverTjeneste, inntektArbeidYtelseTjenesteMock);
+    }
 
     @Test
     public void skalLageDto() {
@@ -176,7 +188,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
                 .medOrgnr(orgnr)
                 .medNavn("Virknavn " + orgnr)
                 .build();
-        when(virksomhetTjeneste.hentOrganisasjon(orgnr)).thenReturn(virksomhet);
+        lenient().when(virksomhetTjeneste.hentOrganisasjon(orgnr)).thenReturn(virksomhet);
 
         return virksomhet;
     }

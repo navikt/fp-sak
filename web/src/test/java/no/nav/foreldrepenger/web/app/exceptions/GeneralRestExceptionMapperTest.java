@@ -10,10 +10,8 @@ import org.jboss.resteasy.spi.ApplicationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
 import no.nav.vedtak.exception.VLException;
@@ -29,18 +27,12 @@ import no.nav.vedtak.log.util.MemoryAppender;
 public class GeneralRestExceptionMapperTest {
 
     private static MemoryAppender logSniffer;
-    private static Logger LOG;
 
-    private GeneralRestExceptionMapper generalRestExceptionMapper;
+    private GeneralRestExceptionMapper generalRestExceptionMapper = new GeneralRestExceptionMapper();
 
     @BeforeEach
     public void setUp() throws Exception {
-        LOG = Logger.class.cast(LoggerFactory.getLogger(GeneralRestExceptionMapper.class));
-        LOG.setLevel(Level.INFO);
-        logSniffer = new MemoryAppender(LOG.getName());
-        LOG.addAppender(logSniffer);
-        logSniffer.start();
-        generalRestExceptionMapper = new GeneralRestExceptionMapper();
+        logSniffer = MemoryAppender.sniff(GeneralRestExceptionMapper.class);
     }
 
     @AfterEach
@@ -77,8 +69,7 @@ public class GeneralRestExceptionMapperTest {
 
         assertThat(feilDto.getType()).isEqualTo(FeilType.MANGLER_TILGANG_FEIL);
         assertThat(feilDto.getFeilmelding()).isEqualTo("ManglerTilgangFeilmeldingKode");
-        System.out.println(logSniffer.getLoggedEvents());
-        // logSniffer.assertHasWarnMessage("ManglerTilgangFeilmeldingKode");
+        assertThat(logSniffer.search("ManglerTilgangFeilmeldingKode", Level.WARN)).hasSize(1);
     }
 
     @Test
@@ -93,8 +84,7 @@ public class GeneralRestExceptionMapperTest {
         assertThat(feilDto.getFeilmelding()).contains("FUNK_FEIL");
         assertThat(feilDto.getFeilmelding()).contains("en funksjonell feilmelding");
         assertThat(feilDto.getFeilmelding()).contains("et løsningsforslag");
-        System.out.println(logSniffer.getLoggedEvents());
-        // logSniffer.assertHasWarnMessage("en funksjonell feilmelding");
+        assertThat(logSniffer.search("en funksjonell feilmelding", Level.WARN)).hasSize(1);
     }
 
     @Test
@@ -109,7 +99,7 @@ public class GeneralRestExceptionMapperTest {
         assertThat(feilDto.getFeilmelding()).contains("TEK_FEIL");
         assertThat(feilDto.getFeilmelding()).contains("en teknisk feilmelding");
         System.out.println(logSniffer.getLoggedEvents());
-        // logSniffer.assertHasWarnMessage("en teknisk feilmelding");
+        assertThat(logSniffer.search("en teknisk feilmelding", Level.WARN)).hasSize(1);
     }
 
     @Test
@@ -125,7 +115,7 @@ public class GeneralRestExceptionMapperTest {
 
         assertThat(feilDto.getFeilmelding()).contains(feilmelding);
         System.out.println(logSniffer.getLoggedEvents());
-        // logSniffer.assertHasErrorMessage(feilmelding);
+        assertThat(logSniffer.search(feilmelding, Level.ERROR)).hasSize(1);
     }
 
     interface TestFeil extends DeklarerteFeil {

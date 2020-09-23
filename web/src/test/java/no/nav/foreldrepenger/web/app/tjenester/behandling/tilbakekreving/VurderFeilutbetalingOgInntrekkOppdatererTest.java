@@ -1,15 +1,18 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -22,22 +25,20 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.aksjons
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.aksjonspunkt.VurderFeilutbetalingOgInntrekkDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.aksjonspunkt.VurderFeilutbetalingOgInntrekkOppdaterer;
 
+@ExtendWith(MockitoExtension.class)
 public class VurderFeilutbetalingOgInntrekkOppdatererTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    private TilbakekrevingRepository repository = Mockito.mock(TilbakekrevingRepository.class);
-    private HistorikkTjenesteAdapter historikkTjenesteAdapter = Mockito.mock(HistorikkTjenesteAdapter.class);
-    private TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger = new TilbakekrevingvalgHistorikkinnslagBygger(historikkTjenesteAdapter);
-    private VurderFeilutbetalingOgInntrekkOppdaterer oppdaterer = new VurderFeilutbetalingOgInntrekkOppdaterer(repository, historikkInnslagBygger);
-
+    @Mock
+    private TilbakekrevingRepository repository;
+    private VurderFeilutbetalingOgInntrekkOppdaterer oppdaterer;
     private ArgumentCaptor<TilbakekrevingValg> captor = ArgumentCaptor.forClass(TilbakekrevingValg.class);
 
     private Behandling behandling;
 
-    @Before
+    @BeforeEach
     public void setup() {
+        var historikkInnslagBygger = new TilbakekrevingvalgHistorikkinnslagBygger(mock(HistorikkTjenesteAdapter.class));
+        oppdaterer = new VurderFeilutbetalingOgInntrekkOppdaterer(repository, historikkInnslagBygger);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         this.behandling = scenario.lagMocked();
     }
@@ -72,8 +73,8 @@ public class VurderFeilutbetalingOgInntrekkOppdatererTest {
     public void skal_feile_når_boolske_variable_indikerer_inntrekk_men_noe_annet_er_valgt() {
         var dto = new VurderFeilutbetalingOgInntrekkDto("lorem ipsum", true, false, TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD);
 
-        expectedException.expect(IllegalArgumentException.class);
-        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
+        assertThrows(IllegalArgumentException.class,
+                () -> oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto)));
 
     }
 

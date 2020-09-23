@@ -1,16 +1,19 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -30,15 +33,19 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
+@ExtendWith(MockitoExtension.class)
 public class TilbakekrevingRestTjenesteTest {
 
-    private BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
-    private TilbakekrevingRepository tilbakekrevingRepository = mock(TilbakekrevingRepository.class);
-    private TilbakekrevingRestTjeneste tilbakekrevingRestTjeneste = new TilbakekrevingRestTjeneste(behandlingRepository, tilbakekrevingRepository);
+    @Mock
+    private BehandlingRepository behandlingRepository;
+    @Mock
+    private TilbakekrevingRepository tilbakekrevingRepository;
+    private TilbakekrevingRestTjeneste tilbakekrevingRestTjeneste;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(behandlingRepository.hentBehandling((Long) Mockito.any())).thenAnswer(invocation -> lagBehandling());
+        tilbakekrevingRestTjeneste = new TilbakekrevingRestTjeneste(behandlingRepository, tilbakekrevingRepository);
+        lenient().when(behandlingRepository.hentBehandling((Long) Mockito.any())).thenAnswer(invocation -> lagBehandling());
         when(behandlingRepository.hentBehandling((UUID) Mockito.any())).thenAnswer(invocation -> lagBehandling());
     }
 
