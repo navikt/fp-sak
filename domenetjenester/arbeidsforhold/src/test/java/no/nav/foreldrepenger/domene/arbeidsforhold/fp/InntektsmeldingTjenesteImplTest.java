@@ -114,7 +114,6 @@ public class InntektsmeldingTjenesteImplTest {
         var virksomhet2 = lagAndreVirksomhet();
 
         this.arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet1.getOrgnr());
-        tpsTjeneste = mock(PersonIdentTjeneste.class);
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet1);
