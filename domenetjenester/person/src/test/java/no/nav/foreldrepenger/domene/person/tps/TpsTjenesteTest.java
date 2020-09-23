@@ -49,7 +49,7 @@ public class TpsTjenesteTest {
     private static final PersonIdent FNR_RELASJON = new PersonIdent("01345678901");
     private static final LocalDate FØDSELSDATO_RELASJON = LocalDate.of(2017, Month.JANUARY, 1);
     private static final Familierelasjon FAMILIERELASJON = new Familierelasjon(FNR_RELASJON, RelasjonsRolleType.BARN, FØDSELSDATO_RELASJON,
-        "Adresse", true);
+            "Adresse", true);
     private static Map<AktørId, PersonIdent> FNR_VED_AKTØR_ID = new HashMap<>();
     private static Map<PersonIdent, AktørId> AKTØR_ID_VED_FNR = new HashMap<>();
     @Rule
@@ -108,13 +108,6 @@ public class TpsTjenesteTest {
     }
 
     private class TpsAdapterMock implements TpsAdapter {
-        private static final String ADR1 = "Adresselinje1";
-        private static final String ADR2 = "Adresselinje2";
-        private static final String ADR3 = "Adresselinje3";
-        private static final String POSTNR = "1234";
-        private static final String POSTSTED = "Oslo";
-        private static final String LAND = "Norge";
-
         @Override
         public Optional<AktørId> hentAktørIdForPersonIdent(PersonIdent fnr) {
             return Optional.ofNullable(AKTØR_ID_VED_FNR.get(fnr));
@@ -124,7 +117,7 @@ public class TpsTjenesteTest {
         public Optional<PersonIdent> hentIdentForAktørId(AktørId aktørId) {
             if (aktørId == AKTØR_ID_SOM_TRIGGER_EXCEPTION) {
                 throw new TpsException(FeilFactory.create(TpsFeilmeldinger.class)
-                    .tpsUtilgjengeligSikkerhetsbegrensning(new HentPersonSikkerhetsbegrensning("String", null)));
+                        .tpsUtilgjengeligSikkerhetsbegrensning(new HentPersonSikkerhetsbegrensning("String", null)));
             }
             return Optional.ofNullable(FNR_VED_AKTØR_ID.get(aktørId));
         }
@@ -135,13 +128,13 @@ public class TpsTjenesteTest {
                 return null;
             }
             return new Personinfo.Builder()
-                .medAktørId(aktørId)
-                .medPersonIdent(fnr)
-                .medNavn(NAVN)
-                .medFødselsdato(FØDSELSDATO)
-                .medNavBrukerKjønn(KVINNE)
-                .medFamilierelasjon(new HashSet<>(singletonList(FAMILIERELASJON)))
-                .build();
+                    .medAktørId(aktørId)
+                    .medPersonIdent(fnr)
+                    .medNavn(NAVN)
+                    .medFødselsdato(FØDSELSDATO)
+                    .medNavBrukerKjønn(KVINNE)
+                    .medFamilierelasjon(new HashSet<>(singletonList(FAMILIERELASJON)))
+                    .build();
         }
 
         // TODO legg inn mock
@@ -156,17 +149,17 @@ public class TpsTjenesteTest {
                 return new GeografiskTilknytning("0219", "KLIE");
             }
             throw TpsFeilmeldinger.FACTORY.geografiskTilknytningIkkeFunnet(
-                new HentGeografiskTilknytningPersonIkkeFunnet("finner ikke person", new PersonIkkeFunnet())).toException();
+                    new HentGeografiskTilknytningPersonIkkeFunnet("finner ikke person", new PersonIkkeFunnet())).toException();
         }
 
         @Override
         public List<FødtBarnInfo> hentFødteBarn(AktørId aktørId) {
             return Collections.singletonList(new FødtBarnInfo.Builder()
-                .medIdent(FNR)
-                .medNavn(NAVN)
-                .medNavBrukerKjønn(KVINNE)
-                .medFødselsdato(FØDSELSDATO)
-                .build());
+                    .medIdent(FNR)
+                    .medNavn(NAVN)
+                    .medNavBrukerKjønn(KVINNE)
+                    .medFødselsdato(FØDSELSDATO)
+                    .build());
         }
 
     }

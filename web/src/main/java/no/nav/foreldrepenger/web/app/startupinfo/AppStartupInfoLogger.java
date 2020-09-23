@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.startupinfo;
 
-import java.util.List;
-
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
@@ -20,8 +18,6 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 /** Dependent scope siden vi lukker denne når vi er ferdig. */
 @Dependent
 class AppStartupInfoLogger {
-
-    private static final List<String> SECRETS = List.of("passord", "password", "passwd");
 
     private static final Logger LOG = LoggerFactory.getLogger(AppStartupInfoLogger.class);
 
@@ -96,7 +92,7 @@ class AppStartupInfoLogger {
         return isHealthy ? "OK" : "ERROR";
     }
 
-    private void logVersjoner() {
+    private static void logVersjoner() {
         // Noen biblioteker er bundlet med jboss og kan skape konflikter, eller jboss
         // overstyrer vår overstyring via modul classpath
         // her logges derfor hva som er effektivt tilgjengelig av ulike biblioteker som

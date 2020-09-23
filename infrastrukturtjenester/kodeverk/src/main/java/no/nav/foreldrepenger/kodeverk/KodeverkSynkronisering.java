@@ -36,7 +36,7 @@ class KodeverkSynkronisering {
 
     @Inject
     KodeverkSynkronisering(KodeverkSynkroniseringRepository kodeverkSynkroniseringRepository,
-                           KodeverkTjeneste kodeverkTjeneste) {
+            KodeverkTjeneste kodeverkTjeneste) {
         this.kodeverkSynkroniseringRepository = kodeverkSynkroniseringRepository;
         this.kodeverkTjeneste = kodeverkTjeneste;
     }
@@ -49,11 +49,12 @@ class KodeverkSynkronisering {
 
         for (Kodeverk kodeverk : kodeverkList) {
             KodeverkInfo kodeverkInfo = kodeverkInfoList.stream()
-                .filter(ki -> ki.getNavn().equals(kodeverk.getKodeverkEierNavn()))
-                .findFirst().orElse(null);
+                    .filter(ki -> ki.getNavn().equals(kodeverk.getKodeverkEierNavn()))
+                    .findFirst().orElse(null);
             if (kodeverkInfo != null && !kodeverkInfo.getVersjon().equals(kodeverk.getKodeverkEierVersjon())) {
                 LOGGER.info("Ny versjon av kodeverk: {}",
-                    LoggerUtils.removeLineBreaks(kodeverk.getKode() + " eier " + kodeverkInfo.getVersjon() + " lokal " + kodeverk.getKodeverkEierVersjon())); // NOSONAR
+                        LoggerUtils.removeLineBreaks(
+                                kodeverk.getKode() + " eier " + kodeverkInfo.getVersjon() + " lokal " + kodeverk.getKodeverkEierVersjon())); // NOSONAR
                 antallSynkronisert++;
                 kodeverkSynkroniseringRepository.oppdaterEksisterendeKodeverk(kodeverk.getKode(), kodeverkInfo.getVersjon(), kodeverkInfo.getUri());
                 synkroniserKodeverk(kodeverk, kodeverkInfo.getVersjon());
@@ -73,7 +74,7 @@ class KodeverkSynkronisering {
 
         List<DefaultKodeverdi> eksisterendeKoder = kodeverkSynkroniseringRepository.hentKodeliste(kodeverk.getKode());
         Map<String, DefaultKodeverdi> eksisterendeKoderMap = eksisterendeKoder.stream()
-            .collect(Collectors.toMap(this::finnOffisiellKode, kodeliste -> kodeliste));
+                .collect(Collectors.toMap(this::finnOffisiellKode, kodeliste -> kodeliste));
 
         Map<String, KodeverkKode> masterKoderMap;
         try {
@@ -87,18 +88,21 @@ class KodeverkSynkronisering {
     }
 
     /**
-     * Koder slettes aldri. Dersom en eksisterende kode ikke mottas logges dette som en warning.
+     * Koder slettes aldri. Dersom en eksisterende kode ikke mottas logges dette som
+     * en warning.
      */
-    private void behandleEksisterendeKoderIkkeMottatt(Map<String, DefaultKodeverdi> eksisterendeKoderMap, Map<String, KodeverkKode> masterKoderMap) {
+    private static void behandleEksisterendeKoderIkkeMottatt(Map<String, DefaultKodeverdi> eksisterendeKoderMap,
+            Map<String, KodeverkKode> masterKoderMap) {
         Set<String> eksisterendeKoderIkkeMottatt = eksisterendeKoderMap.keySet().stream()
-            .filter(eksisterendeKode -> !masterKoderMap.containsKey(eksisterendeKode))
-            .collect(Collectors.toSet());
+                .filter(eksisterendeKode -> !masterKoderMap.containsKey(eksisterendeKode))
+                .collect(Collectors.toSet());
         eksisterendeKoderIkkeMottatt.forEach(
-            ikkeMottatt -> KodeverkFeil.FACTORY.eksisterendeKodeIkkeMottatt(eksisterendeKoderMap.get(ikkeMottatt).getKodeverk(), ikkeMottatt).log(LOGGER));
+                ikkeMottatt -> KodeverkFeil.FACTORY.eksisterendeKodeIkkeMottatt(eksisterendeKoderMap.get(ikkeMottatt).getKodeverk(), ikkeMottatt)
+                        .log(LOGGER));
     }
 
     private void synkroniserNyEllerEksisterendeKode(Kodeverk kodeverk, Map<String, DefaultKodeverdi> eksisterendeKoderMap,
-                                                    KodeverkKode masterKode) {
+            KodeverkKode masterKode) {
         if (kodeverk.getSynkEksisterendeKoderFraKodeverkEier() && eksisterendeKoderMap.containsKey(masterKode.getKode())) {
             synkroniserEksisterendeKode(masterKode, eksisterendeKoderMap.get(masterKode.getKode()));
         }
@@ -113,28 +117,28 @@ class KodeverkSynkronisering {
 
     private void synkroniserNyKode(String kodeverk, KodeverkKode kodeverkKode) {
         LOGGER.info("Ny kode: {} {}", // NOSONAR
-            LoggerUtils.removeLineBreaks(kodeverk), // NOSONAR
-            LoggerUtils.removeLineBreaks(kodeverkKode.getKode())); // NOSONAR
+                LoggerUtils.removeLineBreaks(kodeverk), // NOSONAR
+                LoggerUtils.removeLineBreaks(kodeverkKode.getKode())); // NOSONAR
 
         kodeverkSynkroniseringRepository.opprettNyKode(kodeverk, kodeverkKode.getKode(),
-            kodeverkKode.getKode(), kodeverkKode.getNavn(), kodeverkKode.getGyldigFom(), kodeverkKode.getGyldigTom());
+                kodeverkKode.getKode(), kodeverkKode.getNavn(), kodeverkKode.getGyldigFom(), kodeverkKode.getGyldigTom());
     }
 
     private void synkroniserEksisterendeKode(KodeverkKode kodeverkKode, DefaultKodeverdi kodeliste) {
         if (!erLike(kodeverkKode, kodeliste)) {
             LOGGER.info("Oppdaterer kode: {} {}", // NOSONAR
-                LoggerUtils.removeLineBreaks(kodeliste.getKodeverk()), // NOSONAR
-                LoggerUtils.removeLineBreaks(kodeliste.getKode())); // NOSONAR
+                    LoggerUtils.removeLineBreaks(kodeliste.getKodeverk()), // NOSONAR
+                    LoggerUtils.removeLineBreaks(kodeliste.getKode())); // NOSONAR
 
             kodeverkSynkroniseringRepository.oppdaterEksisterendeKode(kodeliste.getKodeverk(), kodeliste.getKode(),
-                kodeverkKode.getKode(), kodeverkKode.getNavn(), kodeverkKode.getGyldigFom(), kodeverkKode.getGyldigTom());
+                    kodeverkKode.getKode(), kodeverkKode.getNavn(), kodeverkKode.getGyldigFom(), kodeverkKode.getGyldigTom());
         }
     }
 
-    private boolean erLike(KodeverkKode kodeverkKode, DefaultKodeverdi kodeliste) {
+    private static boolean erLike(KodeverkKode kodeverkKode, DefaultKodeverdi kodeliste) {
         return kodeverkKode.getGyldigFom().compareTo(kodeliste.getGyldigFom()) == 0
-            && kodeverkKode.getGyldigTom().compareTo(kodeliste.getGyldigTom()) == 0
-            && kodeverkKode.getNavn().compareTo(kodeliste.getNavn()) == 0;
+                && kodeverkKode.getGyldigTom().compareTo(kodeliste.getGyldigTom()) == 0
+                && kodeverkKode.getNavn().compareTo(kodeliste.getNavn()) == 0;
     }
 
 }

@@ -30,7 +30,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
-@SuppressWarnings("deprecation")
 public class OppdaterSakOgBehandlingEventObserverTest {
 
     @Rule
@@ -58,7 +57,8 @@ public class OppdaterSakOgBehandlingEventObserverTest {
         Fagsak fagsak = behandling.getFagsak();
         refreshBehandlingType(scenario);
 
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(),fagsak.getAktørId(), scenario.taSkriveLåsForBehandling());
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+                scenario.taSkriveLåsForBehandling());
         BehandlingOpprettetEvent event = BehandlingStatusEvent.nyEvent(kontekst, BehandlingStatus.OPPRETTET);
 
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -77,8 +77,9 @@ public class OppdaterSakOgBehandlingEventObserverTest {
 
         Behandling behandling = scenario.lagre(repositoryProvider);
         refreshBehandlingType(scenario);
-        Fagsak fagsak =behandling.getFagsak();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(),fagsak.getAktørId(), scenario.taSkriveLåsForBehandling());
+        Fagsak fagsak = behandling.getFagsak();
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+                scenario.taSkriveLåsForBehandling());
         BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(kontekst, BehandlingStatus.AVSLUTTET);
 
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -95,10 +96,10 @@ public class OppdaterSakOgBehandlingEventObserverTest {
     }
 
     private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData,
-                                          String behandlingStatusKode) {
+            String behandlingStatusKode) {
         assertThat(prosessTaskData.getTaskType()).isEqualTo(SakOgBehandlingTask.TASKTYPE);
         assertThat(new AktørId(prosessTaskData.getAktørId()))
-            .isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
+                .isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
         assertThat(prosessTaskData.getBehandlingId()).isEqualTo(scenario.getBehandling().getId().toString());
     }
 

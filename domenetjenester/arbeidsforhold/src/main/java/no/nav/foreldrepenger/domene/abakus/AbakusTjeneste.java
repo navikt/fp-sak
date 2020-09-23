@@ -75,14 +75,13 @@ public class AbakusTjeneste {
     private URI endpointInntektsmeldingerDiff;
     private URI endpointYtelser;
 
-
     AbakusTjeneste() {
         // for CDI
     }
 
     @Inject
     public AbakusTjeneste(OidcRestClient oidcRestClient,
-                          @KonfigVerdi(value = "fpabakus.url") URI endpoint) {
+            @KonfigVerdi(value = "fpabakus.url") URI endpoint) {
         this.oidcRestClient = oidcRestClient;
         this.abakusEndpoint = endpoint;
 
@@ -187,7 +186,7 @@ public class AbakusTjeneste {
         return hentFraAbakus(endpoint, responseHandler, json);
     }
 
-    public List<Ytelse> hentVedtakForAktørId(AktørDatoRequest request) throws IOException {
+    public List<Ytelse> hentVedtakForAktørId(AktørDatoRequest request) {
         var endpoint = endpointYtelser;
         var reader = iayMapper.readerFor(Ytelse[].class);
         var responseHandler = new ObjectReaderResponseHandler<Ytelse[]>(endpoint, reader);
@@ -223,7 +222,7 @@ public class AbakusTjeneste {
                 }
                 String responseBody = EntityUtils.toString(httpResponse.getEntity());
                 String feilmelding = "Kunne ikke hente grunnlag fra abakus: " + httpPost.getURI()
-                    + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
+                        + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
                     throw AbakusTjenesteFeil.FEIL.feilKallTilAbakus(feilmelding).toException();
                 } else {
@@ -249,7 +248,7 @@ public class AbakusTjeneste {
             if (responseCode != HttpStatus.SC_OK) {
                 String responseBody = EntityUtils.toString(httpResponse.getEntity());
                 String feilmelding = "Kunne ikke lagre IAY grunnlag: " + dto.getGrunnlagReferanse() + " til abakus: " + httpPut.getURI()
-                    + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
+                        + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
                     throw AbakusTjenesteFeil.FEIL.feilKallTilAbakus(feilmelding).toException();
@@ -272,8 +271,9 @@ public class AbakusTjeneste {
             int responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode != HttpStatus.SC_OK) {
                 String responseBody = EntityUtils.toString(httpResponse.getEntity());
-                String feilmelding = "Kunne ikke lagre mottatte inntektsmeldinger for behandling: " + dto.getKoblingReferanse() + " til abakus: " + httpPost.getURI()
-                    + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
+                String feilmelding = "Kunne ikke lagre mottatte inntektsmeldinger for behandling: " + dto.getKoblingReferanse() + " til abakus: "
+                        + httpPost.getURI()
+                        + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
                     throw AbakusTjenesteFeil.FEIL.feilKallTilAbakus(feilmelding).toException();
@@ -295,8 +295,9 @@ public class AbakusTjeneste {
             int responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode != HttpStatus.SC_OK) {
                 String responseBody = EntityUtils.toString(httpResponse.getEntity());
-                String feilmelding = "Kunne ikke lagre oppgitt opptjening for behandling: " + request.getKoblingReferanse() + " til abakus: " + httpPost.getURI()
-                    + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
+                String feilmelding = "Kunne ikke lagre oppgitt opptjening for behandling: " + request.getKoblingReferanse() + " til abakus: "
+                        + httpPost.getURI()
+                        + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
                     throw AbakusTjenesteFeil.FEIL.feilKallTilAbakus(feilmelding).toException();
@@ -313,13 +314,15 @@ public class AbakusTjeneste {
         HttpPost httpPost = new HttpPost(endpointKopierGrunnlag);
         httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 
-        log.info("Kopierer grunnlag fra (behandlingUUID={}) til (behandlingUUID={}) i Abakus", request.getGammelReferanse(), request.getNyReferanse());
+        log.info("Kopierer grunnlag fra (behandlingUUID={}) til (behandlingUUID={}) i Abakus", request.getGammelReferanse(),
+                request.getNyReferanse());
         try (var httpResponse = oidcRestClient.execute(httpPost)) {
             int responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode != HttpStatus.SC_OK) {
                 String responseBody = EntityUtils.toString(httpResponse.getEntity());
-                String feilmelding = "Feilet med å kopiere grunnlag fra (behandlingUUID=" + request.getGammelReferanse() + ") til (behandlingUUID=" + request.getNyReferanse() + ") i Abakus: " + httpPost.getURI()
-                    + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
+                String feilmelding = "Feilet med å kopiere grunnlag fra (behandlingUUID=" + request.getGammelReferanse() + ") til (behandlingUUID="
+                        + request.getNyReferanse() + ") i Abakus: " + httpPost.getURI()
+                        + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
                     throw AbakusTjenesteFeil.FEIL.feilKallTilAbakus(feilmelding).toException();

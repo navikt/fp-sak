@@ -40,14 +40,13 @@ public class PipRestTjeneste {
     }
 
     public PipRestTjeneste() {
-        //Ja gjett tre ganger på hva denne er til for.
+        // Ja gjett tre ganger på hva denne er til for.
     }
 
     @GET
     @Path("/aktoer-for-sak")
     @Operation(description = "Henter aktørId'er tilknyttet en fagsak", tags = "pip")
     @BeskyttetRessurs(action = READ, ressurs = PIP)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Set<AktørId> hentAktørIdListeTilknyttetSak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         Set<AktørId> aktører = pipRepository.hentAktørIdKnyttetTilSaksnummer(saksnummerDto.getVerdi());
         return aktører;
@@ -57,13 +56,13 @@ public class PipRestTjeneste {
     @Path("/pipdata-for-behandling")
     @Operation(description = "Henter aktørIder, fagsak- og behandlingstatus tilknyttet til en behandling", tags = "pip")
     @BeskyttetRessurs(action = READ, ressurs = PIP)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public PipDto hentAktørIdListeTilknyttetBehandling(@NotNull @QueryParam("behandlingUuid") @Valid BehandlingIdDto behandlingIdDto) {
         Optional<PipBehandlingsData> pipData = pipRepository.hentDataForBehandlingUuid(behandlingIdDto.getBehandlingUuid());
         PipDto pipDto = new PipDto();
         pipData.ifPresent(pip -> {
             pipDto.setAktørIder(hentAktørIder(pip));
-            pipDto.setBehandlingStatus(AbacUtil.oversettBehandlingStatus(pip.getBehandligStatus()).map(AbacBehandlingStatus::getEksternKode).orElse(null));
+            pipDto.setBehandlingStatus(
+                    AbacUtil.oversettBehandlingStatus(pip.getBehandligStatus()).map(AbacBehandlingStatus::getEksternKode).orElse(null));
             pipDto.setFagsakStatus(AbacUtil.oversettFagstatus(pip.getFagsakStatus()).map(AbacFagsakStatus::getEksternKode).orElse(null));
         });
         return pipDto;

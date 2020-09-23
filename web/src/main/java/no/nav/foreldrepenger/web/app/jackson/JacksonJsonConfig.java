@@ -32,7 +32,10 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
 
     private final ObjectMapper objectMapper;
 
-    /** Default instance for Jax-rs application. Genererer ikke navn som del av output for kodeverk. */
+    /**
+     * Default instance for Jax-rs application. Genererer ikke navn som del av
+     * output for kodeverk.
+     */
     public JacksonJsonConfig() {
         this(false);
     }
@@ -41,7 +44,7 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         objectMapper = createObjectMapper(createModule(serialiserKodelisteNavn));
     }
 
-    private ObjectMapper createObjectMapper(SimpleModule simpleModule) {
+    private static ObjectMapper createObjectMapper(SimpleModule simpleModule) {
         var om = new ObjectMapper();
         om.registerModule(new Jdk8Module());
         om.registerModule(new JavaTimeModule());
@@ -54,7 +57,9 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
 
         Set<Class<?>> scanClasses = new LinkedHashSet<>(restClasses);
 
-        // hack - additional locations to scan (jars uten rest services) - trenger det her p.t. for å bestemme hvilke jars / maven moduler som skal scannes for andre dtoer
+        // hack - additional locations to scan (jars uten rest services) - trenger det
+        // her p.t. for å bestemme hvilke jars / maven moduler som skal scannes for
+        // andre dtoer
         scanClasses.add(AvklarArbeidsforholdDto.class);
         scanClasses.add(VurderFaktaOmBeregningDto.class);
         scanClasses.add(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto.class);
@@ -63,16 +68,16 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
 
         // avled code location fra klassene
         scanClasses
-            .stream()
-            .map(c -> {
-                try {
-                    return c.getProtectionDomain().getCodeSource().getLocation().toURI();
-                } catch (URISyntaxException e) {
-                    throw new IllegalArgumentException("Ikke en URI for klasse: " + c, e);
-                }
-            })
-            .distinct()
-            .forEach(uri -> om.registerSubtypes(getJsonTypeNameClasses(uri)));
+                .stream()
+                .map(c -> {
+                    try {
+                        return c.getProtectionDomain().getCodeSource().getLocation().toURI();
+                    } catch (URISyntaxException e) {
+                        throw new IllegalArgumentException("Ikke en URI for klasse: " + c, e);
+                    }
+                })
+                .distinct()
+                .forEach(uri -> om.registerSubtypes(getJsonTypeNameClasses(uri)));
         return om;
     }
 
@@ -91,7 +96,8 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
     }
 
     /**
-     * Scan subtyper dynamisk fra WAR slik at superklasse slipper å deklarere @JsonSubtypes.
+     * Scan subtyper dynamisk fra WAR slik at superklasse slipper å
+     * deklarere @JsonSubtypes.
      */
     private static List<Class<?>> getJsonTypeNameClasses(URI classLocation) {
         IndexClasses indexClasses;

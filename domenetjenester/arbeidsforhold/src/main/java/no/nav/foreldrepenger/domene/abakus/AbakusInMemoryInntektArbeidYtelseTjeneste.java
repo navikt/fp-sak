@@ -51,13 +51,18 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.util.Tuple;
 
 /**
- * In-memory - legger kun grunnlag i minne (lagrer ikke i noe lager). Brukes under forflytting til Abakus til å erstatte tester som går mot
+ * In-memory - legger kun grunnlag i minne (lagrer ikke i noe lager). Brukes
+ * under forflytting til Abakus til å erstatte tester som går mot
  * {@link no.nav.foreldrepenger.behandlingslager.abakus.inntektarbeidytelse.InntektArbeidYtelseRepository}.
  * NB: Skal kun brukes for tester.
  * <p>
- * Definer som alternative i beans.xml (i src/test/resources/META-INF) i modul som skal bruke<p>
+ * Definer som alternative i beans.xml (i src/test/resources/META-INF) i modul
+ * som skal bruke
  * <p>
- * Legg inn i fil <code>src/test/resources/META-INF</code> for å aktivere for enhetstester: <p>
+ * <p>
+ * Legg inn i fil <code>src/test/resources/META-INF</code> for å aktivere for
+ * enhetstester:
+ * <p>
  * <code>
  * &lt;alternatives&gt;<br>
  * &lt;class&gt;no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste&lt;/class&gt;<br>
@@ -95,7 +100,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     @Override
     public InntektArbeidYtelseGrunnlag hentGrunnlagForGrunnlagId(Long behandlingId, UUID inntektArbeidYtelseGrunnlagId) {
         return grunnlag.stream().filter(g -> Objects.equals(g.getEksternReferanse(), inntektArbeidYtelseGrunnlagId))
-            .findFirst().orElseThrow();
+                .findFirst().orElseThrow();
     }
 
     @Override
@@ -115,23 +120,25 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     @Override
     public List<RefusjonskravDato> hentRefusjonskravDatoerForSak(Saksnummer saksnummer) {
         return hentInntektsmeldinger(saksnummer).getAlleInntektsmeldinger().stream()
-            .filter(im -> !im.getRefusjonBeløpPerMnd().erNullEllerNulltall() || !im.getEndringerRefusjon().isEmpty())
-            .collect(Collectors.groupingBy(Inntektsmelding::getArbeidsgiver)).entrySet().stream()
-            .map(entry -> {
-                LocalDate førsteInnsendingAvRefusjon = entry.getValue().stream().map(Inntektsmelding::getInnsendingstidspunkt).min(Comparator.naturalOrder()).map(LocalDateTime::toLocalDate).orElse(TIDENES_ENDE);
-                LocalDate førsteDatoForRefusjon = entry.getValue().stream()
-                    .map(im -> {
-                        if (!im.getRefusjonBeløpPerMnd().erNullEllerNulltall()) {
-                            return im.getStartDatoPermisjon().orElse(TIDENES_ENDE);
-                        } else {
-                            return im.getEndringerRefusjon().stream()
-                                .filter(er -> !er.getRefusjonsbeløp().erNullEllerNulltall())
-                                .min(Comparator.comparing(Refusjon::getFom))
-                                .map(Refusjon::getFom).orElse(TIDENES_ENDE);
-                        }
-                    }).min(Comparator.naturalOrder()).orElse(TIDENES_ENDE);
-                return new RefusjonskravDato(entry.getKey(), førsteDatoForRefusjon, førsteInnsendingAvRefusjon, entry.getValue().stream().anyMatch(im -> !im.getRefusjonBeløpPerMnd().erNullEllerNulltall()));
-            }).collect(Collectors.toList());
+                .filter(im -> !im.getRefusjonBeløpPerMnd().erNullEllerNulltall() || !im.getEndringerRefusjon().isEmpty())
+                .collect(Collectors.groupingBy(Inntektsmelding::getArbeidsgiver)).entrySet().stream()
+                .map(entry -> {
+                    LocalDate førsteInnsendingAvRefusjon = entry.getValue().stream().map(Inntektsmelding::getInnsendingstidspunkt)
+                            .min(Comparator.naturalOrder()).map(LocalDateTime::toLocalDate).orElse(TIDENES_ENDE);
+                    LocalDate førsteDatoForRefusjon = entry.getValue().stream()
+                            .map(im -> {
+                                if (!im.getRefusjonBeløpPerMnd().erNullEllerNulltall()) {
+                                    return im.getStartDatoPermisjon().orElse(TIDENES_ENDE);
+                                } else {
+                                    return im.getEndringerRefusjon().stream()
+                                            .filter(er -> !er.getRefusjonsbeløp().erNullEllerNulltall())
+                                            .min(Comparator.comparing(Refusjon::getFom))
+                                            .map(Refusjon::getFom).orElse(TIDENES_ENDE);
+                                }
+                            }).min(Comparator.naturalOrder()).orElse(TIDENES_ENDE);
+                    return new RefusjonskravDato(entry.getKey(), førsteDatoForRefusjon, førsteInnsendingAvRefusjon,
+                            entry.getValue().stream().anyMatch(im -> !im.getRefusjonBeløpPerMnd().erNullEllerNulltall()));
+                }).collect(Collectors.toList());
     }
 
     @Override
@@ -142,8 +149,8 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         InntektsmeldingAggregat inntektsmeldinger = builder.getInntektsmeldinger();
 
         Collection<Inntektsmelding> beholdInntektsmelding = inntektsmeldinger.getAlleInntektsmeldinger().stream()
-            .filter(im -> !fjernInntektsmeldinger.contains(im.getJournalpostId()))
-            .collect(Collectors.toSet());
+                .filter(im -> !fjernInntektsmeldinger.contains(im.getJournalpostId()))
+                .collect(Collectors.toSet());
 
         builder.setInntektsmeldinger(new InntektsmeldingAggregat(beholdInntektsmelding));
 
@@ -158,7 +165,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
         // lagre reserverte interne referanser opprettet tidligere
         builder.getNyeInternArbeidsforholdReferanser()
-            .forEach(aref -> informasjon.opprettNyReferanse(aref.getArbeidsgiver(), aref.getInternReferanse(), aref.getEksternReferanse()));
+                .forEach(aref -> informasjon.opprettNyReferanse(aref.getArbeidsgiver(), aref.getInternReferanse(), aref.getEksternReferanse()));
 
         lagreOgFlush(behandlingId, grunnlagBuilder.build());
     }
@@ -170,7 +177,8 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     @Override
-    public InntektArbeidYtelseAggregatBuilder opprettBuilderForRegister(UUID behandlingUuid, UUID angittReferanse, LocalDateTime angittOpprettetTidspunkt) {
+    public InntektArbeidYtelseAggregatBuilder opprettBuilderForRegister(UUID behandlingUuid, UUID angittReferanse,
+            LocalDateTime angittOpprettetTidspunkt) {
         var iayGrunnlag = hentInntektArbeidYtelseGrunnlagForBehandling(behandlingUuid);
         return opprettBuilderFor(VersjonType.REGISTER, angittReferanse, angittOpprettetTidspunkt, iayGrunnlag);
     }
@@ -183,25 +191,26 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
     @Override
     public InntektArbeidYtelseAggregatBuilder opprettBuilderForSaksbehandlet(UUID behandlingUuid, UUID angittReferanse,
-                                                                             LocalDateTime angittOpprettetTidspunkt) {
+            LocalDateTime angittOpprettetTidspunkt) {
         var iayGrunnlag = hentInntektArbeidYtelseGrunnlagForBehandling(behandlingUuid);
         return opprettBuilderFor(VersjonType.SAKSBEHANDLET, angittReferanse, angittOpprettetTidspunkt, iayGrunnlag);
     }
 
-    private Optional<InntektArbeidYtelseGrunnlag> hentInntektArbeidYtelseGrunnlagForBehandling(UUID behandlingUUid) {
+    private static Optional<InntektArbeidYtelseGrunnlag> hentInntektArbeidYtelseGrunnlagForBehandling(UUID behandlingUUid) {
         var iayGrunnlag = getAktivtInntektArbeidGrunnlag(behandlingUUid);
         return iayGrunnlag.isPresent() ? Optional.of(iayGrunnlag.get()) : Optional.empty();
     }
 
     private InntektArbeidYtelseAggregatBuilder opprettBuilderFor(VersjonType versjonType, UUID angittReferanse, LocalDateTime opprettetTidspunkt,
-                                                                 Optional<InntektArbeidYtelseGrunnlag> grunnlag) {
+            Optional<InntektArbeidYtelseGrunnlag> grunnlag) {
         var grunnlagBuilder = InMemoryInntektArbeidYtelseGrunnlagBuilder.oppdatere(grunnlag);
         Objects.requireNonNull(grunnlagBuilder, "grunnlagBuilder");
         Optional<InntektArbeidYtelseGrunnlag> aggregat = Optional.ofNullable(grunnlagBuilder.getKladd()); // NOSONAR $NON-NLS-1$
         Objects.requireNonNull(aggregat, "aggregat"); // NOSONAR $NON-NLS-1$
         if (aggregat.isPresent()) {
             final InntektArbeidYtelseGrunnlag aggregat1 = aggregat.get();
-            return InntektArbeidYtelseAggregatBuilder.builderFor(hentRiktigVersjon(versjonType, aggregat1), angittReferanse, opprettetTidspunkt, versjonType);
+            return InntektArbeidYtelseAggregatBuilder.builderFor(hentRiktigVersjon(versjonType, aggregat1), angittReferanse, opprettetTidspunkt,
+                    versjonType);
         }
         throw new IllegalArgumentException("aggregat kan ikke være null: " + angittReferanse);
     }
@@ -286,12 +295,15 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
             var inntektsmelding = inntektsmeldingBuilder.build();
             final ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(informasjon);
 
-            // Kommet inn inntektsmelding på arbeidsforhold som vi har gått videre med uten inntektsmelding?
+            // Kommet inn inntektsmelding på arbeidsforhold som vi har gått videre med uten
+            // inntektsmelding?
             if (kommetInntektsmeldingPåArbeidsforholdHvorViTidligereBehandletUtenInntektsmelding(inntektsmelding, informasjon)) {
                 informasjonBuilder.fjernOverstyringVedrørende(inntektsmeldingBuilder.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef());
             }
-            // Gjelder tilfeller der det først har kommet inn inntektsmelding uten id, også kommer det inn en inntektsmelding med spesifik id
-            // nullstiller da valg gjort i 5080 slik at saksbehandler må ta stilling til aksjonspunktet på nytt.
+            // Gjelder tilfeller der det først har kommet inn inntektsmelding uten id, også
+            // kommer det inn en inntektsmelding med spesifik id
+            // nullstiller da valg gjort i 5080 slik at saksbehandler må ta stilling til
+            // aksjonspunktet på nytt.
             Optional<Arbeidsgiver> arbeidsgiverSomMåTilbakestilles = utledeArbeidsgiverSomMåTilbakestilles(inntektsmelding, informasjon);
             arbeidsgiverSomMåTilbakestilles.ifPresent(informasjonBuilder::fjernOverstyringerSomGjelder);
 
@@ -302,18 +314,20 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         lagreOgFlush(behandlingId, builder.build());
     }
 
-    private Optional<Arbeidsgiver> utledeArbeidsgiverSomMåTilbakestilles(Inntektsmelding inntektsmelding, ArbeidsforholdInformasjon informasjon) {
+    private static Optional<Arbeidsgiver> utledeArbeidsgiverSomMåTilbakestilles(Inntektsmelding inntektsmelding,
+            ArbeidsforholdInformasjon informasjon) {
         if (inntektsmelding.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold()) {
             return informasjon.getOverstyringer().stream()
-                .filter(o -> o.getArbeidsgiver().equals(inntektsmelding.getArbeidsgiver()) &&
-                    !o.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
-                .map(ArbeidsforholdOverstyring::getArbeidsgiver)
-                .findFirst();
+                    .filter(o -> o.getArbeidsgiver().equals(inntektsmelding.getArbeidsgiver()) &&
+                            !o.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
+                    .map(ArbeidsforholdOverstyring::getArbeidsgiver)
+                    .findFirst();
         }
         return Optional.empty();
     }
 
-    private void konverterEksternArbeidsforholdRefTilInterne(InntektsmeldingBuilder inntektsmeldingBuilder, final ArbeidsforholdInformasjon informasjon) {
+    private static void konverterEksternArbeidsforholdRefTilInterne(InntektsmeldingBuilder inntektsmeldingBuilder,
+            final ArbeidsforholdInformasjon informasjon) {
         if (inntektsmeldingBuilder.getEksternArbeidsforholdRef().isPresent()) {
             var ekstern = inntektsmeldingBuilder.getEksternArbeidsforholdRef().get();
             var intern = inntektsmeldingBuilder.getInternArbeidsforholdRef();
@@ -338,19 +352,19 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     private boolean kommetInntektsmeldingPåArbeidsforholdHvorViTidligereBehandletUtenInntektsmelding(Inntektsmelding inntektsmelding,
-                                                                                                     ArbeidsforholdInformasjon informasjon) {
+            ArbeidsforholdInformasjon informasjon) {
         return informasjon.getOverstyringer()
-            .stream()
-            .anyMatch(ov -> (ov.kreverIkkeInntektsmelding() || ov.getHandling().equals(ArbeidsforholdHandlingType.IKKE_BRUK))
-                && ov.getArbeidsgiver().equals(inntektsmelding.getArbeidsgiver())
-                && ov.getArbeidsforholdRef().gjelderFor(inntektsmelding.getArbeidsforholdRef()));
+                .stream()
+                .anyMatch(ov -> (ov.kreverIkkeInntektsmelding() || ov.getHandling().equals(ArbeidsforholdHandlingType.IKKE_BRUK))
+                        && ov.getArbeidsgiver().equals(inntektsmelding.getArbeidsgiver())
+                        && ov.getArbeidsforholdRef().gjelderFor(inntektsmelding.getArbeidsforholdRef()));
     }
 
     private Set<Long> alleBehandlingMedGrunnlag(UUID grunnlagId) {
         return indeksBehandlingTilGrunnlag.entrySet().stream()
-            .filter(e -> e.getValue().contains(grunnlagId))
-            .map(e -> e.getKey())
-            .collect(Collectors.toCollection(TreeSet::new));
+                .filter(e -> e.getValue().contains(grunnlagId))
+                .map(e -> e.getKey())
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     @Override
@@ -358,7 +372,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         throw new UnsupportedOperationException("NOT IMPLEMENTED (mangler kobling til behandlingUUid): #" + getCallerMethod());
     }
 
-    private Optional<InntektArbeidYtelseGrunnlag> getAktivtInntektArbeidGrunnlag(@SuppressWarnings("unused") UUID behandlingId) {
+    private static Optional<InntektArbeidYtelseGrunnlag> getAktivtInntektArbeidGrunnlag(@SuppressWarnings("unused") UUID behandlingId) {
         throw new UnsupportedOperationException("NOT IMPLEMENTED (mangler kobling til behandlingUUid): #" + getCallerMethod());
     }
 
@@ -368,8 +382,8 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
             return Optional.empty();
         }
         return behGrunnlag.stream().map(grId -> hentGrunnlagForGrunnlagId(behandlingId, grId))
-            .filter(gr -> gr.isAktiv())
-            .findFirst();
+                .filter(gr -> gr.isAktiv())
+                .findFirst();
     }
 
     private InMemoryInntektArbeidYtelseGrunnlagBuilder getGrunnlagBuilder(Long behandlingId, InntektArbeidYtelseAggregatBuilder builder) {
@@ -417,7 +431,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         return InMemoryInntektArbeidYtelseGrunnlagBuilder.oppdatere(inntektArbeidAggregat);
     }
 
-    private void setField(Object entitet, String field, Object val) {
+    private static void setField(Object entitet, String field, Object val) {
         try {
             var fld = entitet.getClass().getDeclaredField(field);
             fld.setAccessible(true);
@@ -428,7 +442,8 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     /**
-     * lagd for å eksponere builder metoder lokalt til denne tjeneste implementasjonen.
+     * lagd for å eksponere builder metoder lokalt til denne tjeneste
+     * implementasjonen.
      */
     private static class InMemoryInntektArbeidYtelseGrunnlagBuilder extends InntektArbeidYtelseGrunnlagBuilder {
         private InMemoryInntektArbeidYtelseGrunnlagBuilder(InntektArbeidYtelseGrunnlag kladd) {
@@ -440,7 +455,8 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         }
 
         /**
-         * Opprett ny versjon av grunnlag med angitt assignet grunnlagReferanse og opprettetTidspunkt.
+         * Opprett ny versjon av grunnlag med angitt assignet grunnlagReferanse og
+         * opprettetTidspunkt.
          */
         public static InMemoryInntektArbeidYtelseGrunnlagBuilder ny(UUID grunnlagReferanse, LocalDateTime opprettetTidspunkt) {
             return new InMemoryInntektArbeidYtelseGrunnlagBuilder(new InntektArbeidYtelseGrunnlag(grunnlagReferanse, opprettetTidspunkt));
@@ -461,7 +477,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
         @Override
         public void ryddOppErstattedeArbeidsforhold(AktørId søker,
-                                                    List<Tuple<Arbeidsgiver, Tuple<InternArbeidsforholdRef, InternArbeidsforholdRef>>> erstattArbeidsforhold) {
+                List<Tuple<Arbeidsgiver, Tuple<InternArbeidsforholdRef, InternArbeidsforholdRef>>> erstattArbeidsforhold) {
             super.ryddOppErstattedeArbeidsforhold(søker, erstattArbeidsforhold);
         }
 

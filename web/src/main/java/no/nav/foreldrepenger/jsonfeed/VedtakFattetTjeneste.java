@@ -10,9 +10,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.domene.feed.HendelseCriteria;
@@ -27,7 +24,6 @@ import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.VedtakMetadata;
 
 @ApplicationScoped
 public class VedtakFattetTjeneste {
-    private static final Logger log = LoggerFactory.getLogger(VedtakFattetTjeneste.class);
     private static final ZoneId ZONE_ID = ZoneId.of("Europe/Oslo");
 
     private FeedRepository feedRepository;
@@ -48,11 +44,12 @@ public class VedtakFattetTjeneste {
         return hentVedtak(sisteLestSekvensId, maxAntall, hendelseType, aktørId, SvpVedtakUtgåendeHendelse.class);
     }
 
-    private <V extends UtgåendeHendelse> VedtakDto hentVedtak(Long sisteLestSekvensId, Long maxAntall, String hendelseType, Optional<AktørId> aktørId, Class<V> cls) {
+    private <V extends UtgåendeHendelse> VedtakDto hentVedtak(Long sisteLestSekvensId, Long maxAntall, String hendelseType, Optional<AktørId> aktørId,
+            Class<V> cls) {
         HendelseCriteria.Builder builder = new HendelseCriteria.Builder()
-            .medSisteLestSekvensId(sisteLestSekvensId)
-            .medType(hendelseType)
-            .medMaxAntall(maxAntall + 1); // sender med pluss 1 for å få utledet harFlereElementer
+                .medSisteLestSekvensId(sisteLestSekvensId)
+                .medType(hendelseType)
+                .medMaxAntall(maxAntall + 1); // sender med pluss 1 for å få utledet harFlereElementer
 
         aktørId.ifPresent(it -> builder.medAktørId(it.getId()));
 
@@ -60,10 +57,12 @@ public class VedtakFattetTjeneste {
 
         List<V> utgåendeHendelser = feedRepository.hentUtgåendeHendelser(cls, hendelseCriteria);
 
-        List<FeedElement> feedElementer = utgåendeHendelser.stream().map(this::mapTilFeedElement).filter(Objects::nonNull).collect(Collectors.toList());
+        List<FeedElement> feedElementer = utgåendeHendelser.stream().map(this::mapTilFeedElement).filter(Objects::nonNull)
+                .collect(Collectors.toList());
         boolean harFlereElementer = feedElementer.size() > maxAntall;
         if (harFlereElementer) {
-            feedElementer.remove(feedElementer.size() - 1); //Ba om 1 ekstra for å få utledet harFlereElementer, så fjerner den fra outputen
+            feedElementer.remove(feedElementer.size() - 1); // Ba om 1 ekstra for å få utledet harFlereElementer, så fjerner den fra
+                                                            // outputen
         }
 
         return new VedtakDto(harFlereElementer, feedElementer);
@@ -77,11 +76,11 @@ public class VedtakFattetTjeneste {
 
         Innhold innhold = JsonMapper.fromJson(hendelse.getPayload(), type.getMeldingsDto());
         return new FeedElement.Builder()
-            .medSekvensId(hendelse.getSekvensnummer())
-            .medType(hendelse.getType())
-            .medInnhold(innhold)
-            .medMetadata(new VedtakMetadata.Builder()
-                .medOpprettetDato(ZonedDateTime.of(hendelse.getOpprettetTidspunkt(), ZONE_ID)).build())
-            .build();
+                .medSekvensId(hendelse.getSekvensnummer())
+                .medType(hendelse.getType())
+                .medInnhold(innhold)
+                .medMetadata(new VedtakMetadata.Builder()
+                        .medOpprettetDato(ZonedDateTime.of(hendelse.getOpprettetTidspunkt(), ZONE_ID)).build())
+                .build();
     }
 }
