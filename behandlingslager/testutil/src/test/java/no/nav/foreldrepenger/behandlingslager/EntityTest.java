@@ -55,7 +55,7 @@ public class EntityTest {
             // trenger å konfigurere opp jndi etc.
             DBConnectionProperties connectionProperties = DBConnectionProperties.finnDefault(DatasourceConfiguration.UNIT_TEST.get()).get();
             DatabaseStøtte.settOppJndiForDefaultDataSource(Collections.singletonList(connectionProperties));
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
         }
         entityManagerFactory = Persistence.createEntityManagerFactory("pu-default");
