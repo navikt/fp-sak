@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -24,8 +24,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -55,14 +55,14 @@ public class UttakHistorikkUtilTest {
         List<UttakResultatPeriodeLagreDto> perioder = nyMedResultatType(PeriodeResultatType.INNVILGET, new ArbeidsgiverLagreDto(ORGNR));
 
         List<Historikkinnslag> historikkinnslag = UttakHistorikkUtil.forOverstyring().lagHistorikkinnslag(BEHANDLING,
-            perioder, List.of(gjeldende));
+                perioder, List.of(gjeldende));
 
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.get(0).getBehandlingId()).isEqualTo(BEHANDLING.getId());
         assertThat(historikkinnslag.get(0).getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.get(0).getHistorikkinnslagDeler()).hasSize(1);
         Optional<HistorikkinnslagFelt> endretFelt = historikkinnslag.get(0).getHistorikkinnslagDeler().get(0)
-            .getEndretFelt(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_TYPE);
+                .getEndretFelt(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_TYPE);
         assertThat(endretFelt).isNotEmpty();
         assertThat(endretFelt.get().getFraVerdi()).isEqualTo(gjeldende.getResultatType().getKode());
         assertThat(endretFelt.get().getTilVerdi()).isEqualTo(perioder.get(0).getPeriodeResultatType().getKode());
@@ -75,7 +75,7 @@ public class UttakHistorikkUtilTest {
         List<UttakResultatPeriodeLagreDto> perioder = nyMedResultatType(PeriodeResultatType.INNVILGET, new ArbeidsgiverLagreDto(ORGNR));
 
         List<Historikkinnslag> historikkinnslag = UttakHistorikkUtil.forOverstyring().lagHistorikkinnslag(BEHANDLING,
-            perioder, List.of(gjeldende));
+                perioder, List.of(gjeldende));
 
         assertThat(historikkinnslag).isEmpty();
     }
@@ -87,16 +87,20 @@ public class UttakHistorikkUtilTest {
         LocalDate tomSplitPeriode1 = fom.plusWeeks(1);
         LocalDate fomSplitPeriode2 = tomSplitPeriode1.plusDays(1);
         var gjeldende = periodeMedFørOgEtter(PeriodeResultatType.INNVILGET,
-            fom, tom, fom.minusMonths(1), fom.minusDays(1), tom.plusDays(1), tom.plusWeeks(1));
+                fom, tom, fom.minusMonths(1), fom.minusDays(1), tom.plusDays(1), tom.plusWeeks(1));
 
-        UttakResultatPeriodeLagreDto uendretFør = nyPeriodeMedType(PeriodeResultatType.INNVILGET, fom.minusMonths(1), fom.minusDays(1), new ArbeidsgiverLagreDto(ORGNR));
-        UttakResultatPeriodeLagreDto splittetFørste = nyPeriodeMedType(PeriodeResultatType.INNVILGET, fom, tomSplitPeriode1, new ArbeidsgiverLagreDto(ORGNR));
-        UttakResultatPeriodeLagreDto splittetAndre = nyPeriodeMedType(PeriodeResultatType.INNVILGET, fomSplitPeriode2, tom, new ArbeidsgiverLagreDto(ORGNR));
-        UttakResultatPeriodeLagreDto uendretEtter = nyPeriodeMedType(PeriodeResultatType.AVSLÅTT, tom.plusDays(1), tom.plusWeeks(1), new ArbeidsgiverLagreDto(ORGNR));
+        UttakResultatPeriodeLagreDto uendretFør = nyPeriodeMedType(PeriodeResultatType.INNVILGET, fom.minusMonths(1), fom.minusDays(1),
+                new ArbeidsgiverLagreDto(ORGNR));
+        UttakResultatPeriodeLagreDto splittetFørste = nyPeriodeMedType(PeriodeResultatType.INNVILGET, fom, tomSplitPeriode1,
+                new ArbeidsgiverLagreDto(ORGNR));
+        UttakResultatPeriodeLagreDto splittetAndre = nyPeriodeMedType(PeriodeResultatType.INNVILGET, fomSplitPeriode2, tom,
+                new ArbeidsgiverLagreDto(ORGNR));
+        UttakResultatPeriodeLagreDto uendretEtter = nyPeriodeMedType(PeriodeResultatType.AVSLÅTT, tom.plusDays(1), tom.plusWeeks(1),
+                new ArbeidsgiverLagreDto(ORGNR));
         List<UttakResultatPeriodeLagreDto> perioder = List.of(uendretFør, splittetFørste, splittetAndre, uendretEtter);
 
         List<Historikkinnslag> historikkinnslag = UttakHistorikkUtil.forOverstyring().lagHistorikkinnslag(BEHANDLING,
-            perioder, gjeldende);
+                perioder, gjeldende);
 
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.get(0).getBehandlingId()).isEqualTo(BEHANDLING.getId());
@@ -121,12 +125,14 @@ public class UttakHistorikkUtilTest {
         LocalDate fomSplitPeriode2 = tomSplitPeriode1.plusDays(1);
         var gjeldende = enkeltPeriode(PeriodeResultatType.INNVILGET, fom, tom, Arbeidsgiver.virksomhet(ORGNR));
 
-        UttakResultatPeriodeLagreDto splittetFørste = nyPeriodeMedType(PeriodeResultatType.INNVILGET, fom, tomSplitPeriode1, new ArbeidsgiverLagreDto(ORGNR));
-        UttakResultatPeriodeLagreDto splittetAndre = nyPeriodeMedType(PeriodeResultatType.AVSLÅTT, fomSplitPeriode2, tom, new ArbeidsgiverLagreDto(ORGNR));
+        UttakResultatPeriodeLagreDto splittetFørste = nyPeriodeMedType(PeriodeResultatType.INNVILGET, fom, tomSplitPeriode1,
+                new ArbeidsgiverLagreDto(ORGNR));
+        UttakResultatPeriodeLagreDto splittetAndre = nyPeriodeMedType(PeriodeResultatType.AVSLÅTT, fomSplitPeriode2, tom,
+                new ArbeidsgiverLagreDto(ORGNR));
         List<UttakResultatPeriodeLagreDto> perioder = List.of(splittetFørste, splittetAndre);
 
         List<Historikkinnslag> historikkinnslag = UttakHistorikkUtil.forOverstyring().lagHistorikkinnslag(BEHANDLING,
-            perioder, List.of(gjeldende));
+                perioder, List.of(gjeldende));
 
         assertThat(historikkinnslag).hasSize(2);
         assertThat(historikkinnslag.get(0).getType()).isEqualTo(HistorikkinnslagType.OVST_UTTAK_SPLITT);
@@ -141,12 +147,14 @@ public class UttakHistorikkUtilTest {
         LocalDate fomSplitPeriode2 = tomSplitPeriode1.plusDays(1);
         var gjeldende = enkeltPeriode(PeriodeResultatType.INNVILGET, fom, tom, Arbeidsgiver.virksomhet(ORGNR));
 
-        UttakResultatPeriodeLagreDto splittetFørste = nyPeriodeMedType(PeriodeResultatType.INNVILGET, fom, tomSplitPeriode1, new ArbeidsgiverLagreDto(ORGNR));
-        UttakResultatPeriodeLagreDto splittetAndre = nyPeriodeMedType(PeriodeResultatType.AVSLÅTT, fomSplitPeriode2, tom, new ArbeidsgiverLagreDto(ORGNR));
+        UttakResultatPeriodeLagreDto splittetFørste = nyPeriodeMedType(PeriodeResultatType.INNVILGET, fom, tomSplitPeriode1,
+                new ArbeidsgiverLagreDto(ORGNR));
+        UttakResultatPeriodeLagreDto splittetAndre = nyPeriodeMedType(PeriodeResultatType.AVSLÅTT, fomSplitPeriode2, tom,
+                new ArbeidsgiverLagreDto(ORGNR));
         List<UttakResultatPeriodeLagreDto> perioder = List.of(splittetFørste, splittetAndre);
 
         List<Historikkinnslag> historikkinnslag = UttakHistorikkUtil.forFastsetting().lagHistorikkinnslag(BEHANDLING,
-            perioder, List.of(gjeldende));
+                perioder, List.of(gjeldende));
 
         assertThat(historikkinnslag).hasSize(2);
         assertThat(historikkinnslag.get(0).getType()).isEqualTo(HistorikkinnslagType.FASTSATT_UTTAK_SPLITT);
@@ -163,26 +171,26 @@ public class UttakHistorikkUtilTest {
         List<UttakResultatPeriodeLagreDto> perioder = nyMedResultatType(PeriodeResultatType.INNVILGET, new ArbeidsgiverLagreDto(arbeidsgiverAktørId));
 
         List<Historikkinnslag> historikkinnslag = UttakHistorikkUtil.forOverstyring().lagHistorikkinnslag(BEHANDLING,
-            perioder, List.of(gjeldende));
+                perioder, List.of(gjeldende));
 
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.get(0).getBehandlingId()).isEqualTo(BEHANDLING.getId());
         assertThat(historikkinnslag.get(0).getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.get(0).getHistorikkinnslagDeler()).hasSize(1);
         Optional<HistorikkinnslagFelt> endretFelt = historikkinnslag.get(0).getHistorikkinnslagDeler().get(0)
-            .getEndretFelt(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_TYPE);
+                .getEndretFelt(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_TYPE);
         assertThat(endretFelt).isNotEmpty();
         assertThat(endretFelt.get().getFraVerdi()).isEqualTo(gjeldende.getResultatType().getKode());
         assertThat(endretFelt.get().getTilVerdi()).isEqualTo(perioder.get(0).getPeriodeResultatType().getKode());
     }
 
     private List<ForeldrepengerUttakPeriode> periodeMedFørOgEtter(PeriodeResultatType type,
-                                                              LocalDate fom,
-                                                              LocalDate tom,
-                                                              LocalDate førFom,
-                                                              LocalDate førTom,
-                                                              LocalDate etterFom,
-                                                              LocalDate etterTom) {
+            LocalDate fom,
+            LocalDate tom,
+            LocalDate førFom,
+            LocalDate førTom,
+            LocalDate etterFom,
+            LocalDate etterTom) {
         var aktiviteter = List.of(periodeAktivitet());
         var periode = periode(type, fom, tom, aktiviteter);
         var førPeriode = periode(PeriodeResultatType.INNVILGET, førFom, førTom, aktiviteter);
@@ -191,23 +199,23 @@ public class UttakHistorikkUtilTest {
     }
 
     private ForeldrepengerUttakPeriode periode(PeriodeResultatType type,
-                                               LocalDate fom,
-                                               LocalDate tom,
-                                               List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
+            LocalDate fom,
+            LocalDate tom,
+            List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
         return new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(fom, tom)
-            .medResultatType(type)
-            .medAktiviteter(aktiviteter)
-            .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
-            .build();
+                .medTidsperiode(fom, tom)
+                .medResultatType(type)
+                .medAktiviteter(aktiviteter)
+                .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
+                .build();
     }
 
     private ForeldrepengerUttakPeriodeAktivitet periodeAktivitet() {
         return new ForeldrepengerUttakPeriodeAktivitet.Builder()
-            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, Arbeidsgiver.virksomhet(ORGNR), ARBEIDSFORHOLD_REF))
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
-            .build();
+                .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, Arbeidsgiver.virksomhet(ORGNR), ARBEIDSFORHOLD_REF))
+                .medArbeidsprosent(BigDecimal.ZERO)
+                .medUtbetalingsgrad(Utbetalingsgrad.TEN)
+                .build();
     }
 
     private String asHistorikkVerdiString(LocalDate fom, LocalDate tom) {
@@ -216,10 +224,10 @@ public class UttakHistorikkUtilTest {
 
     private ForeldrepengerUttakPeriode enkeltPeriode(PeriodeResultatType type, LocalDate fom, LocalDate tom, Arbeidsgiver arbeidsgiver) {
         var periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
-           .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, arbeidsgiver, ARBEIDSFORHOLD_REF))
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
-            .build();
+                .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, arbeidsgiver, ARBEIDSFORHOLD_REF))
+                .medArbeidsprosent(BigDecimal.ZERO)
+                .medUtbetalingsgrad(Utbetalingsgrad.TEN)
+                .build();
         return periode(type, fom, tom, List.of(periodeAktivitet));
     }
 
@@ -232,25 +240,26 @@ public class UttakHistorikkUtilTest {
         return nyPeriodeMedType(type, DEFAULT_FOM, DEFAULT_TOM, arbeidsgiver);
     }
 
-    private UttakResultatPeriodeLagreDto nyPeriodeMedType(PeriodeResultatType resultatType, LocalDate fom, LocalDate tom, ArbeidsgiverLagreDto arbeidsgiver) {
+    private UttakResultatPeriodeLagreDto nyPeriodeMedType(PeriodeResultatType resultatType, LocalDate fom, LocalDate tom,
+            ArbeidsgiverLagreDto arbeidsgiver) {
         List<UttakResultatPeriodeAktivitetLagreDto> aktiviteter = new ArrayList<>();
         UttakResultatPeriodeAktivitetLagreDto aktivitetLagreDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()
-            .medArbeidsgiver(arbeidsgiver)
-            .medArbeidsforholdId(ARBEIDSFORHOLD_REF)
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .medTrekkdager(BigDecimal.ZERO)
-            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
-            .build();
+                .medArbeidsgiver(arbeidsgiver)
+                .medArbeidsforholdId(ARBEIDSFORHOLD_REF)
+                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+                .medTrekkdager(BigDecimal.ZERO)
+                .medUtbetalingsgrad(Utbetalingsgrad.TEN)
+                .build();
         aktiviteter.add(aktivitetLagreDto);
         return new UttakResultatPeriodeLagreDto.Builder()
-            .medTidsperiode(fom, tom)
-            .medAktiviteter(aktiviteter)
-            .medPeriodeResultatType(resultatType)
-            .medPeriodeResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
-            .medFlerbarnsdager(false)
-            .medSamtidigUttak(false)
-            .medBegrunnelse("abc")
-            .build();
+                .medTidsperiode(fom, tom)
+                .medAktiviteter(aktiviteter)
+                .medPeriodeResultatType(resultatType)
+                .medPeriodeResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
+                .medFlerbarnsdager(false)
+                .medSamtidigUttak(false)
+                .medBegrunnelse("abc")
+                .build();
     }
 
     private ForeldrepengerUttakPeriode enkeltPeriode(PeriodeResultatType type) {

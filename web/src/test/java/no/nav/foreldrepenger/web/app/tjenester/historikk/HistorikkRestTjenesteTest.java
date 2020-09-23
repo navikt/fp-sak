@@ -6,8 +6,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
@@ -24,7 +24,7 @@ public class HistorikkRestTjenesteTest {
     private HistorikkTjenesteAdapter historikkApplikasjonTjenesteMock;
     private HistorikkRestTjeneste historikkRestTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         historikkApplikasjonTjenesteMock = mock(HistorikkTjenesteAdapter.class);
         historikkRestTjeneste = new HistorikkRestTjeneste(historikkApplikasjonTjenesteMock);
@@ -37,7 +37,7 @@ public class HistorikkRestTjenesteTest {
         lagHistorikkinnslagDel(innslagDto);
         innslagDto.setDokumentLinks(Collections.emptyList());
         when(historikkApplikasjonTjenesteMock.hentAlleHistorikkInnslagForSak(Mockito.any(Saksnummer.class)))
-            .thenReturn(Collections.singletonList(innslagDto));
+                .thenReturn(Collections.singletonList(innslagDto));
 
         // Act
         historikkRestTjeneste.hentAlleInnslag(null, new SaksnummerDto("1234"));

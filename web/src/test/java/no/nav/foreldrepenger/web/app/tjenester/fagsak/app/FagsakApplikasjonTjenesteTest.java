@@ -12,8 +12,8 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -45,7 +45,7 @@ public class FagsakApplikasjonTjenesteTest {
 
     private static final String FNR = "12345678901";
     private static final AktørId AKTØR_ID = AktørId.dummy();
-    private static final Saksnummer SAKSNUMMER  = new Saksnummer("123");
+    private static final Saksnummer SAKSNUMMER = new Saksnummer("123");
 
     private FagsakApplikasjonTjeneste tjeneste;
     private FagsakRepository fagsakRepository;
@@ -60,13 +60,13 @@ public class FagsakApplikasjonTjenesteTest {
             hendelseBuilder.medFødselsDato(oppgittFødselsdato);
         }
         return FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty())
-            .medSøknadVersjon(hendelseBuilder)
-            .medBekreftetVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET)
-                .medFødselsDato(fødselsdato))
-            .build();
+                .medSøknadVersjon(hendelseBuilder)
+                .medBekreftetVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET)
+                        .medFødselsDato(fødselsdato))
+                .build();
     }
 
-    @Before
+    @BeforeEach
     public void oppsett() {
         tpsTjeneste = mock(TpsTjeneste.class);
         fagsakRepository = mock(FagsakRepository.class);
@@ -96,7 +96,8 @@ public class FagsakApplikasjonTjenesteTest {
 
         LocalDate fødselsdato = LocalDate.of(2017, JANUARY, 1);
         final FamilieHendelseGrunnlagEntitet grunnlag = byggHendelseGrunnlag(fødselsdato, fødselsdato);
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(anyLong())).thenReturn(Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
+        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(anyLong()))
+                .thenReturn(Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
         when(hendelseTjeneste.finnAggregat(any())).thenReturn(Optional.of(grunnlag));
         var dekningsgrad = Optional.of(Dekningsgrad._100);
         when(dekningsgradTjeneste.finnDekningsgrad(any())).thenReturn(dekningsgrad);
@@ -124,7 +125,8 @@ public class FagsakApplikasjonTjenesteTest {
 
         final LocalDate fødselsdato = LocalDate.of(2017, JANUARY, 1);
         final FamilieHendelseGrunnlagEntitet grunnlag = byggHendelseGrunnlag(fødselsdato, fødselsdato);
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(anyLong())).thenReturn(Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
+        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(anyLong()))
+                .thenReturn(Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
         when(hendelseTjeneste.finnAggregat(any())).thenReturn(Optional.of(grunnlag));
         var dekningsgrad = Optional.of(Dekningsgrad._80);
         when(dekningsgradTjeneste.finnDekningsgrad(any())).thenReturn(dekningsgrad);

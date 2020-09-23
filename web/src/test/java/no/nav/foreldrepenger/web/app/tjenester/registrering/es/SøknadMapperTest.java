@@ -12,8 +12,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
@@ -33,7 +33,7 @@ public class SøknadMapperTest {
 
     private SøknadMapper ytelseSøknadMapper;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         tpsTjeneste = mock(TpsTjeneste.class);
         ytelseSøknadMapper = new YtelseSøknadMapper(tpsTjeneste);
@@ -82,7 +82,8 @@ public class SøknadMapperTest {
         Medlemskap medlemskap = SøknadMapperFelles.mapMedlemskap(registreringEngangsstonadDto);
         assertThat(medlemskap.isINorgeVedFoedselstidspunkt()).isTrue();
 
-        // Assert tidligere opphold i norge(siden vi ikke har tidligere utenlandsopphold.)
+        // Assert tidligere opphold i norge(siden vi ikke har tidligere
+        // utenlandsopphold.)
         List<OppholdNorge> oppholdNorgeListe = medlemskap.getOppholdNorge();
         assertThat(oppholdNorgeListe).isNotNull();
         assertThat(oppholdNorgeListe).hasSize(1);
@@ -107,7 +108,8 @@ public class SøknadMapperTest {
 
         ManuellRegistreringEngangsstonadDto registreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         registreringEngangsstonadDto.setMottattDato(LocalDate.now());
-        registreringEngangsstonadDto.setHarFremtidigeOppholdUtenlands(false); // Ikke fremtidige utenlandsopphold, så da får vi fremtidg opphold i norge
+        registreringEngangsstonadDto.setHarFremtidigeOppholdUtenlands(false); // Ikke fremtidige utenlandsopphold, så da får vi fremtidg opphold i
+                                                                              // norge
         registreringEngangsstonadDto.setHarTidligereOppholdUtenlands(true);
         registreringEngangsstonadDto.setOppholdINorge(true);
         UtenlandsoppholdDto utenlandsoppholdDto = new UtenlandsoppholdDto();
