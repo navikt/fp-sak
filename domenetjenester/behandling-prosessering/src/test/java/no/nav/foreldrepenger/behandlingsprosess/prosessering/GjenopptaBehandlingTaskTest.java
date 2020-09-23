@@ -3,15 +3,19 @@ package no.nav.foreldrepenger.behandlingsprosess.prosessering;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -21,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshåndterer;
@@ -29,27 +32,26 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
+@ExtendWith(MockitoExtension.class)
 public class GjenopptaBehandlingTaskTest {
 
     private GjenopptaBehandlingTask task; // objektet vi tester
 
+    @Mock
     private BehandlingRepository mockBehandlingRepository;
-    private BehandlingRepositoryProvider mockRepositoryProvider;
+    @Mock
     private BehandlingskontrollTjeneste mockBehandlingskontrollTjeneste;
+    @Mock
     private RegisterdataEndringshåndterer mockRegisterdataEndringshåndterer;
+    @Mock
     private BehandlendeEnhetTjeneste mockEnhetsTjeneste;
     private OrganisasjonsEnhet organisasjonsEnhet = new OrganisasjonsEnhet("4802", "NAV Bærum");
 
-    @Before
+    @BeforeEach
     public void setup() {
-        mockRepositoryProvider = mock(BehandlingRepositoryProvider.class);
-        mockBehandlingRepository = mock(BehandlingRepository.class);
-        mockBehandlingskontrollTjeneste = mock(BehandlingskontrollTjeneste.class);
-        mockRegisterdataEndringshåndterer = mock(RegisterdataEndringshåndterer.class);
-        mockEnhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
-        when(mockRepositoryProvider.getBehandlingRepository()).thenReturn(mockBehandlingRepository);
-        when(mockRepositoryProvider.getBehandlingLåsRepository()).thenReturn(mock(BehandlingLåsRepository.class));
-        task = new GjenopptaBehandlingTask(mockRepositoryProvider, mockBehandlingskontrollTjeneste, mockRegisterdataEndringshåndterer, mockEnhetsTjeneste);
+        task = new GjenopptaBehandlingTask(mockBehandlingRepository, mock(BehandlingLåsRepository.class), mockBehandlingskontrollTjeneste,
+                mockRegisterdataEndringshåndterer,
+                mockEnhetsTjeneste);
     }
 
     @Test
@@ -57,11 +59,11 @@ public class GjenopptaBehandlingTaskTest {
         final Long behandlingId = 10L;
 
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel();
+                .forFødsel();
         Behandling behandling = scenario.lagMocked();
         behandling.setBehandlendeEnhet(organisasjonsEnhet);
         when(mockBehandlingRepository.hentBehandling(any(Long.class))).thenReturn(behandling);
-        when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.empty());
+        lenient().when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.empty());
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(0L, behandlingId, AktørId.dummy().getId());
@@ -80,15 +82,15 @@ public class GjenopptaBehandlingTaskTest {
         BehandlingLås lås = mock(BehandlingLås.class);
         BehandlingskontrollKontekst kontekst = mock(BehandlingskontrollKontekst.class);
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel();
+                .forFødsel();
         Behandling behandling = scenario.lagMocked();
 
         behandling.setBehandlendeEnhet(organisasjonsEnhet);
         when(mockBehandlingRepository.hentBehandling(any(Long.class))).thenReturn(behandling);
-        when(mockBehandlingRepository.lagre(any(Behandling.class), any())).thenReturn(0L);
+        lenient().when(mockBehandlingRepository.lagre(any(Behandling.class), any())).thenReturn(0L);
         when(mockBehandlingskontrollTjeneste.initBehandlingskontroll(anyLong())).thenReturn(kontekst);
         when(mockBehandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(true);
-        when(kontekst.getSkriveLås()).thenReturn(lås);
+        lenient().when(kontekst.getSkriveLås()).thenReturn(lås);
         when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.of(enhet));
         when(mockRegisterdataEndringshåndterer.skalInnhenteRegisteropplysningerPåNytt(any())).thenReturn(true);
 
@@ -104,4 +106,3 @@ public class GjenopptaBehandlingTaskTest {
         assertThat(enhetArgumentCaptor.getValue()).isEqualTo(enhet);
     }
 }
-
