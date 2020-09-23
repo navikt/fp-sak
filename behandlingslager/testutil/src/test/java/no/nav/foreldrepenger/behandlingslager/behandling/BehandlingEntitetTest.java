@@ -6,9 +6,9 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -18,19 +18,20 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class BehandlingEntitetTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BehandlingEntitetTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private Repository repository = repoRule.getRepository();
+    private Repository repository;
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-
-    @Before
+    @BeforeEach
     public void setup() {
+        repository = new Repository(getEntityManager());
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
     }
 
     @Test
@@ -95,15 +96,15 @@ public class BehandlingEntitetTest {
         assertThat(fhGrunnlag.getSøknadVersjon().getTerminbekreftelse()).isNotPresent();
         assertThat(fhGrunnlag.getSøknadVersjon().getBarna()).hasSize(1);
         assertThat(fhGrunnlag.getSøknadVersjon().getBarna().iterator().next().getFødselsdato())
-            .isEqualTo(LocalDate.now().plusDays(1));
+                .isEqualTo(LocalDate.now().plusDays(1));
     }
 
     @Test
     public void skal_ikke_opprette_nytt_behandlingsgrunnlag_når_endring_skjer_på_samme_behandling_som_originalt_lagd_for() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(LocalDate.now()).medUtstedtDato(LocalDate.now()).medNavnPå("Lege legesen"));
+                .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+                        .medTermindato(LocalDate.now()).medUtstedtDato(LocalDate.now()).medNavnPå("Lege legesen"));
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         LocalDate terminDato = LocalDate.now();
@@ -121,14 +122,15 @@ public class BehandlingEntitetTest {
         grunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), behandling2.getId());
         final FamilieHendelseBuilder oppdatere = grunnlagRepository.opprettBuilderFor(behandling);
         oppdatere.medTerminbekreftelse(oppdatere.getTerminbekreftelseBuilder()
-            .medTermindato(nyTerminDato)
-            .medUtstedtDato(terminDato).medNavnPå("Lege navn"));
+                .medTermindato(nyTerminDato)
+                .medUtstedtDato(terminDato).medNavnPå("Lege navn"));
         grunnlagRepository.lagre(behandling2, oppdatere);
 
         final FamilieHendelseGrunnlagEntitet oppdatertGrunnlag = grunnlagRepository.hentAggregat(behandling2.getId());
         assertThat(oppdatertGrunnlag).isNotSameAs(grunnlag);
 
         assertThat(grunnlag.getGjeldendeVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato)).hasValue(terminDato);
-        assertThat(oppdatertGrunnlag.getGjeldendeVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato)).hasValue(nyTerminDato);
+        assertThat(oppdatertGrunnlag.getGjeldendeVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato))
+                .hasValue(nyTerminDato);
     }
 }
