@@ -4,12 +4,14 @@
       "schema": "fpsak",
       "url": "jdbc:oracle:thin:@localhost:1521:XE",
       "default": true,
+      "migrateClean": false,
       "migrationScriptsFilesystemRoot": "migreringer/src/main/resources/db/migration/"
     },
     {
       "datasource": "dvhDS",
       "schema": "fpsak_hist",
       "url": "jdbc:oracle:thin:@localhost:1521:XE",
+      "migrateClean": false,
       "migrationScriptsFilesystemRoot": "migreringer/src/main/resources/db/migration/"
     }
 ]

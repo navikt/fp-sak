@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.dbstoette;
 
-import static no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering.migrerUnittestSkjemaer;
 import static no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering.settPlaceholdereOgJdniOppslag;
 
 import org.slf4j.Logger;
@@ -18,8 +17,9 @@ public class FPsakEntityManagerAwareExtension extends EntityManagerAwareExtensio
         if (isNotRunningUnderMaven) {
             LOG.info("Kjører IKKE under maven");
             // prøver alltid migrering hvis endring, ellers funker det dårlig i IDE.
-            migrerUnittestSkjemaer();
+            // migrerUnittestSkjemaer();
         }
+        LOG.info("Placeholders");
         settPlaceholdereOgJdniOppslag();
     }
 

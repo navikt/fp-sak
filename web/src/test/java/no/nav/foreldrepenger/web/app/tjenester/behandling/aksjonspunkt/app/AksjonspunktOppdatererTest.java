@@ -9,16 +9,16 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
+import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollEventPubliserer;
+import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
+import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -34,8 +34,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.FatterVedtakAksjonspunkt;
@@ -52,53 +53,56 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.Fa
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.ForeslaVedtakAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.ForeslåVedtakAksjonspunktOppdaterer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.OpprettToTrinnsgrunnlag;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class AksjonspunktOppdatererTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
     private static final String BEGRUNNELSE = "begrunnelse";
     private static final String ANSVARLIG_SAKSBEHANLDER = "saksbehandler";
     private static final String OVERSKRIFT = "overskrift";
     private static final String FRITEKST = "fritekst";
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-
     private LocalDate now = LocalDate.now();
 
-    BehandlingRepository behandlingRepository = new BehandlingRepository(entityManager);
-    BehandlingsresultatRepository behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+    private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private LagretVedtakRepository lagretVedtakRepository = new LagretVedtakRepository(entityManager);
-    private KlageRepository klageRepository = new KlageRepository(entityManager);
-    private AnkeRepository ankeRepository = new AnkeRepository(entityManager);
+    private OpprettToTrinnsgrunnlag opprettTotrinnsgrunnlag;
+    private LagretVedtakRepository lagretVedtakRepository;
+    private KlageRepository klageRepository;
+    private AnkeRepository ankeRepository;
+    private BehandlingDokumentRepository behandlingDokumentRepository;
 
     private FatterVedtakAksjonspunkt fatterVedtakAksjonspunkt;
     private TotrinnRepository totrinnRepository;
 
-    @Inject
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
-    @Inject
     private VedtakTjeneste vedtakTjeneste;
+    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
-    @Inject
-    private InntektArbeidYtelseTjeneste iayTjeneste;
-    private OpprettToTrinnsgrunnlag opprettTotrinnsgrunnlag;
-
-    @Inject
-    private BehandlingDokumentRepository behandlingDokumentRepository;
-
-    @Before
+    @BeforeEach
     public void setup() {
-        totrinnRepository = new TotrinnRepository(entityManager);
-        var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(entityManager);
-        var ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
-        var uttakRepository = new FpUttakRepository(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        var serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), new BehandlingModellRepository(),
+                mock(BehandlingskontrollEventPubliserer.class));
+        behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
+        behandlingDokumentRepository = new BehandlingDokumentRepository(getEntityManager());
+        lagretVedtakRepository = new LagretVedtakRepository(getEntityManager());
+        ankeRepository = new AnkeRepository(getEntityManager());
+        klageRepository = new KlageRepository(getEntityManager());
+        behandlingRepository = new BehandlingRepository(getEntityManager());
+        behandlingsresultatRepository = new BehandlingsresultatRepository(getEntityManager());
+        totrinnRepository = new TotrinnRepository(getEntityManager());
         TotrinnTjeneste totrinnTjeneste = new TotrinnTjeneste(totrinnRepository);
+        vedtakTjeneste = new VedtakTjeneste(lagretVedtakRepository, repositoryProvider, new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository),
+                totrinnTjeneste);
+
+        var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(getEntityManager());
+        var ytelsesFordelingRepository = new YtelsesFordelingRepository(getEntityManager());
+        var uttakRepository = new FpUttakRepository(getEntityManager());
         opprettTotrinnsgrunnlag = new OpprettToTrinnsgrunnlag(
                 beregningsgrunnlagTjeneste,
                 ytelsesFordelingRepository,
@@ -117,13 +121,9 @@ public class AksjonspunktOppdatererTest {
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
         scenario.medSøknadHendelse().medFødselsDato(now);
         Behandling behandling = scenario.lagre(repositoryProvider);
-        /*
-         * BehandlingRepository behandlingRepository, BehandlingsresultatRepository
-         * behandlingsresultatRepository
-         */
-        ForeslaVedtakAksjonspunktDto dto = new ForeslaVedtakAksjonspunktDto(BEGRUNNELSE, null, null, false);
+        var dto = new ForeslaVedtakAksjonspunktDto(BEGRUNNELSE, null, null, false);
         var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(mock(KlageRepository.class), mock(AnkeRepository.class));
-        ForeslåVedtakAksjonspunktOppdaterer foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
+        var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
                 behandlingRepository, behandlingsresultatRepository, mock(HistorikkTjenesteAdapter.class),
                 opprettTotrinnsgrunnlag,
                 vedtakTjeneste,
