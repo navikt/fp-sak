@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrs
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -37,7 +40,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.FatterVedtakAksjonspunkt;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
@@ -67,50 +69,43 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private BehandlingRepositoryProvider repositoryProvider;
 
+    private BehandlingRepositoryProvider repositoryProvider;
     private OpprettToTrinnsgrunnlag opprettTotrinnsgrunnlag;
     private LagretVedtakRepository lagretVedtakRepository;
     private KlageRepository klageRepository;
     private AnkeRepository ankeRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
-
     private FatterVedtakAksjonspunkt fatterVedtakAksjonspunkt;
     private TotrinnRepository totrinnRepository;
-
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-
     private VedtakTjeneste vedtakTjeneste;
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
     @BeforeEach
     public void setup() {
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        var serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), new BehandlingModellRepository(),
-                mock(BehandlingskontrollEventPubliserer.class));
-        behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
-        behandlingDokumentRepository = new BehandlingDokumentRepository(getEntityManager());
-        lagretVedtakRepository = new LagretVedtakRepository(getEntityManager());
-        ankeRepository = new AnkeRepository(getEntityManager());
-        klageRepository = new KlageRepository(getEntityManager());
-        behandlingRepository = new BehandlingRepository(getEntityManager());
-        behandlingsresultatRepository = new BehandlingsresultatRepository(getEntityManager());
-        totrinnRepository = new TotrinnRepository(getEntityManager());
-        TotrinnTjeneste totrinnTjeneste = new TotrinnTjeneste(totrinnRepository);
-        vedtakTjeneste = new VedtakTjeneste(lagretVedtakRepository, repositoryProvider, new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository),
-                totrinnTjeneste);
+        EntityManager em = getEntityManager();
 
-        var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(getEntityManager());
-        var ytelsesFordelingRepository = new YtelsesFordelingRepository(getEntityManager());
-        var uttakRepository = new FpUttakRepository(getEntityManager());
-        opprettTotrinnsgrunnlag = new OpprettToTrinnsgrunnlag(
-                beregningsgrunnlagTjeneste,
-                ytelsesFordelingRepository,
-                uttakRepository,
-                totrinnTjeneste,
-                iayTjeneste);
+        repositoryProvider = new BehandlingRepositoryProvider(em);
+        behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(new BehandlingskontrollServiceProvider(em, new BehandlingModellRepository(),
+                mock(BehandlingskontrollEventPubliserer.class)));
+        behandlingDokumentRepository = new BehandlingDokumentRepository(em);
+        lagretVedtakRepository = new LagretVedtakRepository(em);
+        ankeRepository = new AnkeRepository(em);
+        klageRepository = new KlageRepository(em);
+        behandlingRepository = new BehandlingRepository(em);
+        behandlingsresultatRepository = new BehandlingsresultatRepository(em);
+        totrinnRepository = new TotrinnRepository(em);
+        var totrinnTjeneste = new TotrinnTjeneste(totrinnRepository);
         var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
-        VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(lagretVedtakRepository, repositoryProvider, klageAnkeVedtakTjeneste, totrinnTjeneste);
+        vedtakTjeneste = new VedtakTjeneste(behandlingRepository, behandlingsresultatRepository, new HistorikkRepository(em), lagretVedtakRepository,
+                totrinnTjeneste, klageAnkeVedtakTjeneste);
+
+        opprettTotrinnsgrunnlag = new OpprettToTrinnsgrunnlag(
+                new HentOgLagreBeregningsgrunnlagTjeneste(em),
+                new YtelsesFordelingRepository(em),
+                new FpUttakRepository(em),
+                totrinnTjeneste,
+                new AbakusInMemoryInntektArbeidYtelseTjeneste());
         fatterVedtakAksjonspunkt = new FatterVedtakAksjonspunkt(behandlingskontrollTjeneste, klageAnkeVedtakTjeneste, vedtakTjeneste,
                 totrinnTjeneste);
     }
