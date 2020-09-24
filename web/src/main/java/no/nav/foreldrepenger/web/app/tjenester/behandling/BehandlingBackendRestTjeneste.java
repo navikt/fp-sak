@@ -47,25 +47,21 @@ public class BehandlingBackendRestTjeneste {
 
     @Inject
     public BehandlingBackendRestTjeneste(BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
-                                         BehandlingDtoForBackendTjeneste behandlingDtoForBackendTjeneste) {
+            BehandlingDtoForBackendTjeneste behandlingDtoForBackendTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingDtoForBackendTjeneste = behandlingDtoForBackendTjeneste;
     }
 
     @GET
     @Path(BACKEND_ROOT_PATH)
-    @Operation(description = "Hent behandling gitt id for backend",
-        summary = ("Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført."),
-        tags = "behandlinger",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer behandling",
-                content = {
+    @Operation(description = "Hent behandling gitt id for backend", summary = ("Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført."), tags = "behandlinger", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer behandling", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BehandlingDto.class))
-                }),
-        })
+            }),
+    })
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response hentBehandlingResultatForBackend(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response hentBehandlingResultatForBackend(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
         AsyncPollingStatus taskStatus = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, null).orElse(null);
         BehandlingDto dto = behandlingDtoForBackendTjeneste.lagBehandlingDto(behandling, taskStatus);

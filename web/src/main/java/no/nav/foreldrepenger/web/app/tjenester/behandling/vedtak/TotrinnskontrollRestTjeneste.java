@@ -60,92 +60,60 @@ public class TotrinnskontrollRestTjeneste {
     @POST
     @Path(ARSAKER_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent aksjonspunkter som skal til totrinnskontroll.",
-        tags = "totrinnskontroll",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                content = @Content(
-                    array = @ArraySchema(
-                        arraySchema = @Schema(implementation = List.class),
-                        schema = @Schema(implementation = TotrinnskontrollSkjermlenkeContextDto.class)),
-                    mediaType = MediaType.APPLICATION_JSON
-                )
-            )
-        })
+    @Operation(description = "Hent aksjonspunkter som skal til totrinnskontroll.", tags = "totrinnskontroll", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = TotrinnskontrollSkjermlenkeContextDto.class)), mediaType = MediaType.APPLICATION_JSON))
+    })
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnskontrollSkjermlenkeContext(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+
+    public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnskontrollSkjermlenkeContext(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         return totrinnskontrollTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
     }
 
     @POST
     @Path(ARSAKER_READ_ONLY_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent totrinnsvurderinger for aksjonspunkter.",
-        tags = "totrinnskontroll",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                content = @Content(
-                    array = @ArraySchema(
-                        arraySchema = @Schema(implementation = List.class),
-                        schema = @Schema(implementation = TotrinnskontrollSkjermlenkeContextDto.class)),
-                    mediaType = MediaType.APPLICATION_JSON
-                )
-            )
-        })
+    @Operation(description = "Hent totrinnsvurderinger for aksjonspunkter.", tags = "totrinnskontroll", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = TotrinnskontrollSkjermlenkeContextDto.class)), mediaType = MediaType.APPLICATION_JSON))
+    })
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnskontrollvurderingSkjermlenkeContext(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+
+    public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnskontrollvurderingSkjermlenkeContext(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         return totrinnskontrollTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling);
     }
 
     @GET
     @Path(ARSAKER_PART_PATH)
-    @Operation(description = "Hent aksjonspunkter som skal til totrinnskontroll.",
-        tags = "totrinnskontroll",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                content = @Content(
-                    array = @ArraySchema(
-                        arraySchema = @Schema(implementation = List.class),
-                        schema = @Schema(implementation = TotrinnskontrollSkjermlenkeContextDto.class)),
-                    mediaType = MediaType.APPLICATION_JSON
-                )
-            )
-        })
+    @Operation(description = "Hent aksjonspunkter som skal til totrinnskontroll.", tags = "totrinnskontroll", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = TotrinnskontrollSkjermlenkeContextDto.class)), mediaType = MediaType.APPLICATION_JSON))
+    })
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnskontrollSkjermlenkeContext(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+
+    public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnskontrollSkjermlenkeContext(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return hentTotrinnskontrollSkjermlenkeContext(new BehandlingIdDto(uuidDto));
     }
 
     @GET
     @Path(ARSAKER_READ_ONLY_PART_PATH)
-    @Operation(description = "Hent totrinnsvurderinger for aksjonspunkter.",
-        tags = "totrinnskontroll",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                content = @Content(
-                    array = @ArraySchema(
-                        arraySchema = @Schema(implementation = List.class),
-                        schema = @Schema(implementation = TotrinnskontrollSkjermlenkeContextDto.class)),
-                    mediaType = MediaType.APPLICATION_JSON
-                )
-            )
-        })
+    @Operation(description = "Hent totrinnsvurderinger for aksjonspunkter.", tags = "totrinnskontroll", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = TotrinnskontrollSkjermlenkeContextDto.class)), mediaType = MediaType.APPLICATION_JSON))
+    })
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnskontrollvurderingSkjermlenkeContext(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+
+    public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnskontrollvurderingSkjermlenkeContext(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return hentTotrinnskontrollvurderingSkjermlenkeContext(new BehandlingIdDto(uuidDto));
     }
 }

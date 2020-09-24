@@ -44,7 +44,7 @@ public class AktoerRestTjeneste {
 
     static final String BASE_PATH = "/aktoer-info";
     private static final String AKTOER_INFO_PART_PATH = "";
-    public static final String AKTOER_INFO_PATH = BASE_PATH + AKTOER_INFO_PART_PATH; //NOSONAR TFP-2234
+    public static final String AKTOER_INFO_PATH = BASE_PATH + AKTOER_INFO_PART_PATH; // NOSONAR TFP-2234
 
     private FagsakRepository fagsakRepository;
     private TpsTjeneste tpsTjeneste;
@@ -62,20 +62,11 @@ public class AktoerRestTjeneste {
     }
 
     @GET
-    @Operation(description = "Henter informasjon om en aktør",
-        tags = "aktoer",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                description = "Returnerer basisinformasjon om en aktør og hvilke fagsaker vedkommede har i fpsak.",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = AktoerInfoDto.class)
-                )
-            )
-        })
+    @Operation(description = "Henter informasjon om en aktør", tags = "aktoer", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer basisinformasjon om en aktør og hvilke fagsaker vedkommede har i fpsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AktoerInfoDto.class)))
+    })
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
     @Path(AKTOER_INFO_PART_PATH)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response getAktoerInfo(@NotNull @QueryParam("aktoerId") @Valid AktoerIdDto aktoerIdDto) {
         Optional<AktørId> aktoerId = aktoerIdDto.get();
         AktoerInfoDto aktoerInfoDto = new AktoerInfoDto();
@@ -84,28 +75,27 @@ public class AktoerRestTjeneste {
             if (personinfo.isPresent()) {
                 Personinfo pi = personinfo.get();
                 PersonDto personDto = new PersonDto(
-                    pi.getNavn(),
-                    pi.getAlder(),
-                    String.valueOf(pi.getPersonIdent().getIdent()),
-                    pi.erKvinne(),
-                    pi.getPersonstatus(),
-                    pi.getDiskresjonskode(),
-                    pi.getDødsdato()
-                );
+                        pi.getNavn(),
+                        pi.getAlder(),
+                        String.valueOf(pi.getPersonIdent().getIdent()),
+                        pi.erKvinne(),
+                        pi.getPersonstatus(),
+                        pi.getDiskresjonskode(),
+                        pi.getDødsdato());
                 aktoerInfoDto.setPerson(personDto);
                 aktoerInfoDto.setAktoerId(pi.getAktørId().getId());
                 List<FagsakDto> fagsakDtoer = new ArrayList<>();
                 List<Fagsak> fagsaker = fagsakRepository.hentForBruker(aktoerId.get());
                 for (Fagsak fagsak : fagsaker) {
                     fagsakDtoer.add(new FagsakDto(
-                        fagsak,
-                        null,
-                        null,
-                        null,
-                        null,
-                        fagsak.getSkalTilInfotrygd(),
-                        fagsak.getRelasjonsRolleType(),
-                        finnDekningsgrad(fagsak.getSaksnummer())));
+                            fagsak,
+                            null,
+                            null,
+                            null,
+                            null,
+                            fagsak.getSkalTilInfotrygd(),
+                            fagsak.getRelasjonsRolleType(),
+                            finnDekningsgrad(fagsak.getSaksnummer())));
                 }
                 aktoerInfoDto.setFagsaker(fagsakDtoer);
                 return Response.ok(aktoerInfoDto).build();
