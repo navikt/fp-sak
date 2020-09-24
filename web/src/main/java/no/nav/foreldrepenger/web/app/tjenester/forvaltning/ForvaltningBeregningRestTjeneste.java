@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRIFT;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -46,6 +45,7 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseFilterDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.AktørId;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FagsakYtelseType;
 import no.nav.folketrygdloven.kalkulus.felles.v1.KalkulatorInputDto;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task.OpprettGrunnbeløpTask;
@@ -70,7 +70,6 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerEnhetDt
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @Path("/forvaltningBeregning")
 @ApplicationScoped
@@ -88,8 +87,9 @@ public class ForvaltningBeregningRestTjeneste {
 
     @Inject
     public ForvaltningBeregningRestTjeneste(
-        BeregningsgrunnlagRepository beregningsgrunnlagRepository, BehandlingRepositoryProvider repositoryProvider,
-        ProsessTaskRepository prosessTaskRepository, InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste, BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider) {
+            BeregningsgrunnlagRepository beregningsgrunnlagRepository, BehandlingRepositoryProvider repositoryProvider,
+            ProsessTaskRepository prosessTaskRepository, InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+            BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
@@ -99,51 +99,31 @@ public class ForvaltningBeregningRestTjeneste {
     }
 
     public ForvaltningBeregningRestTjeneste() {
-        //CDI
+        // CDI
     }
 
     @GET
     @Path("/satsHentGjeldende")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent liste av gjeldende eller nyeste sats",
-        tags = "FORVALTNING-beregning",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                description = "Gjeldende satser",
-                content = @Content(
-                    array = @ArraySchema(
-                        arraySchema = @Schema(implementation = List.class),
-                        schema = @Schema(implementation = BeregningSatsDto.class)),
-                    mediaType = MediaType.APPLICATION_JSON
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Hent liste av gjeldende eller nyeste sats", tags = "FORVALTNING-beregning", responses = {
+            @ApiResponse(responseCode = "200", description = "Gjeldende satser", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = BeregningSatsDto.class)), mediaType = MediaType.APPLICATION_JSON))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public List<BeregningSatsDto> hentGjeldendeSatser() {
         return Set.of(BeregningSatsType.ENGANG, BeregningSatsType.GRUNNBELØP, BeregningSatsType.GSNITT).stream()
-            .map(beregningsresultatRepository::finnGjeldendeSats)
-            .map(BeregningSatsDto::new)
-            .collect(Collectors.toList());
+                .map(beregningsresultatRepository::finnGjeldendeSats)
+                .map(BeregningSatsDto::new)
+                .collect(Collectors.toList());
     }
 
     @POST
     @Path("/satsLagreNy")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Lagre ny sats", tags = "FORVALTNING-beregning",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                description = "Gjeldende satser",
-                content = @Content(
-                    array = @ArraySchema(
-                        arraySchema = @Schema(implementation = List.class),
-                        schema = @Schema(implementation = BeregningSatsDto.class)),
-                    mediaType = MediaType.APPLICATION_JSON
-                )
-            )
-        })
-    @BeskyttetRessurs(action = CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @Operation(description = "Lagre ny sats", tags = "FORVALTNING-beregning", responses = {
+            @ApiResponse(responseCode = "200", description = "Gjeldende satser", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = BeregningSatsDto.class)), mediaType = MediaType.APPLICATION_JSON))
+    })
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public List<BeregningSatsDto> lagreNySats(@BeanParam @Valid @NotNull BeregningSatsDto dto) {
         var type = dto.getSatsType();
         var brukTom = dto.getSatsTom() != null ? dto.getSatsTom() : LocalDate.now().plusYears(99);
@@ -163,22 +143,23 @@ public class ForvaltningBeregningRestTjeneste {
         if (!brukTom.isAfter(dto.getSatsFom()) || !dto.getSatsFom().isAfter(gjeldende.getPeriode().getFomDato()))
             return false;
         if (BeregningSatsType.GRUNNBELØP.equals(gjeldende.getSatsType())) {
-            return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom()) && Month.MAY.equals(dto.getSatsFom().getMonth()) &&  dto.getSatsFom().getDayOfMonth() == 1;
+            return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom()) && Month.MAY.equals(dto.getSatsFom().getMonth())
+                    && dto.getSatsFom().getDayOfMonth() == 1;
         }
         if (BeregningSatsType.ENGANG.equals(gjeldende.getSatsType())) {
             return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom());
         }
         // GSNITT skal være bounded
-        return  dto.getSatsTom() != null && dto.getSatsFom().equals(gjeldende.getPeriode().getTomDato().plusDays(1)) && dto.getSatsTom().equals(dto.getSatsFom().plusYears(1).minusDays(1));
+        return dto.getSatsTom() != null && dto.getSatsFom().equals(gjeldende.getPeriode().getTomDato().plusDays(1))
+                && dto.getSatsTom().equals(dto.getSatsFom().plusYears(1).minusDays(1));
     }
-
 
     @POST
     @Path("/hentBeregningsgrunnlagInput")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter input for beregning", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hentBeregningsgrunnlagInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
         BeregningsgrunnlagInputFelles inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
@@ -191,40 +172,32 @@ public class ForvaltningBeregningRestTjeneste {
         return Response.ok(kalkulatorInputDto).build();
     }
 
-
     /**
      *
-     * Skal brukes for å feilsøke saker som kan ha blitt feilberegnet etter å ha brukt feil meldekort, https://jira.adeo.no/browse/TFP-2890
+     * Skal brukes for å feilsøke saker som kan ha blitt feilberegnet etter å ha
+     * brukt feil meldekort, https://jira.adeo.no/browse/TFP-2890
      */
     @POST
     @Path("/hentMeldekortFeil")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Henter saker som må sjekkes for feilutbetaling grunnet feil meldekort som er brukt", tags = "FORVALTNING-beregning",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                content = @Content(
-                    array = @ArraySchema(
-                        uniqueItems = true,
-                        arraySchema = @Schema(implementation = List.class),
-                        schema = @Schema(implementation = String.class)),
-                    mediaType = MediaType.APPLICATION_JSON
-                )
-            )
-        }
-    )
-    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @Operation(description = "Henter saker som må sjekkes for feilutbetaling grunnet feil meldekort som er brukt", tags = "FORVALTNING-beregning", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = String.class)), mediaType = MediaType.APPLICATION_JSON))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hentMeldekortFeil() {
         List<BeregningsgrunnlagGrunnlagEntitet> grunnlagList = beregningsgrunnlagRepository.hentGrunnlagForPotensielleFeilMeldekort();
         Set<Behandling> behandlinger = grunnlagList.stream()
-            .filter(gr -> !besteberegningErFastsatt(gr))
-            .map(BeregningsgrunnlagGrunnlagEntitet::getBehandlingId)
-            .map(behandlingRepository::hentBehandling)
-            .collect(Collectors.toSet());
+                .filter(gr -> !besteberegningErFastsatt(gr))
+                .map(BeregningsgrunnlagGrunnlagEntitet::getBehandlingId)
+                .map(behandlingRepository::hentBehandling)
+                .collect(Collectors.toSet());
         LOGGER.info("Fant {} behandlinger som må sjekkes", behandlinger.size());
         Set<SaksnummerEnhetDto> liste = new HashSet<>();
         for (Behandling behandling : behandlinger) {
-            BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = grunnlagList.stream().filter(gr -> gr.getBehandlingId().equals(behandling.getId())).findFirst().orElseThrow();
-            LocalDate skjæringstidspunkt = grunnlagEntitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt).orElseThrow();
+            BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = grunnlagList.stream().filter(gr -> gr.getBehandlingId().equals(behandling.getId()))
+                    .findFirst().orElseThrow();
+            LocalDate skjæringstidspunkt = grunnlagEntitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt)
+                    .orElseThrow();
             InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
             InntektArbeidYtelseGrunnlagDto kalkGrunlag = IAYMapperTilKalkulus.mapGrunnlag(inntektArbeidYtelseGrunnlag);
             AktørId aktørId = new AktørId(behandling.getAktørId().getId());
@@ -235,20 +208,21 @@ public class ForvaltningBeregningRestTjeneste {
             if (ytelseDto.isPresent()) {
                 LocalDate sisteVedtakFom = ytelseDto.get().getPeriode().getFomDato();
                 List<YtelseAnvistDto> alleMeldekort = ytelseFilter.getFiltrertYtelser().stream()
-                    .filter(ytelse -> ytelseTyper.contains(ytelse.getRelatertYtelseType()))
-                    .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()).collect(Collectors.toList());
+                        .filter(ytelse -> ytelseTyper.contains(ytelse.getRelatertYtelseType()))
+                        .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()).collect(Collectors.toList());
 
                 // Henter ut siste meldekort som startet før STP
                 Optional<YtelseAnvistDto> sisteMeldekort = alleMeldekort.stream()
-                    .filter(ytelseAnvist -> sisteVedtakFom.minus(MELDEKORT_PERIODE_UTV).isBefore(ytelseAnvist.getAnvistTOM()))
-                    .filter(mk -> mk.getAnvistFOM().isBefore(skjæringstidspunkt))
-                    .max(Comparator.comparing(YtelseAnvistDto::getAnvistFOM));
+                        .filter(ytelseAnvist -> sisteVedtakFom.minus(MELDEKORT_PERIODE_UTV).isBefore(ytelseAnvist.getAnvistTOM()))
+                        .filter(mk -> mk.getAnvistFOM().isBefore(skjæringstidspunkt))
+                        .max(Comparator.comparing(YtelseAnvistDto::getAnvistFOM));
 
                 if (sisteMeldekort.isPresent()) {
                     // Hvis dette meldekortet ikke var "helt" må saken muligens revurderes
                     boolean erMeldekortKomplett = skjæringstidspunkt.isAfter(sisteMeldekort.get().getAnvistTOM());
                     if (!erMeldekortKomplett) {
-                        SaksnummerEnhetDto dto = new SaksnummerEnhetDto(behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getBehandlendeEnhet());
+                        SaksnummerEnhetDto dto = new SaksnummerEnhetDto(behandling.getFagsak().getSaksnummer().getVerdi(),
+                                behandling.getBehandlendeEnhet());
                         liste.add(dto);
                     }
                 }
@@ -262,7 +236,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Path("/opprettGrunnbeløpForBehandling")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter grunnbeløp for behandling", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response opprettGrunnbeløpForBehandling(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
         opprettTask(behandling, OpprettGrunnbeløpTask.TASKNAME);
@@ -273,7 +247,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Path("/opprettGrunnbeløp")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter grunnbeløp der det mangler", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response opprettGrunnbeløp() {
         List<Long> behandlingIdList = beregningsgrunnlagRepository.hentBehandlingIdForGrunnlagUtenGrunnbeløp();
         behandlingIdList.forEach(id -> {
@@ -282,10 +256,11 @@ public class ForvaltningBeregningRestTjeneste {
         });
         return Response.ok().build();
     }
+
     private boolean besteberegningErFastsatt(BeregningsgrunnlagGrunnlagEntitet grunnlag) {
         List<FaktaOmBeregningTilfelle> tilfeller = grunnlag.getBeregningsgrunnlag()
-            .map(BeregningsgrunnlagEntitet::getFaktaOmBeregningTilfeller)
-            .orElse(Collections.emptyList());
+                .map(BeregningsgrunnlagEntitet::getFaktaOmBeregningTilfeller)
+                .orElse(Collections.emptyList());
         return tilfeller.contains(FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE);
     }
 
@@ -293,7 +268,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Path("/tilbakerullingAlleSakerBeregning")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Rull saker tilbake til beregning", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response tilbakerullAlleSakerBeregning() {
         beregningsgrunnlagRepository.opprettProsesstaskForTilbakerullingAvSakerBeregning();
         return Response.ok().build();
@@ -303,7 +278,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Path("/tilbakerullingBeregning")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Rull sak tilbake til beregning", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response tilbakerullEnSakBeregning(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
         opprettTilbakerullingBeregningTask(behandling);

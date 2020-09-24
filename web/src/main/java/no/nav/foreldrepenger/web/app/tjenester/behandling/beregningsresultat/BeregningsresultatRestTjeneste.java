@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.util.List;
 
@@ -20,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -50,7 +50,7 @@ public class BeregningsresultatRestTjeneste {
     private static final String FORELDREPENGER_PART_PATH = "/foreldrepenger";
     public static final String FORELDREPENGER_PATH = BASE_PATH + FORELDREPENGER_PART_PATH;
     private static final String TILKJENTYTELSE_PART_PATH = "/tilkjentytelse";
-    public static final String TILKJENTYTELSE_PATH = BASE_PATH + TILKJENTYTELSE_PART_PATH; //NOSONAR TFP-2234
+    public static final String TILKJENTYTELSE_PATH = BASE_PATH + TILKJENTYTELSE_PART_PATH; // NOSONAR TFP-2234
     private static final String HAR_SAMME_RESULTAT_PART_PATH = "/har-samme-resultat";
     public static final String HAR_SAMME_RESULTAT_PATH = BASE_PATH + HAR_SAMME_RESULTAT_PART_PATH;
 
@@ -65,7 +65,7 @@ public class BeregningsresultatRestTjeneste {
 
     @Inject
     public BeregningsresultatRestTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                          BeregningsresultatTjeneste beregningsresultatMedUttaksplanTjeneste, TilkjentYtelseTjeneste tilkjentYtelseTjeneste) {
+            BeregningsresultatTjeneste beregningsresultatMedUttaksplanTjeneste, TilkjentYtelseTjeneste tilkjentYtelseTjeneste) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatTjeneste = beregningsresultatMedUttaksplanTjeneste;
@@ -76,23 +76,23 @@ public class BeregningsresultatRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path(ENGANGSTONAD_PART_PATH)
     @Operation(description = "Hent beregningsresultat med uttaksplan for engangsstønad behandling", summary = ("Returnerer beregningsresultat med uttaksplan for behandling."), tags = "beregningsresultat")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public BeregningsresultatEngangsstønadDto hentBeregningsresultatEngangsstønad(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public BeregningsresultatEngangsstønadDto hentBeregningsresultatEngangsstønad(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         return beregningsresultatTjeneste.lagBeregningsresultatEnkel(behandling.getId()).orElse(null);
     }
 
     @GET
     @Path(ENGANGSTONAD_PART_PATH)
     @Operation(description = "Hent beregningsresultat med uttaksplan for engangsstønad behandling", summary = ("Returnerer beregningsresultat med uttaksplan for behandling."), tags = "beregningsresultat")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public BeregningsresultatEngangsstønadDto hentBeregningsresultatEngangsstønad(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public BeregningsresultatEngangsstønadDto hentBeregningsresultatEngangsstønad(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return beregningsresultatTjeneste.lagBeregningsresultatEnkel(behandling.getId()).orElse(null);
     }
@@ -101,24 +101,24 @@ public class BeregningsresultatRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path(FORELDREPENGER_PART_PATH)
     @Operation(description = "Hent beregningsresultat med uttaksplan for foreldrepenger behandling", summary = ("Returnerer beregningsresultat med uttaksplan for behandling."), tags = "beregningsresultat")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public BeregningsresultatMedUttaksplanDto hentBeregningsresultatForeldrepenger(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public BeregningsresultatMedUttaksplanDto hentBeregningsresultatForeldrepenger(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         return beregningsresultatTjeneste.lagBeregningsresultatMedUttaksplan(behandling)
-            .orElse(null);
+                .orElse(null);
     }
 
     @GET
     @Path(FORELDREPENGER_PART_PATH)
     @Operation(description = "Hent beregningsresultat med uttaksplan for foreldrepenger behandling", summary = ("Returnerer beregningsresultat med uttaksplan for behandling."), tags = "beregningsresultat")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public BeregningsresultatMedUttaksplanDto hentBeregningsresultatForeldrepenger(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public BeregningsresultatMedUttaksplanDto hentBeregningsresultatForeldrepenger(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return beregningsresultatTjeneste.lagBeregningsresultatMedUttaksplan(behandling).orElse(null);
     }
@@ -127,22 +127,21 @@ public class BeregningsresultatRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path(TILKJENTYTELSE_PART_PATH)
     @Operation(description = "Hent beregningsresultat", summary = ("Brukes av fpoppdrag."), tags = "beregningsresultat")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public TilkjentYtelse hentTilkjentYtelse(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public TilkjentYtelse hentTilkjentYtelse(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         return tilkjentYtelseTjeneste.hentilkjentYtelse(behandling.getId());
     }
 
     @GET
     @Path(TILKJENTYTELSE_PART_PATH)
     @Operation(description = "Hent beregningsresultat", summary = ("Brukes av fpoppdrag."), tags = "beregningsresultat")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public TilkjentYtelse hentTilkjentYtelse(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return tilkjentYtelseTjeneste.hentilkjentYtelse(behandling.getId());
@@ -152,9 +151,9 @@ public class BeregningsresultatRestTjeneste {
     @Path(HAR_SAMME_RESULTAT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Har revurdering samme resultat som original behandling", tags = "beregningsresultat")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Boolean harRevurderingSammeResultatSomOriginalBehandling(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Boolean harRevurderingSammeResultatSomOriginalBehandling(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         if (!BehandlingType.REVURDERING.getKode().equals(behandling.getType().getKode())) {
             throw new IllegalStateException("Behandling må være en revurdering");
@@ -170,7 +169,8 @@ public class BeregningsresultatRestTjeneste {
             return konsekvenserForYtelsen.stream().anyMatch(kfy -> KonsekvensForYtelsen.INGEN_ENDRING.getKode().equals(kfy.getKode()));
         }
 
-        Long originalBehandlingId = behandling.getOriginalBehandlingId().orElseThrow(() -> new IllegalStateException("Revurdering må ha originalbehandling"));
+        Long originalBehandlingId = behandling.getOriginalBehandlingId()
+                .orElseThrow(() -> new IllegalStateException("Revurdering må ha originalbehandling"));
         Behandlingsresultat originaltBehandlingsresultat = getBehandlingsresultat(originalBehandlingId);
         BehandlingResultatType behandlingResultatType = behandlingsresultat.getBehandlingResultatType();
 
@@ -181,8 +181,10 @@ public class BeregningsresultatRestTjeneste {
         if (harSammeResultatType && erInnvilget && erEngangsstønad) {
             BeregningsresultatEngangsstønadDto beregningsresultatEngangsstønadDto = this.hentBeregningsresultatEngangsstønad(uuidDto);
             var originalUuid = behandlingRepository.hentBehandling(originalBehandlingId).getUuid();
-            BeregningsresultatEngangsstønadDto originalBeregningsresultatEngangsstønadDto = this.hentBeregningsresultatEngangsstønad(new UuidDto(originalUuid));
-            return beregningsresultatEngangsstønadDto != null && beregningsresultatEngangsstønadDto.getAntallBarn().equals(originalBeregningsresultatEngangsstønadDto.getAntallBarn());
+            BeregningsresultatEngangsstønadDto originalBeregningsresultatEngangsstønadDto = this
+                    .hentBeregningsresultatEngangsstønad(new UuidDto(originalUuid));
+            return beregningsresultatEngangsstønadDto != null
+                    && beregningsresultatEngangsstønadDto.getAntallBarn().equals(originalBeregningsresultatEngangsstønadDto.getAntallBarn());
         }
 
         return harSammeResultatType;

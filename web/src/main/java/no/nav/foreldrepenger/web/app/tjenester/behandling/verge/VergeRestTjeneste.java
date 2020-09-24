@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.verge;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.util.Optional;
 
@@ -27,6 +26,7 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -59,8 +59,8 @@ public class VergeRestTjeneste {
 
     @Inject
     public VergeRestTjeneste(BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
-                             BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste,
-                             VergeTjeneste vergeTjeneste) {
+            BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste,
+            VergeTjeneste vergeTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingsutredningApplikasjonTjeneste = behandlingsutredningApplikasjonTjeneste;
         this.vergeTjeneste = vergeTjeneste;
@@ -68,19 +68,10 @@ public class VergeRestTjeneste {
 
     @GET
     @Path(VERGE_BEHANDLINGSMENY_PART_PATH)
-    @Operation(description = "Instruerer hvilket menyvalg som skal være mulig fra behandlingsmenyen",
-        tags = "verge",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                description = "Returnerer SKJUL/OPPRETT/FJERN",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = VergeBehandlingsmenyDto.class)
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Instruerer hvilket menyvalg som skal være mulig fra behandlingsmenyen", tags = "verge", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer SKJUL/OPPRETT/FJERN", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = VergeBehandlingsmenyDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentBehandlingsmenyvalg(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
         Behandling behandling = getBehandling(behandlingIdDto);
         VergeBehandlingsmenyDto dto = vergeTjeneste.utledBehandlingsmeny(behandling.getId());
@@ -91,16 +82,10 @@ public class VergeRestTjeneste {
     @POST
     @Path(VERGE_OPPRETT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Oppretter aksjonspunkt for verge/fullmektig på behandlingen",
-        tags = "verge",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                description = "Aksjonspunkt for verge/fullmektig opprettes",
-                headers = @Header(name = HttpHeaders.LOCATION)
-            )
-        })
-    @BeskyttetRessurs(action = UPDATE, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Oppretter aksjonspunkt for verge/fullmektig på behandlingen", tags = "verge", responses = {
+            @ApiResponse(responseCode = "200", description = "Aksjonspunkt for verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))
+    })
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response opprettVerge(@Parameter(description = "Behandling som skal få verge/fullmektig") @Valid BehandlingIdVersjonDto dto) {
         Behandling behandling = getBehandling(dto);
         Long behandlingVersjon = dto.getBehandlingVersjon();
@@ -117,16 +102,10 @@ public class VergeRestTjeneste {
     @POST
     @Path(VERGE_FJERN_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Fjerner aksjonspunkt og evt. registrert informasjon om verge/fullmektig fra behandlingen",
-        tags = "verge",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                description = "Fjerning av verge/fullmektig er gjennomført",
-                headers = @Header(name = HttpHeaders.LOCATION)
-            )
-        })
-    @BeskyttetRessurs(action = UPDATE, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Fjerner aksjonspunkt og evt. registrert informasjon om verge/fullmektig fra behandlingen", tags = "verge", responses = {
+            @ApiResponse(responseCode = "200", description = "Fjerning av verge/fullmektig er gjennomført", headers = @Header(name = HttpHeaders.LOCATION))
+    })
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response fjernVerge(@Parameter(description = "Behandling som skal få fjernet verge/fullmektig") @Valid BehandlingIdVersjonDto dto) {
         Behandling behandling = getBehandling(dto);
         Long behandlingVersjon = dto.getBehandlingVersjon();
@@ -143,7 +122,7 @@ public class VergeRestTjeneste {
     private Behandling getBehandling(@QueryParam("behandlingId") @NotNull @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         return behandlingId != null
-            ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
-            : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
+                : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
     }
 }

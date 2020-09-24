@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -24,6 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -51,7 +51,7 @@ public class InntektArbeidYtelseRestTjeneste {
 
     static final String BASE_PATH = "/behandling";
     private static final String INNTEKT_ARBEID_YTELSE_PART_PATH = "/inntekt-arbeid-ytelse";
-    public static final String INNTEKT_ARBEID_YTELSE_PATH = BASE_PATH + INNTEKT_ARBEID_YTELSE_PART_PATH; //NOSONAR TFP-2234
+    public static final String INNTEKT_ARBEID_YTELSE_PATH = BASE_PATH + INNTEKT_ARBEID_YTELSE_PART_PATH; // NOSONAR TFP-2234
 
     private BehandlingRepository behandlingRepository;
     private InntektArbeidYtelseDtoMapper dtoMapper;
@@ -66,10 +66,10 @@ public class InntektArbeidYtelseRestTjeneste {
 
     @Inject
     public InntektArbeidYtelseRestTjeneste(BehandlingRepository behandlingRepository,
-                                           InntektArbeidYtelseDtoMapper dtoMapper,
-                                           PersonopplysningTjeneste personopplysningTjeneste,
-                                           InntektArbeidYtelseTjeneste iayTjeneste,
-                                           SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+            InntektArbeidYtelseDtoMapper dtoMapper,
+            PersonopplysningTjeneste personopplysningTjeneste,
+            InntektArbeidYtelseTjeneste iayTjeneste,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.iayTjeneste = iayTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -80,22 +80,13 @@ public class InntektArbeidYtelseRestTjeneste {
     @POST
     @Path(INNTEKT_ARBEID_YTELSE_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser",
-        summary = ("Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad."),
-        tags = "inntekt-arbeid-ytelse",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = InntektArbeidYtelseDto.class)
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser", summary = ("Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad."), tags = "inntekt-arbeid-ytelse", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InntektArbeidYtelseDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public InntektArbeidYtelseDto getInntektArbeidYtelser(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public InntektArbeidYtelseDto getInntektArbeidYtelser(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
@@ -105,21 +96,12 @@ public class InntektArbeidYtelseRestTjeneste {
 
     @GET
     @Path(INNTEKT_ARBEID_YTELSE_PART_PATH)
-    @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser",
-        summary = ("Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad."),
-        tags = "inntekt-arbeid-ytelse",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = InntektArbeidYtelseDto.class)
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public InntektArbeidYtelseDto getInntektArbeidYtelser(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser", summary = ("Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad."), tags = "inntekt-arbeid-ytelse", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InntektArbeidYtelseDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public InntektArbeidYtelseDto getInntektArbeidYtelser(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getInntektArbeidYtelser(new BehandlingIdDto(uuidDto));
     }
 
@@ -139,7 +121,8 @@ public class InntektArbeidYtelseRestTjeneste {
 
         // finn annen part
         Optional<AktørId> annenPartAktørId = getAnnenPart(behandling.getId(), behandling);
-        UtledArbeidsforholdParametere param = new UtledArbeidsforholdParametere(behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD));
+        UtledArbeidsforholdParametere param = new UtledArbeidsforholdParametere(
+                behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD));
 
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
 
@@ -148,9 +131,12 @@ public class InntektArbeidYtelseRestTjeneste {
     }
 
     private Optional<AktørId> getAnnenPart(Long behandlingId, Behandling behandling) {
-        LocalDate personopplysningTidspunkt = LocalDate.now(); // TODO: Hvorfor bruker denne dagens dato og ikke skjæringstidspunkt? (fra InntektArbeidYtelseDtoMapper commit 81e8624)
-        Optional<PersonopplysningerAggregat> personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandlingId, behandling.getAktørId(), personopplysningTidspunkt);
-        Optional<AktørId> annenPartAktørId = personopplysningerAggregat.flatMap(PersonopplysningerAggregat::getOppgittAnnenPart).map(OppgittAnnenPartEntitet::getAktørId);
+        LocalDate personopplysningTidspunkt = LocalDate.now(); // TODO: Hvorfor bruker denne dagens dato og ikke skjæringstidspunkt? (fra
+                                                               // InntektArbeidYtelseDtoMapper commit 81e8624)
+        Optional<PersonopplysningerAggregat> personopplysningerAggregat = personopplysningTjeneste
+                .hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandlingId, behandling.getAktørId(), personopplysningTidspunkt);
+        Optional<AktørId> annenPartAktørId = personopplysningerAggregat.flatMap(PersonopplysningerAggregat::getOppgittAnnenPart)
+                .map(OppgittAnnenPartEntitet::getAktørId);
         return annenPartAktørId;
     }
 

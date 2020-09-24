@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.opptjening;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -21,6 +20,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.UuidDto;
@@ -56,8 +56,8 @@ public class OpptjeningRestTjeneste {
 
     @Inject
     public OpptjeningRestTjeneste(BehandlingRepository behandlingRepository,
-                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                  OpptjeningDtoTjeneste dtoMapper, OpptjeningIUtlandDokStatusDtoTjeneste opptjeningIUtlandDokStatusDtoTjeneste) {
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            OpptjeningDtoTjeneste dtoMapper, OpptjeningIUtlandDokStatusDtoTjeneste opptjeningIUtlandDokStatusDtoTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.dtoMapper = dtoMapper;
@@ -67,45 +67,26 @@ public class OpptjeningRestTjeneste {
     @POST
     @Path(OPPTJENING_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent informasjon om opptjening",
-        tags = "opptjening",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Returnerer Opptjening, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = OpptjeningDto.class)
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @Operation(description = "Hent informasjon om opptjening", tags = "opptjening", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer Opptjening, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = OpptjeningDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public OpptjeningDto getOpptjening(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public OpptjeningDto getOpptjening(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         return getOpptjeningFraBehandling(behandling);
     }
 
     @GET
     @Path(OPPTJENING_PART_PATH)
-    @Operation(description = "Hent informasjon om opptjening",
-        tags = "opptjening",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Returnerer Opptjening, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = OpptjeningDto.class)
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Hent informasjon om opptjening", tags = "opptjening", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer Opptjening, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = OpptjeningDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public OpptjeningDto getOpptjening(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return getOpptjeningFraBehandling(behandling);
@@ -113,21 +94,12 @@ public class OpptjeningRestTjeneste {
 
     @GET
     @Path(UTLAND_DOK_STATUS_PART_PATH)
-    @Operation(description = "Henters saksbehandlers valg om det skal innhentes dok fra utland",
-        tags = "opptjening",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Om dok skal hentes eller ikke",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = OpptjeningIUtlandDokStatusDto.class)
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public OpptjeningIUtlandDokStatusDto getDokStatus(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    @Operation(description = "Henters saksbehandlers valg om det skal innhentes dok fra utland", tags = "opptjening", responses = {
+            @ApiResponse(responseCode = "200", description = "Om dok skal hentes eller ikke", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = OpptjeningIUtlandDokStatusDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public OpptjeningIUtlandDokStatusDto getDokStatus(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandlingHvisFinnes(uuidDto.getBehandlingUuid());
         if (behandling.isEmpty()) {
             return null;

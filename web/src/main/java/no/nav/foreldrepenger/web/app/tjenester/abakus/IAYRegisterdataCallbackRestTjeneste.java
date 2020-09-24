@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.abakus;
 
 import static no.nav.abakus.callback.registerdata.Grunnlag.IAY;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.APPLIKASJON;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -23,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.abakus.callback.registerdata.CallbackDto;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.RegisterdataCallback;
@@ -46,7 +46,7 @@ public class IAYRegisterdataCallbackRestTjeneste {
 
     @Inject
     public IAYRegisterdataCallbackRestTjeneste(IAYRegisterdataTjeneste iayTjeneste,
-                                               BehandlingLåsRepository låsRepository) {
+            BehandlingLåsRepository låsRepository) {
         this.iayTjeneste = iayTjeneste;
         this.låsRepository = låsRepository;
     }
@@ -55,17 +55,17 @@ public class IAYRegisterdataCallbackRestTjeneste {
     @Path("/iay/callback")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Callback når registerinnhenting av IAY har blitt fullført i Abakus", tags = "registerdata")
-    @BeskyttetRessurs(action = UPDATE, ressurs = APPLIKASJON)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response callback(@Parameter(description = "callbackDto") @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) CallbackDto dto) {
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON)
+    public Response callback(
+            @Parameter(description = "callbackDto") @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) CallbackDto dto) {
         if (Objects.equals(IAY, dto.getGrunnlagType())) {
             // Ta lås
             BehandlingLås behandlingLås = låsRepository.taLås(dto.getAvsenderRef().getReferanse());
             // Oppdaterer grunnlag med ny referanse
             RegisterdataCallback registerdataCallback = new RegisterdataCallback(behandlingLås.getBehandlingId(),
-                dto.getOpprinneligGrunnlagRef() != null ? dto.getOpprinneligGrunnlagRef().getReferanse() : null,
-                dto.getOppdatertGrunnlagRef().getReferanse(),
-                dto.getOpprettetTidspunkt());
+                    dto.getOpprinneligGrunnlagRef() != null ? dto.getOpprinneligGrunnlagRef().getReferanse() : null,
+                    dto.getOppdatertGrunnlagRef().getReferanse(),
+                    dto.getOpprettetTidspunkt());
 
             iayTjeneste.håndterCallback(registerdataCallback);
         } else {

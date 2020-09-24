@@ -4,7 +4,6 @@ import static no.nav.vedtak.feil.LogLevel.ERROR;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +31,7 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
@@ -71,7 +71,6 @@ import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.jpa.TomtResultatException;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @ApplicationScoped
 @Transactional
@@ -142,7 +141,7 @@ public class BehandlingRestTjeneste {
             @ApiResponse(responseCode = "202", description = "Hent behandling initiert, Returnerer link til å polle på fremdrift", headers = @Header(name = HttpHeaders.LOCATION)),
             @ApiResponse(responseCode = "303", description = "Behandling tilgjenglig (prosesstasks avsluttet)", headers = @Header(name = HttpHeaders.LOCATION))
     })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
     public Response hentBehandling(@NotNull @Valid BehandlingIdDto behandlingIdDto) {
         var behandlingId = behandlingIdDto.getBehandlingId();
@@ -165,7 +164,7 @@ public class BehandlingRestTjeneste {
             @ApiResponse(responseCode = "303", description = "Behandling tilgjenglig (prosesstasks avsluttet)", headers = @Header(name = HttpHeaders.LOCATION)),
             @ApiResponse(responseCode = "418", description = "ProsessTasks har feilet", headers = @Header(name = HttpHeaders.LOCATION), content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AsyncPollingStatus.class)))
     })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentBehandlingMidlertidigStatus(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto,
             @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto) {
         var behandlingId = behandlingIdDto.getBehandlingId();
@@ -183,7 +182,7 @@ public class BehandlingRestTjeneste {
     @Operation(description = "Hent behandling gitt id", summary = ("Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført."), tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer Behandling", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = UtvidetBehandlingDto.class)))
     })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentBehandlingResultat(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
         var behandlingId = behandlingIdDto.getBehandlingId();
         var behandling = behandlingId != null
@@ -199,7 +198,7 @@ public class BehandlingRestTjeneste {
     @Path(SETT_PA_VENT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Setter behandling på vent", tags = "behandlinger")
-    @BeskyttetRessurs(action = UPDATE, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public void settBehandlingPaVent(@Parameter(description = "Frist for behandling på vent") @Valid SettBehandlingPaVentDto dto) {
         behandlingsutredningApplikasjonTjeneste.kanEndreBehandling(dto.getBehandlingId(), dto.getBehandlingVersjon());
         behandlingsutredningApplikasjonTjeneste.settBehandlingPaVent(dto.getBehandlingId(), dto.getFrist(), dto.getVentearsak());
@@ -209,7 +208,7 @@ public class BehandlingRestTjeneste {
     @Path(ENDRE_VENTEFRIST_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Endrer ventefrist for behandling på vent", tags = "behandlinger")
-    @BeskyttetRessurs(action = UPDATE, ressurs = BeskyttetRessursResourceAttributt.VENTEFRIST)
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.VENTEFRIST)
     public void endreFristForBehandlingPaVent(
             @Parameter(description = "Frist for behandling på vent") @Valid SettBehandlingPaVentDto dto) {
         behandlingsutredningApplikasjonTjeneste.kanEndreBehandling(dto.getBehandlingId(), dto.getBehandlingVersjon());
@@ -220,7 +219,7 @@ public class BehandlingRestTjeneste {
     @Path(HENLEGG_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Henlegger behandling", tags = "behandlinger")
-    @BeskyttetRessurs(action = UPDATE, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
     public void henleggBehandling(@Parameter(description = "Henleggelsesårsak") @Valid HenleggBehandlingDto dto) {
         Long behandlingId = dto.getBehandlingId();
@@ -235,7 +234,7 @@ public class BehandlingRestTjeneste {
     @Operation(description = "Gjenopptar behandling som er satt på vent", tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "200", description = "Gjenoppta behandling påstartet i bakgrunnen", headers = @Header(name = HttpHeaders.LOCATION))
     })
-    @BeskyttetRessurs(action = UPDATE, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
     public Response gjenopptaBehandling(
             @Parameter(description = "BehandlingId for behandling som skal gjenopptas") @Valid GjenopptaBehandlingDto dto) {
@@ -256,7 +255,7 @@ public class BehandlingRestTjeneste {
     @Path(BYTT_ENHET_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Bytte behandlende enhet", tags = "behandlinger")
-    @BeskyttetRessurs(action = UPDATE, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
     public void byttBehandlendeEnhet(@Parameter(description = "Ny enhet som skal byttes") @Valid ByttBehandlendeEnhetDto dto) {
         Long behandlingId = dto.getBehandlingId();
@@ -276,7 +275,7 @@ public class BehandlingRestTjeneste {
     @Operation(description = "Opprette ny behandling", tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "202", description = "Opprett ny behandling pågår", headers = @Header(name = HttpHeaders.LOCATION))
     })
-    @BeskyttetRessurs(action = CREATE, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
     public Response opprettNyBehandling(
             @Parameter(description = "Saksnummer og flagg om det er ny behandling etter klage") @Valid NyBehandlingDto dto) {
@@ -333,7 +332,7 @@ public class BehandlingRestTjeneste {
     @GET
     @Path(BEHANDLINGER_ALLE_PART_PATH)
     @Operation(description = "Henter alle behandlinger basert på saksnummer", summary = ("Returnerer alle behandlinger som er tilknyttet saksnummer."), tags = "behandlinger")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
     public List<BehandlingDto> hentBehandlinger(
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
@@ -348,7 +347,7 @@ public class BehandlingRestTjeneste {
     @Operation(description = "Åpner behandling for endringer", tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "200", description = "Åpning av behandling for endringer påstartet i bakgrunnen", headers = @Header(name = HttpHeaders.LOCATION))
     })
-    @BeskyttetRessurs(action = UPDATE, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
     public Response åpneBehandlingForEndringer(
             @Parameter(description = "BehandlingId for behandling som skal åpnes for endringer") @Valid ReåpneBehandlingDto dto) {
@@ -372,7 +371,7 @@ public class BehandlingRestTjeneste {
     @GET
     @Path(ANNEN_PART_BEHANDLING_PART_PATH)
     @Operation(description = "Henter annen parts behandling basert på saksnummer", tags = "behandlinger")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
     public Response hentAnnenPartsGjeldendeBehandling(
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
@@ -395,7 +394,7 @@ public class BehandlingRestTjeneste {
     @GET
     @Path(HANDLING_RETTIGHETER_PART_PATH)
     @Operation(description = "Henter rettigheter for lovlige behandlingsoperasjoner", tags = "behandlinger")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
     public BehandlingRettigheterDto hentBehandlingOperasjonRettigheter(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
