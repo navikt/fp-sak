@@ -1,14 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.beregnytelse;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -20,13 +12,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
-import no.nav.foreldrepenger.ytelse.beregning.BeregningsresultatVerifiserer;
-import no.nav.foreldrepenger.ytelse.beregning.FastsettBeregningsresultatTjeneste;
+import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoBeregningsresultatTjeneste;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import java.time.LocalDate;
+import java.util.Optional;
 
 /** Felles steg for å beregne tilkjent ytelse for foreldrepenger og svangerskapspenger (ikke engangsstønad) */
 
@@ -38,47 +33,36 @@ import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoBeregningsresultat
 public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
 
     private BehandlingRepository behandlingRepository;
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private FastsettBeregningsresultatTjeneste fastsettBeregningsresultatTjeneste;
     private Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste;
     private Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjeneste;
-    private UttakInputTjeneste uttakInputTjeneste;
+    private BeregnYtelseTjeneste beregnYtelseTjeneste;
 
     protected BeregneYtelseStegImpl() {
         // for proxy
     }
 
     @Inject
-    public BeregneYtelseStegImpl(BehandlingRepositoryProvider repositoryProvider,
-                                 HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                 UttakInputTjeneste uttakInputTjeneste,
-                                 FastsettBeregningsresultatTjeneste fastsettBeregningsresultatTjeneste,
+    public BeregneYtelseStegImpl(BehandlingRepository behandlingRepository,
+                                 BeregningsresultatRepository beregningsresultatRepository,
                                  @Any Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste,
-                                 @Any Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjeneste) {
-        this.uttakInputTjeneste = uttakInputTjeneste;
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
-        this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
-        this.fastsettBeregningsresultatTjeneste = fastsettBeregningsresultatTjeneste;
+                                 @Any Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjeneste,
+                                 BeregnYtelseTjeneste beregnYtelseTjeneste) {
+        this.behandlingRepository = behandlingRepository;
+        this.beregningsresultatRepository = beregningsresultatRepository;
         this.finnEndringsdatoBeregningsresultatTjeneste = finnEndringsdatoBeregningsresultatTjeneste;
         this.beregnFeriepengerTjeneste = beregnFeriepengerTjeneste;
+        this.beregnYtelseTjeneste = beregnYtelseTjeneste;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         Long behandlingId = kontekst.getBehandlingId();
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        var input = uttakInputTjeneste.lagInput(behandlingId);
-        var ref = input.getBehandlingReferanse();
+        BehandlingReferanse ref = BehandlingReferanse.fra(behandling);
 
-        BeregningsgrunnlagEntitet beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandlingId);
-
-        // Kalle regeltjeneste
-        BeregningsresultatEntitet beregningsresultat = fastsettBeregningsresultatTjeneste.fastsettBeregningsresultat(beregningsgrunnlag, input);
-
-        // Verifiser beregningsresultat
-        BeregningsresultatVerifiserer.verifiserBeregningsresultat(beregningsresultat);
+        // Beregn ytelse
+        BeregningsresultatEntitet beregningsresultat = beregnYtelseTjeneste.beregnYtelse(ref);
 
         // Beregn feriepenger
         var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, ref.getFagsakYtelseType()).orElseThrow();

@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -74,21 +75,13 @@ public class BeregneYtelseStegImplTest {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     @Inject
-    private UttakInputTjeneste uttakInputTjeneste;
-
-    @Inject
-    private HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste;
-
-    @Inject
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
 
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final BeregningsresultatRepository beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
-    private final FpUttakRepository fpUttakRepository = repositoryProvider.getFpUttakRepository();
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    private final BeregningsresultatRepository beregningsresultatRepository = new BeregningsresultatRepository(repoRule.getEntityManager());
+    private final FpUttakRepository fpUttakRepository = new FpUttakRepository(repoRule.getEntityManager());
+    private final BehandlingRepository behandlingRepository = new BehandlingRepository(repoRule.getEntityManager());
 
-    @Mock
-    private FastsettBeregningsresultatTjeneste fastsettBeregningsresultatTjeneste = mock(FastsettBeregningsresultatTjeneste.class);
     private BeregnFeriepengerTjeneste beregnFeriepengerTjeneste = mock(BeregnFeriepengerTjeneste.class);
 
     @FagsakYtelseTypeRef("FP")
@@ -98,17 +91,20 @@ public class BeregneYtelseStegImplTest {
     private BeregneYtelseStegImpl steg;
     private BeregningsresultatEntitet beregningsresultat;
 
+    @Mock
+    private BeregnYtelseTjeneste beregnYtelseTjeneste = mock(BeregnYtelseTjeneste.class);
+
     @Before
     public void setup() {
         beregningsresultat = BeregningsresultatEntitet.builder()
             .medRegelInput("regelInput")
             .medRegelSporing("regelSporing")
             .build();
-        steg = new BeregneYtelseStegImpl(repositoryProvider, hentBeregningsgrunnlagTjeneste,
-            uttakInputTjeneste,
-            fastsettBeregningsresultatTjeneste,
+        steg = new BeregneYtelseStegImpl(behandlingRepository,
+            beregningsresultatRepository,
             new UnitTestLookupInstanceImpl<>(beregnFeriepengerTjeneste),
-            new UnitTestLookupInstanceImpl<>(finnEndringsdatoBeregningsresultatTjeneste));
+            new UnitTestLookupInstanceImpl<>(finnEndringsdatoBeregningsresultatTjeneste),
+                beregnYtelseTjeneste);
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
@@ -119,7 +115,7 @@ public class BeregneYtelseStegImplTest {
     public void skalUtførStegForFørstegangsbehandling() {
         // Arrange
 
-        when(fastsettBeregningsresultatTjeneste.fastsettBeregningsresultat(Mockito.any(), Mockito.any())).thenReturn(beregningsresultat);
+        when(beregnYtelseTjeneste.beregnYtelse(Mockito.any())).thenReturn(beregningsresultat);
 
         Tuple<Behandling, BehandlingskontrollKontekst> behandlingKontekst = byggGrunnlag(true, true);
         Behandling behandling = behandlingKontekst.getElement1();
@@ -153,20 +149,6 @@ public class BeregneYtelseStegImplTest {
         // Assert
         Optional<BeregningsresultatEntitet> resultat = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
         assertThat(resultat).isNotPresent();
-    }
-
-    @Test
-    public void skalKasteFeilNårBeregningsgrunnlagMangler() {
-        // Assert
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("Mangler Beregningsgrunnlag for behandling");
-
-        // Arrange
-        Tuple<Behandling, BehandlingskontrollKontekst> behandlingKontekst = byggGrunnlag(false, true);
-        BehandlingskontrollKontekst kontekst = behandlingKontekst.getElement2();
-
-        // Act
-        steg.utførSteg(kontekst);
     }
 
     private Tuple<Behandling, BehandlingskontrollKontekst> byggGrunnlag(boolean medBeregningsgrunnlag, boolean medUttaksPlanResultat) {

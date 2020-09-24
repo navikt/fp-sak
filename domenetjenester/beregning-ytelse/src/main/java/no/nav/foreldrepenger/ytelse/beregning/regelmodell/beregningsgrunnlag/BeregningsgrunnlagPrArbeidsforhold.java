@@ -93,4 +93,16 @@ public class BeregningsgrunnlagPrArbeidsforhold {
             return mal;
         }
     }
+
+    @Override
+    public String toString() {
+        return "BeregningsgrunnlagPrArbeidsforhold{" +
+            "arbeidsforhold=" + arbeidsforhold +
+            ", redusertRefusjonPrÅr=" + redusertRefusjonPrÅr +
+            ", redusertBrukersAndelPrÅr=" + redusertBrukersAndelPrÅr +
+            ", dagsatsBruker=" + dagsatsBruker +
+            ", dagsatsArbeidsgiver=" + dagsatsArbeidsgiver +
+            ", inntektskategori=" + inntektskategori +
+            '}';
+    }
 }

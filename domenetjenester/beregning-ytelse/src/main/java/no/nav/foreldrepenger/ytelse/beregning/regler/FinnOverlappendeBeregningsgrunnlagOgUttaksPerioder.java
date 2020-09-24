@@ -5,14 +5,11 @@ import java.math.RoundingMode;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import no.nav.foreldrepenger.ytelse.beregning.BeregningsgrunnlagUttakArbeidsforholdMatcher;
 
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
@@ -21,7 +18,6 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Beregningsgrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrArbeidsforhold;
@@ -33,7 +29,6 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.vedtak.util.Tuple;
 
 class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecification<BeregningsresultatRegelmodellMellomregning> {
-    private static final Logger log = LoggerFactory.getLogger(FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder.class);
     public static final String ID = "FP_BR 20_1";
     public static final String BESKRIVELSE = "FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder";
 
@@ -57,7 +52,6 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         BeregningsresultatRegelmodell regelmodell = mellomregning.getInput();
         Beregningsgrunnlag grunnlag = regelmodell.getBeregningsgrunnlag();
         UttakResultat uttakResultat = regelmodell.getUttakResultat();
-        log.info("Uttaksresultat før regelkjøring FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder + " + uttakResultat.toString());
         List<BeregningsresultatPeriode> periodeListe = mapPerioder(grunnlag, uttakResultat, resultater);
         periodeListe.forEach(p -> mellomregning.getOutput().addBeregningsresultatPeriode(p));
         return beregnet(resultater);
@@ -106,7 +100,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
             return;
         }
         Optional<UttakAktivitet> uttakAktivitetOpt = matchUttakAktivitetMedBeregningsgrunnlagPrStatus(beregningsgrunnlagPrStatus, uttakResultatPeriode.getUttakAktiviteter());
-        if (!uttakAktivitetOpt.isPresent()) {
+        if (uttakAktivitetOpt.isEmpty()) {
             return;
         }
         UttakAktivitet uttakAktivitet = uttakAktivitetOpt.get();
@@ -135,8 +129,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
 
     private Optional<UttakAktivitet> matchUttakAktivitetMedBeregningsgrunnlagPrStatus(BeregningsgrunnlagPrStatus beregningsgrunnlagPrStatus, List<UttakAktivitet> uttakAktiviteter) {
         return uttakAktiviteter.stream()
-            .filter(aktivitet -> aktivitet.getAktivitetStatus().equals(beregningsgrunnlagPrStatus.getAktivitetStatus())
-                || (aktivitet.getAktivitetStatus().equals(AktivitetStatus.ANNET) && !beregningsgrunnlagPrStatus.getAktivitetStatus().erGraderbar()))
+            .filter(uttakAndel -> BeregningsgrunnlagUttakArbeidsforholdMatcher.matcherGenerellAndel(beregningsgrunnlagPrStatus, uttakAndel))
             .findFirst();
     }
 
@@ -199,20 +192,8 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
     private Optional<UttakAktivitet> matchUttakAktivitetMedArbeidsforhold(List<UttakAktivitet> uttakAktiviteter, BeregningsgrunnlagPrArbeidsforhold bgAndel) {
         return uttakAktiviteter
             .stream()
-            .filter(uttakAktivitet -> matcherArbeidsforhold(uttakAktivitet.getArbeidsforhold(), bgAndel.getArbeidsforhold()))
+            .filter(uttakAktivitet -> BeregningsgrunnlagUttakArbeidsforholdMatcher.matcherArbeidsforhold(uttakAktivitet.getArbeidsforhold(), bgAndel.getArbeidsforhold()))
             .findFirst();
-    }
-
-    private boolean matcherArbeidsforhold(Arbeidsforhold arbeidsforholdUttak, Arbeidsforhold arbeidsforholdBeregning) {
-        if (arbeidsforholdBeregning == null || arbeidsforholdUttak == null) {
-            // begge må være null for at de skal være like
-            return Objects.equals(arbeidsforholdBeregning, arbeidsforholdUttak);
-        }
-        InternArbeidsforholdRef bgRef = InternArbeidsforholdRef.ref(arbeidsforholdBeregning.getArbeidsforholdId());
-        InternArbeidsforholdRef uttakRef = InternArbeidsforholdRef.ref(arbeidsforholdUttak.getArbeidsforholdId());
-        return Objects.equals(arbeidsforholdBeregning.erFrilanser(), arbeidsforholdUttak.erFrilanser())
-            && Objects.equals(arbeidsforholdBeregning.getIdentifikator(), arbeidsforholdUttak.getIdentifikator())
-            && bgRef.gjelderFor(uttakRef);
     }
 
     /*

@@ -38,9 +38,7 @@ public class FastsettBeregningsresultatTjeneste {
         this.mapBeregningsresultatFraRegelTilVL = mapBeregningsresultatFraRegelTilVL;
     }
 
-    public BeregningsresultatEntitet fastsettBeregningsresultat(BeregningsgrunnlagEntitet beregningsgrunnlag, UttakInput input) {
-        // Map til regelmodell
-        BeregningsresultatRegelmodell regelmodell = mapBeregningsresultatFraVLTilRegel.mapFra(beregningsgrunnlag, input);
+    public BeregningsresultatEntitet fastsettBeregningsresultat(BeregningsresultatRegelmodell regelmodell) {
         // Kalle regel
         RegelFastsettBeregningsresultat regel = new RegelFastsettBeregningsresultat();
         no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat outputContainer = no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat.builder().build();

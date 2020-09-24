@@ -208,8 +208,8 @@ public class BeregningsresultatMedUttaksplanMapper {
     }
 
     private UttakDto lagUttak(Optional<ForeldrepengerUttak> uttak,
-                              BeregningsresultatPeriode beregningsresultatPeriode,
-                              BeregningsresultatAndel brukersAndel) {
+                                        BeregningsresultatPeriode beregningsresultatPeriode,
+                                        BeregningsresultatAndel brukersAndel) {
 
         if (uttak.isEmpty()) {
             return UttakDto.build().create();
@@ -217,21 +217,24 @@ public class BeregningsresultatMedUttaksplanMapper {
 
         var perioder = uttak.get().getGjeldendePerioder();
 
-        return perioder.stream()
+        Optional<UttakDto> uttakDto = perioder.stream()
             .findAny()
             .map(uttakPerArbeidsforhold -> finnTilhørendeUttakPeriodeAktivitet(perioder, beregningsresultatPeriode))
-            .map(uttakPeriode -> lagUttakDto(uttakPeriode, brukersAndel))
-            .orElseThrow(() -> new IllegalArgumentException("UttakResultatEntitet inneholder ikke resultater for gitt arbeidsforholdId."));
+            .flatMap(uttakPeriode -> lagUttakDto(uttakPeriode, brukersAndel));
+        if (uttakDto.isEmpty()) {
+            return UttakDto.build().create();
+        }
+        return uttakDto.get();
     }
 
-    private UttakDto lagUttakDto(ForeldrepengerUttakPeriode uttakPeriode, BeregningsresultatAndel brukersAndel) {
+    private Optional<UttakDto> lagUttakDto(ForeldrepengerUttakPeriode uttakPeriode, BeregningsresultatAndel brukersAndel) {
         var aktiviteter = uttakPeriode.getAktiviteter();
-        var korrektUttakAndel = finnKorrektUttaksAndel(brukersAndel, aktiviteter);
-        return UttakDto.build()
-            .medStønadskontoType(korrektUttakAndel.getTrekkonto())
+        Optional<ForeldrepengerUttakPeriodeAktivitet> korrektUttakAndelOpt = finnKorrektUttaksAndel(brukersAndel, aktiviteter);
+        return korrektUttakAndelOpt.map(foreldrepengerUttakPeriodeAktivitet -> UttakDto.build()
+            .medStønadskontoType(foreldrepengerUttakPeriodeAktivitet.getTrekkonto())
             .medPeriodeResultatType(uttakPeriode.getResultatType())
-            .medGradering(erGraderingInnvilgetForAktivitet(uttakPeriode, korrektUttakAndel))
-            .create();
+            .medGradering(erGraderingInnvilgetForAktivitet(uttakPeriode, foreldrepengerUttakPeriodeAktivitet))
+            .create());
     }
 
     private boolean erGraderingInnvilgetForAktivitet(ForeldrepengerUttakPeriode uttakPeriode,
@@ -239,7 +242,7 @@ public class BeregningsresultatMedUttaksplanMapper {
         return uttakPeriode.isGraderingInnvilget() && korrektUttakAndel.isSøktGraderingForAktivitetIPeriode();
     }
 
-    private ForeldrepengerUttakPeriodeAktivitet finnKorrektUttaksAndel(BeregningsresultatAndel brukersAndel, List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
+    private Optional<ForeldrepengerUttakPeriodeAktivitet> finnKorrektUttaksAndel(BeregningsresultatAndel brukersAndel, List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
         if (brukersAndel.getAktivitetStatus().equals(AktivitetStatus.FRILANSER)) {
             return førsteAvType(aktiviteter, UttakArbeidType.FRILANS);
         } else if (brukersAndel.getAktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)) {
@@ -251,21 +254,18 @@ public class BeregningsresultatMedUttaksplanMapper {
         }
     }
 
-    private ForeldrepengerUttakPeriodeAktivitet førsteAvType(List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter, UttakArbeidType type) {
+    private Optional<ForeldrepengerUttakPeriodeAktivitet> førsteAvType(List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter, UttakArbeidType type) {
         return aktiviteter.stream()
             .filter(a -> a.getUttakArbeidType().equals(type))
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Fant ikke periodeaktivitet fra uttak for uttak arbeid type " + type));
+            .findFirst();
     }
 
-    private ForeldrepengerUttakPeriodeAktivitet finnKorrektArbeidstakerAndel(BeregningsresultatAndel brukersAndel, List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
+    private Optional<ForeldrepengerUttakPeriodeAktivitet> finnKorrektArbeidstakerAndel(BeregningsresultatAndel brukersAndel, List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
         var korrekteAktiviteter = finnKorrekteAktiviteter(brukersAndel, aktiviteter);
         if (korrekteAktiviteter.size() != 1) {
-            throw new IllegalArgumentException("Forventet akkurat 1 uttakaktivitet for beregningsresultat andel " + brukersAndel.getAktivitetStatus() + " "
-                + brukersAndel.getArbeidsforholdIdentifikator() + " " + brukersAndel.getArbeidsforholdRef() + ". Antall matchende aktiviteter var " + korrekteAktiviteter.size());
-
+            return Optional.empty();
         }
-        return korrekteAktiviteter.get(0);
+        return Optional.of(korrekteAktiviteter.get(0));
     }
 
     private List<ForeldrepengerUttakPeriodeAktivitet> finnKorrekteAktiviteter(BeregningsresultatAndel brukersAndel, List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
