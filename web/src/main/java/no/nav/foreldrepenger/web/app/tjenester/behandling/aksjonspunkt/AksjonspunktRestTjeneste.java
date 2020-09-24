@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -30,6 +29,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
@@ -89,7 +89,7 @@ public class AksjonspunktRestTjeneste {
     @Operation(description = "Hent aksjonspunter for en behandling", tags = "aksjonspunkt", responses = {
             @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = Set.class), schema = @Schema(implementation = AksjonspunktDto.class)), mediaType = MediaType.APPLICATION_JSON))
     })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getAksjonspunkter(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) { // NOSONAR
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
@@ -110,7 +110,7 @@ public class AksjonspunktRestTjeneste {
     @Operation(description = "Hent aksjonspunter for en behandling", tags = "aksjonspunkt", responses = {
             @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = Set.class), schema = @Schema(implementation = AksjonspunktDto.class)), mediaType = MediaType.APPLICATION_JSON))
     })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getAksjonspunkter(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getAksjonspunkter(new BehandlingIdDto(uuidDto));
     }
@@ -121,7 +121,7 @@ public class AksjonspunktRestTjeneste {
     @Operation(description = "Hent risikoaksjonspunkt for en behandling", tags = "aksjonspunkt", responses = {
             @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = AksjonspunktDto.class), mediaType = MediaType.APPLICATION_JSON))
     })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getRisikoAksjonspunkt(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         AksjonspunktDto dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, Collections.emptyList())
@@ -143,7 +143,7 @@ public class AksjonspunktRestTjeneste {
     @Operation(description = "Har behandling åpent kontroller revurdering aksjonspunkt", tags = "aksjonspunkt", responses = {
             @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Boolean.class), mediaType = MediaType.APPLICATION_JSON))
     })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response erKontrollerRevurderingAksjonspunktÅpent(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
@@ -169,7 +169,7 @@ public class AksjonspunktRestTjeneste {
     @Path(AKSJONSPUNKT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagre endringer gitt av aksjonspunktene og rekjør behandling fra gjeldende steg", tags = "aksjonspunkt")
-    @BeskyttetRessurs(action = UPDATE, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response bekreft(
             @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto)
             throws URISyntaxException { // NOSONAR
@@ -201,7 +201,7 @@ public class AksjonspunktRestTjeneste {
     @Path(AKSJONSPUNKT_OVERSTYR_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Overstyrer stegene", tags = "aksjonspunkt")
-    @BeskyttetRessurs(action = UPDATE, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response overstyr(@Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) { // NOSONAR
 
         BehandlingIdDto behandlingIdDto = apDto.getBehandlingId();

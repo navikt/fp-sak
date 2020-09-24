@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.saksbehandler;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.APPLIKASJON;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -21,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import io.swagger.v3.oas.annotations.Operation;
 import no.finn.unleash.Unleash;
 import no.finn.unleash.UnleashContext;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.dto.FeatureToggleDto;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.dto.FeatureToggleNavnDto;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.dto.FeatureToggleNavnListeDto;
@@ -47,15 +47,15 @@ public class FeatureToggleRestTjeneste {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Svarer på om feature-toggles er skrudd på", tags = "feature-toggle")
-    @BeskyttetRessurs(action = READ, ressurs = APPLIKASJON, sporingslogg = false)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON, sporingslogg = false)
     public FeatureToggleDto featureToggles(@Valid @NotNull FeatureToggleNavnListeDto featureToggleNavn) {
         String ident = SubjectHandler.getSubjectHandler().getUid();
         UnleashContext unleashContext = UnleashContext.builder()
-            .addProperty(ByAnsvarligSaksbehandlerStrategy.SAKSBEHANDLER_IDENT, ident)
-            .build();
+                .addProperty(ByAnsvarligSaksbehandlerStrategy.SAKSBEHANDLER_IDENT, ident)
+                .build();
         Map<String, Boolean> values = featureToggleNavn.getToggles().stream()
-            .map(FeatureToggleNavnDto::getNavn)
-            .collect(Collectors.toMap(Function.identity(), toggle -> unleash.isEnabled(toggle, unleashContext)));
+                .map(FeatureToggleNavnDto::getNavn)
+                .collect(Collectors.toMap(Function.identity(), toggle -> unleash.isEnabled(toggle, unleashContext)));
         return new FeatureToggleDto(values);
     }
 

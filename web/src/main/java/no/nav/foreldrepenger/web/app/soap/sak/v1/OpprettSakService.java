@@ -10,6 +10,7 @@ import javax.jws.WebService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -30,7 +31,6 @@ import no.nav.vedtak.felles.integrasjon.felles.ws.VLFaultListenerUnntakKonfigura
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.util.env.Cluster;
 import no.nav.vedtak.util.env.Environment;
@@ -39,18 +39,15 @@ import no.nav.vedtak.util.env.Environment;
  * Webservice for å opprette sak i VL ved manuelle journalføringsoppgaver.
  */
 
-/* @  Transaction
- * HACK (u139158): Transaksjonsgrensen er for denne webservice'en flyttet til javatjenesten OpprettGSakTjeneste
- * Dette er ikke i henhold til standard og kan ikke gjøres uten godkjenning fra sjefsarkitekt.
- * Grunnen for at det er gjort her er for å sikre at de tre kallene går i separate transaksjoner.
- * Se https://jira.adeo.no/browse/PKHUMLE-359 for detaljer.
+/*
+ * @ Transaction HACK (u139158): Transaksjonsgrensen er for denne webservice'en
+ * flyttet til javatjenesten OpprettGSakTjeneste Dette er ikke i henhold til
+ * standard og kan ikke gjøres uten godkjenning fra sjefsarkitekt. Grunnen for
+ * at det er gjort her er for å sikre at de tre kallene går i separate
+ * transaksjoner. Se https://jira.adeo.no/browse/PKHUMLE-359 for detaljer.
  */
 @Dependent
-@WebService(
-    wsdlLocation = "wsdl/no/nav/tjeneste/virksomhet/behandleForeldrepengesak/v1/behandleForeldrepengesak.wsdl",
-    serviceName = "BehandleForeldrepengesak_v1",
-    portName = "BehandleForeldrepengesak_v1Port",
-    endpointInterface = "no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.BehandleForeldrepengesakV1")
+@WebService(wsdlLocation = "wsdl/no/nav/tjeneste/virksomhet/behandleForeldrepengesak/v1/behandleForeldrepengesak.wsdl", serviceName = "BehandleForeldrepengesak_v1", portName = "BehandleForeldrepengesak_v1Port", endpointInterface = "no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.BehandleForeldrepengesakV1")
 @SoapWebService(endpoint = "/sak/opprettSak/v1", tjenesteBeskrivelseURL = "https://confluence.adeo.no/pages/viewpage.action?pageId=220529015")
 public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
@@ -66,15 +63,15 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
     @Inject
     public OpprettSakService(OpprettSakOrchestrator opprettSakOrchestrator,
-                             FpfordelRestKlient fordelKlient) {
+            FpfordelRestKlient fordelKlient) {
         this.opprettSakOrchestrator = opprettSakOrchestrator;
         this.fordelKlient = fordelKlient;
         this.isEnvStable = Cluster.PROD_FSS.equals(Environment.current().getCluster());
     }
 
     OpprettSakService(OpprettSakOrchestrator opprettSakOrchestrator,
-                             FpfordelRestKlient fordelKlient,
-                             boolean envForTest) {
+            FpfordelRestKlient fordelKlient,
+            boolean envForTest) {
         this.opprettSakOrchestrator = opprettSakOrchestrator;
         this.fordelKlient = fordelKlient;
         this.isEnvStable = envForTest;
@@ -86,10 +83,10 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
     }
 
     @Override
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public OpprettSakResponse opprettSak(
-        @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) OpprettSakRequest opprettSakRequest)
-        throws OpprettSakSakEksistererAllerede, OpprettSakSikkerhetsbegrensning, OpprettSakUgyldigInput {
+            @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) OpprettSakRequest opprettSakRequest)
+            throws OpprettSakSakEksistererAllerede, OpprettSakSikkerhetsbegrensning, OpprettSakUgyldigInput {
 
         if (opprettSakRequest.getSakspart().getAktoerId() == null) {
             UgyldigInput faultInfo = lagUgyldigInput("AktørId", null);
@@ -113,7 +110,8 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
         var btOppgitt = BehandlingTema.fraFagsakHendelse(behandlingTema.getFagsakYtelseType(), null);
         logger.info("FPSAK vurdering FPFORDEL ytelsedok {} vs ytelseoppgitt {}", btVurdering, btOppgitt);
         if (btVurdering.equals(btOppgitt) && (vurdering.getErFørstegangssøknad() || vurdering.getErInntektsmelding())) {
-            if (vurdering.getErInntektsmelding() && BehandlingTema.FORELDREPENGER.equals(btVurdering) && opprettSakOrchestrator.harAktivSak(aktørId, behandlingTema)) {
+            if (vurdering.getErInntektsmelding() && BehandlingTema.FORELDREPENGER.equals(btVurdering)
+                    && opprettSakOrchestrator.harAktivSak(aktørId, behandlingTema)) {
                 UgyldigInput faultInfo = lagUgyldigInput("Journalpost", "Inntektsmelding når det finnes åpen Foreldrepengesak");
                 throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
             } else {

@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 
-
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.util.Optional;
 
@@ -20,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -36,12 +35,13 @@ public class OppdragRestTjeneste {
 
     static final String BASE_PATH = "/behandling/oppdrag";
     private static final String OPPDRAGINFO_PART_PATH = "/oppdraginfo";
-    public static final String OPPDRAGINFO_PATH = BASE_PATH + OPPDRAGINFO_PART_PATH; //NOSONAR TFP-2234
+    public static final String OPPDRAGINFO_PATH = BASE_PATH + OPPDRAGINFO_PART_PATH; // NOSONAR TFP-2234
 
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandlingRepository behandlingRepository;
+
     public OppdragRestTjeneste() {
-        //for CDI proxy
+        // for CDI proxy
     }
 
     @Inject
@@ -52,27 +52,27 @@ public class OppdragRestTjeneste {
 
     @POST
     @Operation(description = "Hent oppdrags-info for behandlingen", tags = "oppdrag")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Path(OPPDRAGINFO_PART_PATH)
     @Deprecated
     public OppdragDto hentOppdrag(@Valid @NotNull BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Optional<Oppdragskontroll> oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId);
         return oppdragskontroll
-            .map(OppdragDto::fraDomene)
-            .orElse(null);
+                .map(OppdragDto::fraDomene)
+                .orElse(null);
     }
 
     @GET
     @Operation(description = "Hent oppdrags-info for behandlingen", tags = "oppdrag")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Path(OPPDRAGINFO_PART_PATH)
     public OppdragDto hentOppdrag(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         Optional<Oppdragskontroll> oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
         return oppdragskontroll
-            .map(OppdragDto::fraDomene)
-            .orElse(null);
+                .map(OppdragDto::fraDomene)
+                .orElse(null);
     }
 
 }

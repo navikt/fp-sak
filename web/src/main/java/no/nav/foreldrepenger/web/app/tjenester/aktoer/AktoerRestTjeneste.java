@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.aktoer;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -65,7 +65,7 @@ public class AktoerRestTjeneste {
     @Operation(description = "Henter informasjon om en aktør", tags = "aktoer", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer basisinformasjon om en aktør og hvilke fagsaker vedkommede har i fpsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AktoerInfoDto.class)))
     })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Path(AKTOER_INFO_PART_PATH)
     public Response getAktoerInfo(@NotNull @QueryParam("aktoerId") @Valid AktoerIdDto aktoerIdDto) {
         Optional<AktørId> aktoerId = aktoerIdDto.get();

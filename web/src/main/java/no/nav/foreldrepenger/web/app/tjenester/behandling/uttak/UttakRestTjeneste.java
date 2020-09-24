@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
@@ -82,13 +82,13 @@ public class UttakRestTjeneste {
 
     @Inject
     public UttakRestTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                             SaldoerDtoTjeneste saldoerDtoTjeneste,
-                             KontrollerFaktaPeriodeTjeneste kontrollerFaktaPeriodeTjeneste,
-                             UttakPerioderDtoTjeneste uttakResultatPerioderDtoTjeneste,
-                             UttakPeriodegrenseDtoTjeneste uttakPeriodegrenseDtoTjeneste,
-                             SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste,
-                             FaktaUttakArbeidsforholdTjeneste faktaUttakArbeidsforholdTjeneste,
-                             UttakInputTjeneste uttakInputTjeneste) {
+            SaldoerDtoTjeneste saldoerDtoTjeneste,
+            KontrollerFaktaPeriodeTjeneste kontrollerFaktaPeriodeTjeneste,
+            UttakPerioderDtoTjeneste uttakResultatPerioderDtoTjeneste,
+            UttakPeriodegrenseDtoTjeneste uttakPeriodegrenseDtoTjeneste,
+            SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste,
+            FaktaUttakArbeidsforholdTjeneste faktaUttakArbeidsforholdTjeneste,
+            UttakInputTjeneste uttakInputTjeneste) {
         this.uttakPeriodegrenseDtoTjeneste = uttakPeriodegrenseDtoTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
@@ -103,10 +103,10 @@ public class UttakRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path(STONADSKONTOER_PART_PATH)
     @Operation(description = "Hent informasjon om stønadskontoer for behandling", summary = "Returnerer stønadskontoer for behandling", tags = "uttak")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public SaldoerDto getStonadskontoer(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public SaldoerDto getStonadskontoer(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Behandling behandling = hentBehandling(behandlingIdDto);
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
@@ -118,8 +118,7 @@ public class UttakRestTjeneste {
     @GET
     @Path(STONADSKONTOER_PART_PATH)
     @Operation(description = "Hent informasjon om stønadskontoer for behandling", summary = "Returnerer stønadskontoer for behandling", tags = "uttak")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SaldoerDto getStonadskontoer(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getStonadskontoer(new BehandlingIdDto(uuidDto));
     }
@@ -128,9 +127,9 @@ public class UttakRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path(STONADSKONTOER_GITT_UTTAKSPERIODER_PART_PATH)
     @Operation(description = "Hent informasjon om stønadskontoer for behandling gitt uttaksperioder", summary = "Returnerer stønadskontoer for behandling", tags = "uttak")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public SaldoerDto getStonadskontoerGittUttaksperioder(@NotNull @Parameter(description = "Behandling og liste med uttaksperioder") @Valid BehandlingMedUttaksperioderDto dto) {
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public SaldoerDto getStonadskontoerGittUttaksperioder(
+            @NotNull @Parameter(description = "Behandling og liste med uttaksperioder") @Valid BehandlingMedUttaksperioderDto dto) {
         BehandlingIdDto behandlingIdDto = dto.getBehandlingId();
         Behandling behandling = hentBehandling(behandlingIdDto);
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
@@ -148,10 +147,10 @@ public class UttakRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path(KONTROLLER_FAKTA_PERIODER_PART_PATH)
     @Operation(description = "Hent perioder for å kontrollere fakta ifbm uttak", tags = "uttak")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public KontrollerFaktaDataDto hentKontrollerFaktaPerioder(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public KontrollerFaktaDataDto hentKontrollerFaktaPerioder(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Behandling behandling = hentBehandling(behandlingIdDto);
         return kontrollerFaktaPeriodeTjeneste.hentKontrollerFaktaPerioder(behandling.getId());
     }
@@ -159,9 +158,9 @@ public class UttakRestTjeneste {
     @GET
     @Path(KONTROLLER_FAKTA_PERIODER_PART_PATH)
     @Operation(description = "Hent perioder for å kontrollere fakta ifbm uttak", tags = "uttak")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public KontrollerFaktaDataDto hentKontrollerFaktaPerioder(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public KontrollerFaktaDataDto hentKontrollerFaktaPerioder(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return hentKontrollerFaktaPerioder(new BehandlingIdDto(uuidDto));
     }
 
@@ -169,10 +168,10 @@ public class UttakRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path(RESULTAT_PERIODER_PART_PATH)
     @Operation(description = "Henter uttaksresultatperioder", summary = "Returnerer uttaksresultatperioder", tags = "uttak")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public UttakResultatPerioderDto hentUttakResultatPerioder(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public UttakResultatPerioderDto hentUttakResultatPerioder(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Behandling behandling = hentBehandling(behandlingIdDto);
         return uttakResultatPerioderDtoTjeneste.mapFra(behandling).orElse(null);
     }
@@ -180,9 +179,9 @@ public class UttakRestTjeneste {
     @GET
     @Path(RESULTAT_PERIODER_PART_PATH)
     @Operation(description = "Henter uttaksresultatperioder", summary = "Returnerer uttaksresultatperioder", tags = "uttak")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public UttakResultatPerioderDto hentUttakResultatPerioder(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public UttakResultatPerioderDto hentUttakResultatPerioder(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return hentUttakResultatPerioder(new BehandlingIdDto(uuidDto));
     }
 
@@ -190,10 +189,10 @@ public class UttakRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path(PERIODE_GRENSE_PART_PATH)
     @Operation(description = "Henter uttakperiodegrense", summary = "Returnerer uttakperiodegrense", tags = "uttak")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public UttakPeriodegrenseDto hentUttakPeriodegrense(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public UttakPeriodegrenseDto hentUttakPeriodegrense(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Behandling behandling = hentBehandling(behandlingIdDto);
         var input = uttakInputTjeneste.lagInput(behandling);
         return uttakPeriodegrenseDtoTjeneste.mapFra(input).orElse(null);
@@ -202,9 +201,9 @@ public class UttakRestTjeneste {
     @GET
     @Path(PERIODE_GRENSE_PART_PATH)
     @Operation(description = "Henter uttakperiodegrense", summary = "Returnerer uttakperiodegrense", tags = "uttak")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public UttakPeriodegrenseDto hentUttakPeriodegrense(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public UttakPeriodegrenseDto hentUttakPeriodegrense(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return hentUttakPeriodegrense(new BehandlingIdDto(uuidDto));
     }
 
@@ -212,10 +211,10 @@ public class UttakRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path(FAKTA_ARBEIDSFORHOLD_PART_PATH)
     @Operation(description = "Henter arbeidsforhold som er relevant for fakta uttak", summary = "Henter arbeidsforhold som er relevant for fakta uttak", tags = "uttak")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public List<ArbeidsforholdDto> hentArbeidsforhold(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public List<ArbeidsforholdDto> hentArbeidsforhold(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Behandling behandling = hentBehandling(behandlingIdDto);
         var input = uttakInputTjeneste.lagInput(behandling);
         return faktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
@@ -224,9 +223,9 @@ public class UttakRestTjeneste {
     @GET
     @Path(FAKTA_ARBEIDSFORHOLD_PART_PATH)
     @Operation(description = "Henter arbeidsforhold som er relevant for fakta uttak", summary = "Henter arbeidsforhold som er relevant for fakta uttak", tags = "uttak")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public List<ArbeidsforholdDto> hentArbeidsforhold(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public List<ArbeidsforholdDto> hentArbeidsforhold(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return hentArbeidsforhold(new BehandlingIdDto(uuidDto));
     }
 
@@ -234,10 +233,10 @@ public class UttakRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path(RESULTAT_SVANGERSKAPSPENGER_PART_PATH)
     @Operation(description = "Henter svangerskapspenger uttaksresultat", summary = "Returnerer svangerskapspenger uttaksresultat", tags = "uttak")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public SvangerskapspengerUttakResultatDto hentSvangerskapspengerUttakResultat(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public SvangerskapspengerUttakResultatDto hentSvangerskapspengerUttakResultat(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Behandling behandling = hentBehandling(behandlingIdDto);
         return svpUttakResultatDtoTjeneste.mapFra(behandling).orElse(null);
     }
@@ -245,16 +244,16 @@ public class UttakRestTjeneste {
     @GET
     @Path(RESULTAT_SVANGERSKAPSPENGER_PART_PATH)
     @Operation(description = "Henter svangerskapspenger uttaksresultat", summary = "Returnerer svangerskapspenger uttaksresultat", tags = "uttak")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public SvangerskapspengerUttakResultatDto hentSvangerskapspengerUttakResultat(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public SvangerskapspengerUttakResultatDto hentSvangerskapspengerUttakResultat(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return hentSvangerskapspengerUttakResultat(new BehandlingIdDto(uuidDto));
     }
 
     private Behandling hentBehandling(BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         return behandlingIdDto.getBehandlingId() != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
     }
 }
