@@ -23,8 +23,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
-import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagGUIInputFelles;
+import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -60,10 +60,10 @@ public class BeregningsgrunnlagRestTjeneste {
 
     @Inject
     public BeregningsgrunnlagRestTjeneste(BehandlingRepository behandlingRepository,
-                                          OpptjeningRepository opptjeningRepository,
-                                          BeregningsgrunnlagInputProvider inputTjenesteProvider,
-                                          BeregningDtoTjeneste beregningDtoTjeneste,
-                                          InntektArbeidYtelseTjeneste iayTjeneste) {
+            OpptjeningRepository opptjeningRepository,
+            BeregningsgrunnlagInputProvider inputTjenesteProvider,
+            BeregningDtoTjeneste beregningDtoTjeneste,
+            InntektArbeidYtelseTjeneste iayTjeneste) {
         this.opptjeningRepository = opptjeningRepository;
         this.inputTjenesteProvider = inputTjenesteProvider;
         this.beregningDtoTjeneste = beregningDtoTjeneste;
@@ -77,12 +77,13 @@ public class BeregningsgrunnlagRestTjeneste {
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
     @Path(BEREGNINGSGRUNNLAG_PART_PATH)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public BeregningsgrunnlagDto hentBeregningsgrunnlag(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingId) {
+
+    public BeregningsgrunnlagDto hentBeregningsgrunnlag(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingId) {
         Long id = behandlingId.getBehandlingId();
         var behandling = id != null
-            ? behandlingRepository.hentBehandling(id)
-            : behandlingRepository.hentBehandling(behandlingId.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(id)
+                : behandlingRepository.hentBehandling(behandlingId.getBehandlingUuid());
         final var opptjening = opptjeningRepository.finnOpptjening(behandling.getId());
         if (!opptjening.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {
             return null;
@@ -103,8 +104,8 @@ public class BeregningsgrunnlagRestTjeneste {
     @Operation(description = "Hent beregningsgrunnlag for angitt behandling", summary = ("Returnerer beregningsgrunnlag for behandling."), tags = "beregningsgrunnlag")
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
     @Path(BEREGNINGSGRUNNLAG_PART_PATH)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public BeregningsgrunnlagDto hentBeregningsgrunnlag(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public BeregningsgrunnlagDto hentBeregningsgrunnlag(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         final var opptjening = opptjeningRepository.finnOpptjening(behandling.getId());
         if (!opptjening.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {
