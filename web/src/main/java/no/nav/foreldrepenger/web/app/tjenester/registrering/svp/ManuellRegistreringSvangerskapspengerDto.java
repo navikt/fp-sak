@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.svp;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.util.List;
 
 import javax.validation.Valid;
-import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.MedInntektArbeidYtelseRegistrering;

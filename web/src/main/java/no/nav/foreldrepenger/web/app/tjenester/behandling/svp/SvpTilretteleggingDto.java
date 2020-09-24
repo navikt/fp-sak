@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.PermisjonDto;
-
 public class SvpTilretteleggingDto {
 
     private LocalDate termindato;
