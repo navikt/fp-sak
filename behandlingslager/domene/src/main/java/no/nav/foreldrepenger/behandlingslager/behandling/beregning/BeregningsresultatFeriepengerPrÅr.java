@@ -18,9 +18,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.domene.typer.Beløp;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
 @Entity(name = "BeregningsresultatFeriepengerPrÅr")
 @Table(name = "BR_FERIEPENGER_PR_AAR")

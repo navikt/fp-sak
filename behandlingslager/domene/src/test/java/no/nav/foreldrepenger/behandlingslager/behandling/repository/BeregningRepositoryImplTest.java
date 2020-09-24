@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.exception.TekniskException;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.vedtak.exception.TekniskException;
 
 public class BeregningRepositoryImplTest {
 

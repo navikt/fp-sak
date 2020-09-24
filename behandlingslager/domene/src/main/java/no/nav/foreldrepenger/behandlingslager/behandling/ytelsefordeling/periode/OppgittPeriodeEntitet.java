@@ -27,8 +27,8 @@ import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "SoeknadPeriode")
 @Table(name = "YF_FORDELING_PERIODE")

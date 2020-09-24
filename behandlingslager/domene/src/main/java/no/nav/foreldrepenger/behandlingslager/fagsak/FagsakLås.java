@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 
 import java.util.Objects;
 
+import javax.persistence.LockModeType;
+
 /**
  * Lås, fungerer som token som indikerer at write-lock er tatt ut. Kreves av lagre metoder.
  * Er knyttet til underliggende lock på database rad ({@link LockModeType#PESSIMISTIC_WRITE}).

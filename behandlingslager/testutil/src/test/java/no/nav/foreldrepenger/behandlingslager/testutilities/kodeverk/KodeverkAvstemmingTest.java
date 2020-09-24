@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.testutilities.kodeverk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.FileNotFoundException;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Collections;
