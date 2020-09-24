@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
@@ -36,15 +35,16 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         // for CDI proxy
     }
 
-    AbstractVedtaksbrevOverstyringshåndterer(BehandlingRepositoryProvider repositoryProvider,
-                                             HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
-                                             VedtakTjeneste vedtakTjeneste,
-                                             BehandlingDokumentRepository behandlingDokumentRepository) {
+    AbstractVedtaksbrevOverstyringshåndterer(BehandlingRepository behandlingRepository,
+            BehandlingsresultatRepository behandlingsresultatRepository,
+            HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
+            VedtakTjeneste vedtakTjeneste,
+            BehandlingDokumentRepository behandlingDokumentRepository) {
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
-        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.vedtakTjeneste = vedtakTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingRepository = behandlingRepository;
     }
 
     void oppdaterFritekstVedtaksbrev(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param) {
@@ -57,13 +57,13 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         var behandlingId = behandling.getId();
         var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandlingId);
         behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder
-            .medBehandling(behandlingId)
-            .medOverstyrtBrevOverskrift(overskrift)
-            .medOverstyrtBrevFritekst(fritekst)
-            .build());
+                .medBehandling(behandlingId)
+                .medOverstyrtBrevOverskrift(overskrift)
+                .medOverstyrtBrevFritekst(fritekst)
+                .build());
         var behandlingsresultat = getBehandlingsresultatBuilder(behandlingId)
-            .medVedtaksbrev(Vedtaksbrev.FRITEKST)
-            .buildFor(behandling);
+                .medVedtaksbrev(Vedtaksbrev.FRITEKST)
+                .buildFor(behandling);
         behandlingsresultatRepository.lagre(behandlingId, behandlingsresultat);
     }
 
@@ -71,15 +71,15 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         var eksisterendeBehandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         if (eksisterendeBehandlingDokument.isPresent() && erFritekst(eksisterendeBehandlingDokument.get())) {
             var behandlingDokument = getBehandlingDokumentBuilder(eksisterendeBehandlingDokument)
-                .medBehandling(behandlingId)
-                .medOverstyrtBrevOverskrift(null)
-                .medOverstyrtBrevFritekst(null)
-                .build();
+                    .medBehandling(behandlingId)
+                    .medOverstyrtBrevOverskrift(null)
+                    .medOverstyrtBrevFritekst(null)
+                    .build();
             behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
             var behandling = behandlingRepository.hentBehandling(behandlingId);
             var behandlingResultat = getBehandlingsresultatBuilder(behandlingId)
-                .medVedtaksbrev(Vedtaksbrev.AUTOMATISK)
-                .buildFor(behandling);
+                    .medVedtaksbrev(Vedtaksbrev.AUTOMATISK)
+                    .buildFor(behandling);
             behandlingsresultatRepository.lagre(behandlingId, behandlingResultat);
         }
     }
@@ -95,7 +95,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
     void opprettAksjonspunktForFatterVedtak(Behandling behandling, OppdateringResultat.Builder builder) {
         if (BehandlingType.INNSYN.equals(behandling.getType())) {
-            return; //vedtak for innsynsbehanding fattes automatisk
+            return; // vedtak for innsynsbehanding fattes automatisk
         }
 
         builder.medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.FATTER_VEDTAK, AksjonspunktStatus.OPPRETTET);
@@ -116,12 +116,14 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         VedtakResultatType vedtakResultatType = vedtakTjeneste.utledVedtakResultatType(behandling);
 
         HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder()
-            .medResultat(vedtakResultatType)
-            .medSkjermlenke(SkjermlenkeType.VEDTAK)
-            .medHendelse(BehandlingType.INNSYN.equals(behandling.getType()) ? HistorikkinnslagType.FORSLAG_VEDTAK_UTEN_TOTRINN : HistorikkinnslagType.FORSLAG_VEDTAK);
+                .medResultat(vedtakResultatType)
+                .medSkjermlenke(SkjermlenkeType.VEDTAK)
+                .medHendelse(BehandlingType.INNSYN.equals(behandling.getType()) ? HistorikkinnslagType.FORSLAG_VEDTAK_UTEN_TOTRINN
+                        : HistorikkinnslagType.FORSLAG_VEDTAK);
 
         Historikkinnslag innslag = new Historikkinnslag();
-        innslag.setType(BehandlingType.INNSYN.equals(behandling.getType()) ? HistorikkinnslagType.FORSLAG_VEDTAK_UTEN_TOTRINN : HistorikkinnslagType.FORSLAG_VEDTAK);
+        innslag.setType(BehandlingType.INNSYN.equals(behandling.getType()) ? HistorikkinnslagType.FORSLAG_VEDTAK_UTEN_TOTRINN
+                : HistorikkinnslagType.FORSLAG_VEDTAK);
         innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         innslag.setBehandlingId(behandling.getId());
         tekstBuilder.build(innslag);
