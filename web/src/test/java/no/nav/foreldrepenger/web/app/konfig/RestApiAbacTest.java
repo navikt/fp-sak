@@ -16,8 +16,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 /**
@@ -97,13 +95,6 @@ public class RestApiAbacTest {
             }
             fail(klasse.getSimpleName() + "." + metode.getName() + " @" + annotation.getClass().getSimpleName() + " bruker ikke-støttet property: "
                     + annotation.property());
-        }
-        if (annotation != null && annotation.action() == BeskyttetRessursActionAttributt.DUMMY) {
-            fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
-                    + BeskyttetRessursActionAttributt.class.getSimpleName());
-        } else if (annotation != null && annotation.ressurs() == BeskyttetRessursResourceAttributt.DUMMY) {
-            fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
-                    + BeskyttetRessursResourceAttributt.class.getSimpleName());
         }
     }
 
