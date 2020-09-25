@@ -1,12 +1,9 @@
 package no.nav.foreldrepenger.dbstoette;
 
-import java.io.File;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.eclipse.jetty.plus.jndi.EnvEntry;
@@ -17,7 +14,6 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
-import no.nav.vedtak.felles.lokal.dbstoette.DatabaseStøtte;
 import no.nav.vedtak.felles.testutilities.db.FlywayKonfig;
 import no.nav.vedtak.util.env.Environment;
 
@@ -34,7 +30,6 @@ public final class Databaseskjemainitialisering {
 
     private static final Logger LOG = LoggerFactory.getLogger(Databaseskjemainitialisering.class);
 
-    private static final AtomicBoolean GUARD_SKJEMAER = new AtomicBoolean();
     private static final AtomicBoolean GUARD_UNIT_TEST_SKJEMAER = new AtomicBoolean();
 
     public static void main(String[] args) {
@@ -42,23 +37,58 @@ public final class Databaseskjemainitialisering {
     }
 
     public static void migrerUnittestSkjemaer() {
-        settOppSkjemaer();
-
-        if (GUARD_UNIT_TEST_SKJEMAER.compareAndSet(false, true)) {
-            try {
-                DatabaseStøtte.kjørMigreringFor(UNIT_TEST);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            kjørMigreringFor(DBA);
+            kjørMigreringFor(UNIT_TEST);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public static void settOppSkjemaer() {
-        if (GUARD_SKJEMAER.compareAndSet(false, true)) {
-            try {
-                DatabaseStøtte.kjørMigreringFor(DBA);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+    public static void settJdniOppslag() {
+        try {
+            var props = UNIT_TEST.stream()
+                    .filter(DBConnectionProperties::isDefaultDataSource)
+                    .findFirst()
+                    .orElseThrow();
+            new EnvEntry("jdbc/" + props.getDatasource(), ds(props));
+        } catch (Exception e) {
+            throw new RuntimeException("Feil under registrering av JDNI-entry for default datasource", e);
+        }
+    }
+
+    private static void kjørMigreringFor(List<DBConnectionProperties> props) {
+        props.forEach(Databaseskjemainitialisering::kjørerMigreringFor);
+    }
+
+    private static void kjørerMigreringFor(DBConnectionProperties props) {
+        settOppDBSkjema(props);
+    }
+
+    private static void settOppDBSkjema(DBConnectionProperties props) {
+        migrer(ds(props), props);
+    }
+
+    private static void migrer(DataSource ds, DBConnectionProperties props) {
+        String scriptLocation = scriptLocation(props);
+
+        boolean migreringOk = FlywayKonfig.lagKonfig(ds)
+                .medSqlLokasjon(scriptLocation)
+                .medCleanup(props.isMigrateClean(), props.getUser())
+                .medMetadataTabell(props.getVersjonstabell())
+                .migrerDb();
+
+        if (!migreringOk) {
+            LOG.warn(
+                    "\n\nKunne ikke starte inkrementell oppdatering av databasen. Det finnes trolig endringer i allerede kjørte script.\nKjører full migrering...");
+
+            migreringOk = FlywayKonfig.lagKonfig(ds)
+                    .medCleanup(true, props.getUser())
+                    .medSqlLokasjon(scriptLocation)
+                    .medMetadataTabell(props.getVersjonstabell())
+                    .migrerDb();
+            if (!migreringOk) {
+                throw new IllegalStateException("\n\nFeil i script. Avslutter...");
             }
         }
     }
@@ -78,91 +108,15 @@ public final class Databaseskjemainitialisering {
                 .migrationScriptsFilesystemRoot(ENV.getRequiredProperty(prefix + ".ms")).build();
     }
 
-    public static void settJdniOppslag() {
-        try {
-            settOppJndiForDefaultDataSource(UNIT_TEST);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    private static String scriptLocation(DBConnectionProperties props) {
+        return "classpath:/" + props.getMigrationScriptsClasspathRoot() + "/" + props.getSchema();
     }
 
-    public static void settOppJndiForDefaultDataSource(List<DBConnectionProperties> allDbConnectionProperties) {
-        Optional<DBConnectionProperties> defaultDataSource = DBConnectionProperties.finnDefault(allDbConnectionProperties);
-        defaultDataSource.ifPresent(Databaseskjemainitialisering::settOppJndiDataSource);
-    }
-
-    private static void settOppJndiDataSource(DBConnectionProperties defaultConnectionProperties) {
-        try {
-            new EnvEntry("jdbc/" + defaultConnectionProperties.getDatasource(), ds(defaultConnectionProperties));
-        } catch (NamingException e) {
-            throw new RuntimeException("Feil under registrering av JDNI-entry for default datasource", e); // NOSONAR
-        }
-    }
-
-    public static void kjørMigreringFor(List<DBConnectionProperties> connectionProperties) {
-        connectionProperties.forEach(Databaseskjemainitialisering::kjørerMigreringFor);
-    }
-
-    private static void kjørerMigreringFor(DBConnectionProperties connectionProperties) {
-        settOppDBSkjema(connectionProperties);
-    }
-
-    private static void settOppDBSkjema(DBConnectionProperties dbProperties) {
-        migrer(ds(dbProperties), dbProperties);
-
-    }
-
-    private static void migrer(DataSource dataSource,
-            DBConnectionProperties connectionProperties) {
-        String scriptLocation;
-        if (connectionProperties.getMigrationScriptsClasspathRoot() != null) {
-            scriptLocation = "classpath:/" + connectionProperties.getMigrationScriptsClasspathRoot() + "/"
-                    + connectionProperties.getSchema();
-        } else {
-            scriptLocation = getMigrationScriptLocation(connectionProperties);
-        }
-
-        boolean migreringOk = FlywayKonfig.lagKonfig(dataSource)
-                .medSqlLokasjon(scriptLocation)
-                .medCleanup(connectionProperties.isMigrateClean(), connectionProperties.getUser())
-                .medMetadataTabell(connectionProperties.getVersjonstabell())
-                .migrerDb();
-
-        if (!migreringOk) {
-            LOG.warn(
-                    "\n\nKunne ikke starte inkrementell oppdatering av databasen. Det finnes trolig endringer i allerede kjørte script.\nKjører full migrering...");
-
-            migreringOk = FlywayKonfig.lagKonfig(dataSource)
-                    .medCleanup(true, connectionProperties.getUser())
-                    .medSqlLokasjon(scriptLocation)
-                    .medMetadataTabell(connectionProperties.getVersjonstabell())
-                    .migrerDb();
-            if (!migreringOk) {
-                throw new IllegalStateException("\n\nFeil i script. Avslutter...");
-            }
-        }
-    }
-
-    private static String getMigrationScriptLocation(DBConnectionProperties connectionProperties) {
-        String relativePath = connectionProperties.getMigrationScriptsFilesystemRoot() + connectionProperties.getDatasource();
-        File baseDir = new File(".").getAbsoluteFile();
-        File location = new File(baseDir, relativePath);
-        while (!location.exists()) {
-            baseDir = baseDir.getParentFile();
-            if (baseDir == null || !baseDir.isDirectory()) {
-                throw new IllegalArgumentException("Klarte ikke finne : " + baseDir);
-            }
-            location = new File(baseDir, relativePath);
-        }
-
-        return "filesystem:" + location.getPath();
-    }
-
-    private static DataSource ds(DBConnectionProperties dbProperties) {
+    private static DataSource ds(DBConnectionProperties props) {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(dbProperties.getUrl());
-        config.setUsername(dbProperties.getUser());
-        config.setPassword(dbProperties.getPassword());
+        config.setJdbcUrl(props.getUrl());
+        config.setUsername(props.getUser());
+        config.setPassword(props.getPassword());
 
         config.setConnectionTimeout(1000);
         config.setMinimumIdle(0);
