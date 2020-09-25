@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.dbstoette;
 
+import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -93,7 +95,23 @@ public final class Databaseskjemainitialisering {
     }
 
     private static String scriptLocation(DBProperties props) {
-        return "classpath:/" + props.getMigrationScriptsClasspathRoot() + "/" + props.getSchema();
+        return Optional.ofNullable(props.getMigrationScriptsClasspathRoot()).map(p -> "classpath:/" + props.getMigrationScriptsClasspathRoot() + "/"
+                + props.getSchema()).orElse(getMigrationScriptLocation(props));
+    }
+
+    private static String getMigrationScriptLocation(DBProperties props) {
+        String relativePath = props.getMigrationScriptsFilesystemRoot() + props.getDatasource();
+        File baseDir = new File(".").getAbsoluteFile();
+        File location = new File(baseDir, relativePath);
+        while (!location.exists()) {
+            baseDir = baseDir.getParentFile();
+            if (baseDir == null || !baseDir.isDirectory()) {
+                throw new IllegalArgumentException("Klarte ikke finne : " + baseDir);
+            }
+            location = new File(baseDir, relativePath);
+        }
+
+        return "filesystem:" + location.getPath();
     }
 
     private static DataSource ds(DBProperties props) {
