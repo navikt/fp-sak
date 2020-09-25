@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
@@ -58,8 +57,8 @@ public class EndringssøknadSøknadMapperTest {
     private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
     private DatavarehusTjeneste datavarehusTjeneste = mock(DatavarehusTjeneste.class);
     private SvangerskapspengerRepository svangerskapspengerRepository = new SvangerskapspengerRepository(repositoryRule.getEntityManager());
-    private OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste =
-        new OppgittPeriodeMottattDatoTjeneste(new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
+    private OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste = new OppgittPeriodeMottattDatoTjeneste(
+            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
 
     private SøknadMapper ytelseSøknadMapper = new EndringssøknadSøknadMapper();
 
@@ -70,15 +69,16 @@ public class EndringssøknadSøknadMapperTest {
         final Optional<AktørId> stdKvinneAktørId = Optional.of(STD_KVINNE_AKTØR_ID);
         when(tpsTjeneste.hentAktørForFnr(any())).thenReturn(stdKvinneAktørId);
         final Personinfo.Builder builder = new Personinfo.Builder()
-            .medAktørId(STD_KVINNE_AKTØR_ID)
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medNavn("Espen Utvikler")
-            .medPersonIdent(PersonIdent.fra("12345678901"))
-            .medFødselsdato(LocalDate.now().minusYears(20));
+                .medAktørId(STD_KVINNE_AKTØR_ID)
+                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
+                .medNavn("Espen Utvikler")
+                .medPersonIdent(PersonIdent.fra("12345678901"))
+                .medFødselsdato(LocalDate.now().minusYears(20));
         final Optional<Personinfo> build = Optional.ofNullable(builder.build());
         when(tpsTjeneste.hentBrukerForAktør(any(AktørId.class))).thenReturn(build);
         when(virksomhetTjeneste.finnOrganisasjon(any()))
-            .thenReturn(Optional.of(Virksomhet.getBuilder().medOrgnr(KUNSTIG_ORG).medNavn("Ukjent Firma").medRegistrert(LocalDate.now().minusDays(1)).build()));
+                .thenReturn(Optional.of(
+                        Virksomhet.getBuilder().medOrgnr(KUNSTIG_ORG).medNavn("Ukjent Firma").medRegistrert(LocalDate.now().minusDays(1)).build()));
         when(iayTjeneste.hentGrunnlag(any(Long.class))).thenReturn(Mockito.mock(InntektArbeidYtelseGrunnlag.class));
     }
 
@@ -87,11 +87,11 @@ public class EndringssøknadSøknadMapperTest {
         // Arrange
         NavBruker navBruker = opprettBruker();
         ManuellRegistreringEndringsøknadDto manuellRegistreringEndringsøknadDto = new ManuellRegistreringEndringsøknadDto();
-        oppdaterDtoForFødsel(manuellRegistreringEndringsøknadDto, FamilieHendelseType.FØDSEL, true, LocalDate.now(), 1);
+        oppdaterDtoForFødsel(manuellRegistreringEndringsøknadDto, true, LocalDate.now(), 1);
         Soeknad soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
         MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste,
-            iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDatoTjeneste);
+                iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDatoTjeneste);
 
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
@@ -99,10 +99,10 @@ public class EndringssøknadSøknadMapperTest {
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         MottattDokument.Builder mottattDokumentBuilder = new MottattDokument.Builder()
-            .medDokumentType(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
-            .medMottattDato(LocalDate.now())
-            .medFagsakId(fagsak.getId())
-            .medElektroniskRegistrert(true);
+                .medDokumentType(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
+                .medMottattDato(LocalDate.now())
+                .medFagsakId(fagsak.getId())
+                .medElektroniskRegistrert(true);
 
         // Act + Assert
         var wrapper = (MottattDokumentWrapperSøknad) MottattDokumentWrapperSøknad.tilXmlWrapper(soeknad);

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.vedtak;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -9,6 +8,9 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.jsonfeed.VedtakFattetTjeneste;
@@ -22,16 +24,17 @@ import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.MaxAntall
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.SekvensIdParam;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
+@ExtendWith(MockitoExtension.class)
 public class VedtakJsonFeedRestTjenesteTest {
 
     private static final AktørId AKTØR_ID = AktørId.dummy();
     private VedtakJsonFeedRestTjeneste tjeneste;
+    @Mock
     private VedtakFattetTjeneste vedtakFattetTjeneste;
 
     @BeforeEach
     public void setUp() {
         ContextPathHolder.instance("/fpsak");
-        vedtakFattetTjeneste = mock(VedtakFattetTjeneste.class);
         tjeneste = new VedtakJsonFeedRestTjeneste(vedtakFattetTjeneste);
     }
 
