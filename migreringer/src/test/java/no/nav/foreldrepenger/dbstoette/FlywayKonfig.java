@@ -80,8 +80,6 @@ public class FlywayKonfig {
             }
         }
 
-        // flyway.configure(lesFlywayPlaceholders());
-
         try {
             flyway.migrate();
             return true;

@@ -6,7 +6,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -24,9 +23,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
-import no.nav.foreldrepenger.dbstoette.DatasourceConfiguration;
-import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
-import no.nav.vedtak.felles.lokal.dbstoette.DatabaseStøtte;
+import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 
 /** Lagt til web for å sjekke orm filer fra alle moduler. */
 @RunWith(Parameterized.class)
@@ -36,9 +33,7 @@ public class SjekkCollectionsOrderedIEntiteterTest {
 
     static {
         try {
-            // trenger å konfigurere opp jndi etc.
-            DBConnectionProperties connectionProperties = DBConnectionProperties.finnDefault(DatasourceConfiguration.UNIT_TEST.get()).get();
-            DatabaseStøtte.settOppJndiForDefaultDataSource(Collections.singletonList(connectionProperties));
+            Databaseskjemainitialisering.settJdniOppslag();
         } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -61,12 +56,12 @@ public class SjekkCollectionsOrderedIEntiteterTest {
         Map<String, Object[]> params = new LinkedHashMap<>();
 
         for (Class<?> c : baseEntitetSubklasser) {
-            params.put(c.getName(), new Object[]{c.getSimpleName(), c});
+            params.put(c.getName(), new Object[] { c.getSimpleName(), c });
         }
         assertThat(params).isNotEmpty();
 
         for (Class<?> c : entityKlasser) {
-            params.put(c.getName(), new Object[]{c.getSimpleName(), c});
+            params.put(c.getName(), new Object[] { c.getSimpleName(), c });
         }
         assertThat(params).isNotEmpty();
 
@@ -75,7 +70,8 @@ public class SjekkCollectionsOrderedIEntiteterTest {
 
     public static Set<Class<?>> getEntityClasses(Predicate<Class<?>> filter) {
         Set<ManagedType<?>> managedTypes = entityManagerFactory.getMetamodel().getManagedTypes();
-        return managedTypes.stream().map(javax.persistence.metamodel.Type::getJavaType).filter(c -> !Modifier.isAbstract(c.getModifiers())).filter(filter).collect(Collectors.toSet());
+        return managedTypes.stream().map(javax.persistence.metamodel.Type::getJavaType).filter(c -> !Modifier.isAbstract(c.getModifiers()))
+                .filter(filter).collect(Collectors.toSet());
     }
 
     @Test

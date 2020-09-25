@@ -29,9 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.dbstoette.DatasourceConfiguration;
-import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
-import no.nav.vedtak.felles.lokal.dbstoette.DatabaseStøtte;
+import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 
 /**
  * Denne testen rapporterer kun tabeller og kolonner som ikke er mappet i
@@ -53,10 +51,7 @@ public class RapporterUnmappedKolonnerIDatabaseTest {
         // fikses først
         // System.setProperty("hibernate.hbm2ddl.auto", "validate");
         try {
-            // trenger å konfigurere opp jndi etc.
-            DBConnectionProperties connectionProperties = DBConnectionProperties.finnDefault(DatasourceConfiguration.UNIT_TEST.get()).get();
-            DatabaseStøtte.settOppJndiForDefaultDataSource(Collections.singletonList(connectionProperties));
-
+            Databaseskjemainitialisering.settJdniOppslag();
         } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
         }

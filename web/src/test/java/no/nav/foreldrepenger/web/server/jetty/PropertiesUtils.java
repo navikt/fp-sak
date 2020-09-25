@@ -6,38 +6,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.util.env.Environment;
-
 public class PropertiesUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(PropertiesUtils.class);
 
-    private static final Environment ENV = Environment.current();
     private static String DEV_FILNAVN = "es.properties";
     private static String DEV_FILNAVN_LOCAL = "es-local.properties";
     private static String VTP_FILNAVN_LOCAL = "es-vtp.properties";
 
     private PropertiesUtils() {
-    }
-
-    static List<JettyDevDbKonfigurasjon> getDBConnectionProperties() {
-        return List.of(cfg("fpsak.default", true), cfg("fpsak.hist", false));
-    }
-
-    private static JettyDevDbKonfigurasjon cfg(String prefix, boolean isDefault) {
-        var cfg = new JettyDevDbKonfigurasjon();
-        cfg.setDatasource(ENV.getProperty(prefix + ".ds"));
-        cfg.setSchema(ENV.getProperty(prefix + ".schema"));
-        cfg.setDefaultDataSource(isDefault);
-        cfg.setUrl(ENV.getProperty(prefix + ".url"));
-        cfg.setMigrationScriptsFilesystemRoot(ENV.getProperty(prefix + ".ms"));
-        return cfg;
     }
 
     private static void copyTemplateFile(File templateFil, File targetFil, boolean backup) throws IOException {

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.dbstoette;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 
 import javax.sql.DataSource;
 
@@ -101,10 +100,10 @@ public final class Databaseskjemainitialisering {
     private static String scriptLocation(DBProperties props) {
         return Optional.ofNullable(props.getMigrationScriptsClasspathRoot())
                 .map(p -> "classpath:/" + p + "/" + props.getSchema())
-                .orElse(getMigrationScriptLocation(props));
+                .orElse(migrationScriptLocation(props));
     }
 
-    private static String getMigrationScriptLocation(DBProperties props) {
+    private static String migrationScriptLocation(DBProperties props) {
         String relativePath = props.getMigrationScriptsFilesystemRoot() + props.getDatasource();
         File baseDir = new File(".").getAbsoluteFile();
         File location = new File(baseDir, relativePath);
@@ -120,21 +119,7 @@ public final class Databaseskjemainitialisering {
     }
 
     public static DataSource ds(DBProperties props) {
-        var cfg = new HikariConfig();
-        cfg.setJdbcUrl(props.getUrl());
-        cfg.setUsername(props.getUser());
-        cfg.setPassword(props.getPassword());
-
-        cfg.setConnectionTimeout(1000);
-        cfg.setMinimumIdle(0);
-        cfg.setMaximumPoolSize(4);
-
-        cfg.setAutoCommit(false);
-
-        var dsProperties = new Properties();
-        cfg.setDataSourceProperties(dsProperties);
-
-        var ds = new HikariDataSource(cfg);
+        var ds = new HikariDataSource(hikariConfig(props));
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
@@ -142,5 +127,17 @@ public final class Databaseskjemainitialisering {
             }
         }));
         return ds;
+    }
+
+    private static HikariConfig hikariConfig(DBProperties props) {
+        var cfg = new HikariConfig();
+        cfg.setJdbcUrl(props.getUrl());
+        cfg.setUsername(props.getUser());
+        cfg.setPassword(props.getPassword());
+        cfg.setConnectionTimeout(1000);
+        cfg.setMinimumIdle(0);
+        cfg.setMaximumPoolSize(4);
+        cfg.setAutoCommit(false);
+        return cfg;
     }
 }

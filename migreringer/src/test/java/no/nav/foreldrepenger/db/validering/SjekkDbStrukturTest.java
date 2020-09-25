@@ -12,8 +12,6 @@ import javax.sql.DataSource;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 
@@ -26,7 +24,6 @@ public class SjekkDbStrukturTest {
             + "\nVennligst gå over sql scriptene og dokumenter tabellene på korrekt måte.";
 
     private static DataSource ds;
-    private static final Logger LOG = LoggerFactory.getLogger(SjekkDbStrukturTest.class);
     private static String schema;
 
     @BeforeClass
