@@ -117,12 +117,11 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse().medFødselsDato(now);
         Behandling behandling = scenario.lagre(repositoryProvider);
         var dto = new ForeslaVedtakAksjonspunktDto(BEGRUNNELSE, null, null, false);
-        var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(mock(KlageRepository.class), mock(AnkeRepository.class));
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
                 behandlingRepository, behandlingsresultatRepository, mock(HistorikkTjenesteAdapter.class),
                 opprettTotrinnsgrunnlag,
                 vedtakTjeneste,
-                behandlingDokumentRepository, klageAnkeVedtakTjeneste) {
+                behandlingDokumentRepository, new KlageAnkeVedtakTjeneste(mock(KlageRepository.class), mock(AnkeRepository.class))) {
             @Override
             protected String getCurrentUserId() {
                 // return test verdi

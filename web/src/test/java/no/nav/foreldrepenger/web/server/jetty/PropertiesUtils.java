@@ -12,11 +12,14 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.util.env.Environment;
+
 public class PropertiesUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesUtils.class);
 
-    private static String JETTY_SCHEMAS_LOCAL = "jetty_web_server.json";
+    private static final Environment ENV = Environment.current();
+    // private static String JETTY_SCHEMAS_LOCAL = "jetty_web_server.json";
 
     private static String DEV_FILNAVN = "es.properties";
     private static String DEV_FILNAVN_LOCAL = "es-local.properties";
@@ -26,11 +29,25 @@ public class PropertiesUtils {
     }
 
     static List<JettyDevDbKonfigurasjon> getDBConnectionProperties() throws IOException {
-        ClassLoader classLoader = PropertiesUtils.class.getClassLoader();
-        File file = new File(classLoader.getResource(JETTY_SCHEMAS_LOCAL).getFile());
-        return JettyDevDbKonfigurasjon.fraFil(file);
-    }
+        var dflt = new JettyDevDbKonfigurasjon();
+        dflt.setDatasource(ENV.getProperty("fpsak.default.ds"));
+        dflt.setSchema(ENV.getProperty("fpsak.default.schema"));
+        dflt.setDefaultDataSource(true);
+        dflt.setUrl(ENV.getProperty("fpsak.default.url"));
+        dflt.setMigrationScriptsFilesystemRoot(ENV.getProperty("fpsak.default.ms"));
 
+        var hist = new JettyDevDbKonfigurasjon();
+        dflt.setDatasource(ENV.getProperty("fpsak.hist.ds"));
+        dflt.setSchema(ENV.getProperty("fpsak.hist.schema"));
+        dflt.setDefaultDataSource(false);
+        dflt.setUrl(ENV.getProperty("fpsak.hist.url"));
+        dflt.setMigrationScriptsFilesystemRoot(ENV.getProperty("fpsak.hist.ms"));
+        return List.of(dflt, hist);
+
+        // ClassLoader classLoader = PropertiesUtils.class.getClassLoader();
+        // File file = new File(classLoader.getResource(JETTY_SCHEMAS_LOCAL).getFile());
+        // return JettyDevDbKonfigurasjon.fraFil(file);
+    }
 
     private static void copyTemplateFile(File templateFil, File targetFil, boolean backup) throws IOException {
         if (!targetFil.exists()) {

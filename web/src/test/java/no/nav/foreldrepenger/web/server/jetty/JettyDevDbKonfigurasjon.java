@@ -52,6 +52,26 @@ public class JettyDevDbKonfigurasjon {
     JettyDevDbKonfigurasjon() {
     }
 
+    public void setDatasource(String datasource) {
+        this.datasource = datasource;
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setMigrationScriptsFilesystemRoot(String migrationScriptsFilesystemRoot) {
+        this.migrationScriptsFilesystemRoot = migrationScriptsFilesystemRoot;
+    }
+
+    public void setDefaultDataSource(boolean defaultDataSource) {
+        this.defaultDataSource = defaultDataSource;
+    }
+
     public String getDatasource() {
         return datasource;
     }
@@ -72,6 +92,12 @@ public class JettyDevDbKonfigurasjon {
         return defaultDataSource;
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [datasource=" + datasource + ", schema=" + schema + ", url=" + url + ", migrationScriptsFilesystemRoot="
+                + migrationScriptsFilesystemRoot + ", defaultDataSource=" + defaultDataSource + "]";
+    }
+
     public static List<JettyDevDbKonfigurasjon> fraFil(File file) throws IOException {
         ObjectReader reader = JettyDevDbKonfigurasjon.OM.readerFor(JettyDevDbKonfigurasjon.class);
         try (MappingIterator<JettyDevDbKonfigurasjon> iterator = reader.readValues(file)) {
@@ -88,8 +114,8 @@ public class JettyDevDbKonfigurasjon {
     }
 
     /**
-     * Migrering kjøres i vilkårlig rekkefølge. Hvis bruker/skjema angitt i {@link DBConnectionProperties}
-     * ikke finnes, opprettes den
+     * Migrering kjøres i vilkårlig rekkefølge. Hvis bruker/skjema angitt i
+     * {@link DBConnectionProperties} ikke finnes, opprettes den
      */
     static void kjørMigreringFor(List<JettyDevDbKonfigurasjon> connectionProperties) {
         connectionProperties.forEach(JettyDevDbKonfigurasjon::kjørMigrering);
@@ -101,7 +127,7 @@ public class JettyDevDbKonfigurasjon {
     }
 
     private static void migrer(DataSource dataSource,
-                               JettyDevDbKonfigurasjon connectionProperties) {
+            JettyDevDbKonfigurasjon connectionProperties) {
 
         class FlywayKonfig {
 
@@ -114,7 +140,6 @@ public class JettyDevDbKonfigurasjon {
                 }
                 return placeholders;
             }
-
 
             String getMigrationScriptLocation(JettyDevDbKonfigurasjon connectionProperties) {
                 String relativePath = connectionProperties.getMigrationScriptsFilesystemRoot() + connectionProperties.getDatasource();
@@ -141,8 +166,8 @@ public class JettyDevDbKonfigurasjon {
             flyway.setLocations(scriptLocation);
         } else {
             /**
-             * Default leter flyway etter classpath:db/migration.
-             * Her vet vi at vi ikke skal lete i classpath
+             * Default leter flyway etter classpath:db/migration. Her vet vi at vi ikke skal
+             * lete i classpath
              */
             flyway.setLocations("denne/stien/finnes/ikke");
         }
