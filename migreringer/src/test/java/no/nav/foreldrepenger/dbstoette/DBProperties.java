@@ -37,7 +37,7 @@ public final class DBProperties {
         return datasource;
     }
 
-    String getSchema() {
+    public String getSchema() {
         return schema;
     }
 

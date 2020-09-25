@@ -20,9 +20,9 @@ public final class Databaseskjemainitialisering {
 
     private static final Environment ENV = Environment.current();
 
-    private static final List<DBProperties> UNIT_TEST = List.of(cfg("fpsak.default"), cfg("fpsak.hist"));
+    public static final List<DBProperties> UNIT_TEST = List.of(cfg("fpsak.default"), cfg("fpsak.hist"));
 
-    private static final List<DBProperties> DBA = List.of(cfg("fpsak.dba"));
+    public static final List<DBProperties> DBA = List.of(cfg("fpsak.dba"));
 
     private static final Logger LOG = LoggerFactory.getLogger(Databaseskjemainitialisering.class);
 
@@ -41,14 +41,18 @@ public final class Databaseskjemainitialisering {
 
     public static void settJdniOppslag() {
         try {
-            var props = UNIT_TEST.stream()
-                    .filter(DBProperties::isDefaultDataSource)
-                    .findFirst()
-                    .orElseThrow();
+            var props = defaultProperties();
             new EnvEntry("jdbc/" + props.getDatasource(), ds(props));
         } catch (Exception e) {
             throw new RuntimeException("Feil under registrering av JDNI-entry for default datasource", e);
         }
+    }
+
+    public static DBProperties defaultProperties() {
+        return UNIT_TEST.stream()
+                .filter(DBProperties::isDefaultDataSource)
+                .findFirst()
+                .orElseThrow();
     }
 
     private static void kjørMigreringFor(List<DBProperties> props) {
@@ -95,8 +99,9 @@ public final class Databaseskjemainitialisering {
     }
 
     private static String scriptLocation(DBProperties props) {
-        return Optional.ofNullable(props.getMigrationScriptsClasspathRoot()).map(p -> "classpath:/" + props.getMigrationScriptsClasspathRoot() + "/"
-                + props.getSchema()).orElse(getMigrationScriptLocation(props));
+        return Optional.ofNullable(props.getMigrationScriptsClasspathRoot())
+                .map(p -> "classpath:/" + p + "/" + props.getSchema())
+                .orElse(getMigrationScriptLocation(props));
     }
 
     private static String getMigrationScriptLocation(DBProperties props) {
@@ -114,7 +119,7 @@ public final class Databaseskjemainitialisering {
         return "filesystem:" + location.getPath();
     }
 
-    private static DataSource ds(DBProperties props) {
+    public static DataSource ds(DBProperties props) {
         var cfg = new HikariConfig();
         cfg.setJdbcUrl(props.getUrl());
         cfg.setUsername(props.getUser());
