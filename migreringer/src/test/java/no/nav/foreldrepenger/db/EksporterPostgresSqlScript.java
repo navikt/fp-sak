@@ -4,9 +4,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import no.nav.foreldrepenger.dbstoette.DatasourceConfiguration;
-import no.nav.vedtak.felles.lokal.dbstoette.ConnectionHandler;
-import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
+import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 
 /**
  * Hjelpeklasse for enkel konvertering av Oracle til Postgres. Tar kun tabeller
@@ -22,9 +20,8 @@ public class EksporterPostgresSqlScript {
     private DataSource ds;
 
     public EksporterPostgresSqlScript() {
-        List<DBConnectionProperties> connectionProperties = DatasourceConfiguration.UNIT_TEST.get();
-        DBConnectionProperties dbconp = DBConnectionProperties.finnDefault(connectionProperties).get();
-        ds = ConnectionHandler.opprettFra(dbconp);
+        var dbconp = Databaseskjemainitialisering.defaultProperties();
+        ds = Databaseskjemainitialisering.ds(dbconp);
     }
 
     public static void main(String[] args) throws Exception {

@@ -22,8 +22,8 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
+import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 import no.nav.foreldrepenger.web.app.JettyTestApplication;
-import no.nav.foreldrepenger.web.server.jetty.JettyDevDbKonfigurasjon.ConnectionHandler;
 
 public class JettyDevServer extends JettyServer {
 
@@ -61,8 +61,8 @@ public class JettyDevServer extends JettyServer {
         File storeFile = new File(storePath);
         if (!storeFile.exists()) {
             throw new IllegalStateException("Finner ikke " + storeName + " i " + storePath
-                + "\n\tKonfigurer enten som System property \'" + storeProperty + "\' eller environment variabel \'"
-                + storeProperty.toUpperCase().replace('.', '_') + "\'");
+                    + "\n\tKonfigurer enten som System property \'" + storeProperty + "\' eller environment variabel \'"
+                    + storeProperty.toUpperCase().replace('.', '_') + "\'");
         }
         String password = getProperty(storePasswordProperty, defaultPassword);
         if (password == null) {
@@ -120,10 +120,12 @@ public class JettyDevServer extends JettyServer {
         System.setProperty("conf", "src/main/resources/jetty/");
         super.konfigurerSikkerhet();
 
-        // truststore avgjør hva vi stoler på av sertifikater når vi gjør utadgående TLS kall
+        // truststore avgjør hva vi stoler på av sertifikater når vi gjør utadgående TLS
+        // kall
         initCryptoStoreConfig("truststore", TRUSTSTORE_PATH_PROP, TRUSTSTORE_PASSW_PROP, "changeit");
 
-        // keystore genererer sertifikat og TLS for innkommende kall. Bruker standard prop hvis definert, ellers faller tilbake på modig props
+        // keystore genererer sertifikat og TLS for innkommende kall. Bruker standard
+        // prop hvis definert, ellers faller tilbake på modig props
         var keystoreProp = System.getProperty("javax.net.ssl.keyStore") != null ? "javax.net.ssl.keyStore" : KEYSTORE_PATH_PROP;
         var keystorePasswProp = System.getProperty("javax.net.ssl.keyStorePassword") != null ? "javax.net.ssl.keyStorePassword" : KEYSTORE_PASSW_PROP;
         initCryptoStoreConfig("keystore", keystoreProp, keystorePasswProp, "devillokeystore1234");
@@ -131,13 +133,13 @@ public class JettyDevServer extends JettyServer {
 
     @Override
     protected void konfigurerJndi() throws Exception {
-        ConnectionHandler.settOppJndiDataSource(PropertiesUtils.getDBConnectionProperties());
+        Databaseskjemainitialisering.settJdniOppslag();
         konfigurerJms();
     }
 
     @Override
     protected void migrerDatabaser() throws IOException {
-        JettyDevDbKonfigurasjon.kjørMigreringFor(PropertiesUtils.getDBConnectionProperties());
+        Databaseskjemainitialisering.migrer();
     }
 
     @SuppressWarnings("resource")
@@ -154,8 +156,8 @@ public class JettyDevServer extends JettyServer {
         https.addCustomizer(new SecureRequestCustomizer());
 
         ServerConnector sslConnector = new ServerConnector(server,
-            new SslConnectionFactory(sslContextFactory, "http/1.1"),
-            new HttpConnectionFactory(https));
+                new SslConnectionFactory(sslContextFactory, "http/1.1"),
+                new HttpConnectionFactory(https));
         sslConnector.setPort(appKonfigurasjon.getSslPort());
         connectors.add(sslConnector);
 
@@ -180,9 +182,8 @@ public class JettyDevServer extends JettyServer {
     @Override
     protected ResourceCollection createResourceCollection() throws IOException {
         return new ResourceCollection(
-            Resource.newClassPathResource("META-INF/resources/webjars/"),
-            Resource.newClassPathResource("/web")
-        );
+                Resource.newClassPathResource("META-INF/resources/webjars/"),
+                Resource.newClassPathResource("/web"));
     }
 
 }

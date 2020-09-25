@@ -13,9 +13,7 @@ import javax.sql.DataSource;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import no.nav.foreldrepenger.dbstoette.DatasourceConfiguration;
-import no.nav.vedtak.felles.lokal.dbstoette.ConnectionHandler;
-import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
+import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 
 /**
  * Tester at alle migreringer følger standarder for navn og god praksis.
@@ -26,15 +24,12 @@ public class SjekkDbStrukturTest {
             + "\nVennligst gå over sql scriptene og dokumenter tabellene på korrekt måte.";
 
     private static DataSource ds;
-
     private static String schema;
 
     @BeforeClass
     public static void setup() {
-        List<DBConnectionProperties> connectionProperties = DatasourceConfiguration.UNIT_TEST.get();
-
-        DBConnectionProperties dbconp = DBConnectionProperties.finnDefault(connectionProperties).get();
-        ds = ConnectionHandler.opprettFra(dbconp);
+        var dbconp = Databaseskjemainitialisering.defaultProperties();
+        ds = Databaseskjemainitialisering.ds(dbconp);
         schema = dbconp.getSchema();
     }
 
@@ -402,7 +397,6 @@ public class SjekkDbStrukturTest {
             }
 
         }
-
         String feilTekst = "Ved innføring av ny stause må sqlen i TaskManager_pollTask.sql må oppdateres ";
         assertThat(statusVerdier).withFailMessage(feilTekst)
                 .containsExactly("status in ('KLAR', 'FEILET', 'VENTER_SVAR', 'SUSPENDERT', 'VETO', 'FERDIG', 'KJOERT')");

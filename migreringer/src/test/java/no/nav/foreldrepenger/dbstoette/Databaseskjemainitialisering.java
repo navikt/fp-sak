@@ -1,77 +1,143 @@
 package no.nav.foreldrepenger.dbstoette;
 
+import java.io.File;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Optional;
 
+import javax.sql.DataSource;
+
+import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
-import no.nav.vedtak.felles.lokal.dbstoette.DatabaseStøtte;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
-/**
- * Initielt skjemaoppsett + migrering av unittest-skjemaer
- */
+import no.nav.vedtak.util.env.Environment;
+
 public final class Databaseskjemainitialisering {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Databaseskjemainitialisering.class);
-    private static final Pattern placeholderPattern = Pattern.compile("\\$\\{(.*)\\}");
+    private static final Environment ENV = Environment.current();
 
-    private static final AtomicBoolean GUARD_SKJEMAER = new AtomicBoolean();
-    private static final AtomicBoolean GUARD_UNIT_TEST_SKJEMAER = new AtomicBoolean();
+    public static final List<DBProperties> UNIT_TEST = List.of(cfg("fpsak.default"), cfg("fpsak.hist"));
+
+    public static final List<DBProperties> DBA = List.of(cfg("fpsak.dba"));
+
+    private static final Logger LOG = LoggerFactory.getLogger(Databaseskjemainitialisering.class);
 
     public static void main(String[] args) {
-        migrerUnittestSkjemaer();
+        migrer();
     }
 
-    public static void settOppSkjemaer() {
-        if (GUARD_SKJEMAER.compareAndSet(false, true)) {
-            try {
-                LOG.info("settOppSkjemaer");
-                settSchemaPlaceholder(DatasourceConfiguration.UNIT_TEST.getRaw());
-                DatabaseStøtte.kjørMigreringFor(DatasourceConfiguration.DBA.get());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    public static void migrerUnittestSkjemaer() {
-        settOppSkjemaer();
-
-        if (GUARD_UNIT_TEST_SKJEMAER.compareAndSet(false, true)) {
-            try {
-                LOG.info("kjørMigreringFor");
-                DatabaseStøtte.kjørMigreringFor(DatasourceConfiguration.UNIT_TEST.get());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    public static void settPlaceholdereOgJdniOppslag() {
+    public static void migrer() {
         try {
-            LOG.info("settSchemaPlaceholder");
-            Databaseskjemainitialisering.settSchemaPlaceholder(DatasourceConfiguration.UNIT_TEST.getRaw());
-            LOG.info("settOppJndiForDefaultDataSource");
-            DatabaseStøtte.settOppJndiForDefaultDataSource(DatasourceConfiguration.UNIT_TEST.get());
+            kjørMigreringFor(DBA);
+            kjørMigreringFor(UNIT_TEST);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Feil under migrering av enhetstest-skjemaer", e);
         }
     }
 
-    private static void settSchemaPlaceholder(List<DBConnectionProperties> connectionProperties) {
-        for (DBConnectionProperties dbcp : connectionProperties) {
-            Matcher matcher = placeholderPattern.matcher(dbcp.getSchema());
-            if (matcher.matches()) {
-                String placeholder = matcher.group(1);
-                if (System.getProperty(placeholder) == null) {
-                    LOG.info("setProperty {} to {}", placeholder, dbcp.getDefaultSchema());
-                    System.setProperty(placeholder, dbcp.getDefaultSchema());
-                }
+    public static void settJdniOppslag() {
+        try {
+            var props = defaultProperties();
+            new EnvEntry("jdbc/" + props.getDatasource(), ds(props));
+        } catch (Exception e) {
+            throw new RuntimeException("Feil under registrering av JDNI-entry for default datasource", e);
+        }
+    }
+
+    public static DBProperties defaultProperties() {
+        return UNIT_TEST.stream()
+                .filter(DBProperties::isDefaultDataSource)
+                .findFirst()
+                .orElseThrow();
+    }
+
+    private static void kjørMigreringFor(List<DBProperties> props) {
+        props.forEach(Databaseskjemainitialisering::kjørerMigreringFor);
+    }
+
+    private static void kjørerMigreringFor(DBProperties props) {
+        settOppDBSkjema(props);
+    }
+
+    private static void settOppDBSkjema(DBProperties props) {
+        migrer(ds(props), props);
+    }
+
+    private static void migrer(DataSource ds, DBProperties props) {
+        var cfg = new FlywayKonfig(ds);
+        if (!cfg
+                .medUsername(props.getUser())
+                .medSqlLokasjon(scriptLocation(props))
+                .medCleanup(props.isMigrateClean())
+                .medMetadataTabell(props.getVersjonstabell())
+                .migrerDb()) {
+            LOG.warn(
+                    "Kunne ikke starte inkrementell oppdatering av databasen. Det finnes trolig endringer i allerede kjørte script.\nKjører full migrering...");
+            if (!cfg.medCleanup(true).migrerDb()) {
+                throw new IllegalStateException("\n\nFeil i script. Avslutter...");
             }
         }
+    }
+
+    private static DBProperties cfg(String prefix) {
+        String schema = ENV.getRequiredProperty(prefix + ".schema");
+        return new DBProperties.Builder()
+                .user(schema)
+                .versjonstabell("schema_version")
+                .password(schema)
+                .datasource(ENV.getRequiredProperty(prefix + ".datasource"))
+                .schema(schema)
+                .defaultSchema(ENV.getProperty(prefix + ".defaultschema", schema))
+                .defaultDataSource(ENV.getProperty(prefix + ".default", boolean.class, false))
+                .migrateClean(ENV.getProperty(prefix + ".migrateclean", boolean.class, true))
+                .url(ENV.getRequiredProperty(prefix + ".url"))
+                .migrationScriptsFilesystemRoot(ENV.getRequiredProperty(prefix + ".ms")).build();
+    }
+
+    private static String scriptLocation(DBProperties props) {
+        return Optional.ofNullable(props.getMigrationScriptsClasspathRoot())
+                .map(p -> "classpath:/" + p + "/" + props.getSchema())
+                .orElse(migrationScriptLocation(props));
+    }
+
+    private static String migrationScriptLocation(DBProperties props) {
+        String relativePath = props.getMigrationScriptsFilesystemRoot() + props.getDatasource();
+        File baseDir = new File(".").getAbsoluteFile();
+        File location = new File(baseDir, relativePath);
+        while (!location.exists()) {
+            baseDir = baseDir.getParentFile();
+            if (baseDir == null || !baseDir.isDirectory()) {
+                throw new IllegalArgumentException("Klarte ikke finne : " + baseDir);
+            }
+            location = new File(baseDir, relativePath);
+        }
+
+        return "filesystem:" + location.getPath();
+    }
+
+    public static DataSource ds(DBProperties props) {
+        var ds = new HikariDataSource(hikariConfig(props));
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ds.close();
+            }
+        }));
+        return ds;
+    }
+
+    private static HikariConfig hikariConfig(DBProperties props) {
+        var cfg = new HikariConfig();
+        cfg.setJdbcUrl(props.getUrl());
+        cfg.setUsername(props.getUser());
+        cfg.setPassword(props.getPassword());
+        cfg.setConnectionTimeout(1000);
+        cfg.setMinimumIdle(0);
+        cfg.setMaximumPoolSize(4);
+        cfg.setAutoCommit(false);
+        return cfg;
     }
 }

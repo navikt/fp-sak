@@ -53,12 +53,22 @@ public class VedtakTjeneste {
 
     @Inject
     public VedtakTjeneste(LagretVedtakRepository lagretVedtakRepository,
-                          BehandlingRepositoryProvider repositoryProvider,
-                          KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
-                          TotrinnTjeneste totrinnTjeneste) {
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        this.historikkRepository = repositoryProvider.getHistorikkRepository();
+            BehandlingRepositoryProvider repositoryProvider,
+            KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
+            TotrinnTjeneste totrinnTjeneste) {
+        this(repositoryProvider.getBehandlingRepository(),
+                repositoryProvider.getBehandlingsresultatRepository(),
+                repositoryProvider.getHistorikkRepository(), lagretVedtakRepository, totrinnTjeneste, klageAnkeVedtakTjeneste);
+
+    }
+
+    public VedtakTjeneste(BehandlingRepository behandlingRepository,
+            BehandlingsresultatRepository behandlingsresultatRepository,
+            HistorikkRepository historikkRepository, LagretVedtakRepository lagretVedtakRepository, TotrinnTjeneste totrinnTjeneste,
+            KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste) {
+        this.behandlingRepository = behandlingRepository;
+        this.historikkRepository = historikkRepository;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.lagretVedtakRepository = lagretVedtakRepository;
         this.totrinnTjeneste = totrinnTjeneste;
         this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
@@ -72,8 +82,8 @@ public class VedtakTjeneste {
         return lagretVedtakRepository.hentLagretVedtakForBehandlingForOppdatering(behandlingId);
     }
 
-    public List<Long> hentLagreteVedtakBehandlingId(LocalDateTime fom, LocalDateTime tom){
-        return lagretVedtakRepository.hentLagreteVedtakBehandlingId(fom,tom);
+    public List<Long> hentLagreteVedtakBehandlingId(LocalDateTime fom, LocalDateTime tom) {
+        return lagretVedtakRepository.hentLagreteVedtakBehandlingId(fom, tom);
     }
 
     public void lagHistorikkinnslagFattVedtak(Behandling behandling) {
@@ -97,15 +107,15 @@ public class VedtakTjeneste {
 
     private boolean sendesTilbakeTilSaksbehandler(Collection<Totrinnsvurdering> medTotrinnskontroll) {
         return medTotrinnskontroll.stream()
-            .anyMatch(a -> !Boolean.TRUE.equals(a.isGodkjent()));
+                .anyMatch(a -> !Boolean.TRUE.equals(a.isGodkjent()));
     }
 
     private void lagHistorikkInnslagVedtakFattet(Behandling behandling) {
         boolean erUendretUtfall = getRevurderingTjeneste(behandling).erRevurderingMedUendretUtfall(behandling);
         HistorikkinnslagType historikkinnslagType = erUendretUtfall ? HistorikkinnslagType.UENDRET_UTFALL : HistorikkinnslagType.VEDTAK_FATTET;
         HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(historikkinnslagType)
-            .medSkjermlenke(SkjermlenkeType.VEDTAK);
+                .medHendelse(historikkinnslagType)
+                .medSkjermlenke(SkjermlenkeType.VEDTAK);
         if (!erUendretUtfall) {
             tekstBuilder.medResultat(utledVedtakResultatType(behandling));
         }
@@ -122,7 +132,6 @@ public class VedtakTjeneste {
         return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType()).orElseThrow();
     }
 
-
     private void lagHistorikkInnslagVurderPåNytt(Behandling behandling, Collection<Totrinnsvurdering> medTotrinnskontroll) {
         lagHistorikkInnslagVedtakReturEllerNK(HistorikkinnslagType.SAK_RETUR, behandling, medTotrinnskontroll);
     }
@@ -131,12 +140,13 @@ public class VedtakTjeneste {
         lagHistorikkInnslagVedtakReturEllerNK(HistorikkinnslagType.SAK_GODKJENT, behandling, medTotrinnskontroll);
     }
 
-    private void lagHistorikkInnslagVedtakReturEllerNK(HistorikkinnslagType hendelse, Behandling behandling, Collection<Totrinnsvurdering> medTotrinnskontroll) {
+    private void lagHistorikkInnslagVedtakReturEllerNK(HistorikkinnslagType hendelse, Behandling behandling,
+            Collection<Totrinnsvurdering> medTotrinnskontroll) {
         Map<SkjermlenkeType, List<HistorikkinnslagTotrinnsvurdering>> vurdering = new HashMap<>();
         List<HistorikkinnslagTotrinnsvurdering> vurderingUtenLenke = new ArrayList<>();
 
         HistorikkInnslagTekstBuilder delBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(hendelse);
+                .medHendelse(hendelse);
 
         for (Totrinnsvurdering ttv : medTotrinnskontroll) {
             HistorikkinnslagTotrinnsvurdering totrinnsVurdering = lagHistorikkinnslagTotrinnsvurdering(ttv);
@@ -156,7 +166,7 @@ public class VedtakTjeneste {
     }
 
     private Historikkinnslag lagHistorikkinnslag(Behandling behandling, HistorikkinnslagType historikkinnslagType,
-                                                 HistorikkInnslagTekstBuilder builder) {
+            HistorikkInnslagTekstBuilder builder) {
         Historikkinnslag historikkinnslag = new Historikkinnslag();
         historikkinnslag.setBehandling(behandling);
         historikkinnslag.setAktør(HistorikkAktør.BESLUTTER);
@@ -181,7 +191,7 @@ public class VedtakTjeneste {
         } else {
             if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingResultatType)) {
                 var original = behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
-                    .orElseThrow(() -> new IllegalStateException("INGEN ENDRING uten original behandling"));
+                        .orElseThrow(() -> new IllegalStateException("INGEN ENDRING uten original behandling"));
                 return utledVedtakResultatType(original);
             }
             return UtledVedtakResultatType.utled(behandling.getType(), behandlingResultatType);
