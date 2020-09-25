@@ -97,21 +97,21 @@ public final class Databaseskjemainitialisering {
     }
 
     private static DataSource ds(DBProperties props) {
-        var config = new HikariConfig();
-        config.setJdbcUrl(props.getUrl());
-        config.setUsername(props.getUser());
-        config.setPassword(props.getPassword());
+        var cfg = new HikariConfig();
+        cfg.setJdbcUrl(props.getUrl());
+        cfg.setUsername(props.getUser());
+        cfg.setPassword(props.getPassword());
 
-        config.setConnectionTimeout(1000);
-        config.setMinimumIdle(0);
-        config.setMaximumPoolSize(4);
+        cfg.setConnectionTimeout(1000);
+        cfg.setMinimumIdle(0);
+        cfg.setMaximumPoolSize(4);
 
-        config.setAutoCommit(false);
+        cfg.setAutoCommit(false);
 
         var dsProperties = new Properties();
-        config.setDataSourceProperties(dsProperties);
+        cfg.setDataSourceProperties(dsProperties);
 
-        var ds = new HikariDataSource(config);
+        var ds = new HikariDataSource(cfg);
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
