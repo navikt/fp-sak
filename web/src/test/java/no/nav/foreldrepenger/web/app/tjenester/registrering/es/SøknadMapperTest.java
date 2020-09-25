@@ -15,7 +15,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
@@ -42,7 +41,7 @@ public class SøknadMapperTest {
     @Test
     public void test_mapEngangstønad() {
         ManuellRegistreringEngangsstonadDto registreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
-        oppdaterDtoForFødsel(registreringEngangsstonadDto, FamilieHendelseType.FØDSEL, true, LocalDate.now().minusWeeks(3), 1);
+        oppdaterDtoForFødsel(registreringEngangsstonadDto, true, LocalDate.now().minusWeeks(3), 1);
         when(tpsTjeneste.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
         ytelseSøknadMapper.mapSøknad(registreringEngangsstonadDto, opprettBruker());
     }

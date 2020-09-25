@@ -31,8 +31,8 @@ public final class Databaseskjemainitialisering {
 
     public static void migrer() {
         try {
-            kjørMigreringFor(DBA);
-            kjørMigreringFor(UNIT_TEST);
+            migrer(DBA);
+            migrer(UNIT_TEST);
         } catch (Exception e) {
             throw new RuntimeException("Feil under migrering av enhetstest-skjemaer", e);
         }
@@ -54,16 +54,8 @@ public final class Databaseskjemainitialisering {
                 .orElseThrow();
     }
 
-    private static void kjørMigreringFor(List<DBProperties> props) {
-        props.forEach(Databaseskjemainitialisering::kjørerMigreringFor);
-    }
-
-    private static void kjørerMigreringFor(DBProperties props) {
-        settOppDBSkjema(props);
-    }
-
-    private static void settOppDBSkjema(DBProperties props) {
-        migrer(ds(props), props);
+    private static void migrer(List<DBProperties> props) {
+        props.forEach(p -> migrer(ds(p), p));
     }
 
     private static void migrer(DataSource ds, DBProperties props) {
@@ -100,10 +92,10 @@ public final class Databaseskjemainitialisering {
     private static String scriptLocation(DBProperties props) {
         return Optional.ofNullable(props.getMigrationScriptsClasspathRoot())
                 .map(p -> "classpath:/" + p + "/" + props.getSchema())
-                .orElse(migrationScriptLocation(props));
+                .orElse(fileScriptLocation(props));
     }
 
-    private static String migrationScriptLocation(DBProperties props) {
+    private static String fileScriptLocation(DBProperties props) {
         String relativePath = props.getMigrationScriptsFilesystemRoot() + props.getDatasource();
         File baseDir = new File(".").getAbsoluteFile();
         File location = new File(baseDir, relativePath);
