@@ -11,7 +11,7 @@ public class UnittestRepositoryRule extends RepositoryRule {
     static {
         if (System.getenv("MAVEN_CMD_LINE_ARGS") == null) {
             LOG.warn("Kjører migreringer");
-            Databaseskjemainitialisering.migrerUnittestSkjemaer();
+            Databaseskjemainitialisering.migrer();
         }
         Databaseskjemainitialisering.settJdniOppslag();
     }

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.dbstoette;
 
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sql.DataSource;
 
@@ -13,42 +12,35 @@ import org.slf4j.LoggerFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
-import no.nav.vedtak.felles.testutilities.db.FlywayKonfig;
 import no.nav.vedtak.util.env.Environment;
 
-/**
- * Initielt skjemaoppsett + migrering av unittest-skjemaer
- */
 public final class Databaseskjemainitialisering {
 
     private static final Environment ENV = Environment.current();
 
-    private static final List<DBConnectionProperties> UNIT_TEST = List.of(cfg("fpsak.default"), cfg("fpsak.hist"));
+    private static final List<DBProperties> UNIT_TEST = List.of(cfg("fpsak.default"), cfg("fpsak.hist"));
 
-    private static final List<DBConnectionProperties> DBA = List.of(cfg("fpsak.dba"));
+    private static final List<DBProperties> DBA = List.of(cfg("fpsak.dba"));
 
     private static final Logger LOG = LoggerFactory.getLogger(Databaseskjemainitialisering.class);
 
-    private static final AtomicBoolean GUARD_UNIT_TEST_SKJEMAER = new AtomicBoolean();
-
     public static void main(String[] args) {
-        migrerUnittestSkjemaer();
+        migrer();
     }
 
-    public static void migrerUnittestSkjemaer() {
+    public static void migrer() {
         try {
             kjørMigreringFor(DBA);
             kjørMigreringFor(UNIT_TEST);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Feil under migrering av enhetstest-skjemaer", e);
         }
     }
 
     public static void settJdniOppslag() {
         try {
             var props = UNIT_TEST.stream()
-                    .filter(DBConnectionProperties::isDefaultDataSource)
+                    .filter(DBProperties::isDefaultDataSource)
                     .findFirst()
                     .orElseThrow();
             new EnvEntry("jdbc/" + props.getDatasource(), ds(props));
@@ -57,45 +49,37 @@ public final class Databaseskjemainitialisering {
         }
     }
 
-    private static void kjørMigreringFor(List<DBConnectionProperties> props) {
+    private static void kjørMigreringFor(List<DBProperties> props) {
         props.forEach(Databaseskjemainitialisering::kjørerMigreringFor);
     }
 
-    private static void kjørerMigreringFor(DBConnectionProperties props) {
+    private static void kjørerMigreringFor(DBProperties props) {
         settOppDBSkjema(props);
     }
 
-    private static void settOppDBSkjema(DBConnectionProperties props) {
+    private static void settOppDBSkjema(DBProperties props) {
         migrer(ds(props), props);
     }
 
-    private static void migrer(DataSource ds, DBConnectionProperties props) {
-        String scriptLocation = scriptLocation(props);
-
-        boolean migreringOk = FlywayKonfig.lagKonfig(ds)
-                .medSqlLokasjon(scriptLocation)
-                .medCleanup(props.isMigrateClean(), props.getUser())
+    private static void migrer(DataSource ds, DBProperties props) {
+        var cfg = new FlywayKonfig(ds);
+        if (!cfg
+                .medUsername(props.getUser())
+                .medSqlLokasjon(scriptLocation(props))
+                .medCleanup(props.isMigrateClean())
                 .medMetadataTabell(props.getVersjonstabell())
-                .migrerDb();
-
-        if (!migreringOk) {
+                .migrerDb()) {
             LOG.warn(
-                    "\n\nKunne ikke starte inkrementell oppdatering av databasen. Det finnes trolig endringer i allerede kjørte script.\nKjører full migrering...");
-
-            migreringOk = FlywayKonfig.lagKonfig(ds)
-                    .medCleanup(true, props.getUser())
-                    .medSqlLokasjon(scriptLocation)
-                    .medMetadataTabell(props.getVersjonstabell())
-                    .migrerDb();
-            if (!migreringOk) {
+                    "Kunne ikke starte inkrementell oppdatering av databasen. Det finnes trolig endringer i allerede kjørte script.\nKjører full migrering...");
+            if (!cfg.medCleanup(true).migrerDb()) {
                 throw new IllegalStateException("\n\nFeil i script. Avslutter...");
             }
         }
     }
 
-    private static DBConnectionProperties cfg(String prefix) {
+    private static DBProperties cfg(String prefix) {
         String schema = ENV.getRequiredProperty(prefix + ".schema");
-        return new DBConnectionProperties.Builder()
+        return new DBProperties.Builder()
                 .user(schema)
                 .versjonstabell("schema_version")
                 .password(schema)
@@ -108,12 +92,12 @@ public final class Databaseskjemainitialisering {
                 .migrationScriptsFilesystemRoot(ENV.getRequiredProperty(prefix + ".ms")).build();
     }
 
-    private static String scriptLocation(DBConnectionProperties props) {
+    private static String scriptLocation(DBProperties props) {
         return "classpath:/" + props.getMigrationScriptsClasspathRoot() + "/" + props.getSchema();
     }
 
-    private static DataSource ds(DBConnectionProperties props) {
-        HikariConfig config = new HikariConfig();
+    private static DataSource ds(DBProperties props) {
+        var config = new HikariConfig();
         config.setJdbcUrl(props.getUrl());
         config.setUsername(props.getUser());
         config.setPassword(props.getPassword());
@@ -124,17 +108,16 @@ public final class Databaseskjemainitialisering {
 
         config.setAutoCommit(false);
 
-        Properties dsProperties = new Properties();
+        var dsProperties = new Properties();
         config.setDataSourceProperties(dsProperties);
 
-        HikariDataSource ds = new HikariDataSource(config);
+        var ds = new HikariDataSource(config);
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
                 ds.close();
             }
         }));
-
         return ds;
     }
 }
