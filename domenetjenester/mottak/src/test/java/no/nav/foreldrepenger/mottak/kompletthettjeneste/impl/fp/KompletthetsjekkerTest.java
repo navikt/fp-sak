@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggEntitet;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -243,9 +242,9 @@ public class KompletthetsjekkerTest {
         // Arrange
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
-        DokumentTypeId dokumentType = DokumentTypeId.finnForKodeverkEiersKode(KODE_INNLEGGELSE);
-        Set<DokumentType> dokumentTypeIds = singleton(dokumentType);
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(), any(), any())).thenReturn(dokumentTypeIds);
+        var dokumentType = DokumentTypeId.finnForKodeverkEiersKode(KODE_INNLEGGELSE);
+        Set<DokumentTypeId> dokumentTypeIds = singleton(dokumentType);
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(), any())).thenReturn(dokumentTypeIds);
 
         opprettSøknadMedPåkrevdVedlegg(behandling);
 

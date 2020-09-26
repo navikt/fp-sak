@@ -120,7 +120,7 @@ public class DokumentmottakerKlageTest {
         Behandling behandling = byggAvsluttetSøknadsbehandlingForFødsel(1);
         Fagsak fagsak = behandling.getFagsak();
         Long fagsakId = fagsak.getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.KLAGE_DOKUMENT;
+        var dokumentTypeId = DokumentTypeId.KLAGE_DOKUMENT;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 
@@ -137,7 +137,7 @@ public class DokumentmottakerKlageTest {
         Behandling behandling = byggAvsluttetSøknadsbehandlingForFødsel(1);
         Fagsak fagsak = behandling.getFagsak();
         Long fagsakId = fagsak.getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.KLAGE_ETTERSENDELSE;
+        var dokumentTypeId = DokumentTypeId.KLAGE_ETTERSENDELSE;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 
@@ -154,7 +154,7 @@ public class DokumentmottakerKlageTest {
         Behandling behandling = byggAvsluttetKlage();
         Fagsak fagsak = behandling.getFagsak();
         Long fagsakId = fagsak.getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.KLAGE_DOKUMENT;
+        var dokumentTypeId = DokumentTypeId.KLAGE_DOKUMENT;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 
@@ -171,7 +171,7 @@ public class DokumentmottakerKlageTest {
         Behandling behandling = byggAvsluttetKlage();
         Fagsak fagsak = behandling.getFagsak();
         Long fagsakId = fagsak.getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.KLAGE_DOKUMENT;
+        var dokumentTypeId = DokumentTypeId.KLAGE_DOKUMENT;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 
@@ -187,7 +187,7 @@ public class DokumentmottakerKlageTest {
         // Arrange
         Fagsak fagsak = nyMorFødselFagsak();
         Long fagsakId = fagsak.getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.KLAGE_DOKUMENT;
+        var dokumentTypeId = DokumentTypeId.KLAGE_DOKUMENT;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 

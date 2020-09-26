@@ -7,7 +7,6 @@ import javax.persistence.EntityManager;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 
 /**
@@ -25,10 +24,6 @@ public class RepositoryProvider {
 
     public BehandlingRepository getBehandlingRepository() {
         return new BehandlingRepository(entityManager);
-    }
-
-    public KodeverkRepository getKodeverkRepository() {
-        return new KodeverkRepository(entityManager);
     }
 
     public FagsakRepository getFagsakRepository() {

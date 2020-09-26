@@ -48,8 +48,7 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
     private IAYRepositoryProvider provider = new IAYRepositoryProvider(repositoryRule.getEntityManager());
     private HistorikkRepository historikkRepository = new HistorikkRepository(repositoryRule.getEntityManager());
     private HistorikkInnslagKonverter historikkInnslagKonverter = new HistorikkInnslagKonverter();
-    private DokumentArkivTjeneste dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(mockJournalProxyService, provider.getFagsakRepository(),
-            provider.getKodeverkRepository());
+    private DokumentArkivTjeneste dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(mockJournalProxyService, provider.getFagsakRepository());
     private HistorikkTjenesteAdapter historikkAdapter;
     private ArbeidsforholdHistorikkinnslagTjeneste arbeidsforholdHistorikkinnslagTjeneste;
     private Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("1");

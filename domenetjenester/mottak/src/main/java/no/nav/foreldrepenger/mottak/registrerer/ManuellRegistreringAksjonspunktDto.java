@@ -2,11 +2,13 @@ package no.nav.foreldrepenger.mottak.registrerer;
 
 import java.time.LocalDate;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+
 public class ManuellRegistreringAksjonspunktDto {
 
     private boolean erFullstendigSøknad;
     private String søknadsXml;
-    private String dokumentTypeIdKode;
+    private DokumentTypeId dokumentTypeId;
     private LocalDate mottattDato;
     private boolean erRegistrertVerge;
 
@@ -14,11 +16,11 @@ public class ManuellRegistreringAksjonspunktDto {
         this.erFullstendigSøknad = erFullstendigSøknad;
     }
 
-    public ManuellRegistreringAksjonspunktDto(boolean erFullstendigSøknad, String søknadsXml, String dokumentTypeIdKode,
+    public ManuellRegistreringAksjonspunktDto(boolean erFullstendigSøknad, String søknadsXml, DokumentTypeId dokumentTypeId,
                                               LocalDate mottattDato, boolean erRegistrertVerge) {
         this.erFullstendigSøknad = erFullstendigSøknad;
         this.søknadsXml = søknadsXml;
-        this.dokumentTypeIdKode = dokumentTypeIdKode;
+        this.dokumentTypeId = dokumentTypeId;
         this.mottattDato = mottattDato;
         this.erRegistrertVerge = erRegistrertVerge;
     }
@@ -31,8 +33,8 @@ public class ManuellRegistreringAksjonspunktDto {
         return søknadsXml;
     }
 
-    public String getDokumentTypeIdKode() {
-        return dokumentTypeIdKode;
+    public DokumentTypeId getDokumentTypeId() {
+        return dokumentTypeId != null ? dokumentTypeId : DokumentTypeId.UDEFINERT;
     }
 
     public LocalDate getMottattDato() {

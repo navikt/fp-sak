@@ -98,21 +98,6 @@ public class MottatteDokumentRepository {
 
     /**
      * Returnerer liste av MottattDokument.
-     * NB: Kan returnere samme dokument flere ganger dersom de har ulike eks. mottatt_dato, journalføringsenhet (dersom byttet enhet). Er derfor
-     * ikke å anbefale å bruke.
-     */
-    public List<MottattDokument> hentMottatteDokumentVedleggPåBehandlingId(long behandlingId) {
-        TypedQuery<MottattDokument> query = entityManager.createQuery(
-            "SELECT md FROM MottattDokument md WHERE md.behandlingId = :param AND md.dokumentTypeId IN :dokumentTyper", //$NON-NLS-1$
-            MottattDokument.class)
-            .setParameter("dokumentTyper", DokumentTypeId.getVedleggTyper())
-            .setParameter(PARAM_KEY, behandlingId); //$NON-NLS-1$
-
-        return query.getResultList();
-    }
-
-    /**
-     * Returnerer liste av MottattDokument.
      *
      * Henter alle dokument med type som ikke er søknad, endringssøknad, klage, IM (eller udefinert)
      *

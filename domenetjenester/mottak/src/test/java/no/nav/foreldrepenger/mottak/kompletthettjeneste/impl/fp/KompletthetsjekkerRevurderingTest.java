@@ -37,13 +37,13 @@ public class KompletthetsjekkerRevurderingTest {
     @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    
+
     private final KompletthetssjekkerTestUtil testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
 
     private final KompletthetssjekkerSøknad kompletthetssjekkerSøknad = mock(KompletthetssjekkerSøknad.class);
     private final DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste = mock(DokumentBestillerApplikasjonTjeneste.class);
     private final DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
-    
+
     private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
 
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
@@ -51,8 +51,8 @@ public class KompletthetsjekkerRevurderingTest {
     private final KompletthetsjekkerFelles kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider, dokumentBestillerApplikasjonTjeneste, dokumentBehandlingTjeneste);
     private final KompletthetsjekkerRevurderingImpl kompletthetsjekkerRevurderingImpl = new KompletthetsjekkerRevurderingImpl(
         kompletthetssjekkerSøknad, kompletthetsjekkerFelles,
-        inntektsmeldingTjeneste, 
-        repositoryProvider.getSøknadRepository(), 
+        inntektsmeldingTjeneste,
+        repositoryProvider.getSøknadRepository(),
         repositoryProvider.getBehandlingVedtakRepository());
 
     @Before
