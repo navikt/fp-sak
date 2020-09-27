@@ -55,7 +55,7 @@ public class KodeverkRestTjenesteTest {
         assertThat(gruppertKodeliste.keySet())
             .containsAll(new HashSet<>(HentKodeverkTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.keySet()));
 
-        assertThat(gruppertKodeliste.keySet()).hasSize(HentKodeverkTjeneste.KODEVERK_SOM_BRUKES_PÅ_KLIENT.size() + HentKodeverkTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.size());
+        assertThat(gruppertKodeliste.keySet()).hasSize(HentKodeverkTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.size());
 
         var fagsakStatuser = (List<Map<String, String>>) gruppertKodeliste.get(FagsakStatus.class.getSimpleName());
         assertThat(fagsakStatuser.stream().map(k -> k.get("kode")).collect(Collectors.toList())).contains(FagsakStatus.AVSLUTTET.getKode(),

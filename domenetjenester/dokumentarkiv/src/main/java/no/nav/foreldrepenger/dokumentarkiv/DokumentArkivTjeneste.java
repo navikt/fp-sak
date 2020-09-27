@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -20,9 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.VariantFormat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentTypeIdKodeliste;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.tjeneste.virksomhet.journal.v3.HentDokumentDokumentIkkeFunnet;
@@ -50,8 +48,6 @@ public class DokumentArkivTjeneste {
 
     private FagsakRepository fagsakRepository;
 
-    private KodeverkRepository kodeverkRepository;
-
     private final Set<ArkivFilType> filTyperPdf = byggArkivFilTypeSet();
     private final VariantFormat variantFormatArkiv = VariantFormat.ARKIV;
 
@@ -61,10 +57,9 @@ public class DokumentArkivTjeneste {
     }
 
     @Inject
-    public DokumentArkivTjeneste(JournalConsumer journalConsumer, FagsakRepository fagsakRepository, KodeverkRepository kodeverkRepository) {
+    public DokumentArkivTjeneste(JournalConsumer journalConsumer, FagsakRepository fagsakRepository) {
         this.journalConsumer = journalConsumer;
         this.fagsakRepository = fagsakRepository;
-        this.kodeverkRepository = kodeverkRepository;
     }
 
     public byte[] hentDokument(JournalpostId journalpostId, String dokumentId) {
@@ -147,33 +142,28 @@ public class DokumentArkivTjeneste {
             .map(journalpost -> opprettArkivJournalPost(saksnummer, journalpost).build());
     }
 
-    public Set<DokumentType> hentDokumentTypeIdForSak(Saksnummer saksnummer, LocalDate mottattEtterDato, List<DokumentType> eksisterende) {
-        List<ArkivJournalPost> journalPosts = hentAlleJournalposterForSak(saksnummer);
-        Set<DokumentType> alleDTID = new HashSet<>();
-        journalPosts.forEach(jpost -> ekstraherJournalpostDTID(alleDTID, jpost));
+    public Set<DokumentTypeId> hentDokumentTypeIdForSak(Saksnummer saksnummer, LocalDate mottattEtterDato) {
+        List<ArkivJournalPost> journalPosts = hentAlleJournalposterForSak(saksnummer).stream()
+            .filter(ajp -> Kommunikasjonsretning.INN.equals(ajp.getKommunikasjonsretning()))
+            .collect(Collectors.toList());
+        Set<DokumentTypeId> alleDTID = new HashSet<>();
         if (LocalDate.MIN.equals(mottattEtterDato)) {
-            return alleDTID;
+            journalPosts.forEach(jpost -> ekstraherJournalpostDTID(alleDTID, jpost));
+        } else {
+            journalPosts.stream()
+                .filter(jpost -> jpost.getTidspunkt() != null && jpost.getTidspunkt().isAfter(mottattEtterDato.atStartOfDay()))
+                .forEach(jpost -> ekstraherJournalpostDTID(alleDTID, jpost));
         }
-        Set<DokumentType> etterDato = new HashSet<>();
-        journalPosts.stream()
-            .filter(jpost -> jpost.getTidspunkt() != null && !jpost.getTidspunkt().toLocalDate().isBefore(mottattEtterDato))
-            .forEach(jpost -> ekstraherJournalpostDTID(etterDato, jpost));
-        alleDTID.stream()
-            .filter(dtid -> !etterDato.contains(dtid))
-            .forEach(dtid -> {
-                if (eksisterende.contains(dtid))
-                    etterDato.add(dtid);
-            });
-        return etterDato;
+        return alleDTID;
     }
 
-    private void ekstraherJournalpostDTID(Set<DokumentType> alleDTID, ArkivJournalPost jpost) {
+    private void ekstraherJournalpostDTID(Set<DokumentTypeId> alleDTID, ArkivJournalPost jpost) {
         dokumentTypeFraTittel(jpost.getBeskrivelse()).ifPresent(alleDTID::add);
         ekstraherDokumentDTID(alleDTID, jpost.getHovedDokument());
         jpost.getAndreDokument().forEach(dok -> ekstraherDokumentDTID(alleDTID, dok));
     }
 
-    private void ekstraherDokumentDTID(Set<DokumentType> eksisterende, ArkivDokument dokument) {
+    private void ekstraherDokumentDTID(Set<DokumentTypeId> eksisterende, ArkivDokument dokument) {
         if (dokument == null) {
             return;
         }
@@ -267,8 +257,6 @@ public class DokumentArkivTjeneste {
     private Optional<DokumentTypeId> dokumentTypeFraTittel(String tittel) {
         if (tittel == null)
             return Optional.empty();
-        return kodeverkRepository.finnForKodeverkEiersNavn(DokumentTypeIdKodeliste.class, tittel)
-            .map(dtkl -> DokumentTypeId.finnForKodeverkEiersKode(dtkl.getOffisiellKode()))
-            .filter(dt -> !DokumentTypeId.UDEFINERT.equals(dt));
+        return Optional.of(DokumentTypeId.finnForKodeverkEiersNavn(tittel));
     }
 }

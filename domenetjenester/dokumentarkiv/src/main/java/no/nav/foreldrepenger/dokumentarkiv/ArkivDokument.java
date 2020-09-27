@@ -5,12 +5,11 @@ import java.util.List;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 
 public class ArkivDokument {
     private String dokumentId;
     private String tittel;
-    private DokumentType dokumentTypeId;
+    private DokumentTypeId dokumentTypeId;
     private List<ArkivDokumentHentbart> tilgjengeligSom; // hvilke formater som er tilgjengelig fra joark
     private List<ArkivDokumentVedlegg> interneVedlegg; // sammensatt dokument der vedlegg er scannet inn i ett dokument
 
@@ -30,11 +29,11 @@ public class ArkivDokument {
         this.tittel = tittel;
     }
 
-    public DokumentType getDokumentType() {
+    public DokumentTypeId getDokumentType() {
         return dokumentTypeId;
     }
 
-    public void setDokumentType(DokumentType dokumentTypeId) {
+    public void setDokumentType(DokumentTypeId dokumentTypeId) {
         this.dokumentTypeId = dokumentTypeId;
     }
 

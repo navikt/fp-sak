@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -26,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -60,8 +58,8 @@ public class KompletthetssjekkerSøknadRevurderingTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         // Matcher med søknad:
-        Set<DokumentType> dokumentListe = singleton(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any(), any())).thenReturn(dokumentListe);
+        Set<DokumentTypeId> dokumentListe = singleton(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
         List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
@@ -82,8 +80,8 @@ public class KompletthetssjekkerSøknadRevurderingTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         // Matcher ikke med søknad:
-        Set<DokumentType> dokumentListe = singleton(DokumentTypeId.LEGEERKLÆRING);
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any(), any())).thenReturn(dokumentListe);
+        Set<DokumentTypeId> dokumentListe = singleton(DokumentTypeId.LEGEERKLÆRING);
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
         List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
@@ -105,9 +103,9 @@ public class KompletthetssjekkerSøknadRevurderingTest {
         Behandling revurdering = scenario.lagre(repositoryProvider);
 
         // Matcher med søknad, men er mottatt ifbm førstegangsbehandlingen:
-        Set<DokumentType> dokumentListe = new HashSet<>();
+        Set<DokumentTypeId> dokumentListe = new HashSet<>();
         dokumentListe.add(DokumentTypeId.LEGEERKLÆRING);
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any(), any())).thenReturn(dokumentListe);
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
         List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(revurdering));
@@ -129,8 +127,8 @@ public class KompletthetssjekkerSøknadRevurderingTest {
         Behandling revurdering = scenario.lagre(repositoryProvider);
 
         // Matcher med søknad, men mangler mottatt dato:
-        Set<DokumentType> dokumentListe = singleton(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any(), any())).thenReturn(dokumentListe);
+        Set<DokumentTypeId> dokumentListe = singleton(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         MottattDokument mottattDokument = new MottattDokument.Builder()
             .medFagsakId(revurdering.getFagsakId())
@@ -161,7 +159,7 @@ public class KompletthetssjekkerSøknadRevurderingTest {
         // Matcher med søknad, men mangler mottatt dato:
         Set<DokumentTypeId> dokumentListe = new HashSet<>();
         dokumentListe.add(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any(), any())).thenReturn(Collections.emptySet());
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(Collections.emptySet());
 
         // Act
         List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(revurdering));
@@ -180,8 +178,8 @@ public class KompletthetssjekkerSøknadRevurderingTest {
         testUtil.byggOgLagreSøknadMedEksisterendeOppgittFordeling(behandling, false);
 
         // Matcher ikke med utsettelse:
-        Set<DokumentType> dokumentListe = singleton(DokumentTypeId.LEGEERKLÆRING);
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any(), any())).thenReturn(dokumentListe);
+        Set<DokumentTypeId> dokumentListe = singleton(DokumentTypeId.LEGEERKLÆRING);
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
         List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
@@ -200,8 +198,8 @@ public class KompletthetssjekkerSøknadRevurderingTest {
         testUtil.byggOgLagreSøknadMedEksisterendeOppgittFordeling(behandling, false);
 
         // Matcher med utsettelse:
-        Set<DokumentType> dokumentListe = singleton(DokumentTypeId.DOK_INNLEGGELSE);
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any(), any())).thenReturn(dokumentListe);
+        Set<DokumentTypeId> dokumentListe = singleton(DokumentTypeId.DOK_INNLEGGELSE);
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
         List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
@@ -220,15 +218,15 @@ public class KompletthetssjekkerSøknadRevurderingTest {
         testUtil.byggOgLagreSøknadMedEksisterendeOppgittFordeling(behandling, false, søknadsDato);
 
         // Matcher med utsettelse:
-        Set<DokumentType> dokumentListe = singleton(DokumentTypeId.DOK_INNLEGGELSE);
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(eq(behandling.getFagsak().getSaksnummer()), eq(søknadsDato), any())).thenReturn(dokumentListe);
+        Set<DokumentTypeId> dokumentListe = singleton(DokumentTypeId.DOK_INNLEGGELSE);
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(eq(behandling.getFagsak().getSaksnummer()), eq(søknadsDato))).thenReturn(dokumentListe);
 
         // Act
         List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();
-        verify(dokumentArkivTjeneste).hentDokumentTypeIdForSak(eq(behandling.getFagsak().getSaksnummer()), eq(søknadsDato), anyList());
+        verify(dokumentArkivTjeneste).hentDokumentTypeIdForSak(eq(behandling.getFagsak().getSaksnummer()), eq(søknadsDato));
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {

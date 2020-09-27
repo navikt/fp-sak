@@ -171,7 +171,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     @Override
     public void trekkUtDataOgPersister(MottattDokumentWrapperSøknad wrapper, MottattDokument mottattDokument, Behandling behandling, Optional<LocalDate> gjelderFra) {
         if (wrapper.getOmYtelse() instanceof Endringssoeknad && !erEndring(mottattDokument)) { // NOSONAR - ok måte å finne riktig JAXB-type
-            throw new IllegalArgumentException("Kan ikke sende inn en Endringssøknad uten å angi " + DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD + " samtidig. Fikk " + mottattDokument.getDokumentType());
+            throw new IllegalArgumentException("Kan ikke sende inn en Endringssøknad uten å angi " + DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.getKode() + " samtidig. Fikk " + mottattDokument.getDokumentType());
         }
 
         if (erEndring(mottattDokument)) {

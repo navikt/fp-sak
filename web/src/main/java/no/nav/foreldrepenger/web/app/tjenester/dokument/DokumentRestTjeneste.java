@@ -107,8 +107,9 @@ public class DokumentRestTjeneste {
         Behandling behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId()).stream().map(MottattDokumentDto::new)
-                .collect(Collectors.toList());
+        return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId()).stream()
+            .map(MottattDokumentDto::new)
+            .collect(Collectors.toList());
     }
 
     @GET

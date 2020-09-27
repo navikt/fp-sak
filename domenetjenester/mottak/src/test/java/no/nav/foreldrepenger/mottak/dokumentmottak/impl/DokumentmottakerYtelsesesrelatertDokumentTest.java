@@ -103,7 +103,7 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
         avsluttBehandling(behandling, VedtakResultatType.AVSLAG);
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
         when(behandlingsoppretter.erAvslåttBehandling(behandling)).thenReturn(true);
 
@@ -127,7 +127,7 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
         avsluttBehandling(behandling, VedtakResultatType.AVSLAG);
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
-        DokumentTypeId dokumentTypeId = DokumentTypeId.LEGEERKLÆRING;
+        var dokumentTypeId = DokumentTypeId.LEGEERKLÆRING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
         doReturn(true).when(behandlingsoppretter).erAvslåttBehandling(behandling);
 
@@ -153,7 +153,7 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
         avsluttBehandling(behandling, VedtakResultatType.OPPHØR);
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
         when(behandlingsoppretter.harBehandlingsresultatOpphørt(behandling)).thenReturn(true);
         Mockito.doReturn(false).when(dokumentmottaker).harAvslåttPeriode(behandling);
@@ -177,7 +177,7 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
         avsluttBehandling(behandling, VedtakResultatType.OPPHØR);
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
         doReturn(true).when(behandlingsoppretter).harBehandlingsresultatOpphørt(behandling);
 

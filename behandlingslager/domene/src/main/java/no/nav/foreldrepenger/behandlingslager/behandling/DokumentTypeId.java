@@ -6,14 +6,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
-import javax.persistence.Column;
 import javax.persistence.Converter;
-import javax.persistence.Embeddable;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -23,53 +20,197 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-/**
- * DokumentTypeId er et kodeverk som forvaltes av Kodeverkforvaltning. Det er et subsett av kodeverket DokumentType, mer spesifikt alle
- * inngående dokumenttyper.
+/*
+ * Opprettet fra https://kodeverk-web.nais.adeo.no/kodeverksoversikt/kodeverk/DokumentTypeId-er
  *
+ * DokumenttypeId er ute av arkivmålbildet og noe som fagsystemene selv bør håndtere vis a vis selvbetjening og dokprod
+ * Det er mulig at Gosys bruker kodeverket en tid til - men for arkiv er tittel og brevkode (navskjema) det som teller.
+ *
+ * Trenger man ny strukturerte dokument innen domenet Foreldrepenger - innfør en kode Fnnnnn og bli enig om tittel (evt bruk av journalpost-metadata)
  */
-@Embeddable
+
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public class DokumentTypeId implements DokumentType {
+public enum DokumentTypeId implements Kodeverdi {
+
+    // Søknader
+    SØKNAD_SVANGERSKAPSPENGER("SØKNAD_SVANGERSKAPSPENGER", "I000001", "Søknad om svangerskapspenger"),
+    SØKNAD_FORELDREPENGER_ADOPSJON("SØKNAD_FORELDREPENGER_ADOPSJON", "I000002", "Søknad om foreldrepenger ved adopsjon"),
+    SØKNAD_ENGANGSSTØNAD_FØDSEL("SØKNAD_ENGANGSSTØNAD_FØDSEL", "I000003", "Søknad om engangsstønad ved fødsel"),
+    SØKNAD_ENGANGSSTØNAD_ADOPSJON("SØKNAD_ENGANGSSTØNAD_ADOPSJON", "I000004", "Søknad om engangsstønad ved adopsjon"),
+    SØKNAD_FORELDREPENGER_FØDSEL("SØKNAD_FORELDREPENGER_FØDSEL", "I000005", "Søknad om foreldrepenger ved fødsel"),
+    FLEKSIBELT_UTTAK_FORELDREPENGER("FLEKSIBELT_UTTAK_FORELDREPENGER", "I000006", "Utsettelse eller gradert uttak av foreldrepenger (fleksibelt uttak)"),
+    FORELDREPENGER_ENDRING_SØKNAD("FORELDREPENGER_ENDRING_SØKNAD", "I000050", "Søknad om endring av uttak av foreldrepenger eller overføring av kvote"),
+
+    // Klage + Tilbakekreving
+    KLAGE_DOKUMENT("KLAGE_DOKUMENT", "I000027", "Klage/anke"),
+    KLAGE_ETTERSENDELSE("I500027", "I500027", "Ettersendelse til klage/anke"),
+    TILBAKE_UTTALSELSE("I000114", "I000114", "Uttalelse tilbakekreving"),
+
+    // Inntekt
+    INNTEKTSOPPLYSNING_SELVSTENDIG("INNTEKTSOPPLYSNING_SELVSTENDIG", "I000007", "Inntektsopplysninger om selvstendig næringsdrivende og/eller frilansere som skal ha foreldrepenger eller svangerskapspenger"),
+    INNTEKTSOPPLYSNINGER("INNTEKTSOPPLYSNINGER", "I000026", "Inntektsopplysninger for arbeidstaker som skal ha sykepenger, foreldrepenger, svangerskapspenger, pleie-/opplæringspenger"),
+    RESULTATREGNSKAP("RESULTATREGNSKAP", "I000032", "Resultatregnskap"),
+    INNTEKTSMELDING("INNTEKTSMELDING", "I000067", "Inntektsmelding"),
+
+    // Aktiv bruk i logikk
+    LEGEERKLÆRING("LEGEERKLÆRING", "I000023", "Legeerklæring"),
+    DOK_INNLEGGELSE("DOK_INNLEGGELSE", "I000037", "Dokumentasjon av innleggelse i helseinstitusjon"),
+    DOK_HV("DOK_HV", "I000116", "Bekreftelse på øvelse eller tjeneste i Forsvaret eller Sivilforsvaret"),
+    DOK_NAV_TILTAK("DOK_NAV_TILTAK", "I000117", "Bekreftelse på tiltak i regi av Arbeids- og velferdsetaten"),
+
+    // Vedlegg fra brukerdialog - brukes i opplysningsplikt (ManglendeVedlegg)
+    DOK_MORS_UTDANNING_ARBEID_SYKDOM("DOK_MORS_UTDANNING_ARBEID_SYKDOM", "I000038", "Dokumentasjon av mors utdanning, arbeid eller sykdom"),
+    DOK_MILITÆR_SIVIL_TJENESTE("DOK_MILITÆR_SIVIL_TJENESTE", "I000039", "Dokumentasjon av militær- eller siviltjeneste"),
+    DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL("DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL", "I000041", "Dokumentasjon av termindato (lev. kun av mor), fødsel eller dato for omsorgsovertakelse"),
+    DOKUMENTASJON_AV_OMSORGSOVERTAKELSE("DOKUMENTASJON_AV_OMSORGSOVERTAKELSE", "I000042", "Dokumentasjon av dato for overtakelse av omsorg"),
+    DOK_ETTERLØNN("DOK_ETTERLØNN", "I000044", "Dokumentasjon av etterlønn/sluttvederlag"),
+    BESKRIVELSE_FUNKSJONSNEDSETTELSE("BESKRIVELSE_FUNKSJONSNEDSETTELSE", "I000045", "Beskrivelse av funksjonsnedsettelse"),
+    ANNET_SKJEMA_IKKE_NAV("ANNET_SKJEMA_IKKE_NAV", "I000049", "Annet skjema (ikke NAV-skjema)"),
+    BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM("BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM", "I000051", "Bekreftelse på deltakelse i kvalifiseringsprogrammet"),
+    BEKREFTELSE_FRA_STUDIESTED("BEKREFTELSE_FRA_STUDIESTED", "I000061", "Bekreftelse fra studiested/skole"),
+    BEKREFTELSE_VENTET_FØDSELSDATO("BEKREFTELSE_VENTET_FØDSELSDATO", "I000062", "Bekreftelse på ventet fødselsdato"),
+    FØDSELSATTEST("FØDSELSATTEST", "I000063", "Fødselsattest"),
+    ELEVDOKUMENTASJON_LÆRESTED("ELEVDOKUMENTASJON_LÆRESTED", "I000064", "Elevdokumentasjon fra lærested"),
+    BEKREFTELSE_FRA_ARBEIDSGIVER("BEKREFTELSE_FRA_ARBEIDSGIVER", "I000065", "Bekreftelse fra arbeidsgiver"),
+    I000110("I000110", "I000110", "Dokumentasjon av aleneomsorg"),
+    I000111("I000111", "I000111", "Dokumentasjon av begrunnelse for hvorfor man søker tilbake i tid"),
+    I000112("I000112", "I000112", "Dokumentasjon av deltakelse i introduksjonsprogrammet"),
+
+    // Tidligere selvbetjening - kan antagelig fjernes snart
+    DOK_FERIE("DOK_FERIE", "I000036", "Dokumentasjon av ferie"),
+    DOK_ASYL_DATO("DOK_ASYL_DATO", "I000040", "Dokumentasjon av dato for asyl"),
+    DOK_ARBEIDSFORHOLD("DOK_ARBEIDSFORHOLD", "I000043", "Dokumentasjon av arbeidsforhold"),
+    KVITTERING_DOKUMENTINNSENDING("KVITTERING_DOKUMENTINNSENDING", "I000046", "Kvittering dokumentinnsending"),
+    BRUKEROPPLASTET_DOKUMENTASJON("BRUKEROPPLASTET_DOKUMENTASJON", "I000047", "Brukeropplastet dokumentasjon"),
+    BEKREFTELSE_OPPHOLDSTILLATELSE("BEKREFTELSE_OPPHOLDSTILLATELSE", "I000055", "Bekreftelse på oppholdstillatelse"),
+    KOPI_SKATTEMELDING("KOPI_SKATTEMELDING", "I000066", "Kopi av likningsattest eller selvangivelse"),
+    I000107("I000107", "I000107", "Vurdering av arbeidsmulighet/sykmelding"),
+    I000108("I000108", "I000108", "Opplysninger om muligheter og behov for tilrettelegging ved svangerskap"),
+    I000109("I000109", "I000109", "Skjema for tilrettelegging og omplassering ved graviditet"),
+    OPPHOLDSOPPLYSNINGER("OPPHOLDSOPPLYSNINGER", "I001000", "Oppholdsopplysninger"),
+
+    // Alt mulig annet
+    ANNET("ANNET", "I000060", "Annet"),
+
+    UDEFINERT("-", "", "Ikke definert"),
+    ;
+
+    public static final String KODEVERK = "DOKUMENT_TYPE_ID";
 
     private static final Map<String, DokumentTypeId> KODER = new LinkedHashMap<>();
 
-    public static final DokumentTypeId SØKNAD_ENGANGSSTØNAD_FØDSEL = new DokumentTypeId("SØKNAD_ENGANGSSTØNAD_FØDSEL", "I000003");
-    public static final DokumentTypeId SØKNAD_ENGANGSSTØNAD_ADOPSJON = new DokumentTypeId("SØKNAD_ENGANGSSTØNAD_ADOPSJON", "I000004");
-    public static final DokumentTypeId ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL = new DokumentTypeId("ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL", "I500003");
-    public static final DokumentTypeId ETTERSENDT_SØKNAD_ENGANGSSTØNAD_ADOPSJON = new DokumentTypeId("ETTERSENDT_SØKNAD_ENGANGSSTØNAD_ADOPSJON", "I500004");
-    public static final DokumentTypeId SØKNAD_FORELDREPENGER_FØDSEL = new DokumentTypeId("SØKNAD_FORELDREPENGER_FØDSEL", "I000005");
-    public static final DokumentTypeId SØKNAD_FORELDREPENGER_ADOPSJON = new DokumentTypeId("SØKNAD_FORELDREPENGER_ADOPSJON", "I000002");
-    public static final DokumentTypeId FORELDREPENGER_ENDRING_SØKNAD = new DokumentTypeId("FORELDREPENGER_ENDRING_SØKNAD", "I000050");
-    public static final DokumentTypeId FLEKSIBELT_UTTAK_FORELDREPENGER = new DokumentTypeId("FLEKSIBELT_UTTAK_FORELDREPENGER", "I000006");
-    public static final DokumentTypeId ETTERSENDT_SØKNAD_FORELDREPENGER_ADOPSJON = new DokumentTypeId("ETTERSENDT_SØKNAD_FORELDREPENGER_ADOPSJON", "I500002");
-    public static final DokumentTypeId ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL = new DokumentTypeId("ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL", "I500005");
-    public static final DokumentTypeId ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD = new DokumentTypeId("ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD", "I500050");
-    public static final DokumentTypeId SØKNAD_SVANGERSKAPSPENGER = new DokumentTypeId("SØKNAD_SVANGERSKAPSPENGER", "I000001");
-    public static final DokumentTypeId INNTEKTSMELDING = new DokumentTypeId("INNTEKTSMELDING", "I000067");
-    public static final DokumentTypeId INNTEKTSOPPLYSNINGER = new DokumentTypeId("INNTEKTSOPPLYSNINGER", "I000026");
-    public static final DokumentTypeId DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL = new DokumentTypeId("DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL", "I000041");
-    public static final DokumentTypeId DOKUMENTASJON_AV_OMSORGSOVERTAKELSE = new DokumentTypeId("DOKUMENTASJON_AV_OMSORGSOVERTAKELSE", "I000042");
-    public static final DokumentTypeId BEKREFTELSE_VENTET_FØDSELSDATO = new DokumentTypeId("BEKREFTELSE_VENTET_FØDSELSDATO", "I000062");
-    public static final DokumentTypeId FØDSELSATTEST = new DokumentTypeId("FØDSELSATTEST", "I000063");
-    public static final DokumentTypeId DOK_INNLEGGELSE = new DokumentTypeId("DOK_INNLEGGELSE", "I000037");
-    public static final DokumentTypeId DOK_HV = new DokumentTypeId("DOK_HV", "I000116");
-    public static final DokumentTypeId DOK_NAV_TILTAK = new DokumentTypeId("DOK_NAV_TILTAK", "I000117");
-    public static final DokumentTypeId DOK_MORS_UTDANNING_ARBEID_SYKDOM = new DokumentTypeId("DOK_MORS_UTDANNING_ARBEID_SYKDOM", "I000038");
-    public static final DokumentTypeId LEGEERKLÆRING = new DokumentTypeId("LEGEERKLÆRING", "I000023");
-    public static final DokumentTypeId KLAGE_DOKUMENT = new DokumentTypeId("KLAGE_DOKUMENT", "I000027");
-    public static final DokumentTypeId KLAGE_ETTERSENDELSE = new DokumentTypeId("I500027", "I500027");
-    public static final DokumentTypeId ANNET = new DokumentTypeId("ANNET", "I000060");
+    @JsonIgnore
+    private String navn;
 
-    public static final DokumentTypeId UDEFINERT = new DokumentTypeId("-", null);
+    @JsonIgnore
+    private String offisiellKode;
 
-    private static final Set<String> VEDLEGG_TYPER = Set.of(BEKREFTELSE_VENTET_FØDSELSDATO, FØDSELSATTEST, LEGEERKLÆRING,
-        DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, DOKUMENTASJON_AV_OMSORGSOVERTAKELSE, DOK_INNLEGGELSE, DOK_MORS_UTDANNING_ARBEID_SYKDOM,
-        DOK_HV, DOK_NAV_TILTAK)
-        .stream().flatMap(dti -> List.of(dti.getKode(), dti.getOffisiellKode()).stream()).collect(Collectors.toSet());
+    private String kode;
+
+    DokumentTypeId(String kode, String offisiellKode, String navn) {
+        this.kode = kode;
+        this.navn = navn;
+        this.offisiellKode = offisiellKode;
+    }
+
+    @JsonCreator
+    public static DokumentTypeId fraKode(@JsonProperty("kode") String kode) {
+        if (kode == null) {
+            return null;
+        }
+        var ad = KODER.get(kode);
+        if (ad == null) {
+            throw new IllegalArgumentException("Ukjent DokumentTypeId: " + kode);
+        }
+        return ad;
+    }
+
+    public static DokumentTypeId fraKodeEllerOffisiell(String kode) {
+        if (kode == null) {
+            return DokumentTypeId.UDEFINERT;
+        }
+        var ad = KODER.getOrDefault(kode, finnForKodeverkEiersKode(kode));
+        if (ad == null) {
+            throw new IllegalArgumentException("Ukjent DokumentTypeId: " + kode);
+        }
+        return ad;
+    }
+
+    public static Map<String, DokumentTypeId> kodeMap() {
+        return Collections.unmodifiableMap(KODER);
+    }
+
+    @Override
+    public String getNavn() {
+        return navn;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(KODER.keySet().stream().map(k -> "'" + k + "'").collect(Collectors.toList()));
+    }
+
+    @JsonProperty
+    @Override
+    public String getKodeverk() {
+        return KODEVERK;
+    }
+
+    @JsonProperty
+    @Override
+    public String getKode() {
+        return kode;
+    }
+
+    @Override
+    public String getOffisiellKode() {
+        return offisiellKode;
+    }
+
+    static {
+        for (var v : values()) {
+            if (KODER.putIfAbsent(v.kode, v) != null) {
+                throw new IllegalArgumentException("Duplikat : " + v.kode);
+            }
+            if (v.offisiellKode != null && KODER.get(v.offisiellKode) == null) {
+                KODER.putIfAbsent(v.offisiellKode, v);
+            }
+        }
+    }
+
+    @Converter(autoApply = true)
+    public static class KodeverdiConverter implements AttributeConverter<DokumentTypeId, String> {
+        @Override
+        public String convertToDatabaseColumn(DokumentTypeId attribute) {
+            if (attribute == null) {
+                return null;
+            }
+            return attribute.getKode();
+            // TODO (jol): vurdere å konvertere til å lagre offisiellKode: 1) Varsle alle med spørringer, 2) gjøre formidling robust 3) Endre her og frontend,
+            //  4) fpfordel: metrics ser på fordel sine tasks og grafana må endres hvis Inntektsmelding blir til I000067
+            //  return attribute.getOffisiellKode() != null ? attribute.getOffisiellKode() : UDEFINERT.getKode();
+        }
+
+        @Override
+        public DokumentTypeId convertToEntityAttribute(String dbData) {
+            return dbData == null ? null : fraKodeEllerOffisiell(dbData);
+        }
+    }
+
+    public static DokumentTypeId finnForKodeverkEiersKode(String offisiellDokumentType) {
+        if (offisiellDokumentType == null)
+            return UDEFINERT;
+        return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, offisiellDokumentType)).findFirst().orElse(ANNET);
+    }
+
+    public static DokumentTypeId finnForKodeverkEiersNavn(String navn) {
+        if (navn == null)
+            return UDEFINERT;
+        return List.of(values()).stream().filter(k -> Objects.equals(k.navn, navn)).findFirst()
+            .orElseGet(() -> ALT_TITLER.getOrDefault(navn, ANNET));
+    }
 
     private static final Set<String> SØKNAD_TYPER = Set.of(SØKNAD_ENGANGSSTØNAD_FØDSEL, SØKNAD_FORELDREPENGER_FØDSEL,
         SØKNAD_ENGANGSSTØNAD_ADOPSJON, SØKNAD_FORELDREPENGER_ADOPSJON, SØKNAD_SVANGERSKAPSPENGER)
@@ -80,26 +221,6 @@ public class DokumentTypeId implements DokumentType {
 
     private static final Set<String> ANDRE_SPESIAL_TYPER = Set.of(INNTEKTSMELDING, KLAGE_DOKUMENT)
         .stream().flatMap(dti -> List.of(dti.getKode(), dti.getOffisiellKode()).stream()).collect(Collectors.toSet());
-
-    public static final String KODEVERK = "DOKUMENT_TYPE_ID";
-
-    @JsonIgnore
-    @javax.persistence.Transient
-    private String offisiellKode;
-
-    @Column(name = "kode")
-    private String kode;
-
-    private DokumentTypeId(String kode, String offisiellKode) {
-        this.kode = kode;
-        this.offisiellKode = offisiellKode;
-        KODER.put(kode, this);
-
-    }
-
-    public static Set<String> getVedleggTyper() {
-        return VEDLEGG_TYPER;
-    }
 
     public static Set<String> getSpesialTyperKoder() {
         Set<String> typer = new LinkedHashSet<>(SØKNAD_TYPER);
@@ -128,100 +249,24 @@ public class DokumentTypeId implements DokumentType {
         return INNTEKTSMELDING.getKode().equals(this.getKode()) || INNTEKTSMELDING.getOffisiellKode().equals(this.getOffisiellKode());
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this)
-            return true;
-        if (obj == null || !(obj instanceof DokumentType))
-            return false;
+    // Ulike titler er brukt i selvbetjening, fordel, sak og kodeverk
+    private static final Map<String, DokumentTypeId> ALT_TITLER = Map.ofEntries(
+        Map.entry("Søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser", SØKNAD_SVANGERSKAPSPENGER),
+        Map.entry("Søknad om svangerskapspenger for selvstendig", SØKNAD_SVANGERSKAPSPENGER),
+        Map.entry("Inntektsopplysningsskjema", INNTEKTSOPPLYSNINGER),
+        Map.entry("Bekreftelse på avtalt ferie", DOK_FERIE),
+        Map.entry("Mor er innlagt i helseinstitusjon", DOK_INNLEGGELSE),
+        Map.entry("Mor er i arbeid, tar utdanning eller er for syk til å ta seg av barnet", DOK_MORS_UTDANNING_ARBEID_SYKDOM),
+        Map.entry("Dokumentasjon av termindato, fødsel eller dato for omsorgsovertakelse", DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL),
+        Map.entry("Tjenestebevis", DOK_MILITÆR_SIVIL_TJENESTE),
+        Map.entry("Dokumentasjon av overtakelse av omsorg", DOKUMENTASJON_AV_OMSORGSOVERTAKELSE),
+        Map.entry("Dokumentasjon av etterlønn eller sluttvederlag", DOK_ETTERLØNN),
+        Map.entry("Beskrivelse/Dokumentasjon funksjonsnedsettelse", BESKRIVELSE_FUNKSJONSNEDSETTELSE),
+        Map.entry("Mor deltar i kvalifiseringsprogrammet", BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM),
+        Map.entry("Mor tar utdanning på heltid", BEKREFTELSE_FRA_STUDIESTED),
+        Map.entry("Terminbekreftelse", BEKREFTELSE_VENTET_FØDSELSDATO),
+        Map.entry("Kopi av skattemelding", KOPI_SKATTEMELDING),
+        Map.entry("Svar på varsel om tilbakebetaling", TILBAKE_UTTALSELSE)
+    );
 
-        DokumentType other = (DokumentType) obj;
-        return Objects.equals(kode, other.getKode())
-            && Objects.equals(getKodeverk(), other.getKodeverk());
-
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getKode(), getKodeverk());
-    }
-
-    @JsonCreator
-    public static DokumentTypeId fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-
-        if (ad == null) {
-            // midlertidig fallback til vi endrer til offisille kodeverdier
-            ad = finnForKodeverkEiersKode(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent DokumentTypeId: " + kode);
-            }
-        }
-        return ad;
-    }
-
-    public static boolean erKodeKjent(String kode) {
-        if (kode == null) {
-            return false;
-        }
-        return KODER.get(kode) != null;
-    }
-
-    @Override
-    public String getNavn() {
-        return getKode();
-    }
-
-    @JsonProperty
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    @JsonProperty
-    @Override
-    public String getKode() {
-        return kode;
-    }
-
-    @Override
-    public String getOffisiellKode() {
-        return offisiellKode;
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<DokumentTypeId, String> {
-        @Override
-        public String convertToDatabaseColumn(DokumentTypeId attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public DokumentTypeId convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-    }
-
-    public static DokumentTypeId finnForKodeverkEiersKode(String offisiellDokumentType) {
-        if (offisiellDokumentType == null)
-            return DokumentTypeId.UDEFINERT;
-
-        Optional<DokumentTypeId> dokId = KODER.values().stream().filter(k -> Objects.equals(k.offisiellKode, offisiellDokumentType)).findFirst();
-        if (dokId.isPresent()) {
-            return dokId.get();
-        } else {
-            return new DokumentTypeId(offisiellDokumentType, offisiellDokumentType);
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "DokumentTypeId{" +
-            "offisiellKode='" + offisiellKode + '\'' +
-            ", kode='" + kode + '\'' +
-            '}';
-    }
 }

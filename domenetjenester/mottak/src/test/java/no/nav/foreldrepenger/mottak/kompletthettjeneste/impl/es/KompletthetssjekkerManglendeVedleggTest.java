@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
@@ -22,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.Innsendingsvalg
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggEntitet;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -51,10 +49,10 @@ public class KompletthetssjekkerManglendeVedleggTest {
     @Test
     public void skal_regne_søknaden_som_komplett_når_JournalTjeneste_har_alle_dokumentene() {
         // Arrange
-        Set<DokumentType> dokumentTypeIds = new HashSet<>();
+        Set<DokumentTypeId> dokumentTypeIds = new HashSet<>();
         dokumentTypeIds.add(dokumentTypeIdDokumentasjonAvTerminEllerFødsel);
         dokumentTypeIds.add(dokumentTypeIdUdefinert);
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(), any(), anyList())).thenReturn(dokumentTypeIds);
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(), any())).thenReturn(dokumentTypeIds);
 
         Behandling behandling = lagBehandling();
 
@@ -87,7 +85,7 @@ public class KompletthetssjekkerManglendeVedleggTest {
     @Test
     public void skal_regne_søknaden_som_ukomplett_når_JournalTjeneste_ikke_har_alle_dokumentene() {
         // Arrange
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(), any(), anyList())).thenReturn(Collections.singleton(dokumentTypeIdUdefinert));
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(), any())).thenReturn(Collections.singleton(dokumentTypeIdUdefinert));
 
         Behandling behandling = lagBehandling();
 
@@ -115,10 +113,10 @@ public class KompletthetssjekkerManglendeVedleggTest {
     @Test
     public void skal_også_håndtere_at_dokumentene_kommer_i_motsatt_rekkefølge_på_søknaden() {
         // Arrange
-        Set<DokumentType> dokumentTypeIds = new HashSet<>();
+        Set<DokumentTypeId> dokumentTypeIds = new HashSet<>();
         dokumentTypeIds.add(dokumentTypeIdDokumentasjonAvTerminEllerFødsel);
         dokumentTypeIds.add(dokumentTypeIdUdefinert);
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(), any(), anyList())).thenReturn(dokumentTypeIds);
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(), any())).thenReturn(dokumentTypeIds);
 
         Behandling behandling = lagBehandling();
 

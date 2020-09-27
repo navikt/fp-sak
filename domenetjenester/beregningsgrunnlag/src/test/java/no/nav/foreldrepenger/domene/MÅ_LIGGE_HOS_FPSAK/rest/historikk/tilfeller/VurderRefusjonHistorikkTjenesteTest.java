@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
@@ -65,9 +64,8 @@ public class VurderRefusjonHistorikkTjenesteTest {
     @Before
     public void setUp() {
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        KodeverkRepository kodeverkRepository = new KodeverkRepository(em);
         DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(null,
-            new FagsakRepository(em), kodeverkRepository);
+            new FagsakRepository(em));
         HistorikkInnslagKonverter historikkinnslagKonverter = new HistorikkInnslagKonverter();
         historikkTjenesteAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(em), historikkinnslagKonverter, dokumentArkivTjeneste);
         VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);

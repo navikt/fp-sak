@@ -36,8 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -190,7 +188,12 @@ public class FordelRestTjeneste {
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public void mottaJournalpost(
             @Parameter(description = "Krever saksnummer, journalpostId og behandlingstemaOffisiellKode") @Valid AbacJournalpostMottakDto mottattJournalpost) {
-        var dokument = mapTilMottattDokument(mottattJournalpost);
+        DokumentTypeId dokumentTypeId = mottattJournalpost.getDokumentTypeIdOffisiellKode()
+            .map(DokumentTypeId::finnForKodeverkEiersKode).orElse(DokumentTypeId.UDEFINERT);
+        if (DokumentTypeId.TILBAKE_UTTALSELSE.equals(dokumentTypeId)) {
+            return;
+        }
+        var dokument = mapTilMottattDokument(mottattJournalpost, dokumentTypeId);
         dokumentmottakTjeneste.dokumentAnkommet(dokument, null);
     }
 
@@ -257,18 +260,16 @@ public class FordelRestTjeneste {
         return dto;
     }
 
-    private MottattDokument mapTilMottattDokument(AbacJournalpostMottakDto journalpostMottakDto) {
+    private MottattDokument mapTilMottattDokument(AbacJournalpostMottakDto journalpostMottakDto, DokumentTypeId dokumentTypeId) {
 
         Saksnummer saksnummer = new Saksnummer(journalpostMottakDto.getSaksnummer());
         Fagsak fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false)
                 .orElseThrow(() -> new IllegalStateException("Finner ingen fagsak for saksnummer " + saksnummer));
-        DokumentType dokumentTypeId = journalpostMottakDto.getDokumentTypeIdOffisiellKode()
-                .map(DokumentTypeId::finnForKodeverkEiersKode).orElse(DokumentTypeId.UDEFINERT);
         var dokumentKategori = utledDokumentKategori(journalpostMottakDto.getDokumentKategoriOffisiellKode(), dokumentTypeId);
 
         var builder = new MottattDokument.Builder()
                 .medJournalPostId(new JournalpostId(journalpostMottakDto.getJournalpostId()))
-                .medDokumentType(dokumentTypeId.getKode())
+                .medDokumentType(dokumentTypeId)
                 .medDokumentKategori(dokumentKategori)
                 .medMottattDato(journalpostMottakDto.getForsendelseMottatt().orElse(LocalDate.now()))
                 .medMottattTidspunkt(
@@ -287,7 +288,7 @@ public class FordelRestTjeneste {
         return builder.build();
     }
 
-    private DokumentKategori utledDokumentKategori(String dokumentKategori, BasisKodeverdi dokumentTypeId) {
+    private DokumentKategori utledDokumentKategori(String dokumentKategori, DokumentTypeId dokumentTypeId) {
         if (DokumentTypeId.getSøknadTyper().contains(dokumentTypeId.getKode())) {
             return DokumentKategori.SØKNAD;
         }
