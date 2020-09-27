@@ -73,6 +73,7 @@ public class BehandlingDtoUtil {
         dto.setBehandlingsfristTid(behandling.getBehandlingstidFrist());
         dto.setErAktivPapirsøknad(erAktivPapirsøknad(behandling));
         dto.setBehandlingPåVent(behandling.isBehandlingPåVent());
+        dto.setBehandlingHenlagt(behandling.isBehandlingHenlagt());
         getFristDatoBehandlingPåVent(behandling).ifPresent(dto::setFristBehandlingPåVent);
         getVenteÅrsak(behandling).ifPresent(dto::setVenteÅrsakKode);
         dto.setOriginalVedtaksDato(vedtaksDato);
