@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -14,34 +15,64 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 
+@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BehandlingDto {
 
+    @JsonProperty("id")
     private Long id;
+    @JsonProperty("uuid")
     private UUID uuid;
+    @JsonProperty("versjon")
     private Long versjon;
+    @JsonProperty("type")
     private BehandlingType type;
+    @JsonProperty("status")
     private BehandlingStatus status;
+    @JsonProperty("fagsakId")
     private Long fagsakId;
+    @JsonProperty("opprettet")
     private LocalDateTime opprettet;
+    @JsonProperty("avsluttet")
     private LocalDateTime avsluttet;
+    @JsonProperty("endret")
     private LocalDateTime endret;
+    @JsonProperty("endretAvBrukernavn")
     private String endretAvBrukernavn;
+    @JsonProperty("behandlendeEnhetId")
     private String behandlendeEnhetId;
+    @JsonProperty("behandlendeEnhetNavn")
     private String behandlendeEnhetNavn;
+    @JsonProperty("erAktivPapirsoknad")
     private boolean erAktivPapirsoknad = false;
+    @JsonProperty("førsteÅrsak")
     private BehandlingÅrsakDto førsteÅrsak;
+    @JsonProperty("behandlingsfristTid")
     private LocalDate behandlingsfristTid;
+    @JsonProperty("gjeldendeVedtak")
     private boolean gjeldendeVedtak;
+    @JsonProperty("erPaaVent") // Obsolete? ikke i frontend
     private boolean erPaaVent = false;
+    @JsonProperty("originalVedtaksDato")
     private LocalDate originalVedtaksDato;
+    @JsonProperty("behandlingHenlagt")
+    private boolean behandlingHenlagt;
+    @JsonProperty("behandlingPåVent")
     private boolean behandlingPåVent;
+    @JsonProperty("fristBehandlingPåVent")
     private String fristBehandlingPåVent;
+    @JsonProperty("venteÅrsakKode")
     private String venteÅrsakKode;
+    @JsonProperty("språkkode")
     private Språkkode språkkode;
+    @JsonProperty("behandlingKøet")
     private boolean behandlingKøet;
+    @JsonProperty("ansvarligSaksbehandler")
     private String ansvarligSaksbehandler;
+    @JsonProperty("toTrinnsBehandling")
     private boolean toTrinnsBehandling;
+    @JsonProperty("behandlingsresultat")
     private BehandlingsresultatDto behandlingsresultat;
+    @JsonProperty("behandlingÅrsaker")
     private List<BehandlingÅrsakDto> behandlingÅrsaker;
 
     /**
@@ -49,6 +80,7 @@ public class BehandlingDto {
      *
      * @see https://restfulapi.net/hateoas/
      */
+    @JsonProperty("links")
     private List<ResourceLink> links = new ArrayList<>();
 
     public Long getFagsakId() {
@@ -125,6 +157,10 @@ public class BehandlingDto {
         return fristBehandlingPåVent;
     }
 
+    public boolean isBehandlingHenlagt() {
+        return behandlingHenlagt;
+    }
+
     @JsonProperty("venteArsakKode")
     public String getVenteÅrsakKode() {
         return venteÅrsakKode;
@@ -140,12 +176,10 @@ public class BehandlingDto {
         return behandlingKøet;
     }
 
-    @JsonProperty("ansvarligSaksbehandler")
     public String getAnsvarligSaksbehandler() {
         return ansvarligSaksbehandler;
     }
 
-    @JsonProperty("toTrinnsBehandling")
     public boolean getToTrinnsBehandling() {
         return toTrinnsBehandling;
     }
@@ -245,6 +279,10 @@ public class BehandlingDto {
 
     public void setErPaaVent(boolean erPaaVent) {
         this.erPaaVent = erPaaVent;
+    }
+
+    public void setBehandlingHenlagt(boolean behandlingHenlagt) {
+        this.behandlingHenlagt = behandlingHenlagt;
     }
 
     public LocalDate getOriginalVedtaksDato() {
