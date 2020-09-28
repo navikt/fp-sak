@@ -27,10 +27,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
@@ -41,7 +45,7 @@ public class RepositoryAwareTest extends EntityManagerAwareTest {
     protected FamilieHendelseRepository familieHendelseRepository;
     protected BehandlingRepository behandlingRepository;
     protected YtelsesFordelingRepository ytelsesfordelingRepository;
-
+    protected ProsessTaskRepository prosessTaskRepository;
     protected PersonopplysningRepository personopplysningRepository;
     protected MedlemskapRepository medlemskapRepository;
     protected YtelsesFordelingRepository ytelsesFordelingRepository;
@@ -64,10 +68,14 @@ public class RepositoryAwareTest extends EntityManagerAwareTest {
     protected BehandlingsresultatRepository behandlingsresultatRepository;
     protected SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
     protected FagsakLåsRepository fagsakLåsRepository;
+    protected HendelsemottakRepository hendelsemottakRepository;
+    protected BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
     @BeforeEach
     public void beforeEach() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        hendelsemottakRepository = new HendelsemottakRepository(getEntityManager());
+        beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(getEntityManager());
         svangerskapspengerRepository = new SvangerskapspengerRepository(getEntityManager());
         familieHendelseRepository = new FamilieHendelseRepository(getEntityManager());
         behandlingRepository = new BehandlingRepository(getEntityManager());
@@ -94,7 +102,7 @@ public class RepositoryAwareTest extends EntityManagerAwareTest {
         behandlingsresultatRepository = new BehandlingsresultatRepository(getEntityManager());
         svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepository(getEntityManager());
         fagsakLåsRepository = new FagsakLåsRepository(getEntityManager());
-
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(getEntityManager(), null, null);
     }
 
 }
