@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -46,11 +45,11 @@ public class BeregningDtoTjeneste {
     private BeregningsgrunnlagGUIInput settBeregningsgrunnlagPåInput(BeregningsgrunnlagGUIInput input,
                                                                       BeregningsgrunnlagGrunnlagEntitet beregningsgrunnlagGrunnlagEntitet,
                                                                       Optional<BeregningsgrunnlagGrunnlagEntitet> orginaltGrunnlag) {
-        BeregningsgrunnlagGrunnlagDto bgRestDto = BehandlingslagerTilKalkulusMapper.mapGrunnlag(beregningsgrunnlagGrunnlagEntitet, input.getInntektsmeldinger());
+        BeregningsgrunnlagGrunnlagDto bgRestDto = BehandlingslagerTilKalkulusMapper.mapGrunnlag(beregningsgrunnlagGrunnlagEntitet);
         BeregningsgrunnlagGUIInput inputMedBg = input.medBeregningsgrunnlagGrunnlag(bgRestDto);
         if (orginaltGrunnlag.isPresent() && orginaltGrunnlag.get().getBeregningsgrunnlag().isPresent()) {
             // Trenger ikke inntektsmeldinger på orginalt grunnlag
-            BeregningsgrunnlagGrunnlagDto orginaltBG = BehandlingslagerTilKalkulusMapper.mapGrunnlag(orginaltGrunnlag.get(), Collections.emptyList());
+            BeregningsgrunnlagGrunnlagDto orginaltBG = BehandlingslagerTilKalkulusMapper.mapGrunnlag(orginaltGrunnlag.get());
             BeregningsgrunnlagGUIInput inputMedOrginaltBG = inputMedBg.medBeregningsgrunnlagGrunnlagFraForrigeBehandling(orginaltBG);
             return leggTilTilstandgrunnlag(inputMedOrginaltBG);
         } else {
@@ -64,13 +63,13 @@ public class BeregningDtoTjeneste {
         // Fakta om beregning
         Optional<BeregningsgrunnlagGrunnlagEntitet> kofakbergGrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagForPreutfylling(ref.getKoblingId(), ref.getOriginalKoblingId(),
             BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER, BeregningsgrunnlagTilstand.KOFAKBER_UT);
-        BeregningsgrunnlagGUIInput inputMedBGKofakber = kofakbergGrunnlag.map(gr -> BehandlingslagerTilKalkulusMapper.mapGrunnlag(gr, input.getInntektsmeldinger()))
+        BeregningsgrunnlagGUIInput inputMedBGKofakber = kofakbergGrunnlag.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag)
             .map(input::medBeregningsgrunnlagGrunnlagFraFaktaOmBeregning).orElse(input);
 
 
         // Fordeling
         Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId(), BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING);
-        return sisteBg.map(gr -> BehandlingslagerTilKalkulusMapper.mapGrunnlag(gr, input.getInntektsmeldinger()))
+        return sisteBg.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag)
             .map(inputMedBGKofakber::medBeregningsgrunnlagGrunnlagFraFordel).orElse(inputMedBGKofakber);
     }
 
