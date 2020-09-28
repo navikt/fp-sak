@@ -33,10 +33,7 @@ import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt.AnkeVurderingResultatAksjonspunktMellomlagringDto;
@@ -159,20 +156,14 @@ public class AnkeRestTjeneste {
 
     private static AnkeVurderingResultatDto lagDto(AnkeVurderingResultatEntitet ankeVurderingResultat, Long paAnketBehandlingId,
             UUID paAnketBehandlingUuid) {
-        AnkeOmgjørÅrsak ankeOmgjørÅrsak = ankeVurderingResultat.getAnkeOmgjørÅrsak().equals(AnkeOmgjørÅrsak.UDEFINERT) ? null
-                : ankeVurderingResultat.getAnkeOmgjørÅrsak();
-        AnkeVurderingOmgjør ankeVurderingOmgjør = ankeVurderingResultat.getAnkeVurderingOmgjør().equals(AnkeVurderingOmgjør.UDEFINERT) ? null
-                : ankeVurderingResultat.getAnkeVurderingOmgjør();
-        AnkeVurdering ankeVurdering = ankeVurderingResultat.getAnkeVurdering().equals(AnkeVurdering.UDEFINERT) ? null
-                : ankeVurderingResultat.getAnkeVurdering();
 
         AnkeVurderingResultatDto dto = new AnkeVurderingResultatDto();
 
-        dto.setAnkeVurdering(ankeVurdering);
-        dto.setAnkeVurderingOmgjoer(ankeVurderingOmgjør);
+        dto.setAnkeVurdering(ankeVurderingResultat.getAnkeVurdering());
+        dto.setAnkeVurderingOmgjoer(ankeVurderingResultat.getAnkeVurderingOmgjør());
         dto.setBegrunnelse(ankeVurderingResultat.getBegrunnelse());
         dto.setFritekstTilBrev(ankeVurderingResultat.getFritekstTilBrev());
-        dto.setAnkeOmgjoerArsak(ankeOmgjørÅrsak);
+        dto.setAnkeOmgjoerArsak(ankeVurderingResultat.getAnkeOmgjørÅrsak());
         dto.setGodkjentAvMedunderskriver(ankeVurderingResultat.godkjentAvMedunderskriver());
         dto.setErAnkerIkkePart(ankeVurderingResultat.erAnkerIkkePart());
         dto.setErFristIkkeOverholdt(ankeVurderingResultat.erFristIkkeOverholdt());
