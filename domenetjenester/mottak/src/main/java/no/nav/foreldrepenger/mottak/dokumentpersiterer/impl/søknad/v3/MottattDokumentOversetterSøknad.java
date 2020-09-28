@@ -16,6 +16,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBElement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -126,6 +129,8 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 @NamespaceRef(SøknadConstants.NAMESPACE)
 @ApplicationScoped
 public class MottattDokumentOversetterSøknad implements MottattDokumentOversetter<MottattDokumentWrapperSøknad> { // NOSONAR - (essv)kan akseptere lang mapperklasse
+
+    private static final Logger LOG = LoggerFactory.getLogger(MottattDokumentOversetterSøknad.class);
 
     private VirksomhetTjeneste virksomhetTjeneste;
     private PersonopplysningRepository personopplysningRepository;
@@ -319,6 +324,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private void byggYtelsesSpesifikkeFelterForEndringssøknad(Endringssoeknad omYtelse, Behandling behandling, LocalDate mottattDato) {
+        LOG.info("Mottatt dato for endringsøknad for behandling {} {}", mottattDato, behandling.getId());
         final List<LukketPeriodeMedVedlegg> perioder = omYtelse.getFordeling().getPerioder();
         lagreFordeling(behandling, perioder, hentAnnenForelderErInformert(behandling), mottattDato);
     }

@@ -113,7 +113,36 @@ public class OppgittPeriodeMottattDatoTjenesteTest {
         var periode = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom, tom.minusWeeks(1))
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .build();
+
+        var mottattDatoForPeriode = tjeneste.finnMottattDatoForPeriode(behandling, periode);
+        assertThat(mottattDatoForPeriode.orElseThrow()).isEqualTo(originalMottattDato);
+    }
+
+    @Test
+    public void skalIkkeFinneMottattDatoFraOriginalBehandlingHvisOrignalPeriodeOverlapperMenIkkeOmslutter() {
+        var fom = LocalDate.of(2020, 10, 9);
+        var tom = LocalDate.of(2020, 11, 9);
+        var originalMottattDato = LocalDate.of(2020, 10, 10);
+        var originalBehandlingPerioder = List.of(OppgittPeriodeBuilder.ny()
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(fom, tom)
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medMottattDato(originalMottattDato)
+            .build());
+        var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(originalBehandlingPerioder, true))
+            .lagre(repositoryProvider);
+
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .lagre(repositoryProvider);
+
+        var periode = OppgittPeriodeBuilder.ny()
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(fom.plusWeeks(1), tom.plusWeeks(1))
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .build();
 
         var mottattDatoForPeriode = tjeneste.finnMottattDatoForPeriode(behandling, periode);
