@@ -14,6 +14,9 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -40,7 +43,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
-@SuppressWarnings("deprecation")
+@ExtendWith(MockitoExtension.class)
 public class FagsakApplikasjonTjenesteTest {
 
     private static final String FNR = "12345678901";
@@ -48,11 +51,18 @@ public class FagsakApplikasjonTjenesteTest {
     private static final Saksnummer SAKSNUMMER = new Saksnummer("123");
 
     private FagsakApplikasjonTjeneste tjeneste;
+    @Mock
     private FagsakRepository fagsakRepository;
+    @Mock
     private BehandlingRepository behandlingRepository;
+    @Mock
     private TpsTjeneste tpsTjeneste;
+    @Mock
     private FamilieHendelseTjeneste hendelseTjeneste;
+    @Mock
     private DekningsgradTjeneste dekningsgradTjeneste;
+    @Mock
+    BehandlingRepositoryProvider repositoryProvider;
 
     private static FamilieHendelseGrunnlagEntitet byggHendelseGrunnlag(LocalDate fødselsdato, LocalDate oppgittFødselsdato) {
         final FamilieHendelseBuilder hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
@@ -68,15 +78,9 @@ public class FagsakApplikasjonTjenesteTest {
 
     @BeforeEach
     public void oppsett() {
-        tpsTjeneste = mock(TpsTjeneste.class);
-        fagsakRepository = mock(FagsakRepository.class);
-        behandlingRepository = mock(BehandlingRepository.class);
-        hendelseTjeneste = mock(FamilieHendelseTjeneste.class);
-        dekningsgradTjeneste = mock(DekningsgradTjeneste.class);
 
         ProsesseringAsynkTjeneste prosesseringAsynkTjeneste = mock(ProsesseringAsynkTjeneste.class);
 
-        BehandlingRepositoryProvider repositoryProvider = mock(BehandlingRepositoryProvider.class);
         when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
 
@@ -85,7 +89,6 @@ public class FagsakApplikasjonTjenesteTest {
 
     @Test
     public void skal_hente_saker_på_fnr() {
-        // Arrange
         Personinfo personinfo = new NavPersoninfoBuilder().medAktørId(AKTØR_ID).build();
         NavBruker navBruker = new NavBrukerBuilder().medPersonInfo(personinfo).build();
         when(tpsTjeneste.hentBrukerForFnr(new PersonIdent(FNR))).thenReturn(Optional.of(personinfo));
@@ -102,10 +105,8 @@ public class FagsakApplikasjonTjenesteTest {
         var dekningsgrad = Optional.of(Dekningsgrad._100);
         when(dekningsgradTjeneste.finnDekningsgrad(any())).thenReturn(dekningsgrad);
 
-        // Act
         FagsakSamlingForBruker view = tjeneste.hentSaker(FNR);
 
-        // Assert
         assertThat(view.isEmpty()).isFalse();
         assertThat(view.getFagsakInfoer()).hasSize(1);
         FagsakSamlingForBruker.FagsakRad info = view.getFagsakInfoer().get(0);
@@ -116,7 +117,6 @@ public class FagsakApplikasjonTjenesteTest {
 
     @Test
     public void skal_hente_saker_på_saksreferanse() {
-        // Arrange
         Personinfo personinfo = new NavPersoninfoBuilder().medAktørId(AKTØR_ID).build();
         NavBruker navBruker = new NavBrukerBuilder().medPersonInfo(personinfo).build();
         Fagsak fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
@@ -133,10 +133,8 @@ public class FagsakApplikasjonTjenesteTest {
 
         when(tpsTjeneste.hentBrukerForAktør(AKTØR_ID)).thenReturn(Optional.of(personinfo));
 
-        // Act
         FagsakSamlingForBruker view = tjeneste.hentSaker(SAKSNUMMER.getVerdi());
 
-        // Assert
         assertThat(view.isEmpty()).isFalse();
         assertThat(view.getFagsakInfoer()).hasSize(1);
         FagsakSamlingForBruker.FagsakRad info = view.getFagsakInfoer().get(0);
@@ -150,21 +148,14 @@ public class FagsakApplikasjonTjenesteTest {
         NavBruker navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
         Fagsak fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
         Whitebox.setInternalState(fagsak, "id", -1L);
-        when(fagsakRepository.hentSakGittSaksnummer(SAKSNUMMER)).thenReturn(Optional.of(fagsak));
-
-        when(tpsTjeneste.hentBrukerForAktør(AKTØR_ID)).thenReturn(Optional.empty()); // Ingen treff i TPS
-
-        // Act
         FagsakSamlingForBruker view = tjeneste.hentSaker(valueOf(SAKSNUMMER));
 
-        // Assert
         assertThat(view.isEmpty()).isTrue();
     }
 
     @Test
     public void skal_returnere_tomt_view_dersom_søkestreng_ikke_er_gyldig_fnr_eller_saksnr() {
         FagsakSamlingForBruker view = tjeneste.hentSaker("ugyldig_søkestreng");
-
         assertThat(view.isEmpty()).isTrue();
     }
 
@@ -179,10 +170,7 @@ public class FagsakApplikasjonTjenesteTest {
 
     @Test
     public void skal_returnere_tomt_view_ved_ukjent_saksnr() {
-        when(fagsakRepository.hentSakGittSaksnummer(SAKSNUMMER)).thenReturn(Optional.empty());
-
         FagsakSamlingForBruker view = tjeneste.hentSaker(valueOf(SAKSNUMMER));
-
         assertThat(view.isEmpty()).isTrue();
     }
 }

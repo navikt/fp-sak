@@ -45,9 +45,7 @@ public class KodeverkRestTjenesteTest extends RepositoryAwareTest {
 
     @BeforeEach
     public void before() {
-        EnhetsTjeneste enhetsTjeneste = new EnhetsTjeneste(tpsTjeneste, arbeidsfordelingRestKlient);
-        BehandlendeEnhetTjeneste beh = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider);
-        hentKodeverkTjeneste = new HentKodeverkTjeneste(beh);
+        hentKodeverkTjeneste = new HentKodeverkTjeneste(new BehandlendeEnhetTjeneste(new EnhetsTjeneste(tpsTjeneste, arbeidsfordelingRestKlient), eventPubliserer, repositoryProvider));
     }
 
     @Test
