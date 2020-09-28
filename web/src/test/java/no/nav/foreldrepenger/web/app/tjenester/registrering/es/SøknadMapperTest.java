@@ -4,16 +4,16 @@ import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.oppdaterDtoForFødsel;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettBruker;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -24,10 +24,12 @@ import no.nav.vedtak.felles.xml.soeknad.felles.v3.Medlemskap;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.OppholdNorge;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.OppholdUtlandet;
 
+@ExtendWith(MockitoExtension.class)
 public class SøknadMapperTest {
 
     public static final AktørId STD_KVINNE_AKTØR_ID = AktørId.dummy();
 
+    @Mock
     private TpsTjeneste tpsTjeneste;
 
     private SøknadMapper ytelseSøknadMapper;
@@ -42,7 +44,6 @@ public class SøknadMapperTest {
     public void test_mapEngangstønad() {
         ManuellRegistreringEngangsstonadDto registreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         oppdaterDtoForFødsel(registreringEngangsstonadDto, true, LocalDate.now().minusWeeks(3), 1);
-        when(tpsTjeneste.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
         ytelseSøknadMapper.mapSøknad(registreringEngangsstonadDto, opprettBruker());
     }
 
