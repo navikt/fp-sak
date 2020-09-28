@@ -230,7 +230,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
         if (wrapper.getOmYtelse() instanceof Endringssoeknad) { // NOSONAR
             final Endringssoeknad omYtelse = (Endringssoeknad) wrapper.getOmYtelse();
-            byggYtelsesSpesifikkeFelterForEndringssøknad(omYtelse, behandling, gjelderFra.orElse(mottattDato));
+            byggYtelsesSpesifikkeFelterForEndringssøknad(omYtelse, behandling, mottattDato);
         }
         søknadBuilder.medErEndringssøknad(true);
         final SøknadEntitet søknad = søknadBuilder.build();
@@ -534,7 +534,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         }
         var oppgittPeriode = oppgittPeriodeBuilder.build();
         var eksisterendeMottattDato = oppgittPeriodeMottattDatoTjeneste.finnMottattDatoForPeriode(behandling, oppgittPeriode);
-        oppgittPeriode.setMottattDato(eksisterendeMottattDato.isPresent() ? eksisterendeMottattDato.get() : mottattDatoFraSøknad);
+        oppgittPeriode.setMottattDato(eksisterendeMottattDato.orElse(mottattDatoFraSøknad));
         return oppgittPeriode;
     }
 
