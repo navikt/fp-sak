@@ -66,7 +66,7 @@ public class KompletthetssjekkerSøknadImpl implements KompletthetssjekkerSøkna
     public Boolean erSøknadMottatt(BehandlingReferanse ref) {
         final Optional<SøknadEntitet> søknad = søknadRepository.hentSøknadHvisEksisterer(ref.getBehandlingId());
         Optional<MottattDokument> mottattSøknad = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.getFagsakId()).stream()
-            .filter(mottattDokument -> DokumentTypeId.getSøknadTyper().contains(mottattDokument.getDokumentType().getKode())
+            .filter(mottattDokument -> DokumentTypeId.getSøknadTyper().contains(mottattDokument.getDokumentType())
                 || DokumentKategori.SØKNAD.equals(mottattDokument.getDokumentKategori()))
             .findFirst();
         // sjekker på både søknad og mottatte dokumenter siden søknad ikke lagres med en gang
