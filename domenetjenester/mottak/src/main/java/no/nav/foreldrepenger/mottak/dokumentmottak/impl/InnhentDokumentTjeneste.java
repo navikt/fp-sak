@@ -70,7 +70,7 @@ public class InnhentDokumentTjeneste {
 
         DokumentGruppe dokumentGruppe = brukDokumentKategori(dokumentTypeId, mottattDokument.getDokumentKategori()) ?
             DOKUMENTKATEGORI_TIL_GRUPPE.getOrDefault(mottattDokument.getDokumentKategori(), DokumentGruppe.VEDLEGG) :
-            DOKUMENTTYPE_TIL_GRUPPE.getOrDefault(dokumentTypeId.getKode(), DokumentGruppe.VEDLEGG);
+            DOKUMENTTYPE_TIL_GRUPPE.getOrDefault(dokumentTypeId, DokumentGruppe.VEDLEGG);
 
         Dokumentmottaker dokumentmottaker = finnMottaker(dokumentGruppe, fagsak.getYtelseType());
         if (skalMottasSomKøet(fagsak)) {
