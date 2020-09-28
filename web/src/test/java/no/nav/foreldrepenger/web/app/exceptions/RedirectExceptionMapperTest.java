@@ -32,20 +32,16 @@ public class RedirectExceptionMapperTest {
     @Test
     public void skalMappeValideringsfeil() {
         // Arrange
-        String feilmelding = "feilmelding";
-        FeilType feilType = FeilType.MANGLER_TILGANG_FEIL;
-        Response generalResponse = Response.status(Response.Status.FORBIDDEN)
-                .entity(new FeilDto(feilType, feilmelding))
+        var generalResponse = Response.status(Response.Status.FORBIDDEN)
+                .entity(new FeilDto(FeilType.MANGLER_TILGANG_FEIL, "feilmelding"))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
 
-        ApplicationException exception = new ApplicationException(null);
+        var exception = new ApplicationException(null);
         when(generalRestExceptionMapper.toResponse(exception)).thenReturn(generalResponse);
 
-        // Act
-        Response response = exceptionMapper.toResponse(exception);
+        var response = exceptionMapper.toResponse(exception);
 
-        // Assert
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
         assertThat(response.getMediaType()).isNull();
         assertThat(response.getMetadata().get("Content-Encoding").get(0))
