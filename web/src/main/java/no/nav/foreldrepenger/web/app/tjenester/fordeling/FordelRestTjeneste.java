@@ -289,10 +289,10 @@ public class FordelRestTjeneste {
     }
 
     private DokumentKategori utledDokumentKategori(String dokumentKategori, DokumentTypeId dokumentTypeId) {
-        if (DokumentTypeId.getSøknadTyper().contains(dokumentTypeId.getKode())) {
+        if (DokumentTypeId.getSøknadTyper().contains(dokumentTypeId)) {
             return DokumentKategori.SØKNAD;
         }
-        if (DokumentTypeId.KLAGE_DOKUMENT.getKode().equals(dokumentTypeId.getKode())) {
+        if (DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId)) {
             return DokumentKategori.KLAGE_ELLER_ANKE;
         }
         return dokumentKategori != null ? DokumentKategori.finnForKodeverkEiersKode(dokumentKategori) : DokumentKategori.UDEFINERT;

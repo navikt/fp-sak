@@ -132,11 +132,7 @@ public enum DokumentTypeId implements Kodeverdi {
         if (kode == null) {
             return DokumentTypeId.UDEFINERT;
         }
-        var ad = KODER.getOrDefault(kode, finnForKodeverkEiersKode(kode));
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent DokumentTypeId: " + kode);
-        }
-        return ad;
+        return KODER.getOrDefault(kode, ANNET);
     }
 
     public static Map<String, DokumentTypeId> kodeMap() {
@@ -202,7 +198,7 @@ public enum DokumentTypeId implements Kodeverdi {
     public static DokumentTypeId finnForKodeverkEiersKode(String offisiellDokumentType) {
         if (offisiellDokumentType == null)
             return UDEFINERT;
-        return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, offisiellDokumentType)).findFirst().orElse(ANNET);
+        return KODER.getOrDefault(offisiellDokumentType, ANNET);
     }
 
     public static DokumentTypeId finnForKodeverkEiersNavn(String navn) {
@@ -212,41 +208,38 @@ public enum DokumentTypeId implements Kodeverdi {
             .orElseGet(() -> ALT_TITLER.getOrDefault(navn, ANNET));
     }
 
-    private static final Set<String> SØKNAD_TYPER = Set.of(SØKNAD_ENGANGSSTØNAD_FØDSEL, SØKNAD_FORELDREPENGER_FØDSEL,
-        SØKNAD_ENGANGSSTØNAD_ADOPSJON, SØKNAD_FORELDREPENGER_ADOPSJON, SØKNAD_SVANGERSKAPSPENGER)
-        .stream().flatMap(dti -> List.of(dti.getKode(), dti.getOffisiellKode()).stream()).collect(Collectors.toSet());
+    private static final Set<DokumentTypeId> SØKNAD_TYPER = Set.of(SØKNAD_ENGANGSSTØNAD_FØDSEL, SØKNAD_FORELDREPENGER_FØDSEL,
+        SØKNAD_ENGANGSSTØNAD_ADOPSJON, SØKNAD_FORELDREPENGER_ADOPSJON, SØKNAD_SVANGERSKAPSPENGER);
 
-    private static final Set<String> ENDRING_SØKNAD_TYPER = Set.of(FORELDREPENGER_ENDRING_SØKNAD, FLEKSIBELT_UTTAK_FORELDREPENGER)
-        .stream().flatMap(dti -> List.of(dti.getKode(), dti.getOffisiellKode()).stream()).collect(Collectors.toSet());
+    private static final Set<DokumentTypeId> ENDRING_SØKNAD_TYPER = Set.of(FORELDREPENGER_ENDRING_SØKNAD, FLEKSIBELT_UTTAK_FORELDREPENGER);
 
-    private static final Set<String> ANDRE_SPESIAL_TYPER = Set.of(INNTEKTSMELDING, KLAGE_DOKUMENT)
-        .stream().flatMap(dti -> List.of(dti.getKode(), dti.getOffisiellKode()).stream()).collect(Collectors.toSet());
+    private static final Set<DokumentTypeId> ANDRE_SPESIAL_TYPER = Set.of(INNTEKTSMELDING, KLAGE_DOKUMENT);
 
-    public static Set<String> getSpesialTyperKoder() {
-        Set<String> typer = new LinkedHashSet<>(SØKNAD_TYPER);
+    public static Set<DokumentTypeId> getSpesialTyperKoder() {
+        Set<DokumentTypeId> typer = new LinkedHashSet<>(SØKNAD_TYPER);
         typer.addAll(ENDRING_SØKNAD_TYPER);
         typer.addAll(ANDRE_SPESIAL_TYPER);
         return Collections.unmodifiableSet(typer);
     }
 
-    public static Set<String> getSøknadTyper() {
+    public static Set<DokumentTypeId> getSøknadTyper() {
         return SØKNAD_TYPER;
     }
 
-    public static Set<String> getEndringSøknadTyper() {
+    public static Set<DokumentTypeId> getEndringSøknadTyper() {
         return ENDRING_SØKNAD_TYPER;
     }
 
     public boolean erSøknadType() {
-        return SØKNAD_TYPER.contains(this.getKode());
+        return SØKNAD_TYPER.contains(this);
     }
 
     public boolean erEndringsSøknadType() {
-        return ENDRING_SØKNAD_TYPER.contains(this.getKode());
+        return ENDRING_SØKNAD_TYPER.contains(this);
     }
 
     public boolean erInntektsmelding() {
-        return INNTEKTSMELDING.getKode().equals(this.getKode()) || INNTEKTSMELDING.getOffisiellKode().equals(this.getOffisiellKode());
+        return INNTEKTSMELDING.equals(this);
     }
 
     // Ulike titler er brukt i selvbetjening, fordel, sak og kodeverk

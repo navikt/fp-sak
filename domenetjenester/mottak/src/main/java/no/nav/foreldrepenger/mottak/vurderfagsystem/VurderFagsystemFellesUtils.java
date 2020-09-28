@@ -281,7 +281,7 @@ public class VurderFagsystemFellesUtils {
     }
 
     public static boolean erSøknad(VurderFagsystem vurderFagsystem) {
-        return (DokumentTypeId.getSøknadTyper().contains(vurderFagsystem.getDokumentTypeId().getKode())) ||
+        return (DokumentTypeId.getSøknadTyper().contains(vurderFagsystem.getDokumentTypeId())) ||
             (DokumentKategori.SØKNAD.equals(vurderFagsystem.getDokumentKategori()));
     }
 

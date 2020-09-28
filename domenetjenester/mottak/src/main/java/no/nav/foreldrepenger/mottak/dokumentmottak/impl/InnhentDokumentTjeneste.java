@@ -23,21 +23,21 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 @Dependent
 public class InnhentDokumentTjeneste {
 
-    private static Map<String, DokumentGruppe> DOKUMENTTYPE_TIL_GRUPPE = new HashMap<>();
+    private static Map<DokumentTypeId, DokumentGruppe> DOKUMENTTYPE_TIL_GRUPPE = new HashMap<>();
     static {
         // Søknad
         DokumentTypeId.getSøknadTyper().forEach(v -> DOKUMENTTYPE_TIL_GRUPPE.put(v, DokumentGruppe.SØKNAD));
 
         // Inntektsmelding
-        DOKUMENTTYPE_TIL_GRUPPE.put(DokumentTypeId.INNTEKTSMELDING.getKode(), DokumentGruppe.INNTEKTSMELDING);
+        DOKUMENTTYPE_TIL_GRUPPE.put(DokumentTypeId.INNTEKTSMELDING, DokumentGruppe.INNTEKTSMELDING);
 
 
         // Endringssøknad
         DokumentTypeId.getEndringSøknadTyper().forEach(v -> DOKUMENTTYPE_TIL_GRUPPE.put(v, DokumentGruppe.ENDRINGSSØKNAD));
 
         // Klage
-        DOKUMENTTYPE_TIL_GRUPPE.put(DokumentTypeId.KLAGE_DOKUMENT.getKode(), DokumentGruppe.KLAGE);
-        DOKUMENTTYPE_TIL_GRUPPE.put(DokumentTypeId.KLAGE_ETTERSENDELSE.getKode(), DokumentGruppe.KLAGE);
+        DOKUMENTTYPE_TIL_GRUPPE.put(DokumentTypeId.KLAGE_DOKUMENT, DokumentGruppe.KLAGE);
+        DOKUMENTTYPE_TIL_GRUPPE.put(DokumentTypeId.KLAGE_ETTERSENDELSE, DokumentGruppe.KLAGE);
     }
 
     private static Map<DokumentKategori, DokumentGruppe> DOKUMENTKATEGORI_TIL_GRUPPE = new HashMap<>();
