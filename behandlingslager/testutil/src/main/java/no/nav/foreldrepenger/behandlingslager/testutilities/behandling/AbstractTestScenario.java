@@ -713,7 +713,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         mockBehandlingRepository = mockBehandlingRepository();
 
-        lagre(repositoryProvider); // NOSONAR //$NON-NLS-1$
+        lagre(repositoryProvider);
         return mockBehandlingRepository;
     }
 

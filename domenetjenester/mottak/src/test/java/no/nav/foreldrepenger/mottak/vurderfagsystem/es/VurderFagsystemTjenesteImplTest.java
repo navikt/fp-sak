@@ -56,7 +56,6 @@ import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 public class VurderFagsystemTjenesteImplTest {
 
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private VurderFagsystemFellesTjeneste vurderFagsystemTjeneste;
@@ -71,7 +70,7 @@ public class VurderFagsystemTjenesteImplTest {
     private Fagsak fagsakAdopsjonES = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
     private Fagsak fpFagsakUdefinert = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker());
 
-    private MottatteDokumentTjeneste mottatteDokumentTjenesteMock ;
+    private MottatteDokumentTjeneste mottatteDokumentTjenesteMock;
     private BehandlingRepositoryProvider repositoryProvider;
     private VurderFagsystemFellesUtils fellesUtils;
 
@@ -91,7 +90,7 @@ public class VurderFagsystemTjenesteImplTest {
         fagsakFødselES.setId(1L);
         fagsakAdopsjonES.setId(2L);
         fellesUtils = new VurderFagsystemFellesUtils(repositoryProvider, mottatteDokumentTjenesteMock, null, null);
-        fagsakTjeneste = new FagsakTjeneste(repositoryProvider, null);
+        fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
         tjenesteES = new VurderFagsystemTjenesteESImpl(fellesUtils);
     }
 
@@ -203,20 +202,19 @@ public class VurderFagsystemTjenesteImplTest {
         assertThat(result.getSaksnummer()).hasValueSatisfying(it -> assertThat(it).isEqualTo(ÅPEN_SAKSNUMMER_1));
     }
 
-
     @Test
     public void ustrukturertForsendelseSkalSendesTilManuellBehandlingHvisNyesteAvsluttedeSakErNyereEnn3mndOgÅpenSakIkkeFinnes() throws Exception {
         VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(AVSLT_NY_FAGSAK_ID_1))
-            .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_1), 40));
+                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_1), 40));
 
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(AVSLT_NY_FAGSAK_ID_2))
-            .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_2), 52));
+                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_2), 52));
 
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(AVSLT_GAMMEL_FAGSAK_ID_1))
-            .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 200));
+                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 200));
 
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
@@ -269,15 +267,16 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void ustrukturertForsendelseSkalSendesTilManuellBehandlingHvisÅpenSakIkkeFinnesOgAvsluttedeSakerErEldreEnn3mndOgNyereEnn10Mnd() throws Exception {
+    public void ustrukturertForsendelseSkalSendesTilManuellBehandlingHvisÅpenSakIkkeFinnesOgAvsluttedeSakerErEldreEnn3mndOgNyereEnn10Mnd()
+            throws Exception {
         VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(AVSLT_NY_FAGSAK_ID_1))
-            .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_1), 140));
+                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_1), 140));
 
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(AVSLT_GAMMEL_FAGSAK_ID_1))
-            .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 452));
+                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 452));
 
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
@@ -299,7 +298,7 @@ public class VurderFagsystemTjenesteImplTest {
         vfData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(AVSLT_GAMMEL_FAGSAK_ID_1))
-            .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 340));
+                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 340));
 
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
@@ -320,7 +319,7 @@ public class VurderFagsystemTjenesteImplTest {
         vfData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON);
 
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(AVSLT_GAMMEL_FAGSAK_ID_1))
-            .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 340));
+                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 340));
 
         List<Fagsak> saksListe = new ArrayList<>();
 
@@ -338,7 +337,6 @@ public class VurderFagsystemTjenesteImplTest {
         return vurderFagsystemTjeneste.vurderFagsystem(vfData);
 
     }
-
 
     @Test
     public void nesteStegSkalVæreHentOgVurderInfotrygdHvisPassendeSakIkkeFinnesForStukturertDokument() throws Exception {
@@ -470,7 +468,6 @@ public class VurderFagsystemTjenesteImplTest {
         BehandlendeFagsystem result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
     }
-
 
     @Test
     public void skalReturnereTrueNårFagÅrsakTypeErUdefinertOgBehandlingTemaErForeldrePenger() {

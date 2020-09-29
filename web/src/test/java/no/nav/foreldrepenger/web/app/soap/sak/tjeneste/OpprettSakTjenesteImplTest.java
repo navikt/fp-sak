@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
@@ -28,28 +27,26 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.produksjonsstyring.opprettgsak.OpprettGSakTjeneste;
-import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
+import no.nav.foreldrepenger.web.RepositoryAwareTest;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 @ExtendWith(MockitoExtension.class)
-public class OpprettSakTjenesteImplTest extends EntityManagerAwareTest {
+public class OpprettSakTjenesteImplTest extends RepositoryAwareTest {
 
     @Mock
-    private TpsTjeneste tpsTjenesteMock;
+    private TpsTjeneste tpsTjeneste;
 
     @Mock
-    private BrukerTjeneste brukerTjenesteMock;
+    private BrukerTjeneste brukerTjeneste;
 
     private OpprettSakTjeneste opprettSakTjeneste;
 
     private AktørId aktørId = AktørId.dummy();
 
     private Personinfo personinfo;
-    private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
     public void setUp() {
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         personinfo = new Personinfo.Builder()
                 .medPersonIdent(PersonIdent.fra("12345612345"))
                 .medNavn("Kari Nordmann")
@@ -57,15 +54,15 @@ public class OpprettSakTjenesteImplTest extends EntityManagerAwareTest {
                 .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
                 .medAktørId(aktørId)
                 .medForetrukketSpråk(Språkkode.NB).build();
-        lenient().when(tpsTjenesteMock.hentBrukerForAktør(any(AktørId.class))).thenReturn(Optional.of(personinfo));
+        lenient().when(tpsTjeneste.hentBrukerForAktør(any(AktørId.class))).thenReturn(Optional.of(personinfo));
 
         // Mock BersonTjeneste
         NavBruker navBruker = NavBruker.opprettNy(personinfo);
-        when(brukerTjenesteMock.hentEllerOpprettFraAktorId(any(Personinfo.class))).thenReturn(navBruker);
+        when(brukerTjeneste.hentEllerOpprettFraAktorId(any(Personinfo.class))).thenReturn(navBruker);
 
-        var fagsakTjeneste = new FagsakTjeneste(repositoryProvider, null);
+        var fagsakTjeneste = new FagsakTjeneste(fagsakRepository, søknadRepository, null);
         var opprettGSakTjeneste = new OpprettGSakTjeneste(null);
-        this.opprettSakTjeneste = new OpprettSakTjeneste(tpsTjenesteMock, fagsakTjeneste, opprettGSakTjeneste, brukerTjenesteMock, null);
+        this.opprettSakTjeneste = new OpprettSakTjeneste(tpsTjeneste, fagsakTjeneste, opprettGSakTjeneste, brukerTjeneste, null);
     }
 
     @Test

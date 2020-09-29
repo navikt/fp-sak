@@ -36,10 +36,12 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
+import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class RepositoryAwareTest extends EntityManagerAwareTest {
 
+    protected Repository repository;
     protected BehandlingRepositoryProvider repositoryProvider;
     protected SvangerskapspengerRepository svangerskapspengerRepository;
     protected FamilieHendelseRepository familieHendelseRepository;
@@ -73,6 +75,7 @@ public class RepositoryAwareTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void beforeEach() {
+        repository = new Repository(getEntityManager());
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         hendelsemottakRepository = new HendelsemottakRepository(getEntityManager());
         beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(getEntityManager());

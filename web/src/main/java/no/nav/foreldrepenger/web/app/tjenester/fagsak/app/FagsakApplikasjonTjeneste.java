@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
@@ -48,19 +47,20 @@ public class FagsakApplikasjonTjeneste {
     private DekningsgradTjeneste dekningsgradTjeneste;
 
     protected FagsakApplikasjonTjeneste() {
-        //CDI runner
+        // CDI runner
     }
 
     @Inject
-    public FagsakApplikasjonTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                     ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
-                                     TpsTjeneste tpsTjeneste,
-                                     FamilieHendelseTjeneste familieHendelseTjeneste,
-                                     DekningsgradTjeneste dekningsgradTjeneste) {
+    public FagsakApplikasjonTjeneste(FagsakRepository fagsakRespository,
+            BehandlingRepository behandlingRepository,
+            ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
+            TpsTjeneste tpsTjeneste,
+            FamilieHendelseTjeneste familieHendelseTjeneste,
+            DekningsgradTjeneste dekningsgradTjeneste) {
 
-        this.fagsakRespository = repositoryProvider.getFagsakRepository();
+        this.fagsakRespository = fagsakRespository;
         this.tpsTjeneste = tpsTjeneste;
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingRepository = behandlingRepository;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
@@ -130,8 +130,8 @@ public class FagsakApplikasjonTjeneste {
         final Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
         if (behandling.isPresent()) {
             final Optional<FamilieHendelseEntitet> bekreftetFødsel = familieHendelseTjeneste.finnAggregat(behandling.get().getId())
-                .flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
-                .filter(hendelse -> hendelse.getType().equals(FamilieHendelseType.FØDSEL));
+                    .flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
+                    .filter(hendelse -> hendelse.getType().equals(FamilieHendelseType.FØDSEL));
             if (bekreftetFødsel.isPresent()) {
                 return bekreftetFødsel.get().getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst().orElse(null);
             }
