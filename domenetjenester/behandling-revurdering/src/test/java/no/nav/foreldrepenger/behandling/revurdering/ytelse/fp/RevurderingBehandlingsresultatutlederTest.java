@@ -142,7 +142,6 @@ public class RevurderingBehandlingsresultatutlederTest {
 
     @Before
     public void setUp() {
-        System.out.println(revurderingEndring.getClass().getSimpleName());
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medDefaultSøknadTerminbekreftelse()
                 .medDefaultOppgittFordeling(endringsdato)

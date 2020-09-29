@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -61,8 +60,6 @@ public class FagsakApplikasjonTjenesteTest {
     private FamilieHendelseTjeneste hendelseTjeneste;
     @Mock
     private DekningsgradTjeneste dekningsgradTjeneste;
-    @Mock
-    BehandlingRepositoryProvider repositoryProvider;
 
     private static FamilieHendelseGrunnlagEntitet byggHendelseGrunnlag(LocalDate fødselsdato, LocalDate oppgittFødselsdato) {
         final FamilieHendelseBuilder hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
@@ -80,11 +77,8 @@ public class FagsakApplikasjonTjenesteTest {
     public void oppsett() {
 
         ProsesseringAsynkTjeneste prosesseringAsynkTjeneste = mock(ProsesseringAsynkTjeneste.class);
-
-        when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
-        when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
-
-        tjeneste = new FagsakApplikasjonTjeneste(repositoryProvider, prosesseringAsynkTjeneste, tpsTjeneste, hendelseTjeneste, dekningsgradTjeneste);
+        tjeneste = new FagsakApplikasjonTjeneste(fagsakRepository, behandlingRepository, prosesseringAsynkTjeneste, tpsTjeneste, hendelseTjeneste,
+                dekningsgradTjeneste);
     }
 
     @Test
