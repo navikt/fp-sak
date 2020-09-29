@@ -1,10 +1,12 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +59,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
         if (fagsakRelasjon.getStønadskontoberegning().isEmpty() || !finnesLøpendeInnvilgetFP(fpGrunnlag)) {
             beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
             return BeregningingAvStønadskontoResultat.BEREGNET;
-        } else if (dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref) || oppfyllerPrematurUker(fpGrunnlag)){
+        } else if (dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref) || oppfyllerPrematurUker(fpGrunnlag) || erDødsfallhendelse(input.getBehandlingÅrsaker())){
             beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input);
             return BeregningingAvStønadskontoResultat.OVERSTYRT;
         }
@@ -66,6 +68,11 @@ public class UttakStegBeregnStønadskontoTjeneste {
         logEvtEndring(input, fagsakRelasjon);
 
         return BeregningingAvStønadskontoResultat.INGEN_BEREGNING;
+    }
+
+    private boolean erDødsfallhendelse(Set<BehandlingÅrsakType> behandlingÅrsaker) {
+        return behandlingÅrsaker.contains(BehandlingÅrsakType.RE_HENDELSE_DØD_BARN)
+            || behandlingÅrsaker.contains(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL);
     }
 
     private void logEvtEndring(UttakInput input, FagsakRelasjon fagsakRelasjon) {
