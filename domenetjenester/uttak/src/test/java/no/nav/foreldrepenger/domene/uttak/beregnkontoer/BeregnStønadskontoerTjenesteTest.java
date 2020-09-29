@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.MØDREKVOTE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,7 +79,7 @@ public class BeregnStønadskontoerTjenesteTest {
         FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
+        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste, mock(BehandlingRepository.class), mock(BehandlingskontrollTjeneste.class));
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -112,7 +115,7 @@ public class BeregnStønadskontoerTjenesteTest {
         ytelsesFordelingRepository.lagre(behandlingId, rettighet);
 
         // Act
-        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
+        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste, mock(BehandlingRepository.class), mock(BehandlingskontrollTjeneste.class));
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -148,7 +151,7 @@ public class BeregnStønadskontoerTjenesteTest {
         FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
+        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste, mock(BehandlingRepository.class), mock(BehandlingskontrollTjeneste.class));
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -180,7 +183,7 @@ public class BeregnStønadskontoerTjenesteTest {
         FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
+        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste, mock(BehandlingRepository.class), mock(BehandlingskontrollTjeneste.class));
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -212,7 +215,7 @@ public class BeregnStønadskontoerTjenesteTest {
         FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
+        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste, mock(BehandlingRepository.class), mock(BehandlingskontrollTjeneste.class));
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 

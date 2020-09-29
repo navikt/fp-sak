@@ -7,8 +7,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
@@ -26,6 +29,8 @@ public class BeregnStønadskontoerTjeneste {
     private StønadskontoRegelAdapter stønadskontoRegelAdapter;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
+    private BehandlingRepository behandlingRepository;
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
 
@@ -33,10 +38,15 @@ public class BeregnStønadskontoerTjeneste {
     @Inject
     public BeregnStønadskontoerTjeneste(UttakRepositoryProvider repositoryProvider,
                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                        ForeldrepengerUttakTjeneste uttakTjeneste) {
+                                        ForeldrepengerUttakTjeneste uttakTjeneste,
+                                        BehandlingRepository behandlingRepository,
+                                        BehandlingskontrollTjeneste behandlingskontrollTjeneste
+                                        ) {
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+        this.behandlingRepository = behandlingRepository;
+        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.stønadskontoRegelAdapter = new StønadskontoRegelAdapter(repositoryProvider);
         this.uttakTjeneste = uttakTjeneste;
     }
@@ -50,6 +60,14 @@ public class BeregnStønadskontoerTjeneste {
         var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.getSaksnummer());
         var stønadskontoberegning = beregn(uttakInput, fagsakRelasjon);
         fagsakRelasjonTjeneste.lagre(ref.getFagsakId(), fagsakRelasjon, ref.getBehandlingId(), stønadskontoberegning);
+        oppdaterBehandling(ref.getBehandlingId(), stønadskontoberegning);
+    }
+
+    private void oppdaterBehandling(Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
+        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        behandling.setStønadskontoberegning(stønadskontoberegning);
+        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
     }
 
     public void overstyrStønadskontoberegning(UttakInput uttakInput) {
@@ -60,6 +78,7 @@ public class BeregnStønadskontoerTjeneste {
         if (inneholderEndringer(eksisterende, ny)) {
             fagsakRelasjonTjeneste.overstyrStønadskontoberegning(ref.getFagsakId(), ref.getBehandlingId(), ny);
             oppdaterBehandlingsresultat(ref.getBehandlingId());
+            oppdaterBehandling(ref.getBehandlingId(), ny);
         }
     }
 

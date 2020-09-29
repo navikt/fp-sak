@@ -38,6 +38,7 @@ import javax.persistence.SqlResultSetMappings;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import org.hibernate.annotations.NaturalId;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
@@ -197,6 +198,10 @@ public class Behandling extends BaseEntitet {
     @Convert(converter=Fagsystem.KodeverdiConverter.class)
     @Column(name="migrert_kilde", nullable = false)
     private Fagsystem migrertKilde = Fagsystem.UDEFINERT;
+
+    @ManyToOne
+    @JoinColumn(name = "konto_beregning_id")
+    private Stønadskontoberegning stønadskontoberegning;
 
     Behandling() {
         // Hibernate
@@ -440,6 +445,10 @@ public class Behandling extends BaseEntitet {
         }
 
         return tilstander.isEmpty() ? Optional.empty() : Optional.of(tilstander.get(0));
+    }
+
+    public void setStønadskontoberegning(Stønadskontoberegning stønadskontoberegning) {
+        this.stønadskontoberegning = stønadskontoberegning;
     }
 
     /**
@@ -810,6 +819,10 @@ public class Behandling extends BaseEntitet {
         this.migrertKilde = migrertKilde;
     }
 
+    public Optional<Stønadskontoberegning> getStønadskontoberegning() {
+        return Optional.ofNullable(stønadskontoberegning);
+    }
+
     private void guardTilstandPåBehandling() {
         if (erSaksbehandlingAvsluttet()) {
             throw new IllegalStateException("Utvikler-feil: kan ikke endre tilstand på en behandling som er avsluttet.");
@@ -827,6 +840,7 @@ public class Behandling extends BaseEntitet {
         private final BehandlingType behandlingType;
         private Fagsak fagsak;
         private Behandling forrigeBehandling;
+        private Stønadskontoberegning stønadskontoberegning;
         /**
          * optional
          */
@@ -902,6 +916,11 @@ public class Behandling extends BaseEntitet {
             return this;
         }
 
+        public Builder medStønadskontoberegning (Stønadskontoberegning stønadskontoberegning ) {
+            this.stønadskontoberegning = stønadskontoberegning;
+            return this;
+        }
+
         /**
          * Bygger en Behandling.
          * <p>
@@ -951,6 +970,10 @@ public class Behandling extends BaseEntitet {
 
             if (behandlingÅrsakBuilder != null) {
                 behandlingÅrsakBuilder.buildFor(behandling);
+            }
+
+            if(stønadskontoberegning != null) {
+                behandling.stønadskontoberegning = stønadskontoberegning;
             }
 
             return behandling;
