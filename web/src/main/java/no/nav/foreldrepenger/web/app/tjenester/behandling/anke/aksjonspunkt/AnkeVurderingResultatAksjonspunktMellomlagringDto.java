@@ -104,7 +104,6 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto implements AbacDt
         this.behandlingId = behandlingId;
         this.begrunnelse = begrunnelse;
         this.ankeVurdering = ankeVurdering;
-        this.begrunnelse = begrunnelse;
         this.fritekstTilBrev = fritekstTilBrev;
         this.ankeOmgjoerArsak = ankeOmgjoerArsak;
         this.ankeVurderingOmgjoer = ankeVurderingOmgjoer;

@@ -28,11 +28,6 @@ public abstract class KlageVurderingResultatAksjonspunktDto extends BekreftetAks
     @JsonProperty("klageVurdering")
     private KlageVurdering klageVurdering;
 
-    @Size(max = 2000)
-    @Pattern(regexp = InputValideringRegex.FRITEKST)
-    @JsonProperty("begrunnelse")
-    private String begrunnelse;
-
     // Økt størrelsen for å håndtere all fritekst som blir skrevet til klagebrev
     @Size(max = 100000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
@@ -71,7 +66,6 @@ public abstract class KlageVurderingResultatAksjonspunktDto extends BekreftetAks
             String fritekstTilBrev, KlageVurderingOmgjør klageVurderingOmgjoer, boolean erGodkjentAvMedunderskriver) {
         super(begrunnelse);
         this.klageVurdering = klageVurdering;
-        this.begrunnelse = begrunnelse;
         this.fritekstTilBrev = fritekstTilBrev;
         this.klageAvvistArsak = klageAvvistArsak;
         this.klageMedholdArsak = klageMedholdArsak;
@@ -82,11 +76,6 @@ public abstract class KlageVurderingResultatAksjonspunktDto extends BekreftetAks
 
     public KlageVurdering getKlageVurdering() {
         return klageVurdering;
-    }
-
-    @Override
-    public String getBegrunnelse() {
-        return begrunnelse;
     }
 
     public String getFritekstTilBrev() {

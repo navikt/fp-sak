@@ -28,10 +28,6 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
     @JsonProperty("erSubsidiartRealitetsbehandles")
     private boolean erSubsidiartRealitetsbehandles;
 
-    @Size(max = 2000)
-    @Pattern(regexp = InputValideringRegex.FRITEKST)
-    private String begrunnelse;
-
     // Økt størrelsen for å håndtere all fritekst som blir skrevet til ankebrev
     @Size(max = 100000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
@@ -94,7 +90,6 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
                                                  boolean erMerknaderMottatt) {
         super(begrunnelse);
         this.ankeVurdering = ankeVurdering;
-        this.begrunnelse = begrunnelse;
         this.fritekstTilBrev = fritekstTilBrev;
         this.ankeOmgjoerArsak = ankeOmgjoerArsak;
         this.ankeVurderingOmgjoer = ankeVurderingOmgjoer;
@@ -115,11 +110,6 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
 
     public boolean erSubsidiartRealitetsbehandles() {
         return erSubsidiartRealitetsbehandles;
-    }
-
-    @Override
-    public String getBegrunnelse() {
-        return begrunnelse;
     }
 
     public String getFritekstTilBrev() {
