@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -15,8 +16,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.vedtak.util.InputValideringRegex;
 
+@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
 public abstract  class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto {
-
 
     @NotNull
     @JsonProperty("erKlagerPart")
@@ -43,6 +44,7 @@ public abstract  class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunk
 
     @Size(max = 2000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
+    @JsonProperty("begrunnelse")
     private String begrunnelse;
 
     KlageFormkravAksjonspunktDto() { // NOSONAR

@@ -7,6 +7,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
@@ -18,33 +20,42 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmg
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
+@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
 public abstract class KlageVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktDto {
 
     @NotNull
     @ValidKodeverk
+    @JsonProperty("klageVurdering")
     private KlageVurdering klageVurdering;
 
     @Size(max = 2000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
+    @JsonProperty("begrunnelse")
     private String begrunnelse;
 
     // Økt størrelsen for å håndtere all fritekst som blir skrevet til klagebrev
     @Size(max = 100000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
+    @JsonProperty("fritekstTilBrev")
     private String fritekstTilBrev;
 
     @ValidKodeverk
+    @JsonProperty("klageAvvistArsak")
     private KlageAvvistÅrsak klageAvvistArsak;
 
     @ValidKodeverk
+    @JsonProperty("klageMedholdArsak")
     private KlageMedholdÅrsak klageMedholdArsak;
 
     @ValidKodeverk
+    @JsonProperty("klageVurderingOmgjoer")
     private KlageVurderingOmgjør klageVurderingOmgjoer;
 
     @Valid
+    @JsonProperty("vedtaksdatoPaklagdBehandling")
     private LocalDate vedtaksdatoPaklagdBehandling;
 
+    @JsonProperty("erGodkjentAvMedunderskriver")
     private boolean erGodkjentAvMedunderskriver;
 
     KlageVurderingResultatAksjonspunktDto() { // NOSONAR
@@ -117,7 +128,7 @@ public abstract class KlageVurderingResultatAksjonspunktDto extends BekreftetAks
         }
 
     }
-    
+
     @JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK_KODE)
     public static class KlageVurderingResultatNkAksjonspunktDto extends KlageVurderingResultatAksjonspunktDto {
 
