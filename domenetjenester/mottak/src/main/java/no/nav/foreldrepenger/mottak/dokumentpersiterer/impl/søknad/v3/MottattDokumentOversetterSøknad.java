@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -480,16 +481,42 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     private void lagreFordeling(Behandling behandling,
                                 List<LukketPeriodeMedVedlegg> perioder,
                                 boolean annenForelderErInformert,
-                                LocalDate mottattDato) {
+                                LocalDate mottattDatoFraSøknad) {
         final List<OppgittPeriodeEntitet> oppgittPerioder = new ArrayList<>();
+
         for (LukketPeriodeMedVedlegg lukketPeriode : perioder) {
-            var oppgittPeriode = oversettPeriode(lukketPeriode, mottattDato, behandling);
+            var oppgittPeriode = oversettPeriode(lukketPeriode);
             oppgittPerioder.add(oppgittPeriode);
         }
+        oppdaterMedMottattDato(oppgittPerioder, behandling, mottattDatoFraSøknad);
         if (!inneholderVirkedager(oppgittPerioder)) {
             throw new IllegalArgumentException("Fordelingen må inneholde perioder med minst en virkedag");
         }
         ytelsesFordelingRepository.lagre(behandling.getId(), new OppgittFordelingEntitet(oppgittPerioder, annenForelderErInformert));
+    }
+
+    private void oppdaterMedMottattDato(List<OppgittPeriodeEntitet> oppgittPerioder,
+                                        Behandling behandling,
+                                        LocalDate mottattDatoFraSøknad) {
+        //Fra og med første endret periode skal mottatt dato være satt til mottatt dato fra søknad selv om etterfølgene
+        //perioder er søkt om i tidligere søknader
+        var seEtterMottattDatoIOriginalBehandling = true;
+        var sorted = oppgittPerioder.stream()
+            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
+            .collect(Collectors.toList());
+        for (OppgittPeriodeEntitet oppgittPeriode : sorted) {
+            if (seEtterMottattDatoIOriginalBehandling) {
+                var eksisterendeMottattDato = oppgittPeriodeMottattDatoTjeneste.finnMottattDatoForPeriode(behandling, oppgittPeriode);
+                if (eksisterendeMottattDato.isPresent()) {
+                    oppgittPeriode.setMottattDato(eksisterendeMottattDato.get());
+                } else {
+                    oppgittPeriode.setMottattDato(mottattDatoFraSøknad);
+                    seEtterMottattDatoIOriginalBehandling = false;
+                }
+            } else {
+                oppgittPeriode.setMottattDato(mottattDatoFraSøknad);
+            }
+        }
     }
 
     private boolean inneholderVirkedager(List<OppgittPeriodeEntitet> perioder) {
@@ -512,9 +539,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         }
     }
 
-    private OppgittPeriodeEntitet oversettPeriode(LukketPeriodeMedVedlegg lukketPeriode,
-                                                  LocalDate mottattDatoFraSøknad,
-                                                  Behandling behandling) {
+    private OppgittPeriodeEntitet oversettPeriode(LukketPeriodeMedVedlegg lukketPeriode) {
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(lukketPeriode.getFom(), lukketPeriode.getTom());
         if (lukketPeriode instanceof Uttaksperiode) { // NOSONAR
@@ -532,10 +557,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         } else { // NOSONAR
             throw new IllegalStateException("Ukjent periodetype.");
         }
-        var oppgittPeriode = oppgittPeriodeBuilder.build();
-        var eksisterendeMottattDato = oppgittPeriodeMottattDatoTjeneste.finnMottattDatoForPeriode(behandling, oppgittPeriode);
-        oppgittPeriode.setMottattDato(eksisterendeMottattDato.orElse(mottattDatoFraSøknad));
-        return oppgittPeriode;
+        return oppgittPeriodeBuilder.build();
     }
 
     private void oversettUtsettelsesperiode(OppgittPeriodeBuilder oppgittPeriodeBuilder, Utsettelsesperiode utsettelsesperiode) {

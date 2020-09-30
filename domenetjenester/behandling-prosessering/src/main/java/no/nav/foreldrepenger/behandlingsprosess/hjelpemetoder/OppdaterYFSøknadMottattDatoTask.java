@@ -133,6 +133,8 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
             var p = finnPeriodeIBehandling(periode, originalBehandling.get());
             if (p.isPresent()) {
                 førsteBehandlingMedPeriode = originalBehandling.get();
+            } else {
+                return førsteBehandlingMedPeriode;
             }
             originalBehandling = originalBehandling.get().getOriginalBehandlingId().map(behandlingRepository::hentBehandling);
         }
