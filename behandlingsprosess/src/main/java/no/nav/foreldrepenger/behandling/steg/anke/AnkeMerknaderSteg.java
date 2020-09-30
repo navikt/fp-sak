@@ -40,7 +40,7 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
-        if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) && !behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN)) {
+        if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling)) {
             return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE_MERKNADER));
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();

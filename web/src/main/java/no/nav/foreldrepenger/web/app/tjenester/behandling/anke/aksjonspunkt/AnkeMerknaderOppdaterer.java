@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AnkeMerknaderResultatAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -43,9 +42,7 @@ public class AnkeMerknaderOppdaterer implements AksjonspunktOppdaterer<AnkeMerkn
     public OppdateringResultat oppdater(AnkeMerknaderResultatAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         Behandling behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         håndterAnkeVurdering(behandling, dto);
-        if (!Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())) {
-            lagBrevTilTrygderettenBasertPåUtfall(dto);
-        }
+
         var builder = OppdateringResultat.utenTransisjon();
         if (!behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN)) {
             var apVent = AksjonspunktResultat.opprettForAksjonspunktMedFrist(VENT_TRYGDERETT, Venteårsak.ANKE_OVERSENDT_TIL_TRYGDERETTEN,
@@ -53,17 +50,6 @@ public class AnkeMerknaderOppdaterer implements AksjonspunktOppdaterer<AnkeMerkn
             builder.medEkstraAksjonspunktResultat(apVent, AksjonspunktStatus.OPPRETTET);
         }
         return builder.build();
-    }
-
-    private void lagBrevTilTrygderettenBasertPåUtfall(AnkeMerknaderResultatAksjonspunktDto dto) { // NOSONAR - Fjern denne når TFP-1152 implementeres
-        if (dto.erMerknaderMottatt()) {
-            //TODO (Addams): TFP-1152 Ankebrev: Merknader innkommet
-            // Gitt at det er kommet inn merknader. Så skal det lages et brev til Trygderetten: "mottatt merknader". Og kopi av dette skal sendes til bruker.
-            // det sendes et informasjonsbrev om ytterligere merknader til bruker
-        } else {
-            //TODO (Addams): TFP-1152 Ankebrev: Merknader ikke innkommet
-            // Gitt at det ikke er kommet inn merknader. Så skal det lages et brev til Trygderetten: "ikke mottatt merknader". Og kopi av dette skal sendes til bruker
-        }
     }
 
     private void håndterAnkeVurdering(Behandling behandling, AnkeMerknaderResultatAksjonspunktDto dto) {
