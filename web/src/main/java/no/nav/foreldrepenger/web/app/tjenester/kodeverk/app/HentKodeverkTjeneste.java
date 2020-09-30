@@ -22,7 +22,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -146,6 +148,8 @@ public class HentKodeverkTjeneste {
         map.put(PermisjonsbeskrivelseType.class.getSimpleName(), PermisjonsbeskrivelseType.kodeMap().values());
         map.put(VurderArbeidsforholdHistorikkinnslag.class.getSimpleName(), VurderArbeidsforholdHistorikkinnslag.kodeMap().values());
         map.put(AnkeVurdering.class.getSimpleName(), AnkeVurdering.kodeMap().values());
+        map.put(AnkeVurderingOmgjør.class.getSimpleName(), AnkeVurderingOmgjør.kodeMap().values());
+        map.put(AnkeOmgjørÅrsak.class.getSimpleName(), AnkeOmgjørÅrsak.kodeMap().values());
         map.put(TilbakekrevingVidereBehandling.class.getSimpleName(), TilbakekrevingVidereBehandling.kodeMap().values());
         map.put(VurderÅrsak.class.getSimpleName(), VurderÅrsak.kodeMap().values());
         map.put(UttakUtsettelseType.class.getSimpleName(), UttakUtsettelseType.kodeMap().values());
