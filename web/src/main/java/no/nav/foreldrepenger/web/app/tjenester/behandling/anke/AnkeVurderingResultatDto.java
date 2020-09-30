@@ -2,29 +2,51 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.anke;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
+
+@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
 public class AnkeVurderingResultatDto {
 
-    private String ankeVurdering;
+    @JsonProperty("ankeVurdering")
+    private AnkeVurdering ankeVurdering;
+    @JsonProperty("begrunnelse")
     private String begrunnelse;
+    @JsonProperty("fritekstTilBrev")
     private String fritekstTilBrev;
-    private String ankeOmgjoerArsak;
-    private String ankeOmgjoerArsakNavn;
-    private String ankeVurderingOmgjoer;
+    @JsonProperty("ankeOmgjoerArsak")
+    private AnkeOmgjørÅrsak ankeOmgjoerArsak;
+    @JsonProperty("ankeVurderingOmgjoer")
+    private AnkeVurderingOmgjør ankeVurderingOmgjoer;
+    @JsonProperty("godkjentAvMedunderskriver")
     private boolean godkjentAvMedunderskriver;
+    @JsonProperty("erAnkerIkkePart")
     private boolean erAnkerIkkePart;
+    @JsonProperty("erFristIkkeOverholdt")
     private boolean erFristIkkeOverholdt;
+    @JsonProperty("erIkkeKonkret")
     private boolean erIkkeKonkret;
+    @JsonProperty("erIkkeSignert")
     private boolean erIkkeSignert;
+    @JsonProperty("erSubsidiartRealitetsbehandles")
     private boolean erSubsidiartRealitetsbehandles;
+    @JsonProperty("erMerknaderMottatt")
     private boolean erMerknaderMottatt;
+    @JsonProperty("merknadKommentar")
     private String merknadKommentar;
+    @JsonProperty("paAnketBehandlingId")
     private Long paAnketBehandlingId;
+    @JsonProperty("paAnketBehandlingUuid")
     private UUID paAnketBehandlingUuid;
 
     public AnkeVurderingResultatDto() {
     }
 
-    public String getAnkeVurdering() {
+    public AnkeVurdering getAnkeVurdering() {
         return ankeVurdering;
     }
 
@@ -36,15 +58,11 @@ public class AnkeVurderingResultatDto {
         return fritekstTilBrev;
     }
 
-    public String getAnkeOmgjoerArsak() {
+    public AnkeOmgjørÅrsak getAnkeOmgjoerArsak() {
         return ankeOmgjoerArsak;
     }
 
-    public String getAnkeOmgjoerArsakNavn() {
-        return ankeOmgjoerArsakNavn;
-    }
-
-    public String getAnkeVurderingOmgjoer() {
+    public AnkeVurderingOmgjør getAnkeVurderingOmgjoer() {
         return ankeVurderingOmgjoer;
     }
 
@@ -80,11 +98,11 @@ public class AnkeVurderingResultatDto {
         return paAnketBehandlingUuid;
     }
 
-    public void setAnkeVurderingOmgjoer(String ankeVurderingOmgjoer) {
+    public void setAnkeVurderingOmgjoer(AnkeVurderingOmgjør ankeVurderingOmgjoer) {
         this.ankeVurderingOmgjoer = ankeVurderingOmgjoer;
     }
 
-    void setAnkeVurdering(String ankeVurdering) {
+    void setAnkeVurdering(AnkeVurdering ankeVurdering) {
         this.ankeVurdering = ankeVurdering;
     }
 
@@ -96,12 +114,8 @@ public class AnkeVurderingResultatDto {
         this.fritekstTilBrev = fritekstTilBrev;
     }
 
-    void setAnkeOmgjoerArsak(String ankeOmgjoerArsak) {
+    void setAnkeOmgjoerArsak(AnkeOmgjørÅrsak ankeOmgjoerArsak) {
         this.ankeOmgjoerArsak = ankeOmgjoerArsak;
-    }
-
-    void setAnkeOmgjoerArsakNavn(String ankeOmgjoerArsakNavn) {
-        this.ankeOmgjoerArsakNavn = ankeOmgjoerArsakNavn;
     }
 
     public void setGodkjentAvMedunderskriver(boolean godkjentAvMedunderskriver) {

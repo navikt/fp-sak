@@ -2,17 +2,30 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 
+@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
 public class KlageFormkravResultatDto {
+
+    @JsonProperty("paKlagdBehandlingId")
     private Long paKlagdBehandlingId;
+    @JsonProperty("paklagdBehandlingType")
     private BehandlingType paklagdBehandlingType;
+    @JsonProperty("begrunnelse")
     private String begrunnelse;
+    @JsonProperty("erKlagerPart")
     private boolean erKlagerPart;
+    @JsonProperty("erKlageKonkret")
     private boolean erKlageKonkret;
+    @JsonProperty("erKlagefirstOverholdt")
     private boolean erKlagefirstOverholdt;
+    @JsonProperty("erSignert")
     private boolean erSignert;
+    @JsonProperty("avvistArsaker")
     private List<KlageAvvistÅrsak> avvistArsaker;
 
 

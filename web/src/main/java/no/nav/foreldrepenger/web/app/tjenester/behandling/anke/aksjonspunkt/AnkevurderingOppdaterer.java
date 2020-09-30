@@ -75,19 +75,31 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
 
     private AnkeVurderingResultatEntitet.Builder mapDto(AnkeVurderingResultatAksjonspunktDto apDto, Behandling behandling) {
         var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling);
+        resetVurderingsSpesifikkeValg(builder);
+        if (AnkeVurdering.ANKE_AVVIS.equals(apDto.getAnkeVurdering())) {
+            builder.medErSubsidiartRealitetsbehandles(apDto.erSubsidiartRealitetsbehandles())
+                .medErAnkerIkkePart(apDto.erAnkerIkkePart())
+                .medErFristIkkeOverholdt(apDto.erFristIkkeOverholdt())
+                .medErIkkeKonkret(apDto.erIkkeKonkret())
+                .medErIkkeSignert(apDto.erIkkeSignert());
+        } else if (AnkeVurdering.ANKE_OMGJOER.equals(apDto.getAnkeVurdering())) {
+            builder.medAnkeOmgjørÅrsak(apDto.getAnkeOmgjoerArsak())
+                .medAnkeVurderingOmgjør(apDto.getAnkeVurderingOmgjoer());
+        }
         return builder.medAnkeVurdering(apDto.getAnkeVurdering())
             .medBegrunnelse(apDto.getBegrunnelse())
-            .medAnkeOmgjørÅrsak(apDto.getAnkeOmgjoerArsak())
             .medFritekstTilBrev(apDto.getFritekstTilBrev())
-            .medAnkeVurderingOmgjør(apDto.getAnkeVurderingOmgjoer())
-            .medErSubsidiartRealitetsbehandles(apDto.erSubsidiartRealitetsbehandles())
-            .medErAnkerIkkePart(apDto.erAnkerIkkePart())
-            .medErFristIkkeOverholdt(apDto.erFristIkkeOverholdt())
-            .medErIkkeKonkret(apDto.erIkkeKonkret())
-            .medErIkkeSignert(apDto.erIkkeSignert())
-            .medGjelderVedtak(apDto.hentPåAnketBehandlingId() != null)
-            .medMerknaderFraBruker(apDto.getMerknaderFraBruker())
-            .medErMerknaderMottatt(apDto.erMerknaderMottatt());
+            .medGjelderVedtak(apDto.hentPåAnketBehandlingId() != null);
+    }
+
+    private void resetVurderingsSpesifikkeValg(AnkeVurderingResultatEntitet.Builder builder) {
+        builder.medAnkeOmgjørÅrsak(AnkeOmgjørÅrsak.UDEFINERT)
+            .medAnkeVurderingOmgjør(AnkeVurderingOmgjør.UDEFINERT)
+            .medErSubsidiartRealitetsbehandles(false)
+            .medErAnkerIkkePart(false)
+            .medErFristIkkeOverholdt(false)
+            .medErIkkeKonkret(false)
+            .medErIkkeSignert(false);
     }
 
     private void opprettHistorikkinnslag(Behandling behandling, AnkeVurderingResultatAksjonspunktDto dto,boolean endreAnke) {

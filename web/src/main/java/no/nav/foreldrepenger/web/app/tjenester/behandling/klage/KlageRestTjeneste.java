@@ -3,8 +3,10 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -31,15 +33,18 @@ import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
+import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.TilbakekrevingVedtakDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Produces(MediaType.APPLICATION_JSON)
@@ -150,7 +155,8 @@ public class KlageRestTjeneste {
     public MottattKlagedokumentDto getMottattKlagedokument(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
         List<MottattDokument> mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandlingIdDto.getBehandlingId());
         Optional<MottattDokument> mottattDokument = mottatteDokumenter.stream()
-                .filter(dok -> DokumentTypeId.KLAGE_DOKUMENT.equals(dok.getDokumentType())).findFirst();
+            .filter(dok -> DokumentTypeId.KLAGE_DOKUMENT.equals(dok.getDokumentType()))
+            .min(Comparator.comparing(MottattDokument::getMottattDato));
 
         return mapMottattKlagedokumentDto(mottattDokument);
     }
@@ -169,19 +175,7 @@ public class KlageRestTjeneste {
 
     private static MottattKlagedokumentDto mapMottattKlagedokumentDto(Optional<MottattDokument> mottattDokument) {
         MottattKlagedokumentDto mottattKlagedokumentDto = new MottattKlagedokumentDto();
-
-        if (mottattDokument.isPresent()) {
-            MottattDokument dokument = mottattDokument.get();
-            mottattKlagedokumentDto.setJournalpostId(dokument.getJournalpostId().getVerdi());
-            mottattKlagedokumentDto.setDokumentTypeId(dokument.getDokumentType().getKode());
-            mottattKlagedokumentDto.setDokumentKategori(dokument.getDokumentKategori().getKode());
-            mottattKlagedokumentDto.setBehandlingId(dokument.getBehandlingId());
-            mottattKlagedokumentDto.setMottattDato(dokument.getMottattDato());
-            mottattKlagedokumentDto.setMottattTidspunkt(dokument.getMottattTidspunkt());
-            mottattKlagedokumentDto.setXmlPayload(dokument.getPayloadXml());
-            mottattKlagedokumentDto.setElektroniskRegistrert(dokument.getElektroniskRegistrert());
-            mottattKlagedokumentDto.setFagsakId(dokument.getFagsakId());
-        }
+        mottattDokument.map(MottattDokument::getMottattDato).ifPresent(mottattKlagedokumentDto::setMottattDato);
         return mottattKlagedokumentDto;
     }
 
@@ -190,13 +184,13 @@ public class KlageRestTjeneste {
         var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(behandling);
         var påklagdBehandling = klageResultat.getPåKlagdBehandlingId().map(behandlingRepository::hentBehandling);
         Optional<KlageVurderingResultatDto> nfpVurdering = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NFP)
-                .map(KlageVurderingResultatDtoMapper::mapKlageVurderingResultatDto);
+                .map(KlageRestTjeneste::mapKlageVurderingResultatDto);
         Optional<KlageVurderingResultatDto> nkVurdering = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NK)
-                .map(KlageVurderingResultatDtoMapper::mapKlageVurderingResultatDto);
+                .map(KlageRestTjeneste::mapKlageVurderingResultatDto);
         Optional<KlageFormkravResultatDto> nfpFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NFP)
-                .map(fk -> KlageFormkravResultatDtoMapper.mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
+                .map(fk -> KlageRestTjeneste.mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
         Optional<KlageFormkravResultatDto> kaFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NK)
-                .map(fk -> KlageFormkravResultatDtoMapper.mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
+                .map(fk -> KlageRestTjeneste.mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
 
         if (nfpVurdering.isEmpty() && nkVurdering.isEmpty() && nfpFormkrav.isEmpty() && kaFormkrav.isEmpty()) {
             return null;
@@ -206,6 +200,45 @@ public class KlageRestTjeneste {
         nfpFormkrav.ifPresent(dto::setKlageFormkravResultatNFP);
         kaFormkrav.ifPresent(dto::setKlageFormkravResultatKA);
         return dto;
+    }
+
+    private static KlageVurderingResultatDto mapKlageVurderingResultatDto(KlageVurderingResultat klageVurderingResultat) {
+        KlageVurderingResultatDto dto = new KlageVurderingResultatDto();
+
+        dto.setKlageVurdering(klageVurderingResultat.getKlageVurdering());
+        dto.setKlageVurderingOmgjoer(klageVurderingResultat.getKlageVurderingOmgjør());
+        dto.setBegrunnelse(klageVurderingResultat.getBegrunnelse());
+        dto.setFritekstTilBrev(klageVurderingResultat.getFritekstTilBrev());
+        dto.setKlageMedholdArsak(klageVurderingResultat.getKlageMedholdÅrsak());
+        dto.setKlageVurdertAv(klageVurderingResultat.getKlageVurdertAv().getKode());
+        dto.setGodkjentAvMedunderskriver(klageVurderingResultat.isGodkjentAvMedunderskriver());
+        return dto;
+    }
+
+    private static KlageFormkravResultatDto mapKlageFormkravResultatDto(KlageFormkravEntitet klageFormkrav, Optional<Behandling> påklagdBehandling, FptilbakeRestKlient fptilbakeRestKlient) {
+        Optional<UUID> paKlagdEksternBehandlingUuid = klageFormkrav.hentKlageResultat().getPåKlagdEksternBehandlingUuid();
+        KlageFormkravResultatDto dto = new KlageFormkravResultatDto();
+        if (påklagdBehandling.isEmpty() && paKlagdEksternBehandlingUuid.isPresent()) {
+            Optional<TilbakekrevingVedtakDto> tilbakekrevingVedtakDto = hentPåklagdBehandlingIdForEksternApplikasjon(paKlagdEksternBehandlingUuid.get(), fptilbakeRestKlient);
+            if (tilbakekrevingVedtakDto.isPresent()) {
+                dto.setPaKlagdBehandlingId(tilbakekrevingVedtakDto.get().getBehandlingId());
+                dto.setPaklagdBehandlingType(BehandlingType.fraKode(tilbakekrevingVedtakDto.get().getTilbakekrevingBehandlingType()));
+            }
+        } else {
+            dto.setPaKlagdBehandlingId(påklagdBehandling.map(Behandling::getId).orElse(null));
+            dto.setPaklagdBehandlingType(påklagdBehandling.map(Behandling::getType).orElse(null));
+        }
+        dto.setBegrunnelse(klageFormkrav.hentBegrunnelse());
+        dto.setErKlagerPart(klageFormkrav.erKlagerPart());
+        dto.setErKlageKonkret(klageFormkrav.erKonkret());
+        dto.setErKlagefirstOverholdt(klageFormkrav.erFristOverholdt());
+        dto.setErSignert(klageFormkrav.erSignert());
+        dto.setAvvistArsaker(klageFormkrav.hentAvvistÅrsaker());
+        return dto;
+    }
+
+    private static Optional<TilbakekrevingVedtakDto> hentPåklagdBehandlingIdForEksternApplikasjon(UUID paKlagdEksternBehandlingUuid, FptilbakeRestKlient fptilbakeRestKlient){
+        return Optional.ofNullable(fptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(paKlagdEksternBehandlingUuid));
     }
 
 }
