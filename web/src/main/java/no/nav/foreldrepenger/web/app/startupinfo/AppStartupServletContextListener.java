@@ -7,7 +7,7 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.web.app.healthchecks.HealthCheckRestService;
+import no.nav.foreldrepenger.web.app.jackson.HealthCheckRestService;
 
 public class AppStartupServletContextListener implements ServletContextListener {
 

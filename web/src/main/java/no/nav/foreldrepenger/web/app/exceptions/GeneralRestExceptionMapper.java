@@ -42,7 +42,8 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
 
         if (cause instanceof Valideringsfeil) {
             return handleValideringsfeil((Valideringsfeil) cause);
-        } else if (cause instanceof TomtResultatException) {
+        }
+        if (cause instanceof TomtResultatException) {
             return handleTomtResultatFeil((TomtResultatException) cause);
         }
 
