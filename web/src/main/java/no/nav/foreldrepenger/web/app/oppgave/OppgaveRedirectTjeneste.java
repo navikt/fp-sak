@@ -19,7 +19,6 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 
 @Path("")
-//@DoNotCache
 @ApplicationScoped
 public class OppgaveRedirectTjeneste {
 

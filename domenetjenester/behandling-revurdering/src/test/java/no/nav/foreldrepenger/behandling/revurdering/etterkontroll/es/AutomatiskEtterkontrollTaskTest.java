@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.revurdering.etterkontroll.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -12,19 +13,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.task.AutomatiskEtterkontrollTask;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste.EtterkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -43,7 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.person.tps.TpsFamilieTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -51,51 +49,51 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.Whitebox;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
+import no.nav.vedtak.felles.testutilities.db.Repository;
 
-@SuppressWarnings("deprecation")
-@RunWith(CdiRunner.class)
-public class AutomatiskEtterkontrollTaskTest {
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
+    @Mock
     private TpsFamilieTjeneste tpsFamilieTjenesteMock;
 
-    @Inject
     private BehandlingRepository behandlingRepository;
 
-    @Inject
-    @FagsakYtelseTypeRef("ES")
-    private RevurderingTjeneste revurderingTjenesteMock;
-
-    @Inject
+    @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
 
     private AutomatiskEtterkontrollTask task;
+    @Mock
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
-    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
 
-    @Inject
     private EtterkontrollRepository etterkontrollRepository;
 
-    @Inject
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
-    EtterkontrollTjeneste etterkontrollTjeneste;
+    private EtterkontrollTjeneste etterkontrollTjeneste;
 
+    @Mock
     private HistorikkRepository historikkRepository;
 
-    @Before
+    private Repository repo;
+
+    @BeforeEach
     public void setUp() {
-        tpsFamilieTjenesteMock = mock(TpsFamilieTjeneste.class);
-        behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
-        var bkTjeneste = mock(BehandlingskontrollTjeneste.class);
-        when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
-        etterkontrollTjeneste = new EtterkontrollTjeneste(repositoryProvider,prosessTaskRepositoryMock, bkTjeneste, foreldrepengerUttakTjeneste);
-        this.historikkRepository = mock(HistorikkRepository.class);
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        etterkontrollRepository = new EtterkontrollRepository(getEntityManager());
+        foreldrepengerUttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
+        task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository, tpsFamilieTjenesteMock,
+                prosessTaskRepositoryMock, Period.ofWeeks(11), behandlendeEnhetTjeneste, etterkontrollTjeneste);
+        repo = new Repository(getEntityManager());
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
+                .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
+        etterkontrollTjeneste = new EtterkontrollTjeneste(repositoryProvider, prosessTaskRepositoryMock, mock(BehandlingskontrollTjeneste.class),
+                foreldrepengerUttakTjeneste);
 
     }
 
@@ -116,7 +114,8 @@ public class AutomatiskEtterkontrollTaskTest {
     }
 
     private void assertRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
+        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(),
+                BehandlingType.REVURDERING);
         assertThat(revurdering).as("Ingen revurdering").isPresent();
         List<BehandlingÅrsak> behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
         assertThat(behandlingÅrsaker).isNotEmpty();
@@ -125,7 +124,8 @@ public class AutomatiskEtterkontrollTaskTest {
     }
 
     private void assertIngenRevurdering(Behandling behandling) {
-        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
+        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(),
+                BehandlingType.REVURDERING);
         assertThat(revurdering).as("Har revurdering: " + behandling).isNotPresent();
     }
 
@@ -133,10 +133,10 @@ public class AutomatiskEtterkontrollTaskTest {
         Period etterkontrollTpsRegistreringPeriode = Period.parse("P11W");
 
         task = new AutomatiskEtterkontrollTask(repositoryProvider,
-            etterkontrollRepository,
-            historikkRepository, tpsFamilieTjenesteMock,
-            prosessTaskRepositoryMock, etterkontrollTpsRegistreringPeriode, behandlendeEnhetTjeneste,
-            etterkontrollTjeneste);
+                etterkontrollRepository,
+                historikkRepository, tpsFamilieTjenesteMock,
+                prosessTaskRepositoryMock, etterkontrollTpsRegistreringPeriode, behandlendeEnhetTjeneste,
+                etterkontrollTjeneste);
 
     }
 
@@ -236,32 +236,33 @@ public class AutomatiskEtterkontrollTaskTest {
         assertIngenRevurdering(behandling);
     }
 
-    private Behandling opprettRevurderingsKandidat(int fødselUkerFørTermin, int antallBarn, boolean avsluttet, boolean medBekreftet, boolean medOverstyrt) {
+    private Behandling opprettRevurderingsKandidat(int fødselUkerFørTermin, int antallBarn, boolean avsluttet, boolean medBekreftet,
+            boolean medOverstyrt) {
         LocalDate terminDato = LocalDate.now().minusDays(70);
 
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .medSøknadDato(terminDato.minusDays(20));
+                .medSøknadDato(terminDato.minusDays(20));
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medNavnPå("Lege Legesen")
-                .medTermindato(terminDato)
-                .medUtstedtDato(terminDato.minusDays(40)))
-            .medAntallBarn(1);
+                .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+                        .medNavnPå("Lege Legesen")
+                        .medTermindato(terminDato)
+                        .medUtstedtDato(terminDato.minusDays(40)))
+                .medAntallBarn(1);
 
         if (medBekreftet) {
             scenario.medBekreftetHendelse()
-                .medFødselsDato(terminDato)
-                .erFødsel()
-                .medAntallBarn(antallBarn);
+                    .medFødselsDato(terminDato)
+                    .erFødsel()
+                    .medAntallBarn(antallBarn);
         }
 
         if (medOverstyrt) {
             scenario.medOverstyrtHendelse()
-                .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
-                    .medNavnPå("Lege Legesen")
-                    .medTermindato(terminDato)
-                    .medUtstedtDato(terminDato.minusDays(40)))
-                .medAntallBarn(antallBarn);
+                    .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
+                            .medNavnPå("Lege Legesen")
+                            .medTermindato(terminDato)
+                            .medUtstedtDato(terminDato.minusDays(40)))
+                    .medAntallBarn(antallBarn);
         }
 
         Behandling behandling = scenario.lagre(repositoryProvider);
@@ -278,26 +279,26 @@ public class AutomatiskEtterkontrollTaskTest {
         behandlingRepository.lagre(behandling, lås);
 
         BehandlingVedtak vedtak = BehandlingVedtak.builder()
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medVedtakstidspunkt(terminDato.minusWeeks(fødselUkerFørTermin).atStartOfDay())
-            .medBehandlingsresultat(behandling.getBehandlingsresultat())
-            .medAnsvarligSaksbehandler("Severin Saksbehandler")
-            .build();
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .medVedtakstidspunkt(terminDato.minusWeeks(fødselUkerFørTermin).atStartOfDay())
+                .medBehandlingsresultat(behandling.getBehandlingsresultat())
+                .medAnsvarligSaksbehandler("Severin Saksbehandler")
+                .build();
 
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, lås);
 
-        repoRule.getRepository().flushAndClear();
+        repo.flushAndClear();
 
-        return repoRule.getEntityManager().find(Behandling.class, behandling.getId());
+        return getEntityManager().find(Behandling.class, behandling.getId());
     }
 
     private FødtBarnInfo byggBaby(LocalDate fødselsdato) {
         return new FødtBarnInfo.Builder()
-            .medFødselsdato(fødselsdato)
-            .medIdent(PersonIdent.fra("12345678901"))
-            .medNavn("barn")
-            .medNavBrukerKjønn(NavBrukerKjønn.MANN)
-            .build();
+                .medFødselsdato(fødselsdato)
+                .medIdent(PersonIdent.fra("12345678901"))
+                .medNavn("barn")
+                .medNavBrukerKjønn(NavBrukerKjønn.MANN)
+                .build();
     }
 
 }

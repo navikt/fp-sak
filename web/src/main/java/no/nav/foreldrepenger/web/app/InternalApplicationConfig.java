@@ -8,7 +8,7 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import io.prometheus.client.hotspot.DefaultExports;
-import no.nav.foreldrepenger.web.app.healthchecks.HealthCheckRestService;
+import no.nav.foreldrepenger.web.app.jackson.HealthCheckRestService;
 import no.nav.foreldrepenger.web.app.metrics.PrometheusRestService;
 
 /**

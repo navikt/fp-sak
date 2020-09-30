@@ -13,6 +13,6 @@ public class JsonMappingExceptionMapperTest {
         var resultat = new JsonMappingExceptionMapper().toResponse(new InvalidTypeIdException(null, "Ukjent type-kode", null, "23525"));
         FeilDto dto = (FeilDto) resultat.getEntity();
         assertThat(dto.getFeilmelding()).isEqualTo("JSON-mapping feil");
-        assertThat(dto.getFeltFeil()).isNull();
+        assertThat(dto.getFeltFeil()).isEmpty();
     }
 }

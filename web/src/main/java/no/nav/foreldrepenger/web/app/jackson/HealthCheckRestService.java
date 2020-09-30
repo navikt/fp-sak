@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.healthchecks;
+package no.nav.foreldrepenger.web.app.jackson;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -8,6 +8,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.web.app.healthchecks.Selftests;
 
 @Path("/health")
 @ApplicationScoped
@@ -30,7 +31,8 @@ public class HealthCheckRestService {
     }
 
     /**
-     * Bruk annet svar enn 200 dersom man ønsker trafikk dirigert vekk (eller få nais til å oppskalere)
+     * Bruk annet svar enn 200 dersom man ønsker trafikk dirigert vekk (eller få
+     * nais til å oppskalere)
      */
     @GET
     @Operation(hidden = true)
@@ -38,37 +40,39 @@ public class HealthCheckRestService {
     public Response isReady() {
         if (isContextStartupReady && selftests.isReady()) {
             return Response
-                .ok(RESPONSE_OK, MediaType.TEXT_PLAIN_TYPE)
-                .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
-                .build();
-        } else {
-            return Response
+                    .ok(RESPONSE_OK, MediaType.TEXT_PLAIN_TYPE)
+                    .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
+                    .build();
+        }
+        return Response
                 .status(Response.Status.SERVICE_UNAVAILABLE)
                 .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
                 .build();
-        }
+
     }
 
     /**
-     * Bruk annet svar enn 200 kun dersom man ønsker at Nais skal restarte pod
-     * NB ikke sjekk database her - vi ønsker ikke repeat restart pga timeslange feilsituasjoner med Skatt.
+     * Bruk annet svar enn 200 kun dersom man ønsker at Nais skal restarte pod NB
+     * ikke sjekk database her - vi ønsker ikke repeat restart pga timeslange
+     * feilsituasjoner med Skatt.
      */
     @GET
     @Operation(hidden = true)
     @Path("/isAlive")
     public Response isAlive() {
-       // TODO: legg til kall til selftests isKafkaAlive. StreamsConsumer dør av og til (auth, feil, etc)
+        // TODO: legg til kall til selftests isKafkaAlive. StreamsConsumer dør av og til
+        // (auth, feil, etc)
         if (isContextStartupReady) {
             return Response
-                .ok(RESPONSE_OK, MediaType.TEXT_PLAIN_TYPE)
-                .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
-                .build();
-        } else {
-            return Response
+                    .ok(RESPONSE_OK, MediaType.TEXT_PLAIN_TYPE)
+                    .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
+                    .build();
+        }
+        return Response
                 .serverError()
                 .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
                 .build();
-        }
+
     }
 
     /**

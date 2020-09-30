@@ -32,7 +32,6 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
-import no.nav.vedtak.util.env.Cluster;
 import no.nav.vedtak.util.env.Environment;
 
 /**
@@ -66,7 +65,7 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
             FpfordelRestKlient fordelKlient) {
         this.opprettSakOrchestrator = opprettSakOrchestrator;
         this.fordelKlient = fordelKlient;
-        this.isEnvStable = Cluster.PROD_FSS.equals(Environment.current().getCluster());
+        this.isEnvStable = Environment.current().isProd();
     }
 
     OpprettSakService(OpprettSakOrchestrator opprettSakOrchestrator,
