@@ -45,10 +45,10 @@ public class DokumentBehandlingTjeneste {
 
     @Inject
     public DokumentBehandlingTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                      OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
-                                      BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                      OppgaveTjeneste oppgaveTjeneste,
-                                      BehandlingDokumentRepository behandlingDokumentRepository) {
+            OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
+            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+            OppgaveTjeneste oppgaveTjeneste,
+            BehandlingDokumentRepository behandlingDokumentRepository) {
         Objects.requireNonNull(repositoryProvider, "repositoryProvider");
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -60,27 +60,28 @@ public class DokumentBehandlingTjeneste {
 
     public void loggDokumentBestilt(Behandling behandling, DokumentMalType dokumentMalTypeKode) {
         BehandlingDokumentEntitet behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
-            .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
+                .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
         behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
-            .medBehandlingDokument(behandlingDokument)
-            .medDokumentMalType(dokumentMalTypeKode.getKode())
-            .build());
+                .medBehandlingDokument(behandlingDokument)
+                .medDokumentMalType(dokumentMalTypeKode.getKode())
+                .build());
         behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
     }
 
     public boolean erDokumentBestilt(Long behandlingId, DokumentMalType dokumentMalTypeKode) {
+
         Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         return behandlingDokument.isPresent() && behandlingDokument.get().getBestilteDokumenter().stream()
-            .map(BehandlingDokumentBestiltEntitet::getDokumentMalType)
-            .collect(Collectors.toList())
-            .contains(dokumentMalTypeKode.getKode());
+                .map(BehandlingDokumentBestiltEntitet::getDokumentMalType)
+                .collect(Collectors.toList())
+                .contains(dokumentMalTypeKode.getKode());
     }
 
     public void settBehandlingPåVent(Long behandlingId, Venteårsak venteårsak) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         opprettTaskAvsluttOppgave(behandling);
         behandlingskontrollTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT,
-            LocalDateTime.now().plus(MANUELT_VENT_FRIST), venteårsak);
+                LocalDateTime.now().plus(MANUELT_VENT_FRIST), venteårsak);
     }
 
     private void opprettTaskAvsluttOppgave(Behandling behandling) {
@@ -134,7 +135,7 @@ public class DokumentBehandlingTjeneste {
 
     private Optional<LocalDate> beregnTerminFrist(Behandling behandling, Period aksjonspunktPeriode) {
         Optional<TerminbekreftelseEntitet> gjeldendeTerminBekreftelse = familieHendelseRepository.hentAggregat(behandling.getId())
-            .getGjeldendeTerminbekreftelse();
+                .getGjeldendeTerminbekreftelse();
         if (gjeldendeTerminBekreftelse.isPresent()) {
             LocalDate oppgittTermindato = gjeldendeTerminBekreftelse.get().getTermindato();
             return Optional.of(oppgittTermindato.plus(aksjonspunktPeriode));
