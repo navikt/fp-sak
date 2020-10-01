@@ -73,7 +73,7 @@ public class UtledBekreftetPermisjonTest {
         arbeidsforholdDto.setBrukPermisjon(null);
         arbeidsforholdDto.setPermisjoner(List.of());
         // Act
-        assertThrows(IllegalArgumentException.class, () -> UtledBekreftetPermisjon.utled(arbeidsforholdDto));
+        assertThrows(IllegalStateException.class, () -> UtledBekreftetPermisjon.utled(arbeidsforholdDto));
     }
 
 }
