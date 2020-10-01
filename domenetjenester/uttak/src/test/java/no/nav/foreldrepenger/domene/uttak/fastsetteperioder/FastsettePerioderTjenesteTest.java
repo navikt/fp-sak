@@ -91,7 +91,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.fagsak.FagsakBuilder;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@RunWith(CdiRunner.class) // TODO replace
 public class FastsettePerioderTjenesteTest {
 
     @Rule

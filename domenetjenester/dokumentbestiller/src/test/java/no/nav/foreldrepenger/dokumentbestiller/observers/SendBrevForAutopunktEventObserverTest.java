@@ -1,32 +1,29 @@
 package no.nav.foreldrepenger.dokumentbestiller.observers;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.dokumentbestiller.autopunkt.SendBrevForAutopunkt;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
+@ExtendWith(MockitoExtension.class)
 public class SendBrevForAutopunktEventObserverTest {
-
-    @Rule
-    public RepositoryRule repositoryRule = new UnittestRepositoryRule();
 
     @Mock
     private Aksjonspunkt autopunktIngenSøknad;
@@ -51,9 +48,8 @@ public class SendBrevForAutopunktEventObserverTest {
 
     private Long behandlingId = 1L;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        initMocks(this);
 
         AksjonspunktDefinisjon autopunktDefinisjonIngenSøknad = AksjonspunktDefinisjon.VENT_PÅ_SØKNAD;
         AksjonspunktDefinisjon autopunktDefinisjonTidligSøknad = AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD;
@@ -63,20 +59,20 @@ public class SendBrevForAutopunktEventObserverTest {
 
         AksjonspunktDefinisjon manuellpunktDefinisjon = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET;
 
-        when(manuellpunkt.getAksjonspunktDefinisjon()).thenReturn(manuellpunktDefinisjon);
+        lenient().when(manuellpunkt.getAksjonspunktDefinisjon()).thenReturn(manuellpunktDefinisjon);
 
-        when(autopunktIngenSøknad.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonIngenSøknad);
-        when(autopunktVentFødsel.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonVentFødsel);
-        when(autopunktTidligSøknad.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonTidligSøknad);
-        when(autopunktOpptjening.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonOpptjening);
-        when(autopunktEtterkontroll.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonEtterkontroll);
+        lenient().when(autopunktIngenSøknad.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonIngenSøknad);
+        lenient().when(autopunktVentFødsel.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonVentFødsel);
+        lenient().when(autopunktTidligSøknad.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonTidligSøknad);
+        lenient().when(autopunktOpptjening.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonOpptjening);
+        lenient().when(autopunktEtterkontroll.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonEtterkontroll);
 
-        when(manuellpunkt.erOpprettet()).thenReturn(true);
-        when(autopunktIngenSøknad.erOpprettet()).thenReturn(true);
-        when(autopunktVentFødsel.erOpprettet()).thenReturn(true);
-        when(autopunktTidligSøknad.erOpprettet()).thenReturn(true);
-        when(autopunktOpptjening.erOpprettet()).thenReturn(true);
-        when(autopunktEtterkontroll.erOpprettet()).thenReturn(true);
+        lenient().when(manuellpunkt.erOpprettet()).thenReturn(true);
+        lenient().when(autopunktIngenSøknad.erOpprettet()).thenReturn(true);
+        lenient().when(autopunktVentFødsel.erOpprettet()).thenReturn(true);
+        lenient().when(autopunktTidligSøknad.erOpprettet()).thenReturn(true);
+        lenient().when(autopunktOpptjening.erOpprettet()).thenReturn(true);
+        lenient().when(autopunktEtterkontroll.erOpprettet()).thenReturn(true);
 
         behandlingskontrollKontekst = mock(BehandlingskontrollKontekst.class);
         when(behandlingskontrollKontekst.getBehandlingId()).thenReturn(behandlingId);
@@ -96,7 +92,6 @@ public class SendBrevForAutopunktEventObserverTest {
         verify(sendBrevForAutopunkt, times(0)).sendBrevForTidligSøknad(any(), any());
         verify(sendBrevForAutopunkt, times(0)).sendBrevForVenterPåOpptjening(any(), any());
     }
-
 
     @Test
     public void skalSendeBrevForSøknadIkkeMottatt() {

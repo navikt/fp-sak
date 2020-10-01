@@ -69,6 +69,7 @@
             <artifactId>behandlingslager-testutilities</artifactId>
             <scope>test</scope>
         </dependency>
+       
     </dependencies>
 
 </project>

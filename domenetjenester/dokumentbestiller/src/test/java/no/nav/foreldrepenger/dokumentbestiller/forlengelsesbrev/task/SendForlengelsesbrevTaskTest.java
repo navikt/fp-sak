@@ -10,13 +10,12 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -29,11 +28,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
+@ExtendWith(MockitoExtension.class)
 public class SendForlengelsesbrevTaskTest {
 
     private final LocalDate nå = LocalDate.now();
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
 
     private SendForlengelsesbrevTask sendForlengelsesbrevTask;
 
@@ -54,7 +52,7 @@ public class SendForlengelsesbrevTaskTest {
 
     private ScenarioMorSøkerEngangsstønad scenario;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(behandlingRepositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(behandlingRepositoryProvider.getBehandlingLåsRepository()).thenReturn(mock(BehandlingLåsRepository.class));
@@ -67,8 +65,8 @@ public class SendForlengelsesbrevTaskTest {
     public void testSkalSendeBrevOgOppdatereBehandling() {
         // Arrange
         Behandling behandling = scenario.medBehandlingstidFrist(nå.minusDays(1))
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .lagMocked();
+                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+                .lagMocked();
         when(prosessTaskData.getBehandlingId()).thenReturn(behandling.getId().toString());
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
         assertThat(behandling.getBehandlingstidFrist()).isBefore(nå);
@@ -83,8 +81,9 @@ public class SendForlengelsesbrevTaskTest {
         verify(behandlingRepository).lagre(behandlingCaptor.capture(), behandlingLåsCaptor.capture());
 
         assertThat(behandlingCaptor.getValue().getBehandlingstidFrist())
-            .withFailMessage("Behandlingtype: " + behandling.getType().getKode() + " med behandlingstidsfristuker: " + behandling.getType().getBehandlingstidFristUker())
-            .isAfter(nå);
+                .withFailMessage("Behandlingtype: " + behandling.getType().getKode() + " med behandlingstidsfristuker: "
+                        + behandling.getType().getBehandlingstidFristUker())
+                .isAfter(nå);
     }
 
     @Test

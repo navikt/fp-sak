@@ -88,7 +88,7 @@ import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-@RunWith(CdiRunner.class)
+@RunWith(CdiRunner.class) // TODO replace
 public class VedtakXmlTest {
 
     private static final String ORGNR = KUNSTIG_ORG;
