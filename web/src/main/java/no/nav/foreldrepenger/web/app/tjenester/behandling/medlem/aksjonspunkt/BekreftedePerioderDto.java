@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class BekreftedePerioderDto {
 
@@ -18,6 +19,7 @@ public class BekreftedePerioderDto {
     private Boolean oppholdsrettVurdering;
     private Boolean lovligOppholdVurdering;
     private LocalDate fodselsdato;
+    @ValidKodeverk
     private MedlemskapManuellVurderingType medlemskapManuellVurderingType;
     private String omsorgsovertakelseDato;
     private String begrunnelse;

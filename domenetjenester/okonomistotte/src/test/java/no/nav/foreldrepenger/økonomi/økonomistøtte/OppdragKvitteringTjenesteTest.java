@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragKvitteringTjeneste;
 
 public class OppdragKvitteringTjenesteTest {
 

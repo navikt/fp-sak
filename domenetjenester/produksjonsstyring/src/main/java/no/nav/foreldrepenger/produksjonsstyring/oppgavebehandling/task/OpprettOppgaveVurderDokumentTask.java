@@ -42,8 +42,8 @@ public class OpprettOppgaveVurderDokumentTask extends GenerellProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         String behandlendeEnhet = prosessTaskData.getPropertyValue(KEY_BEHANDLENDE_ENHET);
-        DokumentTypeId dokumentTypeId = Optional.ofNullable(prosessTaskData.getPropertyValue(KEY_DOKUMENT_TYPE))
-            .map(dtid -> DokumentTypeId.fraKode(dtid)).orElse(DokumentTypeId.UDEFINERT);
+        var dokumentTypeId = Optional.ofNullable(prosessTaskData.getPropertyValue(KEY_DOKUMENT_TYPE))
+            .map(DokumentTypeId::fraKode).orElse(DokumentTypeId.UDEFINERT);
         String beskrivelse = dokumentTypeId.getNavn();
         if (beskrivelse == null) {
             beskrivelse = dokumentTypeId.getKode();

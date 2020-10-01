@@ -5,12 +5,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class PermisjonDto {
 
     private LocalDate permisjonFom;
     private LocalDate permisjonTom;
     private BigDecimal permisjonsprosent;
+    @ValidKodeverk
     private PermisjonsbeskrivelseType type;
 
     PermisjonDto(){

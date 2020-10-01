@@ -118,7 +118,7 @@ public class DokumentmottakerSøknadDefaultTest {
         //Arrange
         Fagsak fagsak = nyMorFødselFagsak();
         Long fagsakId = fagsak.getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
 
@@ -139,7 +139,7 @@ public class DokumentmottakerSøknadDefaultTest {
         //Arrange
         Fagsak fagsak = nyMorFødselFagsak();
         Long fagsakId = fagsak.getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattPapirsøknad(DokumentTypeId.UDEFINERT, fagsakId, "", now(), true, null);
 
@@ -165,7 +165,7 @@ public class DokumentmottakerSøknadDefaultTest {
             .lagre(repositoryProvider);
 
         Long fagsakId = behandling.getFagsakId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 
         String xml = null; // papirsøknad
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, xml, now(), false, null);
@@ -189,7 +189,7 @@ public class DokumentmottakerSøknadDefaultTest {
             .lagre(repositoryProvider);
 
         Long fagsakId = behandling.getFagsakId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 
         String xml = null; // papirsøknad
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, xml, now(), false, null);
@@ -224,7 +224,7 @@ public class DokumentmottakerSøknadDefaultTest {
         //simulere at den tidliggere behandligen er avsluttet
         behandling.avsluttBehandling();
         Long fagsakId = behandling.getFagsakId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         Behandling revurdering = mock(Behandling.class);
@@ -267,7 +267,7 @@ public class DokumentmottakerSøknadDefaultTest {
 
         // Act - send inn søknad
         Long fagsakId = fagsak.getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
@@ -298,7 +298,7 @@ public class DokumentmottakerSøknadDefaultTest {
 
         // Act - send inn søknad
         Long fagsakId = fagsak.getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
@@ -320,7 +320,7 @@ public class DokumentmottakerSøknadDefaultTest {
 
         // Act - send inn søknad
         Long fagsakId = fagsak.getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         when(behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(fagsak), any(), any(), anyBoolean())).thenReturn(nyBehandling);
 
@@ -344,7 +344,7 @@ public class DokumentmottakerSøknadDefaultTest {
         // Act - send inn søknad
         Long fagsakId = behandling.getFagsakId();
         Fagsak fagsak = behandling.getFagsak();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, null);
 
@@ -373,7 +373,7 @@ public class DokumentmottakerSøknadDefaultTest {
         // Arrange - bygg søknad
         Long fagsakId = behandling.getFagsakId();
         Fagsak fagsak = behandling.getFagsak();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
 
         // Act
@@ -396,7 +396,7 @@ public class DokumentmottakerSøknadDefaultTest {
         //simulere at den tidliggere behandligen er avsluttet
         behandling.avsluttBehandling();
         Long fagsakId = behandling.getFagsakId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -428,7 +428,7 @@ public class DokumentmottakerSøknadDefaultTest {
         //simulere at den tidliggere behandligen er avsluttet
         behandling.avsluttBehandling();
         Long fagsakId = behandling.getFagsakId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         doReturn(true).when(behandlingsoppretter).erBehandlingOgFørstegangsbehandlingHenlagt(behandling.getFagsak());
@@ -455,7 +455,7 @@ public class DokumentmottakerSøknadDefaultTest {
         //simulere at den tidliggere behandligen er avsluttet
         behandling.avsluttBehandling();
         Long fagsakId = behandling.getFagsakId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         doReturn(false).when(behandlingsoppretter).erBehandlingOgFørstegangsbehandlingHenlagt(behandling.getFagsak());
@@ -481,7 +481,7 @@ public class DokumentmottakerSøknadDefaultTest {
         Behandling behandling2 = Behandling.fraTidligereBehandling(behandling1, BehandlingType.FØRSTEGANGSSØKNAD).build();
         lagreBehandling(behandling2);
 
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 
         when(mottatteDokumentTjeneste.harMottattDokumentSet(eq(behandling2.getId()), anySet())).thenReturn(true);
 
@@ -519,7 +519,7 @@ public class DokumentmottakerSøknadDefaultTest {
         Behandling behandling2 = Behandling.fraTidligereBehandling(behandling1, BehandlingType.FØRSTEGANGSSØKNAD).build();
         lagreBehandling(behandling2);
 
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 
         when(mottatteDokumentTjeneste.harMottattDokumentSet(eq(behandling2.getId()), anySet())).thenReturn(true);
 
@@ -559,7 +559,7 @@ public class DokumentmottakerSøknadDefaultTest {
         Behandling behandling2 = Behandling.fraTidligereBehandling(behandling1, BehandlingType.FØRSTEGANGSSØKNAD).build();
         lagreBehandling(behandling2);
 
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 
         when(mottatteDokumentTjeneste.harMottattDokumentSet(eq(behandling1.getId()), anySet())).thenReturn(true);
         when(mottatteDokumentTjeneste.harMottattDokumentSet(eq(behandling2.getId()), anySet())).thenReturn(false);

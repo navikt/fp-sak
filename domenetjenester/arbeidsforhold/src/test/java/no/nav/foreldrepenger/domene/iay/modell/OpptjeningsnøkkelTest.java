@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.iay.modell;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class OpptjeningsnøkkelTest {

@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
@@ -45,12 +46,12 @@ public enum FordelingPeriodeKilde implements Kodeverdi {
         this.kode = kode;
         this.navn = navn;
     }
-
-    @JsonCreator
-    public static FordelingPeriodeKilde fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static FordelingPeriodeKilde fraKode(@JsonProperty(value = "kode") Object node) {
+        if (node == null) {
             return null;
         }
+        String kode = TempAvledeKode.getVerdi(FordelingPeriodeKilde.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent FordelingPeriodeKilde: " + kode);

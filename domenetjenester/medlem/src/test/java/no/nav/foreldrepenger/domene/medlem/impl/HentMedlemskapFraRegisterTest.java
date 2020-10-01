@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.integrasjon.medl2.Medlemskapsunntak;
@@ -24,7 +23,6 @@ import no.nav.vedtak.felles.integrasjon.medl2.MedlemsunntakRestKlient;
 
 public class HentMedlemskapFraRegisterTest {
 
-    private static final FiktiveFnr FIKTIVE_FNR = new FiktiveFnr();
     private static final AktørId AKTØR_ID = AktørId.dummy();
 
     private MedlemsunntakRestKlient restKlient = mock(MedlemsunntakRestKlient.class);
@@ -38,7 +36,7 @@ public class HentMedlemskapFraRegisterTest {
     }
 
     @Test
-    public void skal_hente_medlemsperioder_og_logge_dem_til_saksopplysningslageret()throws Exception {
+    public void skal_hente_medlemsperioder_og_logge_dem_til_saksopplysningslageret() throws Exception {
         // Arrange
         Medlemskapsunntak unntak = mock(Medlemskapsunntak.class);
         when(unntak.getUnntakId()).thenReturn(MEDL_ID_1);
@@ -55,22 +53,23 @@ public class HentMedlemskapFraRegisterTest {
         when(restKlient.finnMedlemsunntak(eq(AKTØR_ID.getId()), any(), any())).thenReturn(List.of(unntak));
 
         // Act
-        List<Medlemskapsperiode> medlemskapsperioder = medlemTjeneste.finnMedlemskapPerioder(AKTØR_ID, LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
+        List<Medlemskapsperiode> medlemskapsperioder = medlemTjeneste.finnMedlemskapPerioder(AKTØR_ID, LocalDate.now().minusYears(1),
+                LocalDate.now().plusYears(1));
 
         // Assert
         assertThat(medlemskapsperioder).hasSize(1);
 
         Medlemskapsperiode medlemskapsperiode1 = new Medlemskapsperiode.Builder()
-            .medFom(LocalDate.of(2010, 8, 1))
-            .medTom(LocalDate.of(2010, 12, 31))
-            .medDatoBesluttet(LocalDate.of(2012, 5, 26))
-            .medErMedlem(true)
-            .medDekning(MedlemskapDekningType.FULL)
-            .medLovvalg(MedlemskapType.ENDELIG)
-            .medLovvalgsland(Landkoder.UZB)
-            .medKilde(MedlemskapKildeType.AVGSYS)
-            .medStudieland(Landkoder.VUT)
-            .medMedlId(MEDL_ID_1)
-            .build();
+                .medFom(LocalDate.of(2010, 8, 1))
+                .medTom(LocalDate.of(2010, 12, 31))
+                .medDatoBesluttet(LocalDate.of(2012, 5, 26))
+                .medErMedlem(true)
+                .medDekning(MedlemskapDekningType.FULL)
+                .medLovvalg(MedlemskapType.ENDELIG)
+                .medLovvalgsland(Landkoder.UZB)
+                .medKilde(MedlemskapKildeType.AVGSYS)
+                .medStudieland(Landkoder.VUT)
+                .medMedlId(MEDL_ID_1)
+                .build();
     }
 }

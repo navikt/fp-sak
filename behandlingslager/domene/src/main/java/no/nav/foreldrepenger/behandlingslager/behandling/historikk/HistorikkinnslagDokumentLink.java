@@ -14,9 +14,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 @Entity(name = "HistorikkinnslagDokumentLink")
 @Table(name = "HISTORIKKINNSLAG_DOK_LINK")

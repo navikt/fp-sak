@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FaktaBeregningLagreDto;
@@ -57,8 +56,7 @@ public class KunYtelseHistorikkTjenesteTest {
 
     private EntityManager em = repositoryRule.getEntityManager();
 
-    private KodeverkRepository kodeverkRepository = new KodeverkRepository(em);
-    private final DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(mock(JournalConsumerImpl.class), new FagsakRepository(em), kodeverkRepository);
+    private final DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(mock(JournalConsumerImpl.class), new FagsakRepository(em));
     private HistorikkTjenesteAdapter historikkAdapter = new HistorikkTjenesteAdapter(
         new HistorikkRepository(repositoryRule.getEntityManager()), new HistorikkInnslagKonverter(), dokumentArkivTjeneste);
     private KunYtelseHistorikkTjeneste kunYtelseHistorikkTjeneste;

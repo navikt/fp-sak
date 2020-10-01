@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.DRIFT;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -31,6 +29,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -47,7 +46,6 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingSaksnum
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @Path("/forvaltningUttrekk")
 @ApplicationScoped
@@ -65,10 +63,10 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     @Inject
-    public ForvaltningUttrekkRestTjeneste( EntityManager entityManager,
-                                          BehandlingRepositoryProvider repositoryProvider,
-                                          ProsessTaskRepository prosessTaskRepository,
-                                          OverlappVedtakRepository overlappRepository) {
+    public ForvaltningUttrekkRestTjeneste(EntityManager entityManager,
+            BehandlingRepositoryProvider repositoryProvider,
+            ProsessTaskRepository prosessTaskRepository,
+            OverlappVedtakRepository overlappRepository) {
         this.entityManager = entityManager;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -81,7 +79,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Gir åpne aksjonspunkter med angitt kode", tags = "FORVALTNING-uttrekk")
     @Path("/openAutopunkt")
-    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response openAutopunkt(@Parameter(description = "Aksjonspunktkoden") @BeanParam @Valid AksjonspunktKodeDto dto) {
         AksjonspunktDefinisjon apDef = AksjonspunktDefinisjon.fraKode(dto.getAksjonspunktKode());
         if (apDef == null) {
@@ -96,43 +94,32 @@ public class ForvaltningUttrekkRestTjeneste {
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         List<OpenAutopunkt> åpneAksjonspunkt = resultatList.stream()
-            .map(this::mapFraAksjonspunktTilDto)
-            .collect(Collectors.toList());
+                .map(this::mapFraAksjonspunktTilDto)
+                .collect(Collectors.toList());
         return Response.ok(åpneAksjonspunkt).build();
     }
 
     private OpenAutopunkt mapFraAksjonspunktTilDto(Object[] row) {
         OpenAutopunkt autopunkt = new OpenAutopunkt();
-        autopunkt.aksjonspunktOpprettetDato = ((Timestamp)row[1]).toLocalDateTime().toLocalDate(); // NOSONAR
-        autopunkt.aksjonspunktFristDato = row[2] != null ? ((Timestamp)row[2]).toLocalDateTime().toLocalDate() : null; // NOSONAR
-        autopunkt.saksnummer = (String)row[0]; // NOSONAR
+        autopunkt.aksjonspunktOpprettetDato = ((Timestamp) row[1]).toLocalDateTime().toLocalDate(); // NOSONAR
+        autopunkt.aksjonspunktFristDato = row[2] != null ? ((Timestamp) row[2]).toLocalDateTime().toLocalDate() : null; // NOSONAR
+        autopunkt.saksnummer = (String) row[0]; // NOSONAR
         return autopunkt;
     }
 
     public static class OpenAutopunkt {
-        public String saksnummer;  // NOSONAR
-        public LocalDate aksjonspunktOpprettetDato;  // NOSONAR
-        public LocalDate aksjonspunktFristDato;  // NOSONAR
+        public String saksnummer; // NOSONAR
+        public LocalDate aksjonspunktOpprettetDato; // NOSONAR
+        public LocalDate aksjonspunktFristDato; // NOSONAR
     }
 
     @GET
     @Path("/listFagsakUtenBehandling")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent liste av saknumre for fagsak uten noen behandlinger",
-        tags = "FORVALTNING-uttrekk",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                description = "Fagsaker uten behandling",
-                content = @Content(
-                    array = @ArraySchema(
-                        arraySchema = @Schema(implementation = List.class),
-                        schema = @Schema(implementation = SaksnummerDto.class)),
-                    mediaType = MediaType.APPLICATION_JSON
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Hent liste av saknumre for fagsak uten noen behandlinger", tags = "FORVALTNING-uttrekk", responses = {
+            @ApiResponse(responseCode = "200", description = "Fagsaker uten behandling", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = SaksnummerDto.class)), mediaType = MediaType.APPLICATION_JSON))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public List<SaksnummerDto> listFagsakUtenBehandling() {
         return fagsakRepository.hentÅpneFagsakerUtenBehandling().stream().map(SaksnummerDto::new).collect(Collectors.toList());
     }
@@ -142,8 +129,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(action = READ, ressurs = DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response avstemPeriodeForOverlapp(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
         ProsessTaskData prosessTaskData = new ProsessTaskData(VedtakOverlappAvstemTask.TASKTYPE);
         prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TEMA_KEY_KEY, dto.getKey());
@@ -160,8 +146,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(action = READ, ressurs = DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response avstemSakForOverlapp(@Parameter(description = "Saksnummer") @BeanParam @Valid AvstemmingSaksnummerDto s) {
         ProsessTaskData prosessTaskData = new ProsessTaskData(VedtakOverlappAvstemTask.TASKTYPE);
         prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TEMA_KEY_KEY, VedtakOverlappAvstemTask.LOG_TEMA_BOTH_KEY);
@@ -177,12 +162,11 @@ public class ForvaltningUttrekkRestTjeneste {
     @Path("/hentAvstemtSakOverlappTrex")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Prøver å finne overlapp og returnere resultat", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentAvstemtSakOverlappTrex(@Parameter(description = "Saksnummer") @BeanParam @Valid AvstemmingSaksnummerDto s) {
         var resultat = overlappRepository.hentForSaksnummer(new Saksnummer(s.getSaksnummer())).stream()
-            .sorted(Comparator.comparing(OverlappVedtak::getOpprettetTidspunkt).reversed())
-            .collect(Collectors.toList());
+                .sorted(Comparator.comparing(OverlappVedtak::getOpprettetTidspunkt).reversed())
+                .collect(Collectors.toList());
         return Response.ok(resultat).build();
     }
 }

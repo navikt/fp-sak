@@ -21,8 +21,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.økonomi.økonomistøtte.BehandleØkonomioppdragKvittering;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.queue.TestOnlyMqDisabled;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomiKvittering;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.queue.TestOnlyMqDisabled;
 import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped

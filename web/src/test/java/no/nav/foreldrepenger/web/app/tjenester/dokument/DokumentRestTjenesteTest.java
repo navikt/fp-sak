@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.dokument;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -14,8 +13,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
@@ -45,27 +47,29 @@ import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
-@SuppressWarnings("deprecation")
+@ExtendWith(MockitoExtension.class)
 public class DokumentRestTjenesteTest {
 
     private static final String ORGNR = KUNSTIG_ORG;
+    @Mock
     private DokumentArkivTjeneste dokumentArkivTjeneste;
+    @Mock
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    @Mock
     private FagsakRepository fagsakRepository;
+    @Mock
     private MottatteDokumentRepository mottatteDokumentRepository;
+    @Mock
     private DokumentRestTjeneste tjeneste;
+    @Mock
     private VirksomhetTjeneste virksomhetTjeneste;
+    @Mock
     private BehandlingRepository behandlingRepository;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        dokumentArkivTjeneste = mock(DokumentArkivTjeneste.class);
-        inntektsmeldingTjeneste = mock(InntektsmeldingTjeneste.class);
-        fagsakRepository = mock(FagsakRepository.class);
-        mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
-        virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        behandlingRepository = mock(BehandlingRepository.class);
-        tjeneste = new DokumentRestTjeneste(dokumentArkivTjeneste, inntektsmeldingTjeneste, fagsakRepository, mottatteDokumentRepository, virksomhetTjeneste, behandlingRepository);
+        tjeneste = new DokumentRestTjeneste(dokumentArkivTjeneste, inntektsmeldingTjeneste, fagsakRepository, mottatteDokumentRepository,
+                virksomhetTjeneste, behandlingRepository);
     }
 
     @Test
@@ -75,18 +79,18 @@ public class DokumentRestTjenesteTest {
         assertThat(response).isEmpty();
     }
 
-
     @Test
     public void skal_returnere_to_dokument() throws Exception {
         Long fagsakId = 5L;
         Long behandlingId = 150L;
         AktørId aktørId = AktørId.dummy();
-        Personinfo personinfo = new NavPersoninfoBuilder().medAktørId(aktørId).medDiskresjonskode("6").medPersonstatusType(PersonstatusType.DØD).build();
+        Personinfo personinfo = new NavPersoninfoBuilder().medAktørId(aktørId).medDiskresjonskode("6").medPersonstatusType(PersonstatusType.DØD)
+                .build();
         NavBruker navBruker = new NavBrukerBuilder().medPersonInfo(personinfo).build();
         Fagsak fagsak = FagsakBuilder.nyForeldrepengerForMor()
-            .medBruker(navBruker)
-            .medSaksnummer(new Saksnummer("123456"))
-            .build();
+                .medBruker(navBruker)
+                .medSaksnummer(new Saksnummer("123456"))
+                .build();
         Whitebox.setInternalState(fagsak, "id", fagsakId);
         when(fagsakRepository.hentSakGittSaksnummer(any())).thenReturn(Optional.of(fagsak));
 
@@ -119,14 +123,15 @@ public class DokumentRestTjenesteTest {
         when(dokumentArkivTjeneste.hentAlleDokumenterForVisning(any())).thenReturn(List.of(søknadJP, søknadV, imJP));
 
         MottattDokument mds = new MottattDokument.Builder().medId(1001L).medJournalPostId(new JournalpostId("123"))
-            .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).medFagsakId(fagsakId).medBehandlingId(behandlingId).build();
+                .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).medFagsakId(fagsakId).medBehandlingId(behandlingId).build();
         MottattDokument mdim = new MottattDokument.Builder().medId(1002L).medJournalPostId(new JournalpostId("124"))
-            .medDokumentType(DokumentTypeId.INNTEKTSMELDING).medFagsakId(fagsakId).medBehandlingId(behandlingId).build();
+                .medDokumentType(DokumentTypeId.INNTEKTSMELDING).medFagsakId(fagsakId).medBehandlingId(behandlingId).build();
         when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId)).thenReturn(List.of(mdim, mds));
 
         String vnavn = "Sinsen Septik og Snarmat";
         Virksomhet sinsen = new Virksomhet.Builder().medNavn(vnavn).medOrgnr(ORGNR).build();
-        Inntektsmelding imelda = InntektsmeldingBuilder.builder().medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR)).medJournalpostId(mdim.getJournalpostId()).medInnsendingstidspunkt(LocalDateTime.now()).build();
+        Inntektsmelding imelda = InntektsmeldingBuilder.builder().medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+                .medJournalpostId(mdim.getJournalpostId()).medInnsendingstidspunkt(LocalDateTime.now()).build();
 
         when(inntektsmeldingTjeneste.hentAlleInntektsmeldingerForAngitteBehandlinger(any())).thenReturn(Collections.singletonList(imelda));
 
@@ -141,6 +146,5 @@ public class DokumentRestTjenesteTest {
         assertThat(imdto.get().getGjelderFor()).isEqualTo(vnavn);
         assertThat(imdto.get().getBehandlinger()).hasSize(1);
     }
-
 
 }

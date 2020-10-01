@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.behandlingslager.testutilities.behandling;
 
 import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -121,12 +121,12 @@ import no.nav.vedtak.felles.testutilities.Whitebox;
 /**
  * Default test scenario builder for å definere opp testdata med enkle defaults.
  * <p>
- * Oppretter en default behandling, inkludert default grunnlag med søknad + tomt innangsvilkårresultat.
+ * Oppretter en default behandling, inkludert default grunnlag med søknad + tomt
+ * innangsvilkårresultat.
  * <p>
  * Kan bruke settere (evt. legge til) for å tilpasse utgangspunktet.
  * <p>
- * Mer avansert bruk er ikke gitt at kan bruke denne
- * klassen.
+ * Mer avansert bruk er ikke gitt at kan bruke denne klassen.
  */
 @SuppressWarnings("deprecation")
 public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
@@ -188,27 +188,27 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private boolean manueltOpprettet;
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
-                                   NavBrukerKjønn kjønn) {
+            NavBrukerKjønn kjønn) {
         this.fagsakBuilder = FagsakBuilder
-            .nyFagsak(fagsakYtelseType, brukerRolle)
-            .medSaksnummer(new Saksnummer(nyId() + ""))
-            .medBrukerKjønn(kjønn);
+                .nyFagsak(fagsakYtelseType, brukerRolle)
+                .medSaksnummer(new Saksnummer(nyId() + ""))
+                .medBrukerKjønn(kjønn);
     }
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
-                                   NavBrukerKjønn kjønn, AktørId aktørId) {
+            NavBrukerKjønn kjønn, AktørId aktørId) {
         this.fagsakBuilder = FagsakBuilder
-            .nyFagsak(fagsakYtelseType, brukerRolle)
-            .medSaksnummer(new Saksnummer(nyId() + ""))
-            .medBruker(new NavBrukerBuilder().medAktørId(aktørId).medKjønn(kjønn).build());
+                .nyFagsak(fagsakYtelseType, brukerRolle)
+                .medSaksnummer(new Saksnummer(nyId() + ""))
+                .medBruker(new NavBrukerBuilder().medAktørId(aktørId).medKjønn(kjønn).build());
     }
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
-                                   NavBruker navBruker) {
+            NavBruker navBruker) {
         this.fagsakBuilder = FagsakBuilder
-            .nyFagsak(fagsakYtelseType, brukerRolle)
-            .medSaksnummer(new Saksnummer(nyId() + ""))
-            .medBruker(navBruker);
+                .nyFagsak(fagsakYtelseType, brukerRolle)
+                .medSaksnummer(new Saksnummer(nyId() + ""))
+                .medBruker(navBruker);
     }
 
     static long nyId() {
@@ -218,7 +218,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private BehandlingRepository lagBasicMockBehandlingRepository(BehandlingRepositoryProvider repositoryProvider) {
         BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
 
-        when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
+        lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
 
         FagsakRepository mockFagsakRepository = mockFagsakRepository();
         PersonopplysningRepository mockPersonopplysningRepository = lagMockPersonopplysningRepository();
@@ -232,20 +232,21 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         BehandlingLåsRepository behandlingLåsReposiory = mockBehandlingLåsRepository();
 
         BehandlingVedtakRepository behandlingVedtakRepository = mockBehandlingVedtakRepository();
-        // ikke ideelt å la mocks returnere mocks, men forenkler enormt mye test kode, forhindrer feil oppsett, så det
+        // ikke ideelt å la mocks returnere mocks, men forenkler enormt mye test kode,
+        // forhindrer feil oppsett, så det
         // blir enklere å refactorere
 
-        when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
-        when(repositoryProvider.getFagsakRepository()).thenReturn(mockFagsakRepository);
-        when(repositoryProvider.getPersonopplysningRepository()).thenReturn(mockPersonopplysningRepository);
-        when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepository);
-        when(repositoryProvider.getMedlemskapRepository()).thenReturn(mockMedlemskapRepository);
-        when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
-        when(repositoryProvider.getBehandlingVedtakRepository()).thenReturn(behandlingVedtakRepository);
-        when(repositoryProvider.getFagsakLåsRepository()).thenReturn(fagsakLåsRepository);
-        when(repositoryProvider.getBehandlingLåsRepository()).thenReturn(behandlingLåsReposiory);
-        when(repositoryProvider.getFagsakRelasjonRepository()).thenReturn(fagsakRelasjonRepositoryMock);
-        when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(resultatRepository);
+        lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
+        lenient().when(repositoryProvider.getFagsakRepository()).thenReturn(mockFagsakRepository);
+        lenient().when(repositoryProvider.getPersonopplysningRepository()).thenReturn(mockPersonopplysningRepository);
+        lenient().when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepository);
+        lenient().when(repositoryProvider.getMedlemskapRepository()).thenReturn(mockMedlemskapRepository);
+        lenient().when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
+        lenient().when(repositoryProvider.getBehandlingVedtakRepository()).thenReturn(behandlingVedtakRepository);
+        lenient().when(repositoryProvider.getFagsakLåsRepository()).thenReturn(fagsakLåsRepository);
+        lenient().when(repositoryProvider.getBehandlingLåsRepository()).thenReturn(behandlingLåsReposiory);
+        lenient().when(repositoryProvider.getFagsakRelasjonRepository()).thenReturn(fagsakRelasjonRepositoryMock);
+        lenient().when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(resultatRepository);
 
         return behandlingRepository;
     }
@@ -321,7 +322,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private BehandlingVedtakRepository mockBehandlingVedtakRepository() {
         BehandlingVedtakRepository behandlingVedtakRepository = mock(BehandlingVedtakRepository.class);
         BehandlingVedtak behandlingVedtak = mockBehandlingVedtak();
-        when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(Mockito.any())).thenReturn(Optional.of(behandlingVedtak));
+        lenient().when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(Mockito.any())).thenReturn(Optional.of(behandlingVedtak));
 
         return behandlingVedtakRepository;
     }
@@ -366,8 +367,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             @Override
             public List<OppgittPeriodeEntitet> getOppgittePerioder() {
                 return Collections.singletonList(OppgittPeriodeBuilder.ny()
-                    .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(6))
-                    .medPeriodeType(UttakPeriodeType.MØDREKVOTE).build());
+                        .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(6))
+                        .medPeriodeType(UttakPeriodeType.MØDREKVOTE).build());
             }
 
             @Override
@@ -387,11 +388,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             @Override
             public Optional<FamilieHendelseGrunnlagEntitet> hentAggregatHvisEksisterer(Long behandlingId) {
                 return familieHendelseAggregatMap.entrySet().stream().filter(e -> Objects.equals(behandlingId, e.getKey())).map(e -> e.getValue())
-                    .findFirst();
+                        .findFirst();
             }
 
             @Override
-            public DiffResult diffResultat(FamilieHendelseGrunnlagEntitet grunnlag1, FamilieHendelseGrunnlagEntitet grunnlag2, boolean kunSporedeEndringer) {
+            public DiffResult diffResultat(FamilieHendelseGrunnlagEntitet grunnlag1, FamilieHendelseGrunnlagEntitet grunnlag2,
+                    boolean kunSporedeEndringer) {
                 return null;
             }
 
@@ -440,9 +442,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             private boolean harOverstyrtTerminOgOvergangTilFødsel(FamilieHendelseGrunnlagEntitet kladd) {
                 return kladd.getHarOverstyrteData() && kladd.getOverstyrtVersjon()
-                    .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT).equals(FamilieHendelseType.TERMIN)
-                    && kladd.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT)
-                    .equals(FamilieHendelseType.FØDSEL);
+                        .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT).equals(FamilieHendelseType.TERMIN)
+                        && kladd.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT)
+                                .equals(FamilieHendelseType.FØDSEL);
             }
 
             @Override
@@ -494,7 +496,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             @Override
             public FamilieHendelseBuilder opprettBuilderFor(Behandling behandling) {
                 final FamilieHendelseGrunnlagBuilder aggregatBuilder = FamilieHendelseGrunnlagBuilder
-                    .oppdatere(hentAggregatHvisEksisterer(behandling.getId()));
+                        .oppdatere(hentAggregatHvisEksisterer(behandling.getId()));
                 return opprettBuilderFor(aggregatBuilder);
             }
 
@@ -545,61 +547,64 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         repositoryProvider = mock(BehandlingRepositoryProvider.class);
         BehandlingRepository behandlingRepository = lagBasicMockBehandlingRepository(repositoryProvider);
 
-        when(behandlingRepository.hentBehandling(Mockito.any(Long.class))).thenAnswer(a -> {
+        lenient().when(behandlingRepository.hentBehandling(Mockito.any(Long.class))).thenAnswer(a -> {
             Long id = a.getArgument(0);
             return behandlingMap.getOrDefault(id, null);
         });
-        when(behandlingRepository.hentBehandling(Mockito.any(UUID.class))).thenAnswer(a -> {
+        lenient().when(behandlingRepository.hentBehandling(Mockito.any(UUID.class))).thenAnswer(a -> {
             throw new UnsupportedOperationException("Ikke implementert for AbstractTestScenario");
         });
-        when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(Mockito.any())).thenAnswer(a -> {
+        lenient().when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(Mockito.any())).thenAnswer(a -> {
             return List.copyOf(behandlingMap.values());
         });
-        when(behandlingRepository.finnUnikBehandlingForBehandlingId(Mockito.any())).thenAnswer(a -> {
+        lenient().when(behandlingRepository.finnUnikBehandlingForBehandlingId(Mockito.any())).thenAnswer(a -> {
             Long id = a.getArgument(0);
             return Optional.ofNullable(behandlingMap.getOrDefault(id, null));
         });
-        when(behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(Mockito.any(), Mockito.any(BehandlingType.class)))
-            .thenAnswer(a -> {
-                Long id = a.getArgument(0);
-                BehandlingType type = a.getArgument(1);
-                return behandlingMap.values().stream().filter(b -> type.equals(b.getType()) && b.getFagsakId().equals(id)).sorted().findFirst();
-            });
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(Mockito.any()))
-            .thenAnswer(a -> {
-                Long id = a.getArgument(0);
-                return behandlingMap.values().stream().filter(b -> BehandlingType.getYtelseBehandlingTyper().contains(b.getType())).filter(b -> b.getFagsakId().equals(id)).sorted().findFirst();
-            });
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(Mockito.any()))
-            .thenAnswer(a -> {
-                Long id = a.getArgument(0);
-                return behandlingMap.values().stream()
-                    .filter(b -> b.getFagsakId().equals(id) && b.getBehandlingsresultat() != null && !b.getBehandlingsresultat().isBehandlingHenlagt()).sorted()
-                    .findFirst();
-            });
+        lenient().when(behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(Mockito.any(), Mockito.any(BehandlingType.class)))
+                .thenAnswer(a -> {
+                    Long id = a.getArgument(0);
+                    BehandlingType type = a.getArgument(1);
+                    return behandlingMap.values().stream().filter(b -> type.equals(b.getType()) && b.getFagsakId().equals(id)).sorted().findFirst();
+                });
+        lenient().when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(Mockito.any()))
+                .thenAnswer(a -> {
+                    Long id = a.getArgument(0);
+                    return behandlingMap.values().stream().filter(b -> BehandlingType.getYtelseBehandlingTyper().contains(b.getType()))
+                            .filter(b -> b.getFagsakId().equals(id)).sorted().findFirst();
+                });
+        lenient().when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(Mockito.any()))
+                .thenAnswer(a -> {
+                    Long id = a.getArgument(0);
+                    return behandlingMap.values().stream()
+                            .filter(b -> b.getFagsakId().equals(id) && b.getBehandlingsresultat() != null
+                                    && !b.getBehandlingsresultat().isBehandlingHenlagt())
+                            .sorted()
+                            .findFirst();
+                });
 
-        when(behandlingRepository.taSkriveLås(behandlingCaptor.capture())).thenAnswer((Answer<BehandlingLås>) invocation -> {
+        lenient().when(behandlingRepository.taSkriveLås(behandlingCaptor.capture())).thenAnswer((Answer<BehandlingLås>) invocation -> {
             Behandling beh = invocation.getArgument(0);
             return new BehandlingLås(beh.getId()) {
             };
         });
 
-        when(behandlingRepository.hentSistOppdatertTidspunkt(Mockito.any()))
-            .thenAnswer(a -> Optional.ofNullable(opplysningerOppdatertTidspunkt));
+        lenient().when(behandlingRepository.hentSistOppdatertTidspunkt(Mockito.any()))
+                .thenAnswer(a -> Optional.ofNullable(opplysningerOppdatertTidspunkt));
 
-        when(behandlingRepository.lagre(behandlingCaptor.capture(), Mockito.any()))
-            .thenAnswer((Answer<Long>) invocation -> {
-                Behandling beh = invocation.getArgument(0);
-                Long id = beh.getId();
-                if (id == null) {
-                    id = nyId();
-                    Whitebox.setInternalState(beh, "id", id);
-                }
+        lenient().when(behandlingRepository.lagre(behandlingCaptor.capture(), Mockito.any()))
+                .thenAnswer((Answer<Long>) invocation -> {
+                    Behandling beh = invocation.getArgument(0);
+                    Long id = beh.getId();
+                    if (id == null) {
+                        id = nyId();
+                        Whitebox.setInternalState(beh, "id", id);
+                    }
 
-                beh.getAksjonspunkter().forEach(punkt -> Whitebox.setInternalState(punkt, "id", nyId()));
-                behandlingMap.put(id, beh);
-                return id;
-            });
+                    beh.getAksjonspunkter().forEach(punkt -> Whitebox.setInternalState(punkt, "id", nyId()));
+                    behandlingMap.put(id, beh);
+                    return id;
+                });
 
         mockBehandlingRepository = behandlingRepository;
         return behandlingRepository;
@@ -614,7 +619,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         MedlemskapRepository dummy = new MedlemskapRepository(null) {
             @Override
             public void lagreOgFlush(Long behandlingId, Optional<MedlemskapBehandlingsgrunnlagEntitet> eksisterendeGrunnlag,
-                                     MedlemskapBehandlingsgrunnlagEntitet nyttGrunnlag) {
+                    MedlemskapBehandlingsgrunnlagEntitet nyttGrunnlag) {
                 assert behandlingId != null : "behandlingId er null!";
                 medlemskapgrunnlag.put(behandlingId, nyttGrunnlag);
             }
@@ -664,11 +669,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     public FagsakRepository mockFagsakRepository() {
         FagsakRepository fagsakRepository = mock(FagsakRepository.class);
-        when(fagsakRepository.finnEksaktFagsak(Mockito.anyLong())).thenAnswer(a -> fagsak);
-        when(fagsakRepository.finnUnikFagsak(Mockito.anyLong())).thenAnswer(a -> Optional.of(fagsak));
-        when(fagsakRepository.hentSakGittSaksnummer(Mockito.any(Saksnummer.class))).thenAnswer(a -> Optional.of(fagsak));
-        when(fagsakRepository.hentForBruker(Mockito.any(AktørId.class))).thenAnswer(a -> singletonList(fagsak));
-        when(fagsakRepository.opprettNy(fagsakCaptor.capture())).thenAnswer(invocation -> {
+        lenient().when(fagsakRepository.finnEksaktFagsak(Mockito.anyLong())).thenAnswer(a -> fagsak);
+        lenient().when(fagsakRepository.finnUnikFagsak(Mockito.anyLong())).thenAnswer(a -> Optional.of(fagsak));
+        lenient().when(fagsakRepository.hentSakGittSaksnummer(Mockito.any(Saksnummer.class))).thenAnswer(a -> Optional.of(fagsak));
+        lenient().when(fagsakRepository.hentForBruker(Mockito.any(AktørId.class))).thenAnswer(a -> singletonList(fagsak));
+        lenient().when(fagsakRepository.opprettNy(fagsakCaptor.capture())).thenAnswer(invocation -> {
             Fagsak fagsak = invocation.getArgument(0); // NOSONAR
             Long id = fagsak.getId();
             if (id == null) {
@@ -679,12 +684,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         });
 
         // oppdater fagsakstatus
-        Mockito.doAnswer(invocation -> {
+        Mockito.lenient().doAnswer(invocation -> {
             FagsakStatus status = invocation.getArgument(1);
             Whitebox.setInternalState(fagsak, "fagsakStatus", status);
             return null;
         }).when(fagsakRepository)
-            .oppdaterFagsakStatus(eq(fagsakId), Mockito.any(FagsakStatus.class));
+                .oppdaterFagsakStatus(eq(fagsakId), Mockito.any(FagsakStatus.class));
 
         return fagsakRepository;
     }
@@ -708,7 +713,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         mockBehandlingRepository = mockBehandlingRepository();
 
-        lagre(repositoryProvider); // NOSONAR //$NON-NLS-1$
+        lagre(repositoryProvider);
         return mockBehandlingRepository;
     }
 
@@ -733,7 +738,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         lagreBehandlingsresultatOgVilkårResultat(repositoryProvider, lås);
         lagreUttak(repositoryProvider.getFpUttakRepository());
         builder.medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
-            .medAvslagsårsak(Avslagsårsak.ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR).buildFor(behandling);
+                .medAvslagsårsak(Avslagsårsak.ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR).buildFor(behandling);
 
         behandlingRepo.lagre(behandling, lås);
     }
@@ -747,32 +752,32 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         if (personer != null && !personer.isEmpty()) {
             personer.stream().filter(e -> e.getType().equals(PersonopplysningVersjonType.REGISTRERT))
-                .findFirst().ifPresent(e -> lagrePersoninfo(behandling, e, personopplysningRepository));
+                    .findFirst().ifPresent(e -> lagrePersoninfo(behandling, e, personopplysningRepository));
 
             personer.stream().filter(a -> a.getType().equals(PersonopplysningVersjonType.OVERSTYRT))
-                .findFirst().ifPresent(b -> {
-                if (personer.stream().noneMatch(c -> c.getType().equals(PersonopplysningVersjonType.REGISTRERT))) {
-                    // Sjekker om overstyring er ok, mao om registeropplysninger finnes
-                    personopplysningRepository.opprettBuilderForOverstyring(behandlingId);
-                }
-                lagrePersoninfo(behandling, b, personopplysningRepository);
-            });
+                    .findFirst().ifPresent(b -> {
+                        if (personer.stream().noneMatch(c -> c.getType().equals(PersonopplysningVersjonType.REGISTRERT))) {
+                            // Sjekker om overstyring er ok, mao om registeropplysninger finnes
+                            personopplysningRepository.opprettBuilderForOverstyring(behandlingId);
+                        }
+                        lagrePersoninfo(behandling, b, personopplysningRepository);
+                    });
 
         } else {
             PersonInformasjon registerInformasjon = PersonInformasjon.builder(PersonopplysningVersjonType.REGISTRERT)
-                .leggTilPersonopplysninger(
-                    no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning.builder()
-                        .aktørId(behandling.getAktørId())
-                        .navn("Forelder")
-                        .brukerKjønn(getKjønnFraFagsak())
-                        .fødselsdato(LocalDate.now().minusYears(25))
-                        .sivilstand(SivilstandType.UOPPGITT)
-                        .region(Region.NORDEN))
-                .leggTilPersonstatus(Personstatus.builder()
-                    .personstatus(PersonstatusType.BOSA)
-                    .periode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1))
-                    .aktørId(behandling.getAktørId()))
-                .build();
+                    .leggTilPersonopplysninger(
+                            no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning.builder()
+                                    .aktørId(behandling.getAktørId())
+                                    .navn("Forelder")
+                                    .brukerKjønn(getKjønnFraFagsak())
+                                    .fødselsdato(LocalDate.now().minusYears(25))
+                                    .sivilstand(SivilstandType.UOPPGITT)
+                                    .region(Region.NORDEN))
+                    .leggTilPersonstatus(Personstatus.builder()
+                            .personstatus(PersonstatusType.BOSA)
+                            .periode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1))
+                            .aktørId(behandling.getAktørId()))
+                    .build();
             lagrePersoninfo(behandling, registerInformasjon, personopplysningRepository);
         }
     }
@@ -797,28 +802,29 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     private void lagrePersoninfo(Behandling behandling, PersonInformasjonBuilder personInformasjonBuilder, PersonInformasjon personInformasjon,
-                                 PersonopplysningRepository repository) {
+            PersonopplysningRepository repository) {
         personInformasjon.getPersonopplysninger().forEach(e -> {
             PersonInformasjonBuilder.PersonopplysningBuilder builder = personInformasjonBuilder.getPersonopplysningBuilder(e.getAktørId());
             builder.medNavn(e.getNavn())
-                .medFødselsdato(e.getFødselsdato())
-                .medDødsdato(e.getDødsdato())
-                .medKjønn(e.getBrukerKjønn())
-                .medRegion(e.getRegion())
-                .medSivilstand(e.getSivilstand());
+                    .medFødselsdato(e.getFødselsdato())
+                    .medDødsdato(e.getDødsdato())
+                    .medKjønn(e.getBrukerKjønn())
+                    .medRegion(e.getRegion())
+                    .medSivilstand(e.getSivilstand());
 
             personInformasjonBuilder.leggTil(builder);
         });
 
         personInformasjon.getAdresser().forEach(e -> {
-            PersonInformasjonBuilder.AdresseBuilder builder = personInformasjonBuilder.getAdresseBuilder(e.getAktørId(), e.getPeriode(), e.getAdresseType());
+            PersonInformasjonBuilder.AdresseBuilder builder = personInformasjonBuilder.getAdresseBuilder(e.getAktørId(), e.getPeriode(),
+                    e.getAdresseType());
             builder.medAdresselinje1(e.getAdresselinje1())
-                .medAdresselinje2(e.getAdresselinje2())
-                .medAdresselinje3(e.getAdresselinje3())
-                .medAdresselinje4(e.getAdresselinje4())
-                .medLand(e.getLand())
-                .medPostnummer(e.getPostnummer())
-                .medPoststed(e.getPoststed());
+                    .medAdresselinje2(e.getAdresselinje2())
+                    .medAdresselinje3(e.getAdresselinje3())
+                    .medAdresselinje4(e.getAdresselinje4())
+                    .medLand(e.getLand())
+                    .medPostnummer(e.getPostnummer())
+                    .medPoststed(e.getPoststed());
 
             personInformasjonBuilder.leggTil(builder);
         });
@@ -831,14 +837,15 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         personInformasjon.getStatsborgerskap().forEach(e -> {
             Region region = MapRegionLandkoder.mapRangerLandkoder(List.of(e.getStatsborgerskap().getKode()));
-            PersonInformasjonBuilder.StatsborgerskapBuilder builder = personInformasjonBuilder.getStatsborgerskapBuilder(e.getAktørId(), e.getPeriode(),
-                e.getStatsborgerskap(), region);
+            PersonInformasjonBuilder.StatsborgerskapBuilder builder = personInformasjonBuilder.getStatsborgerskapBuilder(e.getAktørId(),
+                    e.getPeriode(),
+                    e.getStatsborgerskap(), region);
             personInformasjonBuilder.leggTil(builder);
         });
 
         personInformasjon.getRelasjoner().forEach(e -> {
             PersonInformasjonBuilder.RelasjonBuilder builder = personInformasjonBuilder.getRelasjonBuilder(e.getAktørId(), e.getTilAktørId(),
-                e.getRelasjonsrolle());
+                    e.getRelasjonsrolle());
             builder.harSammeBosted(e.getHarSammeBosted());
             personInformasjonBuilder.leggTil(builder);
         });
@@ -849,7 +856,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     protected void validerTilstandVedMocking() {
         if (startSteg != null) {
             throw new IllegalArgumentException(
-                "Kan ikke sette startSteg ved mocking siden dette krever Kodeverk.  Bruk ManipulerInternBehandling til å justere etterpå.");
+                    "Kan ikke sette startSteg ved mocking siden dette krever Kodeverk.  Bruk ManipulerInternBehandling til å justere etterpå.");
         }
     }
 
@@ -896,13 +903,13 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private void leggTilAksjonspunkter(Behandling behandling) {
         aksjonspunktDefinisjoner.forEach(
-            (apDef, stegType) -> {
-                if (stegType != null) {
-                    AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType);
-                } else {
-                    AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef);
-                }
-            });
+                (apDef, stegType) -> {
+                    if (stegType != null) {
+                        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType);
+                    } else {
+                        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef);
+                    }
+                });
     }
 
     private void lagreSøknad(BehandlingRepositoryProvider repositoryProvider) {
@@ -983,7 +990,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             behandlingBuilder = Behandling.nyBehandlingFor(fagsak, behandlingType);
         } else {
             behandlingBuilder = Behandling.fraTidligereBehandling(originalBehandling, behandlingType)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(behandlingÅrsakType).medManueltOpprettet(manueltOpprettet).medOriginalBehandlingId(originalBehandling.getId()));
+                    .medBehandlingÅrsak(BehandlingÅrsak.builder(behandlingÅrsakType).medManueltOpprettet(manueltOpprettet)
+                            .medOriginalBehandlingId(originalBehandling.getId()));
         }
 
         if (behandlingstidFrist != null) {
@@ -1005,14 +1013,15 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             if (entityManager != null) {
                 BrukerTjeneste brukerTjeneste = new BrukerTjeneste(new NavBrukerRepository(entityManager));
                 final Personinfo personinfo = new Personinfo.Builder()
-                    .medFødselsdato(LocalDate.now())
-                    .medPersonIdent(PersonIdent.fra("123451234123"))
-                    .medNavn("asdf")
-                    .medAktørId(fagsakBuilder.getBrukerBuilder().getAktørId())
-                    .medNavBrukerKjønn(getKjønnFraFagsak())
-                    .medForetrukketSpråk(
-                        fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode() : Språkkode.NB)
-                    .build();
+                        .medFødselsdato(LocalDate.now())
+                        .medPersonIdent(PersonIdent.fra("123451234123"))
+                        .medNavn("asdf")
+                        .medAktørId(fagsakBuilder.getBrukerBuilder().getAktørId())
+                        .medNavBrukerKjønn(getKjønnFraFagsak())
+                        .medForetrukketSpråk(
+                                fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode()
+                                        : Språkkode.NB)
+                        .build();
                 final NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(personinfo);
                 fagsakBuilder.medBruker(navBruker);
             }
@@ -1024,19 +1033,19 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private NavBrukerKjønn getKjønnFraFagsak() {
         return fagsakBuilder.getBrukerBuilder().getKjønn() != null ? fagsakBuilder.getBrukerBuilder().getKjønn()
-            : (RelasjonsRolleType.erMor(fagsakBuilder.getRolle()) || RelasjonsRolleType.erMedmor(fagsakBuilder.getRolle()) ? NavBrukerKjønn.KVINNE
-            : NavBrukerKjønn.MANN);
+                : (RelasjonsRolleType.erMor(fagsakBuilder.getRolle()) || RelasjonsRolleType.erMedmor(fagsakBuilder.getRolle()) ? NavBrukerKjønn.KVINNE
+                        : NavBrukerKjønn.MANN);
     }
 
     private void lagreBehandlingsresultatOgVilkårResultat(BehandlingRepositoryProvider repoProvider, BehandlingLås lås) {
         // opprett og lagre behandlingsresultat med VilkårResultat og BehandlingVedtak
         Behandlingsresultat behandlingsresultat = (behandlingresultatBuilder == null ? Behandlingsresultat.builderForInngangsvilkår()
-            : behandlingresultatBuilder).buildFor(behandling);
+                : behandlingresultatBuilder).buildFor(behandling);
         behandlingresultatBuilder = null; // resett
 
         VilkårResultat.Builder inngangsvilkårBuilder = VilkårResultat
-            .builderFraEksisterende(behandlingsresultat.getVilkårResultat())
-            .medVilkårResultatType(vilkårResultatType);
+                .builderFraEksisterende(behandlingsresultat.getVilkårResultat())
+                .medVilkårResultatType(vilkårResultatType);
 
         vilkårTyper.forEach((vilkårType, vilkårUtfallType) -> {
             inngangsvilkårBuilder.leggTilVilkår(vilkårType, vilkårUtfallType);
@@ -1047,7 +1056,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         repoProvider.getBehandlingRepository().lagre(vilkårResultat, lås);
 
         if (behandlingVedtakBuilder != null) {
-            // Må lagre Behandling for at Behandlingsresultat ikke skal være transient når BehandlingVedtak blir lagret:
+            // Må lagre Behandling for at Behandlingsresultat ikke skal være transient når
+            // BehandlingVedtak blir lagret:
             repoProvider.getBehandlingRepository().lagre(behandling, lås);
             behandlingVedtak = behandlingVedtakBuilder.medBehandlingsresultat(behandlingsresultat).build();
             repoProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, lås);
@@ -1141,9 +1151,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     public BehandlingVedtak.Builder medBehandlingVedtak() {
         if (behandlingVedtakBuilder == null) {
             behandlingVedtakBuilder = BehandlingVedtak.builder()
-                // Setter defaultverdier
-                .medVedtakstidspunkt(LocalDateTime.now().minusDays(1))
-                .medAnsvarligSaksbehandler("Nav Navesen");
+                    // Setter defaultverdier
+                    .medVedtakstidspunkt(LocalDateTime.now().minusDays(1))
+                    .medAnsvarligSaksbehandler("Nav Navesen");
         }
         return behandlingVedtakBuilder;
     }
@@ -1168,19 +1178,19 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             oppgittTilknytningBuilder = new MedlemskapOppgittTilknytningEntitet.Builder();
         }
         MedlemskapOppgittLandOppholdEntitet oppholdNorgeSistePeriode = new MedlemskapOppgittLandOppholdEntitet.Builder()
-            .erTidligereOpphold(true)
-            .medLand(Landkoder.NOR)
-            .medPeriode(
-                LocalDate.now().minusYears(1),
-                LocalDate.now())
-            .build();
+                .erTidligereOpphold(true)
+                .medLand(Landkoder.NOR)
+                .medPeriode(
+                        LocalDate.now().minusYears(1),
+                        LocalDate.now())
+                .build();
         MedlemskapOppgittLandOppholdEntitet oppholdNorgeNestePeriode = new MedlemskapOppgittLandOppholdEntitet.Builder()
-            .erTidligereOpphold(false)
-            .medLand(Landkoder.NOR)
-            .medPeriode(
-                LocalDate.now(),
-                LocalDate.now().plusYears(1))
-            .build();
+                .erTidligereOpphold(false)
+                .medLand(Landkoder.NOR)
+                .medPeriode(
+                        LocalDate.now(),
+                        LocalDate.now().plusYears(1))
+                .build();
         List<MedlemskapOppgittLandOppholdEntitet> oppholdNorge = List.of(oppholdNorgeNestePeriode, oppholdNorgeSistePeriode);
 
         oppgittTilknytningBuilder.medOpphold(oppholdNorge).medOppholdNå(true).medOppgittDato(LocalDate.now());
@@ -1270,11 +1280,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medDefaultSøknadTerminbekreftelse() {
         final FamilieHendelseBuilder.TerminbekreftelseBuilder terminbekreftelse = medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medTermindato(LocalDate.now().plusDays(40))
-            .medNavnPå("LEGEN LEGESEN")
-            .medUtstedtDato(LocalDate.now().minusDays(7));
+                .medTermindato(LocalDate.now().plusDays(40))
+                .medNavnPå("LEGEN LEGESEN")
+                .medUtstedtDato(LocalDate.now().minusDays(7));
         medSøknadHendelse()
-            .medTerminbekreftelse(terminbekreftelse);
+                .medTerminbekreftelse(terminbekreftelse);
 
         return (S) this;
     }
@@ -1282,11 +1292,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medDefaultBekreftetTerminbekreftelse() {
         final FamilieHendelseBuilder.TerminbekreftelseBuilder terminbekreftelse = medBekreftetHendelse().getTerminbekreftelseBuilder()
-            .medTermindato(LocalDate.now().plusDays(40))
-            .medNavnPå("LEGEN LEGESEN")
-            .medUtstedtDato(LocalDate.now().minusDays(7));
+                .medTermindato(LocalDate.now().plusDays(40))
+                .medNavnPå("LEGEN LEGESEN")
+                .medUtstedtDato(LocalDate.now().minusDays(7));
         medBekreftetHendelse()
-            .medTerminbekreftelse(terminbekreftelse);
+                .medTerminbekreftelse(terminbekreftelse);
 
         return (S) this;
     }
@@ -1294,8 +1304,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medBruker(AktørId aktørId, NavBrukerKjønn kjønn) {
         fagsakBuilder
-            .medBrukerAktørId(aktørId)
-            .medBrukerKjønn(kjønn);
+                .medBrukerAktørId(aktørId)
+                .medBrukerKjønn(kjønn);
 
         return (S) this;
     }
@@ -1303,7 +1313,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medBruker(AktørId aktørId) {
         fagsakBuilder
-            .medBrukerAktørId(aktørId);
+                .medBrukerAktørId(aktørId);
 
         return (S) this;
     }
@@ -1311,7 +1321,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medBrukerKjønn(NavBrukerKjønn kjønn) {
         fagsakBuilder
-            .medBrukerKjønn(kjønn);
+                .medBrukerKjønn(kjønn);
 
         return (S) this;
     }
@@ -1415,8 +1425,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     /**
-     * temporær metode til vi får fjernet gammel entitet helt.
-     * Gjør en begrenset mapping av Søker data (uten adresse, relasjoner)
+     * temporær metode til vi får fjernet gammel entitet helt. Gjør en begrenset
+     * mapping av Søker data (uten adresse, relasjoner)
      *
      * @deprecated bruk {@link #medRegisterOpplysninger(PersonInformasjon)}
      */
@@ -1434,7 +1444,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         @Override
         public void kopierGrunnlagFraEksisterendeBehandlingForRevurdering(Long eksisterendeBehandlingId, Long nyBehandlingId) {
             final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                Optional.ofNullable(personopplysningMap.getOrDefault(eksisterendeBehandlingId, null)));
+                    Optional.ofNullable(personopplysningMap.getOrDefault(eksisterendeBehandlingId, null)));
 
             personopplysningMap.put(nyBehandlingId, oppdatere.build());
         }
@@ -1454,14 +1464,15 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         }
 
         @Override
-        public DiffResult diffResultat(PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2, boolean kunSporedeEndringer) {
+        public DiffResult diffResultat(PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2,
+                boolean kunSporedeEndringer) {
             return null;
         }
 
         @Override
         public void lagre(Long behandlingId, PersonInformasjonBuilder builder) {
             final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
+                    Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
             if (builder.getType().equals(PersonopplysningVersjonType.REGISTRERT)) {
                 oppdatere.medRegistrertVersjon(builder);
             }
@@ -1474,7 +1485,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         @Override
         public void lagre(Long behandlingId, OppgittAnnenPartBuilder oppgittAnnenPart) {
             final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
+                    Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
             oppdatere.medOppgittAnnenPart(oppgittAnnenPart.build());
             personopplysningMap.put(behandlingId, oppdatere.build());
         }
@@ -1482,19 +1493,21 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         @Override
         public PersonInformasjonBuilder opprettBuilderForOverstyring(Long behandlingId) {
             final Optional<PersonopplysningGrunnlagEntitet> grunnlag = Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null));
-            return PersonInformasjonBuilder.oppdater(grunnlag.flatMap(PersonopplysningGrunnlagEntitet::getOverstyrtVersjon), PersonopplysningVersjonType.OVERSTYRT);
+            return PersonInformasjonBuilder.oppdater(grunnlag.flatMap(PersonopplysningGrunnlagEntitet::getOverstyrtVersjon),
+                    PersonopplysningVersjonType.OVERSTYRT);
         }
 
         @Override
         public PersonInformasjonBuilder opprettBuilderForRegisterdata(Long behandlingId) {
             final Optional<PersonopplysningGrunnlagEntitet> grunnlag = Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null));
-            return PersonInformasjonBuilder.oppdater(grunnlag.flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon), PersonopplysningVersjonType.REGISTRERT);
+            return PersonInformasjonBuilder.oppdater(grunnlag.flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon),
+                    PersonopplysningVersjonType.REGISTRERT);
         }
 
         @Override
         public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId) {
             final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                Optional.ofNullable(personopplysningMap.getOrDefault(gammelBehandlingId, null)));
+                    Optional.ofNullable(personopplysningMap.getOrDefault(gammelBehandlingId, null)));
 
             personopplysningMap.put(nyBehandlingId, oppdatere.build());
         }

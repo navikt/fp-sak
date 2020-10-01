@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
 /** @deprecated: Er et tynt subsett av RelasjonRolleType, men kodene er i bruk i SøknadXML så kan ikke bare slettes. */
 @Deprecated
@@ -53,11 +54,12 @@ public enum ForeldreType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static ForeldreType fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static ForeldreType fraKode(@JsonProperty(value = "kode") Object node) {
+        if (node == null) {
             return null;
         }
+        String kode = TempAvledeKode.getVerdi(ForeldreType.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent ForeldreType: " + kode);
@@ -90,7 +92,7 @@ public enum ForeldreType implements Kodeverdi {
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     public static void main(String[] args) {
         System.out.println(KODER.keySet());
     }

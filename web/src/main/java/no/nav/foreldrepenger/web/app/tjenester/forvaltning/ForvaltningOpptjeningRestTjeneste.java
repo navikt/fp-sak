@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.abakus.iaygrunnlag.oppgittopptjening.v1.OppgittOpptjeningDto;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.abakus.mapping.IAYTilDtoMapper;
@@ -42,7 +43,6 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.LeggTilOppgittNæ
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @Path("/forvaltningOpptjening")
 @ApplicationScoped
@@ -50,11 +50,10 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 public class ForvaltningOpptjeningRestTjeneste {
 
     private static Map<String, VirksomhetType> næringTypeKodeMap = Map.of(
-        "A", VirksomhetType.ANNEN,
-        "D", VirksomhetType.DAGMAMMA,
-        "F", VirksomhetType.FISKE,
-        "J", VirksomhetType.JORDBRUK_SKOGBRUK
-    );
+            "A", VirksomhetType.ANNEN,
+            "D", VirksomhetType.DAGMAMMA,
+            "F", VirksomhetType.FISKE,
+            "J", VirksomhetType.JORDBRUK_SKOGBRUK);
 
     private BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -63,9 +62,9 @@ public class ForvaltningOpptjeningRestTjeneste {
 
     @Inject
     public ForvaltningOpptjeningRestTjeneste(BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
-                                             InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                             VirksomhetTjeneste virksomhetTjeneste,
-                                             ProsessTaskRepository prosessTaskRepository) {
+            InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+            VirksomhetTjeneste virksomhetTjeneste,
+            ProsessTaskRepository prosessTaskRepository) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.virksomhetTjeneste = virksomhetTjeneste;
@@ -73,14 +72,14 @@ public class ForvaltningOpptjeningRestTjeneste {
     }
 
     public ForvaltningOpptjeningRestTjeneste() {
-        //CDI
+        // CDI
     }
 
     @POST
     @Path("/leggTilOppgittFrilans")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Legg til innslag for oppgitt frilansaktivitet", tags = "FORVALTNING-opptjening")
-    @BeskyttetRessurs(action = CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response leggTilOppgittFrilans(@BeanParam @Valid LeggTilOppgittFrilansDto dto) {
         Long behandlingId = dto.getBehandlingId();
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
@@ -89,10 +88,11 @@ public class ForvaltningOpptjeningRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         boolean nyoppstartet = dto.getStpOpptjening().minusMonths(3).isBefore(dto.getFrilansFom());
-        var periode = dto.getFrilansTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFrilansFom(), dto.getFrilansTom()) : DatoIntervallEntitet.fraOgMed(dto.getFrilansFom());
+        var periode = dto.getFrilansTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFrilansFom(), dto.getFrilansTom())
+                : DatoIntervallEntitet.fraOgMed(dto.getFrilansFom());
         var ooBuilder = OppgittOpptjeningBuilder.ny(iayGrunnlag.getEksternReferanse(), iayGrunnlag.getOpprettetTidspunkt())
-            .leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode, ArbeidType.FRILANSER))
-            .leggTilFrilansOpplysninger(new OppgittFrilans(false, nyoppstartet, false));
+                .leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode, ArbeidType.FRILANSER))
+                .leggTilFrilansOpplysninger(new OppgittFrilans(false, nyoppstartet, false));
         inntektArbeidYtelseTjeneste.lagreOppgittOpptjening(behandlingId, ooBuilder);
 
         return Response.noContent().build();
@@ -102,28 +102,30 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Path("/leggTilOppgittNæring")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Legg til innslag for oppgitt næring som fisker", tags = "FORVALTNING-opptjening")
-    @BeskyttetRessurs(action = CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response leggTilOppgittNæring(@BeanParam @Valid LeggTilOppgittNæringDto dto) {
         Long behandlingId = dto.getBehandlingId();
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
-        if (iayGrunnlag.getOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet() || næringTypeKodeMap.get(dto.getTypeKode()) == null
-            || ("J".equals(dto.getVarigEndring()) && dto.getEndringsDato() == null)) {
+        if (iayGrunnlag.getOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()
+                || næringTypeKodeMap.get(dto.getTypeKode()) == null
+                || ("J".equals(dto.getVarigEndring()) && dto.getEndringsDato() == null)) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        Optional<Virksomhet> virksomhet = dto.getOrgnummer() !=null ? virksomhetTjeneste.finnOrganisasjon(dto.getOrgnummer()) : Optional.empty();
+        Optional<Virksomhet> virksomhet = dto.getOrgnummer() != null ? virksomhetTjeneste.finnOrganisasjon(dto.getOrgnummer()) : Optional.empty();
         var brutto = new BigDecimal(Long.parseLong(dto.getBruttoBeløp()));
-        var periode = dto.getTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFom(), dto.getTom()) : DatoIntervallEntitet.fraOgMed(dto.getFom());
+        var periode = dto.getTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFom(), dto.getTom())
+                : DatoIntervallEntitet.fraOgMed(dto.getFom());
         var enBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
-            .medVirksomhetType(næringTypeKodeMap.get(dto.getTypeKode()))
-            .medPeriode(periode)
-            .medBruttoInntekt(brutto)
-            .medNærRelasjon(false)
-            .medNyIArbeidslivet(false)
-            .medNyoppstartet(false)
-            .medVarigEndring(false)
-            .medRegnskapsførerNavn(dto.getRegnskapNavn())
-            .medRegnskapsførerTlf(dto.getRegnskapTlf());
+                .medVirksomhetType(næringTypeKodeMap.get(dto.getTypeKode()))
+                .medPeriode(periode)
+                .medBruttoInntekt(brutto)
+                .medNærRelasjon(false)
+                .medNyIArbeidslivet(false)
+                .medNyoppstartet(false)
+                .medVarigEndring(false)
+                .medRegnskapsførerNavn(dto.getRegnskapNavn())
+                .medRegnskapsførerTlf(dto.getRegnskapTlf());
         virksomhet.ifPresent(v -> enBuilder.medVirksomhet(v.getOrgnr()));
         if ("J".equals(dto.getVarigEndring())) {
             enBuilder.medVarigEndring(true).medBegrunnelse(dto.getBegrunnelse()).medEndringDato(dto.getEndringsDato());
@@ -132,7 +134,7 @@ public class ForvaltningOpptjeningRestTjeneste {
             enBuilder.medNyoppstartet(true);
         }
         var ooBuilder = OppgittOpptjeningBuilder.ny(iayGrunnlag.getEksternReferanse(), iayGrunnlag.getOpprettetTidspunkt())
-            .leggTilEgneNæringer(List.of(enBuilder));
+                .leggTilEgneNæringer(List.of(enBuilder));
         inntektArbeidYtelseTjeneste.lagreOppgittOpptjening(behandlingId, ooBuilder);
 
         return Response.noContent().build();
@@ -142,7 +144,7 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Path("/reInnhentAlleIAYRegisterData")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Tvinger full registeroppdatering av IAY på åpen behandling", tags = "FORVALTNING-opptjening")
-    @BeskyttetRessurs(action = CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response reInnhentAlleIAYRegisterData(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Long behandlingId = dto.getBehandlingId();
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
@@ -162,14 +164,14 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Hent oppgitt opptjening for behandling", tags = "FORVALTNING-opptjening")
-    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public OppgittOpptjeningDto hentOppgittOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Long behandlingId = dto.getBehandlingId();
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
         var mappedOpptjening = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
-            iayGrunnlag.getEksternReferanse(), behandling.getUuid()).mapTilDto(iayGrunnlag)
-            .getOppgittOpptjening();
+                iayGrunnlag.getEksternReferanse(), behandling.getUuid()).mapTilDto(iayGrunnlag)
+                        .getOppgittOpptjening();
 
         return mappedOpptjening;
     }

@@ -2,6 +2,10 @@ package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 
 import java.util.Objects;
 
+import javax.persistence.LockModeType;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+
 /**
  * Lås, fungerer som token som indikerer at write-lock er tatt ut. Kreves av lagre metoder.
  * Er knyttet til underliggende lock på database rad ({@link LockModeType#PESSIMISTIC_WRITE}).

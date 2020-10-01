@@ -50,11 +50,11 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
 
     private static void validerSamsvarBehandlingOgFagsak(Long behandlingId, Long fagsakId, Set<Long> fagsakIder) {
         List<Long> fagsakerSomIkkeErForventet = fagsakIder.stream()
-            .filter(f -> !fagsakId.equals(f))
-            .collect(Collectors.toList());
+                .filter(f -> !fagsakId.equals(f))
+                .collect(Collectors.toList());
         if (!fagsakerSomIkkeErForventet.isEmpty()) {
             throw FeilFactory.create(PdpRequestBuilderFeil.class).ugyldigInputManglerSamsvarBehandlingFagsak(behandlingId, fagsakerSomIkkeErForventet)
-                .toException();
+                    .toException();
         }
     }
 
@@ -62,13 +62,14 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     public PdpRequest lagPdpRequest(AbacAttributtSamling attributter) {
         Optional<Long> behandlingIder = utledBehandlingIder(attributter);
         Optional<PipBehandlingsData> behandlingData = behandlingIder.isPresent()
-            ? pipRepository.hentDataForBehandling(behandlingIder.get())
-            : Optional.empty();
+                ? pipRepository.hentDataForBehandling(behandlingIder.get())
+                : Optional.empty();
         Set<Long> fagsakIder = behandlingData.isPresent()
-            ? utledFagsakIder(attributter, behandlingData.get())
-            : utledFagsakIder(attributter);
+                ? utledFagsakIder(attributter, behandlingData.get())
+                : utledFagsakIder(attributter);
 
-        behandlingData.ifPresent(pipBehandlingsData -> validerSamsvarBehandlingOgFagsak(behandlingIder.get(), pipBehandlingsData.getFagsakId(), fagsakIder));
+        behandlingData.ifPresent(
+                pipBehandlingsData -> validerSamsvarBehandlingOgFagsak(behandlingIder.get(), pipBehandlingsData.getFagsakId(), fagsakIder));
 
         if (!fagsakIder.isEmpty()) {
             MDC_EXTENDED_LOG_CONTEXT.remove("fagsak");
@@ -80,15 +81,16 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         });
 
         Set<AktørId> aktørIder = utledAktørIder(attributter, fagsakIder);
-        Set<String> aksjonspunktType = pipRepository.hentAksjonspunktTypeForAksjonspunktKoder(attributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_KODE));
+        Set<String> aksjonspunktType = pipRepository
+                .hentAksjonspunktTypeForAksjonspunktKoder(attributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_KODE));
         return behandlingData.isPresent()
-            ? lagPdpRequest(attributter, aktørIder, aksjonspunktType, behandlingData.get())
-            : lagPdpRequest(attributter, aktørIder, aksjonspunktType);
+                ? lagPdpRequest(attributter, aktørIder, aksjonspunktType, behandlingData.get())
+                : lagPdpRequest(attributter, aktørIder, aksjonspunktType);
     }
 
-    private PdpRequest lagPdpRequest(AbacAttributtSamling attributter, Set<AktørId> aktørIder, Collection<String> aksjonspunktType) {
+    private static PdpRequest lagPdpRequest(AbacAttributtSamling attributter, Set<AktørId> aktørIder, Collection<String> aksjonspunktType) {
         Set<String> aktører = aktørIder == null ? Collections.emptySet()
-            : aktørIder.stream().map(AktørId::getId).collect(Collectors.toCollection(TreeSet::new));
+                : aktørIder.stream().map(AktørId::getId).collect(Collectors.toCollection(TreeSet::new));
         Set<String> fnrs = attributter.getVerdier(AppAbacAttributtType.FNR);
 
         PdpRequest pdpRequest = new PdpRequest();
@@ -107,14 +109,14 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     }
 
     private PdpRequest lagPdpRequest(AbacAttributtSamling attributter, Set<AktørId> aktørIder, Collection<String> aksjonspunktType,
-                                     PipBehandlingsData behandlingData) {
+            PipBehandlingsData behandlingData) {
         PdpRequest pdpRequest = lagPdpRequest(attributter, aktørIder, aksjonspunktType);
         AbacUtil.oversettBehandlingStatus(behandlingData.getBehandligStatus())
-            .ifPresent(it -> pdpRequest.put(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_BEHANDLINGSSTATUS, it.getEksternKode()));
+                .ifPresent(it -> pdpRequest.put(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_BEHANDLINGSSTATUS, it.getEksternKode()));
         AbacUtil.oversettFagstatus(behandlingData.getFagsakStatus())
-            .ifPresent(it -> pdpRequest.put(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_SAKSSTATUS, it.getEksternKode()));
+                .ifPresent(it -> pdpRequest.put(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_SAKSSTATUS, it.getEksternKode()));
         behandlingData.getAnsvarligSaksbehandler()
-            .ifPresent(it -> pdpRequest.put(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_ANSVARLIG_SAKSBEHANDLER, it));
+                .ifPresent(it -> pdpRequest.put(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_ANSVARLIG_SAKSBEHANDLER, it));
         return pdpRequest;
     }
 

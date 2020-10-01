@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -17,10 +16,10 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -57,7 +56,7 @@ public class KompletthetssjekkerSøknadFørstegangsbehandlingImpl extends Komple
     @Override
     public List<ManglendeVedlegg> utledManglendeVedleggForSøknad(BehandlingReferanse ref) {
         final Optional<SøknadEntitet> søknad = søknadRepository.hentSøknadHvisEksisterer(ref.getBehandlingId());
-        Set<DokumentType> dokumentTypeIds = dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.getSaksnummer(), LocalDate.MIN, Collections.emptyList());
+        Set<DokumentTypeId> dokumentTypeIds = dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.getSaksnummer(), LocalDate.MIN);
         List<ManglendeVedlegg> manglendeVedlegg = identifiserManglendeVedlegg(søknad, dokumentTypeIds);
 
         if (!manglendeVedlegg.isEmpty()) {

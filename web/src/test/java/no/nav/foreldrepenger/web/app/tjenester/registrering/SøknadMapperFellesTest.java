@@ -12,15 +12,17 @@ import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettUtenlandskVirksomhetMedEndringUtenRegnskapsfører;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -54,18 +56,19 @@ import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.UtenlandskArbeidsforho
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.UtenlandskOrganisasjon;
 import no.nav.vedtak.konfig.Tid;
 
+@ExtendWith(MockitoExtension.class)
 public class SøknadMapperFellesTest {
 
     public static final AktørId STD_KVINNE_AKTØR_ID = AktørId.dummy();
+    @Mock
     private TpsTjeneste tpsTjeneste;
+    @Mock
     private VirksomhetTjeneste virksomhetTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        tpsTjeneste = mock(TpsTjeneste.class);
-        virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         Virksomhet virksomhetEntitet = new Virksomhet.Builder().medOrgnr("123").medRegistrert(LocalDate.now()).build();
-        when(virksomhetTjeneste.hentOrganisasjon(anyString())).thenReturn(virksomhetEntitet);
+        lenient().when(virksomhetTjeneste.hentOrganisasjon(anyString())).thenReturn(virksomhetEntitet);
     }
 
     @Test
@@ -82,7 +85,8 @@ public class SøknadMapperFellesTest {
 
     @Test
     public void test_mapRelasjonTilBarnet_adopsjon() {
-        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.ADOPSJON, LocalDate.now(), LocalDate.now().minusMonths(3), 1, LocalDate.now());
+        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.ADOPSJON, LocalDate.now(),
+                LocalDate.now().minusMonths(3), 1, LocalDate.now());
         manuellRegistreringEngangsstonadDto.setTema(FamilieHendelseType.ADOPSJON);
         SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = SøknadMapperFelles.mapRelasjonTilBarnet(manuellRegistreringEngangsstonadDto);
         assertThat(søkersRelasjonTilBarnet).isInstanceOf(Adopsjon.class);
@@ -90,7 +94,8 @@ public class SøknadMapperFellesTest {
 
     @Test
     public void test_mapRelasjonTilBarnet_fødsel_med_rettighet_knyttet_til_omsorgsovertakelse_satt() {
-        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.FØDSEL, LocalDate.now(), LocalDate.now().minusMonths(3), 1, LocalDate.now());
+        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.FØDSEL, LocalDate.now(),
+                LocalDate.now().minusMonths(3), 1, LocalDate.now());
         manuellRegistreringEngangsstonadDto.setTema(FamilieHendelseType.FØDSEL);
         manuellRegistreringEngangsstonadDto.setSoker(ForeldreType.FAR);
         manuellRegistreringEngangsstonadDto.setRettigheter(RettigheterDto.OVERTA_FORELDREANSVARET_ALENE);
@@ -106,7 +111,8 @@ public class SøknadMapperFellesTest {
         LocalDate.now().minusMonths(2);
         final int antallBarn = 1;
 
-        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.ADOPSJON, omsorgsovertakelsesdato, fødselssdato, antallBarn, ankomstDato);
+        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.ADOPSJON,
+                omsorgsovertakelsesdato, fødselssdato, antallBarn, ankomstDato);
         Adopsjon adopsjon = SøknadMapperFelles.mapAdopsjon(manuellRegistreringEngangsstonadDto);
         assertThat(adopsjon).isNotNull();
         assertThat(adopsjon.getOmsorgsovertakelsesdato()).isEqualTo(omsorgsovertakelsesdato);
@@ -117,7 +123,8 @@ public class SøknadMapperFellesTest {
 
     @Test
     public void test_mapRelasjonTilBarnet_omsorg() {
-        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = opprettOmsorgDto(FamilieHendelseType.OMSORG, LocalDate.now(), RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, 1, LocalDate.now());
+        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = opprettOmsorgDto(FamilieHendelseType.OMSORG, LocalDate.now(),
+                RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, 1, LocalDate.now());
         SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = SøknadMapperFelles.mapRelasjonTilBarnet(manuellRegistreringEngangsstonadDto);
         assertThat(søkersRelasjonTilBarnet).isInstanceOf(Omsorgsovertakelse.class);
     }
@@ -128,7 +135,8 @@ public class SøknadMapperFellesTest {
         final LocalDate fødselsdato = LocalDate.now().minusDays(10);
         final int antallBarn = 1;
 
-        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = opprettOmsorgDto(FamilieHendelseType.OMSORG, omsorgsovertakelsesdato, RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, antallBarn, fødselsdato);
+        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = opprettOmsorgDto(FamilieHendelseType.OMSORG,
+                omsorgsovertakelsesdato, RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, antallBarn, fødselsdato);
         Omsorgsovertakelse omsorgsovertakelse = SøknadMapperFelles.mapOmsorgsovertakelse(manuellRegistreringEngangsstonadDto);
         assertThat(omsorgsovertakelse).isNotNull();
         assertThat(omsorgsovertakelse.getOmsorgsovertakelsesdato()).isEqualTo(omsorgsovertakelsesdato);
@@ -141,7 +149,7 @@ public class SøknadMapperFellesTest {
     @Test
     public void test_mapRelasjonTilBarnet_fødsel() {
         ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
-        oppdaterDtoForFødsel(manuellRegistreringEngangsstonadDto, FamilieHendelseType.FØDSEL, true, LocalDate.now(), 1);
+        oppdaterDtoForFødsel(manuellRegistreringEngangsstonadDto, true, LocalDate.now(), 1);
         SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = SøknadMapperFelles.mapRelasjonTilBarnet(manuellRegistreringEngangsstonadDto);
         assertThat(søkersRelasjonTilBarnet).isInstanceOf(Foedsel.class);
     }
@@ -152,7 +160,7 @@ public class SøknadMapperFellesTest {
         final int antallBarn = 1;
 
         ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
-        oppdaterDtoForFødsel(manuellRegistreringEngangsstonadDto, FamilieHendelseType.FØDSEL, true, fødselssdato, antallBarn);
+        oppdaterDtoForFødsel(manuellRegistreringEngangsstonadDto, true, fødselssdato, antallBarn);
         Foedsel foedsel = SøknadMapperFelles.mapFødsel(manuellRegistreringEngangsstonadDto);
         assertThat(foedsel).isNotNull();
         assertThat(foedsel.getFoedselsdato()).isEqualTo(fødselssdato);
@@ -162,7 +170,7 @@ public class SøknadMapperFellesTest {
     @Test
     public void test_mapRelasjonTilBarnet_termin() {
         ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
-        oppdaterDtoForFødsel(manuellRegistreringEngangsstonadDto, FamilieHendelseType.FØDSEL, false, LocalDate.now(), 1);
+        oppdaterDtoForFødsel(manuellRegistreringEngangsstonadDto, false, LocalDate.now(), 1);
         SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = SøknadMapperFelles.mapRelasjonTilBarnet(manuellRegistreringEngangsstonadDto);
         assertThat(søkersRelasjonTilBarnet).isInstanceOf(Termin.class);
     }
@@ -189,7 +197,8 @@ public class SøknadMapperFellesTest {
         final LocalDate omsorgsovertakelsesdato = LocalDate.now();
         final int antallBarn = 1;
 
-        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = opprettOmsorgDto(FamilieHendelseType.OMSORG, omsorgsovertakelsesdato, RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, antallBarn, LocalDate.now());
+        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = opprettOmsorgDto(FamilieHendelseType.OMSORG,
+                omsorgsovertakelsesdato, RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, antallBarn, LocalDate.now());
 
         manuellRegistreringEngangsstonadDto.setAnnenForelder(opprettAnnenForelderDto(true, true, true));
         AnnenForelder annenForelder = SøknadMapperFelles.mapAnnenForelder(manuellRegistreringEngangsstonadDto, tpsTjeneste);
@@ -221,7 +230,6 @@ public class SøknadMapperFellesTest {
         assertThat(medlemskap.getOppholdNorge()).as("Forventer at vi ikke har opphold norge når vi har utenlandsopphold.").isEmpty();
     }
 
-
     @Test
     public void testMapperMedlemskapFP_med_FremtidigUtenlandsopphold() {
 
@@ -241,7 +249,8 @@ public class SøknadMapperFellesTest {
 
         no.nav.vedtak.felles.xml.soeknad.felles.v3.Medlemskap medlemskap = SøknadMapperFelles.mapMedlemskap(registreringEngangsstonadDto);
 
-        //Assert tidligere opphold i norge(siden vi ikke har tidligere utenlandsopphold.)
+        // Assert tidligere opphold i norge(siden vi ikke har tidligere
+        // utenlandsopphold.)
         List<OppholdNorge> oppholdNorgeListe = medlemskap.getOppholdNorge();
         assertThat(oppholdNorgeListe).isNotNull();
         assertThat(oppholdNorgeListe).hasSize(1);
@@ -266,7 +275,8 @@ public class SøknadMapperFellesTest {
 
         ManuellRegistreringEngangsstonadDto registreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         registreringEngangsstonadDto.setMottattDato(LocalDate.now());
-        registreringEngangsstonadDto.setHarFremtidigeOppholdUtenlands(false); //Ikke fremtidige utenlandsopphold, så da får vi fremtidg opphold i norge
+        registreringEngangsstonadDto.setHarFremtidigeOppholdUtenlands(false); // Ikke fremtidige utenlandsopphold, så da får vi fremtidg opphold i
+                                                                              // norge
         registreringEngangsstonadDto.setHarTidligereOppholdUtenlands(true);
         registreringEngangsstonadDto.setOppholdINorge(true);
         UtenlandsoppholdDto utenlandsoppholdDto = new UtenlandsoppholdDto();
@@ -277,11 +287,10 @@ public class SøknadMapperFellesTest {
 
         no.nav.vedtak.felles.xml.soeknad.felles.v3.Medlemskap medlemskap = SøknadMapperFelles.mapMedlemskap(registreringEngangsstonadDto);
 
-        //Assert fremtidg opphold i norge(siden vi ikke har fremtidig utenlandsopphold.
+        // Assert fremtidg opphold i norge(siden vi ikke har fremtidig utenlandsopphold.
         List<OppholdNorge> oppholdNorgeListe = medlemskap.getOppholdNorge();
         assertThat(oppholdNorgeListe).isNotNull();
         assertThat(oppholdNorgeListe).hasSize(1);
-
 
         List<OppholdUtlandet> oppholdUtenlandsListe = medlemskap.getOppholdUtlandet();
         assertThat(oppholdUtenlandsListe).isNotNull();
@@ -335,7 +344,8 @@ public class SøknadMapperFellesTest {
         LocalDate periodeFom = LocalDate.now();
         LocalDate periodeTom = periodeFom.plusWeeks(10);
         ArbeidsforholdDto arbeidsforholdDto = opprettUtenlandskArbeidsforholdDto("arbg. navn", "FIN", periodeFom, periodeTom);
-        List<UtenlandskArbeidsforhold> arbeidsforhold = SøknadMapperFelles.mapAlleUtenlandskeArbeidsforhold(Collections.singletonList(arbeidsforholdDto));
+        List<UtenlandskArbeidsforhold> arbeidsforhold = SøknadMapperFelles
+                .mapAlleUtenlandskeArbeidsforhold(Collections.singletonList(arbeidsforholdDto));
         assertThat(arbeidsforhold).isNotNull();
         assertThat(arbeidsforhold).anySatisfy(arbForhold -> assertThat(arbForhold).isInstanceOf(UtenlandskArbeidsforhold.class));
         assertThat(arbeidsforhold).anySatisfy(arbForhold -> assertThat(arbForhold.getArbeidsgiversnavn()).isEqualTo("arbg. navn"));
@@ -351,7 +361,8 @@ public class SøknadMapperFellesTest {
     @Test
     public void test_mapUtenlandskArbeidsforhold_null_element_i_liste() {
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
-        List<UtenlandskArbeidsforhold> arbeidsforhold = SøknadMapperFelles.mapAlleUtenlandskeArbeidsforhold(Collections.singletonList(arbeidsforholdDto));
+        List<UtenlandskArbeidsforhold> arbeidsforhold = SøknadMapperFelles
+                .mapAlleUtenlandskeArbeidsforhold(Collections.singletonList(arbeidsforholdDto));
         assertThat(arbeidsforhold).isEmpty();
     }
 }

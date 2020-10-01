@@ -18,13 +18,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -38,8 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -65,10 +61,10 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 /**
- * Mottar dokumenter fra f.eks. FPFORDEL og håndterer dispatch internt for saksbehandlingsløsningen.
+ * Mottar dokumenter fra f.eks. FPFORDEL og håndterer dispatch internt for
+ * saksbehandlingsløsningen.
  */
 @Path(FordelRestTjeneste.BASE_PATH)
 @ApplicationScoped
@@ -77,19 +73,17 @@ public class FordelRestTjeneste {
 
     private static final String JSON_UTF8 = "application/json; charset=UTF-8";
 
-    private final Logger LOG = LoggerFactory.getLogger(FordelRestTjeneste.class);
-
     static final String BASE_PATH = "/fordel";
     private static final String INFORMASJON_PART_PATH = "/fagsak/informasjon";
-    public static final String INFORMASJON_PATH = BASE_PATH + INFORMASJON_PART_PATH; //NOSONAR TFP-2234
+    public static final String INFORMASJON_PATH = BASE_PATH + INFORMASJON_PART_PATH; // NOSONAR TFP-2234
     private static final String OPPRETT_PART_PATH = "/fagsak/opprett";
-    public static final String OPPRETT_PATH = BASE_PATH + OPPRETT_PART_PATH; //NOSONAR TFP-2234
+    public static final String OPPRETT_PATH = BASE_PATH + OPPRETT_PART_PATH; // NOSONAR TFP-2234
     private static final String KNYTT_JOURNALPOST_PART_PATH = "/fagsak/knyttJournalpost";
-    public static final String KNYTT_JOURNALPOST_PATH = BASE_PATH + KNYTT_JOURNALPOST_PART_PATH; //NOSONAR TFP-2234
+    public static final String KNYTT_JOURNALPOST_PATH = BASE_PATH + KNYTT_JOURNALPOST_PART_PATH; // NOSONAR TFP-2234
     private static final String JOURNALPOST_PART_PATH = "/journalpost";
-    public static final String JOURNALPOST_PATH = BASE_PATH + JOURNALPOST_PART_PATH; //NOSONAR TFP-2234
+    public static final String JOURNALPOST_PATH = BASE_PATH + JOURNALPOST_PART_PATH; // NOSONAR TFP-2234
     private static final String VURDER_FAGSYSTEM_PART_PATH = "/vurderFagsystem";
-    public static final String VURDER_FAGSYSTEM_PATH = BASE_PATH + VURDER_FAGSYSTEM_PART_PATH; //NOSONAR TFP-2234
+    public static final String VURDER_FAGSYSTEM_PATH = BASE_PATH + VURDER_FAGSYSTEM_PART_PATH; // NOSONAR TFP-2234
 
     private SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste;
     private FagsakTjeneste fagsakTjeneste;
@@ -104,8 +98,8 @@ public class FordelRestTjeneste {
 
     @Inject
     public FordelRestTjeneste(SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste,
-                              FagsakTjeneste fagsakTjeneste, OpprettSakOrchestrator opprettSakOrchestrator, OpprettSakTjeneste opprettSakTjeneste,
-                              BehandlingRepositoryProvider repositoryProvider, VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste) { // NOSONAR
+            FagsakTjeneste fagsakTjeneste, OpprettSakOrchestrator opprettSakOrchestrator, OpprettSakTjeneste opprettSakTjeneste,
+            BehandlingRepositoryProvider repositoryProvider, VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste) { // NOSONAR
         this.dokumentmottakTjeneste = dokumentmottakTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.opprettSakOrchestrator = opprettSakOrchestrator;
@@ -120,8 +114,9 @@ public class FordelRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(JSON_UTF8)
     @Operation(description = "Informasjon om en fagsak", tags = "fordel")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
-    public BehandlendeFagsystemDto vurderFagsystem(@Parameter(description = "Krever behandlingstemaOffisiellKode", required = true) @Valid AbacVurderFagsystemDto vurderFagsystemDto) {
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public BehandlendeFagsystemDto vurderFagsystem(
+            @Parameter(description = "Krever behandlingstemaOffisiellKode", required = true) @Valid AbacVurderFagsystemDto vurderFagsystemDto) {
         VurderFagsystem vurderFagsystem = map(vurderFagsystemDto);
         BehandlendeFagsystem behandlendeFagsystem = vurderFagsystemTjeneste.vurderFagsystem(vurderFagsystem);
         return map(behandlendeFagsystem);
@@ -132,8 +127,9 @@ public class FordelRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(JSON_UTF8)
     @Operation(description = "Informasjon om en fagsak", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
-    public FagsakInfomasjonDto fagsak(@Parameter(description = "Saksnummeret det skal hentes saksinformasjon om") @Valid AbacSaksnummerDto saksnummerDto) {
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public FagsakInfomasjonDto fagsak(
+            @Parameter(description = "Saksnummeret det skal hentes saksinformasjon om") @Valid AbacSaksnummerDto saksnummerDto) {
         Optional<Fagsak> optFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(new Saksnummer(saksnummerDto.getSaksnummer()), false);
         if (optFagsak.isEmpty() || optFagsak.get().getSkalTilInfotrygd()) {
             return null;
@@ -141,8 +137,9 @@ public class FordelRestTjeneste {
         final Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(optFagsak.get().getId());
         FamilieHendelseEntitet familieHendelse = null;
         if (behandling.isPresent()) {
-            familieHendelse = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId()).map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                .orElse(null);
+            familieHendelse = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())
+                    .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+                    .orElse(null);
         }
         BehandlingTema behandlingTemaFraKodeverksRepo = BehandlingTema.fraFagsak(optFagsak.get(), familieHendelse);
         String behandlingstemaOffisiellKode = behandlingTemaFraKodeverksRepo.getOffisiellKode();
@@ -155,7 +152,7 @@ public class FordelRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(JSON_UTF8)
     @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SaksnummerDto opprettSak(@Parameter(description = "Oppretter fagsak") @Valid AbacOpprettSakDto opprettSakDto) {
         Optional<String> journalpostId = opprettSakDto.getJournalpostId();
         BehandlingTema behandlingTema = BehandlingTema.finnForKodeverkEiersKode(opprettSakDto.getBehandlingstemaOffisiellKode());
@@ -176,10 +173,11 @@ public class FordelRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(JSON_UTF8)
     @Operation(description = "Knytt journalpost til fagsak.", summary = ("Før en journalpost journalføres på en fagsak skal fagsaken oppdateres med journalposten."), tags = "fordel")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
-    public void knyttSakOgJournalpost(@Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid AbacJournalpostKnyttningDto journalpostKnytningDto) {
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public void knyttSakOgJournalpost(
+            @Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid AbacJournalpostKnyttningDto journalpostKnytningDto) {
         opprettSakTjeneste.knyttSakOgJournalpost(new Saksnummer(journalpostKnytningDto.getSaksnummer()),
-            new JournalpostId(journalpostKnytningDto.getJournalpostId()));
+                new JournalpostId(journalpostKnytningDto.getJournalpostId()));
     }
 
     @POST
@@ -187,9 +185,15 @@ public class FordelRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(JSON_UTF8)
     @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
-    public void mottaJournalpost(@Parameter(description = "Krever saksnummer, journalpostId og behandlingstemaOffisiellKode") @Valid AbacJournalpostMottakDto mottattJournalpost) {
-        var dokument = mapTilMottattDokument(mottattJournalpost);
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public void mottaJournalpost(
+            @Parameter(description = "Krever saksnummer, journalpostId og behandlingstemaOffisiellKode") @Valid AbacJournalpostMottakDto mottattJournalpost) {
+        DokumentTypeId dokumentTypeId = mottattJournalpost.getDokumentTypeIdOffisiellKode()
+            .map(DokumentTypeId::finnForKodeverkEiersKode).orElse(DokumentTypeId.UDEFINERT);
+        if (DokumentTypeId.TILBAKE_UTTALSELSE.equals(dokumentTypeId)) {
+            return;
+        }
+        var dokument = mapTilMottattDokument(mottattJournalpost, dokumentTypeId);
         dokumentmottakTjeneste.dokumentAnkommet(dokument, null);
     }
 
@@ -223,7 +227,7 @@ public class FordelRestTjeneste {
         }
         if (dto.getDokumentKategoriOffisiellKode() != null) {
             v.setDokumentKategori(
-                DokumentKategori.finnForKodeverkEiersKode(dto.getDokumentKategoriOffisiellKode()));
+                    DokumentKategori.finnForKodeverkEiersKode(dto.getDokumentKategoriOffisiellKode()));
         }
 
         return v;
@@ -256,25 +260,24 @@ public class FordelRestTjeneste {
         return dto;
     }
 
-    private MottattDokument mapTilMottattDokument(AbacJournalpostMottakDto journalpostMottakDto) {
+    private MottattDokument mapTilMottattDokument(AbacJournalpostMottakDto journalpostMottakDto, DokumentTypeId dokumentTypeId) {
 
         Saksnummer saksnummer = new Saksnummer(journalpostMottakDto.getSaksnummer());
         Fagsak fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false)
-            .orElseThrow(() -> new IllegalStateException("Finner ingen fagsak for saksnummer " + saksnummer));
-        DokumentType dokumentTypeId = journalpostMottakDto.getDokumentTypeIdOffisiellKode()
-            .map(DokumentTypeId::finnForKodeverkEiersKode).orElse(DokumentTypeId.UDEFINERT);
+                .orElseThrow(() -> new IllegalStateException("Finner ingen fagsak for saksnummer " + saksnummer));
         var dokumentKategori = utledDokumentKategori(journalpostMottakDto.getDokumentKategoriOffisiellKode(), dokumentTypeId);
 
         var builder = new MottattDokument.Builder()
-            .medJournalPostId(new JournalpostId(journalpostMottakDto.getJournalpostId()))
-            .medDokumentType(dokumentTypeId.getKode())
-            .medDokumentKategori(dokumentKategori)
-            .medMottattDato(journalpostMottakDto.getForsendelseMottatt().orElse(LocalDate.now()))
-            .medMottattTidspunkt(journalpostMottakDto.getForsendelseMottattTidspunkt() != null ?
-                journalpostMottakDto.getForsendelseMottattTidspunkt() : LocalDateTime.now())
-            .medElektroniskRegistrert(journalpostMottakDto.getPayloadXml().isPresent())
-            .medFagsakId(fagsak.getId())
-            .medJournalFørendeEnhet(journalpostMottakDto.getJournalForendeEnhet());
+                .medJournalPostId(new JournalpostId(journalpostMottakDto.getJournalpostId()))
+                .medDokumentType(dokumentTypeId)
+                .medDokumentKategori(dokumentKategori)
+                .medMottattDato(journalpostMottakDto.getForsendelseMottatt().orElse(LocalDate.now()))
+                .medMottattTidspunkt(
+                        journalpostMottakDto.getForsendelseMottattTidspunkt() != null ? journalpostMottakDto.getForsendelseMottattTidspunkt()
+                                : LocalDateTime.now())
+                .medElektroniskRegistrert(journalpostMottakDto.getPayloadXml().isPresent())
+                .medFagsakId(fagsak.getId())
+                .medJournalFørendeEnhet(journalpostMottakDto.getJournalForendeEnhet());
 
         journalpostMottakDto.getForsendelseId().ifPresent(builder::medForsendelseId);
         journalpostMottakDto.getPayloadXml().ifPresent(builder::medXmlPayload);
@@ -285,11 +288,11 @@ public class FordelRestTjeneste {
         return builder.build();
     }
 
-    private DokumentKategori utledDokumentKategori(String dokumentKategori, BasisKodeverdi dokumentTypeId) {
-        if (DokumentTypeId.getSøknadTyper().contains(dokumentTypeId.getKode())) {
+    private DokumentKategori utledDokumentKategori(String dokumentKategori, DokumentTypeId dokumentTypeId) {
+        if (DokumentTypeId.getSøknadTyper().contains(dokumentTypeId)) {
             return DokumentKategori.SØKNAD;
         }
-        if (DokumentTypeId.KLAGE_DOKUMENT.getKode().equals(dokumentTypeId.getKode())) {
+        if (DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId)) {
             return DokumentKategori.KLAGE_ELLER_ANKE;
         }
         return dokumentKategori != null ? DokumentKategori.finnForKodeverkEiersKode(dokumentKategori) : DokumentKategori.UDEFINERT;
@@ -300,8 +303,9 @@ public class FordelRestTjeneste {
             super();
         }
 
-        public AbacJournalpostMottakDto(String saksnummer, String journalpostId, String behandlingstemaOffisiellKode, String dokumentTypeIdOffisiellKode,
-                                        LocalDateTime forsendelseMottattTidspunkt, String payloadXml) {
+        public AbacJournalpostMottakDto(String saksnummer, String journalpostId, String behandlingstemaOffisiellKode,
+                String dokumentTypeIdOffisiellKode,
+                LocalDateTime forsendelseMottattTidspunkt, String payloadXml) {
             super(saksnummer, journalpostId, behandlingstemaOffisiellKode, dokumentTypeIdOffisiellKode, forsendelseMottattTidspunkt, payloadXml);
         }
 
@@ -354,8 +358,8 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter abacAttributter() {
             return AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.JOURNALPOST_ID, getJournalpostId())
-                .leggTil(AppAbacAttributtType.SAKSNUMMER, getSaksnummer());
+                    .leggTil(AppAbacAttributtType.JOURNALPOST_ID, getJournalpostId())
+                    .leggTil(AppAbacAttributtType.SAKSNUMMER, getSaksnummer());
         }
     }
 
@@ -371,7 +375,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter abacAttributter() {
             AbacDataAttributter abacDataAttributter = AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.AKTØR_ID, getAktørId());
+                    .leggTil(AppAbacAttributtType.AKTØR_ID, getAktørId());
 
             getJournalpostId().ifPresent(id -> abacDataAttributter.leggTil(AppAbacAttributtType.JOURNALPOST_ID, id));
             getSaksnummer().ifPresent(sn -> abacDataAttributter.leggTil(AppAbacAttributtType.SAKSNUMMER, sn));

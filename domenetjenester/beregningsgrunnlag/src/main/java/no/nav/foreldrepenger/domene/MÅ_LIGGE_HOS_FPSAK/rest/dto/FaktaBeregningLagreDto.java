@@ -6,6 +6,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class FaktaBeregningLagreDto {
 
@@ -26,7 +27,7 @@ public class FaktaBeregningLagreDto {
     @Valid
     private BesteberegningFødendeKvinneDto besteberegningAndeler;
     @Valid
-    private List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller;
+    private List<@ValidKodeverk FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller;
     @Valid
     private FastsettBgKunYtelseDto kunYtelseFordeling;
     @Valid

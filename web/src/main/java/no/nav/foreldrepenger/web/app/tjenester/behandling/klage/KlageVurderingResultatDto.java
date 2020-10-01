@@ -1,19 +1,34 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
+
+@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
 public class KlageVurderingResultatDto {
-    private String klageVurdering;
+
+    @JsonProperty("klageVurdering")
+    private KlageVurdering klageVurdering;
+    @JsonProperty("begrunnelse")
     private String begrunnelse;
+    @JsonProperty("fritekstTilBrev")
     private String fritekstTilBrev;
-    private String klageMedholdArsak;
-    private String klageMedholdArsakNavn;
-    private String klageVurderingOmgjoer;
+    @JsonProperty("klageMedholdArsak")
+    private KlageMedholdÅrsak klageMedholdArsak;
+    @JsonProperty("klageVurderingOmgjoer")
+    private KlageVurderingOmgjør klageVurderingOmgjoer;
+    @JsonProperty("klageVurdertAv")
     private String klageVurdertAv;
+    @JsonProperty("godkjentAvMedunderskriver")
     private boolean godkjentAvMedunderskriver;
 
     public KlageVurderingResultatDto() {
     }
 
-    public String getKlageVurdering() {
+    public KlageVurdering getKlageVurdering() {
         return klageVurdering;
     }
 
@@ -25,7 +40,7 @@ public class KlageVurderingResultatDto {
         return fritekstTilBrev;
     }
 
-    public String getKlageMedholdArsak() {
+    public KlageMedholdÅrsak getKlageMedholdArsak() {
         return klageMedholdArsak;
     }
 
@@ -33,11 +48,7 @@ public class KlageVurderingResultatDto {
         return klageVurdertAv;
     }
 
-    public String getKlageMedholdArsakNavn() {
-        return klageMedholdArsakNavn;
-    }
-
-    public String getKlageVurderingOmgjoer() {
+    public KlageVurderingOmgjør getKlageVurderingOmgjoer() {
         return klageVurderingOmgjoer;
     }
 
@@ -45,11 +56,11 @@ public class KlageVurderingResultatDto {
         return godkjentAvMedunderskriver;
     }
 
-    public void setKlageVurderingOmgjoer(String klageVurderingOmgjoer) {
+    public void setKlageVurderingOmgjoer(KlageVurderingOmgjør klageVurderingOmgjoer) {
         this.klageVurderingOmgjoer = klageVurderingOmgjoer;
     }
 
-    void setKlageVurdering(String klageVurdering) {
+    void setKlageVurdering(KlageVurdering klageVurdering) {
         this.klageVurdering = klageVurdering;
     }
 
@@ -61,12 +72,8 @@ public class KlageVurderingResultatDto {
         this.fritekstTilBrev = fritekstTilBrev;
     }
 
-    void setKlageMedholdArsak(String klageMedholdArsak) {
+    void setKlageMedholdArsak(KlageMedholdÅrsak klageMedholdArsak) {
         this.klageMedholdArsak = klageMedholdArsak;
-    }
-
-    void setKlageMedholdArsakNavn(String klageMedholdArsakNavn) {
-        this.klageMedholdArsakNavn = klageMedholdArsakNavn;
     }
 
     void setKlageVurdertAv(String klageVurdertAv) {

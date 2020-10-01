@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -37,7 +36,7 @@ public class FaktaUttakHistorikkTjenesteTest {
     public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
 
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private final DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(mock(JournalConsumerImpl.class), repositoryProvider.getFagsakRepository(), mock(KodeverkRepository.class));
+    private final DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(mock(JournalConsumerImpl.class), repositoryProvider.getFagsakRepository());
     private YtelseFordelingTjeneste ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(repositoryRule.getEntityManager()));
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(),
         new HistorikkInnslagKonverter(), dokumentArkivTjeneste);

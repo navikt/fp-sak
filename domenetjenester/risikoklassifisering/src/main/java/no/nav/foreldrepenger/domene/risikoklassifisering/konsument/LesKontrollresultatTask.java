@@ -1,4 +1,9 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.konsument;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollSerialiseringUtil;
 import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollresultatMapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
@@ -7,10 +12,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.kontroll.v1.KontrollResultatV1;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 
 @ProsessTask(LesKontrollresultatTask.TASKTYPE)
 public class LesKontrollresultatTask implements ProsessTaskHandler {

@@ -2,24 +2,22 @@ package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -28,38 +26,36 @@ import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
+import no.nav.foreldrepenger.web.RepositoryAwareTest;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste.AbacSaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste.AbacVurderFagsystemDto;
 
-public class FordelRestTjenesteTest {
+@ExtendWith(MockitoExtension.class)
+public class FordelRestTjenesteTest extends RepositoryAwareTest {
 
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
+    @Mock
     private SaksbehandlingDokumentmottakTjeneste dokumentmottakTjenesteMock;
+    @Mock
     private FagsakTjeneste fagsakTjenesteMock;
+    @Mock
     private OpprettSakOrchestrator opprettSakOrchestratorMock;
+    @Mock
     private OpprettSakTjeneste opprettSakTjenesteMock;
 
+    @Mock
     private VurderFagsystemFellesTjeneste vurderFagsystemTjenesteMock;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     private FordelRestTjeneste fordelRestTjeneste;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        dokumentmottakTjenesteMock = mock(SaksbehandlingDokumentmottakTjeneste.class);
-        fagsakTjenesteMock = new FagsakTjeneste(repositoryProvider, null);
-        opprettSakOrchestratorMock = mock(OpprettSakOrchestrator.class);
-        opprettSakTjenesteMock = mock(OpprettSakTjeneste.class);
-        vurderFagsystemTjenesteMock = mock(VurderFagsystemFellesTjeneste.class);
-
+        fagsakTjenesteMock = new FagsakTjeneste(fagsakRepository, søknadRepository, null);
         fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock,
-            fagsakTjenesteMock, opprettSakOrchestratorMock, opprettSakTjenesteMock,repositoryProvider,vurderFagsystemTjenesteMock);
+                fagsakTjenesteMock, opprettSakOrchestratorMock, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock);
     }
 
     @Test
@@ -113,7 +109,7 @@ public class FordelRestTjenesteTest {
         final ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medSaksnummer(saknr).medSøknadHendelse().medFødselsDato(LocalDate.now());
         Behandling behandling = scenario.lagre(repositoryProvider);
-        repositoryProvider.getFagsakRepository().fagsakSkalBehandlesAvInfotrygd(behandling.getFagsakId());
+        fagsakRepository.fagsakSkalBehandlesAvInfotrygd(behandling.getFagsakId());
         FagsakInfomasjonDto result = fordelRestTjeneste.fagsak(new AbacSaksnummerDto("1"));
 
         assertThat(result).isNull();

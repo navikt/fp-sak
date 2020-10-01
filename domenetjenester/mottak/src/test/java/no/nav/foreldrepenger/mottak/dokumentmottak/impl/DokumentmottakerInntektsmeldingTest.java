@@ -122,7 +122,7 @@ public class DokumentmottakerInntektsmeldingTest {
             .medBehandlingStegStart(BehandlingStegType.REGISTRER_SØKNAD)
             .medOriginalBehandling(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         Behandling revurderingBehandling = revurderingScenario.lagre(repositoryProvider);
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, revurderingBehandling.getFagsakId(), "", now(), true, "123");
 
         //Act
@@ -150,7 +150,7 @@ public class DokumentmottakerInntektsmeldingTest {
         Behandling revurderingBehandling = revurderingScenario.lagre(repositoryProvider);
 
         // Arrange - bygg inntektsmelding
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, revurderingBehandling.getFagsakId(), "", now(), true, "123");
 
         // Act
@@ -171,7 +171,7 @@ public class DokumentmottakerInntektsmeldingTest {
         opprettAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, LocalDateTime.now());
 
         // Arrange - bygg inntektsmelding
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
 
         // Act
@@ -191,7 +191,7 @@ public class DokumentmottakerInntektsmeldingTest {
         opprettAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING, LocalDateTime.now().plusDays(1));
 
         // Arrange - bygg inntektsmelding
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
 
         // Act
@@ -217,7 +217,7 @@ public class DokumentmottakerInntektsmeldingTest {
         when(revurdering.getFagsak()).thenReturn(behandling.getFagsak());
         when(revurdering.getAktørId()).thenReturn(behandling.getAktørId());
 
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
         when(behandlingsoppretter.opprettRevurdering(behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING)).thenReturn(revurdering);
 
@@ -233,7 +233,7 @@ public class DokumentmottakerInntektsmeldingTest {
     public void skal_opprette_førstegangsbehandling() {
 
         Fagsak fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"), fagsakRepository, fagsakRelasjonRepository);
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, 123L, "", now(), true, "123");
         Behandling førstegangsbehandling = mock(Behandling.class);
         when(førstegangsbehandling.getAktørId()).thenReturn(AktørId.dummy());
@@ -265,7 +265,7 @@ public class DokumentmottakerInntektsmeldingTest {
         doNothing().when(kompletthetskontroller).oppdaterKompletthetForKøetBehandling(behandling);
         doAnswer(invocationOnMock -> { return null;}).when(dokumentmottakerFelles).leggTilBehandlingsårsak(revurdering, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
 
         // Act
@@ -290,7 +290,7 @@ public class DokumentmottakerInntektsmeldingTest {
         doAnswer(invocationOnMock -> { return null;}).when(dokumentmottakerFelles).leggTilBehandlingsårsak(behandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 
         // Arrange - bygg inntektsmelding
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsak.getId(), "", now(), true, "123");
 
         // Act
@@ -311,7 +311,7 @@ public class DokumentmottakerInntektsmeldingTest {
         simulerKøetBehandling(behandling);
 
         // Act - send inntektsmelding
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.UDEFINERT);
 
@@ -328,7 +328,7 @@ public class DokumentmottakerInntektsmeldingTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         Long fagsakId = behandling.getFagsakId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         doReturn(behandling).when(behandlingsoppretter).opprettFørstegangsbehandling(any(Fagsak.class), any(BehandlingÅrsakType.class), any(Optional.class));
@@ -348,7 +348,7 @@ public class DokumentmottakerInntektsmeldingTest {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         Behandling behandling = scenario.lagre(repositoryProvider);
         Long fagsakId = behandling.getFagsakId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
 
@@ -367,7 +367,7 @@ public class DokumentmottakerInntektsmeldingTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         Long fagsakId = behandling.getFagsakId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
+        var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
 

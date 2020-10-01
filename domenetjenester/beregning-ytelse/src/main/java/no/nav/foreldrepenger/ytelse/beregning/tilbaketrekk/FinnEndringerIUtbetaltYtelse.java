@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetOgArbeidsgiverNøkkel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 class FinnEndringerIUtbetaltYtelse {
     private FinnEndringerIUtbetaltYtelse() {

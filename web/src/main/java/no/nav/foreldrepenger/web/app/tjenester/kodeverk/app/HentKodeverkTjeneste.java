@@ -2,22 +2,14 @@ package no.nav.foreldrepenger.web.app.tjenester.kodeverk.app;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
@@ -30,7 +22,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -43,6 +37,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
@@ -68,10 +64,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeliste;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentTypeIdKodeliste;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
@@ -105,8 +98,11 @@ public class HentKodeverkTjeneste {
         map.put(BehandlingÅrsakType.class.getSimpleName(), BehandlingÅrsakType.kodeMap().values());
         map.put(KlageMedholdÅrsak.class.getSimpleName(), KlageMedholdÅrsak.kodeMap().values());
         map.put(KlageAvvistÅrsak.class.getSimpleName(), KlageAvvistÅrsak.kodeMap().values());
+        map.put(KlageVurdering.class.getSimpleName(), KlageVurdering.kodeMap().values());
+        map.put(KlageVurderingOmgjør.class.getSimpleName(), KlageVurderingOmgjør.kodeMap().values());
         map.put(HistorikkBegrunnelseType.class.getSimpleName(), HistorikkBegrunnelseType.kodeMap().values());
         map.put(OppgaveÅrsak.class.getSimpleName(), OppgaveÅrsak.kodeMap().values());
+        map.put(DokumentTypeId.class.getSimpleName(), DokumentTypeId.kodeMap().values());
         map.put(MedlemskapManuellVurderingType.class.getSimpleName(), filtrerMedlemskapManuellVurderingType(MedlemskapManuellVurderingType.kodeMap().values()));
         map.put(BehandlingResultatType.class.getSimpleName(), BehandlingResultatType.kodeMap().values());
         map.put(VergeType.class.getSimpleName(), VergeType.kodeMap().values());
@@ -152,6 +148,8 @@ public class HentKodeverkTjeneste {
         map.put(PermisjonsbeskrivelseType.class.getSimpleName(), PermisjonsbeskrivelseType.kodeMap().values());
         map.put(VurderArbeidsforholdHistorikkinnslag.class.getSimpleName(), VurderArbeidsforholdHistorikkinnslag.kodeMap().values());
         map.put(AnkeVurdering.class.getSimpleName(), AnkeVurdering.kodeMap().values());
+        map.put(AnkeVurderingOmgjør.class.getSimpleName(), AnkeVurderingOmgjør.kodeMap().values());
+        map.put(AnkeOmgjørÅrsak.class.getSimpleName(), AnkeOmgjørÅrsak.kodeMap().values());
         map.put(TilbakekrevingVidereBehandling.class.getSimpleName(), TilbakekrevingVidereBehandling.kodeMap().values());
         map.put(VurderÅrsak.class.getSimpleName(), VurderÅrsak.kodeMap().values());
         map.put(UttakUtsettelseType.class.getSimpleName(), UttakUtsettelseType.kodeMap().values());
@@ -173,9 +171,7 @@ public class HentKodeverkTjeneste {
         KODEVERDIER_SOM_BRUKES_PÅ_KLIENT = Collections.unmodifiableMap(mapFiltered);
 
     }
-    public static final List<Class<? extends Kodeliste>> KODEVERK_SOM_BRUKES_PÅ_KLIENT = List.of(DokumentTypeIdKodeliste.class);
 
-    private KodeverkRepository kodeverkRepository;
     private BehandlendeEnhetTjeneste enhetsTjeneste;
 
     HentKodeverkTjeneste() {
@@ -191,69 +187,18 @@ public class HentKodeverkTjeneste {
     }
 
     @Inject
-    public HentKodeverkTjeneste(KodeverkRepository kodeverkRepository, BehandlendeEnhetTjeneste enhetsTjeneste) {
-        Objects.requireNonNull(kodeverkRepository, "kodeverkRepository"); //$NON-NLS-1$
+    public HentKodeverkTjeneste(BehandlendeEnhetTjeneste enhetsTjeneste) {
         Objects.requireNonNull(enhetsTjeneste, "enhetsTjeneste"); //$NON-NLS-1$
-        this.kodeverkRepository = kodeverkRepository;
         this.enhetsTjeneste = enhetsTjeneste;
     }
 
     public Map<String, Collection<? extends BasisKodeverdi>> hentGruppertKodeliste() {
-        Map<String, Set<? extends Kodeliste>> kodelister = new HashMap<>(kodeverkRepository.hentAlle(KODEVERK_SOM_BRUKES_PÅ_KLIENT));
 
-        // swap DokumentTypeId kodeliste og utvid med offisiellekoder der det er forskjell, så klient får navn for begge
-        var dokumentTypeIdListe = kodelister.remove(DokumentTypeIdKodeliste.class.getSimpleName());
-        kodelister.put(DokumentTypeId.class.getSimpleName(), utvidMedOffisielleKoder(dokumentTypeIdListe));
-
-        // slå sammen kodeverdi og kodeliste maps
-        Map<String, Collection<? extends BasisKodeverdi>> kodelistMap = new LinkedHashMap<>(kodelister);
-        kodelistMap.putAll(KODEVERDIER_SOM_BRUKES_PÅ_KLIENT);
-
-        return kodelistMap;
-
+        return new LinkedHashMap<>(KODEVERDIER_SOM_BRUKES_PÅ_KLIENT);
     }
 
-    private Set<? extends Kodeliste> utvidMedOffisielleKoder(Collection<? extends Kodeliste> koder) {
-            Set<Kodeliste> kodeverdier = new HashSet<>(koder);
-
-            // double up med offisielle koder der offisiell er forskjellig fra kode slik at klienten får navn for begge og blir
-            // mindre sårbar for switch fra uoffisiell til offisiell kode i backend
-            var offisielleKodeverdier = kodeverdier.stream()
-                .filter(k -> !Objects.equals(k.getKode(), k.getOffisiellKode()) && k.getOffisiellKode() != null)
-                .map(MyOffisiellKodeKodeliste::new)
-                .collect(Collectors.toSet());
-
-            kodeverdier.addAll(offisielleKodeverdier);
-            return kodeverdier;
-    }
 
     public List<OrganisasjonsEnhet> hentBehandlendeEnheter() {
         return enhetsTjeneste.hentEnhetListe();
-    }
-
-    public static void main(String[] args) {
-        for (var k : KODEVERK_SOM_BRUKES_PÅ_KLIENT) {
-            if (!Kodeverdi.class.isAssignableFrom(k)) {
-                System.out.println(k.getSimpleName() + ".class,");
-            }
-        }
-    }
-
-    @JsonFormat(shape = Shape.OBJECT)
-    @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-    public static class MyOffisiellKodeKodeliste extends Kodeliste {
-
-        private String navn;
-
-        public MyOffisiellKodeKodeliste(Kodeliste annen) {
-            super(annen.getOffisiellKode(), annen.getKodeverk(), annen.getOffisiellKode(), annen.getGyldigFraOgMed(), annen.getGyldigTilOgMed());
-            this.navn = annen.getNavn();
-        }
-
-        @Override
-        public String getNavn() {
-            return navn;
-        }
-
     }
 }

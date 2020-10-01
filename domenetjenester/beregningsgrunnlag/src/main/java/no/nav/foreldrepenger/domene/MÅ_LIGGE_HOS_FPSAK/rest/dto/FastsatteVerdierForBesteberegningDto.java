@@ -7,6 +7,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class FastsatteVerdierForBesteberegningDto {
 
@@ -18,6 +19,7 @@ public class FastsatteVerdierForBesteberegningDto {
     private Integer fastsattBeløp;
 
     @NotNull
+    @ValidKodeverk
     private Inntektskategori inntektskategori;
 
     FastsatteVerdierForBesteberegningDto() { // NOSONAR

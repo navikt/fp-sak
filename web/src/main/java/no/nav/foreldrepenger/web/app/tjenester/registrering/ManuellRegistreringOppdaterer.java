@@ -90,10 +90,10 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         Fagsak fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
         NavBruker navBruker = fagsak.getNavBruker();
         String søknadXml = opprettSøknadsskjema(dto, behandling, navBruker);
-        String dokumentTypeIdKode = finnDokumentType(dto, behandling.getType());
+        DokumentTypeId dokumentTypeId = finnDokumentType(dto, behandling.getType());
 
         final ManuellRegistreringAksjonspunktDto adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad(), søknadXml,
-            dokumentTypeIdKode, dto.getMottattDato(), dto.isRegistrerVerge());
+            dokumentTypeId, dto.getMottattDato(), dto.isRegistrerVerge());
         dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandling, adapter)
             .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
 
@@ -117,32 +117,31 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         }
     }
 
-    private String finnDokumentType(ManuellRegistreringDto dto, BehandlingType behandlingType) {
+    private DokumentTypeId finnDokumentType(ManuellRegistreringDto dto, BehandlingType behandlingType) {
         String søknadsType = dto.getSoknadstype().getKode();
 
         if (FagsakYtelseType.ENGANGSTØNAD.getKode().equals(søknadsType)) {
             if (erFødsel(dto)) {
-                return DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode();
+                return DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
             }
             if (erAdopsjon(dto)) {
-                return DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON.getKode();
+                return DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON;
             }
         } else if (FagsakYtelseType.FORELDREPENGER.getKode().equals(søknadsType)) {
             if (erEndringssøknad(behandlingType)) {
-                return DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.getKode();
+                return DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
             }
             if (erFødsel(dto)) {
-                return DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getKode();
+                return DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
             }
             if (erAdopsjon(dto)) {
-                return DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON.getKode();
+                return DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON;
             }
         } else if (FagsakYtelseType.SVANGERSKAPSPENGER.getKode().equals(søknadsType)) {
-            if (erSvangerskapspenger(søknadsType)) {
-                return DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.getKode();
-            }
+            return DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER;
+
         }
-        return DokumentTypeId.UDEFINERT.getKode();
+        return DokumentTypeId.UDEFINERT;
     }
 
     private boolean erEndringssøknad(BehandlingType behandlingType) {
@@ -156,10 +155,6 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
 
     private boolean erFødsel(ManuellRegistreringDto dto) {
         return FamilieHendelseType.FØDSEL.getKode().equals(dto.getTema().getKode());
-    }
-
-    private boolean erSvangerskapspenger(String søknadsType) {
-        return FagsakYtelseType.SVANGERSKAPSPENGER.getKode().equals(søknadsType);
     }
 
     private String opprettSøknadsskjema(ManuellRegistreringDto dto, Behandling behandling, NavBruker navBruker) {

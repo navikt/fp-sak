@@ -64,15 +64,14 @@
 
         <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
 
-        <felles.version>2.0.0-20200702160706-bb063e2</felles.version>
+        <felles.version>2.3.0-20200923133012-d05e541</felles.version>
         <prosesstask.version>2.4.2-20200703105213-95d753a</prosesstask.version>
         <ukelonn.felles.version>1.0.0-20200914112449-039464d</ukelonn.felles.version>
 
-        <metrics.version>4.1.12.1</metrics.version>
-
         <fp-kontrakter.version>5.1-20200814082942-fd337ce</fp-kontrakter.version>
 
-        <kalkulus.version>1.0-2020.09.21.155520-2f805eb</kalkulus.version>
+        <kalkulus.version>1.1-2020.09.29.150930-0fc1905</kalkulus.version>
+        <abakus-kontrakt.version>1.2-2020.09.28.084651-5d745b8</abakus-kontrakt.version>
 
         <swaggercore.version>2.1.4</swaggercore.version>
     </properties>
@@ -209,7 +208,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.abakus</groupId>
                 <artifactId>abakus-kontrakt</artifactId>
-                <version>1.2-2020.08.19.084518-fcf3231</version>
+                <version>${abakus-kontrakt.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
@@ -251,16 +250,6 @@
                 <version>${ukelonn.felles.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-servlets</artifactId>
-                <version>${metrics.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-healthchecks</artifactId>
-                <version>${metrics.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
@@ -677,6 +666,11 @@
         <dependency>
             <groupId>com.sun.xml.messaging.saaj</groupId>
             <artifactId>saaj-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>5.7.0</version>
         </dependency>
     </dependencies>
 

@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulator.gradering.AktivitetGradering;
-import no.nav.folketrygdloven.kalkulator.gradering.AndelGradering;
+import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
+import no.nav.folketrygdloven.kalkulator.modell.gradering.AndelGradering;
 import no.nav.folketrygdloven.kalkulator.modell.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;

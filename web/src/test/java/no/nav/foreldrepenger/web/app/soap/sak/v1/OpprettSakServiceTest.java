@@ -2,9 +2,11 @@ package no.nav.foreldrepenger.web.app.soap.sak.v1;
 
 import static java.lang.Long.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,13 +17,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
@@ -48,6 +50,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
+@ExtendWith(MockitoExtension.class)
 public class OpprettSakServiceTest {
 
     private static AktørId AKTØR_ID = AktørId.dummy();
@@ -57,9 +60,6 @@ public class OpprettSakServiceTest {
     private static String FP_FOD = BehandlingTema.FORELDREPENGER_FØDSEL.getOffisiellKode();
 
     private OpprettSakService service;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private OpprettSakTjeneste opprettSakTjeneste;
@@ -73,53 +73,51 @@ public class OpprettSakServiceTest {
     private final JournalpostId JOURNALPOST_ID = new JournalpostId(JOURNALPOST);
     private Personinfo personinfo;
 
-    @Before
+    @BeforeEach
     public void before() {
-        opprettSakTjeneste = mock(OpprettSakTjeneste.class);
-        restKlient = mock(FpfordelRestKlient.class);
-        fagsakRepository = mock(FagsakRepository.class);
         opprettSakOrchestrator = new OpprettSakOrchestrator(opprettSakTjeneste, fagsakRepository);
         service = new OpprettSakService(opprettSakOrchestrator, restKlient, true);
         personinfo = new Personinfo.Builder().medAktørId(AKTØR_ID).medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Lorem Ipsum")
-            .medPersonIdent(new PersonIdent(new FiktiveFnr().nesteKvinneFnr())).medFødselsdato(LocalDate.now().minusYears(20)).build();
-        when(opprettSakTjeneste.utledYtelseType(any(BehandlingTema.class))).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
-        when(opprettSakTjeneste.hentBruker(any())).thenReturn(personinfo);
-        when(fagsakRepository.hentForBruker(any())).thenReturn(Collections.emptyList());
+                .medPersonIdent(new PersonIdent(new FiktiveFnr().nesteKvinneFnr())).medFødselsdato(LocalDate.now().minusYears(20)).build();
+        lenient().when(opprettSakTjeneste.utledYtelseType(any(BehandlingTema.class))).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
+        lenient().when(opprettSakTjeneste.hentBruker(any())).thenReturn(personinfo);
+        lenient().when(fagsakRepository.hentForBruker(any())).thenReturn(Collections.emptyList());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void test_feilhandering_mangler_journaposId() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(null, AKTØR_ID, "ab0050");
-        service.opprettSak(request);
+        assertThrows(NullPointerException.class, () -> service.opprettSak(request));
     }
 
-    @Test(expected = OpprettSakUgyldigInput.class)
+    @Test
     public void test_feilhandering_mangler_behandlingstema() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, null);
-        service.opprettSak(request);
+        assertThrows(OpprettSakUgyldigInput.class, () -> service.opprettSak(request));
     }
 
-    @Test(expected = OpprettSakUgyldigInput.class)
+    @Test
     public void test_feilhandering_ukjent_behandlingstema() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, "xx1234");
-        service.opprettSak(request);
+        assertThrows(OpprettSakUgyldigInput.class, () -> service.opprettSak(request));
     }
 
-    @Test(expected = OpprettSakUgyldigInput.class)
+    @Test
     public void test_feilhandering_mangler_aktorId() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, null, ES_FOD);
-        service.opprettSak(request);
+        assertThrows(OpprettSakUgyldigInput.class, () -> service.opprettSak(request));
     }
 
-    @Test(expected = TekniskException.class)
+    @Test
     public void test_opprettSak_finner_ikke_bruker() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
         AktørId aktorIdLong = new AktørId(valueOf(request.getSakspart().getAktoerId()));
 
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, true, false));
-        when(opprettSakTjeneste.hentBruker(any(AktørId.class))).thenThrow(OpprettSakFeil.FACTORY.finnerIkkePersonMedAktørId(aktorIdLong).toException());
+        when(opprettSakTjeneste.hentBruker(any(AktørId.class)))
+                .thenThrow(OpprettSakFeil.FACTORY.finnerIkkePersonMedAktørId(aktorIdLong).toException());
 
-        service.opprettSak(request);
+        assertThrows(TekniskException.class, () -> service.opprettSak(request));
     }
 
     @Test
@@ -164,41 +162,36 @@ public class OpprettSakServiceTest {
         assertThat(response.getSakId()).as("Forventer at saksnummer blir returnert ut fra tjenesten.").isEqualTo(expectedSakId.getVerdi());
     }
 
-    @Test(expected = FunksjonellException.class)
+    @Test
     public void test_opprettSak_unntak_klagedokument() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
         final Long FAGSAKID = 1l;
-        final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
-        when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
+        lenient().when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
+        lenient().when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(BehandlingTema.UDEFINERT.getOffisiellKode(), false, false));
 
-
-        @SuppressWarnings("unused")
-        OpprettSakResponse response = service.opprettSak(request);
+        assertThrows(FunksjonellException.class, () -> service.opprettSak(request));
     }
 
-    @Test(expected = FunksjonellException.class)
+    @Test
     public void test_opprettSak_unntak_endring() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
         final Long FAGSAKID = 1l;
-        final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
-        when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
-        when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(BehandlingTema.UDEFINERT.getOffisiellKode(), false, false));
+        lenient().when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
+        lenient().when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
+        lenient().when(restKlient.utledYtelestypeFor(any()))
+                .thenReturn(new JournalpostVurderingDto(BehandlingTema.UDEFINERT.getOffisiellKode(), false, false));
 
-
-        @SuppressWarnings("unused")
-        OpprettSakResponse response = service.opprettSak(request);
+        assertThrows(FunksjonellException.class, () -> service.opprettSak(request));
     }
 
-    @Test(expected = OpprettSakUgyldigInput.class)
+    @Test
     public void test_opprettSak_unntak_im() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, FP_FOD);
 
@@ -214,19 +207,17 @@ public class OpprettSakServiceTest {
         when(opprettSakTjeneste.opprettEllerFinnGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         when(fagsakRepository.hentForBruker(any())).thenReturn(List.of(fagsak));
         when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
-        when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(BehandlingTema.FORELDREPENGER.getOffisiellKode(), false, true));
-
+        when(restKlient.utledYtelestypeFor(any()))
+                .thenReturn(new JournalpostVurderingDto(BehandlingTema.FORELDREPENGER.getOffisiellKode(), false, true));
 
         OpprettSakResponse response = service.opprettSak(request);
         assertThat(response.getSakId()).as("Forventer at saksnummer blir returnert ut fra tjenesten.").isEqualTo(expectedSakId.getVerdi());
 
-        when(fagsak.getStatus()).thenReturn(FagsakStatus.LØPENDE);
+        lenient().when(fagsak.getStatus()).thenReturn(FagsakStatus.LØPENDE);
         when(fagsak.erÅpen()).thenReturn(true);
 
-        @SuppressWarnings("unused")
-        OpprettSakResponse response2 = service.opprettSak(request);
+        assertThrows(OpprettSakUgyldigInput.class, () -> service.opprettSak(request));
     }
-
 
     @Test
     public void test_opprettSak_ok_adopsjon() throws Exception {
@@ -245,20 +236,17 @@ public class OpprettSakServiceTest {
         assertThat(response.getSakId()).as("Forventer at saksnummer blir returnert ut fra tjenesten.").isEqualTo(expectedSakId.getVerdi());
     }
 
-    @Test(expected = FunksjonellException.class)
+    @Test
     public void test_opprettSak_unntak_klageelleramnnke() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
         final Long FAGSAKID = 1l;
-        final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
-        when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
+        lenient().when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
+        lenient().when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(BehandlingTema.UDEFINERT.getOffisiellKode(), false, false));
-
-        @SuppressWarnings("unused")
-        OpprettSakResponse response = service.opprettSak(request);
+        assertThrows(FunksjonellException.class, () -> service.opprettSak(request));
     }
 
     @Test
@@ -273,7 +261,6 @@ public class OpprettSakServiceTest {
         when(opprettSakTjeneste.opprettEllerFinnGsak(fagsak.getId(), personinfo)).thenReturn(expectedSakId);
         mockOppdaterFagsakMedGsakId(fagsak, expectedSakId);
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, true, false));
-
 
         OpprettSakResponse response = service.opprettSak(request);
         assertThat(response.getSakId()).as("Forventer at saksnummer blir returnert ut fra tjenesten.").isEqualTo(expectedSakId.getVerdi());
@@ -307,17 +294,19 @@ public class OpprettSakServiceTest {
     }
 
     private void mockOppdaterFagsakMedGsakId(Fagsak fagsak, Saksnummer sakId) {
-        doAnswer(invocationOnMock -> { Whitebox.setInternalState(fagsak, "saksnummer", sakId); return null; })
-            .when(opprettSakTjeneste).oppdaterFagsakMedGsakSaksnummer(anyLong(), any(Saksnummer.class));
+        doAnswer(invocationOnMock -> {
+            Whitebox.setInternalState(fagsak, "saksnummer", sakId);
+            return null;
+        })
+                .when(opprettSakTjeneste).oppdaterFagsakMedGsakSaksnummer(anyLong(), any(Saksnummer.class));
 
     }
 
-
     private Fagsak mockFagsak(Long fagsakId) {
         Fagsak fagsak = mock(Fagsak.class);
-        when(fagsak.getId()).thenReturn(fagsakId);
+        lenient().when(fagsak.getId()).thenReturn(fagsakId);
         Whitebox.setInternalState(fagsak, "saksnummer", null);
-        when(fagsak.getSaksnummer()).thenReturn((Saksnummer) Whitebox.getInternalState(fagsak, "saksnummer"));
+        lenient().when(fagsak.getSaksnummer()).thenReturn((Saksnummer) Whitebox.getInternalState(fagsak, "saksnummer"));
         return fagsak;
     }
 

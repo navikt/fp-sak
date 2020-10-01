@@ -182,11 +182,11 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     }
 
     private LocalDateTime finnMottattTidspunkt(Behandling behandling) {
-        Set<String> søknadOgKlageTyper = Stream.concat(DokumentTypeId.getSøknadTyper().stream(), Stream.of(DokumentTypeId.KLAGE_DOKUMENT.getKode())).collect(Collectors.toSet());
+        Set<DokumentTypeId> søknadOgKlageTyper = Stream.concat(DokumentTypeId.getSøknadTyper().stream(), Stream.of(DokumentTypeId.KLAGE_DOKUMENT)).collect(Collectors.toSet());
         List<MottattDokument> mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandling.getId());
 
         return mottatteDokumenter.stream()
-            .filter(o -> søknadOgKlageTyper.contains(o.getDokumentType().getKode())).findFirst() //Hent ut søknad eller klage mottattdato
+            .filter(o -> søknadOgKlageTyper.contains(o.getDokumentType())).findFirst() //Hent ut søknad eller klage mottattdato
             .or(() -> mottatteDokumenter.stream() //Eksisterer ikke søknad eller klage, hent ut mottattdato til første dokument knyttet til behandlingen.
                 .min(Comparator.comparing(MottattDokument::getMottattDato)))
             .map(MottattDokument::getMottattTidspunkt).orElse(null);

@@ -20,6 +20,7 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.jaspi.JaspiAuthenticatorFactory;
+import org.eclipse.jetty.server.AbstractNetworkConnector;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -33,26 +34,28 @@ import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
-
 import org.slf4j.MDC;
-
-import no.nav.vedtak.sikkerhetsfilter.SecurityFilter;
 
 abstract class AbstractJettyServer {
 
-        /** Legges først slik at alltid resetter context før prosesserer nye requests. Kjøres først så ikke risikerer andre har satt Request#setHandled(true). */
+    /**
+     * Legges først slik at alltid resetter context før prosesserer nye requests.
+     * Kjøres først så ikke risikerer andre har satt Request#setHandled(true).
+     */
     static final class ResetLogContextHandler extends AbstractHandler {
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+                throws IOException, ServletException {
             MDC.clear();
         }
     }
-    
+
     /**
      * @see AbstractNetworkConnector#getHost()
      * @see org.eclipse.jetty.server.ServerConnector#openAcceptChannel()
      */
-    // TODO (u139158): Trenger vi egentlig å sette denne? Spec ser ut til å si at det er eq med null, settes den default til null eller binder
+    // TODO (u139158): Trenger vi egentlig å sette denne? Spec ser ut til å si at
+    // det er eq med null, settes den default til null eller binder
     // den mot et interface?
 
     protected static final String SERVER_HOST = "0.0.0.0";
@@ -102,7 +105,8 @@ abstract class AbstractJettyServer {
      * @see SecurityFilter#getSwaggerHash()
      */
     protected void konfigurerSwaggerHash() {
-        System.setProperty(SecurityFilter.SWAGGER_HASH_KEY, appKonfigurasjon.getSwaggerHash());
+        // System.setProperty(SecurityFilter.SWAGGER_HASH_KEY,
+        // appKonfigurasjon.getSwaggerHash());
     }
 
     protected abstract void konfigurerJndi() throws Exception; // NOSONAR
@@ -133,7 +137,8 @@ abstract class AbstractJettyServer {
         WebAppContext webAppContext = new WebAppContext();
         webAppContext.setParentLoaderPriority(true);
 
-        // må hoppe litt bukk for å hente web.xml fra classpath i stedet for fra filsystem.
+        // må hoppe litt bukk for å hente web.xml fra classpath i stedet for fra
+        // filsystem.
         String descriptor;
         try (var resource = Resource.newClassPathResource("/WEB-INF/web.xml")) {
             descriptor = resource.getURI().toURL().toExternalForm();
@@ -161,7 +166,7 @@ abstract class AbstractJettyServer {
 
     protected abstract Resource createResourceCollection() throws IOException;
 
-    private SecurityHandler createSecurityHandler() {
+    private static SecurityHandler createSecurityHandler() {
         ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
         securityHandler.setAuthenticatorFactory(new JaspiAuthenticatorFactory());
 

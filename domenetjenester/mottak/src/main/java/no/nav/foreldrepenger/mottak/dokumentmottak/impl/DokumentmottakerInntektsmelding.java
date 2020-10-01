@@ -110,7 +110,7 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
             return;
         }
         Behandling nyBehandling = dokumentmottakerFelles.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.of(avsluttetBehandling), opprettSomKøet);
-        dokumentmottakerFelles.persisterDokumentinnhold(nyBehandling, mottattDokument, Optional.empty());
+        dokumentmottakerFelles.persisterDokumentinnhold(nyBehandling, mottattDokument);
         dokumentmottakerFelles.opprettHistorikk(nyBehandling, mottattDokument);
         if (!opprettSomKøet) {
             dokumentmottakerFelles.opprettTaskForÅStarteBehandling(nyBehandling);

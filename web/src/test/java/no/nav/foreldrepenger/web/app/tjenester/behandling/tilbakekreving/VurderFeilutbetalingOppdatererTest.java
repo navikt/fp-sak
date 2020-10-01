@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -26,9 +25,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.aksjons
 
 public class VurderFeilutbetalingOppdatererTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     private TilbakekrevingRepository repository = mock(TilbakekrevingRepository.class);
     private HistorikkTjenesteAdapter historikkTjenesteAdapter = mock(HistorikkTjenesteAdapter.class);
     private TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger = new TilbakekrevingvalgHistorikkinnslagBygger(historikkTjenesteAdapter);
@@ -38,7 +34,7 @@ public class VurderFeilutbetalingOppdatererTest {
 
     private Behandling behandling;
 
-    @Before
+    @BeforeEach
     public void setup() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         this.behandling = scenario.lagMocked();
@@ -64,9 +60,8 @@ public class VurderFeilutbetalingOppdatererTest {
     public void skal_feile_når_Inntrekk_er_forsøkt_valgt() {
         VurderFeilutbetalingDto dto = new VurderFeilutbetalingDto("lorem ipsum", TilbakekrevingVidereBehandling.INNTREKK, null);
 
-        expectedException.expect(IllegalArgumentException.class);
-
-        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
+        assertThrows(IllegalArgumentException.class,
+                () -> oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto)));
 
     }
 

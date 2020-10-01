@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
@@ -39,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Terminb
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -283,7 +281,7 @@ public class VurderFagsystemFellesUtils {
     }
 
     public static boolean erSøknad(VurderFagsystem vurderFagsystem) {
-        return (DokumentTypeId.getSøknadTyper().contains(vurderFagsystem.getDokumentTypeId().getKode())) ||
+        return (DokumentTypeId.getSøknadTyper().contains(vurderFagsystem.getDokumentTypeId())) ||
             (DokumentKategori.SØKNAD.equals(vurderFagsystem.getDokumentKategori()));
     }
 

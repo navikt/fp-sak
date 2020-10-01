@@ -6,7 +6,6 @@ import java.time.LocalDate;
 
 import org.junit.Test;
 
-import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.AvklarAktivitetsPerioderOppdaterer;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class AvklarAktivitetsPerioderOppdatererTest {

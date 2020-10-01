@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -9,9 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-
-import java.time.LocalDate;
-import java.util.List;
 
 /**
  * Default test scenario builder for Mor søker Foreldrepenger. Kan opprettes for fødsel og brukes til å

@@ -30,9 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
-@SuppressWarnings("deprecation")
 public class AksjonspunktDvhMapperTest {
-
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule().silent();

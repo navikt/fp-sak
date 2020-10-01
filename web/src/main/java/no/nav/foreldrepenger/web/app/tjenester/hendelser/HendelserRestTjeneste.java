@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseSorteringRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
@@ -35,7 +36,6 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @Path("/hendelser")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -55,8 +55,8 @@ public class HendelserRestTjeneste {
 
     @Inject
     public HendelserRestTjeneste(HendelseSorteringRepository sorteringRepository,
-                                 HendelsemottakRepository hendelsemottakRepository,
-                                 ProsessTaskRepository prosessTaskRepository) {
+            HendelsemottakRepository hendelsemottakRepository,
+            ProsessTaskRepository prosessTaskRepository) {
         this.sorteringRepository = sorteringRepository;
         this.hendelsemottakRepository = hendelsemottakRepository;
         this.prosessTaskRepository = prosessTaskRepository;
@@ -65,7 +65,7 @@ public class HendelserRestTjeneste {
     @POST
     @Path("/ping")
     @Operation(description = "Ping", tags = "hendelser")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT)
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public EnkelRespons ping() {
         return new EnkelRespons("pong");
     }
@@ -73,11 +73,11 @@ public class HendelserRestTjeneste {
     @POST
     @Path("/motta")
     @Operation(description = "Mottak av hendelser", tags = "hendelser")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT)
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public EnkelRespons mottaHendelse(@Parameter(description = "Hendelse fra Fpabonnent") @Valid AbacHendelseWrapperDto wrapperDto) {
         HendelseDto hendelseDto = wrapperDto.getHendelse();
         var beskrivelse = String.format("Hendelse mottatt fra %s av typen %s med hendelseId: %s.",
-            hendelseDto.getAvsenderSystem(), hendelseDto.getHendelsetype(), hendelseDto.getId());
+                hendelseDto.getAvsenderSystem(), hendelseDto.getHendelsetype(), hendelseDto.getId());
         LOGGER.info(beskrivelse);
         if (!hendelsemottakRepository.hendelseErNy(hendelseDto.getId())) {
             return new EnkelRespons("Hendelse ble ignorert. Hendelse med samme ID er allerede registrert.");
@@ -88,7 +88,7 @@ public class HendelserRestTjeneste {
     @POST
     @Operation(description = "Grovsortering av aktørID-er. Returnerer aktørID-er i listen som har en sak.", tags = "hendelser")
     @Path("/grovsorter")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT)
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public List<String> grovSorter(@Parameter(description = "Liste med aktør IDer som skal sorteres") @Valid List<AbacAktørIdDto> aktoerIdListe) {
         List<AktørId> aktørIdList = aktoerIdListe.stream().map(AbacAktørIdDto::getAktørId).map(AktørId::new).collect(Collectors.toList()); // NOSONAR
         return sorteringRepository.hentEksisterendeAktørIderMedSak(aktørIdList).stream().map(AktørId::getId).collect(Collectors.toList());

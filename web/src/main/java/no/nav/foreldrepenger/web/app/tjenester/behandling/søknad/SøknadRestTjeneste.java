@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -21,6 +20,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -55,45 +55,25 @@ public class SøknadRestTjeneste {
     @POST
     @Path(SOKNAD_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent informasjon om søknad",
-        tags = "søknad",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Returnerer Søknad, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SoknadDto.class)
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @Operation(description = "Hent informasjon om søknad", tags = "søknad", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer Søknad, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SoknadDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public SoknadDto getSøknad(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         return dtoMapper.mapFra(behandling).orElse(null);
     }
 
     @GET
     @Path(SOKNAD_PART_PATH)
-    @Operation(description = "Hent informasjon om søknad",
-        tags = "søknad",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Returnerer Søknad, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SoknadDto.class)
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Hent informasjon om søknad", tags = "søknad", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer Søknad, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SoknadDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SoknadDto getSøknad(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getSøknad(new BehandlingIdDto(uuidDto));
     }

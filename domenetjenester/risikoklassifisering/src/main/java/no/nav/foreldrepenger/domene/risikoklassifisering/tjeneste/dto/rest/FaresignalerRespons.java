@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class FaresignalerRespons {
 

@@ -4,12 +4,13 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.persistence.Convert;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 /**
  * Entitetsklasse for oppgitte arbeidsforhold.

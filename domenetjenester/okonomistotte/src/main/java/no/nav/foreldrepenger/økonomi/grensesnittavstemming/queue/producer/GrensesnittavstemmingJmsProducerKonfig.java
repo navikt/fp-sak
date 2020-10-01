@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.økonomi.grensesnittavstemming.queue.producer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
+
 import no.nav.vedtak.felles.integrasjon.jms.BaseJmsKonfig;
 
 @Named("grensesnittavstemmingjmsproducerkonfig")

@@ -1,5 +1,16 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.konsument;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.UUID;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import no.nav.foreldrepenger.domene.risikoklassifisering.JsonObjectMapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollresultatMapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.modell.Kontrollresultat;
@@ -8,14 +19,6 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.Kontrollre
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.kontroll.kodeverk.KontrollResultatkode;
 import no.nav.vedtak.kontroll.v1.KontrollResultatV1;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 public class LesKontrollresultatTaskTest {
 

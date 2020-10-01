@@ -10,7 +10,7 @@ import java.util.Objects;
 
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
@@ -27,10 +27,10 @@ public class FeilTest {
     private final static String VL_PREFIX = "F-";
     private final static List<String> GYLDIGE_PREFIXER = List.of(FPSAK_PREFIX, VL_PREFIX, KAFKA_PREFIX, KALKULUS_PREFIX, TASK_PREFIX);
 
-
     @Test
     public void test_Feil_annotation_deklarasjoner() {
-        List<AnnotationInstance> annotationInstances = new IndexFeil().getAnnotationInstances(TekniskFeil.class, IntegrasjonFeil.class, FunksjonellFeil.class);
+        List<AnnotationInstance> annotationInstances = new IndexFeil().getAnnotationInstances(TekniskFeil.class, IntegrasjonFeil.class,
+                FunksjonellFeil.class);
 
         for (AnnotationInstance ai : annotationInstances) {
             String feilkode = ai.value("feilkode").asString();
@@ -48,14 +48,15 @@ public class FeilTest {
         AnnotationInstance prev = unikeKoder.put(feilkode, ai);
         if (prev != null && !equalsTarget(prev, ai)) {
             duplikatFeil.add(String.format("2 Metoder har samme feilkode[%s] : %s, %s", feilkode, ai.target().asMethod().name(),
-                prev.target().asMethod().name()));
+                    prev.target().asMethod().name()));
         }
     }
 
     private void verifiserFeilPrefiks(AnnotationInstance ai, String feilkode) {
         if (!gyldigPrefix(feilkode)) {
             prefiksFeil
-                .add(String.format("Metode %s har feilkode som ikke begynner med en av de gyldige prefiksene: %s Metode hadde feilkode:  %s", ai.target().asMethod().name(), GYLDIGE_PREFIXER, feilkode));
+                    .add(String.format("Metode %s har feilkode som ikke begynner med en av de gyldige prefiksene: %s Metode hadde feilkode:  %s",
+                            ai.target().asMethod().name(), GYLDIGE_PREFIXER, feilkode));
         }
     }
 
@@ -72,7 +73,7 @@ public class FeilTest {
         AnnotationTarget pt = prev.target();
         AnnotationTarget ait = ai.target();
         return pt.kind() == ait.kind()
-            && Objects.equals(pt.asMethod().name(), ait.asMethod().name())
-            && Objects.equals(pt.asMethod().declaringClass().name(), ait.asMethod().declaringClass().name());
+                && Objects.equals(pt.asMethod().name(), ait.asMethod().name())
+                && Objects.equals(pt.asMethod().declaringClass().name(), ait.asMethod().declaringClass().name());
     }
 }

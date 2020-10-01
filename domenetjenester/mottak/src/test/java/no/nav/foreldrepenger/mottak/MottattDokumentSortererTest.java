@@ -9,7 +9,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.mottak.MottattDokumentSorterer;
 
 public class MottattDokumentSortererTest {
 

@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -29,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 /**
  * Tester Behandlingskontroll synkront.
@@ -51,8 +51,8 @@ public class BehandlingskontrollRestTjeneste {
 
     @Inject
     public BehandlingskontrollRestTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                           BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                           BehandlingRepository behandlingRepository) {
+            BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+            BehandlingRepository behandlingRepository) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.behandlingRepository = behandlingRepository;
@@ -61,13 +61,10 @@ public class BehandlingskontrollRestTjeneste {
     @POST
     @Path("/prosesserBehandling")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "KUN FOR TEST!!!: Kjører behandlingskontroll på en behandling.",
-        summary = ("Kjører behandlingskontroll fra gjeldende steg frem til så langt behandlingen lar seg kjøre automatisk. Først og fremst for synkron/automatisering av behandlingsprosessen."),
-        tags = "behandlingskontroll")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.UPDATE, ressurs = BeskyttetRessursResourceAttributt.FAGSAK)
+    @Operation(description = "KUN FOR TEST!!!: Kjører behandlingskontroll på en behandling.", summary = ("Kjører behandlingskontroll fra gjeldende steg frem til så langt behandlingen lar seg kjøre automatisk. Først og fremst for synkron/automatisering av behandlingsprosessen."), tags = "behandlingskontroll")
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public BehandlingskontrollDto kjørBehandling(
-        @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId må referere en allerede opprettet behandling") @Valid
-                BehandlingIdDto behandlingIdDto) {
+            @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId må referere en allerede opprettet behandling") @Valid BehandlingIdDto behandlingIdDto) {
 
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
@@ -83,13 +80,10 @@ public class BehandlingskontrollRestTjeneste {
     @POST
     @Path("/taskFortsettBehandling")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "DRIFT: Opprett en manuell FortsettBehandlingTask for en behandling.",
-        summary = ("Oppretter en FortsettBehandlingTask som vil prosessere behandlingen. For håndtering av tilfelle der behandlingen har endt i limbo uten automtisk gjenoppliving."),
-        tags = "behandlingskontroll")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT)
-    public Response lagFortsettBehandling (
-        @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId må referere en allerede opprettet behandling") @Valid
-            BehandlingIdDto behandlingIdDto) {
+    @Operation(description = "DRIFT: Opprett en manuell FortsettBehandlingTask for en behandling.", summary = ("Oppretter en FortsettBehandlingTask som vil prosessere behandlingen. For håndtering av tilfelle der behandlingen har endt i limbo uten automtisk gjenoppliving."), tags = "behandlingskontroll")
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    public Response lagFortsettBehandling(
+            @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId må referere en allerede opprettet behandling") @Valid BehandlingIdDto behandlingIdDto) {
 
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
@@ -99,8 +93,10 @@ public class BehandlingskontrollRestTjeneste {
         Optional<BehandlingStegTilstand> tilstand = behandling.getBehandlingStegTilstand();
         if (tilstand.isEmpty()) {
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
-        } else if (BehandlingStegType.IVERKSETT_VEDTAK.equals(tilstand.get().getBehandlingSteg()) && BehandlingStegStatus.VENTER.equals(tilstand.get().getBehandlingStegStatus())) {
-            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingGjenopptaStegNesteKjøring(behandling, tilstand.get().getBehandlingSteg(), LocalDateTime.now());
+        } else if (BehandlingStegType.IVERKSETT_VEDTAK.equals(tilstand.get().getBehandlingSteg())
+                && BehandlingStegStatus.VENTER.equals(tilstand.get().getBehandlingStegStatus())) {
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingGjenopptaStegNesteKjøring(behandling, tilstand.get().getBehandlingSteg(),
+                    LocalDateTime.now());
         } else {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
         }

@@ -6,39 +6,32 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AutomatiskFagsakAvslutningTjenesteTest {
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     private AutomatiskFagsakAvslutningTjeneste automatiskFagsakAvslutningTjeneste;
 
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
     @Mock
-    private FagsakRelasjonRepository fagsakRelasjonRepository = mock(FagsakRelasjonRepository.class);
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         prosessTaskRepository = spy(ProsessTaskRepository.class);
         automatiskFagsakAvslutningTjeneste = new AutomatiskFagsakAvslutningTjeneste(prosessTaskRepository, fagsakRelasjonRepository);
@@ -70,9 +63,9 @@ public class AutomatiskFagsakAvslutningTjenesteTest {
         Mockito.verify(prosessTaskRepository, Mockito.times(1)).lagre(Mockito.any(ProsessTaskGruppe.class));
     }
 
-    private Fagsak lagFagsak(FagsakStatus fagsakStatus){
+    private Fagsak lagFagsak(FagsakStatus fagsakStatus) {
         Fagsak fagsak = mock(Fagsak.class);
-        when(fagsak.getStatus()).thenReturn(fagsakStatus);
+        // when(fagsak.getStatus()).thenReturn(fagsakStatus);
         AktørId aktørId = mock(AktørId.class);
         when(aktørId.getId()).thenReturn("1");
         when(fagsak.getAktørId()).thenReturn(aktørId);

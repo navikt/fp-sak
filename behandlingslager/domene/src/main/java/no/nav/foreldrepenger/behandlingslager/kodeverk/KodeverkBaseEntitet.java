@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -12,8 +13,9 @@ import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 /**
- * En basis {@link Entity} klasse som håndtere felles standarder for utformign av tabeller (eks. sporing av hvem som har
- * opprettet eller oppdatert en rad, og når).
+ * En basis {@link Entity} klasse som håndtere felles standarder for utformign
+ * av tabeller (eks. sporing av hvem som har opprettet eller oppdatert en rad,
+ * og når).
  */
 @MappedSuperclass
 public class KodeverkBaseEntitet implements Serializable {
@@ -63,7 +65,6 @@ public class KodeverkBaseEntitet implements Serializable {
     public LocalDateTime getEndretTidspunkt() {
         return endretTidspunkt;
     }
-
 
     private static String finnBrukernavn() {
         String brukerident = SubjectHandler.getSubjectHandler().getUid();

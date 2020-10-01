@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.SvangerskapspengerGrunnlag;
-import no.nav.folketrygdloven.kalkulator.gradering.AktivitetGradering;
-import no.nav.folketrygdloven.kalkulator.gradering.AndelGradering;
+import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
+import no.nav.folketrygdloven.kalkulator.modell.gradering.AndelGradering;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
 import no.nav.folketrygdloven.kalkulator.modell.iay.AktørArbeidDto;
@@ -178,15 +178,15 @@ class MapTilKalkulatorInput {
             );
     }
 
-    private static OpptjeningAktiviteterDto mapOpptjeningAktiviteter(Collection<no.nav.folketrygdloven.kalkulator.opptjening.OpptjeningAktiviteterDto.OpptjeningPeriodeDto> opptjeningAktiviteterForBeregning) {
+    private static OpptjeningAktiviteterDto mapOpptjeningAktiviteter(Collection<no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto.OpptjeningPeriodeDto> opptjeningAktiviteterForBeregning) {
         return opptjeningAktiviteterForBeregning == null ? null : new OpptjeningAktiviteterDto(mapOpptjeningPerioder(opptjeningAktiviteterForBeregning));
     }
 
-    private static List<OpptjeningPeriodeDto> mapOpptjeningPerioder(Collection<no.nav.folketrygdloven.kalkulator.opptjening.OpptjeningAktiviteterDto.OpptjeningPeriodeDto> opptjeningAktiviteterForBeregning) {
+    private static List<OpptjeningPeriodeDto> mapOpptjeningPerioder(Collection<no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto.OpptjeningPeriodeDto> opptjeningAktiviteterForBeregning) {
         return opptjeningAktiviteterForBeregning.stream().map(MapTilKalkulatorInput::mapOpptjeningPeriode).collect(Collectors.toList());
     }
 
-    private static OpptjeningPeriodeDto mapOpptjeningPeriode(no.nav.folketrygdloven.kalkulator.opptjening.OpptjeningAktiviteterDto.OpptjeningPeriodeDto opptjeningPeriodeDto) {
+    private static OpptjeningPeriodeDto mapOpptjeningPeriode(no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto.OpptjeningPeriodeDto opptjeningPeriodeDto) {
         return new OpptjeningPeriodeDto(
             new OpptjeningAktivitetType(opptjeningPeriodeDto.getOpptjeningAktivitetType().getKode()),
             new Periode(opptjeningPeriodeDto.getPeriode().getFom(), opptjeningPeriodeDto.getPeriode().getTom()),

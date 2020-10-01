@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.behandling;
 
+import java.util.UUID;
+
+import javax.validation.Valid;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
-
-import javax.validation.Valid;
-import java.util.UUID;
 
 public class UuidDto implements AbacDto {
 

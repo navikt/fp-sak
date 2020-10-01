@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggEntitet;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerSøknad;
 
@@ -55,7 +54,7 @@ public abstract class KompletthetssjekkerSøknadImpl implements Kompletthetssjek
         return Optional.empty();
     }
 
-    protected List<ManglendeVedlegg> identifiserManglendeVedlegg(Optional<SøknadEntitet> søknad, Set<DokumentType> dokumentTypeIdSet) {
+    protected List<ManglendeVedlegg> identifiserManglendeVedlegg(Optional<SøknadEntitet> søknad, Set<DokumentTypeId> dokumentTypeIdSet) {
 
         return getSøknadVedleggListe(søknad)
             .stream()
@@ -90,7 +89,7 @@ public abstract class KompletthetssjekkerSøknadImpl implements Kompletthetssjek
     public Boolean erSøknadMottatt(BehandlingReferanse ref) {
         final Optional<SøknadEntitet> søknad = søknadRepository.hentSøknadHvisEksisterer(ref.getBehandlingId());
         Optional<MottattDokument> mottattSøknad =  mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.getFagsakId()).stream()
-            .filter(mottattDokument -> DokumentTypeId.getSøknadTyper().contains(mottattDokument.getDokumentType().getKode())
+            .filter(mottattDokument -> DokumentTypeId.getSøknadTyper().contains(mottattDokument.getDokumentType())
                 || DokumentKategori.SØKNAD.equals(mottattDokument.getDokumentKategori()))
             .findFirst();
         // sjekker på både søknad og mottatte dokumenter siden søknad ikke lagres med en gang

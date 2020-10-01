@@ -8,6 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.vedtak.exception.TekniskException;
 public interface TpsTjeneste {
 
     Optional<Personinfo> hentBrukerForAktør(AktørId aktørId);

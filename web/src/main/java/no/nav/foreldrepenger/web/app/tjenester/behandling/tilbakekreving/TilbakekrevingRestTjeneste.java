@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -19,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -43,7 +43,7 @@ public class TilbakekrevingRestTjeneste {
     private TilbakekrevingRepository tilbakekrevingRepository;
 
     public TilbakekrevingRestTjeneste() {
-        //for CDI proxy
+        // for CDI proxy
     }
 
     @Inject
@@ -54,22 +54,23 @@ public class TilbakekrevingRestTjeneste {
 
     @GET
     @Operation(description = "Hent tilbakekrevingsvalg for behandlingen", tags = "tilbakekrevingsvalg")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Path(VALG_PART_PATH)
-    public TilbakekrevingValgDto hentTilbakekrevingValg(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public TilbakekrevingValgDto hentTilbakekrevingValg(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         UUID behandlingId = uuidDto.getBehandlingUuid();
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
 
         Optional<TilbakekrevingValg> resultat = tilbakekrevingRepository.hent(behandling.getId());
 
         return resultat
-            .map(TilbakekrevingRestTjeneste::map)
-            .orElse(null);
+                .map(TilbakekrevingRestTjeneste::map)
+                .orElse(null);
     }
 
     @GET
     @Operation(description = "Henter varseltekst for tilbakekreving", tags = "tilbakekrevingsvalg")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Path(VARSELTEKST_PART_PATH)
     public VarseltekstDto hentVarseltekst(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
@@ -84,6 +85,7 @@ public class TilbakekrevingRestTjeneste {
     }
 
     private static TilbakekrevingValgDto map(TilbakekrevingValg valg) {
-        return new TilbakekrevingValgDto(valg.getErTilbakekrevingVilkårOppfylt(), valg.getGrunnerTilReduksjon(), valg.getVidereBehandling(), valg.getVarseltekst());
+        return new TilbakekrevingValgDto(valg.getErTilbakekrevingVilkårOppfylt(), valg.getGrunnerTilReduksjon(), valg.getVidereBehandling(),
+                valg.getVarseltekst());
     }
 }

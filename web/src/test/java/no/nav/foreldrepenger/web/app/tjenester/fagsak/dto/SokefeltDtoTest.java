@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -17,16 +17,13 @@ public class SokefeltDtoTest {
         SokefeltDto dto = new SokefeltDto(fnr);
 
         assertThat(dto.abacAttributter()).isEqualTo(AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.FNR, fnr)
-            .leggTil(AppAbacAttributtType.SAKER_MED_FNR, fnr)
-        );
+                .leggTil(AppAbacAttributtType.FNR, fnr)
+                .leggTil(AppAbacAttributtType.SAKER_MED_FNR, fnr));
     }
 
     @Test
     public void skal_ha_normal_saksnummer_abac_type_når_det_ikke_er_et_fødslelsnummer() throws Exception {
-        Saksnummer saksnummer  = new Saksnummer("123123123123");
-        SokefeltDto dto = new SokefeltDto(saksnummer);
-
-        assertThat(dto.abacAttributter()).isEqualTo(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer.getVerdi()));
+        Saksnummer saksnummer = new Saksnummer("123123123123");
+        assertThat(new SokefeltDto(saksnummer).abacAttributter()).isEqualTo(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer.getVerdi()));
     }
 }

@@ -20,10 +20,5 @@ COPY web/target/lib/*.jar /app/lib/
 COPY run-java.sh /
 RUN chmod +x /run-java.sh
 
-# Upload heapdump to s3
-COPY s3upload-init.sh /init-scripts/
-COPY s3upload.sh /
-RUN chmod +x /s3upload.sh
-
 # Export vault properties
 COPY export-vault.sh /init-scripts/export-vault.sh

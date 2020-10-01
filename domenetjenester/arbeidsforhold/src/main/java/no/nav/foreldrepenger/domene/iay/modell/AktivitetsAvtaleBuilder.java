@@ -8,7 +8,6 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 public class AktivitetsAvtaleBuilder {
-    private static final BigDecimal MAKS_ANTALL_TIMER_I_UKEN = BigDecimal.valueOf(168); // https://jira.adeo.no/browse/TFP-1259
     private final AktivitetsAvtale aktivitetsAvtale;
     private boolean oppdatering = false;
 

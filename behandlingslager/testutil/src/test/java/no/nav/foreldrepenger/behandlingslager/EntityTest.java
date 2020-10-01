@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingslager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -10,7 +9,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,25 +35,26 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import no.nav.foreldrepenger.dbstoette.DatasourceConfiguration;
+import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.lokal.dbstoette.DBConnectionProperties;
-import no.nav.vedtak.felles.lokal.dbstoette.DatabaseStøtte;
 
-/** Sjekker alle entiteter er mappet korrekt.  Ligger i web slik at den fanger alle orm filer lagt i ulike moduler. */
+/**
+ * Sjekker alle entiteter er mappet korrekt. Ligger i web slik at den fanger
+ * alle orm filer lagt i ulike moduler.
+ */
 @RunWith(Parameterized.class)
 public class EntityTest {
 
     private static final EntityManagerFactory entityManagerFactory;
 
     static {
-        // Kan ikke skrus på nå - trigger på CHAR kolonner som kunne vært VARCHAR.  Må fikses først
-        //System.setProperty("hibernate.hbm2ddl.auto", "validate");
+        // Kan ikke skrus på nå - trigger på CHAR kolonner som kunne vært VARCHAR. Må
+        // fikses først
+        // System.setProperty("hibernate.hbm2ddl.auto", "validate");
         try {
             // trenger å konfigurere opp jndi etc.
-            DBConnectionProperties connectionProperties = DBConnectionProperties.finnDefault(DatasourceConfiguration.UNIT_TEST.get()).get();
-            DatabaseStøtte.settOppJndiForDefaultDataSource(Collections.singletonList(connectionProperties));
-        } catch (FileNotFoundException e) {
+            Databaseskjemainitialisering.settJdniOppslag();
+        } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
         }
         entityManagerFactory = Persistence.createEntityManagerFactory("pu-default");
@@ -85,12 +84,12 @@ public class EntityTest {
         Map<String, Object[]> params = new LinkedHashMap<>();
 
         for (Class<?> c : baseEntitetSubklasser) {
-            params.put(c.getName(), new Object[]{c.getSimpleName(), c});
+            params.put(c.getName(), new Object[] { c.getSimpleName(), c });
         }
         assertThat(params).isNotEmpty();
 
         for (Class<?> c : entityKlasser) {
-            params.put(c.getName(), new Object[]{c.getSimpleName(), c});
+            params.put(c.getName(), new Object[] { c.getSimpleName(), c });
         }
         assertThat(params).isNotEmpty();
 
@@ -99,7 +98,8 @@ public class EntityTest {
 
     public static Set<Class<?>> getEntityClasses(Predicate<Class<?>> filter) {
         Set<ManagedType<?>> managedTypes = entityManagerFactory.getMetamodel().getManagedTypes();
-        return managedTypes.stream().map(javax.persistence.metamodel.Type::getJavaType).filter(c -> !Modifier.isAbstract(c.getModifiers())).filter(filter).collect(Collectors.toSet());
+        return managedTypes.stream().map(javax.persistence.metamodel.Type::getJavaType).filter(c -> !Modifier.isAbstract(c.getModifiers()))
+                .filter(filter).collect(Collectors.toSet());
     }
 
     private static boolean isDoubleOrFloat(Class<?> javaType) {
@@ -187,7 +187,7 @@ public class EntityTest {
             String singleResult = getNullability(tableName, columnName);
 
             String warn = "Felt " + member
-                + " kan ikke ha null i db. Kan medføre en smell ved skriving. Bedre å bruke primitiv hvis kan (husk sjekk med innkommende kilde til data)";
+                    + " kan ikke ha null i db. Kan medføre en smell ved skriving. Bedre å bruke primitiv hvis kan (husk sjekk med innkommende kilde til data)";
             if (nullable) {
                 assertThat(singleResult).as(warn).isEqualTo("Y");
             } else {
@@ -199,10 +199,10 @@ public class EntityTest {
     @SuppressWarnings("unchecked")
     private String getNullability(String tableName, String columnName) {
         List<String> result = em.createNativeQuery(
-            "SELECT NULLABLE FROM ALL_TAB_COLS WHERE COLUMN_NAME=upper(:col) AND TABLE_NAME=upper(:table) AND OWNER=SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')")
-            .setParameter("table", tableName)
-            .setParameter("col", columnName)
-            .getResultList();
+                "SELECT NULLABLE FROM ALL_TAB_COLS WHERE COLUMN_NAME=upper(:col) AND TABLE_NAME=upper(:table) AND OWNER=SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')")
+                .setParameter("table", tableName)
+                .setParameter("col", columnName)
+                .getResultList();
 
         return result.isEmpty() ? null : result.get(0);
     }
@@ -234,7 +234,7 @@ public class EntityTest {
                 }
 
                 String warn = "Primitiv wrapper (Float, Double) " + member
-                    + " bør ikke brukes for felt som mappes til db.  Vil gi IEEE754 avrundingsfeil";
+                        + " bør ikke brukes for felt som mappes til db.  Vil gi IEEE754 avrundingsfeil";
 
                 assertThat(member).as(warn).isNull();
             }

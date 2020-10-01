@@ -109,12 +109,8 @@ public class UttakInputTjeneste {
 
     private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag(BehandlingReferanse ref, BeregningsgrunnlagEntitet beregningsgrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var aktivitetGradering = andelGraderingTjeneste.utled(ref);
-        List<InntektsmeldingDto> inntektsmeldinger = iayGrunnlag == null ? Collections.emptyList() :
-            iayGrunnlag.getInntektsmeldinger()
-            .map(ims -> IAYMapperTilKalkulus.mapInntektsmelding(ims, iayGrunnlag.getArbeidsforholdInformasjon()))
-            .map(InntektsmeldingAggregatDto::getAlleInntektsmeldinger).orElse(Collections.emptyList());
-        var andelerMedGraderingUtenBG = GraderingUtenBeregningsgrunnlagTjeneste.finnAndelerMedGraderingUtenBG(BehandlingslagerTilKalkulusMapper.mapBeregningsgrunnlag(beregningsgrunnlag,
-            inntektsmeldinger), aktivitetGradering);
+        var andelerMedGraderingUtenBG = GraderingUtenBeregningsgrunnlagTjeneste.finnAndelerMedGraderingUtenBG(BehandlingslagerTilKalkulusMapper.mapBeregningsgrunnlag(beregningsgrunnlag
+        ), aktivitetGradering);
 
         return !andelerMedGraderingUtenBG.isEmpty();
     }

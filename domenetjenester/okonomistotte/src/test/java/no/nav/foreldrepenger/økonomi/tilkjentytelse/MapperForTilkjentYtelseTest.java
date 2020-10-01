@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelseAndelV1;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelseFeriepengerV1;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelsePeriodeV1;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelseV1;
-import no.nav.foreldrepenger.økonomi.tilkjentytelse.MapperForTilkjentYtelse;
 
 public class MapperForTilkjentYtelseTest {
 

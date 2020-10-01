@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -41,32 +40,35 @@ public class FagsakTjeneste {
     }
 
     @Inject
-    public FagsakTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                          FagsakStatusEventPubliserer fagsakStatusEventPubliserer) {
-        this.fagsakRepository = repositoryProvider.getFagsakRepository();
+    public FagsakTjeneste(FagsakRepository fagsakRepository, SøknadRepository søknadRepository,
+            FagsakStatusEventPubliserer fagsakStatusEventPubliserer) {
+        this.fagsakRepository = fagsakRepository;
         this.fagsakStatusEventPubliserer = fagsakStatusEventPubliserer;
-        this.søknadRepository = repositoryProvider.getSøknadRepository();
+        this.søknadRepository = søknadRepository;
     }
 
     /**
      * FIXME Marius ønsker endre interface på denne, men løser slikt inntil videre
      *
-     * @deprecated Skal ikke lenger oppdatere fagsaks relasjonsrolle basert på registerdata, men sette det ut fra
-     * oppgitte data i søknad (steg { {@link BehandlingStegType#REGISTRER_SØKNAD}} )
-     * Likevel finnes et unntak som gjør at metoden ikke kan fjernes: gammelt søknadformat angir ikke relasjonsrolle.
-     * Teknisk gjeld: se PFP-6758
+     * @deprecated Skal ikke lenger oppdatere fagsaks relasjonsrolle basert på
+     *             registerdata, men sette det ut fra oppgitte data i søknad (steg {
+     *             {@link BehandlingStegType#REGISTRER_SØKNAD}} ) Likevel finnes et
+     *             unntak som gjør at metoden ikke kan fjernes: gammelt søknadformat
+     *             angir ikke relasjonsrolle. Teknisk gjeld: se PFP-6758
      */
     @Deprecated
-    public void oppdaterFagsak(Behandling behandling, PersonopplysningerAggregat personopplysninger, List<PersonopplysningEntitet> barnSøktStønadFor) {
+    public void oppdaterFagsak(Behandling behandling, PersonopplysningerAggregat personopplysninger,
+            List<PersonopplysningEntitet> barnSøktStønadFor) {
 
         Fagsak fagsak = behandling.getFagsak();
         validerEksisterendeFagsak(fagsak);
 
         // Oppdatering basert på søkers oppgitte relasjon til barn
         Optional<RelasjonsRolleType> oppgittRelasjonsRolle = søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
-            .map(SøknadEntitet::getRelasjonsRolleType);
+                .map(SøknadEntitet::getRelasjonsRolleType);
         if (oppgittRelasjonsRolle.isPresent()) {
-            LOGGER.info("oppdaterRelasjonsRolle fagsak har {} fra søknad {}", fagsak.getRelasjonsRolleType().getKode(), oppgittRelasjonsRolle.get().getKode());
+            LOGGER.info("oppdaterRelasjonsRolle fagsak har {} fra søknad {}", fagsak.getRelasjonsRolleType().getKode(),
+                    oppgittRelasjonsRolle.get().getKode());
             fagsakRepository.oppdaterRelasjonsRolle(fagsak.getId(), oppgittRelasjonsRolle.get());
             return;
         }
@@ -76,7 +78,8 @@ public class FagsakTjeneste {
         if (funnetRelasjon.isPresent()) {
             Optional<RelasjonsRolleType> brukerRolle = RelasjonsRolleType.fraKodeOptional(funnetRelasjon.get().getRelasjonsrolle().getKode());
             if (brukerRolle.isPresent()) {
-                LOGGER.info("oppdaterRelasjonsRolle fagsak har {} fra register {}", fagsak.getRelasjonsRolleType().getKode(), brukerRolle.get().getKode());
+                LOGGER.info("oppdaterRelasjonsRolle fagsak har {} fra register {}", fagsak.getRelasjonsRolleType().getKode(),
+                        brukerRolle.get().getKode());
                 fagsakRepository.oppdaterRelasjonsRolle(fagsak.getId(), brukerRolle.get());
                 return;
             }
@@ -129,12 +132,12 @@ public class FagsakTjeneste {
     }
 
     private Optional<PersonRelasjonEntitet> finnBarnetsRelasjonTilSøker(List<PersonopplysningEntitet> barnaSøktStøtteFor,
-                                                                        PersonopplysningerAggregat personopplysningerAggregat) {
+            PersonopplysningerAggregat personopplysningerAggregat) {
 
         Optional<PersonopplysningEntitet> barn = personopplysningerAggregat.getBarna().stream()
-            .filter(e -> barnaSøktStøtteFor.stream()
-                .anyMatch(kandidat -> kandidat.getAktørId().equals(e.getAktørId())))
-            .findFirst();
+                .filter(e -> barnaSøktStøtteFor.stream()
+                        .anyMatch(kandidat -> kandidat.getAktørId().equals(e.getAktørId())))
+                .findFirst();
 
         if (barn.isPresent()) {
             return personopplysningerAggregat.finnRelasjon(barn.get().getAktørId(), personopplysningerAggregat.getSøker().getAktørId());

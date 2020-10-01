@@ -1,8 +1,9 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto;
 
+import java.time.LocalDate;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 
 public class VurderRefusjonAndelBeregningsgrunnlagDto {
 

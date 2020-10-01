@@ -21,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -47,7 +48,6 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehand
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.HoppTilbakeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.HoppTilbakeTil5080OgSlettInntektsmeldingDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @Path("/forvaltningSteg")
 @ApplicationScoped
@@ -64,10 +64,10 @@ public class ForvaltningStegRestTjeneste {
 
     @Inject
     public ForvaltningStegRestTjeneste(BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
-                                       BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                       ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
-                                       InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                       BehandlingRepositoryProvider repositoryProvider, VilkårResultatRepository vilkårResultatRepository) {
+            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+            ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
+            InntektsmeldingTjeneste inntektsmeldingTjeneste,
+            BehandlingRepositoryProvider repositoryProvider, VilkårResultatRepository vilkårResultatRepository) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
@@ -78,14 +78,14 @@ public class ForvaltningStegRestTjeneste {
     }
 
     public ForvaltningStegRestTjeneste() {
-        //CDI
+        // CDI
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Generelt tilbakehopp", tags = "FORVALTNING-steg-hopp")
     @Path("/generell")
-    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hoppTilbake(@BeanParam @Valid HoppTilbakeDto dto) {
         Long behandlingId = dto.getBehandlingId();
         String behandlingStegTypeStr = dto.getBehandlingStegType();
@@ -100,7 +100,7 @@ public class ForvaltningStegRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Hopp tilbake til 5080", tags = "FORVALTNING-steg-hopp")
     @Path("/5080")
-    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hoppTilbakeTil5080(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Long behandlingId = dto.getBehandlingId();
 
@@ -113,7 +113,7 @@ public class ForvaltningStegRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Hopp tilbake til 5080 og fjern OPPTJENINGSVILKÅRET", tags = "FORVALTNING-steg-hopp")
     @Path("/fjern-opptjeningsvilkåret")
-    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hoppTilbakeTil5080OgFjernOverstyringAvOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Long behandlingId = dto.getBehandlingId();
 
@@ -149,7 +149,7 @@ public class ForvaltningStegRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Hopp tilbake til 5080 og slett inntektsmelding", tags = "FORVALTNING-steg-hopp")
     @Path("/inntektsmelding")
-    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hoppTilbakeTil5080OgSlettInntektsmelding(@BeanParam @Valid HoppTilbakeTil5080OgSlettInntektsmeldingDto dto) {
         Long behandlingId = dto.getBehandlingId();
         var journalpostId = new JournalpostId(Long.parseLong(dto.getJournalpostId().trim()));
@@ -166,7 +166,7 @@ public class ForvaltningStegRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Fjerner overstyring av familiehendelse og hopper tilbake til KOFAK", tags = "FORVALTNING-steg-hopp")
     @Path("/fjernFHValgHoppTilbake")
-    @BeskyttetRessurs(action = READ, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response fjernOverstyrtFH(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Long behandlingId = dto.getBehandlingId();
         FamilieHendelseGrunnlagEntitet grunnlag = familieHendelseRepository.hentAggregat(behandlingId);

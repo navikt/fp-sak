@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -21,6 +20,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
@@ -47,25 +47,21 @@ public class BehandlingBackendRestTjeneste {
 
     @Inject
     public BehandlingBackendRestTjeneste(BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
-                                         BehandlingDtoForBackendTjeneste behandlingDtoForBackendTjeneste) {
+            BehandlingDtoForBackendTjeneste behandlingDtoForBackendTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingDtoForBackendTjeneste = behandlingDtoForBackendTjeneste;
     }
 
     @GET
     @Path(BACKEND_ROOT_PATH)
-    @Operation(description = "Hent behandling gitt id for backend",
-        summary = ("Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført."),
-        tags = "behandlinger",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer behandling",
-                content = {
+    @Operation(description = "Hent behandling gitt id for backend", summary = ("Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført."), tags = "behandlinger", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer behandling", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BehandlingDto.class))
-                }),
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response hentBehandlingResultatForBackend(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+            }),
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Response hentBehandlingResultatForBackend(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
         AsyncPollingStatus taskStatus = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, null).orElse(null);
         BehandlingDto dto = behandlingDtoForBackendTjeneste.lagBehandlingDto(behandling, taskStatus);

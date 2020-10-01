@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -15,6 +16,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBElement;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
@@ -73,10 +77,10 @@ import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeMottattDatoTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentFeil;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.NamespaceRef;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeMottattDatoTjeneste;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
@@ -127,6 +131,8 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 @ApplicationScoped
 public class MottattDokumentOversetterSøknad implements MottattDokumentOversetter<MottattDokumentWrapperSøknad> { // NOSONAR - (essv)kan akseptere lang mapperklasse
 
+    private static final Logger LOG = LoggerFactory.getLogger(MottattDokumentOversetterSøknad.class);
+
     private VirksomhetTjeneste virksomhetTjeneste;
     private PersonopplysningRepository personopplysningRepository;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -171,7 +177,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     @Override
     public void trekkUtDataOgPersister(MottattDokumentWrapperSøknad wrapper, MottattDokument mottattDokument, Behandling behandling, Optional<LocalDate> gjelderFra) {
         if (wrapper.getOmYtelse() instanceof Endringssoeknad && !erEndring(mottattDokument)) { // NOSONAR - ok måte å finne riktig JAXB-type
-            throw new IllegalArgumentException("Kan ikke sende inn en Endringssøknad uten å angi " + DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD + " samtidig. Fikk " + mottattDokument.getDokumentType());
+            throw new IllegalArgumentException("Kan ikke sende inn en Endringssøknad uten å angi " + DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.getKode() + " samtidig. Fikk " + mottattDokument.getDokumentType());
         }
 
         if (erEndring(mottattDokument)) {
@@ -225,7 +231,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
         if (wrapper.getOmYtelse() instanceof Endringssoeknad) { // NOSONAR
             final Endringssoeknad omYtelse = (Endringssoeknad) wrapper.getOmYtelse();
-            byggYtelsesSpesifikkeFelterForEndringssøknad(omYtelse, behandling, gjelderFra.orElse(mottattDato));
+            byggYtelsesSpesifikkeFelterForEndringssøknad(omYtelse, behandling, mottattDato);
         }
         søknadBuilder.medErEndringssøknad(true);
         final SøknadEntitet søknad = søknadBuilder.build();
@@ -319,6 +325,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private void byggYtelsesSpesifikkeFelterForEndringssøknad(Endringssoeknad omYtelse, Behandling behandling, LocalDate mottattDato) {
+        LOG.info("Mottatt dato for endringsøknad for behandling {} {}", mottattDato, behandling.getId());
         final List<LukketPeriodeMedVedlegg> perioder = omYtelse.getFordeling().getPerioder();
         lagreFordeling(behandling, perioder, hentAnnenForelderErInformert(behandling), mottattDato);
     }
@@ -474,16 +481,42 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     private void lagreFordeling(Behandling behandling,
                                 List<LukketPeriodeMedVedlegg> perioder,
                                 boolean annenForelderErInformert,
-                                LocalDate mottattDato) {
+                                LocalDate mottattDatoFraSøknad) {
         final List<OppgittPeriodeEntitet> oppgittPerioder = new ArrayList<>();
+
         for (LukketPeriodeMedVedlegg lukketPeriode : perioder) {
-            var oppgittPeriode = oversettPeriode(lukketPeriode, mottattDato, behandling);
+            var oppgittPeriode = oversettPeriode(lukketPeriode);
             oppgittPerioder.add(oppgittPeriode);
         }
+        oppdaterMedMottattDato(oppgittPerioder, behandling, mottattDatoFraSøknad);
         if (!inneholderVirkedager(oppgittPerioder)) {
             throw new IllegalArgumentException("Fordelingen må inneholde perioder med minst en virkedag");
         }
         ytelsesFordelingRepository.lagre(behandling.getId(), new OppgittFordelingEntitet(oppgittPerioder, annenForelderErInformert));
+    }
+
+    private void oppdaterMedMottattDato(List<OppgittPeriodeEntitet> oppgittPerioder,
+                                        Behandling behandling,
+                                        LocalDate mottattDatoFraSøknad) {
+        //Fra og med første endret periode skal mottatt dato være satt til mottatt dato fra søknad selv om etterfølgene
+        //perioder er søkt om i tidligere søknader
+        var seEtterMottattDatoIOriginalBehandling = true;
+        var sorted = oppgittPerioder.stream()
+            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
+            .collect(Collectors.toList());
+        for (OppgittPeriodeEntitet oppgittPeriode : sorted) {
+            if (seEtterMottattDatoIOriginalBehandling) {
+                var eksisterendeMottattDato = oppgittPeriodeMottattDatoTjeneste.finnMottattDatoForPeriode(behandling, oppgittPeriode);
+                if (eksisterendeMottattDato.isPresent()) {
+                    oppgittPeriode.setMottattDato(eksisterendeMottattDato.get());
+                } else {
+                    oppgittPeriode.setMottattDato(mottattDatoFraSøknad);
+                    seEtterMottattDatoIOriginalBehandling = false;
+                }
+            } else {
+                oppgittPeriode.setMottattDato(mottattDatoFraSøknad);
+            }
+        }
     }
 
     private boolean inneholderVirkedager(List<OppgittPeriodeEntitet> perioder) {
@@ -506,9 +539,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         }
     }
 
-    private OppgittPeriodeEntitet oversettPeriode(LukketPeriodeMedVedlegg lukketPeriode,
-                                                  LocalDate mottattDatoFraSøknad,
-                                                  Behandling behandling) {
+    private OppgittPeriodeEntitet oversettPeriode(LukketPeriodeMedVedlegg lukketPeriode) {
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(lukketPeriode.getFom(), lukketPeriode.getTom());
         if (lukketPeriode instanceof Uttaksperiode) { // NOSONAR
@@ -526,10 +557,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         } else { // NOSONAR
             throw new IllegalStateException("Ukjent periodetype.");
         }
-        var oppgittPeriode = oppgittPeriodeBuilder.build();
-        var eksisterendeMottattDato = oppgittPeriodeMottattDatoTjeneste.finnMottattDatoForPeriode(behandling, oppgittPeriode);
-        oppgittPeriode.setMottattDato(eksisterendeMottattDato.isPresent() ? eksisterendeMottattDato.get() : mottattDatoFraSøknad);
-        return oppgittPeriode;
+        return oppgittPeriodeBuilder.build();
     }
 
     private void oversettUtsettelsesperiode(OppgittPeriodeBuilder oppgittPeriodeBuilder, Utsettelsesperiode utsettelsesperiode) {

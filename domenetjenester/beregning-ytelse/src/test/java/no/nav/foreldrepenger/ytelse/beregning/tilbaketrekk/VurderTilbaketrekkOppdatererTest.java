@@ -24,10 +24,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.ytelse.beregning.rest.VurderTilbaketrekkDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
+import no.nav.foreldrepenger.ytelse.beregning.rest.VurderTilbaketrekkDto;
 
 public class VurderTilbaketrekkOppdatererTest {
 

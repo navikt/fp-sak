@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.batch;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -11,8 +12,8 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
@@ -26,7 +27,7 @@ public class BatchRestTjenesteTest {
 
     private BatchSupportTjeneste batchSupportTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         batchSupportTjeneste = mock(BatchSupportTjeneste.class);
         tjeneste = new BatchRestTjeneste(batchSupportTjeneste);
@@ -40,7 +41,7 @@ public class BatchRestTjenesteTest {
         assertThat(response.getStatusInfo()).isEqualTo(Response.Status.BAD_REQUEST);
     }
 
-    @Test(expected = InvalidArgumentsVLBatchException.class)
+    @Test
     public void skal_gi_exception_ved_ugyldig_job_parametere() {
         final HashMap<String, BatchTjeneste> stringBatchTjenesteHashMap = new HashMap<>();
         final BatchTjeneste value = mock(BatchTjeneste.class);
@@ -56,7 +57,7 @@ public class BatchRestTjenesteTest {
         when(batchSupportTjeneste.finnBatchTjenesteForNavn(any())).thenReturn(value);
 
         args.setJobParameters("asdf=1");
-        tjeneste.startBatch(new BatchNameDto(key), args);
+        assertThrows(InvalidArgumentsVLBatchException.class, () -> tjeneste.startBatch(new BatchNameDto(key), args));
     }
 
     @Test

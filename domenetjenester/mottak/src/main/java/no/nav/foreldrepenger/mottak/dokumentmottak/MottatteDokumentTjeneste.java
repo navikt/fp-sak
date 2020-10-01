@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -14,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
@@ -74,8 +76,8 @@ public class MottatteDokumentTjeneste {
         return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId);
     }
 
-    public boolean harMottattDokumentSet(Long behandlingId, Set<String> dokumentTypeIdSet) {
-        return hentMottatteDokument(behandlingId).stream().anyMatch(dok -> dokumentTypeIdSet.contains(dok.getDokumentType().getKode()));
+    public boolean harMottattDokumentSet(Long behandlingId, Set<DokumentTypeId> dokumentTypeIdSet) {
+        return hentMottatteDokument(behandlingId).stream().anyMatch(dok -> dokumentTypeIdSet.contains(dok.getDokumentType()));
     }
 
     public boolean harMottattDokumentKat(Long behandlingId, DokumentKategori dokumentKategori) {
@@ -83,7 +85,10 @@ public class MottatteDokumentTjeneste {
     }
 
     public List<MottattDokument> hentMottatteDokumentVedlegg(Long behandlingId) {
-        return mottatteDokumentRepository.hentMottatteDokumentAndreTyperPåBehandlingId(behandlingId);
+        var spesialtyper = DokumentTypeId.getSpesialTyperKoder();
+        return mottatteDokumentRepository.hentMottatteDokument(behandlingId).stream()
+            .filter(m -> !spesialtyper.contains(m.getDokumentType()))
+            .collect(Collectors.toList());
     }
 
     public void oppdaterMottattDokumentMedBehandling(MottattDokument mottattDokument, Long behandlingId) {

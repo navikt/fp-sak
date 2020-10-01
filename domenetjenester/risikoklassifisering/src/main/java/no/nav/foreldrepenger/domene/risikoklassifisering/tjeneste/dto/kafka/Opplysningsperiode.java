@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.kafka;
 
-import no.nav.vedtak.konfig.Tid;
-
 import java.time.LocalDate;
+
+import no.nav.vedtak.konfig.Tid;
 
 public class Opplysningsperiode {
     private LocalDate fraOgMed;

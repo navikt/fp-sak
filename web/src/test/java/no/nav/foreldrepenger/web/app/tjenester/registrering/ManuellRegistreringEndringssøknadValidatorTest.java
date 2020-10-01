@@ -8,8 +8,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -26,7 +26,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
 
     ManuellRegistreringEndringsøknadDto registreringDto;
 
-    @Before
+    @BeforeEach
     public void setup() {
         registreringDto = new ManuellRegistreringEndringsøknadDto();
     }
@@ -52,8 +52,8 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
 
         List<FeltFeilDto> feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).isNotEmpty();
-        assertThat(feltFeil).first().satisfies(ff ->
-            assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO));
+        assertThat(feltFeil).first()
+                .satisfies(ff -> assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO));
     }
 
     @Test
@@ -68,8 +68,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
         List<FeltFeilDto> feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).hasSize(1);
 
-        assertThat(feltFeil).first().satisfies(ff ->
-            assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil).first().satisfies(ff -> assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
     }
 
     @Test
@@ -83,8 +82,8 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
 
         List<FeltFeilDto> feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff ->
-            assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER));
+        assertThat(feltFeil).first()
+                .satisfies(ff -> assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER));
     }
 
     @Test
@@ -98,8 +97,8 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
 
         List<FeltFeilDto> feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff ->
-            assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO));
+        assertThat(feltFeil).first()
+                .satisfies(ff -> assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO));
     }
 
     @Test
@@ -113,8 +112,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
 
         List<FeltFeilDto> feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff ->
-            assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil).first().satisfies(ff -> assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
     }
 
     @Test
@@ -128,8 +126,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
 
         List<FeltFeilDto> feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff ->
-            assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil).first().satisfies(ff -> assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
     }
 
     @Test
@@ -169,7 +166,6 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
         assertThat(feltFeil).hasSize(1);
         assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
     }
-
 
     private List<PermisjonPeriodeDto> lagGyldigFellesPerioder() {
         List<PermisjonPeriodeDto> fellesPerioder = new ArrayList<>();

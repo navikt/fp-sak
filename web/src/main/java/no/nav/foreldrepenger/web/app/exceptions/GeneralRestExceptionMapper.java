@@ -29,10 +29,11 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneralRestExceptionMapper.class);
 
-    //FIXME Humle, ikke bruk feilkoder her, håndter som valideringsfeil, eller legg til egen samtidig-oppdatering-feil Feil-rammeverket
+    // FIXME Humle, ikke bruk feilkoder her, håndter som valideringsfeil, eller legg
+    // til egen samtidig-oppdatering-feil Feil-rammeverket
     static final String BEHANDLING_ENDRET_FEIL = "FP-837578";
 
-    //FIXME Humle, dette er Valideringsfeil, bruk valideringsfeil.
+    // FIXME Humle, dette er Valideringsfeil, bruk valideringsfeil.
     static final String FRITEKST_TOM_FEIL = "FP-290952";
 
     @Override
@@ -41,7 +42,8 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
 
         if (cause instanceof Valideringsfeil) {
             return handleValideringsfeil((Valideringsfeil) cause);
-        } else if (cause instanceof TomtResultatException) {
+        }
+        if (cause instanceof TomtResultatException) {
             return handleTomtResultatFeil((TomtResultatException) cause);
         }
 
@@ -55,32 +57,32 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
         return handleGenerellFeil(cause, callId);
     }
 
-    private Response handleTomtResultatFeil(TomtResultatException tomtResultatException) {
+    private static Response handleTomtResultatFeil(TomtResultatException tomtResultatException) {
         return Response
-            .status(Response.Status.NOT_FOUND)
-            .entity(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, tomtResultatException.getMessage()))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+                .status(Response.Status.NOT_FOUND)
+                .entity(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, tomtResultatException.getMessage()))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
-    private Response handleValideringsfeil(Valideringsfeil valideringsfeil) {
+    private static Response handleValideringsfeil(Valideringsfeil valideringsfeil) {
         List<String> feltNavn = valideringsfeil.getFeltFeil().stream().map(felt -> felt.getNavn()).collect(Collectors.toList());
         return Response
-            .status(Response.Status.BAD_REQUEST)
-            .entity(new FeilDto(
-                FeltValideringFeil.FACTORY.feltverdiKanIkkeValideres(feltNavn).getFeilmelding(),
-                valideringsfeil.getFeltFeil()))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+                .status(Response.Status.BAD_REQUEST)
+                .entity(new FeilDto(
+                        FeltValideringFeil.FACTORY.feltverdiKanIkkeValideres(feltNavn).getFeilmelding(),
+                        valideringsfeil.getFeltFeil()))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
-    private Response handleVLException(VLException vlException, String callId) {
+    private static Response handleVLException(VLException vlException, String callId) {
         Feil feil = vlException.getFeil();
         if (vlException instanceof ManglerTilgangException) {
             return ikkeTilgang(feil);
         } else if (FRITEKST_TOM_FEIL.equals(feil.getKode())) {
             return handleValideringsfeil(new Valideringsfeil(Collections.singleton(new FeltFeilDto("fritekst",
-                feil.getKode() + " " + feil.getFeilmelding()))));
+                    feil.getKode() + " " + feil.getFeilmelding()))));
         } else if (BEHANDLING_ENDRET_FEIL.equals(feil.getKode())) {
             return behandlingEndret(feil);
         } else {
@@ -88,70 +90,70 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
         }
     }
 
-    private Response serverError(String callId, Feil feil) {
+    private static Response serverError(String callId, Feil feil) {
         String feilmelding = getVLExceptionFeilmelding(callId, feil);
         FeilType feilType = FeilType.GENERELL_FEIL;
         return Response.serverError()
-            .entity(new FeilDto(feilType, feilmelding))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+                .entity(new FeilDto(feilType, feilmelding))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
-    private Response ikkeTilgang(Feil feil) {
+    private static Response ikkeTilgang(Feil feil) {
         String feilmelding = feil.getFeilmelding();
         FeilType feilType = FeilType.MANGLER_TILGANG_FEIL;
         return Response.status(Response.Status.FORBIDDEN)
-            .entity(new FeilDto(feilType, feilmelding))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+                .entity(new FeilDto(feilType, feilmelding))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
-    private Response behandlingEndret(Feil feil) {
+    private static Response behandlingEndret(Feil feil) {
         String feilmelding = feil.getFeilmelding();
         FeilType feilType = FeilType.BEHANDLING_ENDRET_FEIL;
         return Response.status(Response.Status.CONFLICT)
-            .entity(new FeilDto(feilType, feilmelding))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+                .entity(new FeilDto(feilType, feilmelding))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
-    private String getVLExceptionFeilmelding(String callId, Feil feil) {
+    private static String getVLExceptionFeilmelding(String callId, Feil feil) {
         String feilbeskrivelse = feil.getKode() + ": " + feil.getFeilmelding(); //$NON-NLS-1$
         if (feil instanceof FunksjonellFeil) {
             String løsningsforslag = ((FunksjonellFeil) feil).getLøsningsforslag();
             return "Det oppstod en feil: " //$NON-NLS-1$
-                + avsluttMedPunktum(feilbeskrivelse)
-                + avsluttMedPunktum(løsningsforslag)
-                + ". Referanse-id: " + callId; //$NON-NLS-1$
+                    + avsluttMedPunktum(feilbeskrivelse)
+                    + avsluttMedPunktum(løsningsforslag)
+                    + ". Referanse-id: " + callId; //$NON-NLS-1$
         } else {
             return "Det oppstod en serverfeil: " //$NON-NLS-1$
-                + avsluttMedPunktum(feilbeskrivelse)
-                + ". Meld til support med referanse-id: " + callId; //$NON-NLS-1$
+                    + avsluttMedPunktum(feilbeskrivelse)
+                    + ". Meld til support med referanse-id: " + callId; //$NON-NLS-1$
         }
     }
 
-    private Response handleGenerellFeil(Throwable cause, String callId) {
+    private static Response handleGenerellFeil(Throwable cause, String callId) {
         String generellFeilmelding = "Det oppstod en serverfeil: " + cause.getMessage() + ". Meld til support med referanse-id: " + callId; //$NON-NLS-1$ //$NON-NLS-2$
         return Response.serverError()
-            .entity(new FeilDto(FeilType.GENERELL_FEIL, generellFeilmelding))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+                .entity(new FeilDto(FeilType.GENERELL_FEIL, generellFeilmelding))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
-    private String avsluttMedPunktum(String tekst) {
+    private static String avsluttMedPunktum(String tekst) {
         return tekst + (tekst.endsWith(".") ? " " : ". "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
-    private void loggTilApplikasjonslogg(Throwable cause) {
+    private static void loggTilApplikasjonslogg(Throwable cause) {
         if (cause instanceof VLException) {
             ((VLException) cause).log(LOGGER);
         } else {
             String message = cause.getMessage() != null ? LoggerUtils.removeLineBreaks(cause.getMessage()) : "";
-            LOGGER.error("Fikk uventet feil:" + message, cause); //NOSONAR //$NON-NLS-1$
+            LOGGER.error("Fikk uventet feil:" + message, cause); // NOSONAR //$NON-NLS-1$
         }
 
         // key for å tracke prosess -- nullstill denne
-        MDC.remove("prosess");  //$NON-NLS-1$
+        MDC.remove("prosess"); //$NON-NLS-1$
     }
 
 }

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.anke;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -28,16 +27,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt.AnkeVurderingResultatAksjonspunktMellomlagringDto;
@@ -51,14 +47,13 @@ public class AnkeRestTjeneste {
 
     static final String BASE_PATH = "/behandling/anke";
     private static final String ANKEVURDERING_PART_PATH = "/anke-vurdering";
-    public static final String ANKEVURDERING_PATH = BASE_PATH + ANKEVURDERING_PART_PATH; //NOSONAR TFP-2234
+    public static final String ANKEVURDERING_PATH = BASE_PATH + ANKEVURDERING_PART_PATH; // NOSONAR TFP-2234
     private static final String ANKEVURDERING_V2_PART_PATH = "/anke-vurdering-v2";
     public static final String ANKEVURDERING_V2_PATH = BASE_PATH + ANKEVURDERING_V2_PART_PATH;
     private static final String MELLOMLAGRE_ANKE_PART_PATH = "/mellomlagre-anke";
     public static final String MELLOMLAGRE_ANKE_PATH = BASE_PATH + MELLOMLAGRE_ANKE_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
-    private AnkeRepository ankeRepository;
     private AnkeVurderingTjeneste ankeVurderingTjeneste;
 
     public AnkeRestTjeneste() {
@@ -67,33 +62,22 @@ public class AnkeRestTjeneste {
 
     @Inject
     public AnkeRestTjeneste(BehandlingRepository behandlingRepository,
-                            AnkeRepository ankeRepository,
-                            AnkeVurderingTjeneste ankeVurderingTjeneste) {
+            AnkeVurderingTjeneste ankeVurderingTjeneste) {
         this.behandlingRepository = behandlingRepository;
-        this.ankeRepository = ankeRepository;
         this.ankeVurderingTjeneste = ankeVurderingTjeneste;
     }
 
     @GET
     @Path(ANKEVURDERING_PART_PATH)
-    @Operation(description = "Hent informasjon om ankevurdering for en ankebehandling",
-        tags = "anke",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                description = "Returnerer vurdering av en anke fra ulike instanser",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = AnkebehandlingDto.class)
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Hent informasjon om ankevurdering for en ankebehandling", tags = "anke", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer vurdering av en anke fra ulike instanser", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AnkebehandlingDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getAnkeVurdering(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
         AnkebehandlingDto dto = mapFra(behandling);
         CacheControl cc = new CacheControl();
@@ -105,19 +89,10 @@ public class AnkeRestTjeneste {
 
     @GET
     @Path(ANKEVURDERING_V2_PART_PATH)
-    @Operation(description = "Hent informasjon om ankevurdering for en ankebehandling",
-        tags = "anke",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                description = "Returnerer vurdering av en anke fra ulike instanser",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = AnkebehandlingDto.class)
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Hent informasjon om ankevurdering for en ankebehandling", tags = "anke", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer vurdering av en anke fra ulike instanser", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AnkebehandlingDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getAnkeVurdering(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getAnkeVurdering(new BehandlingIdDto(uuidDto));
     }
@@ -134,9 +109,9 @@ public class AnkeRestTjeneste {
     @Path(MELLOMLAGRE_ANKE_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Mellomlagring av vurderingstekst for ankebehandling", tags = "anke")
-    @BeskyttetRessurs(action = UPDATE, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response mellomlagreAnke(@Parameter(description = "AnkeVurderingAdapter tilpasset til mellomlagring.") @Valid AnkeVurderingResultatAksjonspunktMellomlagringDto apDto) {
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Response mellomlagreAnke(
+            @Parameter(description = "AnkeVurderingAdapter tilpasset til mellomlagring.") @Valid AnkeVurderingResultatAksjonspunktMellomlagringDto apDto) {
 
         Behandling behandling = behandlingRepository.hentBehandling(apDto.getBehandlingId());
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)) {
@@ -149,19 +124,20 @@ public class AnkeRestTjeneste {
         return Response.ok().build();
     }
 
-    private AnkeVurderingResultatEntitet.Builder mapMellomlagreVurdering(AnkeVurderingResultatAksjonspunktMellomlagringDto apDto, Behandling behandling) {
+    private AnkeVurderingResultatEntitet.Builder mapMellomlagreVurdering(AnkeVurderingResultatAksjonspunktMellomlagringDto apDto,
+            Behandling behandling) {
         var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling);
         return builder.medAnkeVurdering(apDto.getAnkeVurdering())
-            .medBegrunnelse(apDto.getBegrunnelse())
-            .medAnkeOmgjørÅrsak(apDto.getAnkeOmgjoerArsak())
-            .medFritekstTilBrev(apDto.getFritekstTilBrev())
-            .medAnkeVurderingOmgjør(apDto.getAnkeVurderingOmgjoer())
-            .medErSubsidiartRealitetsbehandles(apDto.erSubsidiartRealitetsbehandles())
-            .medErAnkerIkkePart(apDto.erIkkeAnkerPart())
-            .medErFristIkkeOverholdt(apDto.erFristIkkeOverholdt())
-            .medErIkkeKonkret(apDto.erIkkeKonkret())
-            .medErIkkeSignert(apDto.erIkkeSignert())
-            .medGjelderVedtak(apDto.hentPåAnketBehandlingId() != null);
+                .medBegrunnelse(apDto.getBegrunnelse())
+                .medAnkeOmgjørÅrsak(apDto.getAnkeOmgjoerArsak())
+                .medFritekstTilBrev(apDto.getFritekstTilBrev())
+                .medAnkeVurderingOmgjør(apDto.getAnkeVurderingOmgjoer())
+                .medErSubsidiartRealitetsbehandles(apDto.erSubsidiartRealitetsbehandles())
+                .medErAnkerIkkePart(apDto.erIkkeAnkerPart())
+                .medErFristIkkeOverholdt(apDto.erFristIkkeOverholdt())
+                .medErIkkeKonkret(apDto.erIkkeKonkret())
+                .medErIkkeSignert(apDto.erIkkeSignert())
+                .medGjelderVedtak(apDto.hentPåAnketBehandlingId() != null);
     }
 
     private AnkeVurderingResultatEntitet.Builder mapMellomlagreTekst(AnkeVurderingResultatAksjonspunktMellomlagringDto apDto, Behandling behandling) {
@@ -170,28 +146,24 @@ public class AnkeRestTjeneste {
     }
 
     private Optional<AnkeVurderingResultatDto> mapAnkeVurderingResultatDto(Behandling behandling) {
-        var vurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
+        var vurderingResultat = ankeVurderingTjeneste.hentAnkeVurderingResultat(behandling);
         var påanketBehandling = vurderingResultat.map(AnkeVurderingResultatEntitet::getAnkeResultat)
-            .filter(Objects::nonNull).flatMap(AnkeResultatEntitet::getPåAnketBehandlingId);
+                .filter(Objects::nonNull).flatMap(AnkeResultatEntitet::getPåAnketBehandlingId);
         var påanketBehandlingId = påanketBehandling.orElse(null);
         var påanketBehandlingUuid = påanketBehandling.map(behandlingRepository::hentBehandling).map(Behandling::getUuid).orElse(null);
-        return ankeRepository.hentAnkeVurderingResultat(behandling.getId()).map(avr -> lagDto(avr, påanketBehandlingId, påanketBehandlingUuid));
+        return vurderingResultat.map(avr -> lagDto(avr, påanketBehandlingId, påanketBehandlingUuid));
     }
 
-    private static AnkeVurderingResultatDto lagDto(AnkeVurderingResultatEntitet ankeVurderingResultat, Long paAnketBehandlingId, UUID paAnketBehandlingUuid) {
-        String ankeOmgjørÅrsak = ankeVurderingResultat.getAnkeOmgjørÅrsak().equals(AnkeOmgjørÅrsak.UDEFINERT) ? null : ankeVurderingResultat.getAnkeOmgjørÅrsak().getKode();
-        String ankeOmgjørÅrsakNavn = ankeVurderingResultat.getAnkeOmgjørÅrsak().equals(AnkeOmgjørÅrsak.UDEFINERT) ? null : ankeVurderingResultat.getAnkeOmgjørÅrsak().getNavn();
-        String ankeVurderingOmgjør = ankeVurderingResultat.getAnkeVurderingOmgjør().equals(AnkeVurderingOmgjør.UDEFINERT) ? null : ankeVurderingResultat.getAnkeVurderingOmgjør().getKode();
-        String ankeVurdering = ankeVurderingResultat.getAnkeVurdering().equals(AnkeVurdering.UDEFINERT) ? null : ankeVurderingResultat.getAnkeVurdering().getKode();
+    private static AnkeVurderingResultatDto lagDto(AnkeVurderingResultatEntitet ankeVurderingResultat, Long paAnketBehandlingId,
+            UUID paAnketBehandlingUuid) {
 
         AnkeVurderingResultatDto dto = new AnkeVurderingResultatDto();
 
-        dto.setAnkeVurdering(ankeVurdering);
-        dto.setAnkeVurderingOmgjoer(ankeVurderingOmgjør);
+        dto.setAnkeVurdering(ankeVurderingResultat.getAnkeVurdering());
+        dto.setAnkeVurderingOmgjoer(ankeVurderingResultat.getAnkeVurderingOmgjør());
         dto.setBegrunnelse(ankeVurderingResultat.getBegrunnelse());
         dto.setFritekstTilBrev(ankeVurderingResultat.getFritekstTilBrev());
-        dto.setAnkeOmgjoerArsak(ankeOmgjørÅrsak);
-        dto.setAnkeOmgjoerArsakNavn(ankeOmgjørÅrsakNavn);
+        dto.setAnkeOmgjoerArsak(ankeVurderingResultat.getAnkeOmgjørÅrsak());
         dto.setGodkjentAvMedunderskriver(ankeVurderingResultat.godkjentAvMedunderskriver());
         dto.setErAnkerIkkePart(ankeVurderingResultat.erAnkerIkkePart());
         dto.setErFristIkkeOverholdt(ankeVurderingResultat.erFristIkkeOverholdt());

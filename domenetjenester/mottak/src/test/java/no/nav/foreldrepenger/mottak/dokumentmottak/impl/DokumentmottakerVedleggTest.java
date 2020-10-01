@@ -96,7 +96,7 @@ public class DokumentmottakerVedleggTest {
         //Arrange
         Fagsak fagsak = nyMorFødselFagsak();
         Long fagsakId = fagsak.getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
+        var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         String behandlendeEnhet = dokumentmottakerFelles.hentBehandlendeEnhetTilVurderDokumentOppgave(mottattDokument, fagsak, null);
@@ -124,7 +124,7 @@ public class DokumentmottakerVedleggTest {
             .medBehandlingStegStart(BehandlingStegType.INNHENT_SØKNADOPP);
         Behandling behandling = scenario.lagre(repositoryProvider);
 
-        DokumentTypeId dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
+        var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
 
@@ -139,7 +139,7 @@ public class DokumentmottakerVedleggTest {
     @Test
     public void skal_opprette_task_for_å_vurdere_dokument_når_det_ikke_er_en_søknad_men_har_behandling_på_saken_og_komplett() {
         //Arrange
-        DokumentTypeId dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
+        var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medBehandlendeEnhet("0450")
@@ -167,7 +167,7 @@ public class DokumentmottakerVedleggTest {
     @Test
     public void skal_opprette_task_for_å_vurdere_dokument_når_klageinstans_har_sendt_brev_til_scanning() {
         //Arrange
-        DokumentTypeId dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
+        var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medBehandlendeEnhet("0450")
@@ -210,7 +210,7 @@ public class DokumentmottakerVedleggTest {
         Behandling klageBehandling = scenario.lagre(repositoryProvider, klageRepository);
 
         Long fagsakId = scenario.getFagsak().getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
+        var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
 
@@ -237,7 +237,7 @@ public class DokumentmottakerVedleggTest {
 
         // Act - send inn endringssøknad
         Long fagsakId = fagsak.getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.ANNET;
+        var dokumentTypeId = DokumentTypeId.ANNET;
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.RE_ANNET);
 
@@ -258,7 +258,7 @@ public class DokumentmottakerVedleggTest {
         Behandling klageBehandling = scenario.lagre(repositoryProvider, klageRepository);
 
         Long fagsakId = scenario.getFagsak().getId();
-        DokumentTypeId dokumentTypeId = DokumentTypeId.UDEFINERT;
+        var dokumentTypeId = DokumentTypeId.UDEFINERT;
 
         MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
 

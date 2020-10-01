@@ -10,12 +10,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,8 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.VariantFormat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivFilType;
@@ -57,7 +52,7 @@ public class DokumentArkivTjenesteTest {
     private static final JournalpostId JOURNAL_ID = new JournalpostId("42");
     private static final String DOKUMENT_ID = "66";
     private static final Saksnummer KJENT_SAK = new Saksnummer("123456");
-    private static final String DOKUMENT_TITTEL_TERMINBEKREFTELSE = "Terminbekreftelse";
+    private static final String DOKUMENT_TITTEL_TERMINBEKREFTELSE = "Bekreftelse på ventet fødselsdato";
     private static final LocalDateTime NOW = LocalDateTime.of(LocalDate.now(), LocalTime.of(10, 10));
     private static final LocalDateTime YESTERDAY = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(10, 10));
     private static DokumentTypeId SØK_ENG_FØDSEL;
@@ -67,8 +62,6 @@ public class DokumentArkivTjenesteTest {
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
-    private KodeverkRepository kodeverkRepository = new KodeverkRepository(repoRule.getEntityManager());
-
     @Before
     public void setUp() {
         mockJournalProxyService = mock(JournalConsumer.class);
@@ -77,15 +70,16 @@ public class DokumentArkivTjenesteTest {
         final Optional<Fagsak> mock1 = Optional.of(fagsak);
         when(fagsakRepository.hentSakGittSaksnummer(any(Saksnummer.class))).thenReturn(mock1);
         SØK_ENG_FØDSEL = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
-        dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(mockJournalProxyService, fagsakRepository, kodeverkRepository);
+        dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(mockJournalProxyService, fagsakRepository);
     }
 
     @Test
     public void skalRetunereDokumentListeMedJournalpostTypeInn() throws Exception {
         HentKjerneJournalpostListeResponse hentJournalpostListeResponse = new HentKjerneJournalpostListeResponse();
         hentJournalpostListeResponse.getJournalpostListe().add(
-            createJournalpost(ArkivFilType.PDF, VariantFormat.ARKIV, YESTERDAY, NOW,  "U"));
-        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class))).thenReturn(hentJournalpostListeResponse);
+                createJournalpost(ArkivFilType.PDF, VariantFormat.ARKIV, YESTERDAY, NOW, "U"));
+        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class)))
+                .thenReturn(hentJournalpostListeResponse);
 
         List<ArkivJournalPost> arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(KJENT_SAK);
 
@@ -94,7 +88,7 @@ public class DokumentArkivTjenesteTest {
         ArkivDokument arkivDokument = arkivJournalPost.getHovedDokument();
         assertThat(arkivJournalPost.getJournalpostId()).isEqualTo(JOURNAL_ID);
         assertThat(arkivDokument.getDokumentId()).isEqualTo(DOKUMENT_ID);
-        assertThat(arkivDokument.getTittel()).isEqualTo(DOKUMENT_TITTEL_TERMINBEKREFTELSE);
+        assertThat(arkivDokument.getTittel()).isEqualTo(SØK_ENG_FØDSEL.getNavn());
         assertThat(arkivJournalPost.getTidspunkt()).isEqualTo(YESTERDAY);
         assertThat(arkivJournalPost.getKommunikasjonsretning()).isEqualTo(Kommunikasjonsretning.UT);
     }
@@ -103,8 +97,9 @@ public class DokumentArkivTjenesteTest {
     public void skalRetunereDokumentListeMedJournalpostTypeUt() throws Exception {
         HentKjerneJournalpostListeResponse hentJournalpostListeResponse = new HentKjerneJournalpostListeResponse();
         hentJournalpostListeResponse.getJournalpostListe().add(
-            createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, YESTERDAY, NOW,"I"));
-        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class))).thenReturn(hentJournalpostListeResponse);
+                createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, YESTERDAY, NOW, "I"));
+        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class)))
+                .thenReturn(hentJournalpostListeResponse);
 
         List<ArkivJournalPost> arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(KJENT_SAK);
 
@@ -116,9 +111,10 @@ public class DokumentArkivTjenesteTest {
     public void skalRetunereDokumentListeMedUansettInnhold() throws Exception {
         HentKjerneJournalpostListeResponse hentJournalpostListeResponse = new HentKjerneJournalpostListeResponse();
         hentJournalpostListeResponse.getJournalpostListe().addAll(Arrays.asList(
-            createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, YESTERDAY, NOW,"I"),
-            createJournalpost(ArkivFilType.XLS, VariantFormat.ARKIV)));
-        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class))).thenReturn(hentJournalpostListeResponse);
+                createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, YESTERDAY, NOW, "I"),
+                createJournalpost(ArkivFilType.XLS, VariantFormat.ARKIV)));
+        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class)))
+                .thenReturn(hentJournalpostListeResponse);
 
         Optional<ArkivJournalPost> arkivDokument = dokumentApplikasjonTjeneste.hentJournalpostForSak(KJENT_SAK, JOURNAL_ID);
 
@@ -130,9 +126,10 @@ public class DokumentArkivTjenesteTest {
     public void skalRetunereDokumenterAvFiltypePDF() throws Exception {
         HentKjerneJournalpostListeResponse hentJournalpostListeResponse = new HentKjerneJournalpostListeResponse();
         hentJournalpostListeResponse.getJournalpostListe().addAll(Arrays.asList(createJournalpost(ArkivFilType.XML, VariantFormat.ARKIV),
-            createJournalpost(ArkivFilType.PDF, VariantFormat.ARKIV),
-            createJournalpost(ArkivFilType.XML, VariantFormat.ARKIV)));
-        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class))).thenReturn(hentJournalpostListeResponse);
+                createJournalpost(ArkivFilType.PDF, VariantFormat.ARKIV),
+                createJournalpost(ArkivFilType.XML, VariantFormat.ARKIV)));
+        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class)))
+                .thenReturn(hentJournalpostListeResponse);
 
         List<ArkivJournalPost> arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(KJENT_SAK);
 
@@ -143,10 +140,11 @@ public class DokumentArkivTjenesteTest {
     public void skalRetunereDokumenterAvVariantFormatARKIV() throws Exception {
         HentKjerneJournalpostListeResponse hentJournalpostListeResponse = new HentKjerneJournalpostListeResponse();
         hentJournalpostListeResponse.getJournalpostListe().addAll(Arrays.asList(createJournalpost(ArkivFilType.XML, VariantFormat.ORIGINAL),
-            createJournalpost(ArkivFilType.PDF, VariantFormat.ARKIV),
-            createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV),
-            createJournalpost(ArkivFilType.XML, VariantFormat.ORIGINAL)));
-        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class))).thenReturn(hentJournalpostListeResponse);
+                createJournalpost(ArkivFilType.PDF, VariantFormat.ARKIV),
+                createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV),
+                createJournalpost(ArkivFilType.XML, VariantFormat.ORIGINAL)));
+        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class)))
+                .thenReturn(hentJournalpostListeResponse);
 
         List<ArkivJournalPost> arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(KJENT_SAK);
 
@@ -157,9 +155,10 @@ public class DokumentArkivTjenesteTest {
     public void skalRetunereDokumentListeMedSisteTidspunktØverst() throws Exception {
         HentKjerneJournalpostListeResponse hentJournalpostListeResponse = new HentKjerneJournalpostListeResponse();
         hentJournalpostListeResponse.getJournalpostListe().addAll(Arrays.asList(
-            createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, NOW, NOW, "U"),
-            createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, YESTERDAY.minusDays(1), YESTERDAY, "I")));
-        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class))).thenReturn(hentJournalpostListeResponse);
+                createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, NOW, NOW, "U"),
+                createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, YESTERDAY.minusDays(1), YESTERDAY, "I")));
+        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class)))
+                .thenReturn(hentJournalpostListeResponse);
 
         List<ArkivJournalPost> arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(KJENT_SAK);
 
@@ -175,13 +174,15 @@ public class DokumentArkivTjenesteTest {
         DokumentTypeId innlegg = DokumentTypeId.DOK_INNLEGGELSE;
         HentKjerneJournalpostListeResponse hentJournalpostListeResponse = new HentKjerneJournalpostListeResponse();
         hentJournalpostListeResponse.getJournalpostListe().addAll(Arrays.asList(
-            createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, NOW, NOW, "U"),
-            createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, YESTERDAY.minusDays(1), YESTERDAY, "I")));
-        hentJournalpostListeResponse.getJournalpostListe().get(0).withVedleggListe(createDokumentinfoRelasjon(ArkivFilType.PDFA.getOffisiellKode(), VariantFormat.ARKIV.getOffisiellKode(), lege.getOffisiellKode()));
-        hentJournalpostListeResponse.getJournalpostListe().get(1).withVedleggListe(createDokumentinfoRelasjon(ArkivFilType.PDFA.getOffisiellKode(), VariantFormat.ARKIV.getOffisiellKode(), innlegg.getOffisiellKode()));
-        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class))).thenReturn(hentJournalpostListeResponse);
+                createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, NOW, NOW, "U"),
+                createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, YESTERDAY.minusDays(1), YESTERDAY, "I")));
+        hentJournalpostListeResponse.getJournalpostListe().get(1).withVedleggListe(
+                createDokumentinfoRelasjon(ArkivFilType.PDFA.getOffisiellKode(), VariantFormat.ARKIV.getOffisiellKode(), lege.getOffisiellKode(), lege.getNavn()),
+                createDokumentinfoRelasjon(ArkivFilType.PDFA.getOffisiellKode(), VariantFormat.ARKIV.getOffisiellKode(), innlegg.getOffisiellKode(), innlegg.getNavn()));
+        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class)))
+                .thenReturn(hentJournalpostListeResponse);
 
-        Set<DokumentType> arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(KJENT_SAK, LocalDate.MIN, Collections.emptyList());
+        Set<DokumentTypeId> arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(KJENT_SAK, LocalDate.MIN);
 
         assertThat(arkivDokumentTypeIds).hasSize(3);
         assertThat(arkivDokumentTypeIds).contains(DokumentTypeId.LEGEERKLÆRING);
@@ -194,14 +195,17 @@ public class DokumentArkivTjenesteTest {
         DokumentTypeId innlegg = DokumentTypeId.DOK_INNLEGGELSE;
         HentKjerneJournalpostListeResponse hentJournalpostListeResponse = new HentKjerneJournalpostListeResponse();
         hentJournalpostListeResponse.getJournalpostListe().addAll(Arrays.asList(
-            createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, NOW, NOW, "U"),
-            createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, YESTERDAY.minusDays(1), YESTERDAY, "I")));
-        hentJournalpostListeResponse.getJournalpostListe().get(0).withVedleggListe(createDokumentinfoRelasjon(ArkivFilType.PDFA.getOffisiellKode(), VariantFormat.ARKIV.getOffisiellKode(), lege.getOffisiellKode()));
-        hentJournalpostListeResponse.getJournalpostListe().get(1).withVedleggListe(createDokumentinfoRelasjon(ArkivFilType.PDFA.getOffisiellKode(), VariantFormat.ARKIV.getOffisiellKode(), innlegg.getOffisiellKode()));
+                createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, NOW, NOW, "I"),
+                createJournalpost(ArkivFilType.PDFA, VariantFormat.ARKIV, YESTERDAY.minusDays(1), YESTERDAY, "I")));
+        hentJournalpostListeResponse.getJournalpostListe().get(0).withVedleggListe(
+                createDokumentinfoRelasjon(ArkivFilType.PDFA.getOffisiellKode(), VariantFormat.ARKIV.getOffisiellKode(), lege.getOffisiellKode(), lege.getNavn()));
+        hentJournalpostListeResponse.getJournalpostListe().get(1).withVedleggListe(
+                createDokumentinfoRelasjon(ArkivFilType.PDFA.getOffisiellKode(), VariantFormat.ARKIV.getOffisiellKode(), innlegg.getOffisiellKode(), innlegg.getNavn()));
 
-        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class))).thenReturn(hentJournalpostListeResponse);
+        when(mockJournalProxyService.hentKjerneJournalpostListe(any(HentKjerneJournalpostListeRequest.class)))
+                .thenReturn(hentJournalpostListeResponse);
 
-        Set<DokumentType> arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(KJENT_SAK, NOW.toLocalDate(), List.of(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL));
+        Set<DokumentTypeId> arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(KJENT_SAK, NOW.toLocalDate());
 
         assertThat(arkivDokumentTypeIds).hasSize(2);
         assertThat(arkivDokumentTypeIds).contains(DokumentTypeId.LEGEERKLÆRING);
@@ -209,10 +213,11 @@ public class DokumentArkivTjenesteTest {
     }
 
     @Test
-    public void skal_kalle_web_service_og_oversette_fra_() throws HentDokumentDokumentIkkeFunnet, HentDokumentJournalpostIkkeFunnet, HentDokumentSikkerhetsbegrensning {
+    public void skal_kalle_web_service_og_oversette_fra_()
+            throws HentDokumentDokumentIkkeFunnet, HentDokumentJournalpostIkkeFunnet, HentDokumentSikkerhetsbegrensning {
         // Arrange
 
-        final byte[] bytesExpected = {1, 2, 7};
+        final byte[] bytesExpected = { 1, 2, 7 };
         HentDokumentResponse response = new HentDokumentResponse();
         response.setDokument(bytesExpected);
         when(mockJournalProxyService.hentDokument(any())).thenReturn(response);
@@ -225,14 +230,16 @@ public class DokumentArkivTjenesteTest {
         assertThat(bytesActual).isEqualTo(bytesExpected);
     }
 
-    private Journalpost createJournalpost(ArkivFilType arkivFilTypeKonst, VariantFormat variantFormatKonst) throws DatatypeConfigurationException {
+    private Journalpost createJournalpost(ArkivFilType arkivFilTypeKonst, VariantFormat variantFormatKonst) {
         return createJournalpost(arkivFilTypeKonst, variantFormatKonst, NOW, NOW, "U");
     }
 
-    private Journalpost createJournalpost(ArkivFilType arkivFilTypeKonst, VariantFormat variantFormatKonst, LocalDateTime sendt, LocalDateTime mottatt, String kommunikasjonsretning) throws DatatypeConfigurationException {
+    private Journalpost createJournalpost(ArkivFilType arkivFilTypeKonst, VariantFormat variantFormatKonst, LocalDateTime sendt,
+            LocalDateTime mottatt, String kommunikasjonsretning) {
         Journalpost journalpost = new Journalpost();
         journalpost.setJournalpostId(JOURNAL_ID.getVerdi());
-        journalpost.setHoveddokument(createDokumentinfoRelasjon(arkivFilTypeKonst.getOffisiellKode(), variantFormatKonst.getOffisiellKode(), SØK_ENG_FØDSEL.getOffisiellKode()));
+        journalpost.setHoveddokument(createDokumentinfoRelasjon(arkivFilTypeKonst.getOffisiellKode(), variantFormatKonst.getOffisiellKode(),
+                SØK_ENG_FØDSEL.getOffisiellKode(), SØK_ENG_FØDSEL.getNavn()));
         Journalposttyper kommunikasjonsretninger = new Journalposttyper();
         kommunikasjonsretninger.setValue(kommunikasjonsretning);
         journalpost.setJournalposttype(kommunikasjonsretninger);
@@ -241,7 +248,7 @@ public class DokumentArkivTjenesteTest {
         return journalpost;
     }
 
-    private DetaljertDokumentinformasjon createDokumentinfoRelasjon(String filtype, String variantformat, String dokumentTypeId) {
+    private DetaljertDokumentinformasjon createDokumentinfoRelasjon(String filtype, String variantformat, String dokumentTypeId, String tittel) {
         DetaljertDokumentinformasjon dokumentinfoRelasjon = new DetaljertDokumentinformasjon();
         dokumentinfoRelasjon.setDokumentId(DOKUMENT_ID);
         DokumenttypeIder dokumenttyper = new DokumenttypeIder();
@@ -250,7 +257,7 @@ public class DokumentArkivTjenesteTest {
         Dokumentkategorier dokumentkategorier = new Dokumentkategorier();
         dokumentkategorier.setValue(DokumentKategori.SØKNAD.getOffisiellKode());
         dokumentinfoRelasjon.setDokumentkategori(dokumentkategorier);
-        dokumentinfoRelasjon.setTittel(DOKUMENT_TITTEL_TERMINBEKREFTELSE);
+        dokumentinfoRelasjon.setTittel(tittel);
         DokumentInnhold dokumentInnhold = new DokumentInnhold();
         Arkivfiltyper arkivfiltyper = new Arkivfiltyper();
         arkivfiltyper.setValue(filtype);

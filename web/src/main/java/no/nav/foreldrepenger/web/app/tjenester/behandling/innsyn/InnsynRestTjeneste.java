@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +25,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynDokumentEntitet;
@@ -57,8 +57,8 @@ public class InnsynRestTjeneste {
 
     @Inject
     public InnsynRestTjeneste(BehandlingRepository behandlingRepository,
-                              InnsynRepository innsynRepository,
-                              VedtakTjeneste vedtakTjeneste) {
+            InnsynRepository innsynRepository,
+            VedtakTjeneste vedtakTjeneste) {
         this.vedtakTjeneste = vedtakTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.innsynRepository = innsynRepository;
@@ -67,21 +67,10 @@ public class InnsynRestTjeneste {
     @GET
     @Path(INNSYN_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent diverse informasjon om innsynsbehandlingen",
-        summary = ("Returnerer info om innsynsbehandling"),
-        tags = "innsyn",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Returnerer innsynsbehandling eller ingenting hvis uuid ikke peker på en innsynsbehandling",
-                content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = InnsynsbehandlingDto.class)
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Hent diverse informasjon om innsynsbehandlingen", summary = ("Returnerer info om innsynsbehandling"), tags = "innsyn", responses = {
+            @ApiResponse(responseCode = "200", description = "Returnerer innsynsbehandling eller ingenting hvis uuid ikke peker på en innsynsbehandling", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InnsynsbehandlingDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getInnsynsbehandling(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
 
