@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningInnhenter;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 
@@ -161,12 +162,11 @@ public class RegisterdataInnhenterTest {
         PersoninfoAdapter personinfoAdapter = mock(PersoninfoAdapter.class);
         MedlemTjeneste medlemTjeneste = mock(MedlemTjeneste.class);
 
-        return new RegisterdataInnhenter(personinfoAdapter,
+        return new RegisterdataInnhenter(new PersonopplysningInnhenter(personinfoAdapter),
             medlemTjeneste,
             repositoryProvider,
                 null, null, opplysningsPeriodeTjeneste,
             null,
-            null, Period.parse("P1W"),
-            Period.parse("P4W"));
+            null);
     }
 }

@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -13,14 +12,13 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.dødsfall.DødfødselForretningshendelse;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseSaksvelger;
@@ -34,15 +32,16 @@ public class DødfødselForretningshendelseSaksvelger implements Forretningshend
 
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
-    private FamilieHendelseRepository familieHendelseRepository;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
 
     @Inject
     public DødfødselForretningshendelseSaksvelger(BehandlingRepositoryProvider repositoryProvider,
+                                                  FamilieHendelseTjeneste familieHendelseTjeneste,
                                                   HistorikkinnslagTjeneste historikkinnslagTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
+        this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
     }
 
@@ -67,8 +66,8 @@ public class DødfødselForretningshendelseSaksvelger implements Forretningshend
     }
 
     private boolean erFagsakPassendeForFamilieHendelse(LocalDate fødsel, Fagsak fagsak) {
-        Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
-            .flatMap(b -> familieHendelseRepository.hentAggregatHvisEksisterer(b.getId()));
-        return FødselForretningshendelseSaksvelger.erFødselPassendeForFamilieHendelseGrunnlag(fødsel, fhGrunnlag);
+        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+            .map(b -> familieHendelseTjeneste.erFødselsHendelseRelevantFor(b.getId(), fødsel))
+            .orElse(Boolean.FALSE);
     }
 }

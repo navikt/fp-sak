@@ -39,6 +39,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -78,6 +79,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
@@ -123,17 +125,19 @@ public class AutomatiskEtterkontrollTaskTest {
 
     private HistorikkRepository historikkRepository;
     EtterkontrollTjeneste  etterkontrollTjeneste;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     @Before
     public void setUp() {
         tpsFamilieTjenesteMock = mock(TpsFamilieTjeneste.class);
         behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
         familieHendelseRepositoryMock =  mock(FamilieHendelseRepository.class);
+        familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         var bkTjeneste = mock(BehandlingskontrollTjeneste.class);
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
 
         etterkontrollTjeneste = new EtterkontrollTjeneste(repositoryProvider,prosessTaskRepositoryMock, bkTjeneste,
-            foreldrepengerUttakTjeneste);
+            foreldrepengerUttakTjeneste, mock(LegacyESBeregningRepository.class));
         this.historikkRepository = mock(HistorikkRepository.class);
     }
 
@@ -332,7 +336,7 @@ public class AutomatiskEtterkontrollTaskTest {
 
         task = new AutomatiskEtterkontrollTask(repositoryProvider,
             etterkontrollRepository,
-            historikkRepository, tpsFamilieTjenesteMock,
+            historikkRepository, familieHendelseTjeneste, tpsFamilieTjenesteMock,
             prosessTaskRepositoryMock, etterkontrollTpsRegistreringPeriode, behandlendeEnhetTjeneste,
             etterkontrollTjeneste);
     }

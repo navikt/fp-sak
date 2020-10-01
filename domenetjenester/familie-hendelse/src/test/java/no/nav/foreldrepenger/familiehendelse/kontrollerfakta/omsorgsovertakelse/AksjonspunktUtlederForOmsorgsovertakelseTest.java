@@ -60,7 +60,7 @@ public class AksjonspunktUtlederForOmsorgsovertakelseTest {
 
         final Behandling behandling = farSøkerAdopsjonScenario.lagMocked();
         final BehandlingRepositoryProvider repositoryProvider = farSøkerAdopsjonScenario.mockBehandlingRepositoryProvider();
-        final FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, null, repositoryProvider);
+        final FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         aksjonspunktUtleder = new AksjonspunktUtlederForOmsorgsovertakelse(familieHendelseTjeneste);
         return behandling;
     }

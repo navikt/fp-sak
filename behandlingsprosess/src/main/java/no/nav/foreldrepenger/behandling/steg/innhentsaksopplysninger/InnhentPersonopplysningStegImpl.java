@@ -9,9 +9,8 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataInnhenter;
+import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.SaksopplysningerFeil;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @BehandlingStegRef(kode = "INPER")
 @BehandlingTypeRef("BT-006") // Innsyn
@@ -19,14 +18,14 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 @ApplicationScoped
 public class InnhentPersonopplysningStegImpl implements InnhentRegisteropplysningerSteg {
 
-    private RegisterdataInnhenter registerdataInnhenter;
+    private PersoninfoAdapter registerdataInnhenter;
 
     InnhentPersonopplysningStegImpl() {
         // for CDI proxy
     }
 
     @Inject
-    public InnhentPersonopplysningStegImpl(RegisterdataInnhenter registerdataInnhenter) {
+    public InnhentPersonopplysningStegImpl(PersoninfoAdapter registerdataInnhenter) {
         this.registerdataInnhenter = registerdataInnhenter;
     }
 
@@ -34,15 +33,11 @@ public class InnhentPersonopplysningStegImpl implements InnhentRegisteropplysnin
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         // TODO (essv): Avklare om vi må hente inn mer info om søker (medsøker, barn, +++)
         Personinfo søkerInfo = registerdataInnhenter.innhentSaksopplysningerForSøker(kontekst.getAktørId());
-        validerSøkerinfo(kontekst.getAktørId(), søkerInfo);
+        if (søkerInfo == null) {
+            throw SaksopplysningerFeil.FACTORY.feilVedOppslagITPS(kontekst.getAktørId().getId()).toException();
+        }
 
         return BehandleStegResultat.utførtUtenAksjonspunkter();
-    }
-
-    private void validerSøkerinfo(AktørId aktørId, Personinfo søkerInfo) {
-        if (søkerInfo == null) {
-            throw SaksopplysningerFeil.FACTORY.feilVedOppslagITPS(aktørId.getId()).toException();
-        }
     }
 
 }

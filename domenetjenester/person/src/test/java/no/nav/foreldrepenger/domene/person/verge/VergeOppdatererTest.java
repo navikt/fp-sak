@@ -36,10 +36,8 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -52,11 +50,9 @@ public class VergeOppdatererTest {
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
 
-    private PersonopplysningTjeneste personTjeneste = Mockito.mock(PersonopplysningTjeneste.class);
     private HistorikkTjenesteAdapter historikkTjeneste = Mockito.mock(HistorikkTjenesteAdapter.class);
     private TpsTjeneste tpsTjeneste = Mockito.mock(TpsTjeneste.class);
 
-    private TpsAdapter tpsAdapter;
     private NavBrukerRepository navBrukerRepository;
 
     private NavBruker vergeBruker;
@@ -64,7 +60,6 @@ public class VergeOppdatererTest {
 
     @Before
     public void oppsett() {
-        tpsAdapter = mock(TpsAdapter.class);
         navBrukerRepository = mock(NavBrukerRepository.class);
 
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -83,7 +78,7 @@ public class VergeOppdatererTest {
 
         vergeBruker = NavBruker.opprettNy(pInfo);
 
-        when(tpsAdapter.hentAktørIdForPersonIdent(Mockito.any())).thenReturn(Optional.of(AktørId.dummy()));
+        when(tpsTjeneste.hentAktørForFnr(Mockito.any())).thenReturn(Optional.of(AktørId.dummy()));
         when(navBrukerRepository.hent(Mockito.any())).thenReturn(Optional.of(vergeBruker));
     }
 
@@ -101,8 +96,8 @@ public class VergeOppdatererTest {
         var behandling = opprettBehandling();
         AvklarVergeDto dto = opprettDtoVerge();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
-        new VergeOppdaterer(personTjeneste, historikkTjeneste,
-            tpsTjeneste, mock(VergeRepository.class)).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt.orElse(null), dto));
+        new VergeOppdaterer(historikkTjeneste,
+            tpsTjeneste, mock(VergeRepository.class), mock(NavBrukerRepository.class)).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt.orElse(null), dto));
 
         // Verifiserer HistorikkinnslagDto
         ArgumentCaptor<Historikkinnslag> historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);

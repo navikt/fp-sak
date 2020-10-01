@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.DokumentPersistererTjeneste;
 import no.nav.foreldrepenger.mottak.publiserer.publish.MottattDokumentPersistertPubliserer;
@@ -64,7 +65,8 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
         MottatteDokumentTjeneste mottatteDokumentTjeneste = new MottatteDokumentTjeneste(FRIST_INNSENDING_PERIODE, dokumentPersistererTjeneste,
                 mottatteDokumentRepository, behandlingRepositoryProvider);
 
-        VurderFagsystemFellesUtils fellesUtils = new VurderFagsystemFellesUtils(behandlingRepositoryProvider, mottatteDokumentTjeneste, null, null);
+        var familieTjeneste = new FamilieHendelseTjeneste(null, behandlingRepositoryProvider.getFamilieHendelseRepository());
+        var fellesUtils = new VurderFagsystemFellesUtils(behandlingRepositoryProvider, familieTjeneste, mottatteDokumentTjeneste, null, null);
 
         var fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
                 new SøknadRepository(getEntityManager(), behandlingRepository), null);

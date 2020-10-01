@@ -48,7 +48,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
 
     private AksjonspunktUtlederForForeldrepengerFødsel apUtleder;
-    private FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, null, repositoryProvider);
+    private FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
 
     @Before
     public void oppsett() {

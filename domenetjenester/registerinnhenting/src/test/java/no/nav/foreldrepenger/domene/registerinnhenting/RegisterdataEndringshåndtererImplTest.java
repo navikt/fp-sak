@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.enterprise.inject.spi.CDI;
@@ -68,8 +67,8 @@ import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningInnhenter;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -78,7 +77,6 @@ import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPublisere
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
@@ -104,8 +102,6 @@ public class RegisterdataEndringshåndtererImplTest {
     @Mock
     private PersoninfoAdapter personinfoAdapter;
     @Mock
-    private TpsAdapter tpsAdapter;
-    @Mock
     private MedlemTjeneste medlemTjeneste;
     @Mock
     private VirksomhetTjeneste virksomhetTjeneste;
@@ -114,8 +110,6 @@ public class RegisterdataEndringshåndtererImplTest {
 
     private String durationInstance = "PT10H";
 
-    @Mock
-    private ProsessTaskRepository prosessTaskRepository;
     @Mock
     private Endringskontroller endringskontroller;
     @Mock
@@ -148,7 +142,6 @@ public class RegisterdataEndringshåndtererImplTest {
 
     @Before
     public void before() {
-        when(tpsAdapter.hentIdentForAktørId(Mockito.any(AktørId.class))).thenReturn(Optional.of(new PersonIdent(FNR_FORELDER)));
         when(endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(Mockito.anyLong()))
             .thenReturn(EndringsresultatSnapshot.opprett());
         when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class)))
@@ -163,7 +156,7 @@ public class RegisterdataEndringshåndtererImplTest {
         when(abakusTjeneste.innhentRegisterdata(any())).thenReturn(new UuidDto(UUID.randomUUID()));
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet);
 
-        familieHendelseTjeneste = new FamilieHendelseTjeneste(personopplysningTjeneste, familiehendelseEventPubliserer, repositoryProvider);
+        familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer, repositoryProvider.getFamilieHendelseRepository());
 
         Mockito.doNothing().when(behandlingskontrollTjeneste).prosesserBehandling(any());
     }
@@ -352,9 +345,7 @@ public class RegisterdataEndringshåndtererImplTest {
             abakusTjeneste,
             loggRepository,
             medlemskapRepository,
-            opplysningsPeriodeTjeneste,
-            Period.parse("P1W"),
-            Period.parse("P4W"));
+            opplysningsPeriodeTjeneste);
 
         return new RegisterdataEndringshåndterer(
             repositoryProvider,
@@ -393,19 +384,15 @@ public class RegisterdataEndringshåndtererImplTest {
                                   AbakusTjeneste abakusTjeneste,
                                   AbakusInnhentingGrunnlagLoggRepository loggRepository,
                                   MedlemskapRepository medlemskapRepository,
-                                  OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
-                                  Period etterkontrollTidsromFørSøknadsdato,
-                                  Period etterkontrollTidsromEtterTermindato) {
-            super(personinfoAdapter,
+                                  OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste) {
+            super(new PersonopplysningInnhenter(personinfoAdapter),
                 medlemTjeneste,
                 repositoryProvider,
                 familieHendelseTjeneste,
                 medlemskapRepository,
                 opplysningsPeriodeTjeneste,
                 abakusTjeneste,
-                loggRepository,
-                etterkontrollTidsromFørSøknadsdato,
-                etterkontrollTidsromEtterTermindato);
+                loggRepository);
         }
     }
 }

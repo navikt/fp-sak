@@ -14,14 +14,12 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
@@ -100,10 +98,7 @@ public class MedlemDtoTjenesteTest {
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
                 new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
 
-        PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(),
-                null,
-                mock(VergeRepository.class),
-                mock(NavBrukerRepository.class));
+        PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
         MedlemTjeneste medlemTjenesteMock = mock(MedlemTjeneste.class);
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any()))
                 .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
@@ -165,10 +160,7 @@ public class MedlemDtoTjenesteTest {
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
                 new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
 
-        PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(),
-                null,
-                mock(VergeRepository.class),
-                mock(NavBrukerRepository.class));
+        PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
         MedlemTjeneste medlemTjenesteMock = mock(MedlemTjeneste.class);
         LocalDate endringFraDato = LocalDate.now().minusDays(5);
         var endringsresultatPersonopplysningerForMedlemskap = EndringsresultatPersonopplysningerForMedlemskap.builder()
@@ -237,10 +229,7 @@ public class MedlemDtoTjenesteTest {
                 .medFødselsdato(LocalDate.now())
                 .build();
 
-        PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(),
-                null,
-                mock(VergeRepository.class),
-                mock(NavBrukerRepository.class));
+        PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
 
         PersonIdentTjeneste tpsTjeneste = mock(PersonIdentTjeneste.class);
         when(tpsTjeneste.hentBrukerForAktør(AktørId.dummy())).thenReturn(Optional.ofNullable(person));

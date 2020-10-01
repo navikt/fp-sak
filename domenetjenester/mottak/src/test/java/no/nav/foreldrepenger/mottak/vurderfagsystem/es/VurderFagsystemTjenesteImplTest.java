@@ -47,6 +47,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
@@ -89,7 +90,8 @@ public class VurderFagsystemTjenesteImplTest {
         when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepositoryMock);
         fagsakFødselES.setId(1L);
         fagsakAdopsjonES.setId(2L);
-        fellesUtils = new VurderFagsystemFellesUtils(repositoryProvider, mottatteDokumentTjenesteMock, null, null);
+        var familieTjeneste = new FamilieHendelseTjeneste(null, grunnlagRepository);
+        fellesUtils = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjenesteMock, null, null);
         fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
         tjenesteES = new VurderFagsystemTjenesteESImpl(fellesUtils);
     }

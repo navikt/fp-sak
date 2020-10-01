@@ -1,7 +1,13 @@
 package no.nav.foreldrepenger.domene.person.tps;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.threeten.extra.Interval;
 
@@ -11,21 +17,167 @@ import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningPersonIkkeFunnet;
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningSikkerhetsbegrensing;
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet;
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensning;
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonhistorikkPersonIkkeFunnet;
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonhistorikkSikkerhetsbegrensning;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.AktoerId;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Informasjonsbehov;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Periode;
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningResponse;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonhistorikkRequest;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonhistorikkResponse;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
+import no.nav.vedtak.felles.integrasjon.aktør.klient.DetFinnesFlereAktørerMedSammePersonIdentException;
+import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
+import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
-public interface TpsAdapter {
+@ApplicationScoped
+public class TpsAdapter {
 
-    Optional<AktørId> hentAktørIdForPersonIdent(PersonIdent personIdent);
+    private AktørConsumerMedCache aktørConsumer;
+    private PersonConsumer personConsumer;
+    private TpsOversetter tpsOversetter;
 
-    Optional<PersonIdent> hentIdentForAktørId(AktørId aktørId);
+    public TpsAdapter() {
+    }
 
-    Personinfo hentKjerneinformasjon(PersonIdent personIdent, AktørId aktørId);
+    @Inject
+    public TpsAdapter(AktørConsumerMedCache aktørConsumer,
+                      PersonConsumer personConsumer,
+                      TpsOversetter tpsOversetter) {
+        this.aktørConsumer = aktørConsumer;
+        this.personConsumer = personConsumer;
+        this.tpsOversetter = tpsOversetter;
+    }
 
-    Personhistorikkinfo hentPersonhistorikk(AktørId aktørId, Interval periode);
+    public Optional<AktørId> hentAktørIdForPersonIdent(PersonIdent personIdent) {
+        if (personIdent.erFdatNummer()) {
+            // har ikke tildelt personnr
+            return Optional.empty();
+        }
+        try {
+            return aktørConsumer.hentAktørIdForPersonIdent(personIdent.getIdent()).map(AktørId::new);
+        } catch (DetFinnesFlereAktørerMedSammePersonIdentException e) { // NOSONAR
+            // Her sorterer vi ut dødfødte barn
+            return Optional.empty();
+        }
+    }
 
-    /**
-     * Brukes til å hente behandlende enhet / diskresjonskode gitt et fnr.
-     */
-    GeografiskTilknytning hentGeografiskTilknytning(PersonIdent personIdent);
+    public Optional<PersonIdent> hentIdentForAktørId(AktørId aktørId) {
+        return aktørConsumer.hentPersonIdentForAktørId(aktørId.getId()).map(PersonIdent::new);
+    }
 
-    List<FødtBarnInfo> hentFødteBarn(AktørId aktørId);
+    private Personinfo håndterPersoninfoRespons(AktørId aktørId, HentPersonRequest request)
+        throws HentPersonPersonIkkeFunnet, HentPersonSikkerhetsbegrensning {
+        HentPersonResponse response = personConsumer.hentPersonResponse(request);
+        Person person = response.getPerson();
+        if (!(person instanceof Bruker)) {
+            throw TpsFeilmeldinger.FACTORY.ukjentBrukerType().toException();
+        }
+        return tpsOversetter.tilBrukerInfo(aktørId, (Bruker) person);
+    }
+
+    private Personhistorikkinfo håndterPersonhistorikkRespons(HentPersonhistorikkRequest request, String aktørId)
+        throws HentPersonhistorikkSikkerhetsbegrensning, HentPersonhistorikkPersonIkkeFunnet {
+        HentPersonhistorikkResponse response = personConsumer.hentPersonhistorikkResponse(request);
+        return tpsOversetter.tilPersonhistorikkInfo(aktørId, response);
+    }
+
+    public Personinfo hentKjerneinformasjon(PersonIdent personIdent, AktørId aktørId) {
+        HentPersonRequest request = new HentPersonRequest();
+        request.setAktoer(TpsUtil.lagPersonIdent(personIdent.getIdent()));
+        request.getInformasjonsbehov().add(Informasjonsbehov.ADRESSE);
+        request.getInformasjonsbehov().add(Informasjonsbehov.KOMMUNIKASJON);
+        request.getInformasjonsbehov().add(Informasjonsbehov.FAMILIERELASJONER);
+        try {
+            return håndterPersoninfoRespons(aktørId, request);
+        } catch (HentPersonPersonIkkeFunnet e) {
+            throw TpsFeilmeldinger.FACTORY.fantIkkePerson(e).toException();
+        } catch (HentPersonSikkerhetsbegrensning e) {
+            throw TpsFeilmeldinger.FACTORY.tpsUtilgjengeligSikkerhetsbegrensning(e).toException();
+        }
+    }
+
+    public Personhistorikkinfo hentPersonhistorikk(AktørId aktørId, Interval interval) {
+        HentPersonhistorikkRequest request = new HentPersonhistorikkRequest();
+        AktoerId aktoerId = new AktoerId();
+        aktoerId.setAktoerId(aktørId.getId());
+        Periode periode = new Periode();
+
+        periode.setTom(DateUtil.convertToXMLGregorianCalendar(LocalDateTime.ofInstant(interval.getEnd(), ZoneId.systemDefault())));
+        periode.setFom(DateUtil.convertToXMLGregorianCalendar(LocalDateTime.ofInstant(interval.getStart(), ZoneId.systemDefault())));
+
+        request.setAktoer(aktoerId);
+        request.setPeriode(periode);
+
+        try {
+            return håndterPersonhistorikkRespons(request, String.valueOf(aktørId));
+        } catch (HentPersonhistorikkPersonIkkeFunnet e) {
+            throw TpsFeilmeldinger.FACTORY.fantIkkePersonhistorikkForAktørId(e).toException();
+        } catch (HentPersonhistorikkSikkerhetsbegrensning e) {
+            throw TpsFeilmeldinger.FACTORY.tpsUtilgjengeligSikkerhetsbegrensning(e).toException();
+        }
+    }
+
+    public GeografiskTilknytning hentGeografiskTilknytning(PersonIdent personIdent) {
+        HentGeografiskTilknytningRequest request = new HentGeografiskTilknytningRequest();
+        request.setAktoer(TpsUtil.lagPersonIdent(personIdent.getIdent()));
+        try {
+            HentGeografiskTilknytningResponse response = personConsumer.hentGeografiskTilknytning(request);
+            return tpsOversetter.tilGeografiskTilknytning(response.getGeografiskTilknytning(), response.getDiskresjonskode());
+        } catch (HentGeografiskTilknytningSikkerhetsbegrensing e) {
+            throw TpsFeilmeldinger.FACTORY.tpsUtilgjengeligGeografiskTilknytningSikkerhetsbegrensing(e).toException();
+        } catch (HentGeografiskTilknytningPersonIkkeFunnet e) {
+            throw TpsFeilmeldinger.FACTORY.geografiskTilknytningIkkeFunnet(e).toException();
+        }
+    }
+
+    public List<FødtBarnInfo> hentFødteBarn(AktørId aktørId) {
+        Optional<PersonIdent> personIdent = hentIdentForAktørId(aktørId);
+        if (personIdent.isEmpty()) {
+            throw TpsFeilmeldinger.FACTORY.fantIkkePersonForAktørId().toException();
+        }
+        HentPersonRequest request = new HentPersonRequest();
+        request.setAktoer(TpsUtil.lagPersonIdent(personIdent.get().getIdent()));
+        request.getInformasjonsbehov().add(Informasjonsbehov.FAMILIERELASJONER);
+        try {
+            HentPersonResponse response = personConsumer.hentPersonResponse(request);
+            Person person = response.getPerson();
+            return person.getHarFraRolleI()
+                .stream()
+                .filter(rel -> TpsOversetter.erBarnRolle(rel.getTilRolle()))
+                .map(this::mapTilInfo)
+                .collect(Collectors.toList());
+        } catch (HentPersonPersonIkkeFunnet e) {
+            throw TpsFeilmeldinger.FACTORY.fantIkkePerson(e).toException();
+        } catch (HentPersonSikkerhetsbegrensning e) {
+            throw TpsFeilmeldinger.FACTORY.tpsUtilgjengeligSikkerhetsbegrensning(e).toException();
+        }
+    }
+
+    private FødtBarnInfo mapTilInfo(Familierelasjon familierelasjon) {
+        String identNr = ((no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent) familierelasjon.getTilPerson().getAktoer()).getIdent().getIdent();
+        no.nav.foreldrepenger.domene.typer.PersonIdent ident = no.nav.foreldrepenger.domene.typer.PersonIdent.fra(identNr);
+        if (ident.erFdatNummer()) {
+            return tpsOversetter.relasjonTilPersoninfo(familierelasjon);
+        } else {
+            final PersonIdent fra = PersonIdent.fra(identNr);
+            Optional<AktørId> aktørId = hentAktørIdForPersonIdent(fra);
+            if (aktørId.isEmpty()) {
+                return tpsOversetter.relasjonTilPersoninfo(familierelasjon);
+            }
+
+            final Personinfo personinfo = hentKjerneinformasjon(fra, aktørId.get());
+            return tpsOversetter.tilFødteBarn(personinfo);
+        }
+    }
 }

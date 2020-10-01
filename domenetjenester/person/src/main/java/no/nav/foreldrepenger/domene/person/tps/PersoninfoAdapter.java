@@ -12,10 +12,9 @@ import org.threeten.extra.Interval;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
 public class PersoninfoAdapter {
@@ -34,21 +33,16 @@ public class PersoninfoAdapter {
     }
 
     public Personinfo innhentSaksopplysningerForSøker(AktørId aktørId) {
-        return hentKjerneinformasjon(aktørId);
+        return hentKjerneinformasjon(aktørId).orElse(null);
     }
 
-    public Optional<Personinfo> innhentSaksopplysningerForEktefelle(Optional<AktørId> aktørId) {
-        return aktørId.map(this::hentKjerneinformasjon);
+    public Optional<Personinfo> innhentSaksopplysningerForEktefelle(AktørId aktørId) {
+        return hentKjerneinformasjon(aktørId);
     }
 
     public Optional<Personinfo> innhentSaksopplysninger(PersonIdent personIdent) {
         Optional<AktørId> aktørId = tpsAdapter.hentAktørIdForPersonIdent(personIdent);
-
-        if(aktørId.isPresent()) {
-            return hentKjerneinformasjonForBarn(aktørId.get(), personIdent);
-        } else {
-            return Optional.empty();
-        }
+        return aktørId.flatMap(a -> hentKjerneinformasjonForBarn(a, personIdent));
     }
 
     public Personhistorikkinfo innhentPersonopplysningerHistorikk(AktørId aktørId, Interval interval) {
@@ -84,20 +78,15 @@ public class PersoninfoAdapter {
         }
     }
 
-    private Personinfo hentKjerneinformasjon(AktørId aktørId) {
-        Optional<PersonIdent> personIdent = tpsAdapter.hentIdentForAktørId(aktørId);
-        if (personIdent.isPresent()) {
-            return hentKjerneinformasjon(aktørId, personIdent.get());
-        }
-        //FIXME Humle returner Optional
-        return null;
+    private Optional<Personinfo> hentKjerneinformasjon(AktørId aktørId) {
+        return tpsAdapter.hentIdentForAktørId(aktørId).map(i -> tpsAdapter.hentKjerneinformasjon(i, aktørId));
     }
 
     private Personinfo hentKjerneinformasjon(AktørId aktørId, PersonIdent personIdent) {
         return tpsAdapter.hentKjerneinformasjon(personIdent, aktørId);
     }
 
-    public List<FødtBarnInfo> innhentAlleFødteForBehandling(Behandling behandling, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        return tpsFamilieTjeneste.getFødslerRelatertTilBehandling(behandling, familieHendelseGrunnlag);
+    public List<FødtBarnInfo> innhentAlleFødteForBehandlingIntervaller(AktørId aktørId, List<LocalDateInterval> intervaller) {
+        return tpsFamilieTjeneste.getFødslerRelatertTilBehandling(aktørId, intervaller);
     }
 }

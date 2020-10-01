@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
@@ -31,6 +32,7 @@ public class EtterkontrollTjeneste {
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private RevurderingHistorikk revurderingHistorikk;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private LegacyESBeregningRepository legacyESBeregningRepository;
 
     EtterkontrollTjeneste() {
         // for CDI proxy
@@ -40,12 +42,14 @@ public class EtterkontrollTjeneste {
     public EtterkontrollTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                  ProsessTaskRepository prosessTaskRepository,
                                  BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
+                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
+                                 LegacyESBeregningRepository legacyESBeregningRepository) {
         this.prosessTaskRepository = prosessTaskRepository;
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkRepository());
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.legacyESBeregningRepository = legacyESBeregningRepository;
     }
 
     public void utfør(Behandling behandlingForRevurdering, Behandling opprettetRevurdering) {
@@ -91,5 +95,9 @@ public class EtterkontrollTjeneste {
 
     public void enkøBehandling(Behandling behandling) {
         behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+    }
+
+    public boolean skalReberegneES(Behandling behandling, LocalDate fødselsdato) {
+        return legacyESBeregningRepository.skalReberegne(behandling.getId(), fødselsdato);
     }
 }

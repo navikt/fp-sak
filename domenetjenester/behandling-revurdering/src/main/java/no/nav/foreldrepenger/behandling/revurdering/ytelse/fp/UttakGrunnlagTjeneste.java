@@ -158,6 +158,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
 
     private boolean annenpartHarInnvilgetES(FamilieHendelser familieHendelser, AktørId annenpartAktørId) {
         return relatertBehandlingTjeneste.hentAnnenPartsInnvilgeteFagsakerMedYtelseType(annenpartAktørId, FagsakYtelseType.ENGANGSTØNAD).stream()
-            .anyMatch(annenpartFagsak -> familieHendelseTjeneste.harFagsakFamilieHendelseDato(familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato(), annenpartFagsak.getId()));
+            .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
+            .anyMatch(b -> familieHendelseTjeneste.harBehandlingFamilieHendelseDato(familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato(), b.getId()));
     }
 }

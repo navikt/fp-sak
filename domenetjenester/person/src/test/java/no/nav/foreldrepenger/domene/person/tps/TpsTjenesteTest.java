@@ -107,7 +107,7 @@ public class TpsTjenesteTest {
         tpsTjeneste.hentBrukerForAktør(AKTØR_ID_SOM_TRIGGER_EXCEPTION);
     }
 
-    private class TpsAdapterMock implements TpsAdapter {
+    private class TpsAdapterMock extends TpsAdapter {
         @Override
         public Optional<AktørId> hentAktørIdForPersonIdent(PersonIdent fnr) {
             return Optional.ofNullable(AKTØR_ID_VED_FNR.get(fnr));

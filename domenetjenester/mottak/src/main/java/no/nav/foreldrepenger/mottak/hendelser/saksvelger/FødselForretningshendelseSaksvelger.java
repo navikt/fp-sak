@@ -20,18 +20,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.fødsel.FødselForretningshendelse;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseSaksvelger;
@@ -47,16 +42,17 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private FamilieHendelseRepository familieHendelseRepository;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
 
     @Inject
     public FødselForretningshendelseSaksvelger(BehandlingRepositoryProvider repositoryProvider,
+                                               FamilieHendelseTjeneste familieHendelseTjeneste,
                                                HistorikkinnslagTjeneste historikkinnslagTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
-        this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
+        this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
     }
 
@@ -111,34 +107,10 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
     }
 
     private boolean erFagsakPassendeForFamilieHendelse(LocalDate fødsel, Fagsak fagsak) {
-        Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
-            .flatMap(b -> familieHendelseRepository.hentAggregatHvisEksisterer(b.getId()));
-        return erFødselPassendeForFamilieHendelseGrunnlag(fødsel, fhGrunnlag);
+        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+            .map(b -> familieHendelseTjeneste.erFødselsHendelseRelevantFor(b.getId(), fødsel))
+            .orElse(Boolean.FALSE);
     }
 
-    static boolean erFødselPassendeForFamilieHendelseGrunnlag(LocalDate fødsel, Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag) {
-        if (fhGrunnlag.isEmpty()) {
-            return false;
-        }
-        FamilieHendelseType fhType = fhGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
-        // Sjekk familiehendelse
-        if (FamilieHendelseType.gjelderAdopsjon(fhType)) {
-            return false;
-        }
-        return erPassendeFødselsSak(fødsel, fhGrunnlag.get());
-    }
-
-    private static boolean erPassendeFødselsSak(LocalDate fødsel, FamilieHendelseGrunnlagEntitet grunnlag) {
-        Optional<LocalDate> termindatoPåSak = grunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
-        Optional<LocalDate> fødselsdatoPåSak = grunnlag.getGjeldendeBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst();
-
-        return erDatoIPeriodeHvisBeggeErTilstede(fødsel, termindatoPåSak, UKER_FH_ULIK, UKER_FH_SAMME) ||
-            erDatoIPeriodeHvisBeggeErTilstede(fødsel, fødselsdatoPåSak, UKER_FH_SAMME, UKER_FH_SAMME);
-    }
-
-    private static boolean erDatoIPeriodeHvisBeggeErTilstede(LocalDate fødsel, Optional<LocalDate> periodeDato, TemporalAmount førPeriode, TemporalAmount etterPeriode) {
-        return periodeDato.isPresent()
-            && !(fødsel.isBefore(periodeDato.get().minus(førPeriode)) || fødsel.isAfter(periodeDato.get().plus(etterPeriode)));
-    }
 }
 
