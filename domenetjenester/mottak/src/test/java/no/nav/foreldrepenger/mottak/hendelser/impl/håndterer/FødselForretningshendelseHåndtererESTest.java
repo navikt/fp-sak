@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -145,7 +146,7 @@ public class FødselForretningshendelseHåndtererESTest {
         behandling = scenario.lagMocked();
         behandling.avsluttBehandling();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now().minusDays(70)).build());
-        when(beregningRepository.skalReberegne(anyLong(), any())).thenReturn(Boolean.TRUE);
+        lenient().when(beregningRepository.skalReberegne(anyLong(), any())).thenReturn(Boolean.TRUE);
 
         // Act
         håndterer.håndterAvsluttetBehandling(behandling, ForretningshendelseType.FØDSEL, RE_HENDELSE_FØDSEL);
