@@ -66,11 +66,15 @@ public class BeregningDtoTjeneste {
         BeregningsgrunnlagGUIInput inputMedBGKofakber = kofakbergGrunnlag.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag)
             .map(input::medBeregningsgrunnlagGrunnlagFraFaktaOmBeregning).orElse(input);
 
+        // Vurder refusjon
+        Optional<BeregningsgrunnlagGrunnlagEntitet> refBG = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId(), BeregningsgrunnlagTilstand.VURDERT_REFUSJON);
+        BeregningsgrunnlagGUIInput inputMedRefBG = refBG.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag)
+            .map(inputMedBGKofakber::medBeregningsgrunnlagGrunnlagFraVurderRefusjon).orElse(inputMedBGKofakber);
 
         // Fordeling
         Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId(), BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING);
         return sisteBg.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag)
-            .map(inputMedBGKofakber::medBeregningsgrunnlagGrunnlagFraFordel).orElse(inputMedBGKofakber);
+            .map(inputMedRefBG::medBeregningsgrunnlagGrunnlagFraFordel).orElse(inputMedRefBG);
     }
 
 }
