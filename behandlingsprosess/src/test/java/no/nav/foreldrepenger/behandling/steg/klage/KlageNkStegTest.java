@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.behandling.steg.klage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
@@ -26,11 +26,12 @@ public class KlageNkStegTest {
         // Arrange
         var scenario = ScenarioKlageEngangsstønad.forStadfestetNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon());
         Behandling klageBehandling = scenario.lagMocked();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(), new BehandlingLås(klageBehandling.getId()));
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
+                new BehandlingLås(klageBehandling.getId()));
 
         KlageRepository klageRepository = scenario.getKlageRepository();
 
-        KlageNkSteg steg = new KlageNkSteg(scenario.mockBehandlingRepository(),klageRepository);
+        KlageNkSteg steg = new KlageNkSteg(scenario.mockBehandlingRepository(), klageRepository);
 
         // Act
         BehandleStegResultat behandlingStegResultat = steg.utførSteg(kontekst);
@@ -49,7 +50,8 @@ public class KlageNkStegTest {
         // Arrange
         var scenario = ScenarioKlageEngangsstønad.forAvvistNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon());
         Behandling klageBehandling = scenario.lagMocked();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(), new BehandlingLås(klageBehandling.getId()));
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
+                new BehandlingLås(klageBehandling.getId()));
         KlageRepository klageRepository = scenario.getKlageRepository();
 
         KlageNkSteg steg = new KlageNkSteg(scenario.mockBehandlingRepository(), klageRepository);
@@ -68,18 +70,20 @@ public class KlageNkStegTest {
         // Arrange
         var scenario = ScenarioKlageEngangsstønad.forAvvistNK(ScenarioMorSøkerEngangsstønad.forAdopsjon());
         Behandling klageBehandling = scenario.lagMocked();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(), new BehandlingLås(klageBehandling.getId()));
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
+                new BehandlingLås(klageBehandling.getId()));
 
         KlageRepository klageRepository = scenario.getKlageRepository();
         BehandlingRepositoryProvider repositoryProviderMock = scenario.mockBehandlingRepositoryProvider();
-        BehandlingRepository behandlingRepository =repositoryProviderMock.getBehandlingRepository();
+        BehandlingRepository behandlingRepository = repositoryProviderMock.getBehandlingRepository();
 
-        KlageNkSteg steg = new KlageNkSteg(behandlingRepository,klageRepository);
+        KlageNkSteg steg = new KlageNkSteg(behandlingRepository, klageRepository);
         // Act
         steg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, null, null);
 
         // Assert
-        assertThat(klageRepository.hentKlageVurderingResultat(klageBehandling.getId(), KlageVurdertAv.NK).filter(KlageVurderingResultat::isGodkjentAvMedunderskriver)).isEmpty();
+        assertThat(klageRepository.hentKlageVurderingResultat(klageBehandling.getId(), KlageVurdertAv.NK)
+                .filter(KlageVurderingResultat::isGodkjentAvMedunderskriver)).isEmpty();
     }
 
 }

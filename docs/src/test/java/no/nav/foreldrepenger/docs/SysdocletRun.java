@@ -1,8 +1,11 @@
 package no.nav.foreldrepenger.docs;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-/** Sparker i gang via unit test, pga classpath (fikk ikke riktig med exec-maven-plugin). */
+/**
+ * Sparker i gang via unit test, pga classpath (fikk ikke riktig med
+ * exec-maven-plugin).
+ */
 public class SysdocletRun {
 
     @Test

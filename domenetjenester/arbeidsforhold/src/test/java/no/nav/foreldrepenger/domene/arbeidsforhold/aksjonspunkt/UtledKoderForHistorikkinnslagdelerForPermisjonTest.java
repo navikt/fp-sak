@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
 
@@ -16,11 +16,10 @@ public class UtledKoderForHistorikkinnslagdelerForPermisjonTest {
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukPermisjon(true);
         // Act
-        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdMedPermisjon.utled(arbeidsforholdDto);
+        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdMedPermisjon
+                .utled(arbeidsforholdDto);
         // Assert
-        assertThat(kodeOpt).hasValueSatisfying(kode ->
-            assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.SØKER_ER_I_PERMISJON)
-        );
+        assertThat(kodeOpt).hasValueSatisfying(kode -> assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.SØKER_ER_I_PERMISJON));
 
     }
 
@@ -30,11 +29,10 @@ public class UtledKoderForHistorikkinnslagdelerForPermisjonTest {
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukPermisjon(false);
         // Act
-        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdMedPermisjon.utled(arbeidsforholdDto);
+        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdMedPermisjon
+                .utled(arbeidsforholdDto);
         // Assert
-        assertThat(kodeOpt).hasValueSatisfying(kode ->
-            assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.SØKER_ER_IKKE_I_PERMISJON)
-        );
+        assertThat(kodeOpt).hasValueSatisfying(kode -> assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.SØKER_ER_IKKE_I_PERMISJON));
     }
 
     @Test
@@ -43,7 +41,8 @@ public class UtledKoderForHistorikkinnslagdelerForPermisjonTest {
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukPermisjon(null);
         // Act
-        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdMedPermisjon.utled(arbeidsforholdDto);
+        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdMedPermisjon
+                .utled(arbeidsforholdDto);
         // Assert
         assertThat(kodeOpt).isEmpty();
     }

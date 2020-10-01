@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
 
@@ -18,11 +18,10 @@ public class UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmeldi
         arbeidsforholdDto.setOverstyrtTom(LocalDate.now());
         arbeidsforholdDto.setFortsettBehandlingUtenInntektsmelding(true);
         // Act
-        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmelding.utled(arbeidsforholdDto);
+        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmelding
+                .utled(arbeidsforholdDto);
         // Assert
-        assertThat(kodeOpt).hasValueSatisfying(kode ->
-            assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.BRUK_MED_OVERSTYRTE_PERIODER)
-        );
+        assertThat(kodeOpt).hasValueSatisfying(kode -> assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.BRUK_MED_OVERSTYRTE_PERIODER));
     }
 
     @Test
@@ -32,11 +31,10 @@ public class UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmeldi
         arbeidsforholdDto.setLagtTilAvSaksbehandler(true);
         arbeidsforholdDto.setFortsettBehandlingUtenInntektsmelding(true);
         // Act
-        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmelding.utled(arbeidsforholdDto);
+        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmelding
+                .utled(arbeidsforholdDto);
         // Assert
-        assertThat(kodeOpt).hasValueSatisfying(kode ->
-            assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.LAGT_TIL_AV_SAKSBEHANDLER)
-        );
+        assertThat(kodeOpt).hasValueSatisfying(kode -> assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.LAGT_TIL_AV_SAKSBEHANDLER));
     }
 
     @Test
@@ -46,11 +44,10 @@ public class UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmeldi
         arbeidsforholdDto.setInntektMedTilBeregningsgrunnlag(false);
         arbeidsforholdDto.setFortsettBehandlingUtenInntektsmelding(true);
         // Act
-        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmelding.utled(arbeidsforholdDto);
+        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmelding
+                .utled(arbeidsforholdDto);
         // Assert
-        assertThat(kodeOpt).hasValueSatisfying(kode ->
-            assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.INNTEKT_IKKE_MED_I_BG)
-        );
+        assertThat(kodeOpt).hasValueSatisfying(kode -> assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.INNTEKT_IKKE_MED_I_BG));
     }
 
     @Test
@@ -59,11 +56,10 @@ public class UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmeldi
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setFortsettBehandlingUtenInntektsmelding(false);
         // Act
-        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmelding.utled(arbeidsforholdDto);
+        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmelding
+                .utled(arbeidsforholdDto);
         // Assert
-        assertThat(kodeOpt).hasValueSatisfying(kode ->
-            assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.MANGLENDE_OPPLYSNINGER)
-        );
+        assertThat(kodeOpt).hasValueSatisfying(kode -> assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.MANGLENDE_OPPLYSNINGER));
     }
 
     @Test
@@ -72,11 +68,10 @@ public class UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmeldi
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setFortsettBehandlingUtenInntektsmelding(true);
         // Act
-        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmelding.utled(arbeidsforholdDto);
+        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmelding
+                .utled(arbeidsforholdDto);
         // Assert
-        assertThat(kodeOpt).hasValueSatisfying(kode ->
-            assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.BENYTT_A_INNTEKT_I_BG)
-        );
+        assertThat(kodeOpt).hasValueSatisfying(kode -> assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.BENYTT_A_INNTEKT_I_BG));
     }
 
     @Test
@@ -84,7 +79,8 @@ public class UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmeldi
         // Arrange
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         // Act
-        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmelding.utled(arbeidsforholdDto);
+        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmelding
+                .utled(arbeidsforholdDto);
         // Assert
         assertThat(kodeOpt).isEmpty();
     }

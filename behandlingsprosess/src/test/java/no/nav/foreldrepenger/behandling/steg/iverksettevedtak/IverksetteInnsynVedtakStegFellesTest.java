@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -34,12 +34,13 @@ public class IverksetteInnsynVedtakStegFellesTest {
         IverksetteInnsynVedtakStegFelles steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider);
         Behandling behandling = scenario.getBehandling();
         Fagsak fagsak = behandling.getFagsak();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+                repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
         ArgumentCaptor<BestillBrevDto> argumentCaptor = ArgumentCaptor.forClass(BestillBrevDto.class);
         verify(dokumentBestillerTjeneste, times(1))
-            .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class), Mockito.anyBoolean());
+                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class), Mockito.anyBoolean());
     }
 
     @Test
@@ -50,12 +51,13 @@ public class IverksetteInnsynVedtakStegFellesTest {
         IverksetteInnsynVedtakStegFelles steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider);
         Behandling behandling = scenario.getBehandling();
         Fagsak fagsak = behandling.getFagsak();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+                repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
         ArgumentCaptor<BestillBrevDto> argumentCaptor = ArgumentCaptor.forClass(BestillBrevDto.class);
         verify(dokumentBestillerTjeneste, times(1))
-            .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class), Mockito.anyBoolean());
+                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class), Mockito.anyBoolean());
 
         assertThat(argumentCaptor.getValue().getFritekst()).isEqualTo(" ");
     }
@@ -69,13 +71,13 @@ public class IverksetteInnsynVedtakStegFellesTest {
         IverksetteInnsynVedtakStegFelles steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider);
         Behandling behandling = scenario.getBehandling();
         Fagsak fagsak = behandling.getFagsak();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+                repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
-
 
         ArgumentCaptor<BestillBrevDto> argumentCaptor = ArgumentCaptor.forClass(BestillBrevDto.class);
         verify(dokumentBestillerTjeneste, times(1))
-            .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class), Mockito.anyBoolean());
+                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class), Mockito.anyBoolean());
 
         assertThat(argumentCaptor.getValue().getFritekst()).isEqualTo(begrunnelse);
     }

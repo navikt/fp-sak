@@ -10,8 +10,8 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.tjeneste.virksomhet.kodeverk.v2.HentKodeverkHentKodeverkKodeverkIkkeFunnet;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.feil.KodeverkIkkeFunnet;
@@ -32,7 +32,7 @@ public class KodeverkTjenesteImplTest {
 
     private LocalDate MAX_DATE = LocalDate.of(9999, 12, 31);
 
-    @Before
+    @BeforeEach
     public void before() {
         kodeverkTjeneste = new KodeverkTjeneste(kodeverkConsumer);
     }

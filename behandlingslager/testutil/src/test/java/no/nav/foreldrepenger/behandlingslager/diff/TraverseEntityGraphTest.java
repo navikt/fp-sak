@@ -13,7 +13,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
@@ -125,14 +125,14 @@ public class TraverseEntityGraphTest {
     public void skal_kun_diffe_på_markerte_felt() {
         // Arrange
         MedlemskapPerioderEntitet medlemskap1 = new MedlemskapPerioderBuilder()
-            .medMedlId(1L) // MedlId er ikke markert
-            .medErMedlem(true)
-            .build();
+                .medMedlId(1L) // MedlId er ikke markert
+                .medErMedlem(true)
+                .build();
 
         MedlemskapPerioderEntitet medlemskap2 = new MedlemskapPerioderBuilder()
-            .medMedlId(2L) // MedlId er ikke markert
-            .medErMedlem(false)
-            .build();
+                .medMedlId(2L) // MedlId er ikke markert
+                .medErMedlem(false)
+                .build();
 
         DiffEntity differ = new DiffEntity(lagTraverserForTrackedFields());
 
@@ -207,8 +207,8 @@ public class TraverseEntityGraphTest {
 
     private ScenarioMorSøkerEngangsstønad lagTestScenario() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel()
-            .medTilleggsopplysninger("hello");
+                .forFødsel()
+                .medTilleggsopplysninger("hello");
         return scenario;
     }
 

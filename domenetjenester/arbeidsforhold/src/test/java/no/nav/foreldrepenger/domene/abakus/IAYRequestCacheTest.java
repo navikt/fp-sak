@@ -4,14 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 
 public class IAYRequestCacheTest {
 
     @Test
-    public void skal_levere_ut_siste_grunnlag_ref() throws InterruptedException{
+    public void skal_levere_ut_siste_grunnlag_ref() throws InterruptedException {
 
         IAYRequestCache cache = new IAYRequestCache();
 

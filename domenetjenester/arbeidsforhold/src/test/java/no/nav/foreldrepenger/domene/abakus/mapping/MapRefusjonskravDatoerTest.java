@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.domene.abakus.mapping;
 
-
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.abakus.iaygrunnlag.Organisasjon;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.RefusjonskravDatoDto;
@@ -24,7 +23,7 @@ public class MapRefusjonskravDatoerTest {
         LocalDate førsteDagMedRefusjonskrav = LocalDate.now().minusDays(20);
         String orgnr = KUNSTIG_ORG;
         RefusjonskravDatoerDto dto = new RefusjonskravDatoerDto(List.of(new RefusjonskravDatoDto(new Organisasjon(orgnr),
-            førsteInnsendingAvRefusjonskrav, førsteDagMedRefusjonskrav, true)));
+                førsteInnsendingAvRefusjonskrav, førsteDagMedRefusjonskrav, true)));
 
         // Act
         List<RefusjonskravDato> refusjonskravDatoer = MapRefusjonskravDatoer.map(dto);

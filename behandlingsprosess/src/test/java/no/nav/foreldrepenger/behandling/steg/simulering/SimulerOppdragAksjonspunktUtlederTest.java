@@ -4,14 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.økonomi.simulering.SimulerOppdragAksjonspunktUtleder;
 import no.nav.foreldrepenger.økonomi.simulering.kontrakt.SimuleringResultatDto;
 
 public class SimulerOppdragAksjonspunktUtlederTest {
-
 
     @Test
     public void skal_gi_aksjonspunkt_for_feilutbetaling_uten_mulighet_for_inntrekk_når_det_finnes_feilutbetaling() {

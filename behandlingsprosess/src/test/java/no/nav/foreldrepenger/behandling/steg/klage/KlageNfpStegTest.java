@@ -7,8 +7,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
@@ -31,7 +31,7 @@ public class KlageNfpStegTest {
     private KlageNfpSteg steg;
     private OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("4806", "NFP Drammen");
 
-    @Before
+    @BeforeEach
     public void setUp() {
         behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
         BehandlingRepository behandlingRepositoryMock = mock(BehandlingRepository.class);
@@ -44,7 +44,8 @@ public class KlageNfpStegTest {
     public void skalOppretteAksjonspunktManuellVurderingAvKlageNfpNårStegKjøres() {
         ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forMedholdNK(ScenarioMorSøkerEngangsstønad.forFødsel());
         Behandling klageBehandling = scenario.lagMocked();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(), new BehandlingLås(klageBehandling.getId()));
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
+                new BehandlingLås(klageBehandling.getId()));
 
         // Act
         BehandleStegResultat behandlingStegResultat = steg.utførSteg(kontekst);
@@ -64,7 +65,8 @@ public class KlageNfpStegTest {
 
         var scenario = ScenarioKlageEngangsstønad.forMedholdNK(ScenarioMorSøkerEngangsstønad.forFødsel());
         Behandling klageBehandling = scenario.lagMocked();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(), new BehandlingLås(klageBehandling.getId()));
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
+                new BehandlingLås(klageBehandling.getId()));
         BehandlingRepositoryProvider repositoryProviderMock = scenario.mockBehandlingRepositoryProvider();
         steg = new KlageNfpSteg(repositoryProviderMock.getBehandlingRepository(), scenario.getKlageRepository(), behandlendeEnhetTjeneste);
 

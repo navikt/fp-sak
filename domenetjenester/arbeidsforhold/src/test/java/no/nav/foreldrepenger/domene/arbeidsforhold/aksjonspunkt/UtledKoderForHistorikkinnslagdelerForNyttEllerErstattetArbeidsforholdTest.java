@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
 
@@ -16,11 +16,10 @@ public class UtledKoderForHistorikkinnslagdelerForNyttEllerErstattetArbeidsforho
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setErNyttArbeidsforhold(true);
         // Act
-        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForNyttEllerErstattetArbeidsforhold.utled(arbeidsforholdDto);
+        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForNyttEllerErstattetArbeidsforhold
+                .utled(arbeidsforholdDto);
         // Assert
-        assertThat(kodeOpt).hasValueSatisfying(kode ->
-            assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.NYTT_ARBEIDSFORHOLD)
-        );
+        assertThat(kodeOpt).hasValueSatisfying(kode -> assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.NYTT_ARBEIDSFORHOLD));
     }
 
     @Test
@@ -29,11 +28,10 @@ public class UtledKoderForHistorikkinnslagdelerForNyttEllerErstattetArbeidsforho
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setErstatterArbeidsforholdId("123");
         // Act
-        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForNyttEllerErstattetArbeidsforhold.utled(arbeidsforholdDto);
+        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForNyttEllerErstattetArbeidsforhold
+                .utled(arbeidsforholdDto);
         // Assert
-        assertThat(kodeOpt).hasValueSatisfying(kode ->
-            assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.SLÅTT_SAMMEN_MED_ANNET)
-        );
+        assertThat(kodeOpt).hasValueSatisfying(kode -> assertThat(kode).isEqualTo(VurderArbeidsforholdHistorikkinnslag.SLÅTT_SAMMEN_MED_ANNET));
     }
 
     @Test
@@ -41,7 +39,8 @@ public class UtledKoderForHistorikkinnslagdelerForNyttEllerErstattetArbeidsforho
         // Arrange
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         // Act
-        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForNyttEllerErstattetArbeidsforhold.utled(arbeidsforholdDto);
+        Optional<VurderArbeidsforholdHistorikkinnslag> kodeOpt = UtledKoderForHistorikkinnslagdelerForNyttEllerErstattetArbeidsforhold
+                .utled(arbeidsforholdDto);
         // Assert
         assertThat(kodeOpt).isEmpty();
     }

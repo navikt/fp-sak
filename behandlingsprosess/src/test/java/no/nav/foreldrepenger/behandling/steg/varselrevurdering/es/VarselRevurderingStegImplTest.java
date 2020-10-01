@@ -7,8 +7,8 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -34,7 +34,7 @@ public class VarselRevurderingStegImplTest {
     private VarselRevurderingStegImpl steg;
     private static final LocalDate BEHANDLINGSTID_FRIST = LocalDate.now().plusWeeks(6);
 
-    @Before
+    @BeforeEach
     public void setup() {
         Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor().build();
         behandlingBuilder = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).medBehandlingstidFrist(BEHANDLINGSTID_FRIST);
@@ -61,7 +61,8 @@ public class VarselRevurderingStegImplTest {
 
     @Test
     public void utførerUtenAksjonspunktVedVedtakMellomUke26Og29() {
-        Behandling behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE)).build();
+        Behandling behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE))
+                .build();
         Whitebox.setInternalState(behandling, "id", behandlingId);
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
@@ -84,7 +85,7 @@ public class VarselRevurderingStegImplTest {
 
         // Behandling skal være på vent med frist 3 uker
         assertThat(behandleStegResultat.getAksjonspunktResultater().get(0).getFrist().toLocalDate())
-            .isEqualTo(LocalDate.now().plus(AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING.getFristPeriod()));
+                .isEqualTo(LocalDate.now().plus(AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING.getFristPeriod()));
     }
 
     @Test
