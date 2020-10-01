@@ -48,6 +48,8 @@ public enum BeregningsgrunnlagTilstand implements Kodeverdi {
         KOFAKBER_UT,
         FORESLÅTT,
         FORESLÅTT_UT,
+        VURDERT_REFUSJON,
+        VURDERT_REFUSJON_UT,
         OPPDATERT_MED_REFUSJON_OG_GRADERING,
         FASTSATT_INN,
         FASTSATT
