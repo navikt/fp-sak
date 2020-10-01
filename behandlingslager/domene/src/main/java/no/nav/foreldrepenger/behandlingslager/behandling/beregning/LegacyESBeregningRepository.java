@@ -44,7 +44,7 @@ public class LegacyESBeregningRepository {
         this.entityManager = entityManager;
     }
 
-    private EntityManager getEntityManager() {
+    protected EntityManager getEntityManager() {
         return entityManager;
     }
 
@@ -74,9 +74,12 @@ public class LegacyESBeregningRepository {
     }
 
     public Optional<LegacyESBeregning> getSisteBeregning(Long behandlingId) {
-        return behandlingsresultatRepository.hentHvisEksisterer(behandlingId)
-            .map(Behandlingsresultat::getBeregningResultat)
-            .flatMap(LegacyESBeregningsresultat::getSisteBeregning);
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        return getSisteBeregning(behandling);
+    }
+
+    private Optional<LegacyESBeregning> getSisteBeregning(Behandling behandling) {
+        return Optional.ofNullable(behandling.getBehandlingsresultat()).map(Behandlingsresultat::getBeregningResultat).flatMap(LegacyESBeregningsresultat::getSisteBeregning);
     }
 
     public boolean skalReberegne(Long behandlingId, LocalDate fødselsdato) {
@@ -92,7 +95,7 @@ public class LegacyESBeregningRepository {
         LegacyESBeregningsresultat beregningResultat = (sisteBeregning == null ? LegacyESBeregningsresultat.builder()
                 : LegacyESBeregningsresultat.builderFraEksisterende(sisteBeregning.getBeregningResultat()))
                         .medBeregning(nyBeregning)
-                        .buildFor(behandling, behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null));
+                        .buildFor(behandling, behandling.getBehandlingsresultat());
 
         BehandlingLås skriveLås = taSkriveLås(behandlingId);
         lagre(beregningResultat, skriveLås);
