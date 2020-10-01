@@ -10,6 +10,8 @@ import org.jboss.resteasy.spi.ApplicationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import ch.qos.logback.classic.Level;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
@@ -24,6 +26,7 @@ import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.log.util.MemoryAppender;
 
+@Execution(ExecutionMode.SAME_THREAD)
 public class GeneralRestExceptionMapperTest {
 
     private static MemoryAppender logSniffer;

@@ -13,14 +13,11 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.KontrollType;
@@ -36,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
@@ -46,27 +43,24 @@ import no.nav.foreldrepenger.mottak.hendelser.es.FødselForretningshendelseHånd
 import no.nav.foreldrepenger.mottak.hendelser.håndterer.ForretningshendelseHåndtererFelles;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class FødselForretningshendelseHåndtererESTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+@ExtendWith(MockitoExtension.class)
+public class FødselForretningshendelseHåndtererESTest extends EntityManagerAwareTest {
 
     private static final BeregningSats GJELDENDE_SATS = new BeregningSats(BeregningSatsType.ENGANG,
-        DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(1)), 90000L);
+            DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(1)), 90000L);
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    @Inject
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-
-    @Inject
     private BehandlingRepository behandlingRepository;
 
     private ForretningshendelseHåndtererFelles håndtererFelles;
     private FødselForretningshendelseHåndtererImpl håndterer;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private Kompletthetskontroller kompletthetskontroller = mock(Kompletthetskontroller.class);
+    @Mock
+    private Kompletthetskontroller kompletthetskontroller;
 
     @Mock
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
@@ -84,19 +78,19 @@ public class FødselForretningshendelseHåndtererESTest {
     @Mock
     private Behandlingsoppretter behandlingsoppretter;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null);
         håndtererFelles = new ForretningshendelseHåndtererFelles(historikkinnslagTjeneste, kompletthetskontroller,
-            behandlingProsesseringTjeneste, behandlingsoppretter, køKontroller);
-        håndterer = new FødselForretningshendelseHåndtererImpl(håndtererFelles, Period.ofWeeks(11), skjæringstidspunktTjeneste, etterkontrollRepository, beregningRepository);
+                behandlingProsesseringTjeneste, behandlingsoppretter, køKontroller);
+        håndterer = new FødselForretningshendelseHåndtererImpl(håndtererFelles, Period.ofWeeks(11), skjæringstidspunktTjeneste,
+                etterkontrollRepository, beregningRepository);
     }
 
     @Test
     public void skal_ta_av_vent_når_hendelse_er_fødsel_mangler_registrering() {
-        // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(2)).medAntallBarn(1);
         scenario.medBehandlingStegStart(BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
@@ -105,16 +99,13 @@ public class FødselForretningshendelseHåndtererESTest {
 
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
-        // Act
         håndterer.håndterÅpenBehandling(behandling, RE_HENDELSE_FØDSEL);
 
-        // Assert
         verify(kompletthetskontroller).vurderNyForretningshendelse(eq(behandling));
     }
 
     @Test
     public void skal_opprette_revurdering_ved_ulik_sats() {
-        // Arrange
         var sats = GJELDENDE_SATS.getVerdi() - 1000;
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(2)).medAntallBarn(1);
@@ -129,17 +120,14 @@ public class FødselForretningshendelseHåndtererESTest {
         when(beregningRepository.getSisteBeregning(anyLong())).thenReturn(Optional.of(beregning));
         when(beregningRepository.finnEksaktSats(any(), any())).thenReturn(GJELDENDE_SATS);
 
-        // Act
         håndterer.håndterAvsluttetBehandling(behandling, ForretningshendelseType.FØDSEL, RE_HENDELSE_FØDSEL);
 
-        // Assert
         verify(behandlingsoppretter).opprettRevurdering(any(), any());
         verify(beregningRepository).getSisteBeregning(eq(behandling.getId()));
     }
 
     @Test
     public void skal_ikke_opprette_revurdering_ved_samme_sats() {
-        // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(2)).medAntallBarn(1);
         scenario.medBehandlingStegStart(BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
@@ -153,17 +141,14 @@ public class FødselForretningshendelseHåndtererESTest {
         when(beregningRepository.getSisteBeregning(anyLong())).thenReturn(Optional.of(beregning));
         when(beregningRepository.finnEksaktSats(any(), any())).thenReturn(GJELDENDE_SATS);
 
-        // Act
         håndterer.håndterAvsluttetBehandling(behandling, ForretningshendelseType.FØDSEL, RE_HENDELSE_FØDSEL);
 
-        // Assert
         verify(etterkontrollRepository).avflaggDersomEksisterer(eq(behandling.getFagsakId()), eq(KontrollType.MANGLENDE_FØDSEL));
         verify(beregningRepository).getSisteBeregning(eq(behandling.getId()));
     }
 
     @Test
     public void skal_opprette_revurdering_ved_opprinnelig_avslag() {
-        // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(2)).medAntallBarn(1);
         scenario.medBehandlingStegStart(BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
@@ -175,17 +160,14 @@ public class FødselForretningshendelseHåndtererESTest {
         when(beregningRepository.getSisteBeregning(anyLong())).thenReturn(Optional.empty());
         when(beregningRepository.finnEksaktSats(any(), any())).thenReturn(GJELDENDE_SATS);
 
-        // Act
         håndterer.håndterAvsluttetBehandling(behandling, ForretningshendelseType.FØDSEL, RE_HENDELSE_FØDSEL);
 
-        // Assert
         verify(behandlingsoppretter).opprettRevurdering(any(), any());
         verify(beregningRepository).getSisteBeregning(eq(behandling.getId()));
     }
 
     @Test
     public void skal_ikke_opprette_revurdering_ved_sen_registrering() {
-        // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusMonths(6)).medAntallBarn(1);
         scenario.medBehandlingStegStart(BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
@@ -195,10 +177,8 @@ public class FødselForretningshendelseHåndtererESTest {
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
-        // Act
         håndterer.håndterAvsluttetBehandling(behandling, ForretningshendelseType.FØDSEL, RE_HENDELSE_FØDSEL);
 
-        // Assert
         verify(etterkontrollRepository).avflaggDersomEksisterer(eq(behandling.getFagsakId()), eq(KontrollType.MANGLENDE_FØDSEL));
         verifyNoInteractions(beregningRepository);
     }

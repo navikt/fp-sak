@@ -8,6 +8,8 @@ import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -25,6 +27,7 @@ import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.meldinger.FinnSakListeResp
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
+@Execution(ExecutionMode.SAME_THREAD)
 public class FinnSakServiceTest extends EntityManagerAwareTest {
 
     private FinnSakService finnSakService; // objektet vi tester

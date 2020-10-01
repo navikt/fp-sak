@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.behandling.steg.anke;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -16,12 +16,12 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 public class AnkeStegTest {
 
     @Test
-    public void skalOppretteAksjonspunktManuellAvAnkeNårStegKjøres(){
+    public void skalOppretteAksjonspunktManuellAvAnkeNårStegKjøres() {
         // Arrange
         var scenario = ScenarioAnkeEngangsstønad.forAvvistAnke(ScenarioMorSøkerEngangsstønad.forAdopsjon());
         var ankeBehandling = scenario.lagMocked();
         var kontekst = new BehandlingskontrollKontekst(ankeBehandling.getFagsakId(),
-            ankeBehandling.getAktørId(), new BehandlingLås(ankeBehandling.getId()));
+                ankeBehandling.getAktørId(), new BehandlingLås(ankeBehandling.getId()));
 
         AnkeSteg steg = new AnkeSteg(Mockito.mock(AnkeRepository.class));
 
