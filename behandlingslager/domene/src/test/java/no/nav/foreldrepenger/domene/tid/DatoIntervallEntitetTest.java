@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.tid;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 public class DatoIntervallEntitetTest {
 

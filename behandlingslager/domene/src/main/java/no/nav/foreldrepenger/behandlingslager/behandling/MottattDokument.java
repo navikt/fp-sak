@@ -19,7 +19,6 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
@@ -51,8 +50,9 @@ public class MottattDokument extends BaseEntitet {
     @Column(name = "journal_enhet")
     private String journalEnhet;
 
+    @Convert(converter = DokumentTypeId.KodeverdiConverter.class)
     @Column(name="type", nullable = false)
-    private String dokumentTypeId = DokumentTypeId.UDEFINERT.getKode();
+    private DokumentTypeId dokumentTypeId = DokumentTypeId.UDEFINERT;
 
     @Convert(converter = DokumentKategori.KodeverdiConverter.class)
     @Column(name="dokument_kategori", nullable = false)
@@ -109,7 +109,7 @@ public class MottattDokument extends BaseEntitet {
     }
 
     public DokumentTypeId getDokumentType() {
-        return DokumentTypeId.fraKode(dokumentTypeId);
+        return dokumentTypeId;
     }
 
     public DokumentKategori getDokumentKategori() {
@@ -220,13 +220,8 @@ public class MottattDokument extends BaseEntitet {
             return new Builder();
         }
 
-        public Builder medDokumentType(DokumentType dokumentTypeId) {
-            mottatteDokumentMal.dokumentTypeId = dokumentTypeId==null ? DokumentTypeId.UDEFINERT.getKode() : dokumentTypeId.getKode();
-            return this;
-        }
-
-        public Builder medDokumentType(String dokumentTypeId) {
-            mottatteDokumentMal.dokumentTypeId = dokumentTypeId == null ? DokumentTypeId.UDEFINERT.getKode() : dokumentTypeId;
+        public Builder medDokumentType(DokumentTypeId dokumentTypeId) {
+            mottatteDokumentMal.dokumentTypeId = dokumentTypeId == null ? DokumentTypeId.UDEFINERT : dokumentTypeId;
             return this;
         }
 

@@ -7,56 +7,40 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task.OpprettGrunnbeløpTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.web.RepositoryAwareTest;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-public class ForvaltningBeregningRestTjenesteTest {
+public class ForvaltningBeregningRestTjenesteTest extends RepositoryAwareTest {
 
+    private ForvaltningBeregningRestTjeneste forvaltningBeregningRestTjeneste;
 
-    private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusDays(5);
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-    private final BeregningsgrunnlagRepository beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final ProsessTaskRepository prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, null);
-    private ForvaltningBeregningRestTjeneste forvaltningBeregningRestTjeneste = new ForvaltningBeregningRestTjeneste(beregningsgrunnlagRepository, repositoryProvider,
-        prosessTaskRepository, null, null);
-
+    @BeforeEach
+    public void before() {
+        forvaltningBeregningRestTjeneste = new ForvaltningBeregningRestTjeneste(beregningsgrunnlagRepository,
+                repositoryProvider,
+                prosessTaskRepository, null, null);
+    }
 
     @Test
     public void opprettTaskerForGrunnbeløp() {
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         BeregningsgrunnlagEntitet bg = BeregningsgrunnlagEntitet.builder().medSkjæringstidspunkt(LocalDate.now()).build();
         BeregningsgrunnlagGrunnlagBuilder grunnlagUtenGrunnbeløp = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
-            .medBeregningsgrunnlag(bg);
+                .medBeregningsgrunnlag(bg);
         beregningsgrunnlagRepository.lagre(behandling.getId(), grunnlagUtenGrunnbeløp, BeregningsgrunnlagTilstand.OPPRETTET);
-
-        // Act
         forvaltningBeregningRestTjeneste.opprettGrunnbeløp();
-
-        // Assert
         List<ProsessTaskData> prosessTaskData = prosessTaskRepository.finnIkkeStartet();
-        List<ProsessTaskData> opprettTasker = prosessTaskData.stream().filter(task -> task.getTaskType().equals(OpprettGrunnbeløpTask.TASKNAME)).collect(Collectors.toList());
+        List<ProsessTaskData> opprettTasker = prosessTaskData.stream().filter(task -> task.getTaskType().equals(OpprettGrunnbeløpTask.TASKNAME))
+                .collect(Collectors.toList());
         assertThat(opprettTasker.size()).isEqualTo(1);
         assertThat(opprettTasker.get(0).getBehandlingId()).isEqualTo(behandling.getId().toString());
     }
@@ -66,12 +50,9 @@ public class ForvaltningBeregningRestTjenesteTest {
         final ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         Behandling behandling = scenario.lagre(repositoryProvider);
         BeregningsgrunnlagEntitet bg = BeregningsgrunnlagEntitet.builder().medSkjæringstidspunkt(LocalDate.now()).build();
-        BeregningsgrunnlagGrunnlagEntitet grunnlagUtenGrunnbeløp = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
-            .medBeregningsgrunnlag(bg)
-            .build(behandling.getId(), BeregningsgrunnlagTilstand.OPPRETTET);
-
-
-
+        BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
+                .medBeregningsgrunnlag(bg)
+                .build(behandling.getId(), BeregningsgrunnlagTilstand.OPPRETTET);
 
     }
 }

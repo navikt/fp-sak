@@ -217,7 +217,7 @@ public class DokumentmottakerFelles {
     void opprettInitiellFørstegangsbehandling(Fagsak fagsak, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) { //#S1
         // Opprett ny førstegangsbehandling
         Behandling behandling = behandlingsoppretter.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.empty());
-        persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
+        persisterDokumentinnhold(behandling, mottattDokument);
         opprettTaskForÅStarteBehandling(behandling);
         opprettHistorikk(behandling, mottattDokument);
     }
@@ -225,7 +225,7 @@ public class DokumentmottakerFelles {
     void opprettKøetInitiellFørstegangsbehandling(Fagsak fagsak, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) { //#S1
         // Opprett ny førstegangsbehandling
         Behandling behandling = behandlingsoppretter.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.empty());
-        persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
+        persisterDokumentinnhold(behandling, mottattDokument);
         opprettHistorikk(behandling, mottattDokument);
         behandlingsoppretter.settSomKøet(behandling);
     }
@@ -233,7 +233,7 @@ public class DokumentmottakerFelles {
     public void opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         Behandling forrigeBehandling = finnEvtForrigeBehandling(mottattDokument, fagsak);
         Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType, forrigeBehandling, !mottattDokument.getDokumentType().erSøknadType());
-        persisterDokumentinnhold(nyBehandling, mottattDokument, Optional.empty());
+        persisterDokumentinnhold(nyBehandling, mottattDokument);
         opprettTaskForÅStarteBehandling(nyBehandling);
         opprettHistorikk(nyBehandling, mottattDokument);
     }
@@ -241,7 +241,7 @@ public class DokumentmottakerFelles {
     public void opprettKøetFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         Behandling forrigeBehandling = finnEvtForrigeBehandling(mottattDokument, fagsak);
         Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType, forrigeBehandling, !mottattDokument.getDokumentType().erSøknadType());
-        persisterDokumentinnhold(nyBehandling, mottattDokument, Optional.empty());
+        persisterDokumentinnhold(nyBehandling, mottattDokument);
         opprettHistorikk(nyBehandling, mottattDokument);
         leggNyBehandlingPåKøOgOpprettHistorikkinnslag(nyBehandling);
     }
@@ -286,8 +286,8 @@ public class DokumentmottakerFelles {
             .anyMatch(d -> d.getDokumentType().erSøknadType() || DokumentKategori.SØKNAD.equals(d.getDokumentKategori()));
     }
 
-    void persisterDokumentinnhold(Behandling behandling, MottattDokument dokument, Optional<LocalDate> gjelderFra) {
-        mottatteDokumentTjeneste.persisterDokumentinnhold(behandling, dokument, gjelderFra);
+    void persisterDokumentinnhold(Behandling behandling, MottattDokument dokument) {
+        mottatteDokumentTjeneste.persisterDokumentinnhold(behandling, dokument, Optional.empty());
     }
 
     private void leggNyBehandlingPåKøOgOpprettHistorikkinnslag(Behandling nyBehandling) {

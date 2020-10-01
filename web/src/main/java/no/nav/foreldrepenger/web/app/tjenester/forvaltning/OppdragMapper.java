@@ -18,9 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekv
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragslinjePatchDto;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettOppdragTjeneste;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 
 class OppdragMapper {
 

@@ -9,8 +9,6 @@
 	<sequence-generator name="SEQ_KODELISTE_NAVN_I18N" allocation-size="50" sequence-name="SEQ_KODELISTE_NAVN_I18N" />
 
 	<!-- legacy DokumentTypeId er som synkes -->
-    <entity class="no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentTypeIdKodeliste" />
-
 	<entity class="no.nav.foreldrepenger.behandlingslager.kodeverk.KodelisteNavnI18N" />
 
 	<entity class="no.nav.foreldrepenger.behandlingslager.geografisk.Poststed" />

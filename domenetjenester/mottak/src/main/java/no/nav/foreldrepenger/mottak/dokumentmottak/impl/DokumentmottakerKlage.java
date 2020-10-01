@@ -65,7 +65,7 @@ class DokumentmottakerKlage implements Dokumentmottaker {
             return;
         }
         opprettKlagebehandling(fagsak).ifPresent(behandling -> { //#K1
-            dokumentmottakerFelles.persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
+            dokumentmottakerFelles.persisterDokumentinnhold(behandling, mottattDokument);
             klageVurderingTjeneste.hentEvtOpprettKlageResultat(behandling);
             dokumentmottakerFelles.opprettTaskForÅStarteBehandling(behandling);
             dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument);

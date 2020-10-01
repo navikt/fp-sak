@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.iverksettevedtak;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.inject.Inject;
 
@@ -45,7 +45,8 @@ public class HenleggBehandlingUtenSøknadTest {
 
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
 
-    private BehandlingskontrollServiceProvider serviceProvider = new BehandlingskontrollServiceProvider(repoRule.getEntityManager(), new BehandlingModellRepository(), null);
+    private BehandlingskontrollServiceProvider serviceProvider = new BehandlingskontrollServiceProvider(repoRule.getEntityManager(),
+            new BehandlingModellRepository(), null);
 
     @Mock
     private ProsessTaskRepository prosessTaskRepositoryMock;
@@ -56,24 +57,26 @@ public class HenleggBehandlingUtenSøknadTest {
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
     private Behandling behandling;
 
-
     @Before
     public void setUp() {
         BehandlingskontrollTjenesteImpl behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
-        henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, behandlingskontrollTjenesteImpl, dokumentBestillerApplikasjonTjenesteMock, prosessTaskRepositoryMock);
+        henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, behandlingskontrollTjenesteImpl,
+                dokumentBestillerApplikasjonTjenesteMock, prosessTaskRepositoryMock);
     }
 
     @Test
     public void kan_henlegge_behandling_uten_søknad_som_er_satt_på_vent() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger //Oppretter scenario uten søknad for å simulere sitausjoner som f.eks der inntektsmelding kommer først.
-            .forFødselUtenSøknad(AktørId.dummy())
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger // Oppretter scenario uten søknad for å simulere sitausjoner som
+                                                                                 // f.eks der inntektsmelding kommer først.
+                .forFødselUtenSøknad(AktørId.dummy())
+                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, BehandlingStegType.REGISTRER_SØKNAD);
         behandling = scenario.lagre(repositoryProvider);
         manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, BehandlingStegType.REGISTRER_SØKNAD);
         BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
         henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
-        assertThat(behandling.getAksjonspunkter().stream().map(Aksjonspunkt::getStatus).filter(AksjonspunktStatus.AVBRUTT::equals).count()).isEqualTo(1);
+        assertThat(behandling.getAksjonspunkter().stream().map(Aksjonspunkt::getStatus).filter(AksjonspunktStatus.AVBRUTT::equals).count())
+                .isEqualTo(1);
     }
 }

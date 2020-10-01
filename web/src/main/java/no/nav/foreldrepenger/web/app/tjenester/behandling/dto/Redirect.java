@@ -36,26 +36,26 @@ public final class Redirect {
         return tilBehandlingPollStatus(behandlingUuid, Optional.empty());
     }
 
-    public static Response tilBehandlingEllerPollStatus(UUID behandlingUuid, AsyncPollingStatus status) throws URISyntaxException {
+    public static Response tilBehandlingEllerPollStatus(UUID behandlingUuid, AsyncPollingStatus status) {
         UriBuilder uriBuilder = UriBuilder.fromPath(BehandlingRestTjenestePathHack1.BEHANDLING_PATH);
         uriBuilder.queryParam(UuidDto.NAME, behandlingUuid);
         return buildResponse(status, uriBuilder.build());
     }
 
-    public static Response tilFagsakPollStatus(Saksnummer saksnummer, Optional<String> gruppeOpt) throws URISyntaxException {
+    public static Response tilFagsakPollStatus(Saksnummer saksnummer, Optional<String> gruppeOpt) {
         UriBuilder uriBuilder = UriBuilder.fromPath(FagsakRestTjeneste.STATUS_PATH);
         uriBuilder.queryParam("saksnummer", saksnummer.getVerdi());
         gruppeOpt.ifPresent(s -> uriBuilder.queryParam("gruppe", s));
         return Response.accepted().location(honorXForwardedProto(uriBuilder.build())).build();
     }
 
-    public static Response tilFagsakEllerPollStatus(Saksnummer saksnummer, AsyncPollingStatus status) throws URISyntaxException {
+    public static Response tilFagsakEllerPollStatus(Saksnummer saksnummer, AsyncPollingStatus status) {
         UriBuilder uriBuilder = UriBuilder.fromPath(FagsakRestTjeneste.FAGSAK_PATH);
         uriBuilder.queryParam("saksnummer", saksnummer.getVerdi());
         return buildResponse(status, uriBuilder.build());
     }
 
-    private static Response buildResponse(AsyncPollingStatus status, URI resultatUri) throws URISyntaxException {
+    private static Response buildResponse(AsyncPollingStatus status, URI resultatUri) {
         URI uri = honorXForwardedProto(resultatUri);
         if (status != null) {
             // sett alltid resultat-location i tilfelle timeout på klient
@@ -84,7 +84,7 @@ public final class Redirect {
                 URI baseUri = httpRequest.getUri().getBaseUri();
                 try {
                     URI rewritten = new URI(xForwardedProto, baseUri.getSchemeSpecificPart(), baseUri.getFragment())
-                        .resolve(path);
+                            .resolve(path);
                     log.debug("Rewrote URI from '{}' to '{}'", location, rewritten);
                     newLocation = rewritten;
                 } catch (URISyntaxException e) {
@@ -97,8 +97,8 @@ public final class Redirect {
 
     private static boolean relativLocationAndRequestAvailable(URI location) {
         return location != null &&
-            !location.isAbsolute() &&
-            ResteasyProviderFactory.getContextData(HttpRequest.class) != null;
+                !location.isAbsolute() &&
+                ResteasyProviderFactory.getContextData(HttpRequest.class) != null;
     }
 
     /**
@@ -107,8 +107,8 @@ public final class Redirect {
     private static String getXForwardedProtoHeader(HttpRequest httpRequest) {
         String xForwardedProto = httpRequest.getHttpHeaders().getHeaderString("X-Forwarded-Proto");
         if (xForwardedProto != null &&
-            ("https".equalsIgnoreCase(xForwardedProto) ||
-                "http".equalsIgnoreCase(xForwardedProto))) {
+                ("https".equalsIgnoreCase(xForwardedProto) ||
+                        "http".equalsIgnoreCase(xForwardedProto))) {
             return xForwardedProto;
         }
         return null;
@@ -116,12 +116,13 @@ public final class Redirect {
 
     private static boolean mismatchedScheme(String xForwardedProto, HttpRequest httpRequest) {
         return xForwardedProto != null &&
-            !xForwardedProto.equalsIgnoreCase(httpRequest.getUri().getBaseUri().getScheme());
+                !xForwardedProto.equalsIgnoreCase(httpRequest.getUri().getBaseUri().getScheme());
     }
 
     @SuppressWarnings("resource")
     private static URI leggTilBaseUri(URI resultatUri) {
-        // tvinger resultatUri til å være en absolutt URI (passer med Location Header og Location felt når kommer i payload)
+        // tvinger resultatUri til å være en absolutt URI (passer med Location Header og
+        // Location felt når kommer i payload)
         Response response = Response.noContent().location(resultatUri).build();
         return response.getLocation();
     }

@@ -12,9 +12,6 @@ public class UtvidetBehandlingDto extends BehandlingDto {
     @JsonProperty("ansvarligBeslutter")
     private String ansvarligBeslutter;
 
-    @JsonProperty("behandlingHenlagt")
-    private boolean behandlingHenlagt;
-
     /** Eventuelt async status på tasks. */
     @JsonProperty("taskStatus")
     private AsyncPollingStatus taskStatus;
@@ -27,16 +24,8 @@ public class UtvidetBehandlingDto extends BehandlingDto {
         return taskStatus;
     }
 
-    public boolean isBehandlingHenlagt() {
-        return behandlingHenlagt;
-    }
-
     public void setAnsvarligBeslutter(String ansvarligBeslutter) {
         this.ansvarligBeslutter = ansvarligBeslutter;
-    }
-
-    void setBehandlingHenlagt(boolean behandlingHenlagt) {
-        this.behandlingHenlagt = behandlingHenlagt;
     }
 
     public void setAsyncStatus(AsyncPollingStatus asyncStatus) {

@@ -4,9 +4,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class SvpTilretteleggingDatoDto {
     private LocalDate fom;
+    @ValidKodeverk
     private TilretteleggingType type;
     private BigDecimal stillingsprosent;
     private BigDecimal overstyrtUtbetalingsgrad;

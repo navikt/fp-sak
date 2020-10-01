@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkRepository;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 
@@ -25,7 +24,6 @@ public class IAYRepositoryProvider {
 
     private EntityManager entityManager;
     private FagsakRepository fagsakRepository;
-    private KodeverkRepository kodeverkRepository;
     private PersonopplysningRepository personopplysningRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private SøknadRepository søknadRepository;
@@ -40,9 +38,6 @@ public class IAYRepositoryProvider {
     public IAYRepositoryProvider( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
-
-        // kodeverk
-        this.kodeverkRepository = new KodeverkRepository(entityManager);
 
         // behandling repositories
         this.behandlingRepository = new BehandlingRepository(entityManager);
@@ -76,10 +71,6 @@ public class IAYRepositoryProvider {
     public FagsakRepository getFagsakRepository() {
         // bridge metode før sammenkobling medBehandling
         return fagsakRepository;
-    }
-
-    public KodeverkRepository getKodeverkRepository() {
-        return kodeverkRepository;
     }
 
     public MottatteDokumentRepository getMottatteDokumentRepository() {

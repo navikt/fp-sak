@@ -122,23 +122,19 @@ public abstract class DokumentmottakerTestsupport {
     }
 
     protected MottattDokument dummyInntektsmeldingDokument(Behandling behandling) {
-        DokumentTypeId dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
-        return DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "123");
+        return DokumentmottakTestUtil.byggMottattDokument(DokumentTypeId.INNTEKTSMELDING, behandling.getFagsakId(), "", now(), true, "123");
     }
 
     protected MottattDokument dummyVedleggDokument(Behandling behandling) {
-        DokumentTypeId dokumentTypeId = DokumentTypeId.LEGEERKLÆRING;
-        return DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "456");
+        return DokumentmottakTestUtil.byggMottattDokument(DokumentTypeId.LEGEERKLÆRING, behandling.getFagsakId(), "", now(), true, "456");
     }
 
     protected MottattDokument dummyVedleggDokumentTypeAnnet(Behandling behandling) {
-        DokumentTypeId dokumentTypeId = DokumentTypeId.ANNET;
-        return DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "456");
+        return DokumentmottakTestUtil.byggMottattDokument(DokumentTypeId.ANNET, behandling.getFagsakId(), "", now(), true, "456");
     }
 
     protected MottattDokument dummySøknadDokument(Behandling behandling) {
-        DokumentTypeId dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
-        return DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, "456");
+        return DokumentmottakTestUtil.byggMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, behandling.getFagsakId(), "", now(), true, "456");
     }
 
 }

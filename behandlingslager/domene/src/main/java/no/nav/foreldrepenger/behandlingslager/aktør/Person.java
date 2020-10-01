@@ -1,7 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import javax.persistence.MappedSuperclass;
+
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @MappedSuperclass
 public abstract class Person extends Aktør {

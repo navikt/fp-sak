@@ -1,31 +1,30 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus.Status;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 
+@ExtendWith(MockitoExtension.class)
 public class BehandlingsprosessApplikasjonTjenesteTest {
 
     private static final String GRUPPE_1 = "gruppe1";
-
-    @Rule
-    public final ExpectedException expected = ExpectedException.none();
 
     private final ProsessTaskData taskData = new ProsessTaskData("taskType1");
     private Behandling behandling;
@@ -91,27 +90,26 @@ public class BehandlingsprosessApplikasjonTjenesteTest {
 
     }
 
-
-    private void markerFeilet(ProsessTaskData pt) {
+    private static void markerFeilet(ProsessTaskData pt) {
         pt.setStatus(ProsessTaskStatus.FEILET);
-        pt.setAntallFeiledeForsøk(pt.getAntallFeiledeForsøk()+ 1);
+        pt.setAntallFeiledeForsøk(pt.getAntallFeiledeForsøk() + 1);
         pt.setNesteKjøringEtter(null);
         pt.setSistKjørt(LocalDateTime.now());
     }
 
-    private void markerFerdig(ProsessTaskData pt) {
+    private static void markerFerdig(ProsessTaskData pt) {
         pt.setStatus(ProsessTaskStatus.FERDIG);
         pt.setNesteKjøringEtter(null);
         pt.setSistKjørt(LocalDateTime.now());
     }
 
-    private BehandlingsprosessApplikasjonTjeneste initSut(String gruppe, ProsessTaskData taskData) {
+    private static BehandlingsprosessApplikasjonTjeneste initSut(String gruppe, ProsessTaskData taskData) {
         ProsesseringAsynkTjeneste tjeneste = Mockito.mock(ProsesseringAsynkTjeneste.class);
 
         Map<String, ProsessTaskData> data = new HashMap<>();
         data.put(gruppe, taskData);
 
-        Mockito.when(tjeneste.sjekkProsessTaskPågårForBehandling(Mockito.any(), Mockito.any())).thenReturn(data);
+        when(tjeneste.sjekkProsessTaskPågårForBehandling(Mockito.any(), Mockito.any())).thenReturn(data);
         BehandlingsprosessApplikasjonTjeneste sut = new BehandlingsprosessApplikasjonTjeneste(tjeneste);
         return sut;
     }

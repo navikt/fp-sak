@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.exceptions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.ConstraintViolation;
@@ -29,7 +28,7 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
 
     @Override
     public Response toResponse(ConstraintViolationException exception) {
-        Set<ConstraintViolation<?>> constraintViolations = exception.getConstraintViolations();
+        var constraintViolations = exception.getConstraintViolations();
 
         if (constraintViolations.isEmpty() && exception instanceof ResteasyViolationException) {
             String message = ((ResteasyViolationException) exception).getException().getMessage();
@@ -47,8 +46,8 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
         List<String> feltNavn = feilene.stream().map(FeltFeilDto::getNavn).collect(Collectors.toList());
 
         Feil feil = erServerkall()
-            ? FeltValideringFeil.FACTORY.feltverdiKanIkkeValideresVedServerkall(feltNavn)
-            : FeltValideringFeil.FACTORY.feltverdiKanIkkeValideres(feltNavn);
+                ? FeltValideringFeil.FACTORY.feltverdiKanIkkeValideresVedServerkall(feltNavn)
+                : FeltValideringFeil.FACTORY.feltverdiKanIkkeValideres(feltNavn);
         feil.log(log);
         return lagResponse(new FeilDto(feil.getFeilmelding(), feilene));
     }
@@ -60,10 +59,10 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
 
     private static Response lagResponse(FeilDto entity) {
         return Response
-            .status(Response.Status.BAD_REQUEST)
-            .entity(entity)
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+                .status(Response.Status.BAD_REQUEST)
+                .entity(entity)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
     private String getKode(Object leafBean) {

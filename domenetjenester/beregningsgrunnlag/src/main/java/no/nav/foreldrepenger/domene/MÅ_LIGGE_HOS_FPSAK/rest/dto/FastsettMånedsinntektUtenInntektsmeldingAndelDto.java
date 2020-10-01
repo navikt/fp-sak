@@ -5,6 +5,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class FastsettMånedsinntektUtenInntektsmeldingAndelDto {
 
@@ -18,6 +19,7 @@ public class FastsettMånedsinntektUtenInntektsmeldingAndelDto {
     @Max(Integer.MAX_VALUE)
     private Integer fastsattBeløp;
 
+    @ValidKodeverk
     private Inntektskategori inntektskategori;
 
     FastsettMånedsinntektUtenInntektsmeldingAndelDto() { //NOSONAR

@@ -4,18 +4,17 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Collection;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
-
 
 public class SoapApiAbacTest {
 
     private static Collection<Method> soapMethods;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         soapMethods = SoapApiTester.finnAlleSoapMetoder();
     }
@@ -23,7 +22,8 @@ public class SoapApiAbacTest {
     /**
      * IKKE ignorer denne testen, sikrer at SOAP-endepunkter får tilgangskontroll
      * <p>
-     * Kontakt Team Humle hvis du trenger hjelp til å endre koden din slik at den går igjennom her     *
+     * Kontakt Team Humle hvis du trenger hjelp til å endre koden din slik at den
+     * går igjennom her *
      */
     @Test
     public void test_at_alle_soapmetoder_er_annotert_med_BeskyttetRessurs() throws Exception {
@@ -35,9 +35,11 @@ public class SoapApiAbacTest {
     }
 
     /**
-     * IKKE ignorer denne testen, helper til med at input til tilgangskontroll blir riktig
+     * IKKE ignorer denne testen, helper til med at input til tilgangskontroll blir
+     * riktig
      * <p>
-     * Kontakt Team Humle hvis du trenger hjelp til å endre koden din slik at den går igjennom her
+     * Kontakt Team Humle hvis du trenger hjelp til å endre koden din slik at den
+     * går igjennom her
      */
     @Test
     public void test_at_alle_input_parametre_til_soapmetoder_er_annotert_med_TilpassetAbacAttributt() {
@@ -46,7 +48,8 @@ public class SoapApiAbacTest {
         for (Method soapMethod : soapMethods) {
             for (Parameter parameter : soapMethod.getParameters()) {
                 if (parameter.getAnnotation(TilpassetAbacAttributt.class) == null) {
-                    feilmeldinger.append(String.format(feilmelding, parameter.getType().getSimpleName(), soapMethod.getDeclaringClass().getSimpleName(), soapMethod.getName()));
+                    feilmeldinger.append(String.format(feilmelding, parameter.getType().getSimpleName(),
+                            soapMethod.getDeclaringClass().getSimpleName(), soapMethod.getName()));
                 }
             }
         }

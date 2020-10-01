@@ -13,10 +13,10 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.BooleanUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @Path("/integrasjon")
 @ApplicationScoped
@@ -33,17 +33,15 @@ public class IntegrasjonstatusRestTjeneste {
 
     @Inject
     public IntegrasjonstatusRestTjeneste(IntegrasjonstatusTjeneste integrasjonstatusTjeneste,
-                                         @KonfigVerdi(value = "vise.detaljerte.feilmeldinger", defaultVerdi = "true") Boolean viseDetaljerteFeilmeldinger) {
+            @KonfigVerdi(value = "vise.detaljerte.feilmeldinger", defaultVerdi = "true") Boolean viseDetaljerteFeilmeldinger) {
         this.integrasjonstatusTjeneste = integrasjonstatusTjeneste;
         this.skalViseDetaljerteFeilmeldinger = BooleanUtils.toBoolean(viseDetaljerteFeilmeldinger);
     }
 
     @GET
     @Path("/status")
-    @Operation(description = "Gir en oversikt over systemer som er nede",
-        summary = ("Inneholder også detaljer og evt kjent tidspunkt for når systemet er oppe igjen."), tags = "integrasjon")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, ressurs = BeskyttetRessursResourceAttributt.APPLIKASJON)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Gir en oversikt over systemer som er nede", summary = ("Inneholder også detaljer og evt kjent tidspunkt for når systemet er oppe igjen."), tags = "integrasjon")
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON)
     public List<SystemNedeDto> finnSystemerSomErNede() {
         return integrasjonstatusTjeneste.finnSystemerSomErNede();
     }
@@ -51,8 +49,7 @@ public class IntegrasjonstatusRestTjeneste {
     @GET
     @Path("/status/vises")
     @Operation(description = "Returnerer en boolean som angir om detaljerte feilmeldinger skal vises av GUI", tags = "integrasjon")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, ressurs = BeskyttetRessursResourceAttributt.APPLIKASJON)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON)
     public boolean skalViseDetaljerteFeilmeldinger() {
         return skalViseDetaljerteFeilmeldinger;
     }

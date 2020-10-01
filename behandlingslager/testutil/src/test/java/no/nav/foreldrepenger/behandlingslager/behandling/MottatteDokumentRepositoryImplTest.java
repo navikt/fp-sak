@@ -37,7 +37,7 @@ public class MottatteDokumentRepositoryImplTest {
     @Before
     public void setup(){
         fagsakRepository.opprettNy(fagsak);
-        
+
         beh1 = opprettBuilderForBehandling().build();
         lagreBehandling(beh1);
 

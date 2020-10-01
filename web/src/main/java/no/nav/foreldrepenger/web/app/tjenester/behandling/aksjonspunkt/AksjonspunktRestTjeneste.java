@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -30,6 +29,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
@@ -73,9 +73,9 @@ public class AksjonspunktRestTjeneste {
 
     @Inject
     public AksjonspunktRestTjeneste(
-        AksjonspunktApplikasjonTjeneste aksjonpunktApplikasjonTjeneste,
-        BehandlingRepository behandlingRepository,
-        BehandlingsutredningApplikasjonTjeneste behandlingutredningTjeneste, TotrinnTjeneste totrinnTjeneste) {
+            AksjonspunktApplikasjonTjeneste aksjonpunktApplikasjonTjeneste,
+            BehandlingRepository behandlingRepository,
+            BehandlingsutredningApplikasjonTjeneste behandlingutredningTjeneste, TotrinnTjeneste totrinnTjeneste) {
 
         this.applikasjonstjeneste = aksjonpunktApplikasjonTjeneste;
         this.behandlingRepository = behandlingRepository;
@@ -86,26 +86,15 @@ public class AksjonspunktRestTjeneste {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Path(AKSJONSPUNKT_PART_PATH)
-    @Operation(description = "Hent aksjonspunter for en behandling",
-        tags = "aksjonspunkt",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                content = @Content(
-                    array = @ArraySchema(
-                        uniqueItems = true,
-                        arraySchema = @Schema(implementation = Set.class),
-                        schema = @Schema(implementation = AksjonspunktDto.class)),
-                    mediaType = MediaType.APPLICATION_JSON
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Hent aksjonspunter for en behandling", tags = "aksjonspunkt", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = Set.class), schema = @Schema(implementation = AksjonspunktDto.class)), mediaType = MediaType.APPLICATION_JSON))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getAksjonspunkter(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) { // NOSONAR
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         Collection<Totrinnsvurdering> ttVurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
         Set<AksjonspunktDto> dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, ttVurderinger);
         CacheControl cc = new CacheControl();
@@ -118,21 +107,10 @@ public class AksjonspunktRestTjeneste {
     @GET
     @Path(AKSJONSPUNKT_V2_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent aksjonspunter for en behandling",
-        tags = "aksjonspunkt",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                content = @Content(
-                    array = @ArraySchema(
-                        uniqueItems = true,
-                        arraySchema = @Schema(implementation = Set.class),
-                        schema = @Schema(implementation = AksjonspunktDto.class)),
-                    mediaType = MediaType.APPLICATION_JSON
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Hent aksjonspunter for en behandling", tags = "aksjonspunkt", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = Set.class), schema = @Schema(implementation = AksjonspunktDto.class)), mediaType = MediaType.APPLICATION_JSON))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getAksjonspunkter(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getAksjonspunkter(new BehandlingIdDto(uuidDto));
     }
@@ -140,25 +118,17 @@ public class AksjonspunktRestTjeneste {
     @GET
     @Path(AKSJONSPUNKT_RISIKO_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent risikoaksjonspunkt for en behandling",
-        tags = "aksjonspunkt",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                content = @Content(
-                    schema = @Schema(implementation = AksjonspunktDto.class),
-                    mediaType = MediaType.APPLICATION_JSON
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    @Operation(description = "Hent risikoaksjonspunkt for en behandling", tags = "aksjonspunkt", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = AksjonspunktDto.class), mediaType = MediaType.APPLICATION_JSON))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getRisikoAksjonspunkt(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         AksjonspunktDto dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, Collections.emptyList())
-            .stream()
-            .filter(ap -> AksjonspunktKodeDefinisjon.VURDER_FARESIGNALER_KODE.equals(ap.getDefinisjon().getKode()))
-            .findFirst()
-            .orElse(null);
+                .stream()
+                .filter(ap -> AksjonspunktKodeDefinisjon.VURDER_FARESIGNALER_KODE.equals(ap.getDefinisjon().getKode()))
+                .findFirst()
+                .orElse(null);
 
         CacheControl cc = new CacheControl();
         cc.setNoCache(true);
@@ -170,21 +140,15 @@ public class AksjonspunktRestTjeneste {
     @GET
     @Path(AKSJONSPUNKT_KONTROLLER_REVURDERING_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Har behandling åpent kontroller revurdering aksjonspunkt",
-        tags = "aksjonspunkt",
-        responses = {
-            @ApiResponse(responseCode = "200",
-                content = @Content(
-                    schema = @Schema(implementation = Boolean.class),
-                    mediaType = MediaType.APPLICATION_JSON
-                )
-            )
-        })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response erKontrollerRevurderingAksjonspunktÅpent(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    @Operation(description = "Har behandling åpent kontroller revurdering aksjonspunkt", tags = "aksjonspunkt", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Boolean.class), mediaType = MediaType.APPLICATION_JSON))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Response erKontrollerRevurderingAksjonspunktÅpent(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        boolean harÅpentAksjonspunkt = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
+        boolean harÅpentAksjonspunkt = behandling
+                .harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
         CacheControl cc = new CacheControl();
         cc.setNoCache(true);
         cc.setNoStore(true);
@@ -195,8 +159,9 @@ public class AksjonspunktRestTjeneste {
     /**
      * Håndterer prosessering av aksjonspunkt og videre behandling.
      * <p>
-     * MERK: Det skal ikke ligge spesifikke sjekker som avhenger av status på behanlding, steg eller knytning til
-     * spesifikke aksjonspunkter idenne tjenesten.
+     * MERK: Det skal ikke ligge spesifikke sjekker som avhenger av status på
+     * behanlding, steg eller knytning til spesifikke aksjonspunkter idenne
+     * tjenesten.
      *
      * @throws URISyntaxException
      */
@@ -204,17 +169,17 @@ public class AksjonspunktRestTjeneste {
     @Path(AKSJONSPUNKT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagre endringer gitt av aksjonspunktene og rekjør behandling fra gjeldende steg", tags = "aksjonspunkt")
-    @BeskyttetRessurs(action = UPDATE, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response bekreft(@Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto)
-        throws URISyntaxException { // NOSONAR
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Response bekreft(
+            @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto)
+            throws URISyntaxException { // NOSONAR
 
         Long behandlingId = apDto.getBehandlingId().getBehandlingId();
         Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer = apDto.getBekreftedeAksjonspunktDtoer();
 
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(apDto.getBehandlingId().getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(apDto.getBehandlingId().getBehandlingUuid());
 
         behandlingutredningTjeneste.kanEndreBehandling(behandling.getId(), apDto.getBehandlingVersjon());
 
@@ -228,22 +193,22 @@ public class AksjonspunktRestTjeneste {
     /**
      * Oppretting og prosessering av aksjonspunkt som har type overstyringspunkt.
      * <p>
-     * MERK: Det skal ikke ligge spesifikke sjekker som avhenger av status på behanlding, steg eller knytning til
-     * spesifikke aksjonspunkter idenne tjenesten.
+     * MERK: Det skal ikke ligge spesifikke sjekker som avhenger av status på
+     * behanlding, steg eller knytning til spesifikke aksjonspunkter idenne
+     * tjenesten.
      */
     @POST
     @Path(AKSJONSPUNKT_OVERSTYR_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Overstyrer stegene", tags = "aksjonspunkt")
-    @BeskyttetRessurs(action = UPDATE, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response overstyr(@Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) throws URISyntaxException { // NOSONAR
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Response overstyr(@Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) { // NOSONAR
 
         BehandlingIdDto behandlingIdDto = apDto.getBehandlingId();
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
         behandlingutredningTjeneste.kanEndreBehandling(behandling.getId(), apDto.getBehandlingVersjon());
 
@@ -254,16 +219,17 @@ public class AksjonspunktRestTjeneste {
         return Redirect.tilBehandlingPollStatus(behandling.getUuid());
     }
 
-    private void validerBetingelserForAksjonspunkt(Behandling behandling, Collection<? extends AksjonspunktKode> aksjonspunktDtoer) {
-        // TODO (FC): skal ikke ha spesfikke pre-conditions inne i denne tjenesten (sjekk på status FATTER_VEDTAK). Se
+    private static void validerBetingelserForAksjonspunkt(Behandling behandling, Collection<? extends AksjonspunktKode> aksjonspunktDtoer) {
+        // TODO (FC): skal ikke ha spesfikke pre-conditions inne i denne tjenesten
+        // (sjekk på status FATTER_VEDTAK). Se
         // om kan håndteres annerledes.
         if (behandling.getStatus().equals(BehandlingStatus.FATTER_VEDTAK) && !erFatteVedtakAkpt(aksjonspunktDtoer)) {
             throw AksjonspunktRestTjenesteFeil.FACTORY.totrinnsbehandlingErStartet(String.valueOf(behandling.getId())).toException();
         }
     }
 
-    private boolean erFatteVedtakAkpt(Collection<? extends AksjonspunktKode> aksjonspunktDtoer) {
+    private static boolean erFatteVedtakAkpt(Collection<? extends AksjonspunktKode> aksjonspunktDtoer) {
         return aksjonspunktDtoer.size() == 1 &&
-            aksjonspunktDtoer.iterator().next().getKode().equals(AksjonspunktDefinisjon.FATTER_VEDTAK.getKode());
+                aksjonspunktDtoer.iterator().next().getKode().equals(AksjonspunktDefinisjon.FATTER_VEDTAK.getKode());
     }
 }

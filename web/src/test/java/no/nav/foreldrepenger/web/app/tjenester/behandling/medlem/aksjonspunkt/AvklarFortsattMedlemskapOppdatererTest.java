@@ -8,8 +8,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -21,29 +22,33 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapAksjonspunktTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.web.RepositoryAwareTest;
 
-public class AvklarFortsattMedlemskapOppdatererTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AvklarFortsattMedlemskapOppdatererTest extends RepositoryAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
     private LocalDate now = LocalDate.now();
+
+    @BeforeEach
+    public void beforeEach() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+    }
 
     @Test
     public void avklar_fortsatt_medlemskap() {
         // Arrange
         ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
-            .medSøknadsdato(now);
+                .medSøknadsdato(now);
         scenario.medSøknadHendelse()
-            .medFødselsDato(now.minusDays(3))
-            .medAntallBarn(1);
+                .medFødselsDato(now.minusDays(3))
+                .medAntallBarn(1);
 
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
 
@@ -59,24 +64,25 @@ public class AvklarFortsattMedlemskapOppdatererTest {
         when(historikkTjenesteAdapter.tekstBuilder()).thenReturn(historikkInnslagTekstBuilder);
 
         final MedlemskapAksjonspunktTjeneste medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(
-            repositoryProvider, historikkTjenesteAdapter, lagMockYtelseSkjæringstidspunktTjeneste(LocalDate.now()));
+                repositoryProvider, historikkTjenesteAdapter, lagMockYtelseSkjæringstidspunktTjeneste(LocalDate.now()));
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
 
         // Act
         new AvklarFortsattMedlemskapOppdaterer(medlemskapTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+                .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         // Assert
         Optional<VurdertMedlemskapPeriodeEntitet> vurdertMedlemskap = getVurdertLøpendeMedlemskap(behandling.getId(), repositoryProvider);
         assertThat(vurdertMedlemskap).isPresent();
     }
 
-    private Optional<VurdertMedlemskapPeriodeEntitet> getVurdertLøpendeMedlemskap(Long behandlingId, BehandlingRepositoryProvider repositoryProvider) {
+    private Optional<VurdertMedlemskapPeriodeEntitet> getVurdertLøpendeMedlemskap(Long behandlingId,
+            BehandlingRepositoryProvider repositoryProvider) {
         MedlemskapRepository medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         return medlemskapRepository.hentVurdertLøpendeMedlemskap(behandlingId);
     }
 
-    private SkjæringstidspunktTjeneste lagMockYtelseSkjæringstidspunktTjeneste(LocalDate fom){
+    private SkjæringstidspunktTjeneste lagMockYtelseSkjæringstidspunktTjeneste(LocalDate fom) {
         var skjæringstidspunktTjeneste = Mockito.mock(SkjæringstidspunktTjeneste.class);
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(fom).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);

@@ -5,18 +5,16 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-import no.nav.vedtak.util.InputValideringRegex;
 
+@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
 public abstract  class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto {
-
 
     @NotNull
     @JsonProperty("erKlagerPart")
@@ -41,9 +39,6 @@ public abstract  class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunk
     // TODO (BehandlingIdDto): bør kunne støtte behandlingUuid også?  Hvorfor heter property "vedtak"?
     private Long påKlagdBehandlingId;
 
-    @Size(max = 2000)
-    @Pattern(regexp = InputValideringRegex.FRITEKST)
-    private String begrunnelse;
 
     KlageFormkravAksjonspunktDto() { // NOSONAR
         // For Jackson
@@ -59,7 +54,6 @@ public abstract  class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunk
         this.erKonkret = erKonkret;
         this.erSignert = erSignert;
         this.påKlagdBehandlingId = påKlagdBehandlingId;
-        this.begrunnelse = begrunnelse;
         this.erTilbakekreving = erTilbakekreving;
         this.klageTilbakekreving = klageTilbakekreving;
     }
@@ -86,11 +80,6 @@ public abstract  class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunk
 
     public UUID hentpåKlagdEksternBehandlingUuId() {
         return erTilbakekreving && klageTilbakekreving!= null ? klageTilbakekreving.getPåklagdEksternBehandlingUuid() : null;
-    }
-
-    @Override
-    public String getBegrunnelse() {
-        return begrunnelse;
     }
 
     public boolean erTilbakekreving(){

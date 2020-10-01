@@ -9,9 +9,11 @@ import javax.sql.DataSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import no.nav.vedtak.konfig.PropertyUtil;
+import no.nav.vedtak.util.env.Environment;
 
 class DataSourceKonfig {
+
+    private static final Environment ENV = Environment.current();
 
     private static final String MIGRATIONS_LOCATION = "classpath:/db/migration/";
     private DBConnProp defaultDatasource;
@@ -20,15 +22,15 @@ class DataSourceKonfig {
     DataSourceKonfig() {
         defaultDatasource = new DBConnProp(createDatasource("defaultDS"), MIGRATIONS_LOCATION + "defaultDS");
         dataSources = Arrays.asList(
-            defaultDatasource,
-            new DBConnProp(createDatasource("dvhDS"), MIGRATIONS_LOCATION + "dvhDS"));
+                defaultDatasource,
+                new DBConnProp(createDatasource("dvhDS"), MIGRATIONS_LOCATION + "dvhDS"));
     }
 
-    private DataSource createDatasource(String dataSourceName) {
+    private static DataSource createDatasource(String dataSourceName) {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(PropertyUtil.getProperty(dataSourceName + ".url"));
-        config.setUsername(PropertyUtil.getProperty(dataSourceName + ".username"));
-        config.setPassword(PropertyUtil.getProperty(dataSourceName + ".password")); // NOSONAR false positive
+        config.setJdbcUrl(ENV.getProperty(dataSourceName + ".url"));
+        config.setUsername(ENV.getProperty(dataSourceName + ".username"));
+        config.setPassword(ENV.getProperty(dataSourceName + ".password")); // NOSONAR false positive
 
         config.setConnectionTimeout(1000);
         config.setMinimumIdle(5);

@@ -22,9 +22,6 @@ public class IAYRegisterdataTjeneste {
     public IAYRegisterdataTjeneste() {
     }
 
-    /**
-     * Standard ctor som injectes av CDI.
-     */
     @Inject
     public IAYRegisterdataTjeneste(InntektArbeidYtelseTjeneste iayTjeneste) {
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");

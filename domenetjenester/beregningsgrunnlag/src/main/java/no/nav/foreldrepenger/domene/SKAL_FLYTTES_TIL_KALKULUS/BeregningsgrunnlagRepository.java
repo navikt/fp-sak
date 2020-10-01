@@ -434,10 +434,14 @@ public class BeregningsgrunnlagRepository {
     public boolean oppdaterGrunnlagMedGrunnbeløp(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand tilstand) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> beregningsgrunnlag = hentSisteBeregningsgrunnlagGrunnlagEntitet(gammelBehandlingId, tilstand);
         if (beregningsgrunnlag.isPresent()) {
-            BeregningsgrunnlagEntitet bg = beregningsgrunnlag.get().getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha BG"));
-            BeregningSats beregningSats = finnEksaktSats(BeregningSatsType.GRUNNBELØP, bg.getSkjæringstidspunkt());
-            lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.oppdatere(beregningsgrunnlag.get())
-                .medBeregningsgrunnlag(BeregningsgrunnlagEntitet.builder(bg).medGrunnbeløp(BigDecimal.valueOf(beregningSats.getVerdi())).build()), BeregningsgrunnlagTilstand.FORESLÅTT_UT);
+            if (beregningsgrunnlag.get().getBeregningsgrunnlag().isPresent()) {
+                BeregningsgrunnlagEntitet bg = beregningsgrunnlag.get().getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha BG"));
+                BeregningSats beregningSats = finnEksaktSats(BeregningSatsType.GRUNNBELØP, bg.getSkjæringstidspunkt());
+                lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.oppdatere(beregningsgrunnlag.get())
+                    .medBeregningsgrunnlag(BeregningsgrunnlagEntitet.builder(bg).medGrunnbeløp(BigDecimal.valueOf(beregningSats.getVerdi())).build()), tilstand);
+            } else {
+                lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.oppdatere(beregningsgrunnlag), tilstand);
+            }
             return true;
         }
         return false;

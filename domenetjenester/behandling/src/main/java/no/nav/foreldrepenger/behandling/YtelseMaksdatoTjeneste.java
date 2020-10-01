@@ -44,7 +44,7 @@ public class YtelseMaksdatoTjeneste {
 
     @Inject
     public YtelseMaksdatoTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                  RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
+            RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
     }
@@ -58,7 +58,8 @@ public class YtelseMaksdatoTjeneste {
         if (uttakResultat.isPresent()) {
             UttakResultatPerioderEntitet gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
 
-            Map<UttakAktivitetEntitet, List<UttakResultatPeriodeAktivitetEntitet>> perArbeidsforhold = finnPerioderPerArbeidsforhold(gjeldenePerioder.getPerioder());
+            Map<UttakAktivitetEntitet, List<UttakResultatPeriodeAktivitetEntitet>> perArbeidsforhold = finnPerioderPerArbeidsforhold(
+                    gjeldenePerioder.getPerioder());
             LocalDate maksdato = null;
             for (Map.Entry<UttakAktivitetEntitet, List<UttakResultatPeriodeAktivitetEntitet>> entry : perArbeidsforhold.entrySet()) {
                 List<UttakResultatPeriodeAktivitetEntitet> perioder = entry.getValue();
@@ -93,7 +94,8 @@ public class YtelseMaksdatoTjeneste {
         if (uttakResultat.isPresent()) {
             UttakResultatPerioderEntitet gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
 
-            Map<UttakAktivitetEntitet, List<UttakResultatPeriodeAktivitetEntitet>> perArbeidsforhold = finnPerioderPerArbeidsforhold(gjeldenePerioder.getPerioder());
+            Map<UttakAktivitetEntitet, List<UttakResultatPeriodeAktivitetEntitet>> perArbeidsforhold = finnPerioderPerArbeidsforhold(
+                    gjeldenePerioder.getPerioder());
             LocalDate maksdato = null;
             for (Map.Entry<UttakAktivitetEntitet, List<UttakResultatPeriodeAktivitetEntitet>> entry : perArbeidsforhold.entrySet()) {
                 List<UttakResultatPeriodeAktivitetEntitet> perioder = entry.getValue();
@@ -114,16 +116,17 @@ public class YtelseMaksdatoTjeneste {
 
     private Optional<LocalDate> finnMorsSisteUttaksdag(List<UttakResultatPeriodeAktivitetEntitet> perioder) {
         return perioder.stream()
-            .filter(a -> a.getTrekkdager().merEnn0() || a.getPeriode().isInnvilget())
-            .max(Comparator.comparing(UttakResultatPeriodeAktivitetEntitet::getTom))
-            .map(UttakResultatPeriodeAktivitetEntitet::getTom);
+                .filter(a -> a.getTrekkdager().merEnn0() || a.getPeriode().isInnvilget())
+                .max(Comparator.comparing(UttakResultatPeriodeAktivitetEntitet::getTom))
+                .map(UttakResultatPeriodeAktivitetEntitet::getTom);
     }
 
-    private Map<UttakAktivitetEntitet, List<UttakResultatPeriodeAktivitetEntitet>> finnPerioderPerArbeidsforhold(List<UttakResultatPeriodeEntitet> perioder) {
+    private Map<UttakAktivitetEntitet, List<UttakResultatPeriodeAktivitetEntitet>> finnPerioderPerArbeidsforhold(
+            List<UttakResultatPeriodeEntitet> perioder) {
         return perioder.stream()
-            .map(UttakResultatPeriodeEntitet::getAktiviteter)
-            .flatMap(Collection::stream)
-            .collect(Collectors.groupingBy(UttakResultatPeriodeAktivitetEntitet::getUttakAktivitet));
+                .map(UttakResultatPeriodeEntitet::getAktiviteter)
+                .flatMap(Collection::stream)
+                .collect(Collectors.groupingBy(UttakResultatPeriodeAktivitetEntitet::getUttakAktivitet));
     }
 
     private int beregnTilgjengeligeStønadsdager(List<UttakResultatPeriodeAktivitetEntitet> perioder, Saksnummer saksnummer) {
@@ -153,8 +156,10 @@ public class YtelseMaksdatoTjeneste {
         return tilgjengeligeDager.setScale(0, RoundingMode.UP).intValue();
     }
 
-    private BigDecimal beregnTilgjengeligeDagerFor(StønadskontoType stønadskontoType, List<UttakResultatPeriodeAktivitetEntitet> aktiviteter, Set<Stønadskonto> stønadskontoer) {
-        Optional<Stønadskonto> optionalStønadskonto = stønadskontoer.stream().filter(s -> stønadskontoType.equals(s.getStønadskontoType())).findFirst();
+    private BigDecimal beregnTilgjengeligeDagerFor(StønadskontoType stønadskontoType, List<UttakResultatPeriodeAktivitetEntitet> aktiviteter,
+            Set<Stønadskonto> stønadskontoer) {
+        Optional<Stønadskonto> optionalStønadskonto = stønadskontoer.stream().filter(s -> stønadskontoType.equals(s.getStønadskontoType()))
+                .findFirst();
         if (optionalStønadskonto.isPresent()) {
             BigDecimal brukteDager = brukteDager(stønadskontoType, aktiviteter);
 
@@ -174,7 +179,7 @@ public class YtelseMaksdatoTjeneste {
         return sum;
     }
 
-    private LocalDate plusVirkedager(LocalDate fom, int virkedager) {
+    private static LocalDate plusVirkedager(LocalDate fom, int virkedager) {
         int virkedager_pr_uke = 5;
         int dager_pr_uke = 7;
         LocalDate justertDatoForHelg = fom;

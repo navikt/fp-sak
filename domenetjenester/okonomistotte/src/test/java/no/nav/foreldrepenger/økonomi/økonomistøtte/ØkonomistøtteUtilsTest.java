@@ -6,8 +6,6 @@ import java.time.LocalDateTime;
 
 import org.junit.Test;
 
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
-
 public class ØkonomistøtteUtilsTest {
 
     private String EXPECTED_DATETIME_STR = "2018-11-08-12.30.30.123";

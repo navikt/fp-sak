@@ -31,7 +31,6 @@ public class BatchTjenesteTest {
             }
             services.add(batchTjeneste.getBatchName());
         }
-
         assertThat(failed).isEmpty();
     }
 }

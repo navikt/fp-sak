@@ -34,7 +34,6 @@ public class BatchRunnerTask implements ProsessTaskHandler {
     static final String BATCH_RUN_DATE = "batch.runner.onlydate";
     static final String BATCH_NAME_RETRY_TASKS = "RETRY_FAILED_TASKS";
 
-
     private BatchSupportTjeneste batchSupportTjeneste;
 
     BatchRunnerTask() {
@@ -75,7 +74,7 @@ public class BatchRunnerTask implements ProsessTaskHandler {
         }
     }
 
-    private Map<String, String> parseJobParams(String jobParameters) {
+    private static Map<String, String> parseJobParams(String jobParameters) {
         Map<String, String> resultat = new HashMap<>();
         if (jobParameters != null && jobParameters.length() > 0) {
             StringTokenizer tokenizer = new StringTokenizer(jobParameters, ",");

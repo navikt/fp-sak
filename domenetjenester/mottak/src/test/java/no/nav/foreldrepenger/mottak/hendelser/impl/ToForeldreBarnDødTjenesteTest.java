@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.hendelser.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -9,11 +8,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -29,9 +29,8 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.ToForeldreBarnDødTjeneste;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ToForeldreBarnDødTjenesteTest {
 
     @Mock
@@ -42,7 +41,7 @@ public class ToForeldreBarnDødTjenesteTest {
     private Behandling behandlingF1;
     private Behandling behandlingF2;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
         ScenarioMorSøkerForeldrepenger scenarioF1 = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioF1.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
@@ -50,7 +49,6 @@ public class ToForeldreBarnDødTjenesteTest {
         scenarioF2.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         behandlingF1 = scenarioF1.lagMocked();
         behandlingF2 = scenarioF2.lagMocked();
-        uttakTjeneste = mock(ForeldrepengerUttakTjeneste.class);
     }
 
     @Test
@@ -60,7 +58,6 @@ public class ToForeldreBarnDødTjenesteTest {
         var uttakF2 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now()));
 
         when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.of(uttakF1));
-        when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF2.getId()))).thenReturn(Optional.of(uttakF2));
 
         toForeldreBarnDødTjeneste = new ToForeldreBarnDødTjeneste(uttakTjeneste);
 
@@ -75,7 +72,8 @@ public class ToForeldreBarnDødTjenesteTest {
     public void skal_velge_behandling_f1_når_f1_har_nærmeste_uttak() {
         // Arrange Foreldre1 (F1) har nærmeste uttak fremover i tid.
         // Nærmeste dato for F1 er 11 dager frem i tid;
-        // Nærmeste dato for F2 er 7 dager tilbake i tid, men pga bufferet trekker fra 14 slik at denne avstanden blir regnet som 21 dager
+        // Nærmeste dato for F2 er 7 dager tilbake i tid, men pga bufferet trekker fra
+        // 14 slik at denne avstanden blir regnet som 21 dager
         // Nærmeste dato F2 blir dermed frem i tid: 14 dager.
         var uttakF1 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now().minusDays(3)));
         var uttakF2 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now()));
@@ -95,9 +93,11 @@ public class ToForeldreBarnDødTjenesteTest {
     @Test
     public void skal_velge_behandling_f2_når_f1_har_nærmeste_uttak_men_ingen_utbetaling() {
         // Arrange Foreldre1 (F1) har nærmeste uttak fremover i tid.
-        // Nærmeste dato for F1 er 11 dager frem i tid, men denne perioden har utbetaling lik 0. velger bakover i tid.
+        // Nærmeste dato for F1 er 11 dager frem i tid, men denne perioden har
+        // utbetaling lik 0. velger bakover i tid.
         // Nærmeste dato for F1 blir dermed bakover i tid 10 + 14 = 24 dager.
-        // Nærmeste dato for F2 er 7 dager tilbake i tid, men pga bufferet trekker fra 14 slik at denne avstanden blir regnet som 21 dager
+        // Nærmeste dato for F2 er 7 dager tilbake i tid, men pga bufferet trekker fra
+        // 14 slik at denne avstanden blir regnet som 21 dager
         // Nærmeste dato F2 blir dermed frem i tid: 14 dager.
         var uttakF1 = new ForeldrepengerUttak(lagPerioderDerAndrePeriodeHarUtbetalingLik0(LocalDate.now().minusDays(3)));
         var uttakF2 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now()));
@@ -160,28 +160,26 @@ public class ToForeldreBarnDødTjenesteTest {
 
     private List<ForeldrepengerUttakPeriode> lagPerioderDerAndrePeriodeHarUtbetalingLik0(LocalDate midtDato) {
         return List.of(
-            lagPeriodeMedUtbetalingsgrad(midtDato.minusWeeks(3), midtDato.minusWeeks(1), 100L),
-            lagPeriodeMedUtbetalingsgrad(midtDato.plusWeeks(2), midtDato.plusWeeks(6), 0L)
-        );
+                lagPeriodeMedUtbetalingsgrad(midtDato.minusWeeks(3), midtDato.minusWeeks(1), 100L),
+                lagPeriodeMedUtbetalingsgrad(midtDato.plusWeeks(2), midtDato.plusWeeks(6), 0L));
     }
 
     private List<ForeldrepengerUttakPeriode> lagPerioderMedFullUtbetaling(LocalDate midtDato) {
         return List.of(
-            lagPeriodeMedUtbetalingsgrad(midtDato.minusWeeks(3), midtDato.minusWeeks(1), 100L),
-            lagPeriodeMedUtbetalingsgrad(midtDato.plusWeeks(2), midtDato.plusWeeks(6), 100L)
-        );
+                lagPeriodeMedUtbetalingsgrad(midtDato.minusWeeks(3), midtDato.minusWeeks(1), 100L),
+                lagPeriodeMedUtbetalingsgrad(midtDato.plusWeeks(2), midtDato.plusWeeks(6), 100L));
     }
 
     private ForeldrepengerUttakPeriode lagPeriodeMedUtbetalingsgrad(LocalDate fom, LocalDate tom, Long utbetalingsgrad) {
         var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
-            .medArbeidsprosent(BigDecimal.valueOf(100))
-            .medUtbetalingsgrad(new Utbetalingsgrad(utbetalingsgrad))
-            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
-            .build();
+                .medArbeidsprosent(BigDecimal.valueOf(100))
+                .medUtbetalingsgrad(new Utbetalingsgrad(utbetalingsgrad))
+                .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
+                .build();
         return new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(fom, tom)
-            .medResultatType(PeriodeResultatType.INNVILGET)
-            .medAktiviteter(List.of(aktivitet))
-            .build();
+                .medTidsperiode(fom, tom)
+                .medResultatType(PeriodeResultatType.INNVILGET)
+                .medAktiviteter(List.of(aktivitet))
+                .build();
     }
 }

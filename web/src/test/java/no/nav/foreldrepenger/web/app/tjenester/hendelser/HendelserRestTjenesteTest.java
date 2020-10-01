@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.hendelser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -12,55 +11,47 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseSorteringRepository;
-import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.AktørIdDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødfødselHendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.FødselHendelseDto;
 import no.nav.foreldrepenger.mottak.hendelser.JsonMapper;
 import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
+import no.nav.foreldrepenger.web.RepositoryAwareTest;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacAktørIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacHendelseWrapperDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
-public class HendelserRestTjenesteTest {
+@ExtendWith(MockitoExtension.class)
+public class HendelserRestTjenesteTest extends RepositoryAwareTest {
 
     private static final String HENDELSE_ID = "1337";
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    private HendelsemottakRepository hendelsemottakRepository = new HendelsemottakRepository(repoRule.getEntityManager());
-    private ProsessTaskRepository prosessTaskRepository = new ProsessTaskRepositoryImpl(repoRule.getEntityManager(), null, null);
-    private HendelseSorteringRepository sorteringRepository = mock(HendelseSorteringRepository.class);
+    @Mock
+    private HendelseSorteringRepository sorteringRepository;
     private HendelserRestTjeneste hendelserRestTjeneste;
 
-    @Before
+    @BeforeEach
     public void before() {
         hendelserRestTjeneste = new HendelserRestTjeneste(sorteringRepository, hendelsemottakRepository, prosessTaskRepository);
     }
 
     @Test
     public void skal_ta_imot_fødselshendelse_og_opprette_prosesstask() {
-        // Arrange
         List<AktørId> aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
         LocalDate fødselsdato = LocalDate.now();
         var hendelse = lagFødselHendelse(aktørIdForeldre, fødselsdato);
 
-        // Act
         hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(hendelse));
-        repoRule.getEntityManager().flush();
 
-        // Assert
         assertThat(hendelsemottakRepository.hendelseErNy(HENDELSE_ID)).isFalse();
         List<ProsessTaskData> tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         ProsessTaskData task = tasks.stream().filter(d -> Objects.equals(KlargjørHendelseTask.TASKTYPE, d.getTaskType())).findFirst().orElseThrow();
@@ -72,16 +63,12 @@ public class HendelserRestTjenesteTest {
 
     @Test
     public void skal_ta_imot_dødfødselhendelse_og_opprette_prosesstask() {
-        // Arrange
         List<AktørId> aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
         LocalDate dødfødseldato = LocalDate.now();
         var hendelse = lagDødfødselHendelse(aktørIdForeldre, dødfødseldato);
 
-        // Act
         hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(hendelse));
-        repoRule.getEntityManager().flush();
 
-        // Assert
         assertThat(hendelsemottakRepository.hendelseErNy(HENDELSE_ID)).isFalse();
         List<ProsessTaskData> tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         ProsessTaskData task = tasks.stream().filter(d -> Objects.equals(KlargjørHendelseTask.TASKTYPE, d.getTaskType())).findFirst().orElseThrow();
@@ -93,40 +80,32 @@ public class HendelserRestTjenesteTest {
 
     @Test
     public void skal_ikke_opprette_prosess_task_når_hendelse_med_samme_uid_tidligere_er_mottatt() {
-        // Arrange
         hendelsemottakRepository.registrerMottattHendelse(HENDELSE_ID);
         List<AktørId> aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
         LocalDate fødselsdato = LocalDate.now();
 
-        // Act
         hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(lagFødselHendelse(aktørIdForeldre, fødselsdato)));
-        repoRule.getEntityManager().flush();
 
-        // Assert
         List<ProsessTaskData> tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(tasks).allSatisfy(d -> assertThat(d.getTaskType()).isNotEqualTo(KlargjørHendelseTask.TASKTYPE));
     }
 
     @Test
     public void skal_returnere_tom_liste_når_aktørId_ikke_er_registrert_eller_mangler_sak() {
-        // Arrange
         when(sorteringRepository.hentEksisterendeAktørIderMedSak(anyList())).thenReturn(Collections.emptyList());
 
-        // Act
         List<String> resultat = hendelserRestTjeneste.grovSorter(List.of(new AbacAktørIdDto("0000000000000")));
 
-        // Assert
         assertThat(resultat).isEmpty();
     }
 
     @Test
     public void skal_returnere_liste_med_4_aktørIder_som_har_sak() {
-        // Arrange
         List<AktørId> harSak = new ArrayList<>(List.of(
-            AktørId.dummy(),
-            AktørId.dummy(),
-            AktørId.dummy(),
-            AktørId.dummy()));
+                AktørId.dummy(),
+                AktørId.dummy(),
+                AktørId.dummy(),
+                AktørId.dummy()));
 
         when(sorteringRepository.hentEksisterendeAktørIderMedSak(anyList())).thenReturn(harSak);
 
@@ -135,10 +114,8 @@ public class HendelserRestTjenesteTest {
         sorter.add(new AbacAktørIdDto("0000000000001"));
         sorter.add(new AbacAktørIdDto("0000000000002"));
 
-        // Act
         List<String> resultat = hendelserRestTjeneste.grovSorter(sorter);
 
-        // Assert
         assertThat(resultat).hasSameSizeAs(harSak);
         assertThat(resultat).isEqualTo(harSak.stream().map(AktørId::getId).collect(Collectors.toList()));
     }

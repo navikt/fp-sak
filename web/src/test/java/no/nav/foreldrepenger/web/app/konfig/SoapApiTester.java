@@ -13,13 +13,14 @@ import org.reflections.scanners.SubTypesScanner;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
-public class SoapApiTester {
+class SoapApiTester {
 
     static Collection<Method> finnAlleSoapMetoder() {
         List<Method> liste = new ArrayList<>();
         for (Class<?> klasse : finnAlleSoapTjenester()) {
             for (Method method : klasse.getDeclaredMethods()) {
-                if (method.getAnnotation(BeskyttetRessurs.class) == null && Modifier.isPublic(method.getModifiers()) && !method.getName().equals("ping")) {
+                if (method.getAnnotation(BeskyttetRessurs.class) == null && Modifier.isPublic(method.getModifiers())
+                        && !method.getName().equals("ping")) {
                     liste.add(method);
                 }
             }
@@ -37,7 +38,7 @@ public class SoapApiTester {
         List<Class<?>> classes = getAllClasses();
         List<Class<?>> classesToReturn = new ArrayList<Class<?>>();
 
-        classes.stream().filter(s -> s.getAnnotation(SoapWebService.class) != null).forEach(s ->classesToReturn.add(s));
+        classes.stream().filter(s -> s.getAnnotation(SoapWebService.class) != null).forEach(s -> classesToReturn.add(s));
         return classesToReturn;
     }
 }

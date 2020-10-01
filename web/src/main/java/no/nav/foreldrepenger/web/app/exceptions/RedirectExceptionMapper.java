@@ -10,16 +10,28 @@ import org.jboss.resteasy.spi.ApplicationException;
 import org.owasp.encoder.Encode;
 
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
-
+import no.nav.vedtak.util.env.Environment;
 
 @Provider
 public class RedirectExceptionMapper implements ExceptionMapper<ApplicationException> {
 
-    private String loadBalancerUrl = System.getProperty("loadbalancer.url");
+    private static final Environment ENV = Environment.current();
+    private final String loadBalancerUrl;
+    private final GeneralRestExceptionMapper generalRestExceptionMapper;
 
-    private GeneralRestExceptionMapper generalRestExceptionMapper = new GeneralRestExceptionMapper();
+    public RedirectExceptionMapper() {
+        this(ENV.getProperty("loadbalancer.url"));
+    }
 
-    @SuppressWarnings("resource")
+    RedirectExceptionMapper(String url) {
+        this(url, new GeneralRestExceptionMapper());
+    }
+
+    RedirectExceptionMapper(String url, GeneralRestExceptionMapper mapper) {
+        this.generalRestExceptionMapper = mapper;
+        this.loadBalancerUrl = url;
+    }
+
     @Override
     public Response toResponse(ApplicationException exception) {
         Response response = generalRestExceptionMapper.toResponse(exception);
@@ -32,8 +44,12 @@ public class RedirectExceptionMapper implements ExceptionMapper<ApplicationExcep
         return responser.build();
     }
 
-    protected String getBaseUrl() {
+    String getBaseUrl() {
         return loadBalancerUrl + ContextPathHolder.instance().getContextPath();
+    }
+
+    GeneralRestExceptionMapper getGeneralRestExceptionMapper() {
+        return generalRestExceptionMapper;
     }
 
 }

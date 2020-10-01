@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toList;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -33,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.arkiv.DokumentType;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -86,13 +86,14 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
 
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         LocalDate vedtaksdato = behandlingVedtakRepository.hentBehandlingVedtakFraRevurderingensOriginaleBehandling(behandling).getVedtaksdato();
-        List<DokumentType> mottatteDokumentTypeIder = mottatteDokumentRepository.hentMottatteDokumentVedleggPåBehandlingId(behandlingId)
-            .stream().map(MottattDokument::getDokumentType).collect(toList());
         LocalDate sammenligningsdato = søknad.map(SøknadEntitet::getSøknadsdato).map(vedtaksdato::isAfter).orElse(Boolean.FALSE) ? søknad.get().getSøknadsdato()
             : vedtaksdato;
 
-        Set<DokumentType> arkivDokumentTypeIds = dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.getSaksnummer(), sammenligningsdato,
-            mottatteDokumentTypeIder);
+        Set<DokumentTypeId> arkivDokumentTypeIds = new HashSet<>(dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.getSaksnummer(), sammenligningsdato));
+        mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.getFagsakId()).stream()
+            .filter(m -> !m.getMottattDato().isBefore(sammenligningsdato))
+            .map(MottattDokument::getDokumentType)
+            .forEach(arkivDokumentTypeIds::add);
 
         final List<ManglendeVedlegg> manglendeVedlegg = identifiserManglendeVedlegg(søknad, arkivDokumentTypeIds);
         Optional<OppgittFordelingEntitet> oppgittFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
@@ -101,14 +102,14 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
         manglendeVedlegg.addAll(manglendeVedleggUtsettelse);
 
         if (!manglendeVedlegg.isEmpty()) {
-            LOGGER.info("Behandling {} er ikke komplett - mangler følgende vedlegg til søknad: {}", behandlingId,
+            LOGGER.info("Revurdering {} er ikke komplett - mangler følgende vedlegg til søknad: {}", behandlingId,
                 lagDokumentTypeString(manglendeVedlegg)); // NOSONAR //$NON-NLS-1$
         }
         return manglendeVedlegg;
     }
 
     private List<ManglendeVedlegg> identifiserManglendeVedleggSomFølgerAvUtsettelse(Optional<OppgittFordelingEntitet> oppgittFordeling,
-                                                                                    Set<DokumentType> dokumentTypeIdSet) {
+                                                                                    Set<DokumentTypeId> dokumentTypeIdSet) {
         if (!oppgittFordeling.isPresent()) {
             return emptyList();
         }

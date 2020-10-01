@@ -9,7 +9,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import no.nav.foreldrepenger.domene.vedtak.innsyn.VedtakXMLTilHTMLTransformator;
 import no.nav.vedtak.exception.TekniskException;
 
 public class VedtakXMLTilHTMLTransformatorTest {

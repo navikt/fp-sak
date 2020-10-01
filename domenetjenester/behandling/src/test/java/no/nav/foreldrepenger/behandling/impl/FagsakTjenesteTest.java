@@ -7,14 +7,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
@@ -31,63 +27,57 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.vedtak.felles.testutilities.Whitebox;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-@SuppressWarnings("deprecation")
-public class FagsakTjenesteTest {
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FagsakTjenesteTest extends EntityManagerAwareTest {
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private Repository repository = repoRule.getRepository();
     private FagsakTjeneste tjeneste;
     private BrukerTjeneste brukerTjeneste;
 
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final PersonopplysningRepository personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-
-    @Mock
-    private SøknadRepository søknadRepository;
+    private BehandlingRepository behandlingRepository;
+    private PersonopplysningRepository personopplysningRepository;
 
     private Fagsak fagsak;
     private Personinfo personinfo;
+    private Repository repository;
 
     private final AktørId forelderAktørId = AktørId.dummy();
     private LocalDate forelderFødselsdato = LocalDate.of(1990, JANUARY, 1);
 
-    @Before
+    @BeforeEach
     public void oppsett() {
-        tjeneste = new FagsakTjeneste(new BehandlingRepositoryProvider(entityManager), null);
+        repository = new Repository(getEntityManager());
+        behandlingRepository = new BehandlingRepository(getEntityManager());
+        personopplysningRepository = new PersonopplysningRepository(getEntityManager());
+        tjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
+                new SøknadRepository(getEntityManager(), behandlingRepository), null);
 
-        brukerTjeneste = new BrukerTjeneste(new NavBrukerRepository(entityManager));
+        brukerTjeneste = new BrukerTjeneste(new NavBrukerRepository(getEntityManager()));
 
         personinfo = new Personinfo.Builder()
-            .medAktørId(forelderAktørId)
-            .medPersonIdent(new PersonIdent("12345678901"))
-            .medNavn("Kari Nordmann")
-            .medFødselsdato(forelderFødselsdato)
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medForetrukketSpråk(Språkkode.NB)
-            .build();
+                .medAktørId(forelderAktørId)
+                .medPersonIdent(new PersonIdent("12345678901"))
+                .medNavn("Kari Nordmann")
+                .medFødselsdato(forelderFødselsdato)
+                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
+                .medForetrukketSpråk(Språkkode.NB)
+                .build();
 
-        Fagsak fagsak = lagNyFagsak(personinfo);
-
-        this.fagsak  = fagsak;
     }
 
     private Fagsak lagNyFagsak(Personinfo personinfo) {
@@ -99,7 +89,7 @@ public class FagsakTjenesteTest {
 
     @Test
     public void skal_oppdatere_fagsakrelasjon_med_barn_og_endret_kjønn() {
-
+        fagsak = lagNyFagsak(personinfo);
         LocalDate barnsFødselsdato = LocalDate.of(2017, JANUARY, 1);
         AktørId barnAktørId = AktørId.dummy();
 
@@ -109,39 +99,40 @@ public class FagsakTjenesteTest {
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
-        // TODO opplegg for å opprette PersonInformasjon og PersonopplysningerAggregat på en enklere måte
+        // TODO opplegg for å opprette PersonInformasjon og PersonopplysningerAggregat
+        // på en enklere måte
         Long behandlingId = behandling.getId();
         final PersonInformasjonBuilder medBarnOgOppdatertKjønn = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
         medBarnOgOppdatertKjønn
-            .leggTil(
-                medBarnOgOppdatertKjønn.getPersonopplysningBuilder(barnAktørId)
-                    .medKjønn(MANN)
-                    .medNavn("Baby Nordmann")
-                    .medFødselsdato(barnsFødselsdato)
-                    .medSivilstand(SivilstandType.UGIFT)
-                    .medRegion(Region.NORDEN))
-            .leggTil(
-                medBarnOgOppdatertKjønn.getPersonopplysningBuilder(forelderAktørId)
-                    .medKjønn(MANN)
-                    .medSivilstand(SivilstandType.UGIFT)
-                    .medFødselsdato(forelderFødselsdato)
-                    .medRegion(Region.NORDEN)
-                    .medNavn("Kari Nordmann"))
-            .leggTil(
-                medBarnOgOppdatertKjønn
-                    .getRelasjonBuilder(forelderAktørId, barnAktørId, RelasjonsRolleType.BARN)
-                    .harSammeBosted(true))
-            .leggTil(
-                medBarnOgOppdatertKjønn
-                    .getRelasjonBuilder(barnAktørId, forelderAktørId, RelasjonsRolleType.FARA)
-                    .harSammeBosted(true));
+                .leggTil(
+                        medBarnOgOppdatertKjønn.getPersonopplysningBuilder(barnAktørId)
+                                .medKjønn(MANN)
+                                .medNavn("Baby Nordmann")
+                                .medFødselsdato(barnsFødselsdato)
+                                .medSivilstand(SivilstandType.UGIFT)
+                                .medRegion(Region.NORDEN))
+                .leggTil(
+                        medBarnOgOppdatertKjønn.getPersonopplysningBuilder(forelderAktørId)
+                                .medKjønn(MANN)
+                                .medSivilstand(SivilstandType.UGIFT)
+                                .medFødselsdato(forelderFødselsdato)
+                                .medRegion(Region.NORDEN)
+                                .medNavn("Kari Nordmann"))
+                .leggTil(
+                        medBarnOgOppdatertKjønn
+                                .getRelasjonBuilder(forelderAktørId, barnAktørId, RelasjonsRolleType.BARN)
+                                .harSammeBosted(true))
+                .leggTil(
+                        medBarnOgOppdatertKjønn
+                                .getRelasjonBuilder(barnAktørId, forelderAktørId, RelasjonsRolleType.FARA)
+                                .harSammeBosted(true));
 
         Whitebox.setInternalState(fagsak, "fagsakStatus", FagsakStatus.LØPENDE); // dirty, men eksponerer ikke status nå
         personopplysningRepository.lagre(behandlingId, medBarnOgOppdatertKjønn);
         final PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
         PersonopplysningerAggregat personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlag,
-            forelderAktørId, DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()));
+                forelderAktørId, DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()));
 
         // Act
         tjeneste.oppdaterFagsak(behandling, personopplysningerAggregat, personopplysningerAggregat.getBarna());
@@ -155,14 +146,16 @@ public class FagsakTjenesteTest {
     @Test
     public void opprettFlereFagsakerSammeBruker() throws Exception {
         // Opprett en fagsak i systemet
+        fagsak = lagNyFagsak(personinfo);
         Whitebox.setInternalState(fagsak, "fagsakStatus", FagsakStatus.LØPENDE); // dirty, men eksponerer ikke status nå
 
-        // Ifølgeregler i mottak skal vi opprette en nyTerminbekreftelse sak hvis vi ikke har sak nyere enn 10 mnd:
+        // Ifølgeregler i mottak skal vi opprette en nyTerminbekreftelse sak hvis vi
+        // ikke har sak nyere enn 10 mnd:
         NavBruker søker = brukerTjeneste.hentEllerOpprettFraAktorId(personinfo);
         Fagsak fagsakNy = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, søker);
         tjeneste.opprettFagsak(fagsakNy);
         assertThat(fagsak.getNavBruker().getId()).as("Forventer at fagsakene peker til samme bruker")
-            .isEqualTo(fagsakNy.getNavBruker().getId());
+                .isEqualTo(fagsakNy.getNavBruker().getId());
     }
 
 }

@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.domene.vedtak.observer;
 
+import org.apache.kafka.common.KafkaException;
+import org.apache.kafka.common.errors.RetriableException;
+
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.IntegrasjonFeil;
 import no.nav.vedtak.feil.deklarasjon.ManglerTilgangFeil;
-import org.apache.kafka.common.KafkaException;
-import org.apache.kafka.common.errors.RetriableException;
 
 public interface HendelseKafkaProducerFeil extends DeklarerteFeil {
 

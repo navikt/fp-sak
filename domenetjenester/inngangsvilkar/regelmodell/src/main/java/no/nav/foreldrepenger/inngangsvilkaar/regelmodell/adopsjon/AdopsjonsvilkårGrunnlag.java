@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.Kjoenn;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
-import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.Kjoenn;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
+import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 
 @RuleDocumentationGrunnlag
 public class AdopsjonsvilkårGrunnlag implements VilkårGrunnlag {

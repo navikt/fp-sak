@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
@@ -70,48 +70,49 @@ public class MedlemDtoTjenesteTest {
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.person(AktørId.dummy());
 
         PersonInformasjon søker = scenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(
-                Personopplysning.builder()
-                    .aktørId(søkerAktørId)
-                    .navn(navn))
-            .build();
+                .leggTilPersonopplysninger(
+                        Personopplysning.builder()
+                                .aktørId(søkerAktørId)
+                                .navn(navn))
+                .build();
 
         scenario.medRegisterOpplysninger(søker);
         scenario.leggTilMedlemskapPeriode(new MedlemskapPerioderBuilder().medMedlemskapType(MedlemskapType.ENDELIG).build());
 
         scenario.medMedlemskap()
-            .medErEosBorger(true)
-            .medBosattVurdering(true)
-            .medOppholdsrettVurdering(true)
-            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
-            .medLovligOppholdVurdering(true);
+                .medErEosBorger(true)
+                .medBosattVurdering(true)
+                .medOppholdsrettVurdering(true)
+                .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
+                .medLovligOppholdVurdering(true);
 
         Behandling behandling = scenario.lagMocked();
         final BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         InntektspostBuilder builder = InntektspostBuilder.ny();
 
         InntektspostBuilder inntektspost = builder
-            .medBeløp(BigDecimal.TEN)
-            .medPeriode(LocalDate.now().minusMonths(1), LocalDate.now())
-            .medInntektspostType(InntektspostType.UDEFINERT);
+                .medBeløp(BigDecimal.TEN)
+                .medPeriode(LocalDate.now().minusMonths(1), LocalDate.now())
+                .medInntektspostType(InntektspostType.UDEFINERT);
 
         lagreOpptjening(søkerAktørId, inntektspost, arbeidsgiver);
 
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
 
         PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(),
-            null,
-            mock(VergeRepository.class),
-            mock(NavBrukerRepository.class));
+                null,
+                mock(VergeRepository.class),
+                mock(NavBrukerRepository.class));
         MedlemTjeneste medlemTjenesteMock = mock(MedlemTjeneste.class);
-        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any())).thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
+        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any()))
+                .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
 
         ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
         when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(null, navn, LocalDate.of(2018, 1, 1)));
 
         MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, arbeidsgiverTjeneste, skjæringstidspunktTjeneste, iayTjeneste,
-            medlemTjenesteMock, personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
+                medlemTjenesteMock, personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> {
@@ -134,52 +135,53 @@ public class MedlemDtoTjenesteTest {
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.person(AktørId.dummy());
 
         PersonInformasjon søker = scenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(
-                Personopplysning.builder()
-                    .aktørId(søkerAktørId)
-                    .navn(navn))
-            .build();
+                .leggTilPersonopplysninger(
+                        Personopplysning.builder()
+                                .aktørId(søkerAktørId)
+                                .navn(navn))
+                .build();
 
         scenario.medRegisterOpplysninger(søker);
         scenario.leggTilMedlemskapPeriode(new MedlemskapPerioderBuilder().medMedlemskapType(MedlemskapType.ENDELIG).build());
 
         scenario.medMedlemskap()
-            .medErEosBorger(true)
-            .medBosattVurdering(true)
-            .medOppholdsrettVurdering(true)
-            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
-            .medLovligOppholdVurdering(true);
+                .medErEosBorger(true)
+                .medBosattVurdering(true)
+                .medOppholdsrettVurdering(true)
+                .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
+                .medLovligOppholdVurdering(true);
 
         Behandling behandling = scenario.lagMocked();
         final BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         InntektspostBuilder builder = InntektspostBuilder.ny();
 
         InntektspostBuilder inntektspost = builder
-            .medBeløp(BigDecimal.TEN)
-            .medPeriode(LocalDate.now().minusMonths(1), LocalDate.now())
-            .medInntektspostType(InntektspostType.UDEFINERT);
+                .medBeløp(BigDecimal.TEN)
+                .medPeriode(LocalDate.now().minusMonths(1), LocalDate.now())
+                .medInntektspostType(InntektspostType.UDEFINERT);
 
         lagreOpptjening(søkerAktørId, inntektspost, arbeidsgiver);
 
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
 
         PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(),
-            null,
-            mock(VergeRepository.class),
-            mock(NavBrukerRepository.class));
+                null,
+                mock(VergeRepository.class),
+                mock(NavBrukerRepository.class));
         MedlemTjeneste medlemTjenesteMock = mock(MedlemTjeneste.class);
         LocalDate endringFraDato = LocalDate.now().minusDays(5);
         var endringsresultatPersonopplysningerForMedlemskap = EndringsresultatPersonopplysningerForMedlemskap.builder()
-            .leggTilEndring(EndringsresultatPersonopplysningerForMedlemskap.EndretAttributt.Adresse,
-                DatoIntervallEntitet.fraOgMed(endringFraDato), "", "2").build();
+                .leggTilEndring(EndringsresultatPersonopplysningerForMedlemskap.EndretAttributt.Adresse,
+                        DatoIntervallEntitet.fraOgMed(endringFraDato), "", "2")
+                .build();
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any())).thenReturn(endringsresultatPersonopplysningerForMedlemskap);
 
         ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
         when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(null, navn, LocalDate.of(2018, 1, 1)));
 
         MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, arbeidsgiverTjeneste, skjæringstidspunktTjeneste, iayTjeneste,
-            medlemTjenesteMock, personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
+                medlemTjenesteMock, personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt.get().getFom()).isEqualTo(endringFraDato);
@@ -197,57 +199,59 @@ public class MedlemDtoTjenesteTest {
         scenario.leggTilMedlemskapPeriode(new MedlemskapPerioderBuilder().medMedlemskapType(MedlemskapType.ENDELIG).build());
 
         PersonInformasjon personInformasjon = scenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(
-                Personopplysning.builder()
-                    .aktørId(aktørIdSøker)
-                    .navn(navn))
-            .leggTilPersonopplysninger(
-                Personopplysning.builder()
-                    .aktørId(aktørIdAnnenPart)
-                    .navn(annenPart))
-            .build();
+                .leggTilPersonopplysninger(
+                        Personopplysning.builder()
+                                .aktørId(aktørIdSøker)
+                                .navn(navn))
+                .leggTilPersonopplysninger(
+                        Personopplysning.builder()
+                                .aktørId(aktørIdAnnenPart)
+                                .navn(annenPart))
+                .build();
 
         scenario.medRegisterOpplysninger(personInformasjon);
 
         scenario.medMedlemskap()
-            .medErEosBorger(true)
-            .medBosattVurdering(true)
-            .medOppholdsrettVurdering(true)
-            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
-            .medLovligOppholdVurdering(true);
+                .medErEosBorger(true)
+                .medBosattVurdering(true)
+                .medOppholdsrettVurdering(true)
+                .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
+                .medLovligOppholdVurdering(true);
 
         Behandling behandling = scenario.lagMocked();
         BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         InntektspostBuilder inntektspost = InntektspostBuilder.ny()
-            .medBeløp(BigDecimal.TEN)
-            .medPeriode(LocalDate.now().minusMonths(2), LocalDate.now().minusMonths(1))
-            .medInntektspostType(InntektspostType.UDEFINERT);
+                .medBeløp(BigDecimal.TEN)
+                .medPeriode(LocalDate.now().minusMonths(2), LocalDate.now().minusMonths(1))
+                .medInntektspostType(InntektspostType.UDEFINERT);
 
         lagreOpptjening(aktørIdAnnenPart, inntektspost, Arbeidsgiver.virksomhet(orgnr));
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
 
         Personinfo person = new Personinfo.Builder()
-            .medNavn(annenPart)
-            .medAktørId(AktørId.dummy())
-            .medPersonIdent(new PersonIdent("12312411252"))
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medFødselsdato(LocalDate.now())
-            .build();
+                .medNavn(annenPart)
+                .medAktørId(AktørId.dummy())
+                .medPersonIdent(new PersonIdent("12312411252"))
+                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
+                .medFødselsdato(LocalDate.now())
+                .build();
 
         PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(),
-            null,
-            mock(VergeRepository.class),
-            mock(NavBrukerRepository.class));
+                null,
+                mock(VergeRepository.class),
+                mock(NavBrukerRepository.class));
 
         PersonIdentTjeneste tpsTjeneste = mock(PersonIdentTjeneste.class);
         when(tpsTjeneste.hentBrukerForAktør(AktørId.dummy())).thenReturn(Optional.ofNullable(person));
         ArbeidsgiverTjeneste tjeneste = new ArbeidsgiverTjeneste(tpsTjeneste, mock(VirksomhetTjeneste.class));
 
         MedlemTjeneste medlemTjenesteMock = mock(MedlemTjeneste.class);
-        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any())).thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
-        MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, tjeneste, skjæringstidspunktTjeneste, iayTjeneste, medlemTjenesteMock,
-            personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
+        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any()))
+                .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
+        MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, tjeneste, skjæringstidspunktTjeneste, iayTjeneste,
+                medlemTjenesteMock,
+                personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> {
@@ -258,30 +262,31 @@ public class MedlemDtoTjenesteTest {
 
     private void lagreOpptjening(AktørId aktørId, InntektspostBuilder inntektspost, Arbeidsgiver arbeidsgiver) {
         InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
-            VersjonType.REGISTER);
+                VersjonType.REGISTER);
 
         final YrkesaktivitetBuilder oppdatere = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         Yrkesaktivitet yrkesaktivitet = oppdatere
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(arbeidsgiver)
-            .build();
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .medArbeidsgiver(arbeidsgiver)
+                .build();
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder builder = inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(aktørId);
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeid = builder
-            .leggTilYrkesaktivitet(oppdatere);
+                .leggTilYrkesaktivitet(oppdatere);
 
         InntektBuilder inntekt = InntektBuilder.oppdatere(Optional.empty())
-            .leggTilInntektspost(inntektspost)
-            .medArbeidsgiver(yrkesaktivitet.getArbeidsgiver())
-            .medInntektsKilde(InntektsKilde.INNTEKT_OPPTJENING);
+                .leggTilInntektspost(inntektspost)
+                .medArbeidsgiver(yrkesaktivitet.getArbeidsgiver())
+                .medInntektsKilde(InntektsKilde.INNTEKT_OPPTJENING);
 
         InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder aktørInntekt = inntektArbeidYtelseAggregatBuilder.getAktørInntektBuilder(aktørId)
-            .leggTilInntekt(inntekt);
+                .leggTilInntekt(inntekt);
 
         inntektArbeidYtelseAggregatBuilder.leggTilAktørInntekt(aktørInntekt);
         inntektArbeidYtelseAggregatBuilder.leggTilAktørArbeid(aktørArbeid);
 
-        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt().medData(inntektArbeidYtelseAggregatBuilder).build();
+        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt()
+                .medData(inntektArbeidYtelseAggregatBuilder).build();
 
         when(iayTjeneste.finnGrunnlag(any())).thenReturn(Optional.of(inntektArbeidYtelseGrunnlag));
     }

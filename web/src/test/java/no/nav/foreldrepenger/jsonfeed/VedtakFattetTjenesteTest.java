@@ -11,10 +11,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
@@ -25,6 +27,7 @@ import no.nav.foreldrepenger.jsonfeed.dto.VedtakDto;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Meldingstype;
 
+@ExtendWith(MockitoExtension.class)
 public class VedtakFattetTjenesteTest {
 
     private static final String PAYLOAD = "{}";
@@ -33,11 +36,11 @@ public class VedtakFattetTjenesteTest {
     private static final long MAX_ANTALL = 2L;
     private static final long SIST_LEST_SEKVENSID = 1L;
     private VedtakFattetTjeneste tjeneste;
+    @Mock
     private FeedRepository feedRepository;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        feedRepository = Mockito.mock(FeedRepository.class);
         tjeneste = new VedtakFattetTjeneste(feedRepository);
     }
 
@@ -89,7 +92,8 @@ public class VedtakFattetTjenesteTest {
     public void hent_hendelser_skal_returnere_at_det_er_flere_hendelser_å_lese() {
         FpVedtakUtgåendeHendelse hendelse = mockFpHendelse(SIST_LEST_SEKVENSID + 1);
         FpVedtakUtgåendeHendelse hendelse2 = mockFpHendelse(SIST_LEST_SEKVENSID + 2);
-        when(feedRepository.hentUtgåendeHendelser(eq(FpVedtakUtgåendeHendelse.class), any(HendelseCriteria.class))).thenReturn(List.of(hendelse, hendelse2));
+        when(feedRepository.hentUtgåendeHendelser(eq(FpVedtakUtgåendeHendelse.class), any(HendelseCriteria.class)))
+                .thenReturn(List.of(hendelse, hendelse2));
 
         VedtakDto dto = tjeneste.hentFpVedtak(SIST_LEST_SEKVENSID, 1L, HENDELSE_TYPE, Optional.of(AKTØR_ID));
 

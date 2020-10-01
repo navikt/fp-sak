@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Rule;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
@@ -22,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.dto.AndreYtelserDto;
@@ -41,23 +38,21 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.fp.TidsromPermisjonD
 
 public class SøknadMapperUtil {
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
     public static EgenVirksomhetDto opprettEgenVirksomhetDto() {
         EgenVirksomhetDto egenVirksomhetDto = new EgenVirksomhetDto();
         egenVirksomhetDto.setVirksomheter(Collections.singletonList(opprettNorskVirksomhetMedEndringUtenRegnskapsfører()));
         return egenVirksomhetDto;
     }
 
-    public static void oppdaterDtoForFødsel(ManuellRegistreringDto dto, FamilieHendelseType tema, boolean erBarnetFødt, LocalDate fødselssdato, int antallBarn) {
+    public static void oppdaterDtoForFødsel(ManuellRegistreringDto dto, boolean erBarnetFødt, LocalDate fødselssdato,
+            int antallBarn) {
+        dto.setTema(FamilieHendelseType.FØDSEL);
         dto.setSoker(ForeldreType.MOR);
         dto.setMottattDato(LocalDate.now());
         dto.setFoedselsDato(Collections.singletonList(fødselssdato));
-        dto.setTema(tema);
         dto.setAntallBarn(antallBarn);
         dto.setErBarnetFodt(erBarnetFødt);
     }
-
 
     public static UtsettelseDto opprettUtsettelseDto(LocalDate fraDato, LocalDate tilDato, UttakPeriodeType gradering, boolean erArbeidstaker) {
         UtsettelseDto dto = new UtsettelseDto();
@@ -69,7 +64,8 @@ public class SøknadMapperUtil {
         return dto;
     }
 
-    public static PermisjonPeriodeDto opprettPermisjonPeriodeDto(LocalDate fraDato, LocalDate tilDato, UttakPeriodeType uttakPeriodeType, MorsAktivitet morsAktivitet) {
+    public static PermisjonPeriodeDto opprettPermisjonPeriodeDto(LocalDate fraDato, LocalDate tilDato, UttakPeriodeType uttakPeriodeType,
+            MorsAktivitet morsAktivitet) {
         PermisjonPeriodeDto dto = new PermisjonPeriodeDto();
         dto.setPeriodeFom(fraDato);
         dto.setPeriodeTom(tilDato);
@@ -83,19 +79,20 @@ public class SøknadMapperUtil {
         LocalDate fødselsdato = LocalDate.of(1990, 1, 1);
         String fnr = new FiktiveFnr().nesteKvinneFnr();
         Personinfo personinfo = new Personinfo.Builder()
-            .medAktørId(aktørId)
-            .medPersonIdent(new PersonIdent(fnr))
-            .medNavn("Fornavn Etternavn")
-            .medFødselsdato(fødselsdato)
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medForetrukketSpråk(Språkkode.NB)
-            .medLandkode(Landkoder.NOR)
-            .build();
+                .medAktørId(aktørId)
+                .medPersonIdent(new PersonIdent(fnr))
+                .medNavn("Fornavn Etternavn")
+                .medFødselsdato(fødselsdato)
+                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
+                .medForetrukketSpråk(Språkkode.NB)
+                .medLandkode(Landkoder.NOR)
+                .build();
         return NavBruker.opprettNy(personinfo);
 
     }
 
-    static ManuellRegistreringEngangsstonadDto opprettAdosjonDto(FamilieHendelseType tema, LocalDate omsorgsovertakelsesdato, LocalDate fødselssdato, int antallBarn, LocalDate ankomstdato) {
+    static ManuellRegistreringEngangsstonadDto opprettAdosjonDto(FamilieHendelseType tema, LocalDate omsorgsovertakelsesdato, LocalDate fødselssdato,
+            int antallBarn, LocalDate ankomstdato) {
         ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         manuellRegistreringEngangsstonadDto.setTema(tema);
         manuellRegistreringEngangsstonadDto.setSoker(ForeldreType.MOR);
@@ -110,7 +107,8 @@ public class SøknadMapperUtil {
         return manuellRegistreringEngangsstonadDto;
     }
 
-    static ManuellRegistreringEngangsstonadDto opprettOmsorgDto(FamilieHendelseType tema, LocalDate omsorgsovertakelsesdato, RettigheterDto rettighet, int antallBarn, LocalDate fødselsdato) {
+    static ManuellRegistreringEngangsstonadDto opprettOmsorgDto(FamilieHendelseType tema, LocalDate omsorgsovertakelsesdato, RettigheterDto rettighet,
+            int antallBarn, LocalDate fødselsdato) {
         ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         manuellRegistreringEngangsstonadDto.setSoker(ForeldreType.MOR);
         manuellRegistreringEngangsstonadDto.setRettigheter(rettighet);
@@ -125,7 +123,8 @@ public class SøknadMapperUtil {
         return manuellRegistreringEngangsstonadDto;
     }
 
-    public static AnnenForelderDto opprettAnnenForelderDto(Boolean kanIkkeOppgiAnnenForelder, Boolean harAleneomsorg, Boolean harRettPåForeldrepenger) {
+    public static AnnenForelderDto opprettAnnenForelderDto(Boolean kanIkkeOppgiAnnenForelder, Boolean harAleneomsorg,
+            Boolean harRettPåForeldrepenger) {
         AnnenForelderDto annenForelderDto = new AnnenForelderDto();
         if (kanIkkeOppgiAnnenForelder) {
             annenForelderDto.setKanIkkeOppgiAnnenForelder(kanIkkeOppgiAnnenForelder);
@@ -137,8 +136,8 @@ public class SøknadMapperUtil {
         return annenForelderDto;
     }
 
-
-    public static GraderingDto opprettGraderingDto(LocalDate fraDato, LocalDate tilDato, BigDecimal prosentandel, UttakPeriodeType uttakPeriodeType, boolean erArbeidstaker, boolean erFrilanser, boolean erSelvstNæringsdrivende, String orgNr) {
+    public static GraderingDto opprettGraderingDto(LocalDate fraDato, LocalDate tilDato, BigDecimal prosentandel, UttakPeriodeType uttakPeriodeType,
+            boolean erArbeidstaker, boolean erFrilanser, boolean erSelvstNæringsdrivende, String orgNr) {
         GraderingDto dto = new GraderingDto();
         dto.setPeriodeFom(fraDato);
         dto.setPeriodeTom(tilDato);
@@ -164,35 +163,35 @@ public class SøknadMapperUtil {
     static VirksomhetDto opprettNorskVirksomhetMedEndringUtenRegnskapsfører() {
         NaringsvirksomhetTypeDto naringsvirksomhetTypeDto = opprettNaringsvirksomhetTypeAnnenNæringsvirksomhet();
         return opprettVirksomhetDto("minarbeidsplass as",
-            true, KUNSTIG_ORG,
-            null,
-            naringsvirksomhetTypeDto,
-            true,
-            true, LocalDate.now().minusMonths(3), "Ny Lavvo",
-            false, null, null,
-            false, null);
+                true, KUNSTIG_ORG,
+                null,
+                naringsvirksomhetTypeDto,
+                true,
+                true, LocalDate.now().minusMonths(3), "Ny Lavvo",
+                false, null, null,
+                false, null);
     }
 
     static VirksomhetDto opprettUtenlandskVirksomhetMedEndringUtenRegnskapsfører() {
         NaringsvirksomhetTypeDto naringsvirksomhetTypeDto = opprettNaringsvirksomhetTypeAnnenNæringsvirksomhet();
         return opprettVirksomhetDto("utenlandsk org as",
-            false, KUNSTIG_ORG + "123",
-            "ENG",
-            naringsvirksomhetTypeDto,
-            true,
-            true, LocalDate.now().minusMonths(3), "Ny Lavvo",
-            false, null, null,
-            false, LocalDate.now());
+                false, KUNSTIG_ORG + "123",
+                "ENG",
+                naringsvirksomhetTypeDto,
+                true,
+                true, LocalDate.now().minusMonths(3), "Ny Lavvo",
+                false, null, null,
+                false, LocalDate.now());
     }
 
     static VirksomhetDto opprettVirksomhetDto(String virksomhetsNavn,
-                                               boolean virksomhetRegistrertINorge, String orgNr,
-                                               String landJobberFra,
-                                               NaringsvirksomhetTypeDto virksomhetstype,
-                                               boolean nyoppstartet,
-                                               boolean varigEndring, LocalDate endretDato, String beskrivelseAvEndring,
-                                               boolean harRegnskapsfører, String navnRegnskapsfører, String tlfRegnskapsfører,
-                                               boolean tilknyttetNaringen, LocalDate utenlandskVirksomhetStartDato) {
+            boolean virksomhetRegistrertINorge, String orgNr,
+            String landJobberFra,
+            NaringsvirksomhetTypeDto virksomhetstype,
+            boolean nyoppstartet,
+            boolean varigEndring, LocalDate endretDato, String beskrivelseAvEndring,
+            boolean harRegnskapsfører, String navnRegnskapsfører, String tlfRegnskapsfører,
+            boolean tilknyttetNaringen, LocalDate utenlandskVirksomhetStartDato) {
         VirksomhetDto virksomhetDto = new VirksomhetDto();
         virksomhetDto.setBeskrivelseAvEndring(beskrivelseAvEndring);
         virksomhetDto.setVarigEndringGjeldendeFom(endretDato);
@@ -227,6 +226,7 @@ public class SøknadMapperUtil {
         return result;
 
     }
+
     static AndreYtelserDto opprettAndreYtelserDto(ArbeidType ytelseType, LocalDate periodeFom, LocalDate periodeTom) {
         AndreYtelserDto result = new AndreYtelserDto();
         result.setYtelseType(ytelseType);

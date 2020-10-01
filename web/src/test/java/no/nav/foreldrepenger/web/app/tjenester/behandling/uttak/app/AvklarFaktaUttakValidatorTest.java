@@ -12,15 +12,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.KontrollerFaktaPeriode;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaPeriodeLagreDto;
 
 public class AvklarFaktaUttakValidatorTest {
@@ -44,25 +44,27 @@ public class AvklarFaktaUttakValidatorTest {
         dto.setBekreftedePerioder(List.of(bekreftetOppgittPeriodeDto_1, bekreftetOppgittPeriodeDto_2));
 
         Optional<FeltFeilDto> feltFeil = AvklarFaktaUttakValidator.validerSøknadsperioder(dto.getBekreftedePerioder(),
-            Optional.of(bekreftetOppgittPeriodeDto_1.getBekreftetPeriode().getFom()));
+                Optional.of(bekreftetOppgittPeriodeDto_1.getBekreftetPeriode().getFom()));
         assertThat(feltFeil).isPresent();
         assertThat(feltFeil.get().getMelding()).isEqualTo(OVERLAPPENDE_PERIODER);
     }
 
     @Test
     public void skal_validere_arbeidsgiver_ved_arbeidstaker_og_gradering() {
-        OppgittPeriodeEntitet bekreftet = OppgittPeriodeBuilder.ny().medPeriode(DATO.minusDays(20), DATO).medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-            .medArbeidsgiver(null)
-            .medErArbeidstaker(true)
-            .medArbeidsprosent(BigDecimal.TEN)
-            .build();
+        OppgittPeriodeEntitet bekreftet = OppgittPeriodeBuilder.ny().medPeriode(DATO.minusDays(20), DATO)
+                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medArbeidsgiver(null)
+                .medErArbeidstaker(true)
+                .medArbeidsprosent(BigDecimal.TEN)
+                .build();
         BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto = new BekreftetOppgittPeriodeDto();
         bekreftetOppgittPeriodeDto.setBekreftetPeriode(new KontrollerFaktaPeriodeLagreDto.Builder(KontrollerFaktaPeriode.ubekreftet(bekreftet), null)
-            .build());
+                .build());
         FaktaUttakDto dto = new FaktaUttakDto.FaktaUttakPerioderDto();
         dto.setBekreftedePerioder(Collections.singletonList(bekreftetOppgittPeriodeDto));
 
-        Optional<FeltFeilDto> feltFeil = AvklarFaktaUttakValidator.validerSøknadsperioder(dto.getBekreftedePerioder(), Optional.of(bekreftet.getFom()));
+        Optional<FeltFeilDto> feltFeil = AvklarFaktaUttakValidator.validerSøknadsperioder(dto.getBekreftedePerioder(),
+                Optional.of(bekreftet.getFom()));
         assertThat(feltFeil.get().getMelding()).isEqualTo(ARBEIDSGIVER_GRADERING);
     }
 
@@ -73,7 +75,7 @@ public class AvklarFaktaUttakValidatorTest {
         dto.setBekreftedePerioder(List.of(periode));
 
         Optional<FeltFeilDto> feltFeil = AvklarFaktaUttakValidator.validerSøknadsperioder(dto.getBekreftedePerioder(),
-            Optional.of(periode.getBekreftetPeriode().getFom().plusDays(1)));
+                Optional.of(periode.getBekreftetPeriode().getFom().plusDays(1)));
         assertThat(feltFeil).isPresent();
         assertThat(feltFeil.get().getMelding()).isEqualTo(PERIODE_FØR_FØRSTE_UTTAKSDATO);
     }
@@ -85,18 +87,19 @@ public class AvklarFaktaUttakValidatorTest {
         dto.setBekreftedePerioder(List.of(periode));
 
         Optional<FeltFeilDto> feltFeil = AvklarFaktaUttakValidator.validerSøknadsperioder(dto.getBekreftedePerioder(),
-            Optional.of(periode.getBekreftetPeriode().getFom()));
+                Optional.of(periode.getBekreftetPeriode().getFom()));
         assertThat(feltFeil).isEmpty();
     }
 
     private BekreftetOppgittPeriodeDto getBekreftetUttakPeriodeDto(LocalDate fom, LocalDate tom) {
         BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto = new BekreftetOppgittPeriodeDto();
         OppgittPeriodeEntitet bekreftetperiode = OppgittPeriodeBuilder.ny()
-            .medPeriode(fom, tom)
-            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-            .build();
-        bekreftetOppgittPeriodeDto.setBekreftetPeriode(new KontrollerFaktaPeriodeLagreDto.Builder(KontrollerFaktaPeriode.ubekreftet(bekreftetperiode), null)
-            .build());
+                .medPeriode(fom, tom)
+                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .build();
+        bekreftetOppgittPeriodeDto
+                .setBekreftetPeriode(new KontrollerFaktaPeriodeLagreDto.Builder(KontrollerFaktaPeriode.ubekreftet(bekreftetperiode), null)
+                        .build());
         return bekreftetOppgittPeriodeDto;
     }
 

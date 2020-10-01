@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.GraderingDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtsettelseDto;
 
 public class ManuellRegistreringForeldrepengerValidatorTest {
-
 
     @Test
     public void skal_validere_dekningsgrad() {
@@ -130,7 +129,6 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
         Optional<FeltFeilDto> feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isNotPresent();
     }
-
 
     @Test
     public void skal_validere_utsettelse_dato_satt_til_null() {
@@ -269,7 +267,6 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
         assertThat(feltFeil).isEmpty();
     }
 
-
     private List<PermisjonPeriodeDto> lagGyldigPermisjonPeriode(UttakPeriodeType type) {
         List<PermisjonPeriodeDto> permisjonsPerioder = new ArrayList<>();
         PermisjonPeriodeDto permisjonPeriode1 = new PermisjonPeriodeDto();
@@ -360,6 +357,5 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
 
         return graderingPerioder;
     }
-
 
 }

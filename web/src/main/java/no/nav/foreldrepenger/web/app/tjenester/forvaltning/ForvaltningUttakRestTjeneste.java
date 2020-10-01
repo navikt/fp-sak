@@ -15,9 +15,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 
 @Path("/forvaltningUttak")
 @ApplicationScoped
@@ -32,21 +32,21 @@ public class ForvaltningUttakRestTjeneste {
     }
 
     public ForvaltningUttakRestTjeneste() {
-        //CDI
+        // CDI
     }
 
     @POST
     @Path("/leggTilUttakPåOpphørtFpBehandling")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Legg til uttak på opphørt behandling. Alle periodene avslås.", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(action = CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response leggTilOpphørUttakPåOpphørtFpBehandling(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         long behandlingId = dto.getBehandlingId();
 
         if (!forvaltningUttakTjeneste.erFerdigForeldrepengerBehandlingSomHarFørtTilOpphør(behandlingId)) {
             return Response.status(Response.Status.BAD_REQUEST)
-                .entity("Behandlingen må være type foreldrepenger, avsluttet og ført til oppfør")
-                .build();
+                    .entity("Behandlingen må være type foreldrepenger, avsluttet og ført til oppfør")
+                    .build();
         }
 
         forvaltningUttakTjeneste.lagOpphørtUttaksresultat(behandlingId);
@@ -57,7 +57,7 @@ public class ForvaltningUttakRestTjeneste {
     @Path("/beregn-kontoer")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Beregner kontoer basert på data fra behandlingen. Husk å revurdere begge foreldre", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(action = CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response beregnKontoer(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         long behandlingId = dto.getBehandlingId();
 
@@ -69,9 +69,9 @@ public class ForvaltningUttakRestTjeneste {
     @Path("/endre-annen-forelder-rett")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Endrer resultat av AP om annen forelder har rett", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(action = CREATE, ressurs = BeskyttetRessursResourceAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response endreAnnenForelderRett(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
-                                           @QueryParam(value = "harRett") @Valid Boolean harRett) {
+            @QueryParam(value = "harRett") @Valid Boolean harRett) {
         var behandlingId = dto.getBehandlingId();
 
         forvaltningUttakTjeneste.endreAnnenForelderHarRett(behandlingId, harRett);

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.verge;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -35,7 +35,8 @@ public class VergeRepositoryTest {
     @Rule
     public RepositoryRule repositoryRule = new UnittestRepositoryRule();
 
-    private VergeRepository vergeRepository = new VergeRepository(repositoryRule.getEntityManager(), new BehandlingLåsRepository(repositoryRule.getEntityManager()));
+    private VergeRepository vergeRepository = new VergeRepository(repositoryRule.getEntityManager(),
+            new BehandlingLåsRepository(repositoryRule.getEntityManager()));
     private FagsakRepository fagsakRepository = new FagsakRepository(repositoryRule.getEntityManager());
     private BehandlingRepository behandlingRepository = new BehandlingRepository(repositoryRule.getEntityManager());
 
@@ -49,13 +50,13 @@ public class VergeRepositoryTest {
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         VergeOrganisasjonEntitet vergeOrganisasjon = new VergeOrganisasjonBuilder()
-            .medNavn(VERGE_ORGNAVN)
-            .medOrganisasjonsnummer(ORGANISASJONSNUMMER)
-            .build();
+                .medNavn(VERGE_ORGNAVN)
+                .medOrganisasjonsnummer(ORGANISASJONSNUMMER)
+                .build();
         VergeBuilder vergeBuilder = new VergeBuilder()
-            .medVergeType(VergeType.BARN)
-            .gyldigPeriode(GYLDIG_FOM, GYLDIG_TOM)
-            .medVergeOrganisasjon(vergeOrganisasjon);
+                .medVergeType(VergeType.BARN)
+                .gyldigPeriode(GYLDIG_FOM, GYLDIG_TOM)
+                .medVergeOrganisasjon(vergeOrganisasjon);
 
         // Act
         vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
@@ -87,13 +88,13 @@ public class VergeRepositoryTest {
         behandlingRepository.lagre(nyBehandling, behandlingRepository.taSkriveLås(nyBehandling));
 
         VergeOrganisasjonEntitet vergeOrganisasjon = new VergeOrganisasjonBuilder()
-            .medNavn(VERGE_ORGNAVN)
-            .medOrganisasjonsnummer(ORGANISASJONSNUMMER)
-            .build();
+                .medNavn(VERGE_ORGNAVN)
+                .medOrganisasjonsnummer(ORGANISASJONSNUMMER)
+                .build();
         VergeBuilder vergeBuilder = new VergeBuilder()
-            .medVergeType(VergeType.BARN)
-            .gyldigPeriode(GYLDIG_FOM, GYLDIG_TOM)
-            .medVergeOrganisasjon(vergeOrganisasjon);
+                .medVergeType(VergeType.BARN)
+                .gyldigPeriode(GYLDIG_FOM, GYLDIG_TOM)
+                .medVergeOrganisasjon(vergeOrganisasjon);
         vergeRepository.lagreOgFlush(gammelBehandling.getId(), vergeBuilder);
 
         // Act
@@ -110,14 +111,14 @@ public class VergeRepositoryTest {
 
     private NavBruker opprettBruker() {
         Personinfo personinfo = new Personinfo.Builder()
-            .medNavn("Mindreårig Jente")
-            .medAktørId(AktørId.dummy())
-            .medFødselsdato(LocalDate.now().minusYears(15))
-            .medLandkode(Landkoder.NOR)
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medPersonIdent(new PersonIdent("12345678901"))
-            .medForetrukketSpråk(Språkkode.NB)
-            .build();
+                .medNavn("Mindreårig Jente")
+                .medAktørId(AktørId.dummy())
+                .medFødselsdato(LocalDate.now().minusYears(15))
+                .medLandkode(Landkoder.NOR)
+                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
+                .medPersonIdent(new PersonIdent("12345678901"))
+                .medForetrukketSpråk(Språkkode.NB)
+                .build();
         NavBruker navBruker = NavBruker.opprettNy(personinfo);
         repositoryRule.getRepository().lagre(navBruker);
         return navBruker;

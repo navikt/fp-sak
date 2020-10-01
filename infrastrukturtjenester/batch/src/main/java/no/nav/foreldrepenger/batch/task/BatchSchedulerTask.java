@@ -20,12 +20,15 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 /**
- * Enkel scheduler for dagens situasjon der man kjører batcher mandag-fredag og det er noe variasjon i parametere.
+ * Enkel scheduler for dagens situasjon der man kjører batcher mandag-fredag og
+ * det er noe variasjon i parametere.
  *
- * Kan evt endres slik at BatchSchedulerTask kjører tidlig på døgnet og oppretter dagens batches (hvis ikke tidspunkt passert)
+ * Kan evt endres slik at BatchSchedulerTask kjører tidlig på døgnet og
+ * oppretter dagens batches (hvis ikke tidspunkt passert)
  *
- * Skal man utvide med ukentlige, måndedlige batcher etc bør man se på cron-aktige uttrykk for spesifikasjon av kjøring.
- * FC har implementert et rammeverk på github
+ * Skal man utvide med ukentlige, måndedlige batcher etc bør man se på
+ * cron-aktige uttrykk for spesifikasjon av kjøring. FC har implementert et
+ * rammeverk på github
  */
 @ApplicationScoped
 @ProsessTask(BatchSchedulerTask.TASKTYPE)
@@ -36,40 +39,41 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
 
     private static final String AVSTEMMING = "BVL001";
 
-    // Ved tidsplanlegging: Husk at fødselshendelser prosesseres 06:30-06:59 (de fleste gir automatisk vedtak)  - inntil Leesah/OS
-    // Trege kall til skatt i gjenoppta, fødselshendeler og oppdatering/dagsgamle + omfattende query på infobrev
+    // Ved tidsplanlegging: Husk at fødselshendelser prosesseres 06:30-06:59 (de
+    // fleste gir automatisk vedtak) - inntil Leesah/OS
+    // Trege kall til skatt i gjenoppta, fødselshendeler og oppdatering/dagsgamle +
+    // omfattende query på infobrev
     // Gjenoppta-tasks og oppdatering spres utover 24 min, infobrev 5 min,
 
     // Andre parametere må stå før antallDager= ....
     private static final List<BatchConfig> BATCH_OPPSETT_ANTALL_DAGER = Arrays.asList(
-        new BatchConfig(6, 45, AVSTEMMING, "fagomrade=SVP, antallDager="),
-        new BatchConfig(6, 46, AVSTEMMING, "fagomrade=SVPREF, antallDager="),
-        new BatchConfig(6, 47, AVSTEMMING, "fagomrade=REFUTG, antallDager="),
-        new BatchConfig(6, 48, AVSTEMMING, "fagomrade=FP, antallDager="),
-        new BatchConfig(6, 49, AVSTEMMING, "fagomrade=FPREF, antallDager="),
-        new BatchConfig(7, 3, "BVL008", ANT_DAGER), // Infobrev far - 7min spread
-        new BatchConfig(7, 10, "BVL009", ANT_DAGER) // Infobrev opphold far - 3 min spread
+            new BatchConfig(6, 45, AVSTEMMING, "fagomrade=SVP, antallDager="),
+            new BatchConfig(6, 46, AVSTEMMING, "fagomrade=SVPREF, antallDager="),
+            new BatchConfig(6, 47, AVSTEMMING, "fagomrade=REFUTG, antallDager="),
+            new BatchConfig(6, 48, AVSTEMMING, "fagomrade=FP, antallDager="),
+            new BatchConfig(6, 49, AVSTEMMING, "fagomrade=FPREF, antallDager="),
+            new BatchConfig(7, 3, "BVL008", ANT_DAGER), // Infobrev far - 7min spread
+            new BatchConfig(7, 10, "BVL009", ANT_DAGER) // Infobrev opphold far - 3 min spread
     );
 
     private static final List<BatchConfig> BATCH_OPPSETT_VIRKEDAGER = Arrays.asList(
-        new BatchConfig(1, 58, "BVL010", null),  //Oppdatering DVH. Bør kjøre før kl 03-04.
-        new BatchConfig(6, 5, "BVL004", null), // Gjenoppta - 24 min spread
-        new BatchConfig(6, 51, "BVL005", null), // Kodeverk
-        new BatchConfig(7, 0, "BVL002", null), // Etterkontroll
-        new BatchConfig(7, 2, "BVL003", null),  // Forlengelsesbrev må kjøre noe etter Gjenoppta
-        new BatchConfig(7, 1, "BVL006", null), // Fagsakavslutning
-        new BatchConfig(7, 15, "BVL007", null), // Oppdatering dagsgamle oppgaver - 24 min spread
-        new BatchConfig(7, 45, BatchRunnerTask.BATCH_NAME_RETRY_TASKS, null) // Siste steg
+            new BatchConfig(1, 58, "BVL010", null), // Oppdatering DVH. Bør kjøre før kl 03-04.
+            new BatchConfig(6, 5, "BVL004", null), // Gjenoppta - 24 min spread
+            new BatchConfig(6, 51, "BVL005", null), // Kodeverk
+            new BatchConfig(7, 0, "BVL002", null), // Etterkontroll
+            new BatchConfig(7, 2, "BVL003", null), // Forlengelsesbrev må kjøre noe etter Gjenoppta
+            new BatchConfig(7, 1, "BVL006", null), // Fagsakavslutning
+            new BatchConfig(7, 15, "BVL007", null), // Oppdatering dagsgamle oppgaver - 24 min spread
+            new BatchConfig(7, 45, BatchRunnerTask.BATCH_NAME_RETRY_TASKS, null) // Siste steg
     );
 
     private final Set<MonthDay> fasteStengteDager = Set.of(
-        MonthDay.of(1, 1),
-        MonthDay.of(5, 1),
-        MonthDay.of(5, 17),
-        MonthDay.of(12, 25),
-        MonthDay.of(12, 26),
-        MonthDay.of(12, 31)
-    );
+            MonthDay.of(1, 1),
+            MonthDay.of(5, 1),
+            MonthDay.of(5, 17),
+            MonthDay.of(12, 25),
+            MonthDay.of(12, 26),
+            MonthDay.of(12, 31));
 
     private static final Set<DayOfWeek> HELG = Set.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
@@ -107,8 +111,8 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
 
         if (!batchOppsett.isEmpty()) {
             List<ProsessTaskData> batchtasks = batchOppsett.stream()
-                .map(bc -> mapBatchConfigTilBatchRunnerTask(bc, dagensDato))
-                .collect(Collectors.toList());
+                    .map(bc -> mapBatchConfigTilBatchRunnerTask(bc, dagensDato))
+                    .collect(Collectors.toList());
             ProsessTaskGruppe gruppeRunner = new ProsessTaskGruppe();
             gruppeRunner.addNesteParallell(batchtasks);
 
@@ -116,7 +120,7 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
         }
     }
 
-    private ProsessTaskData mapBatchConfigTilBatchRunnerTask(BatchConfig config, LocalDate dagensDato) {
+    private static ProsessTaskData mapBatchConfigTilBatchRunnerTask(BatchConfig config, LocalDate dagensDato) {
         ProsessTaskData batchRunnerTask = new ProsessTaskData(BatchRunnerTask.TASKTYPE);
         batchRunnerTask.setProperty(BatchRunnerTask.BATCH_NAME, config.getName());
         if (config.getParams() != null) {

@@ -7,8 +7,6 @@ import java.util.Optional;
 
 import org.junit.Test;
 
-import no.nav.foreldrepenger.skjæringstidspunkt.svp.BeregnTilrettleggingsdato;
-
 /**
  * a == helTilrettelegging
  * b == delvisTilrettelegging

@@ -4,18 +4,17 @@ import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.oppdaterDtoForFødsel;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettBruker;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
@@ -25,15 +24,17 @@ import no.nav.vedtak.felles.xml.soeknad.felles.v3.Medlemskap;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.OppholdNorge;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.OppholdUtlandet;
 
+@ExtendWith(MockitoExtension.class)
 public class SøknadMapperTest {
 
     public static final AktørId STD_KVINNE_AKTØR_ID = AktørId.dummy();
 
+    @Mock
     private TpsTjeneste tpsTjeneste;
 
     private SøknadMapper ytelseSøknadMapper;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         tpsTjeneste = mock(TpsTjeneste.class);
         ytelseSøknadMapper = new YtelseSøknadMapper(tpsTjeneste);
@@ -42,8 +43,7 @@ public class SøknadMapperTest {
     @Test
     public void test_mapEngangstønad() {
         ManuellRegistreringEngangsstonadDto registreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
-        oppdaterDtoForFødsel(registreringEngangsstonadDto, FamilieHendelseType.FØDSEL, true, LocalDate.now().minusWeeks(3), 1);
-        when(tpsTjeneste.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
+        oppdaterDtoForFødsel(registreringEngangsstonadDto, true, LocalDate.now().minusWeeks(3), 1);
         ytelseSøknadMapper.mapSøknad(registreringEngangsstonadDto, opprettBruker());
     }
 
@@ -82,7 +82,8 @@ public class SøknadMapperTest {
         Medlemskap medlemskap = SøknadMapperFelles.mapMedlemskap(registreringEngangsstonadDto);
         assertThat(medlemskap.isINorgeVedFoedselstidspunkt()).isTrue();
 
-        // Assert tidligere opphold i norge(siden vi ikke har tidligere utenlandsopphold.)
+        // Assert tidligere opphold i norge(siden vi ikke har tidligere
+        // utenlandsopphold.)
         List<OppholdNorge> oppholdNorgeListe = medlemskap.getOppholdNorge();
         assertThat(oppholdNorgeListe).isNotNull();
         assertThat(oppholdNorgeListe).hasSize(1);
@@ -107,7 +108,8 @@ public class SøknadMapperTest {
 
         ManuellRegistreringEngangsstonadDto registreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         registreringEngangsstonadDto.setMottattDato(LocalDate.now());
-        registreringEngangsstonadDto.setHarFremtidigeOppholdUtenlands(false); // Ikke fremtidige utenlandsopphold, så da får vi fremtidg opphold i norge
+        registreringEngangsstonadDto.setHarFremtidigeOppholdUtenlands(false); // Ikke fremtidige utenlandsopphold, så da får vi fremtidg opphold i
+                                                                              // norge
         registreringEngangsstonadDto.setHarTidligereOppholdUtenlands(true);
         registreringEngangsstonadDto.setOppholdINorge(true);
         UtenlandsoppholdDto utenlandsoppholdDto = new UtenlandsoppholdDto();

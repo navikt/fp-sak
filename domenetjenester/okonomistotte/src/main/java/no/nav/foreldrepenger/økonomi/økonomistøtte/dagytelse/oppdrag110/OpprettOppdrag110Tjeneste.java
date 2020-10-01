@@ -14,10 +14,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekv
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettOppdragTjeneste;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.FinnMottakerInfoITilkjentYtelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp.OppdragInput;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 
 public class OpprettOppdrag110Tjeneste {
 

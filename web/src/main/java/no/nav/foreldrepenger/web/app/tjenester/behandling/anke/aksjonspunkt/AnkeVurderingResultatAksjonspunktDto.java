@@ -4,6 +4,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -16,6 +17,7 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_ANKE_KODE)
+@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
 public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktDto {
 
     @NotNull
@@ -25,10 +27,6 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
     @NotNull
     @JsonProperty("erSubsidiartRealitetsbehandles")
     private boolean erSubsidiartRealitetsbehandles;
-
-    @Size(max = 2000)
-    @Pattern(regexp = InputValideringRegex.FRITEKST)
-    private String begrunnelse;
 
     // Økt størrelsen for å håndtere all fritekst som blir skrevet til ankebrev
     @Size(max = 100000)
@@ -92,7 +90,6 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
                                                  boolean erMerknaderMottatt) {
         super(begrunnelse);
         this.ankeVurdering = ankeVurdering;
-        this.begrunnelse = begrunnelse;
         this.fritekstTilBrev = fritekstTilBrev;
         this.ankeOmgjoerArsak = ankeOmgjoerArsak;
         this.ankeVurderingOmgjoer = ankeVurderingOmgjoer;
@@ -113,11 +110,6 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
 
     public boolean erSubsidiartRealitetsbehandles() {
         return erSubsidiartRealitetsbehandles;
-    }
-
-    @Override
-    public String getBegrunnelse() {
-        return begrunnelse;
     }
 
     public String getFritekstTilBrev() {

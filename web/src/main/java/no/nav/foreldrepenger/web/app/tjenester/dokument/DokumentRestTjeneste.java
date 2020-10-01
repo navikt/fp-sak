@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.dokument;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -30,6 +29,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -67,7 +67,7 @@ public class DokumentRestTjeneste {
     private static final String DOKUMENTER_PART_PATH = "/hent-dokumentliste";
     public static final String DOKUMENTER_PATH = BASE_PATH + DOKUMENTER_PART_PATH;
     private static final String DOKUMENT_PART_PATH = "/hent-dokument";
-    public static final String DOKUMENT_PATH = BASE_PATH + DOKUMENTER_PART_PATH; //NOSONAR TFP-2234
+    public static final String DOKUMENT_PATH = BASE_PATH + DOKUMENTER_PART_PATH; // NOSONAR TFP-2234
 
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
@@ -82,11 +82,11 @@ public class DokumentRestTjeneste {
 
     @Inject
     public DokumentRestTjeneste(DokumentArkivTjeneste dokumentArkivTjeneste,
-                                InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                FagsakRepository fagsakRepository,
-                                MottatteDokumentRepository mottatteDokumentRepository,
-                                VirksomhetTjeneste virksomhetTjeneste,
-                                BehandlingRepository behandlingRepository) {
+            InntektsmeldingTjeneste inntektsmeldingTjeneste,
+            FagsakRepository fagsakRepository,
+            MottatteDokumentRepository mottatteDokumentRepository,
+            VirksomhetTjeneste virksomhetTjeneste,
+            BehandlingRepository behandlingRepository) {
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.fagsakRepository = fagsakRepository;
@@ -99,24 +99,26 @@ public class DokumentRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Path(MOTTATT_DOKUMENTER_PART_PATH)
     @Operation(description = "Henter listen av mottatte dokumenter knyttet til en fagsak", tags = "dokument")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Collection<MottattDokumentDto> hentAlleMottatteDokumenterForBehandling(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+    public Collection<MottattDokumentDto> hentAlleMottatteDokumenterForBehandling(
+            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId()).stream().map(MottattDokumentDto::new).collect(Collectors.toList());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+        return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId()).stream()
+            .map(MottattDokumentDto::new)
+            .collect(Collectors.toList());
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path(MOTTATT_DOKUMENTER_PART_PATH)
     @Operation(description = "Henter listen av mottatte dokumenter knyttet til en fagsak", tags = "dokument")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Collection<MottattDokumentDto> hentAlleMottatteDokumenterForBehandling(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Collection<MottattDokumentDto> hentAlleMottatteDokumenterForBehandling(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return hentAlleMottatteDokumenterForBehandling(new BehandlingIdDto(uuidDto));
     }
 
@@ -124,9 +126,9 @@ public class DokumentRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Path(DOKUMENTER_PART_PATH)
     @Operation(description = "Henter dokumentlisten knyttet til en sak", summary = ("Oversikt over alle pdf dokumenter fra dokumentarkiv registrert for saksnummer."), tags = "dokument")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Collection<DokumentDto> hentAlleDokumenterForSak(@NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Collection<DokumentDto> hentAlleDokumenterForSak(
+            @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer") @Valid SaksnummerDto saksnummerDto) {
         try {
             Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
             final Optional<Fagsak> fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
@@ -135,20 +137,22 @@ public class DokumentRestTjeneste {
                 return new ArrayList<>();
             }
 
-            Set<Long> åpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream().map(Behandling::getId).collect(Collectors.toSet());
+            Set<Long> åpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream().map(Behandling::getId)
+                    .collect(Collectors.toSet());
 
             Map<JournalpostId, List<Inntektsmelding>> inntektsMeldinger = inntektsmeldingTjeneste
-                .hentAlleInntektsmeldingerForAngitteBehandlinger(åpneBehandlinger).stream()
-                .collect(Collectors.groupingBy(Inntektsmelding::getJournalpostId));
+                    .hentAlleInntektsmeldingerForAngitteBehandlinger(åpneBehandlinger).stream()
+                    .collect(Collectors.groupingBy(Inntektsmelding::getJournalpostId));
             // Burde brukt map på dokumentid, men den lagres ikke i praksis.
-            Map<JournalpostId, List<MottattDokument>> mottatteIMDokument = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId).stream()
-                .filter(mdok -> DokumentTypeId.INNTEKTSMELDING.getKode().equals(mdok.getDokumentType().getKode()))
-                .collect(Collectors.groupingBy(MottattDokument::getJournalpostId));
+            Map<JournalpostId, List<MottattDokument>> mottatteIMDokument = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId)
+                    .stream()
+                    .filter(mdok -> DokumentTypeId.INNTEKTSMELDING.getKode().equals(mdok.getDokumentType().getKode()))
+                    .collect(Collectors.groupingBy(MottattDokument::getJournalpostId));
 
             List<ArkivJournalPost> journalPostList = dokumentArkivTjeneste.hentAlleDokumenterForVisning(saksnummer);
             List<DokumentDto> dokumentResultat = new ArrayList<>();
-            journalPostList.forEach(arkivJournalPost ->
-                dokumentResultat.addAll(mapFraArkivJournalPost(arkivJournalPost, mottatteIMDokument, inntektsMeldinger)));
+            journalPostList.forEach(
+                    arkivJournalPost -> dokumentResultat.addAll(mapFraArkivJournalPost(arkivJournalPost, mottatteIMDokument, inntektsMeldinger)));
             dokumentResultat.sort(Comparator.comparing(DokumentDto::getTidspunkt, Comparator.nullsFirst(Comparator.reverseOrder())));
 
             return dokumentResultat;
@@ -160,14 +164,15 @@ public class DokumentRestTjeneste {
     @GET
     @Path(DOKUMENT_PART_PATH)
     @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet saksnummer, journalpostId og dokumentId."), tags = "dokument")
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response hentDokument(@SuppressWarnings("unused") @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer") @Valid SaksnummerDto saksnummer,
-                                 @NotNull @QueryParam("journalpostId") @Parameter(description = "Unik identifikator av journalposten (forsendelsenivå)") @Valid JournalpostIdDto journalpostId,
-                                 @NotNull @QueryParam("dokumentId") @Parameter(description = "Unik identifikator av DokumentInfo/Dokumentbeskrivelse (dokumentnivå)") @Valid DokumentIdDto dokumentId) {
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Response hentDokument(
+            @SuppressWarnings("unused") @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer") @Valid SaksnummerDto saksnummer,
+            @NotNull @QueryParam("journalpostId") @Parameter(description = "Unik identifikator av journalposten (forsendelsenivå)") @Valid JournalpostIdDto journalpostId,
+            @NotNull @QueryParam("dokumentId") @Parameter(description = "Unik identifikator av DokumentInfo/Dokumentbeskrivelse (dokumentnivå)") @Valid DokumentIdDto dokumentId) {
         try {
             ResponseBuilder responseBuilder = Response.ok(
-                new ByteArrayInputStream(dokumentArkivTjeneste.hentDokument(new JournalpostId(journalpostId.getJournalpostId()), dokumentId.getDokumentId())));
+                    new ByteArrayInputStream(
+                            dokumentArkivTjeneste.hentDokument(new JournalpostId(journalpostId.getJournalpostId()), dokumentId.getDokumentId())));
             responseBuilder.type("application/pdf");
             responseBuilder.header("Content-Disposition", "filename=dokument.pdf");
             return responseBuilder.build();
@@ -179,7 +184,7 @@ public class DokumentRestTjeneste {
     }
 
     private List<DokumentDto> mapFraArkivJournalPost(ArkivJournalPost arkivJournalPost, Map<JournalpostId, List<MottattDokument>> mottatteIMDokument,
-                                                     Map<JournalpostId, List<Inntektsmelding>> inntektsMeldinger) {
+            Map<JournalpostId, List<Inntektsmelding>> inntektsMeldinger) {
         List<DokumentDto> dokumentForJP = new ArrayList<>();
         if (arkivJournalPost.getHovedDokument() != null) {
             dokumentForJP.add(mapFraArkivDokument(arkivJournalPost, arkivJournalPost.getHovedDokument(), mottatteIMDokument, inntektsMeldinger));
@@ -193,28 +198,30 @@ public class DokumentRestTjeneste {
     }
 
     private DokumentDto mapFraArkivDokument(ArkivJournalPost arkivJournalPost, ArkivDokument arkivDokument,
-                                            Map<JournalpostId, List<MottattDokument>> mottatteIMDokument,
-                                            Map<JournalpostId, List<Inntektsmelding>> inntektsMeldinger) {
+            Map<JournalpostId, List<MottattDokument>> mottatteIMDokument,
+            Map<JournalpostId, List<Inntektsmelding>> inntektsMeldinger) {
         DokumentDto dto = new DokumentDto(arkivJournalPost, arkivDokument);
-        if (DokumentTypeId.INNTEKTSMELDING.equals(arkivDokument.getDokumentType()) && mottatteIMDokument.containsKey(arkivJournalPost.getJournalpostId())) {
+        if (DokumentTypeId.INNTEKTSMELDING.equals(arkivDokument.getDokumentType())
+                && mottatteIMDokument.containsKey(arkivJournalPost.getJournalpostId())) {
             List<Long> behandlinger = mottatteIMDokument.get(dto.getJournalpostId()).stream()
-                .filter(imdok -> inntektsMeldinger.containsKey(dto.getJournalpostId()))
-                .map(MottattDokument::getBehandlingId)
-                .collect(Collectors.toList());
+                    .filter(imdok -> inntektsMeldinger.containsKey(dto.getJournalpostId()))
+                    .map(MottattDokument::getBehandlingId)
+                    .collect(Collectors.toList());
             dto.setBehandlinger(behandlinger);
 
             Optional<String> navn = inntektsMeldinger.getOrDefault(dto.getJournalpostId(), Collections.emptyList())
-                .stream()
-                .map((Inntektsmelding inn) -> {
-                    var t = inn.getArbeidsgiver();
-                    if (t.getErVirksomhet()) {
-                        return virksomhetTjeneste.finnOrganisasjon(t.getOrgnr())
-                            .orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + t.getOrgnr())).getNavn();
-                    } else {
-                        return "Privatperson";
-                    }
-                })// TODO slå opp navnet på privatpersonen?
-                .findFirst();
+                    .stream()
+                    .map((Inntektsmelding inn) -> {
+                        var t = inn.getArbeidsgiver();
+                        if (t.getErVirksomhet()) {
+                            return virksomhetTjeneste.finnOrganisasjon(t.getOrgnr())
+                                    .orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + t.getOrgnr()))
+                                    .getNavn();
+                        } else {
+                            return "Privatperson";
+                        }
+                    })// TODO slå opp navnet på privatpersonen?
+                    .findFirst();
             navn.ifPresent(dto::setGjelderFor);
         }
         return dto;

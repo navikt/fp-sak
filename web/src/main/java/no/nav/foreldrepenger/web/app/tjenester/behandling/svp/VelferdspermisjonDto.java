@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class VelferdspermisjonDto {
 
@@ -16,6 +17,7 @@ public class VelferdspermisjonDto {
     private LocalDate permisjonTom;
     @JsonProperty("permisjonsprosent")
     private BigDecimal permisjonsprosent;
+    @ValidKodeverk
     @JsonProperty("type")
     private PermisjonsbeskrivelseType type;
     @JsonProperty("erGyldig")

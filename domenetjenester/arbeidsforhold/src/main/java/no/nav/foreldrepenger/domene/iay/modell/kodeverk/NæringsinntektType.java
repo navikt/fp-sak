@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.iay.modell.kodeverk;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -27,8 +28,9 @@ public enum NæringsinntektType implements Kodeverdi, YtelseType {
     DAGPENGER_VED_ARBEIDSLØSHET("DAGPENGER_VED_ARBEIDSLØSHET", "Dagpenger ved arbeidsløshet", "dagpengerVedArbeidsloeshet"),
     DAGPENGER_TIL_FISKER("DAGPENGER_TIL_FISKER", "Dagpenger til fisker", "dagpengerTilFisker"),
     ANNET("ANNET", "Annet", "annet"),
+    KOMPENSASJON_FOR_TAPT_PERSONINNTEKT("KOMPENSASJON_FOR_TAPT_PERSONINNTEKT", "Kompensasjon for tapt personinntekt", "kompensasjonForTaptPersoninntekt"),
     UDEFINERT("-", "Udefinert", null),
-    
+
     ;
 
     private static final Map<String, NæringsinntektType> KODER = new LinkedHashMap<>();
@@ -45,7 +47,7 @@ public enum NæringsinntektType implements Kodeverdi, YtelseType {
 
     @JsonIgnore
     private String navn;
-    
+
     @JsonIgnore
     private String offisiellKode;
 
@@ -73,7 +75,7 @@ public enum NæringsinntektType implements Kodeverdi, YtelseType {
     public static Map<String, NæringsinntektType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return offisiellKode;
@@ -95,5 +97,5 @@ public enum NæringsinntektType implements Kodeverdi, YtelseType {
     public String getKode() {
         return kode;
     }
-    
+
 }

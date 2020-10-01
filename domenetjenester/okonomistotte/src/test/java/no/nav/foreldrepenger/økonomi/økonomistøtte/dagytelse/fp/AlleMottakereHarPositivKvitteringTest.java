@@ -7,7 +7,6 @@ import org.junit.Test;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.AlleMottakereHarPositivKvittering;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragTestDataHelper;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp.AlleMottakereHarPositivKvitteringImpl;
 
 public class AlleMottakereHarPositivKvitteringTest {
 

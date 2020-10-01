@@ -6,13 +6,16 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 
 public class Lønnsendring {
     private Integer gammelArbeidsinntekt;
     private Integer nyArbeidsinntekt;
     private Integer nyArbeidsinntektPrÅr;
+    @ValidKodeverk
     private Inntektskategori gammelInntektskategori;
+    @ValidKodeverk
     private Inntektskategori nyInntektskategori;
     private Integer gammelRefusjonPrÅr;
     private Integer nyRefusjonPrÅr;
@@ -21,6 +24,7 @@ public class Lønnsendring {
     private Integer gammelArbeidsinntektPrÅr;
     private Arbeidsgiver arbeidsgiver;
     private InternArbeidsforholdRef arbeidsforholdRef;
+    @ValidKodeverk
     private AktivitetStatus aktivitetStatus;
 
     private Lønnsendring() {

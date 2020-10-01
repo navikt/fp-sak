@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.vedtak.batch;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;

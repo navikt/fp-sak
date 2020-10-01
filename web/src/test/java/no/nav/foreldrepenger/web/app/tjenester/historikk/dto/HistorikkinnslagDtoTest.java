@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
@@ -18,16 +18,15 @@ public class HistorikkinnslagDtoTest {
     @Test
     public void skal_sortere_basert_på_tidligste_opprettetDato_first() {
         List<HistorikkinnslagDto> historikkInnslagDtos = Arrays.asList(
-            lagHistorikkInnslagDtos(NOW.plusMonths(2)),
-            lagHistorikkInnslagDtos(NOW.minusWeeks(8)),
-            lagHistorikkInnslagDtos(NOW.plusDays(3)),
-            lagHistorikkInnslagDtos(NOW),
-            lagHistorikkInnslagDtos(NOW.plusSeconds(4)),
-            lagHistorikkInnslagDtos(NOW.plusYears(1)),
-            lagHistorikkInnslagDtos(NOW.minusMinutes(6)),
-            lagHistorikkInnslagDtos(NOW.minusHours(7)),
-            lagHistorikkInnslagDtos(NOW.minusYears(9))
-        );
+                lagHistorikkInnslagDtos(NOW.plusMonths(2)),
+                lagHistorikkInnslagDtos(NOW.minusWeeks(8)),
+                lagHistorikkInnslagDtos(NOW.plusDays(3)),
+                lagHistorikkInnslagDtos(NOW),
+                lagHistorikkInnslagDtos(NOW.plusSeconds(4)),
+                lagHistorikkInnslagDtos(NOW.plusYears(1)),
+                lagHistorikkInnslagDtos(NOW.minusMinutes(6)),
+                lagHistorikkInnslagDtos(NOW.minusHours(7)),
+                lagHistorikkInnslagDtos(NOW.minusYears(9)));
 
         historikkInnslagDtos.sort(Comparator.naturalOrder());
 
@@ -45,11 +44,10 @@ public class HistorikkinnslagDtoTest {
     @Test
     public void skal_revurdOpprettet_kommer_før_brev_sent_og_brev_vent_hvis_samme_tids_punkt() {
         List<HistorikkinnslagDto> historikkInnslagDtos = Arrays.asList(
-            lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.REVURD_OPPR),
-            lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.BEH_VENT),
-            lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.BREV_SENT),
-            lagHistorikkInnslagDtos(NOW.minusWeeks(1), HistorikkinnslagType.BEH_STARTET)
-        );
+                lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.REVURD_OPPR),
+                lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.BEH_VENT),
+                lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.BREV_SENT),
+                lagHistorikkInnslagDtos(NOW.minusWeeks(1), HistorikkinnslagType.BEH_STARTET));
 
         historikkInnslagDtos.sort(Comparator.naturalOrder());
 

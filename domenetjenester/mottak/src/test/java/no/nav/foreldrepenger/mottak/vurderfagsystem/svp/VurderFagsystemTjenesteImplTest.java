@@ -64,7 +64,7 @@ public class VurderFagsystemTjenesteImplTest {
         when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
         when(repositoryProvider.getSvangerskapspengerRepository()).thenReturn(svangerskapspengerRepository);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
-        var fagsakTjeneste = new FagsakTjeneste(repositoryProvider, null);
+        var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
         var fellesUtils = new VurderFagsystemFellesUtils(repositoryProvider, mottatteDokumentTjeneste, null, null);
         var svpTjeneste = new VurderFagsystemTjenesteImpl(fellesUtils, repositoryProvider);
         tjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(svpTjeneste));
@@ -196,7 +196,6 @@ public class VurderFagsystemTjenesteImplTest {
         assertThat(result.getSaksnummer()).isEmpty();
     }
 
-
     @Test
     public void skalReturnereVedtaksløsningenForInntektsmeldingHvisBrukerHarSakIVLMedFamiliehendelseUtenforPerioden() {
         VurderFagsystem vurderFagsystem = lagVurderfagsystem();
@@ -262,12 +261,10 @@ public class VurderFagsystemTjenesteImplTest {
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
         when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.empty());
 
-
         BehandlendeFagsystem result = tjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer().get()).isEqualTo(fagsak1.getSaksnummer());
     }
-
 
     @Test
     public void skalReturnereVLForVedleggNårÅpenBehandling() {
@@ -284,7 +281,6 @@ public class VurderFagsystemTjenesteImplTest {
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
         when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.empty());
-
 
         BehandlendeFagsystem result = tjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);

@@ -1,18 +1,20 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -31,6 +33,7 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk.FastsettB
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 
+@ExtendWith(MockitoExtension.class)
 public class FastsettBeregningsgrunnlagATFLOppdatererTest {
     private FastsettBeregningsgrunnlagATFLOppdaterer oppdaterer;
 
@@ -64,33 +67,33 @@ public class FastsettBeregningsgrunnlagATFLOppdatererTest {
     @Mock
     private BeregningsgrunnlagInput input;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
         when(behandling.getFagsak()).thenReturn(fagsak);
-        oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(beregningsgrunnlagTjeneste, historikk, historikkTidsbegrenset, beregningsgrunnlagInputTjeneste, beregningHåndterer);
+        oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(beregningsgrunnlagTjeneste, historikk, historikkTidsbegrenset,
+                beregningsgrunnlagInputTjeneste, beregningHåndterer);
     }
 
     @Test
     public void skal_håndtere_overflødig_fastsett_tidsbegrenset_arbeidsforhold_aksjonspunkt() {
-        //Arrange
+        // Arrange
         when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(anyLong()))
-            .thenReturn(BeregningsgrunnlagEntitet.builder().medSkjæringstidspunkt(LocalDate.now()).build());
+                .thenReturn(BeregningsgrunnlagEntitet.builder().medSkjæringstidspunkt(LocalDate.now()).build());
 
         when(behandling.getÅpentAksjonspunktMedDefinisjonOptional(any())).thenReturn(Optional.of(ap));
         when(ap.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);
-        when(ap.erOpprettet()).thenReturn(true);
-        when(beregningsgrunnlagInputTjeneste.getTjeneste(any())).thenReturn(beregningsgrunnlagInputFelles);
+        when(beregningsgrunnlagInputTjeneste.getTjeneste(Mockito.any())).thenReturn(beregningsgrunnlagInputFelles);
         when(beregningsgrunnlagInputFelles.lagInput(any(BehandlingReferanse.class))).thenReturn(input);
 
-        //Dto
+        // Dto
         FastsettBeregningsgrunnlagATFLDto dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse", Collections.emptyList(), null);
         // Act
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, ap, dto));
 
-        //Assert
+        // Assert
         assertThat(resultat.getEkstraAksjonspunktResultat()).hasSize(1);
-        assertThat(resultat.getEkstraAksjonspunktResultat().get(0).getElement1().getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);
+        assertThat(resultat.getEkstraAksjonspunktResultat().get(0).getElement1().getAksjonspunktDefinisjon())
+                .isEqualTo(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);
         assertThat(resultat.getEkstraAksjonspunktResultat().get(0).getElement2()).isEqualTo(AksjonspunktStatus.AVBRUTT);
     }
 }

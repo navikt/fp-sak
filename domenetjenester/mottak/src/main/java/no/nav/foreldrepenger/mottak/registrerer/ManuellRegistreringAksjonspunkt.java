@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
@@ -34,9 +33,8 @@ class ManuellRegistreringAksjonspunkt {
     public Optional<AksjonspunktDefinisjon> oppdater(Behandling behandling, ManuellRegistreringAksjonspunktDto adapter) {
 
         if (adapter.getErFullstendigSøknad()) {
-            DokumentTypeId dokumentType = DokumentTypeId.fraKode(adapter.getDokumentTypeIdKode());
             MottattDokument dokument = new MottattDokument.Builder()
-                .medDokumentType(dokumentType)
+                .medDokumentType(adapter.getDokumentTypeId())
                 .medDokumentKategori(DokumentKategori.SØKNAD)
                 .medElektroniskRegistrert(false)
                 .medMottattDato(adapter.getMottattDato())

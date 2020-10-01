@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -24,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.BekreftSokersOpplysningspliktManuDto;
@@ -32,8 +30,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.B
 import no.nav.vedtak.util.Tuple;
 
 public class BekreftSøkersOpplysningspliktManuellOppdatererTest {
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
+
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
 
     @Test
@@ -43,7 +40,7 @@ public class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU,
-            BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
+                BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
         scenario.lagMocked();
 
         Behandling behandling = scenario.getBehandling();
@@ -52,12 +49,13 @@ public class BekreftSøkersOpplysningspliktManuellOppdatererTest {
 
         // Dto
         BekreftSokersOpplysningspliktManuDto bekreftSokersOpplysningspliktManuDto = new BekreftSokersOpplysningspliktManuDto(
-           "test av manu", true, Collections.emptyList());
+                "test av manu", true, Collections.emptyList());
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
         var aksjonspunkt = behandling.getAksjonspunktFor(bekreftSokersOpplysningspliktManuDto.getKode());
-        var resultat = oppdaterer.oppdater(bekreftSokersOpplysningspliktManuDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, bekreftSokersOpplysningspliktManuDto));
+        var resultat = oppdaterer.oppdater(bekreftSokersOpplysningspliktManuDto,
+                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, bekreftSokersOpplysningspliktManuDto));
         Historikkinnslag historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         List<HistorikkinnslagDel> historikkInnslag = tekstBuilder.build(historikkinnslag);
@@ -72,7 +70,8 @@ public class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
         assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo(HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT.getKode());
 
-        Set<AksjonspunktDefinisjon> aksjonspunktSet = resultat.getEkstraAksjonspunktResultat().stream().map(Tuple::getElement1).map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toSet());
+        Set<AksjonspunktDefinisjon> aksjonspunktSet = resultat.getEkstraAksjonspunktResultat().stream().map(Tuple::getElement1)
+                .map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toSet());
 
         assertThat(aksjonspunktSet).isEmpty();
     }

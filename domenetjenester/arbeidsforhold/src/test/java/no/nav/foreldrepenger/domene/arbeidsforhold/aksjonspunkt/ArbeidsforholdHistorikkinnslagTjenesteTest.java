@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,7 +48,7 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
     private IAYRepositoryProvider provider = new IAYRepositoryProvider(repositoryRule.getEntityManager());
     private HistorikkRepository historikkRepository = new HistorikkRepository(repositoryRule.getEntityManager());
     private HistorikkInnslagKonverter historikkInnslagKonverter = new HistorikkInnslagKonverter();
-    private DokumentArkivTjeneste dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(mockJournalProxyService, provider.getFagsakRepository(), provider.getKodeverkRepository());
+    private DokumentArkivTjeneste dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(mockJournalProxyService, provider.getFagsakRepository());
     private HistorikkTjenesteAdapter historikkAdapter;
     private ArbeidsforholdHistorikkinnslagTjeneste arbeidsforholdHistorikkinnslagTjeneste;
     private Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("1");
@@ -65,8 +65,8 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         behandling = scenario.lagre(provider);
         aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
         skjæringstidspunkt = Skjæringstidspunkt.builder()
-            .medUtledetSkjæringstidspunkt(LocalDate.now())
-            .build();
+                .medUtledetSkjæringstidspunkt(LocalDate.now())
+                .build();
     }
 
     @Test
@@ -80,7 +80,9 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()), arbeidsforholdDto, virksomhet, ref, List.of());
+        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
+                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
+                arbeidsforholdDto, virksomhet, ref, List.of());
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(0);
@@ -99,16 +101,16 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
-            arbeidsforholdDto, virksomhet, ref, List.of());
+        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
+                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
+                arbeidsforholdDto, virksomhet, ref, List.of());
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(1);
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).anySatisfy(del -> {
             assertThat(del.getHistorikkinnslagFelt()).hasSize(3);
-            assertThat(del.getHistorikkinnslagFelt()).anySatisfy(felt ->
-                assertThat(felt.getTilVerdi()).isEqualTo(VurderArbeidsforholdHistorikkinnslag.SØKER_ER_I_PERMISJON.getKode())
-            );
+            assertThat(del.getHistorikkinnslagFelt()).anySatisfy(
+                    felt -> assertThat(felt.getTilVerdi()).isEqualTo(VurderArbeidsforholdHistorikkinnslag.SØKER_ER_I_PERMISJON.getKode()));
         });
 
     }
@@ -125,16 +127,16 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
-            arbeidsforholdDto, virksomhet, ref, List.of());
+        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
+                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
+                arbeidsforholdDto, virksomhet, ref, List.of());
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(1);
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).anySatisfy(del -> {
             assertThat(del.getHistorikkinnslagFelt()).hasSize(3);
-            assertThat(del.getHistorikkinnslagFelt()).anySatisfy(felt ->
-                assertThat(felt.getTilVerdi()).isEqualTo(VurderArbeidsforholdHistorikkinnslag.BENYTT_A_INNTEKT_I_BG.getKode())
-            );
+            assertThat(del.getHistorikkinnslagFelt()).anySatisfy(
+                    felt -> assertThat(felt.getTilVerdi()).isEqualTo(VurderArbeidsforholdHistorikkinnslag.BENYTT_A_INNTEKT_I_BG.getKode()));
         });
 
     }
@@ -152,22 +154,21 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
-            arbeidsforholdDto, virksomhet, ref, List.of());
+        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
+                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
+                arbeidsforholdDto, virksomhet, ref, List.of());
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(2);
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).anySatisfy(del -> {
             assertThat(del.getHistorikkinnslagFelt()).hasSize(3);
-            assertThat(del.getHistorikkinnslagFelt()).anySatisfy(felt ->
-                assertThat(felt.getTilVerdi()).isEqualTo(VurderArbeidsforholdHistorikkinnslag.SØKER_ER_IKKE_I_PERMISJON.getKode())
-            );
+            assertThat(del.getHistorikkinnslagFelt()).anySatisfy(
+                    felt -> assertThat(felt.getTilVerdi()).isEqualTo(VurderArbeidsforholdHistorikkinnslag.SØKER_ER_IKKE_I_PERMISJON.getKode()));
         });
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).anySatisfy(del -> {
             assertThat(del.getHistorikkinnslagFelt()).hasSize(2);
-            assertThat(del.getHistorikkinnslagFelt()).anySatisfy(felt ->
-                assertThat(felt.getTilVerdi()).isEqualTo(VurderArbeidsforholdHistorikkinnslag.BENYTT_A_INNTEKT_I_BG.getKode())
-            );
+            assertThat(del.getHistorikkinnslagFelt()).anySatisfy(
+                    felt -> assertThat(felt.getTilVerdi()).isEqualTo(VurderArbeidsforholdHistorikkinnslag.BENYTT_A_INNTEKT_I_BG.getKode()));
         });
 
     }
@@ -183,16 +184,16 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
-            arbeidsforholdDto, virksomhet, ref, List.of());
+        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
+                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
+                arbeidsforholdDto, virksomhet, ref, List.of());
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(1);
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).anySatisfy(del -> {
             assertThat(del.getHistorikkinnslagFelt()).hasSize(3);
-            assertThat(del.getHistorikkinnslagFelt()).anySatisfy(felt ->
-                assertThat(felt.getTilVerdi()).isEqualTo(VurderArbeidsforholdHistorikkinnslag.IKKE_BRUK.getKode())
-            );
+            assertThat(del.getHistorikkinnslagFelt())
+                    .anySatisfy(felt -> assertThat(felt.getTilVerdi()).isEqualTo(VurderArbeidsforholdHistorikkinnslag.IKKE_BRUK.getKode()));
         });
 
     }
@@ -208,8 +209,9 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
-            arbeidsforholdDto, virksomhet, ref, List.of());
+        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
+                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
+                arbeidsforholdDto, virksomhet, ref, List.of());
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(0);
@@ -227,8 +229,9 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
-            arbeidsforholdDto, virksomhet, ref, List.of());
+        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
+                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
+                arbeidsforholdDto, virksomhet, ref, List.of());
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(0);

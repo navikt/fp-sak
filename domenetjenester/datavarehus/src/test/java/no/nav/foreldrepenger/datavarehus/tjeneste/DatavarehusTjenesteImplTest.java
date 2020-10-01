@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -218,7 +219,7 @@ public class DatavarehusTjenesteImplTest {
         BehandlingRepositoryProvider behandlingRepositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         // Simuler mottatt dokument
-        when(mottattDokument.getDokumentType()).thenReturn(no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
+        when(mottattDokument.getDokumentType()).thenReturn(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         when(mottattDokument.getMottattTidspunkt()).thenReturn(LocalDateTime.now().minusDays(3));
         List<MottattDokument> mottatteDokumenter = new ArrayList<>();
         mottatteDokumenter.add(mottattDokument);
