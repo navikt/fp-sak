@@ -1,14 +1,3 @@
-./domenetjenester/person/src/test/java/no/nav/foreldrepenger/domene/person/tps/PersoninfoAdapterTest.java:import org.junit.Test;
-./domenetjenester/person/src/test/java/no/nav/foreldrepenger/domene/person/tps/TpsOversetterTest.java:import org.junit.Test;
-./domenetjenester/person/src/test/java/no/nav/foreldrepenger/domene/person/tps/TpsFamilieTjenesteTest.java:import org.junit.Test;
-./domenetjenester/person/src/test/java/no/nav/foreldrepenger/domene/person/tps/TpsAdapterImplTest.java:import org.junit.Test;
-./domenetjenester/person/src/test/java/no/nav/foreldrepenger/domene/person/tps/TpsTjenesteTest.java:import org.junit.Test;
-./domenetjenester/person/src/test/java/no/nav/foreldrepenger/domene/personopplysning/StatsborgerskapEndringIdentifisererTest.java:import org.junit.Test;
-./domenetjenester/person/src/test/java/no/nav/foreldrepenger/domene/personopplysning/PersonAdresseEndringIdentifisererTest.java:import org.junit.Test;
-./domenetjenester/person/src/test/java/no/nav/foreldrepenger/domene/personopplysning/SivilstandEndringIdentifisererTest.java:import org.junit.Test;
-./domenetjenester/person/src/test/java/no/nav/foreldrepenger/domene/personopplysning/PersonstatusEndringIdentifisererTest.java:import org.junit.Test;
-./domenetjenester/person/src/test/java/no/nav/foreldrepenger/domene/personopplysning/PersonopplysningGrunnlagDiffTest.java:import org.junit.Test;
-./domenetjenester/person/src/test/java/no/nav/foreldrepenger/domene/personopplysning/PersonopplysningTjenesteTest.java:import org.junit.Test;
 ./domenetjenester/okonomistotte/src/test/java/no/nav/foreldrepenger/økonomi/behandlingslager/økonomioppdrag/OppdragKvitteringEntityTest.java:import org.junit.Test;
 ./domenetjenester/okonomistotte/src/test/java/no/nav/foreldrepenger/økonomi/behandlingslager/økonomioppdrag/OppdragskontrollEntityTest.java:import org.junit.Test;
 ./domenetjenester/okonomistotte/src/test/java/no/nav/foreldrepenger/økonomi/behandlingslager/økonomioppdrag/Oppdragslinje150EntityTest.java:import org.junit.Test;

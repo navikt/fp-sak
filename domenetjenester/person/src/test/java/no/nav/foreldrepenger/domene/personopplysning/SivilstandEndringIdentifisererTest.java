@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagBuilder;
@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public class SivilstandEndringIdentifisererTest {
 
     private AktørId AKTØRID = AktørId.dummy();
-
 
     @Test
     public void testSivilstandUendret() {

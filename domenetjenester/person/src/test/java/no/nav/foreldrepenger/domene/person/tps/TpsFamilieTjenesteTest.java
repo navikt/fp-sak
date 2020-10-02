@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.person.tps;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -13,8 +12,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
@@ -32,7 +31,7 @@ public class TpsFamilieTjenesteTest {
     private TpsTjeneste tpsTjeneste;
     private TpsFamilieTjeneste tpsFamilieTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         tpsTjeneste = mock(TpsTjeneste.class);
         tpsFamilieTjeneste = new TpsFamilieTjeneste(tpsTjeneste);
@@ -57,11 +56,11 @@ public class TpsFamilieTjenesteTest {
         final ArrayList<FødtBarnInfo> barn = new ArrayList<>();
         for (Familierelasjon familierelasjon : familierelasjoner) {
             barn.add(new FødtBarnInfo.Builder()
-                .medFødselsdato(genererFødselsdag(startdatoIntervall.minusWeeks(1)))
-                .medIdent(familierelasjon.getPersonIdent())
-                .medNavn("navn")
-                .medNavBrukerKjønn(NavBrukerKjønn.MANN)
-                .build());
+                    .medFødselsdato(genererFødselsdag(startdatoIntervall.minusWeeks(1)))
+                    .medIdent(familierelasjon.getPersonIdent())
+                    .medNavn("navn")
+                    .medNavBrukerKjønn(NavBrukerKjønn.MANN)
+                    .build());
         }
         return barn;
     }
@@ -69,11 +68,11 @@ public class TpsFamilieTjenesteTest {
     private Personinfo opprettPersonInfo(AktørId aktørId, int antallBarn, LocalDate startdatoIntervall) {
         final Personinfo.Builder builder = new Personinfo.Builder();
         builder.medAktørId(aktørId)
-            .medNavn("Test")
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medFødselsdato(LocalDate.now().minusYears(30))
-            .medPersonIdent(new PersonIdent("123"))
-            .medFamilierelasjon(genererBarn(antallBarn, startdatoIntervall));
+                .medNavn("Test")
+                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
+                .medFødselsdato(LocalDate.now().minusYears(30))
+                .medPersonIdent(new PersonIdent("123"))
+                .medFamilierelasjon(genererBarn(antallBarn, startdatoIntervall));
         return builder.build();
     }
 
@@ -81,7 +80,8 @@ public class TpsFamilieTjenesteTest {
         final Set<Familierelasjon> set = new HashSet<>();
         LocalDate generertFødselsdag = genererFødselsdag(startdatoIntervall.minusWeeks(1));
         IntStream.range(0, Math.toIntExact(antallBarn))
-            .forEach(barnNr -> set.add(new Familierelasjon(new PersonIdent("" + barnNr + 10L), RelasjonsRolleType.BARN, generertFødselsdag, "Adr", true)));
+                .forEach(barnNr -> set
+                        .add(new Familierelasjon(new PersonIdent("" + barnNr + 10L), RelasjonsRolleType.BARN, generertFødselsdag, "Adr", true)));
         return set;
     }
 

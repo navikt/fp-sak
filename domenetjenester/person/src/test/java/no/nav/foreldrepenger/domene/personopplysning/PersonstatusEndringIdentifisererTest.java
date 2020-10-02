@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
@@ -38,8 +38,10 @@ public class PersonstatusEndringIdentifisererTest {
 
     @Test
     public void testPersonstatusUendret_flere_statuser() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+                List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
+                List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erPersonstatusEndretForSøkerFør(null);
@@ -48,17 +50,22 @@ public class PersonstatusEndringIdentifisererTest {
 
     @Test
     public void testPersonstatusEndret_ekstra_status_lagt_til() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.ABNR, PersonstatusType.BOSA, PersonstatusType.FOSV));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+                List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
+                List.of(PersonstatusType.ABNR, PersonstatusType.BOSA, PersonstatusType.FOSV));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erPersonstatusEndretForSøkerFør(null);
         assertThat(erEndret).as("Forventer at endring i personstatus blir detektert.").isTrue();
     }
+
     @Test
     public void testPersonstatusEndret_status_endret_type() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.ABNR, PersonstatusType.FOSV));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+                List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
+                List.of(PersonstatusType.ABNR, PersonstatusType.FOSV));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erPersonstatusEndretForSøkerFør(null);
@@ -67,8 +74,10 @@ public class PersonstatusEndringIdentifisererTest {
 
     @Test
     public void testPersonstatusUendret_men_rekkefølge_i_liste_endret() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElse(Collections.emptyList()));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+                List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(
+                personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElse(Collections.emptyList()));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erPersonstatusEndretForSøkerFør(null);
@@ -79,17 +88,21 @@ public class PersonstatusEndringIdentifisererTest {
         final PersonInformasjonBuilder builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
         personstatuser.stream()
-            .collect(Collectors.toCollection(LinkedList::new))
-            .descendingIterator()
-            .forEachRemaining(ps -> builder1.leggTil(builder1.getPersonstatusBuilder(AKTØRID, ps.getPeriode()).medPersonstatus(ps.getPersonstatus())));
+                .collect(Collectors.toCollection(LinkedList::new))
+                .descendingIterator()
+                .forEachRemaining(
+                        ps -> builder1.leggTil(builder1.getPersonstatusBuilder(AKTØRID, ps.getPeriode()).medPersonstatus(ps.getPersonstatus())));
         return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder1).build();
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(List<PersonstatusType> personstatuser) {
         final PersonInformasjonBuilder builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
-        //Opprett personstatuser med forskjellig fra og med dato. Går 1 mnd tilbake for hver status.
-        IntStream.range(0, personstatuser.size()).forEach(i -> builder1.leggTil(builder1.getPersonstatusBuilder(AKTØRID, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(i))).medPersonstatus(personstatuser.get(i))));
+        // Opprett personstatuser med forskjellig fra og med dato. Går 1 mnd tilbake for
+        // hver status.
+        IntStream.range(0, personstatuser.size())
+                .forEach(i -> builder1.leggTil(builder1.getPersonstatusBuilder(AKTØRID, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(i)))
+                        .medPersonstatus(personstatuser.get(i))));
         return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder1).build();
     }
 }

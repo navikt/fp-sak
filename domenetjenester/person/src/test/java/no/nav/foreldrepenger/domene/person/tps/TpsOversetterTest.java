@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.domene.person.tps;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -14,12 +16,12 @@ import java.util.List;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
@@ -30,7 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.AktoerId;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bostedsadresse;
@@ -66,17 +68,13 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.UstrukturertAdresse;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonhistorikkResponse;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.konfig.Tid;
 
-public class TpsOversetterTest {
-    private static final DatatypeFactory DATATYPE_FACTORY;
-    static {
-        try {
-            DATATYPE_FACTORY = DatatypeFactory.newInstance();
-        } catch (DatatypeConfigurationException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class TpsOversetterTest extends EntityManagerAwareTest {
+    private static DatatypeFactory DATATYPE_FACTORY;
 
     private static final String POSTNUMMER = "1234";
 
@@ -84,13 +82,7 @@ public class TpsOversetterTest {
 
     private static final String USTRUKTURERT_GATEADRESSE1 = "Ustrukturert adresselinje 1";
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    private PoststedKodeverkRepository poststedKodeverkRepository = new PoststedKodeverkRepository(repoRule.getEntityManager());
+    private PoststedKodeverkRepository poststedKodeverkRepository;
 
     @Mock
     private Bruker bruker;
@@ -114,8 +106,14 @@ public class TpsOversetterTest {
     private TpsOversetter tpsOversetter;
     private TpsAdresseOversetter tpsAdresseOversetter;
 
-    @Before
+    @BeforeAll
+    public static void beforeall() throws Exception {
+        DATATYPE_FACTORY = DatatypeFactory.newInstance();
+    }
+
+    @BeforeEach
     public void oppsett() throws DatatypeConfigurationException {
+        poststedKodeverkRepository = new PoststedKodeverkRepository(getEntityManager());
 
         Landkoder landkodeNorge = new Landkoder();
         landkodeNorge.setValue("NOR");
@@ -127,49 +125,50 @@ public class TpsOversetterTest {
         PersonIdent pi = new PersonIdent();
         pi.setIdent(ident);
 
-        when(bruker.getAktoer()).thenReturn(pi);
-        when(bruker.getStatsborgerskap()).thenReturn(statsborgerskap);
+        lenient().when(bruker.getAktoer()).thenReturn(pi);
+        lenient().when(bruker.getStatsborgerskap()).thenReturn(statsborgerskap);
         tpsAdresseOversetter = new TpsAdresseOversetter(
-            poststedKodeverkRepository);
+                poststedKodeverkRepository);
         tpsOversetter = new TpsOversetter(
-            tpsAdresseOversetter);
+                tpsAdresseOversetter);
         Matrikkelnummer matrikkelnummer = new Matrikkelnummer();
         matrikkelnummer.setBruksnummer("bnr");
         matrikkelnummer.setFestenummer("fnr");
         matrikkelnummer.setGaardsnummer("gnr");
         matrikkelnummer.setSeksjonsnummer("snr");
         matrikkelnummer.setUndernummer("unr");
-        when(matrikkeladresse.getMatrikkelnummer()).thenReturn(matrikkelnummer);
+        lenient().when(matrikkeladresse.getMatrikkelnummer()).thenReturn(matrikkelnummer);
         Postnummer poststed = new Postnummer();
         poststed.setKodeRef(POSTNUMMER);
         poststed.setValue(POSTNUMMER);
-        when(matrikkeladresse.getPoststed()).thenReturn(poststed);
+        lenient().when(matrikkeladresse.getPoststed()).thenReturn(poststed);
 
-        when(postboksAdresse.getLandkode()).thenReturn(landkodeNorge);
-        when(postboksAdresse.getPostboksnummer()).thenReturn("47");
-        when(postboksAdresse.getPoststed()).thenReturn(poststed);
+        lenient().when(postboksAdresse.getLandkode()).thenReturn(landkodeNorge);
+        lenient().when(postboksAdresse.getPostboksnummer()).thenReturn("47");
+        lenient().when(postboksAdresse.getPoststed()).thenReturn(poststed);
 
-        when(gateadresse.getGatenavn()).thenReturn("Gaten");
-        when(gateadresse.getHusnummer()).thenReturn(13);
-        when(gateadresse.getHusbokstav()).thenReturn("B");
-        when(gateadresse.getPoststed()).thenReturn(poststed);
+        lenient().when(gateadresse.getGatenavn()).thenReturn("Gaten");
+        lenient().when(gateadresse.getHusnummer()).thenReturn(13);
+        lenient().when(gateadresse.getHusbokstav()).thenReturn("B");
+        lenient().when(gateadresse.getPoststed()).thenReturn(poststed);
 
         Gyldighetsperiode gyldighetsperiode = new Gyldighetsperiode();
         LocalDate fom = LocalDate.now().minusDays(1);
         LocalDate tom = LocalDate.now().plusDays(1);
+
         gyldighetsperiode.setFom(DATATYPE_FACTORY.newXMLGregorianCalendar(GregorianCalendar.from(fom.atStartOfDay(ZoneId.systemDefault()))));
         gyldighetsperiode.setTom(DATATYPE_FACTORY.newXMLGregorianCalendar(GregorianCalendar.from(tom.atStartOfDay(ZoneId.systemDefault()))));
-        when(midlertidigPostadresseNorge.getPostleveringsPeriode()).thenReturn(gyldighetsperiode);
+        lenient().when(midlertidigPostadresseNorge.getPostleveringsPeriode()).thenReturn(gyldighetsperiode);
         Personnavn personnavn = new Personnavn();
         personnavn.setSammensattNavn("Ole Olsen");
-        when(bruker.getPersonnavn()).thenReturn(personnavn);
+        lenient().when(bruker.getPersonnavn()).thenReturn(personnavn);
 
         UstrukturertAdresse adresse = new UstrukturertAdresse();
         adresse.setAdresselinje1("Test utlandsadresse");
-        when(midlertidigPostadresseUtland.getUstrukturertAdresse()).thenReturn(adresse);
+        lenient().when(midlertidigPostadresseUtland.getUstrukturertAdresse()).thenReturn(adresse);
 
-        when(ustrukturertAdresse.getAdresselinje1()).thenReturn(USTRUKTURERT_GATEADRESSE1);
-        when(postadresse.getUstrukturertAdresse()).thenReturn(ustrukturertAdresse);
+        lenient().when(ustrukturertAdresse.getAdresselinje1()).thenReturn(USTRUKTURERT_GATEADRESSE1);
+        lenient().when(postadresse.getUstrukturertAdresse()).thenReturn(ustrukturertAdresse);
         leggPåAndrePåkrevdeFelter();
     }
 
@@ -189,10 +188,10 @@ public class TpsOversetterTest {
         assertThat(adresseinfo.getPoststed()).isEqualTo("UKJENT");
     }
 
-    @Test(expected = VLException.class)
+    @Test
     public void testPostnummerAdresseEksistererIkke() {
         when(bruker.getGjeldendePostadressetype()).thenReturn(new Postadressetyper());
-        tpsOversetter.tilAdresseInfo(bruker);
+        assertThrows(VLException.class, () -> tpsOversetter.tilAdresseInfo(bruker));
     }
 
     @Test
@@ -230,7 +229,7 @@ public class TpsOversetterTest {
     public void testPostnummerAdresseMedTilleggsadresse() {
         initMockBostedsadresseMedPostboksAdresseForBruker();
         when(postboksAdresse.getTilleggsadresse()).thenReturn("Tilleggsadresse");
-        when(postboksAdresse.getTilleggsadresseType()).thenReturn("TilleggsadresseType");
+        lenient().when(postboksAdresse.getTilleggsadresseType()).thenReturn("TilleggsadresseType");
 
         Adresseinfo adresseinfo = tpsOversetter.tilAdresseInfo(bruker);
 
@@ -364,7 +363,7 @@ public class TpsOversetterTest {
 
         assertThat(personhistorikkinfo.getAktørId()).isEqualTo(aktør.getAktoerId());
         List<no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPeriode> statsborgerskaphistorikk = personhistorikkinfo
-            .getStatsborgerskaphistorikk();
+                .getStatsborgerskaphistorikk();
         assertThat(statsborgerskaphistorikk.get(0).getGyldighetsperiode().getFom()).isEqualTo(Tid.TIDENES_BEGYNNELSE);
         assertThat(statsborgerskaphistorikk.get(0).getGyldighetsperiode().getTom()).isEqualTo(Tid.TIDENES_ENDE);
         assertThat(statsborgerskaphistorikk.get(0).getStatsborgerskap().getLandkode()).isEqualTo("NOR");
@@ -407,7 +406,8 @@ public class TpsOversetterTest {
         Personhistorikkinfo personhistorikkinfo = tpsOversetter.tilPersonhistorikkInfo(aktørIdString, response);
 
         assertThat(personhistorikkinfo.getAktørId()).isEqualTo(aktør.getAktoerId());
-        List<no.nav.foreldrepenger.behandlingslager.aktør.historikk.PersonstatusPeriode> personstatushistorikk = personhistorikkinfo.getPersonstatushistorikk();
+        List<no.nav.foreldrepenger.behandlingslager.aktør.historikk.PersonstatusPeriode> personstatushistorikk = personhistorikkinfo
+                .getPersonstatushistorikk();
         assertThat(personstatushistorikk.get(0).getGyldighetsperiode().getFom()).isEqualTo(Tid.TIDENES_BEGYNNELSE);
         assertThat(personstatushistorikk.get(0).getGyldighetsperiode().getTom()).isEqualTo(tomPeriode1);
         assertThat(personstatushistorikk.get(0).getPersonstatus().getKode()).isEqualTo(PersonstatusType.FØDR.getKode());
@@ -440,7 +440,7 @@ public class TpsOversetterTest {
         Familierelasjon familierelasjonBarnFdat = new Familierelasjon().withTilRolle(familierelasjoner).withTilPerson(barnFdat);
 
         List<FødtBarnInfo> fødteBarn = tpsOversetter.tilFødteBarn(bruker
-            .withHarFraRolleI(familierelasjonBarnFnr).withHarFraRolleI(familierelasjonBarnDnr).withHarFraRolleI(familierelasjonBarnFdat));
+                .withHarFraRolleI(familierelasjonBarnFnr).withHarFraRolleI(familierelasjonBarnDnr).withHarFraRolleI(familierelasjonBarnFdat));
 
         assertThat(fødteBarn).hasSize(3);
         assertThat(fødteBarn.get(0).getFødselsdato()).isEqualTo(førsteJanuarNitten);
@@ -471,13 +471,13 @@ public class TpsOversetterTest {
         Personstatuser tpsPersonstatuser = new Personstatuser();
         tpsPersonstatuser.setValue(personstatusType.getKode());
         tpsPersonstatus.setPersonstatus(tpsPersonstatuser);
-        when(bruker.getPersonstatus()).thenReturn(tpsPersonstatus);
+        lenient().when(bruker.getPersonstatus()).thenReturn(tpsPersonstatus);
     }
 
     private void initMockBostedsadresseMedPostboksAdresseForBruker() {
-        when(bruker.getGjeldendePostadressetype()).thenReturn(tilPostadressetyper("BOSTEDSADRESSE"));
-        when(bruker.getBostedsadresse()).thenReturn(bostedsadresse);
-        when(bostedsadresse.getStrukturertAdresse()).thenReturn(postboksAdresse);
+        lenient().when(bruker.getGjeldendePostadressetype()).thenReturn(tilPostadressetyper("BOSTEDSADRESSE"));
+        lenient().when(bruker.getBostedsadresse()).thenReturn(bostedsadresse);
+        lenient().when(bostedsadresse.getStrukturertAdresse()).thenReturn(postboksAdresse);
     }
 
     private void leggPåAndrePåkrevdeFelter() throws DatatypeConfigurationException {
@@ -485,7 +485,7 @@ public class TpsOversetterTest {
         Kjoennstyper kjønnstype = new Kjoennstyper();
         kjønnstype.setValue("K");
         kjønn.setKjoenn(kjønnstype);
-        when(bruker.getKjoenn()).thenReturn(kjønn);
+        lenient().when(bruker.getKjoenn()).thenReturn(kjønn);
 
         initMockBrukerPersonstatus(PersonstatusType.BOSA);
 
@@ -493,13 +493,13 @@ public class TpsOversetterTest {
         Landkoder land = new Landkoder();
         land.setValue("NOR");
         statsborgerskap.setLand(land);
-        when(bruker.getStatsborgerskap()).thenReturn(statsborgerskap);
+        lenient().when(bruker.getStatsborgerskap()).thenReturn(statsborgerskap);
 
         initMockBostedsadresseMedPostboksAdresseForBruker();
 
         Foedselsdato foedselsdato = new Foedselsdato();
         foedselsdato.setFoedselsdato(DateUtil.convertToXMLGregorianCalendar(LocalDate.now()));
-        when(bruker.getFoedselsdato()).thenReturn(foedselsdato);
+        lenient().when(bruker.getFoedselsdato()).thenReturn(foedselsdato);
     }
 
     private Postadressetyper tilPostadressetyper(String type) {

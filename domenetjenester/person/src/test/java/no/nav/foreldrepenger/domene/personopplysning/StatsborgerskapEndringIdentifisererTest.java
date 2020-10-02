@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
@@ -29,8 +29,10 @@ public class StatsborgerskapEndringIdentifisererTest {
 
     @Test
     public void testStatsborgerskapUendret() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+                List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
+                List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erStatsborgerskapEndretForSøkerFør(null);
@@ -39,8 +41,10 @@ public class StatsborgerskapEndringIdentifisererTest {
 
     @Test
     public void testStatsborgerskapUendret_flere_koder() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN), LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN), LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+                List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN), LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
+                List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN), LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erStatsborgerskapEndretForSøkerFør(null);
@@ -49,8 +53,10 @@ public class StatsborgerskapEndringIdentifisererTest {
 
     @Test
     public void testStatsborgerskapUendret_men_rekkefølge_i_liste_endret() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN), LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getStatsborgerskap).orElse(Collections.emptyList()));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+                List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN), LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(
+                personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getStatsborgerskap).orElse(Collections.emptyList()));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erStatsborgerskapEndretForSøkerFør(null);
@@ -59,8 +65,10 @@ public class StatsborgerskapEndringIdentifisererTest {
 
     @Test
     public void testStatsborgerskapEndret() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+                List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
+                List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erStatsborgerskapEndretForSøkerFør(null);
@@ -69,8 +77,10 @@ public class StatsborgerskapEndringIdentifisererTest {
 
     @Test
     public void testStatsborgerskapEndret_endret_type() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN), LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN), LandOgRegion.get(Landkoder.USA, Region.UDEFINERT)));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+                List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN), LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
+                List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN), LandOgRegion.get(Landkoder.USA, Region.UDEFINERT)));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erStatsborgerskapEndretForSøkerFør(null);
@@ -79,8 +89,10 @@ public class StatsborgerskapEndringIdentifisererTest {
 
     @Test
     public void testStatsborgerskapEndret_ekstra_statsborgerskap_lagt_til() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN), LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+                List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
+                List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN), LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erStatsborgerskapEndretForSøkerFør(null);
@@ -90,21 +102,24 @@ public class StatsborgerskapEndringIdentifisererTest {
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlagMotstattRekkefølge(List<StatsborgerskapEntitet> statsborgerLand) {
         final PersonInformasjonBuilder builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
-        //Bygg opp identiske statsborgerskap, bare legg de inn i motsatt rekkefølge.
+        // Bygg opp identiske statsborgerskap, bare legg de inn i motsatt rekkefølge.
         statsborgerLand.stream()
-            .collect(Collectors.toCollection(LinkedList::new))
-            .descendingIterator()
-            .forEachRemaining(s -> builder1.leggTil(builder1.getStatsborgerskapBuilder(AKTØRID, s.getPeriode(), s.getStatsborgerskap(), s.getRegion()).medStatsborgerskap(s.getStatsborgerskap())));
+                .collect(Collectors.toCollection(LinkedList::new))
+                .descendingIterator()
+                .forEachRemaining(
+                        s -> builder1.leggTil(builder1.getStatsborgerskapBuilder(AKTØRID, s.getPeriode(), s.getStatsborgerskap(), s.getRegion())
+                                .medStatsborgerskap(s.getStatsborgerskap())));
         return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder1).build();
     }
-
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(List<LandOgRegion> statsborgerskap) {
         final PersonInformasjonBuilder builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1
-            .leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
-            IntStream.range(0, statsborgerskap.size())
-                .forEach( i -> builder1.leggTil(builder1.getStatsborgerskapBuilder(AKTØRID, DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()), statsborgerskap.get(i).land, statsborgerskap.get(i).region)));
+                .leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
+        IntStream.range(0, statsborgerskap.size())
+                .forEach(i -> builder1
+                        .leggTil(builder1.getStatsborgerskapBuilder(AKTØRID, DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()),
+                                statsborgerskap.get(i).land, statsborgerskap.get(i).region)));
         return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder1).build();
     }
 

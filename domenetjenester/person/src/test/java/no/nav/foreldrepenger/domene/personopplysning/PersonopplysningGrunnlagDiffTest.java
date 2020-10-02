@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
@@ -226,7 +226,6 @@ public class PersonopplysningGrunnlagDiffTest {
         Assertions.assertThat(differ.erRelasjonerEndretForSøkerUtenomNyeBarn()).isFalse();
         Assertions.assertThat(differ.erRelasjonerEndretForEksisterendeBarn()).isFalse();
     }
-
 
     @Test
     public void skal_ikke_identifisere_som_kun_endring_fødsel_dersom_diff_omfatter_ny_ektefelle_i_tillegg_til_nytt_barn() {
