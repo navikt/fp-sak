@@ -44,9 +44,11 @@ public class TilkjentYtelseMapper {
 
     private void mapPerioder(BeregningsresultatEntitet beregningsresultat, TilkjentYtelse tilkjentYtelseFP) {
         List<BeregningsresultatPeriode> brPeriodeListe = sortBeregningsresultatPerioder(beregningsresultat.getBeregningsresultatPerioder());
-        // vi ønsker å hente første BeregningsresultatPeriode.fom
-        LocalDate endringsdato = brPeriodeListe.get(0).getBeregningsresultatPeriodeFom();
-        opprettOppdragPerioderFomEndringsdato(endringsdato, brPeriodeListe, tilkjentYtelseFP);
+        if (!brPeriodeListe.isEmpty()) {
+            // vi ønsker å hente første BeregningsresultatPeriode.fom
+            LocalDate endringsdato = brPeriodeListe.get(0).getBeregningsresultatPeriodeFom();
+            opprettOppdragPerioderFomEndringsdato(endringsdato, brPeriodeListe, tilkjentYtelseFP);
+        }
     }
 
     private TilkjentYtelse opprettForenkletBeregningsresultatFP(BeregningsresultatEntitet beregningsresultat) {
