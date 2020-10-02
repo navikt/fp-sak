@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 
@@ -14,7 +15,7 @@ public class UttakResultatPerioderEntitetTest {
     private LocalDate start;
     private UttakResultatPerioderEntitet perioder;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
         start = LocalDate.now();
         perioder = new UttakResultatPerioderEntitet();
@@ -25,7 +26,7 @@ public class UttakResultatPerioderEntitetTest {
     @Test
     public void periode_skal_sorteres_når_de_hentes_ut() {
         perioder = new UttakResultatPerioderEntitet();
-        //Legger til periodene i feil rekkefølge
+        // Legger til periodene i feil rekkefølge
         perioder.leggTilPeriode(lagPeriode(start.plusWeeks(2), start.plusWeeks(3).minusDays(1)));
         perioder.leggTilPeriode(lagPeriode(start.plusWeeks(1), start.plusWeeks(2).minusDays(1)));
         perioder.leggTilPeriode(lagPeriode(start, start.plusWeeks(1).minusDays(1)));
@@ -40,12 +41,12 @@ public class UttakResultatPerioderEntitetTest {
         assertThat(sortertePerioder.get(2).getTom()).isEqualTo(start.plusWeeks(3).minusDays(1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void skal_feile_dersom_det_blir_lagt_til_overlappende_perioder() {
         start = LocalDate.now();
         perioder = new UttakResultatPerioderEntitet();
         perioder.leggTilPeriode(lagPeriode(start, start.plusWeeks(6)));
-        perioder.leggTilPeriode(lagPeriode(start.plusWeeks(6), start.plusWeeks(16).minusDays(1)));
+        assertThrows(IllegalArgumentException.class, () -> perioder.leggTilPeriode(lagPeriode(start.plusWeeks(6), start.plusWeeks(16).minusDays(1))));
     }
 
     private UttakResultatPeriodeEntitet lagPeriode(LocalDate fom, LocalDate tom) {

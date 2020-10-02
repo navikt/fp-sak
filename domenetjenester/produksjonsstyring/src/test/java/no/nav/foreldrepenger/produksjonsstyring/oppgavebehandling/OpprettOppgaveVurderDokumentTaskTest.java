@@ -6,8 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -27,7 +27,7 @@ public class OpprettOppgaveVurderDokumentTaskTest {
     private OpprettOppgaveVurderDokumentTask opprettOppgaveVurderDokumentTask;
     private FagsakLåsRepository låsRepository;
 
-    @Before
+    @BeforeEach
     public void before() {
         oppgaveTjeneste = mock(OppgaveTjeneste.class);
         repositoryProvider = mock(BehandlingRepositoryProvider.class);
@@ -56,7 +56,7 @@ public class OpprettOppgaveVurderDokumentTaskTest {
 
         // Assert
         verify(oppgaveTjeneste).opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(fagsakIdCaptor.capture(), årsakCaptor.capture(),
-            fordelingsoppgaveEnhetsIdCaptor.capture(), beskrivelseCaptor.capture(), priCaptor.capture());
+                fordelingsoppgaveEnhetsIdCaptor.capture(), beskrivelseCaptor.capture(), priCaptor.capture());
         assertThat(fagsakIdCaptor.getValue()).isEqualTo(FAGSAK_ID);
         assertThat(årsakCaptor.getValue()).isEqualTo(OppgaveÅrsak.VURDER_DOKUMENT);
         var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;

@@ -5,19 +5,21 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveForBehandlingSendtTilbakeTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
+@ExtendWith(MockitoExtension.class)
 public class OpprettOppgaveForBehandlingSendtTilbakeTaskTest {
     private static final String BEHANDLENDE_ENHET_ID = "1234";
 
@@ -27,9 +29,8 @@ public class OpprettOppgaveForBehandlingSendtTilbakeTaskTest {
     private Behandling behandling;
     private ProsessTaskData taskData;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        oppgaveTjeneste = mock(OppgaveTjeneste.class);
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlendeEnhet(BEHANDLENDE_ENHET_ID);
         behandling = scenario.lagMocked();
         task = new OpprettOppgaveForBehandlingSendtTilbakeTask(oppgaveTjeneste);
@@ -37,7 +38,8 @@ public class OpprettOppgaveForBehandlingSendtTilbakeTaskTest {
         taskData = new ProsessTaskData(OpprettOppgaveForBehandlingSendtTilbakeTask.TASKTYPE);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
 
-        when(oppgaveTjeneste.opprettBehandleOppgaveForBehandlingMedPrioritetOgFrist(anyLong(), anyString(), anyBoolean(), anyInt())).thenReturn("54321");
+        when(oppgaveTjeneste.opprettBehandleOppgaveForBehandlingMedPrioritetOgFrist(anyLong(), anyString(), anyBoolean(), anyInt()))
+                .thenReturn("54321");
     }
 
     @Test
@@ -47,9 +49,9 @@ public class OpprettOppgaveForBehandlingSendtTilbakeTaskTest {
 
         // Assert
         verify(oppgaveTjeneste).opprettBehandleOppgaveForBehandlingMedPrioritetOgFrist(
-            eq(behandling.getId()),
-            anyString(),
-            eq(true),
-            eq(0));
+                eq(behandling.getId()),
+                anyString(),
+                eq(true),
+                eq(0));
     }
 }

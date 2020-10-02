@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.domene.typer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 

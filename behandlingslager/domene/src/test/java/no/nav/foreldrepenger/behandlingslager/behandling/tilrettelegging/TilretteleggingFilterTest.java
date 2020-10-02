@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class TilretteleggingFilterTest {
@@ -18,8 +18,8 @@ public class TilretteleggingFilterTest {
 
         // Arrange
         var tilrettelegginger = new SvpTilretteleggingerEntitet.Builder()
-            .medTilretteleggingListe(List.of(new SvpTilretteleggingEntitet.Builder().build()))
-            .build();
+                .medTilretteleggingListe(List.of(new SvpTilretteleggingEntitet.Builder().build()))
+                .build();
 
         when(grunnlag.getOpprinneligeTilrettelegginger()).thenReturn(tilrettelegginger);
         when(grunnlag.getOverstyrteTilrettelegginger()).thenReturn(null);
@@ -27,7 +27,7 @@ public class TilretteleggingFilterTest {
         TilretteleggingFilter tilretteleggingFilter = new TilretteleggingFilter(grunnlag);
 
         // Act
-       var aktuelleTilretteleggingerUfiltrert = tilretteleggingFilter.getAktuelleTilretteleggingerUfiltrert();
+        var aktuelleTilretteleggingerUfiltrert = tilretteleggingFilter.getAktuelleTilretteleggingerUfiltrert();
 
         // Assert
         assertThat(aktuelleTilretteleggingerUfiltrert).hasSize(1);
@@ -39,14 +39,14 @@ public class TilretteleggingFilterTest {
 
         // Arrange
         var opprinnelig = new SvpTilretteleggingerEntitet.Builder()
-            .medTilretteleggingListe(List.of(new SvpTilretteleggingEntitet.Builder().build()))
-            .build();
+                .medTilretteleggingListe(List.of(new SvpTilretteleggingEntitet.Builder().build()))
+                .build();
 
         var overstyrt = new SvpTilretteleggingerEntitet.Builder()
-            .medTilretteleggingListe(List.of(new SvpTilretteleggingEntitet.Builder()
-                    .medSkalBrukes(true)
-                    .build()))
-            .build();
+                .medTilretteleggingListe(List.of(new SvpTilretteleggingEntitet.Builder()
+                        .medSkalBrukes(true)
+                        .build()))
+                .build();
 
         when(grunnlag.getOpprinneligeTilrettelegginger()).thenReturn(opprinnelig);
         when(grunnlag.getOverstyrteTilrettelegginger()).thenReturn(overstyrt);
@@ -67,21 +67,21 @@ public class TilretteleggingFilterTest {
 
         // Arrange
         var opprinnelig = new SvpTilretteleggingerEntitet.Builder()
-            .medTilretteleggingListe(List.of(new SvpTilretteleggingEntitet.Builder().build()))
-            .build();
+                .medTilretteleggingListe(List.of(new SvpTilretteleggingEntitet.Builder().build()))
+                .build();
 
         var tilrettelegging_1 = new SvpTilretteleggingEntitet.Builder()
-            .medSkalBrukes(true)
-            .build();
+                .medSkalBrukes(true)
+                .build();
         var tilrettelegging_2 = new SvpTilretteleggingEntitet.Builder()
-            .medSkalBrukes(false)
-            .build();
+                .medSkalBrukes(false)
+                .build();
         var tilrettelegging_3 = new SvpTilretteleggingEntitet.Builder()
-            .medSkalBrukes(true)
-            .build();
+                .medSkalBrukes(true)
+                .build();
         var overstyrt = new SvpTilretteleggingerEntitet.Builder()
-            .medTilretteleggingListe(List.of(tilrettelegging_1, tilrettelegging_2, tilrettelegging_3))
-            .build();
+                .medTilretteleggingListe(List.of(tilrettelegging_1, tilrettelegging_2, tilrettelegging_3))
+                .build();
 
         when(grunnlag.getOpprinneligeTilrettelegginger()).thenReturn(opprinnelig);
         when(grunnlag.getOverstyrteTilrettelegginger()).thenReturn(overstyrt);
@@ -103,24 +103,24 @@ public class TilretteleggingFilterTest {
 
         // Arrange
         var opprinnelig = new SvpTilretteleggingerEntitet.Builder()
-            .medTilretteleggingListe(List.of(new SvpTilretteleggingEntitet.Builder().build()))
-            .build();
+                .medTilretteleggingListe(List.of(new SvpTilretteleggingEntitet.Builder().build()))
+                .build();
 
         var tilrettelegging_1 = new SvpTilretteleggingEntitet.Builder()
-            .medSkalBrukes(false)
-            .medBehovForTilretteleggingFom(LocalDate.of(2019,8,1))
-            .build();
+                .medSkalBrukes(false)
+                .medBehovForTilretteleggingFom(LocalDate.of(2019, 8, 1))
+                .build();
         var tilrettelegging_2 = new SvpTilretteleggingEntitet.Builder()
-            .medBehovForTilretteleggingFom(LocalDate.of(2019,8,7))
-            .medSkalBrukes(true)
-            .build();
+                .medBehovForTilretteleggingFom(LocalDate.of(2019, 8, 7))
+                .medSkalBrukes(true)
+                .build();
         var tilrettelegging_3 = new SvpTilretteleggingEntitet.Builder()
-            .medSkalBrukes(true)
-            .medBehovForTilretteleggingFom(LocalDate.of(2019,8,14))
-            .build();
+                .medSkalBrukes(true)
+                .medBehovForTilretteleggingFom(LocalDate.of(2019, 8, 14))
+                .build();
         var overstyrt = new SvpTilretteleggingerEntitet.Builder()
-            .medTilretteleggingListe(List.of(tilrettelegging_1, tilrettelegging_2, tilrettelegging_3))
-            .build();
+                .medTilretteleggingListe(List.of(tilrettelegging_1, tilrettelegging_2, tilrettelegging_3))
+                .build();
 
         when(grunnlag.getOpprinneligeTilrettelegginger()).thenReturn(opprinnelig);
         when(grunnlag.getOverstyrteTilrettelegginger()).thenReturn(overstyrt);

@@ -5,13 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FamilieHendelseGrunnlagEntitetTest {
 
     /**
-     * Scenario er relatert til en feil PFP-5591 hvor ved andre registerdata innhending ble
-     * FamilieHendelseType erdret fra OMSORG til ADOPSJON.
+     * Scenario er relatert til en feil PFP-5591 hvor ved andre registerdata
+     * innhending ble FamilieHendelseType erdret fra OMSORG til ADOPSJON.
      */
     @Test
     public void endring_av_bekreftet_omsorg_familie_hendelse_ved_registerinnhenting() {
@@ -25,9 +25,10 @@ public class FamilieHendelseGrunnlagEntitetTest {
 
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = fhGrunnlagBuilder.build();
 
-        //Oppdatering
+        // Oppdatering
         FamilieHendelseGrunnlagBuilder oppdateringFhGrunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.of(familieHendelseGrunnlag));
-        FamilieHendelseBuilder oppdateringFhBuilder = FamilieHendelseBuilder.oppdatere(familieHendelseGrunnlag.getBekreftetVersjon(), HendelseVersjonType.BEKREFTET);
+        FamilieHendelseBuilder oppdateringFhBuilder = FamilieHendelseBuilder.oppdatere(familieHendelseGrunnlag.getBekreftetVersjon(),
+                HendelseVersjonType.BEKREFTET);
 
         oppdateringFhGrunnlagBuilder.medBekreftetVersjon(oppdateringFhBuilder);
         FamilieHendelseGrunnlagEntitet build = oppdateringFhGrunnlagBuilder.build();
@@ -45,7 +46,7 @@ public class FamilieHendelseGrunnlagEntitetTest {
         LocalDate ommsorgsovertakelseDato = LocalDate.of(2015, 7, 12);
 
         final FamilieHendelseBuilder.AdopsjonBuilder adopsjonBuilder = familieHendelseBuilder.getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(ommsorgsovertakelseDato);
+                .medOmsorgsovertakelseDato(ommsorgsovertakelseDato);
 
         if (erOmsorgovertakelse) {
             familieHendelseBuilder.erOmsorgovertagelse();
