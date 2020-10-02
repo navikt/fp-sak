@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.TilgrensendeYtelserDto;
 
@@ -17,16 +17,15 @@ public class TilgrensendeYtelserDtoTest {
     @Test
     public void skal_sortere_null_first() {
         List<TilgrensendeYtelserDto> tilgrensendeYtelserDtos = Arrays.asList(
-            lagTilgrensendeYtelserDto(I_DAG.minusYears(3)),
-            lagTilgrensendeYtelserDto(I_DAG.minusDays(2)),
-            lagTilgrensendeYtelserDto(I_DAG.plusWeeks(3)),
-            lagTilgrensendeYtelserDto(I_DAG),
-            lagTilgrensendeYtelserDto(null),
-            lagTilgrensendeYtelserDto(I_DAG.plusYears(2)),
-            lagTilgrensendeYtelserDto(I_DAG.minusMonths(1)),
-            lagTilgrensendeYtelserDto(null),
-            lagTilgrensendeYtelserDto(I_DAG.minusYears(1))
-        );
+                lagTilgrensendeYtelserDto(I_DAG.minusYears(3)),
+                lagTilgrensendeYtelserDto(I_DAG.minusDays(2)),
+                lagTilgrensendeYtelserDto(I_DAG.plusWeeks(3)),
+                lagTilgrensendeYtelserDto(I_DAG),
+                lagTilgrensendeYtelserDto(null),
+                lagTilgrensendeYtelserDto(I_DAG.plusYears(2)),
+                lagTilgrensendeYtelserDto(I_DAG.minusMonths(1)),
+                lagTilgrensendeYtelserDto(null),
+                lagTilgrensendeYtelserDto(I_DAG.minusYears(1)));
 
         tilgrensendeYtelserDtos.sort(Comparator.naturalOrder());
 

@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.behandling.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -15,7 +15,7 @@ public class FinnAnsvarligSaksbehandlerTest {
 
     private Behandling behandling;
 
-    @Before
+    @BeforeEach
     public void setup() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         behandling = scenario.lagMocked();

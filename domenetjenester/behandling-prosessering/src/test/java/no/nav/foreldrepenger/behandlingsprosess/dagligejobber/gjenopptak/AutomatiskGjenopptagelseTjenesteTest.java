@@ -13,8 +13,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -41,13 +41,14 @@ public class AutomatiskGjenopptagelseTjenesteTest {
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
     private BehandlingRepository behandlingRepository;
 
-    @Before
+    @BeforeEach
     public void setup() {
         mockProsessTaskRepository = mock(ProsessTaskRepository.class);
         mockBehandlingKandidaterRepository = mock(BehandlingKandidaterRepository.class);
         oppgaveBehandlingKoblingRepository = mock(OppgaveBehandlingKoblingRepository.class);
         behandlingRepository = mock(BehandlingRepository.class);
-        tjeneste = new AutomatiskGjenopptagelseTjeneste(mockBehandlingKandidaterRepository, oppgaveBehandlingKoblingRepository, behandlingRepository, mockProsessTaskRepository);
+        tjeneste = new AutomatiskGjenopptagelseTjeneste(mockBehandlingKandidaterRepository, oppgaveBehandlingKoblingRepository, behandlingRepository,
+                mockProsessTaskRepository);
     }
 
     @Test
@@ -235,7 +236,6 @@ public class AutomatiskGjenopptagelseTjenesteTest {
         assertThat(faktiskProsessTaskData1.getSekvens()).isEqualTo("1");
         assertThat(faktiskProsessTaskData1.getPriority()).isEqualTo(100);
     }
-
 
     private Behandling lagMockBehandling() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();

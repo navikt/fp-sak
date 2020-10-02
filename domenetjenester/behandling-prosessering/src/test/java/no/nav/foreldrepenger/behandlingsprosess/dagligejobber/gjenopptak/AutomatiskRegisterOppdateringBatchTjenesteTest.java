@@ -8,8 +8,8 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -30,7 +30,7 @@ public class AutomatiskRegisterOppdateringBatchTjenesteTest {
     private static final TaskStatus FEILET_1 = new TaskStatus(ProsessTaskStatus.FEILET, new BigDecimal(1));
     private static final TaskStatus KLAR_1 = new TaskStatus(ProsessTaskStatus.KLAR, new BigDecimal(1));
 
-    @Before
+    @BeforeEach
     public void setup() {
         mockTjeneste = mock(AutomatiskGjenopptagelseTjeneste.class);
         batchTjeneste = new AutomatiskRegisterOppdateringBatchTjeneste(mockTjeneste);

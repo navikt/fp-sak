@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.behandling.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.fp.UtledVedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;

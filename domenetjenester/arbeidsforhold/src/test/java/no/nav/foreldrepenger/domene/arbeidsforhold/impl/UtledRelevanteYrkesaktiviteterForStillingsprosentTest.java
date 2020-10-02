@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -10,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -42,7 +41,8 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         // Arrange
         List<Yrkesaktivitet> yrkesaktiviteter = Collections.emptyList();
         // Act
-        List<Yrkesaktivitet> relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent.utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
+        List<Yrkesaktivitet> relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent
+                .utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
         // Assert
         assertThat(relevanteYrkesaktiviteter).isEmpty();
     }
@@ -54,67 +54,68 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         LocalDate fom1 = SKJÆRINGSTIDSPUNKT.minusYears(2);
         LocalDate tom1 = SKJÆRINGSTIDSPUNKT;
         AktivitetsAvtaleBuilder aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
-            .medProsentsats(BigDecimal.valueOf(100));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
+                .medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
         Yrkesaktivitet yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidsgiver(Arbeidsgiver.virksomhet("1"))
-            .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsavtale1)
-            .leggTilAktivitetsAvtale(ansettelsesperiode1)
-            .build();
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("1"))
+                .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsavtale1)
+                .leggTilAktivitetsAvtale(ansettelsesperiode1)
+                .build();
 
         LocalDate fom2 = SKJÆRINGSTIDSPUNKT.minusYears(2);
         LocalDate tom2 = SKJÆRINGSTIDSPUNKT.plusDays(1);
         AktivitetsAvtaleBuilder aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
-            .medProsentsats(BigDecimal.valueOf(25));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
+                .medProsentsats(BigDecimal.valueOf(25));
         AktivitetsAvtaleBuilder ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
         Yrkesaktivitet yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidsgiver(Arbeidsgiver.virksomhet("2"))
-            .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsavtale2)
-            .leggTilAktivitetsAvtale(ansettelsesperiode2)
-            .build();
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("2"))
+                .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsavtale2)
+                .leggTilAktivitetsAvtale(ansettelsesperiode2)
+                .build();
 
         LocalDate fom3 = SKJÆRINGSTIDSPUNKT.minusYears(2);
         LocalDate tom3 = SKJÆRINGSTIDSPUNKT.minusDays(1);
         AktivitetsAvtaleBuilder aktivitetsavtale3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3))
-            .medProsentsats(BigDecimal.valueOf(50));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3))
+                .medProsentsats(BigDecimal.valueOf(50));
         AktivitetsAvtaleBuilder ansettelsesperiode3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3));
         Yrkesaktivitet yrkesaktivitet3 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidsgiver(Arbeidsgiver.virksomhet("3"))
-            .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsavtale3)
-            .leggTilAktivitetsAvtale(ansettelsesperiode3)
-            .build();
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("3"))
+                .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsavtale3)
+                .leggTilAktivitetsAvtale(ansettelsesperiode3)
+                .build();
 
         LocalDate fom4 = SKJÆRINGSTIDSPUNKT.plusDays(1);
         LocalDate tom4 = SKJÆRINGSTIDSPUNKT.plusYears(1);
         AktivitetsAvtaleBuilder aktivitetsavtale4 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom4, tom4))
-            .medProsentsats(BigDecimal.valueOf(50));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom4, tom4))
+                .medProsentsats(BigDecimal.valueOf(50));
         AktivitetsAvtaleBuilder ansettelsesperiode4 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom4, tom4));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom4, tom4));
         Yrkesaktivitet yrkesaktivitet4 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidsgiver(Arbeidsgiver.virksomhet("4"))
-            .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsavtale4)
-            .leggTilAktivitetsAvtale(ansettelsesperiode4)
-            .build();
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("4"))
+                .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsavtale4)
+                .leggTilAktivitetsAvtale(ansettelsesperiode4)
+                .build();
 
         List<Yrkesaktivitet> yrkesaktiviteter = List.of(yrkesaktivitet1, yrkesaktivitet2, yrkesaktivitet3, yrkesaktivitet4);
 
         // Act
-        List<Yrkesaktivitet> relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent.utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
+        List<Yrkesaktivitet> relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent
+                .utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(relevanteYrkesaktiviteter).hasSize(2);
@@ -132,52 +133,53 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         LocalDate fom1 = SKJÆRINGSTIDSPUNKT.minusYears(2);
         LocalDate tom1 = SKJÆRINGSTIDSPUNKT.minusDays(1);
         AktivitetsAvtaleBuilder aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
-            .medProsentsats(BigDecimal.valueOf(100));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
+                .medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
         Yrkesaktivitet yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidsgiver(Arbeidsgiver.virksomhet("1"))
-            .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsavtale1)
-            .leggTilAktivitetsAvtale(ansettelsesperiode1)
-            .build();
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("1"))
+                .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsavtale1)
+                .leggTilAktivitetsAvtale(ansettelsesperiode1)
+                .build();
 
         LocalDate fom2 = SKJÆRINGSTIDSPUNKT.plusDays(1);
         LocalDate tom2 = SKJÆRINGSTIDSPUNKT.plusYears(1);
         AktivitetsAvtaleBuilder aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
-            .medProsentsats(BigDecimal.valueOf(25));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
+                .medProsentsats(BigDecimal.valueOf(25));
         AktivitetsAvtaleBuilder ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
         Yrkesaktivitet yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidsgiver(Arbeidsgiver.virksomhet("2"))
-            .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsavtale2)
-            .leggTilAktivitetsAvtale(ansettelsesperiode2)
-            .build();
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("2"))
+                .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsavtale2)
+                .leggTilAktivitetsAvtale(ansettelsesperiode2)
+                .build();
 
         LocalDate fom3 = SKJÆRINGSTIDSPUNKT.plusDays(2);
         LocalDate tom3 = SKJÆRINGSTIDSPUNKT.plusYears(2);
         AktivitetsAvtaleBuilder aktivitetsavtale3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3))
-            .medProsentsats(BigDecimal.valueOf(50));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3))
+                .medProsentsats(BigDecimal.valueOf(50));
         AktivitetsAvtaleBuilder ansettelsesperiode3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3));
         Yrkesaktivitet yrkesaktivitet3 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidsgiver(Arbeidsgiver.virksomhet("3"))
-            .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsavtale3)
-            .leggTilAktivitetsAvtale(ansettelsesperiode3)
-            .build();
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("3"))
+                .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsavtale3)
+                .leggTilAktivitetsAvtale(ansettelsesperiode3)
+                .build();
 
         List<Yrkesaktivitet> yrkesaktiviteter = List.of(yrkesaktivitet1, yrkesaktivitet2, yrkesaktivitet3);
 
         // Act
-        List<Yrkesaktivitet> relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent.utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
+        List<Yrkesaktivitet> relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent
+                .utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(relevanteYrkesaktiviteter).hasSize(2);
@@ -199,53 +201,56 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         Arbeidsgiver arbeidsgiver1 = Arbeidsgiver.virksomhet("1");
         InternArbeidsforholdRef ref1 = InternArbeidsforholdRef.nyRef();
         AktivitetsAvtaleBuilder aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
-            .medProsentsats(BigDecimal.valueOf(100));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
+                .medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
         Yrkesaktivitet yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidsgiver(arbeidsgiver1)
-            .medArbeidsforholdId(ref1)
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsavtale1)
-            .leggTilAktivitetsAvtale(ansettelsesperiode1)
-            .build();
+                .medArbeidsgiver(arbeidsgiver1)
+                .medArbeidsforholdId(ref1)
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsavtale1)
+                .leggTilAktivitetsAvtale(ansettelsesperiode1)
+                .build();
 
         LocalDate fom2 = SKJÆRINGSTIDSPUNKT.minusYears(2);
         LocalDate tom2 = SKJÆRINGSTIDSPUNKT.plusDays(1);
         Arbeidsgiver arbeidsgiver2 = Arbeidsgiver.virksomhet("1");
         InternArbeidsforholdRef ref2 = InternArbeidsforholdRef.nyRef();
         AktivitetsAvtaleBuilder aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
-            .medProsentsats(BigDecimal.valueOf(100));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
+                .medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
         Yrkesaktivitet yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidsgiver(arbeidsgiver2)
-            .medArbeidsforholdId(ref2)
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsavtale2)
-            .leggTilAktivitetsAvtale(ansettelsesperiode2)
-            .build();
+                .medArbeidsgiver(arbeidsgiver2)
+                .medArbeidsforholdId(ref2)
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsavtale2)
+                .leggTilAktivitetsAvtale(ansettelsesperiode2)
+                .build();
 
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty())
-            .medAktørId(behandling.getAktørId())
-            .leggTilYrkesaktivitet(yrkesaktivitet1)
-            .leggTilYrkesaktivitet(yrkesaktivitet2);
+        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder
+                .oppdatere(Optional.empty())
+                .medAktørId(behandling.getAktørId())
+                .leggTilYrkesaktivitet(yrkesaktivitet1)
+                .leggTilYrkesaktivitet(yrkesaktivitet2);
 
         ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver1, ref1)
-            .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
-            .leggTilOverstyrtPeriode(fom1, SKJÆRINGSTIDSPUNKT.minusDays(1));
+                .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
+                .leggTilOverstyrtPeriode(fom1, SKJÆRINGSTIDSPUNKT.minusDays(1));
         informasjonBuilder.leggTil(overstyringBuilder);
 
         InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(behandling.getAktørId())).før(SKJÆRINGSTIDSPUNKT);
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(behandling.getAktørId()))
+                .før(SKJÆRINGSTIDSPUNKT);
         Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         // Act
-        List<Yrkesaktivitet> relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent.utled(filter, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
+        List<Yrkesaktivitet> relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent.utled(filter, yrkesaktiviteter,
+                SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(relevanteYrkesaktiviteter).hasSize(2);
@@ -260,15 +265,14 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
     }
 
     private InntektArbeidYtelseGrunnlag lagGrunnlag(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder,
-                                                    Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjonOpt) {
+            Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjonOpt) {
         InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder = InntektArbeidYtelseAggregatBuilder
-            .oppdatere(Optional.empty(), VersjonType.REGISTER)
-            .leggTilAktørArbeid(aktørArbeidBuilder);
+                .oppdatere(Optional.empty(), VersjonType.REGISTER)
+                .leggTilAktørArbeid(aktørArbeidBuilder);
         InntektArbeidYtelseGrunnlagBuilder inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.nytt()
-            .medData(inntektArbeidYtelseAggregatBuilder);
+                .medData(inntektArbeidYtelseAggregatBuilder);
         arbeidsforholdInformasjonOpt.ifPresent(inntektArbeidYtelseGrunnlagBuilder::medInformasjon);
         return inntektArbeidYtelseGrunnlagBuilder.build();
     }
-
 
 }

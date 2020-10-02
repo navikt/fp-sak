@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class OpptjeningsnøkkelTest {
-
 
     @Test
     public void skal_gi_treff_når_både_arbeidsforholdId_og_orgnummer_er_like() {

@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -48,7 +48,8 @@ public class UtledStillingsprosentFraYrkesaktivitetMedOppstartsdatoNærmestStpTe
         List<Yrkesaktivitet> yrkesaktiviteter = List.of(yrkesaktivitet1, yrkesaktivitet2, yrkesaktivitet3, yrkesaktivitet4);
 
         // Act
-        BigDecimal stillingsprosent = UtledStillingsprosentFraYrkesaktivitetMedOppstartsdatoNærmestStp.utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT, oppstartsdatoNærmestStp);
+        BigDecimal stillingsprosent = UtledStillingsprosentFraYrkesaktivitetMedOppstartsdatoNærmestStp
+                .utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT, oppstartsdatoNærmestStp);
 
         // Assert
         assertThat(stillingsprosent).isEqualTo(BigDecimal.valueOf(100));
@@ -82,7 +83,8 @@ public class UtledStillingsprosentFraYrkesaktivitetMedOppstartsdatoNærmestStpTe
         List<Yrkesaktivitet> yrkesaktiviteter = List.of(yrkesaktivitet1, yrkesaktivitet2, yrkesaktivitet3, yrkesaktivitet4);
 
         // Act
-        BigDecimal stillingsprosent = UtledStillingsprosentFraYrkesaktivitetMedOppstartsdatoNærmestStp.utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT, oppstartsdatoNærmestStp);
+        BigDecimal stillingsprosent = UtledStillingsprosentFraYrkesaktivitetMedOppstartsdatoNærmestStp
+                .utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT, oppstartsdatoNærmestStp);
 
         // Assert
         assertThat(stillingsprosent).isEqualTo(BigDecimal.valueOf(100));
@@ -91,13 +93,13 @@ public class UtledStillingsprosentFraYrkesaktivitetMedOppstartsdatoNærmestStpTe
 
     private Yrkesaktivitet lagYrkesakvitetet(LocalDate fom, LocalDate tom, int stillingsprosent) {
         return YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidsgiver(ARBEIDSGIVER)
-            .medArbeidsforholdId(INTERN_ARBEIDSFORHOLD_REF)
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
-                .medProsentsats(BigDecimal.valueOf(stillingsprosent)))
-            .build();
+                .medArbeidsgiver(ARBEIDSGIVER)
+                .medArbeidsforholdId(INTERN_ARBEIDSFORHOLD_REF)
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
+                        .medProsentsats(BigDecimal.valueOf(stillingsprosent)))
+                .build();
     }
 
 }

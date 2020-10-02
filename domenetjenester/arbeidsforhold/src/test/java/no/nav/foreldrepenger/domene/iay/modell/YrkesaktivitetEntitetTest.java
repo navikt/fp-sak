@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
@@ -25,20 +25,20 @@ public class YrkesaktivitetEntitetTest {
         LocalDate tom = Tid.TIDENES_ENDE;
 
         AktivitetsAvtaleBuilder aa1 = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         AktivitetsAvtaleBuilder aa2 = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
 
         LocalDate overstyrtTom = LocalDate.of(2019, 8, 1);
         ArbeidsforholdOverstyringBuilder entitet = ArbeidsforholdOverstyringBuilder.ny()
-            .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
-            .leggTilOverstyrtPeriode(fom, overstyrtTom);
+                .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
+                .leggTilOverstyrtPeriode(fom, overstyrtTom);
 
         Yrkesaktivitet ya = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aa1)
-            .leggTilAktivitetsAvtale(aa2)
-            .build();
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aa1)
+                .leggTilAktivitetsAvtale(aa2)
+                .build();
 
         Yrkesaktivitet yrkesaktivitet = new Yrkesaktivitet(ya);
 
@@ -60,38 +60,38 @@ public class YrkesaktivitetEntitetTest {
         LocalDate fom1 = LocalDate.of(2009, 1, 1);
         LocalDate tom1 = LocalDate.of(2009, 12, 31);
         AktivitetsAvtaleBuilder aa1 = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
 
         LocalDate fom2 = LocalDate.of(2010, 1, 1);
         LocalDate tom2 = LocalDate.of(2010, 12, 31);
         AktivitetsAvtaleBuilder aa2 = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
 
         LocalDate fom3 = LocalDate.of(2011, 1, 1);
         LocalDate tom3 = LocalDate.of(2011, 12, 31);
         AktivitetsAvtaleBuilder aa3 = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3));
 
         LocalDate fom4 = LocalDate.of(2012, 1, 1);
         LocalDate tom4 = Tid.TIDENES_ENDE;
         AktivitetsAvtaleBuilder aa4 = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom4, tom4));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom4, tom4));
 
         LocalDate overstyrtTom = LocalDate.of(2015, 1, 1);
         ArbeidsforholdOverstyringBuilder entitet = ArbeidsforholdOverstyringBuilder.ny()
-            .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
-            .leggTilOverstyrtPeriode(fom1, tom1)
-            .leggTilOverstyrtPeriode(fom2, tom2)
-            .leggTilOverstyrtPeriode(fom3, tom3)
-            .leggTilOverstyrtPeriode(fom4, overstyrtTom);
+                .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
+                .leggTilOverstyrtPeriode(fom1, tom1)
+                .leggTilOverstyrtPeriode(fom2, tom2)
+                .leggTilOverstyrtPeriode(fom3, tom3)
+                .leggTilOverstyrtPeriode(fom4, overstyrtTom);
 
         Yrkesaktivitet ya = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aa1)
-            .leggTilAktivitetsAvtale(aa2)
-            .leggTilAktivitetsAvtale(aa3)
-            .leggTilAktivitetsAvtale(aa4)
-            .build();
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aa1)
+                .leggTilAktivitetsAvtale(aa2)
+                .leggTilAktivitetsAvtale(aa3)
+                .leggTilAktivitetsAvtale(aa4)
+                .build();
 
         Yrkesaktivitet yrkesaktivitet = new Yrkesaktivitet(ya);
 
@@ -129,14 +129,14 @@ public class YrkesaktivitetEntitetTest {
         LocalDate overstyrtTom = LocalDate.of(2019, 8, 1);
 
         ArbeidsforholdOverstyringBuilder entitet = ArbeidsforholdOverstyringBuilder.ny()
-            .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
-            .leggTilOverstyrtPeriode(fom, overstyrtTom);
+                .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
+                .leggTilOverstyrtPeriode(fom, overstyrtTom);
         AktivitetsAvtaleBuilder aktivitetsAvtale = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         Yrkesaktivitet ya = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsAvtale)
-            .build();
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsAvtale)
+                .build();
 
         Yrkesaktivitet yrkesaktivitet = new Yrkesaktivitet(ya);
 
@@ -160,14 +160,14 @@ public class YrkesaktivitetEntitetTest {
         LocalDate overstyrtTom = LocalDate.of(2019, 8, 1);
 
         ArbeidsforholdOverstyringBuilder entitet = ArbeidsforholdOverstyringBuilder.ny()
-            .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
-            .leggTilOverstyrtPeriode(fom, overstyrtTom);
+                .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
+                .leggTilOverstyrtPeriode(fom, overstyrtTom);
         AktivitetsAvtaleBuilder aktivitetsAvtale = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         Yrkesaktivitet ya = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsAvtale)
-            .build();
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsAvtale)
+                .build();
 
         Yrkesaktivitet yrkesaktivitet = new Yrkesaktivitet(ya);
 
@@ -192,14 +192,14 @@ public class YrkesaktivitetEntitetTest {
         LocalDate overstyrtTom = LocalDate.of(2019, 8, 1);
 
         ArbeidsforholdOverstyringBuilder entitet = ArbeidsforholdOverstyringBuilder.ny()
-            .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
-            .leggTilOverstyrtPeriode(overstyrtFom, overstyrtTom);
+                .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
+                .leggTilOverstyrtPeriode(overstyrtFom, overstyrtTom);
         AktivitetsAvtaleBuilder aktivitetsAvtale = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         Yrkesaktivitet ya = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsAvtale)
-            .build();
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsAvtale)
+                .build();
 
         Yrkesaktivitet yrkesaktivitet = new Yrkesaktivitet(ya);
 
@@ -223,14 +223,14 @@ public class YrkesaktivitetEntitetTest {
         LocalDate overstyrtTom = LocalDate.of(2019, 8, 1);
 
         ArbeidsforholdOverstyringBuilder entitet = ArbeidsforholdOverstyringBuilder.ny()
-            .medHandling(ArbeidsforholdHandlingType.BRUK_UTEN_INNTEKTSMELDING)
-            .leggTilOverstyrtPeriode(fom, overstyrtTom);
+                .medHandling(ArbeidsforholdHandlingType.BRUK_UTEN_INNTEKTSMELDING)
+                .leggTilOverstyrtPeriode(fom, overstyrtTom);
         AktivitetsAvtaleBuilder aktivitetsAvtale = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         Yrkesaktivitet ya = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsAvtale)
-            .build();
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsAvtale)
+                .build();
 
         Yrkesaktivitet yrkesaktivitet = new Yrkesaktivitet(ya);
 

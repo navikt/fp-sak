@@ -8,8 +8,8 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste.AutomatiskEtterkontrollTjeneste;
@@ -21,8 +21,7 @@ public class AutomatiskEtterkontrollBatchTjenesteTest {
     private AutomatiskEtterkontrollBatchTjeneste tjeneste;
     private AutomatiskEtterkontrollTjeneste etterkontrollTjeneste;
 
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         etterkontrollTjeneste = mock(AutomatiskEtterkontrollTjeneste.class);
         tjeneste = new AutomatiskEtterkontrollBatchTjeneste(etterkontrollTjeneste);
@@ -40,7 +39,8 @@ public class AutomatiskEtterkontrollBatchTjenesteTest {
 
     @Test
     public void skal_returnere_status_warning_ved_fullført_med_feilet() throws Exception {
-        final List<TaskStatus> statuses = List.of(new TaskStatus(ProsessTaskStatus.FERDIG, BigDecimal.ONE), new TaskStatus(ProsessTaskStatus.FEILET, BigDecimal.ONE));
+        final List<TaskStatus> statuses = List.of(new TaskStatus(ProsessTaskStatus.FERDIG, BigDecimal.ONE),
+                new TaskStatus(ProsessTaskStatus.FEILET, BigDecimal.ONE));
         when(etterkontrollTjeneste.hentStatusForEtterkontrollGruppe("1234")).thenReturn(statuses);
 
         final BatchStatus status = tjeneste.status("1234");
@@ -50,7 +50,8 @@ public class AutomatiskEtterkontrollBatchTjenesteTest {
 
     @Test
     public void skal_returnere_status_running_ved_ikke_fullført() throws Exception {
-        final List<TaskStatus> statuses = List.of(new TaskStatus(ProsessTaskStatus.FERDIG, BigDecimal.ONE), new TaskStatus(ProsessTaskStatus.FEILET, BigDecimal.ONE), new TaskStatus(ProsessTaskStatus.KLAR, BigDecimal.TEN));
+        final List<TaskStatus> statuses = List.of(new TaskStatus(ProsessTaskStatus.FERDIG, BigDecimal.ONE),
+                new TaskStatus(ProsessTaskStatus.FEILET, BigDecimal.ONE), new TaskStatus(ProsessTaskStatus.KLAR, BigDecimal.TEN));
         when(etterkontrollTjeneste.hentStatusForEtterkontrollGruppe("1234")).thenReturn(statuses);
 
         final BatchStatus status = tjeneste.status("1234");

@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -20,8 +20,8 @@ public class LeggTilResultatTest {
     private InternArbeidsforholdRef ref1;
     private InternArbeidsforholdRef ref2;
 
-    @Before
-    public void setup(){
+    @BeforeEach
+    public void setup() {
         ref1 = InternArbeidsforholdRef.nyRef();
         ref2 = InternArbeidsforholdRef.nyRef();
         a1 = new ArbeidsforholdMedÅrsak(ref1);
@@ -30,7 +30,7 @@ public class LeggTilResultatTest {
     }
 
     @Test
-    public void skal_legge_til_årsak_på_allerede_eksisterende_arbeidsgiver_med_matchende_arbeidsforholdref(){
+    public void skal_legge_til_årsak_på_allerede_eksisterende_arbeidsgiver_med_matchende_arbeidsforholdref() {
         // Arrange
         Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("1");
         Set<InternArbeidsforholdRef> refs = Set.of(ref1, ref2);
@@ -52,7 +52,7 @@ public class LeggTilResultatTest {
     }
 
     @Test
-    public void skal_legge_til_årsak_på_arbeidsgiver_som_ikke_eksisterer_i_result_i_utgangspunktet(){
+    public void skal_legge_til_årsak_på_arbeidsgiver_som_ikke_eksisterer_i_result_i_utgangspunktet() {
         // Arrange
         Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("1");
         Set<InternArbeidsforholdRef> refs = Set.of(ref1, ref2);
@@ -73,7 +73,7 @@ public class LeggTilResultatTest {
     }
 
     @Test
-    public void skal_legge_til_arbeidsgiver_selv_når_ingen_arbeidsforholdref(){
+    public void skal_legge_til_arbeidsgiver_selv_når_ingen_arbeidsforholdref() {
         // Arrange
         Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("1");
         Set<InternArbeidsforholdRef> refs = Set.of();
@@ -86,7 +86,7 @@ public class LeggTilResultatTest {
     }
 
     @Test
-    public void skal_legge_til_to_årsaker_for_arbeidsgiver_med_to_arbeidsforholdref(){
+    public void skal_legge_til_to_årsaker_for_arbeidsgiver_med_to_arbeidsforholdref() {
         // Arrange
         Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("1");
         Set<InternArbeidsforholdRef> refs = Set.of(ref1, ref2);
@@ -99,12 +99,12 @@ public class LeggTilResultatTest {
             assertThat(årsaker).anySatisfy(årsak -> {
                 assertThat(årsak.getRef()).isEqualTo(ref1);
                 assertThat(årsak.getÅrsaker()).containsExactlyInAnyOrder(
-                    AksjonspunktÅrsak.ENDRING_I_ARBEIDSFORHOLDS_ID, AksjonspunktÅrsak.PERMISJON);
+                        AksjonspunktÅrsak.ENDRING_I_ARBEIDSFORHOLDS_ID, AksjonspunktÅrsak.PERMISJON);
             });
             assertThat(årsaker).anySatisfy(årsak -> {
                 assertThat(årsak.getRef()).isEqualTo(ref2);
                 assertThat(årsak.getÅrsaker()).containsExactlyInAnyOrder(
-                    AksjonspunktÅrsak.ENDRING_I_ARBEIDSFORHOLDS_ID, AksjonspunktÅrsak.PERMISJON);
+                        AksjonspunktÅrsak.ENDRING_I_ARBEIDSFORHOLDS_ID, AksjonspunktÅrsak.PERMISJON);
             });
         });
     }

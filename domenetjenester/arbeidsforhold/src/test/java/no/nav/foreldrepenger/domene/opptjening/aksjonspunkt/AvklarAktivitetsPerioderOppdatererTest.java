@@ -4,12 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class AvklarAktivitetsPerioderOppdatererTest {
-
 
     @Test
     public void skal_sjekke_om_perioden_er_endret_hvis_orginal_periode_er_større() {

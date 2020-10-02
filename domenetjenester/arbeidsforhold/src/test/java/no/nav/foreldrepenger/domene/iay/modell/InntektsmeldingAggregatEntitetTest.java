@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
@@ -21,11 +20,11 @@ public class InntektsmeldingAggregatEntitetTest {
 
         InntektsmeldingBuilder førsteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
         førsteInntektsmeldingBuilder.medKanalreferanse("AR123")
-        .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
+                .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
 
         InntektsmeldingBuilder sisteInntektsmedlingBuilder = InntektsmeldingBuilder.builder();
         sisteInntektsmedlingBuilder.medKanalreferanse("AR124")
-            .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
+                .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
 
         InntektsmeldingAggregat inntektsmeldingAggregat = new InntektsmeldingAggregat();
         inntektsmeldingAggregat.leggTil(førsteInntektsmeldingBuilder.build());
@@ -43,11 +42,11 @@ public class InntektsmeldingAggregatEntitetTest {
 
         InntektsmeldingBuilder førsteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
         førsteInntektsmeldingBuilder.medKanalreferanse("AR123").medKildesystem("U4BW")
-            .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
+                .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
 
         InntektsmeldingBuilder sisteInntektsmedlingBuilder = InntektsmeldingBuilder.builder();
         sisteInntektsmedlingBuilder.medKanalreferanse("AR124").medKildesystem("AltinnPortal")
-            .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå.minusMinutes(2));
+                .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå.minusMinutes(2));
 
         InntektsmeldingAggregat inntektsmeldingAggregat = new InntektsmeldingAggregat();
         inntektsmeldingAggregat.leggTil(førsteInntektsmeldingBuilder.build());
@@ -65,17 +64,15 @@ public class InntektsmeldingAggregatEntitetTest {
 
         InntektsmeldingBuilder sisteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
         sisteInntektsmeldingBuilder.medKanalreferanse("AR125")
-            .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
+                .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
 
         InntektsmeldingBuilder førsteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
         førsteInntektsmeldingBuilder.medKanalreferanse("AR124")
-            .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
-
+                .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
 
         InntektsmeldingAggregat inntektsmeldingAggregat = new InntektsmeldingAggregat();
         inntektsmeldingAggregat.leggTil(sisteInntektsmeldingBuilder.build());
         inntektsmeldingAggregat.leggTil(førsteInntektsmeldingBuilder.build());
-
 
         List<Inntektsmelding> inntektsmeldinger = inntektsmeldingAggregat.getInntektsmeldingerSomSkalBrukes();
         assertThat(inntektsmeldinger).hasSize(1);
@@ -88,18 +85,17 @@ public class InntektsmeldingAggregatEntitetTest {
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
         InntektsmeldingBuilder sisteInntektsmeldingBuilder = InntektsmeldingBuilder.builder()
-            .medArbeidsgiver(arbeidsgiver)
-            .medInnsendingstidspunkt(nå);
+                .medArbeidsgiver(arbeidsgiver)
+                .medInnsendingstidspunkt(nå);
 
         InntektsmeldingBuilder førsteInntektsmeldingBuilder = InntektsmeldingBuilder.builder()
-            .medKanalreferanse("AR124")
-            .medArbeidsgiver(arbeidsgiver)
-            .medInnsendingstidspunkt(nå);
+                .medKanalreferanse("AR124")
+                .medArbeidsgiver(arbeidsgiver)
+                .medInnsendingstidspunkt(nå);
 
         InntektsmeldingAggregat inntektsmeldingAggregat = new InntektsmeldingAggregat();
         inntektsmeldingAggregat.leggTil(sisteInntektsmeldingBuilder.build());
         inntektsmeldingAggregat.leggTil(førsteInntektsmeldingBuilder.build());
-
 
         List<Inntektsmelding> inntektsmeldinger = inntektsmeldingAggregat.getInntektsmeldingerSomSkalBrukes();
         assertThat(inntektsmeldinger).hasSize(1);
@@ -114,15 +110,15 @@ public class InntektsmeldingAggregatEntitetTest {
 
         InntektsmeldingBuilder sisteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
         sisteInntektsmeldingBuilder
-            .medKanalreferanse("AR124")
-            .medArbeidsgiver(arbeidsgiver)
-            .medInnsendingstidspunkt(omTi);
+                .medKanalreferanse("AR124")
+                .medArbeidsgiver(arbeidsgiver)
+                .medInnsendingstidspunkt(omTi);
 
         InntektsmeldingBuilder førsteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
         førsteInntektsmeldingBuilder
-            .medKanalreferanse("AR125")
-            .medArbeidsgiver(arbeidsgiver)
-            .medInnsendingstidspunkt(nå);
+                .medKanalreferanse("AR125")
+                .medArbeidsgiver(arbeidsgiver)
+                .medInnsendingstidspunkt(nå);
 
         InntektsmeldingAggregat inntektsmeldingAggregat = new InntektsmeldingAggregat();
         inntektsmeldingAggregat.leggTil(sisteInntektsmeldingBuilder.build());

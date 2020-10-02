@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus
 public class UtledBrukAvPermisjonForWrapperTest {
 
     @Test
-    public void skal_utlede_bruk_permisjon_lik_true_hvis_bekreftet_permisjon_status_er_BRUK_PERMISJON(){
+    public void skal_utlede_bruk_permisjon_lik_true_hvis_bekreftet_permisjon_status_er_BRUK_PERMISJON() {
         // Arrange
         Optional<BekreftetPermisjon> bekreftetPermisjonOpt = Optional.of(new BekreftetPermisjon(BekreftetPermisjonStatus.BRUK_PERMISJON));
         // Act
@@ -22,7 +22,7 @@ public class UtledBrukAvPermisjonForWrapperTest {
     }
 
     @Test
-    public void skal_utlede_bruk_permisjon_lik_false_hvis_bekreftet_permisjon_status_er_IKKE_BRUK_PERMISJON(){
+    public void skal_utlede_bruk_permisjon_lik_false_hvis_bekreftet_permisjon_status_er_IKKE_BRUK_PERMISJON() {
         // Arrange
         Optional<BekreftetPermisjon> bekreftetPermisjonOpt = Optional.of(new BekreftetPermisjon(BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON));
         // Act
@@ -32,7 +32,7 @@ public class UtledBrukAvPermisjonForWrapperTest {
     }
 
     @Test
-    public void skal_utlede_bruk_permisjon_lik_false_hvis_bekreftet_permisjon_status_er_UGYLDIGE_PERIODER(){
+    public void skal_utlede_bruk_permisjon_lik_false_hvis_bekreftet_permisjon_status_er_UGYLDIGE_PERIODER() {
         // Arrange
         Optional<BekreftetPermisjon> bekreftetPermisjonOpt = Optional.of(new BekreftetPermisjon(BekreftetPermisjonStatus.UGYLDIGE_PERIODER));
         // Act
@@ -42,7 +42,7 @@ public class UtledBrukAvPermisjonForWrapperTest {
     }
 
     @Test
-    public void skal_utlede_bruk_permisjon_lik_null_hvis_bekreftet_permisjon_status_er_UDEFINERT(){
+    public void skal_utlede_bruk_permisjon_lik_null_hvis_bekreftet_permisjon_status_er_UDEFINERT() {
         // Arrange
         Optional<BekreftetPermisjon> bekreftetPermisjonOpt = Optional.of(new BekreftetPermisjon(BekreftetPermisjonStatus.UDEFINERT));
         // Act

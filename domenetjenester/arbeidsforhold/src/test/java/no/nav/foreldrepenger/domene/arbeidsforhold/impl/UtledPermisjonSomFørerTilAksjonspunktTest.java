@@ -7,8 +7,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -38,7 +38,7 @@ public class UtledPermisjonSomFørerTilAksjonspunktTest {
     private YrkesaktivitetBuilder yrkesaktivitetBuilder;
     private List<Yrkesaktivitet> yrkesaktiviteter;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
         Long behandlingId = 1L;
         AktørId aktørId = AktørId.dummy();

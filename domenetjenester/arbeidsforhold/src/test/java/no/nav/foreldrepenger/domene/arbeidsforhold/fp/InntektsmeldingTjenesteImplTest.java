@@ -20,9 +20,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -48,14 +48,13 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjenesteMock;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
@@ -83,8 +82,10 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class InntektsmeldingTjenesteImplTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class InntektsmeldingTjenesteImplTest extends EntityManagerAwareTest {
 
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private static final EksternArbeidsforholdRef ARBEIDSFORHOLD_ID_EKSTERN = EksternArbeidsforholdRef.ref("1");
@@ -94,13 +95,11 @@ public class InntektsmeldingTjenesteImplTest {
     private static final LocalDate ARBEIDSFORHOLD_TIL = I_DAG.plusMonths(2);
     private static BigDecimal LØNNSPOST = BigDecimal.TEN;
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(I_DAG).build();
     private final AtomicLong journalpostIdInc = new AtomicLong(123);
-    private IAYRepositoryProvider repositoryProvider = new IAYRepositoryProvider(repoRule.getEntityManager());
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private FagsakRepository fagsakRepository = new FagsakRepository(repoRule.getEntityManager());
+    private IAYRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
+    private FagsakRepository fagsakRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
     private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste;
@@ -108,8 +107,12 @@ public class InntektsmeldingTjenesteImplTest {
     private ArbeidsforholdTjenesteMock arbeidsforholdTjenesteMock;
     private Arbeidsgiver arbeidsgiver2;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
+        fagsakRepository = new FagsakRepository(getEntityManager());
+        repositoryProvider = new IAYRepositoryProvider(getEntityManager());
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+
         var virksomhet1 = lagVirksomhet();
         var virksomhet2 = lagAndreVirksomhet();
 
@@ -133,21 +136,19 @@ public class InntektsmeldingTjenesteImplTest {
 
     @Test
     public void skal_vurdere_om_inntektsmeldinger_er_komplett() {
-        var arbId1Intern = ARBEIDSFORHOLD_ID;
-        var arbId1 = ARBEIDSFORHOLD_ID_EKSTERN;
         // Arrange
-        final Behandling behandling = opprettBehandling();
+        var behandling = opprettBehandling();
         opprettOppgittOpptjening(behandling);
         opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
                 DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
-                arbId1Intern, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
+                ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
 
         BehandlingReferanse behandlingReferanse = lagReferanse(behandling);
 
         // Act+Assert
         assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, false)).isNotEmpty();
 
-        lagreInntektsmelding(I_DAG.minusDays(2), behandling, arbId1Intern, arbId1);
+        lagreInntektsmelding(I_DAG.minusDays(2), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN);
 
         // Act+Assert
         assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, false)).isEmpty();

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.historikk;
 
-
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
@@ -46,7 +45,6 @@ public class HistorikkInnslagTekstBuilderTest {
         godkjent.setAksjonspunktDefinisjon(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
         godkjent.setAksjonspunktSistEndret(LocalDateTime.now());
 
-
         HistorikkinnslagTotrinnsvurdering vurderPåNytt2 = new HistorikkinnslagTotrinnsvurdering();
         vurderPåNytt2.setGodkjent(false);
         vurderPåNytt2.setAksjonspunktDefinisjon(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
@@ -60,20 +58,20 @@ public class HistorikkInnslagTekstBuilderTest {
         vurderPåNytt3.setBegrunnelse("Ikke enig.");
         vurderPåNytt3.setAksjonspunktSistEndret(LocalDateTime.now());
 
-
         vurderingUtenVilkar.add(vurderPåNytt3);
 
         List<HistorikkinnslagDel> deler = tekstBuilder
-            .medTotrinnsvurdering(vurdering, vurderingUtenVilkar)
-            .medHendelse(HistorikkinnslagType.SAK_RETUR)
-            .build(historikkinnslag);
+                .medTotrinnsvurdering(vurdering, vurderingUtenVilkar)
+                .medHendelse(HistorikkinnslagType.SAK_RETUR)
+                .build(historikkinnslag);
 
         assertThat(deler).hasSize(3);
         HistorikkinnslagDel historikkinnslagDel = deler.get(0);
         List<HistorikkinnslagTotrinnsvurdering> aksjonspunkter = historikkinnslagDel.getTotrinnsvurderinger();
         assertThat(aksjonspunkter).hasSize(1);
         HistorikkinnslagTotrinnsvurdering aksjonspunkt = aksjonspunkter.get(0);
-        assertThat(aksjonspunkt.getAksjonspunktDefinisjon()).as("aksjonspunktKode").isEqualTo(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD);
+        assertThat(aksjonspunkt.getAksjonspunktDefinisjon()).as("aksjonspunktKode")
+                .isEqualTo(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD);
         assertThat(aksjonspunkt.erGodkjent()).as("godkjent").isFalse();
         assertThat(aksjonspunkt.getBegrunnelse()).as("begrunnelse").isEqualTo("Ikke enig.");
     }

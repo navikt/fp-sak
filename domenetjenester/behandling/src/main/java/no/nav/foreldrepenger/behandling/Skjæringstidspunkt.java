@@ -29,7 +29,8 @@ public class Skjæringstidspunkt {
     }
 
     public LocalDate getUtledetSkjæringstidspunkt() {
-        Objects.requireNonNull(utledetSkjæringstidspunkt, "Utvikler-feil: utledetSkjæringstidspunkt er ikke satt. Sørg for at det er satt ifht. anvendelse");
+        Objects.requireNonNull(utledetSkjæringstidspunkt,
+                "Utvikler-feil: utledetSkjæringstidspunkt er ikke satt. Sørg for at det er satt ifht. anvendelse");
         return utledetSkjæringstidspunkt;
     }
 
@@ -37,25 +38,33 @@ public class Skjæringstidspunkt {
         return utledetSkjæringstidspunkt;
     }
 
-    /** Skjæringstidspunkt for opptjening er definert som dagen etter slutt av opptjeningsperiode. */
+    /**
+     * Skjæringstidspunkt for opptjening er definert som dagen etter slutt av
+     * opptjeningsperiode.
+     */
     public LocalDate getSkjæringstidspunktOpptjening() {
         Objects.requireNonNull(skjæringstidspunktOpptjening,
-            "Utvikler-feil: skjæringstidspunktOpptjening er ikke satt. Sørg for at det er satt ifht. anvendelse");
+                "Utvikler-feil: skjæringstidspunktOpptjening er ikke satt. Sørg for at det er satt ifht. anvendelse");
         return skjæringstidspunktOpptjening;
     }
 
-    /** Skjæringstidspunkt for beregning er definert som dagen etter siste dag med godkjente aktiviteter. */
+    /**
+     * Skjæringstidspunkt for beregning er definert som dagen etter siste dag med
+     * godkjente aktiviteter.
+     */
     public LocalDate getSkjæringstidspunktBeregning() {
         Objects.requireNonNull(skjæringstidspunktBeregning,
-            "Utvikler-feil: skjæringstidspunktBeregning er ikke satt. Sørg for at det er satt ifht. anvendelse");
+                "Utvikler-feil: skjæringstidspunktBeregning er ikke satt. Sørg for at det er satt ifht. anvendelse");
         return skjæringstidspunktBeregning;
     }
 
-    /** Skjæringstidspunkt for beregning er definert som dagen etter siste dag med godkjente aktiviteter. */
+    /**
+     * Skjæringstidspunkt for beregning er definert som dagen etter siste dag med
+     * godkjente aktiviteter.
+     */
     public LocalDate getSkjæringstidspunktBeregningForKopieringTilKalkulus() {
         return skjæringstidspunktBeregning;
     }
-
 
     /** Første uttaksdato er første dag bruker får utbetalt ytelse. */
     public LocalDate getFørsteUttaksdato() {
@@ -70,17 +79,16 @@ public class Skjæringstidspunkt {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj==this) {
+        if (obj == this) {
             return true;
-        } else if (obj==null || !(obj.getClass().equals(this.getClass()))) {
+        } else if (obj == null || !(obj.getClass().equals(this.getClass()))) {
             return false;
         }
         Skjæringstidspunkt other = (Skjæringstidspunkt) obj;
         return Objects.equals(this.utledetSkjæringstidspunkt, other.utledetSkjæringstidspunkt)
                 && Objects.equals(this.skjæringstidspunktBeregning, other.skjæringstidspunktBeregning)
                 && Objects.equals(this.skjæringstidspunktOpptjening, other.skjæringstidspunktOpptjening)
-                && Objects.equals(this.førsteUttaksdato, other.førsteUttaksdato)
-                ;
+                && Objects.equals(this.førsteUttaksdato, other.førsteUttaksdato);
     }
 
     @Override
