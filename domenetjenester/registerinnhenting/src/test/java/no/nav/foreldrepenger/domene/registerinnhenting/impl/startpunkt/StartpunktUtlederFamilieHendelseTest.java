@@ -32,7 +32,7 @@ public class StartpunktUtlederFamilieHendelseTest {
     @Mock
     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private StartpunktUtlederFamilieHendelse utleder;
-    private FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, null, repositoryProvider);
+    private FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
 
     @Before
     public void oppsett() {
@@ -112,5 +112,5 @@ public class StartpunktUtlederFamilieHendelseTest {
         // Act/Assert
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, nySkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
-    
+
 }

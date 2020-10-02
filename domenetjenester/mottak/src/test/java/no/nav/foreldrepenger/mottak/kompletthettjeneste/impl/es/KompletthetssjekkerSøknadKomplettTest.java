@@ -136,9 +136,7 @@ public class KompletthetssjekkerSøknadKomplettTest {
 
         BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
-        var personopplysningTjeneste = new PersonopplysningTjeneste(
-            repositoryProvider.getPersonopplysningRepository(),
-            null, null, null);
+        var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
 
         testObjekt = spy(new KompletthetsjekkerImpl(repositoryProvider, null, personopplysningTjeneste));
 

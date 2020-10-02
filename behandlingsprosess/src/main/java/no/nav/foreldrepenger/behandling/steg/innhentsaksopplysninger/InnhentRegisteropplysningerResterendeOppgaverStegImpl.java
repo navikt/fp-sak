@@ -91,8 +91,8 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
             }
         }
 
-        List<PersonopplysningEntitet> barnSøktStønadFor = familieHendelseTjeneste.finnBarnSøktStønadFor(ref);
         PersonopplysningerAggregat personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
+        List<PersonopplysningEntitet> barnSøktStønadFor = familieHendelseTjeneste.finnBarnSøktStønadFor(ref, personopplysninger);
 
         fagsakTjeneste.oppdaterFagsak(behandling, personopplysninger, barnSøktStønadFor);
 

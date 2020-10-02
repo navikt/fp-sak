@@ -75,7 +75,7 @@ public class VurderFagsystem {
     }
 
     public List<LocalDate> getAdopsjonsbarnFodselsdatoer() {
-        return adopsjonsbarnFodselsdatoer;
+        return adopsjonsbarnFodselsdatoer != null ? adopsjonsbarnFodselsdatoer : List.of();
     }
 
     public void setAdopsjonsbarnFodselsdatoer(List<LocalDate> adopsjonsbarnFodselsdatoer) {

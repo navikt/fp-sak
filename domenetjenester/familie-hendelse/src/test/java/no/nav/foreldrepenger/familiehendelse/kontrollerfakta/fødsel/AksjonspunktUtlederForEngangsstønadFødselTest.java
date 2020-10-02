@@ -47,7 +47,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest {
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     private AksjonspunktUtlederForEngangsstønadFødsel apUtleder;
-    private FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, null, repositoryProvider);
+    private FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
 
 
     @Before

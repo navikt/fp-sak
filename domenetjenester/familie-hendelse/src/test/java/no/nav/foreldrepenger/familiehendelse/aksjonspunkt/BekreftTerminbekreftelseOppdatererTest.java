@@ -48,7 +48,7 @@ public class BekreftTerminbekreftelseOppdatererTest {
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
         new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-    private final FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, null, repositoryProvider);
+    private final FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
 
 
     @Test

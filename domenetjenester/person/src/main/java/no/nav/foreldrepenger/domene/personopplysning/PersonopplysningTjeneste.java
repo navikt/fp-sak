@@ -5,24 +5,18 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
-import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
-import no.nav.foreldrepenger.domene.person.verge.VergeOppdatererAksjonspunkt;
-import no.nav.foreldrepenger.domene.person.verge.dto.VergeAksjonpunktDto;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 @ApplicationScoped
 public class PersonopplysningTjeneste extends AbstractPersonopplysningTjenesteImpl {
-
-    private TpsAdapter tpsAdapter;
-    private NavBrukerRepository navBrukerRepository;
-    private VergeRepository vergeRepository;
 
     PersonopplysningTjeneste() {
         super();
@@ -30,22 +24,21 @@ public class PersonopplysningTjeneste extends AbstractPersonopplysningTjenesteIm
     }
 
     @Inject
-    public PersonopplysningTjeneste(PersonopplysningRepository personopplysningRepository,
-                                    TpsAdapter tpsAdapter,
-                                    VergeRepository vergeRepository,
-                                    NavBrukerRepository navBrukerRepository) {
+    public PersonopplysningTjeneste(PersonopplysningRepository personopplysningRepository) {
         super(personopplysningRepository);
-        this.tpsAdapter = tpsAdapter;
-        this.navBrukerRepository = navBrukerRepository;
-        this.vergeRepository = vergeRepository;
     }
 
-    public void aksjonspunktVergeOppdaterer(Long behandlingId, VergeAksjonpunktDto adapter) {
-        new VergeOppdatererAksjonspunkt(vergeRepository, tpsAdapter, navBrukerRepository).oppdater(behandlingId, adapter);
-    }
-
-    public void aksjonspunktAvklarSaksopplysninger(Long behandlingId, AktørId aktørId, PersonopplysningAksjonspunktDto adapter) {
-        new AvklarSaksopplysningerAksjonspunkt(getPersonopplysningRepository()).oppdater(behandlingId, aktørId, adapter);
+    public void lagreAvklartPersonstatus(Long behandlingId, AktørId aktørId, PersonstatusType personstatusType, DatoIntervallEntitet intervall) {
+        if (!PersonstatusType.personstatusTyperFortsattBehandling().contains(personstatusType)) {
+            throw new IllegalArgumentException("har ikke avklart personsstatus");
+        }
+        PersonInformasjonBuilder builder = personopplysningRepository.opprettBuilderForOverstyring(behandlingId);
+        PersonInformasjonBuilder.PersonstatusBuilder medPersonstatus = builder.getPersonstatusBuilder(aktørId, intervall)
+            .medAktørId(aktørId)
+            .medPeriode(intervall)
+            .medPersonstatus(personstatusType);
+        builder.leggTil(medPersonstatus);
+        personopplysningRepository.lagre(behandlingId, builder);
     }
 
     public EndringsresultatSnapshot finnAktivGrunnlagId(Long behandlingId) {

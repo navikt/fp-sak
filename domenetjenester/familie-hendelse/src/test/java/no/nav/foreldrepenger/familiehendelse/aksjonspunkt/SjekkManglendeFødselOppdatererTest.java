@@ -65,7 +65,7 @@ public class SjekkManglendeFødselOppdatererTest {
         new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
     private TpsFamilieTjeneste tpsFamilieTjeneste = Mockito.mock(TpsFamilieTjeneste.class);
     private FamiliehendelseEventPubliserer familiehendelseEventPubliserer = Mockito.mock(FamiliehendelseEventPubliserer.class);
-    private final FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, familiehendelseEventPubliserer, repositoryProvider);
+    private final FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer, repositoryProvider.getFamilieHendelseRepository());
 
     @Test
     public void skal_generere_historikkinnslag_ved_avklaring_av_ektefelle() {

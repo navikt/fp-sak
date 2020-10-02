@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public abstract class AbstractPersonopplysningTjenesteImpl implements StandardPersonopplysningTjeneste {
 
-    private PersonopplysningRepository personopplysningRepository;
+    protected PersonopplysningRepository personopplysningRepository;
 
     AbstractPersonopplysningTjenesteImpl() {
         // CDI

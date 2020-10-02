@@ -158,10 +158,6 @@ public class ForretningshendelseMottak {
         prosessTaskRepository.lagre(taskData);
     }
 
-    private Optional<Behandling> finnÅpenBehandlingPåMedforelder(Fagsak fagsak) {
-        return revurderingRepository.finnÅpenBehandlingMedforelder(fagsak);
-    }
-
     private static List<AktørId> mapToAktørIds(HendelseDto hendelseDto) {
         return hendelseDto.getAlleAktørId().stream().map(AktørId::new).collect(Collectors.toList());
     }

@@ -51,7 +51,7 @@ public class IAYRepositoryProvider {
         this.søknadRepository = new SøknadRepository(entityManager, this.behandlingRepository);
 
         // behandling resultat aggregater
-        this.beregningRepository = new LegacyESBeregningRepository(entityManager, getBehandlingRepository());
+        this.beregningRepository = new LegacyESBeregningRepository(entityManager, getBehandlingRepository(), getBehandlingsresultatRepository());
         this.beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
 
         // behandling støtte repositories

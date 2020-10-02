@@ -15,6 +15,7 @@ import org.hibernate.jpa.QueryHints;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -24,6 +25,7 @@ public class LegacyESBeregningRepository {
 
     private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     LegacyESBeregningRepository() {
         // for CDI proxy
@@ -31,13 +33,14 @@ public class LegacyESBeregningRepository {
 
     public LegacyESBeregningRepository(EntityManager entityManager) {
         // for test
-        this(entityManager, new BehandlingRepository(entityManager));
+        this(entityManager, new BehandlingRepository(entityManager), new  BehandlingsresultatRepository(entityManager));
     }
 
     @Inject
-    public LegacyESBeregningRepository( EntityManager entityManager, BehandlingRepository behandlingRepository) {
+    public LegacyESBeregningRepository( EntityManager entityManager, BehandlingRepository behandlingRepository, BehandlingsresultatRepository behandlingsresultatRepository) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.behandlingRepository = behandlingRepository;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.entityManager = entityManager;
     }
 
@@ -77,24 +80,29 @@ public class LegacyESBeregningRepository {
 
     private Optional<LegacyESBeregning> getSisteBeregning(Behandling behandling) {
         return Optional.ofNullable(behandling.getBehandlingsresultat()).map(Behandlingsresultat::getBeregningResultat).flatMap(LegacyESBeregningsresultat::getSisteBeregning);
+    }
 
+    public boolean skalReberegne(Long behandlingId, LocalDate fødselsdato) {
+        var vedtakSats = getSisteBeregning(behandlingId).map(LegacyESBeregning::getSatsVerdi).orElse(0L);
+        var satsVedFødsel = finnEksaktSats(BeregningSatsType.ENGANG, fødselsdato).getVerdi();
+        return vedtakSats != satsVedFødsel;
     }
 
     public void lagreBeregning(Long behandlingId, LegacyESBeregning nyBeregning) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        LegacyESBeregning sisteBeregning = getSisteBeregning(behandling).orElse(null);
+        LegacyESBeregning sisteBeregning = getSisteBeregning(behandlingId).orElse(null);
 
         LegacyESBeregningsresultat beregningResultat = (sisteBeregning == null ? LegacyESBeregningsresultat.builder()
                 : LegacyESBeregningsresultat.builderFraEksisterende(sisteBeregning.getBeregningResultat()))
                         .medBeregning(nyBeregning)
                         .buildFor(behandling, behandling.getBehandlingsresultat());
 
-        BehandlingLås skriveLås = taSkriveLås(behandling);
+        BehandlingLås skriveLås = taSkriveLås(behandlingId);
         lagre(beregningResultat, skriveLås);
     }
 
-    protected BehandlingLås taSkriveLås(Behandling behandling) {
-        return behandlingRepository.taSkriveLås(behandling);
+    protected BehandlingLås taSkriveLås(Long behandlingId) {
+        return behandlingRepository.taSkriveLås(behandlingId);
     }
 
     // sjekk lås og oppgrader til skriv

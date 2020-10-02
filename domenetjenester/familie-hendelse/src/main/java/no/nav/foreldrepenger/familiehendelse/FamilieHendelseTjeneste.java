@@ -6,17 +6,15 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.threeten.extra.Interval;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.IntervallUtil;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
@@ -31,23 +29,23 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Uidenti
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
 import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @ApplicationScoped
 public class FamilieHendelseTjeneste {
 
-    private static final int ANTALL_UKER_FOM_TERMIN_SØKNADSFRIST_START = 16;
-    private static final int ANTALL_UKER_TOM_TERMIN_SØKNADSFRIST_SLUTT = 4;
     private static final Period REGISTRERING_FRIST_ETTER_TERMIN = Period.parse("P25D");
     private static final Period REGISTRERING_FRIST_ETTER_FØDSEL = Period.parse("P14D");
 
+    private static final Period MATCH_INTERVAlL_TERMIN = Period.parse("P19W");
+    private static final Period MATCH_INTERVAlL_FØDSEL = Period.parse("P6W");
+
     private FamilieHendelseRepository familieGrunnlagRepository;
-    private BehandlingRepository behandlingRepository;
-    private BasisPersonopplysningTjeneste personopplysningTjeneste;
     private FamiliehendelseEventPubliserer familiehendelseEventPubliserer;
 
     FamilieHendelseTjeneste() {
@@ -55,43 +53,54 @@ public class FamilieHendelseTjeneste {
     }
 
     @Inject
-    public FamilieHendelseTjeneste(BasisPersonopplysningTjeneste personopplysningTjeneste,
-                                       FamiliehendelseEventPubliserer familiehendelseEventPubliserer,
-                                       BehandlingRepositoryProvider repositoryProvider) {
-
-        this.personopplysningTjeneste = personopplysningTjeneste;
-        this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+    public FamilieHendelseTjeneste(FamiliehendelseEventPubliserer familiehendelseEventPubliserer,
+                                   FamilieHendelseRepository familieHendelseRepository) {
+        this.familieGrunnlagRepository = familieHendelseRepository;
         this.familiehendelseEventPubliserer = familiehendelseEventPubliserer;
     }
 
-
-    public List<Interval> beregnGyldigeFødselsperioder(BehandlingReferanse ref) {
+    public List<LocalDateInterval> forventetFødselsIntervaller(BehandlingReferanse ref) {
         Long behandlingId = ref.getBehandlingId();
         final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
-        final FamilieHendelseEntitet søknadVersjon = familieHendelseGrunnlag.getSøknadVersjon();
-        Optional<LocalDate> fødselsdato = søknadVersjon.getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst();
-        Optional<LocalDate> termindato = søknadVersjon.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
-        List<LocalDate> adopsjonFødselsdatoer = søknadVersjon.getBarna().stream()
-            .map(UidentifisertBarn::getFødselsdato).collect(toList());
-
-        if (fødselsdato.isPresent() && søknadVersjon.getType().equals(FamilieHendelseType.FØDSEL)) {
-            return Collections.singletonList(IntervallUtil.byggIntervall(fødselsdato.get().minusDays(1), fødselsdato.get().plusDays(1)));
-        }
-        if (termindato.isPresent()) {
-            return Collections.singletonList(IntervallUtil.byggIntervall(termindato.get().minusWeeks(ANTALL_UKER_FOM_TERMIN_SØKNADSFRIST_START),
-                termindato.get().plusWeeks(ANTALL_UKER_TOM_TERMIN_SØKNADSFRIST_SLUTT)));
-        }
-        if (adopsjonFødselsdatoer != null && søknadVersjon.getType().equals(FamilieHendelseType.ADOPSJON)) {
-            return adopsjonFødselsdatoer.stream()
-                .map(dato -> IntervallUtil.byggIntervall(dato, dato))
-                .collect(toList());
-        }
-
-        // Ikke mulig å beregne gyldig fødselsperiode; returner tom liste
-        return Collections.emptyList();
+        return utledPerioderForRegisterinnhenting(familieHendelseGrunnlag);
     }
 
+    public boolean erFødselsHendelseRelevantFor(Long behandlingId, LocalDate fødselsdato) {
+        final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
+        if (!familieHendelseGrunnlag.getGjeldendeVersjon().getGjelderFødsel()) {
+            return false;
+        }
+        return utledPerioderForRegisterinnhenting(familieHendelseGrunnlag).stream()
+            .anyMatch(i -> i.encloses(fødselsdato));
+    }
+
+    public boolean matcherFødselsSøknadMedBehandling(FamilieHendelseGrunnlagEntitet grunnlag, LocalDate termindato, LocalDate fødselsdato) {
+        // Finn behandling
+        if (grunnlag == null || (termindato == null && fødselsdato == null) || !FamilieHendelseType.gjelderFødsel(grunnlag.getGjeldendeVersjon().getType())) {
+            return false;
+        }
+        List<LocalDateSegment<Boolean>> søknadSegmenter = new ArrayList<>();
+        if (termindato != null)
+            søknadSegmenter.add(intervallForFødselsdato(termindato)); // Holder med ett utvidet intervall - det fra grunnlaget
+        if (fødselsdato != null)
+            søknadSegmenter.add(intervallForFødselsdato(fødselsdato));
+        var tidslineSøknad = new LocalDateTimeline<>(søknadSegmenter, StandardCombinators::alwaysTrueForMatch).compress();
+        return utledTidslineFraGrunnlag(grunnlag).intersects(tidslineSøknad);
+    }
+
+    public boolean matcherOmsorgsSøknadMedBehandling(FamilieHendelseGrunnlagEntitet grunnlag, LocalDate omsorgDato, List<LocalDate> omsorgFødselsdatoer) {
+        // Finn behandling
+        if (grunnlag == null || omsorgDato == null || !FamilieHendelseType.gjelderAdopsjon(grunnlag.getGjeldendeVersjon().getType())) {
+            return false;
+        }
+        var omsorgdatoGrunnlag = grunnlag.getGjeldendeVersjon().getSkjæringstidspunkt();
+        if (omsorgdatoGrunnlag == null || !intervallForFødselsdato(omsorgDato).overlapper(intervallForFødselsdato(omsorgdatoGrunnlag)))
+            return false;
+        var intervallerGrunnlag =  utledPerioderForRegisterinnhenting(grunnlag);
+        var antallGrunnlag = grunnlag.getGjeldendeAntallBarn();
+        return antallGrunnlag == omsorgFødselsdatoer.size() && omsorgFødselsdatoer.stream()
+            .allMatch(f -> intervallerGrunnlag.stream().anyMatch(i -> i.encloses(f)));
+    }
 
     public void oppdaterFødselPåGrunnlag(Behandling behandling, List<FødtBarnInfo> bekreftetTps) {
         if (bekreftetTps.isEmpty()) {
@@ -173,16 +182,16 @@ public class FamilieHendelseTjeneste {
     }
 
 
-    public boolean harFagsakFamilieHendelseDato(LocalDate familieHendelseDato, Long avsluttetFagsakId) {
-        Optional<LocalDate> dato2 = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(avsluttetFagsakId)
-            .flatMap(b -> familieGrunnlagRepository.hentAggregatHvisEksisterer(b.getId()))
+    public boolean harBehandlingFamilieHendelseDato(LocalDate familieHendelseDato, Long behandlingId) {
+        Optional<LocalDate> dato2 = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(FamilieHendelseGrunnlagEntitet::finnGjeldendeFødselsdato);
         return dato2.isPresent() && familieHendelseDato.equals(dato2.get());
     }
 
-    public List<PersonopplysningEntitet> finnBarnSøktStønadFor(BehandlingReferanse ref) {
-        List<Interval> fødselsintervall = this.beregnGyldigeFødselsperioder(ref);
-        PersonopplysningerAggregat personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
+    public List<PersonopplysningEntitet> finnBarnSøktStønadFor(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
+        Long behandlingId = ref.getBehandlingId();
+        final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
+        List<LocalDateInterval> fødselsintervall = utledPerioderForRegisterinnhenting(familieHendelseGrunnlag);
 
         return personopplysninger.getRelasjoner().stream()
             .filter(rel -> rel.getAktørId().equals(ref.getAktørId()) && rel.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
@@ -191,9 +200,9 @@ public class FamilieHendelseTjeneste {
             .collect(toList());
     }
 
-    private boolean erBarnRelatertTilSøknad(List<Interval> relasjonsintervall, LocalDate dato) {
+    private boolean erBarnRelatertTilSøknad(List<LocalDateInterval> relasjonsintervall, LocalDate dato) {
         return relasjonsintervall.stream()
-            .anyMatch(periode -> periode.overlaps(IntervallUtil.tilIntervall(dato)));
+            .anyMatch(periode -> periode.encloses(dato));
     }
 
     private Optional<LocalDate> hentRegisterFødselsdato(Long behandlingId) {
@@ -221,5 +230,49 @@ public class FamilieHendelseTjeneste {
 
     public void kopierGrunnlag(Long fraBehandlingId, Long tilBehandlingId) {
         familieGrunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(fraBehandlingId, tilBehandlingId);
+    }
+
+    static List<LocalDateInterval> utledPerioderForRegisterinnhenting(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
+        return utledTidslineFraGrunnlag(familieHendelseGrunnlag).getDatoIntervaller().stream().collect(Collectors.toUnmodifiableList());
+    }
+
+    static LocalDateTimeline<Boolean> utledTidslineFraGrunnlag(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
+        final FamilieHendelseEntitet søknadVersjon = familieHendelseGrunnlag.getSøknadVersjon();
+        // Tar med bekreftet / overstyrt barn hvis finnes
+        List<LocalDateSegment<Boolean>> intervaller = new ArrayList<>(familieHendelseGrunnlag.getGjeldendeBekreftetVersjon()
+            .map(FamilieHendelseTjeneste::intervallerForUidentifisertBarn).orElse(List.of()));
+
+        if (FamilieHendelseType.FØDSEL.equals(søknadVersjon.getType())) {
+            intervaller.addAll(intervallerForUidentifisertBarn(søknadVersjon));
+        }
+        if (FamilieHendelseType.TERMIN.equals(søknadVersjon.getType())) {
+            var termindato = søknadVersjon.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElseThrow();
+            intervaller.add(intervallForTermindato(termindato));
+            // Tar med bekreftet termindato hvis finnes - men både den og søknadsdato kan ha feil (sic)
+            familieHendelseGrunnlag.getGjeldendeTerminbekreftelse()
+                .map(TerminbekreftelseEntitet::getTermindato)
+                .filter(t -> !termindato.equals(t))
+                .ifPresent(t -> intervaller.add(intervallForTermindato(t)));
+        }
+        if (FamilieHendelseType.ADOPSJON.equals(søknadVersjon.getType()) || FamilieHendelseType.OMSORG.equals(søknadVersjon.getType())) {
+            intervaller.addAll(intervallerForUidentifisertBarn(søknadVersjon));
+        }
+
+        return intervaller.isEmpty() ? new LocalDateTimeline<>(List.of()) : new LocalDateTimeline<>(intervaller, StandardCombinators::alwaysTrueForMatch).compress();
+    }
+
+    private static List<LocalDateSegment<Boolean>> intervallerForUidentifisertBarn(FamilieHendelseEntitet familieHendelseEntitet) {
+        return familieHendelseEntitet.getBarna().stream()
+            .map(UidentifisertBarn::getFødselsdato)
+            .map(dato -> new LocalDateSegment<>(dato.minus(MATCH_INTERVAlL_FØDSEL), dato.plus(MATCH_INTERVAlL_FØDSEL), Boolean.TRUE))
+            .collect(toList());
+    }
+
+    private static LocalDateSegment<Boolean> intervallForFødselsdato(LocalDate fødselsdato) {
+        return new LocalDateSegment<>(fødselsdato.minus(MATCH_INTERVAlL_FØDSEL), fødselsdato.plus(MATCH_INTERVAlL_FØDSEL), Boolean.TRUE);
+    }
+
+    private static LocalDateSegment<Boolean> intervallForTermindato(LocalDate termindato) {
+        return new LocalDateSegment<>(termindato.minus(MATCH_INTERVAlL_TERMIN), termindato.plus(MATCH_INTERVAlL_FØDSEL), Boolean.TRUE);
     }
 }

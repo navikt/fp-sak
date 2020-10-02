@@ -9,6 +9,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
@@ -16,13 +18,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
-import no.nav.foreldrepenger.domene.person.verge.dto.VergeAksjonpunktDto;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.OppdatererAksjonspunktFeil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
@@ -32,44 +36,61 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 @DtoTilServiceAdapter(dto = AvklarVergeDto.class, adapter = AksjonspunktOppdaterer.class)
 public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
 
-    private PersonopplysningTjeneste personopplysningTjeneste;
     private HistorikkTjenesteAdapter historikkAdapter;
     private VergeRepository vergeRepository;
     private TpsTjeneste tpsTjeneste;
+    private NavBrukerRepository navBrukerRepository;
 
     protected VergeOppdaterer() {
         // CDI
     }
 
     @Inject
-    public VergeOppdaterer(PersonopplysningTjeneste personopplysningTjeneste,
-                           HistorikkTjenesteAdapter historikkAdapter,
+    public VergeOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
                            TpsTjeneste tpsTjeneste,
-                           VergeRepository vergeRepository) {
-        this.personopplysningTjeneste = personopplysningTjeneste;
+                           VergeRepository vergeRepository,
+                           NavBrukerRepository navBrukerRepository) {
         this.historikkAdapter = historikkAdapter;
         this.vergeRepository = vergeRepository;
         this.tpsTjeneste = tpsTjeneste;
+        this.navBrukerRepository = navBrukerRepository;
     }
 
     @Override
     public OppdateringResultat oppdater(AvklarVergeDto dto, AksjonspunktOppdaterParameter param) {
-        PersonIdent fnr = null;
-        if (vergeErBasertPåFnr(dto)) {
-            fnr = dto.getFnr() == null ? null : new PersonIdent(dto.getFnr());
-        }
-        final VergeAksjonpunktDto adapter = new VergeAksjonpunktDto(fnr, dto.getGyldigFom(), dto.getGyldigTom(),
-            dto.getVergeType().getKode(), dto.getNavn(), dto.getOrganisasjonsnummer());
 
         Long behandlingId = param.getBehandlingId();
+        VergeBuilder vergeBuilder = new VergeBuilder()
+            .gyldigPeriode(dto.getGyldigFom(), dto.getGyldigTom())
+            .medVergeType(dto.getVergeType());
+        // Verge må enten være oppgitt med fnr (hent ut fra TPS), eller orgnr
+        PersonIdent fnr = VergeType.ADVOKAT.equals(dto.getVergeType()) || dto.getFnr() == null ? null : new PersonIdent(dto.getFnr());
+        if (fnr != null) {
+            var vergeAktørId = tpsTjeneste.hentAktørForFnr(fnr).orElseThrow(() -> new IllegalArgumentException("Ugyldig FNR for Verge"));
+            vergeBuilder.medBruker(hentEllerOpprettBruker(fnr, vergeAktørId));
+        } else if (dto.getOrganisasjonsnummer() != null) {
+            vergeBuilder.medVergeOrganisasjon(opprettVergeOrganisasjon(dto));
+        } else {
+            throw OppdatererAksjonspunktFeil.FACTORY.vergeIkkeFunnetITPS().toException();
+        }
+
+        vergeRepository.lagreOgFlush(behandlingId, vergeBuilder);
+
         byggHistorikkinnslag(dto, param);
 
-        personopplysningTjeneste.aksjonspunktVergeOppdaterer(behandlingId, adapter);
         return OppdateringResultat.utenOveropp();
     }
 
-    private boolean vergeErBasertPåFnr(AvklarVergeDto dto) {
-        return !VergeType.ADVOKAT.equals(dto.getVergeType());
+    private NavBruker hentEllerOpprettBruker(PersonIdent fnr, AktørId aktoerId) {
+        return navBrukerRepository.hent(aktoerId)
+            .orElseGet(() -> tpsTjeneste.hentBrukerForFnr(fnr).map(NavBruker::opprettNy).orElse(null));
+    }
+
+    private VergeOrganisasjonEntitet opprettVergeOrganisasjon(AvklarVergeDto adapter) {
+        return new VergeOrganisasjonBuilder()
+            .medOrganisasjonsnummer(adapter.getOrganisasjonsnummer())
+            .medNavn(adapter.getNavn())
+            .build();
     }
 
     private void byggHistorikkinnslag(AvklarVergeDto dto, AksjonspunktOppdaterParameter parameter) {

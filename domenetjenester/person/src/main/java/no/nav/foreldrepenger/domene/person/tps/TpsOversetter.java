@@ -267,7 +267,7 @@ public class TpsOversetter {
             .collect(Collectors.toList());
     }
 
-    boolean erBarnRolle(Familierelasjoner familierelasjoner) {
+    static boolean erBarnRolle(Familierelasjoner familierelasjoner) {
         return familierelasjoner.getValue().matches(RelasjonsRolleType.BARN.getKode());
     }
 

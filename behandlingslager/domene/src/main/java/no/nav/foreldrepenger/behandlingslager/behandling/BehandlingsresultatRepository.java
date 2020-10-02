@@ -19,7 +19,7 @@ public class BehandlingsresultatRepository {
     @Inject
     public BehandlingsresultatRepository( EntityManager entityManager) {
         this.entityManager = entityManager;
-        behandlingRepository = new BehandlingRepository(entityManager);
+        this.behandlingRepository = new BehandlingRepository(entityManager);
     }
 
     protected BehandlingsresultatRepository() {

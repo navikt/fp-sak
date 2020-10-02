@@ -53,7 +53,7 @@ public class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
         ScenarioMorSøkerForeldrepenger morSøkerAdopsjonScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
 
         Mockito.when(behandlingRepositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepositoryMock);
-        FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, null, behandlingRepositoryProvider);
+        FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, behandlingRepositoryProvider.getFamilieHendelseRepository());
         utleder = new AksjonspunktUtlederForForeldrepengerAdopsjon(familieHendelseTjeneste);
         Mockito.when(behandlingMock.getFagsak()).thenReturn(fagsakMock);
 

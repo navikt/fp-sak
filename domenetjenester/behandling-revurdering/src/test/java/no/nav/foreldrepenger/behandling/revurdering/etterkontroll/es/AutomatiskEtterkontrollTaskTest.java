@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -45,6 +46,7 @@ import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.person.tps.TpsFamilieTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -76,6 +78,8 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
 
     private EtterkontrollTjeneste etterkontrollTjeneste;
 
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
+
     @Mock
     private HistorikkRepository historikkRepository;
 
@@ -86,14 +90,15 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         etterkontrollRepository = new EtterkontrollRepository(getEntityManager());
+        familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         foreldrepengerUttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
-        task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository, tpsFamilieTjenesteMock,
+        task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository, familieHendelseTjeneste, tpsFamilieTjenesteMock,
                 prosessTaskRepositoryMock, Period.ofWeeks(11), behandlendeEnhetTjeneste, etterkontrollTjeneste);
         repo = new Repository(getEntityManager());
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
                 .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
         etterkontrollTjeneste = new EtterkontrollTjeneste(repositoryProvider, prosessTaskRepositoryMock, mock(BehandlingskontrollTjeneste.class),
-                foreldrepengerUttakTjeneste);
+                foreldrepengerUttakTjeneste, mock(LegacyESBeregningRepository.class));
 
     }
 
@@ -134,7 +139,7 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
 
         task = new AutomatiskEtterkontrollTask(repositoryProvider,
                 etterkontrollRepository,
-                historikkRepository, tpsFamilieTjenesteMock,
+                historikkRepository, familieHendelseTjeneste, tpsFamilieTjenesteMock,
                 prosessTaskRepositoryMock, etterkontrollTpsRegistreringPeriode, behandlendeEnhetTjeneste,
                 etterkontrollTjeneste);
 

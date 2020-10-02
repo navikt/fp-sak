@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.familiehendelse.impl;
+package no.nav.foreldrepenger.familiehendelse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -6,25 +6,27 @@ import static org.mockito.Mockito.mock;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.threeten.extra.Interval;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.IntervallUtil;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class FamilieHendelseTjenesteImplTest {
+public class FamilieHendelseTjenesteTest {
 
     private static final LocalDate NÅ = LocalDate.now();
     private static final LocalDate FØDSELSDATO_BARN = LocalDate.of(2017, Month.JANUARY, 1);
@@ -33,8 +35,7 @@ public class FamilieHendelseTjenesteImplTest {
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
 
-    private final BasisPersonopplysningTjeneste personopplysningTjeneste = new BasisPersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
-    private final FamilieHendelseTjeneste tjeneste = new FamilieHendelseTjeneste(personopplysningTjeneste, mock(FamiliehendelseEventPubliserer.class), repositoryProvider);
+    private final FamilieHendelseTjeneste tjeneste = new FamilieHendelseTjeneste(mock(FamiliehendelseEventPubliserer.class), repositoryProvider.getFamilieHendelseRepository());
 
     @Test
     public void skal_uttrekke_gyldig_fødselsperiode_for_barn_som_fom_en_dag_før_tom_en_dag_etter_dersom_fødselsdato_er_oppgitt() {
@@ -43,9 +44,9 @@ public class FamilieHendelseTjenesteImplTest {
         final Behandling behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        List<Interval> actually = tjeneste.beregnGyldigeFødselsperioder(lagRef(behandling));
+        var actually = tjeneste.forventetFødselsIntervaller(lagRef(behandling));
         // Assert
-        assertThat(actually).containsExactly(IntervallUtil.byggIntervall(FØDSELSDATO_BARN.minusDays(1), FØDSELSDATO_BARN.plusDays(1)));
+        assertThat(actually).containsExactly(new LocalDateInterval(FØDSELSDATO_BARN.minusWeeks(6), FØDSELSDATO_BARN.plusWeeks(6)));
     }
 
     @Test
@@ -61,10 +62,10 @@ public class FamilieHendelseTjenesteImplTest {
         final Behandling behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        List<Interval> actually = tjeneste.beregnGyldigeFødselsperioder(lagRef(behandling));
+        var actually = tjeneste.forventetFødselsIntervaller(lagRef(behandling));
 
         // Assert
-        final Interval expected = IntervallUtil.byggIntervall(termindato.minusWeeks(16), termindato.plusWeeks(4));
+        var expected = new LocalDateInterval(termindato.minusWeeks(19), termindato.plusWeeks(6));
         assertThat(actually).containsExactly(expected);
     }
 
@@ -72,19 +73,21 @@ public class FamilieHendelseTjenesteImplTest {
     public void skal_uttrekke_gyldig_fødselsperioder_for_barn_som_eksakt_dag_dersom_fødseldatoer_for_adopsjon_er_oppgitt() {
         // Arrange
         LocalDate fødselsdatoBarn = NÅ;
+        LocalDate fødselsdatoBarn2 = NÅ.minusYears(2);
         final ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
             .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(NÅ))
-            .leggTilBarn(fødselsdatoBarn);
+            .leggTilBarn(fødselsdatoBarn).leggTilBarn(fødselsdatoBarn2);
         final Behandling behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        List<Interval> actually = tjeneste.beregnGyldigeFødselsperioder(lagRef(behandling));
+        var actually = tjeneste.forventetFødselsIntervaller(lagRef(behandling));
 
         // Assert
-        final Interval expected = IntervallUtil.byggIntervall(fødselsdatoBarn, fødselsdatoBarn);
-        assertThat(actually).containsExactly(expected);
+        var expected = new LocalDateInterval(fødselsdatoBarn.minusWeeks(6), fødselsdatoBarn.plusWeeks(6));
+        var expected2 = new LocalDateInterval(fødselsdatoBarn2.minusWeeks(6), fødselsdatoBarn2.plusWeeks(6));
+        assertThat(actually).containsExactlyInAnyOrder(expected, expected2);
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
@@ -98,7 +101,7 @@ public class FamilieHendelseTjenesteImplTest {
         final Behandling behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        List<Interval> actually = tjeneste.beregnGyldigeFødselsperioder(lagRef(behandling));
+        var actually = tjeneste.forventetFødselsIntervaller(lagRef(behandling));
 
         // Assert
         assertThat(actually).isEmpty();
@@ -130,4 +133,34 @@ public class FamilieHendelseTjenesteImplTest {
         // Skal bli kopiert fra søknad
         assertThat(aggregat.getBekreftetVersjon().flatMap(FamilieHendelseEntitet::getTerminbekreftelse)).isPresent();
     }
+
+    @Test
+    public void sjekk_intervaller_bekreftet_termin() {
+        final FamilieHendelseGrunnlagBuilder grunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty());
+        final FamilieHendelseBuilder søknadHendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
+        var termindato = LocalDate.of(2018, Month.MAY, 6);
+        søknadHendelseBuilder
+            .medAntallBarn(1)
+            .medTerminbekreftelse(søknadHendelseBuilder.getTerminbekreftelseBuilder()
+                .medTermindato(termindato)
+                .medUtstedtDato(LocalDate.of(2018, Month.FEBRUARY, 6)));
+        grunnlagBuilder.medSøknadVersjon(søknadHendelseBuilder);
+        final FamilieHendelseBuilder saksbehandlerHendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.OVERSTYRT);
+        saksbehandlerHendelseBuilder
+            .medAntallBarn(1)
+            .medTerminbekreftelse(saksbehandlerHendelseBuilder.getTerminbekreftelseBuilder()
+                .medTermindato(termindato)
+                .medUtstedtDato(LocalDate.of(2018, Month.FEBRUARY, 6)));
+        grunnlagBuilder.medOverstyrtVersjon(saksbehandlerHendelseBuilder);
+
+        final FamilieHendelseGrunnlagEntitet grunnlag = grunnlagBuilder.build();
+
+        var intervaller = FamilieHendelseTjeneste.utledPerioderForRegisterinnhenting(grunnlag);
+
+        assertThat(intervaller.size()).isEqualTo(1);
+        assertThat(intervaller.get(0)).isEqualByComparingTo(new LocalDateInterval(termindato.minusWeeks(19),
+            termindato.plusWeeks(6)));
+    }
+
+
 }

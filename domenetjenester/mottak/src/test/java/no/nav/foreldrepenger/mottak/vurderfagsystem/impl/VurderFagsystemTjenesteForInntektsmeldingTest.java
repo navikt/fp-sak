@@ -39,6 +39,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
@@ -81,7 +82,8 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
 
         var skjæringsTidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         when(skjæringsTidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now()).medUtledetSkjæringstidspunkt(LocalDate.now()).build());
-        var fellesUtil = new VurderFagsystemFellesUtils(repositoryProvider, mottatteDokumentTjenesteMock, inntektsmeldingTjeneste, skjæringsTidspunktTjeneste);
+        var familieTjeneste = new FamilieHendelseTjeneste(null, grunnlagRepository);
+        var fellesUtil = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjenesteMock, inntektsmeldingTjeneste, skjæringsTidspunktTjeneste);
         var tjenesteFP = new VurderFagsystemTjenesteImpl(fellesUtil, repositoryProvider);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjenesteMock, fellesUtil, new UnitTestLookupInstanceImpl<>(tjenesteFP));
     }
