@@ -47,30 +47,47 @@ public class BeregningDtoTjeneste {
                                                                       Optional<BeregningsgrunnlagGrunnlagEntitet> orginaltGrunnlag) {
         BeregningsgrunnlagGrunnlagDto bgRestDto = BehandlingslagerTilKalkulusMapper.mapGrunnlag(beregningsgrunnlagGrunnlagEntitet);
         BeregningsgrunnlagGUIInput inputMedBg = input.medBeregningsgrunnlagGrunnlag(bgRestDto);
+        BeregningsgrunnlagTilstand aktivTilstand = beregningsgrunnlagGrunnlagEntitet.getBeregningsgrunnlagTilstand();
         if (orginaltGrunnlag.isPresent() && orginaltGrunnlag.get().getBeregningsgrunnlag().isPresent()) {
             // Trenger ikke inntektsmeldinger på orginalt grunnlag
             BeregningsgrunnlagGrunnlagDto orginaltBG = BehandlingslagerTilKalkulusMapper.mapGrunnlag(orginaltGrunnlag.get());
             BeregningsgrunnlagGUIInput inputMedOrginaltBG = inputMedBg.medBeregningsgrunnlagGrunnlagFraForrigeBehandling(orginaltBG);
-            return leggTilTilstandgrunnlag(inputMedOrginaltBG);
+            return leggTilTilstandgrunnlag(inputMedOrginaltBG, aktivTilstand);
         } else {
-            return leggTilTilstandgrunnlag(inputMedBg);
+            return leggTilTilstandgrunnlag(inputMedBg, aktivTilstand);
         }
     }
 
-    private BeregningsgrunnlagGUIInput leggTilTilstandgrunnlag(BeregningsgrunnlagGUIInput input) {
+    private BeregningsgrunnlagGUIInput leggTilTilstandgrunnlag(BeregningsgrunnlagGUIInput input, BeregningsgrunnlagTilstand aktivTilstand) {
         KoblingReferanse ref = input.getKoblingReferanse();
+        Optional<BeregningsgrunnlagGrunnlagEntitet> kofakbergGrunnlag = Optional.empty();
+        Optional<BeregningsgrunnlagGrunnlagEntitet> refBG = Optional.empty();
+        Optional<BeregningsgrunnlagGrunnlagEntitet> fordeltBG = Optional.empty();
 
         // Fakta om beregning
-        Optional<BeregningsgrunnlagGrunnlagEntitet> kofakbergGrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagForPreutfylling(ref.getKoblingId(), ref.getOriginalKoblingId(),
-            BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER, BeregningsgrunnlagTilstand.KOFAKBER_UT);
+        if (!aktivTilstand.erFør(BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER)) {
+            kofakbergGrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagForPreutfylling(ref.getKoblingId(), ref.getOriginalKoblingId(),
+                BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER, BeregningsgrunnlagTilstand.KOFAKBER_UT);
+        }
+
+        // Vurder refusjon
+        if (!aktivTilstand.erFør(BeregningsgrunnlagTilstand.VURDERT_REFUSJON)) {
+            refBG = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId(), BeregningsgrunnlagTilstand.VURDERT_REFUSJON);
+        }
+
+        // Fordeling
+        if (!aktivTilstand.erFør(BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING)) {
+            fordeltBG = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId(), BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING);
+        }
+
         BeregningsgrunnlagGUIInput inputMedBGKofakber = kofakbergGrunnlag.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag)
             .map(input::medBeregningsgrunnlagGrunnlagFraFaktaOmBeregning).orElse(input);
 
+        BeregningsgrunnlagGUIInput inputMedRefBG = refBG.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag)
+            .map(inputMedBGKofakber::medBeregningsgrunnlagGrunnlagFraVurderRefusjon).orElse(inputMedBGKofakber);
 
-        // Fordeling
-        Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId(), BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING);
-        return sisteBg.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag)
-            .map(inputMedBGKofakber::medBeregningsgrunnlagGrunnlagFraFordel).orElse(inputMedBGKofakber);
+        return fordeltBG.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag)
+            .map(inputMedRefBG::medBeregningsgrunnlagGrunnlagFraFordel).orElse(inputMedRefBG);
     }
 
 }
