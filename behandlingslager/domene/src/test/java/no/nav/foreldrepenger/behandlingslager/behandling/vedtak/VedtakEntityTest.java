@@ -11,8 +11,8 @@ import static org.junit.Assert.fail;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class VedtakEntityTest {
 
@@ -25,7 +25,7 @@ public class VedtakEntityTest {
     private static final VedtakResultatType VEDTAK_RESULTAT_TYPE = VedtakResultatType.INNVILGET;
     private static final String FORVENTET_EXCEPTION = "forventet exception";
 
-    @Before
+    @BeforeEach
     public void setup() {
         vedtakBuilder = BehandlingVedtak.builder();
         vedtak = null;
@@ -127,13 +127,13 @@ public class VedtakEntityTest {
         assertThat(vedtak.hashCode(), is(not(equalTo(vedtak2.hashCode()))));
     }
 
-    //----------------------------------------------------------------
+    // ----------------------------------------------------------------
 
     private static BehandlingVedtak.Builder lagBuilderMedPaakrevdeFelter() {
         return BehandlingVedtak.builder()
-            .medVedtakstidspunkt(VEDTAKSDATO)
-            .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHBANDLER)
-            .medVedtakResultatType(VEDTAK_RESULTAT_TYPE);
+                .medVedtakstidspunkt(VEDTAKSDATO)
+                .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHBANDLER)
+                .medVedtakResultatType(VEDTAK_RESULTAT_TYPE);
     }
 
 }

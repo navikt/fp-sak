@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
@@ -84,18 +84,18 @@ public class PersonInformasjonBuilderTest {
 
     }
 
-    private PersonInformasjonBuilder.RelasjonBuilder lagRelasjon(AktørId fra, AktørId til, RelasjonsRolleType type, PersonInformasjonBuilder informasjonBuilder) {
+    private PersonInformasjonBuilder.RelasjonBuilder lagRelasjon(AktørId fra, AktørId til, RelasjonsRolleType type,
+            PersonInformasjonBuilder informasjonBuilder) {
         return informasjonBuilder.getRelasjonBuilder(fra, til, type);
     }
 
-
     private PersonInformasjonBuilder.PersonopplysningBuilder lagPersonopplysning(AktørId aktørId, PersonInformasjonBuilder informasjonBuilder) {
         return informasjonBuilder
-            .getPersonopplysningBuilder(aktørId)
-            .medSivilstand(SivilstandType.GIFT)
-            .medRegion(Region.NORDEN)
-            .medNavn("Richard Feynman")
-            .medFødselsdato(LocalDate.now())
-            .medKjønn(NavBrukerKjønn.KVINNE);
+                .getPersonopplysningBuilder(aktørId)
+                .medSivilstand(SivilstandType.GIFT)
+                .medRegion(Region.NORDEN)
+                .medNavn("Richard Feynman")
+                .medFødselsdato(LocalDate.now())
+                .medKjønn(NavBrukerKjønn.KVINNE);
     }
 }

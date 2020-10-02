@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
@@ -19,7 +19,7 @@ public class OpprettOppgaveRegistrerSøknadTaskTest {
     private OppgaveTjeneste oppgaveTjeneste;
     private OpprettOppgaveRegistrerSøknadTask opprettOppgaveRegistrerSøknadTask;
 
-    @Before
+    @BeforeEach
     public void before() {
         oppgaveTjeneste = mock(OppgaveTjeneste.class);
         opprettOppgaveRegistrerSøknadTask = new OpprettOppgaveRegistrerSøknadTask(oppgaveTjeneste);

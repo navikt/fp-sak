@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -49,7 +49,8 @@ public class AdopsjonTest {
         assertThat(søknadVersjon.getAdopsjon().get().getOmsorgsovertakelseDato()).isEqualTo(now);
 
         final FamilieHendelseGrunnlagBuilder oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.of(hendelseAggregat));
-        final FamilieHendelseBuilder oppdatertHendelse = FamilieHendelseBuilder.oppdatere(Optional.of(hendelseAggregat.getSøknadVersjon()), HendelseVersjonType.SØKNAD);
+        final FamilieHendelseBuilder oppdatertHendelse = FamilieHendelseBuilder.oppdatere(Optional.of(hendelseAggregat.getSøknadVersjon()),
+                HendelseVersjonType.SØKNAD);
 
         oppdatertHendelse.tilbakestillBarn();
         oppdatertHendelse.leggTilBarn(now.minusYears(1));

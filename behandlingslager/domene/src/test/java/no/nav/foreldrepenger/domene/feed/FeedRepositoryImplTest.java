@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 
-public class FeedRepositoryImplTest {
+public class FeedRepositoryImplTest {// TODO
 
     private static final String TYPE2 = "type2";
     private static final String TYPE1 = "type1";
@@ -50,7 +50,8 @@ public class FeedRepositoryImplTest {
         }
 
         if (hendelseMedSekvensnummer99ogKilde == null) {
-            hendelseMedSekvensnummer99ogKilde = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId("1000000002").type("type3").kildeId(KILDE_ID).build();
+            hendelseMedSekvensnummer99ogKilde = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId("1000000002").type("type3")
+                    .kildeId(KILDE_ID).build();
             hendelseMedSekvensnummer99ogKilde.setSekvensnummer(99L);
             feedRepository.lagre(hendelseMedSekvensnummer99ogKilde);
         }
@@ -96,7 +97,8 @@ public class FeedRepositoryImplTest {
     @Test
     public void skal_lagre_hendelse_flushe_sjekke_om_kilde_eksisterer() {
         assertThat(feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, "ny_kilde")).isFalse();
-        FpVedtakUtgåendeHendelse utgåendeHendelse = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId("1000000002").type("type3").kildeId("ny_kilde").build();
+        FpVedtakUtgåendeHendelse utgåendeHendelse = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId("1000000002").type("type3")
+                .kildeId("ny_kilde").build();
         feedRepository.lagre(utgåendeHendelse);
         repoRule.getEntityManager().flush();
         assertThat(feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, "ny_kilde")).isTrue();
