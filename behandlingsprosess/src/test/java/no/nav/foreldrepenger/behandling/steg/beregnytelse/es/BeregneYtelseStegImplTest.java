@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
@@ -32,7 +33,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
@@ -49,6 +49,7 @@ public class BeregneYtelseStegImplTest {
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
     private final BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+    private final BeregningsresultatRepository beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
     @Inject
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private Repository repository = repoRule.getRepository();
@@ -71,17 +72,9 @@ public class BeregneYtelseStegImplTest {
         repository.lagre(fagsak);
         repository.flush();
 
-        sats = repository.hentAlle(BeregningSats.class).stream()
-            .filter(sats -> sats.getSatsType().equals(BeregningSatsType.ENGANG) &&
-                sats.getPeriode().overlapper(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now().plusDays(1))))
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Feil i testdataoppsett"));
+        sats = beregningsresultatRepository.finnGjeldendeSats(BeregningSatsType.ENGANG);
 
-        sats2017 = repository.hentAlle(BeregningSats.class).stream()
-            .filter(sats -> sats.getSatsType().equals(BeregningSatsType.ENGANG) &&
-                sats.getPeriode().overlapper(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2017, 10, 1), LocalDate.of(2017, 11, 1))))
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Feil i testdataoppsett"));
+        sats2017 = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.of(2017, 10, 1));
 
         beregneYtelseSteg = new BeregneYtelseEngangsstønadStegImpl(repositoryProvider, beregningRepository, maksStønadsalder, skjæringstidspunktTjeneste);
     }

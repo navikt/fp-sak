@@ -15,23 +15,24 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class BehandlingEntitetTest extends EntityManagerAwareTest {
 
-    private Repository repository;
+    private BehandlingRepository behandlingRepository;
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
     public void setup() {
-        repository = new Repository(getEntityManager());
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        var entityManager = getEntityManager();
+        behandlingRepository = new BehandlingRepository(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     }
 
     @Test
@@ -39,7 +40,7 @@ public class BehandlingEntitetTest extends EntityManagerAwareTest {
 
         Behandling behandling = opprettOgLagreBehandling();
 
-        List<Behandling> alle = repository.hentAlle(Behandling.class);
+        List<Behandling> alle = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsak().getId());
 
         assertThat(alle).hasSize(1);
 
@@ -62,7 +63,7 @@ public class BehandlingEntitetTest extends EntityManagerAwareTest {
         Behandling behandling2 = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING).build();
         lagreBehandling(behandling2);
 
-        List<Behandling> alle = repository.hentAlle(Behandling.class);
+        List<Behandling> alle = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsak().getId());
 
         assertThat(alle).hasSize(2);
 
@@ -82,9 +83,9 @@ public class BehandlingEntitetTest extends EntityManagerAwareTest {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
 
-        scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        List<Behandling> alle = repository.hentAlle(Behandling.class);
+        List<Behandling> alle = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsak().getId());
 
         assertThat(alle).hasSize(1);
 

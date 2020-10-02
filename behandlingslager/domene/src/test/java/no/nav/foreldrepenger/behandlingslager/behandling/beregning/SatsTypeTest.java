@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class SatsTypeTest {
+
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private final Repository repository = repoRule.getRepository();
@@ -21,6 +22,7 @@ public class SatsTypeTest {
 
     @Test
     public void skal_teste_verdier_for_sats_gbeløp_og_gsnitt() {
+        //Denne testen går ut i fra at satser i db ikke er endret på siden migrering ble kjørt
         List<BeregningSats> grunnbeløpListe = repository.hentAlle(BeregningSats.class).stream().filter(sats -> sats.getSatsType().equals(BeregningSatsType.GRUNNBELØP)).collect(Collectors.toList());
         List<BeregningSats> gsnittListe = repository.hentAlle(BeregningSats.class).stream().filter(sats -> sats.getSatsType().equals(BeregningSatsType.GSNITT)).collect(Collectors.toList());
 
@@ -30,6 +32,7 @@ public class SatsTypeTest {
 
     @Test
     public void skal_teste_gsnitt_fom_tom_er_1jan_og_31des() {
+        //Denne testen går ut i fra at satser i db ikke er endret på siden migrering ble kjørt
         List<BeregningSats> gsnittListe = repository.hentAlle(BeregningSats.class).stream().filter(sats -> sats.getSatsType().equals(BeregningSatsType.GSNITT)).collect(Collectors.toList());
 
         for (BeregningSats sats : gsnittListe) {

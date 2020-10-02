@@ -29,7 +29,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
+import no.nav.foreldrepenger.domene.feed.HendelseCriteria;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerEndret;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerOpphoert;
@@ -67,8 +69,8 @@ public class HendelsePublisererTjenesteTest extends RepositoryAwareTest {
                 VedtakResultatType.OPPHØR);
         tjeneste.lagreVedtak(vedtak);
 
-        var alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
         var behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var alle = hentUtgåendeHendelser(behandling.getAktørId());
 
         assertThat(alle).hasSize(1);
         assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_OPPHOERT.getType());
@@ -80,6 +82,15 @@ public class HendelsePublisererTjenesteTest extends RepositoryAwareTest {
         assertThat(opphørt.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
     }
 
+    private List<FpVedtakUtgåendeHendelse> hentUtgåendeHendelser(AktørId aktørId) {
+        var criteria = HendelseCriteria.builder()
+            .medAktørId(aktørId.getId())
+            .medMaxAntall(10L)
+            .medSisteLestSekvensId(0L)
+            .build();
+        return feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class, criteria);
+    }
+
     @Test
     public void skal_lagre_ned_førstegangssøknad() {
         var berRes = lagBeregningsresultat(INNVILGET_PERIODE_FØRSTE_DAG, INNVILGET_PERIODE_SISTE_DAG, 100, 100);
@@ -88,8 +99,8 @@ public class HendelsePublisererTjenesteTest extends RepositoryAwareTest {
                 berRes, null, VedtakResultatType.INNVILGET);
         tjeneste.lagreVedtak(vedtak);
 
-        var alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
         var behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var alle = hentUtgåendeHendelser(behandling.getAktørId());
 
         assertThat(alle).hasSize(1);
         assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_INNVILGET.getType());
@@ -111,7 +122,9 @@ public class HendelsePublisererTjenesteTest extends RepositoryAwareTest {
                 berRes, nyttBer, VedtakResultatType.INNVILGET);
         tjeneste.lagreVedtak(vedtak);
 
-        var alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
+        var behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var alle = hentUtgåendeHendelser(behandling.getAktørId());
+
         assertThat(alle).isEmpty();
     }
 
@@ -125,8 +138,8 @@ public class HendelsePublisererTjenesteTest extends RepositoryAwareTest {
                 berRes, nyttBer, VedtakResultatType.INNVILGET);
         tjeneste.lagreVedtak(vedtak);
 
-        var alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
-        Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var alle = hentUtgåendeHendelser(behandling.getAktørId());
 
         assertThat(alle).hasSize(1);
         assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_ENDRET.getType());
@@ -148,8 +161,8 @@ public class HendelsePublisererTjenesteTest extends RepositoryAwareTest {
                 berRes, nyttBer, VedtakResultatType.OPPHØR);
         tjeneste.lagreVedtak(vedtak);
 
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
-        Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var alle = hentUtgåendeHendelser(behandling.getAktørId());
 
         assertThat(alle).hasSize(1);
         assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_OPPHOERT.getType());

@@ -101,9 +101,8 @@ public class OppgaveTjenesteTest {
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
 
         // Assert
-        List<OppgaveBehandlingKobling> oppgaver = repository.hentAlle(OppgaveBehandlingKobling.class);
-        assertThat(oppgaver).hasSize(1);
         List<OppgaveBehandlingKobling> oppgaveBehandlingKoblinger = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandlingId);
+        assertThat(oppgaveBehandlingKoblinger).hasSize(1);
         OppgaveBehandlingKobling oppgaveBehandlingKobling = OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(OppgaveÅrsak.BEHANDLE_SAK, oppgaveBehandlingKoblinger).orElseThrow(
             () -> new IllegalStateException("Mangler AktivOppgaveMedÅrsak"));
         assertThat(oppgaveBehandlingKobling.getOppgaveÅrsak()).isEqualTo(OppgaveÅrsak.BEHANDLE_SAK);
@@ -118,7 +117,7 @@ public class OppgaveTjenesteTest {
         when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
 
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
-        List<OppgaveBehandlingKobling> oppgaver = repository.hentAlle(OppgaveBehandlingKobling.class);
+        List<OppgaveBehandlingKobling> oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandlingId);
         assertThat(oppgaver).hasSize(1);
         oppgaver.get(0).setFerdigstilt(false);
         repository.lagre(oppgaver.get(0));
@@ -127,7 +126,7 @@ public class OppgaveTjenesteTest {
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
 
         // Assert
-        oppgaver = repository.hentAlle(OppgaveBehandlingKobling.class);
+        oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandlingId);
         assertThat(oppgaver).hasSize(1);
     }
 
@@ -138,7 +137,7 @@ public class OppgaveTjenesteTest {
         when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
 
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
-        List<OppgaveBehandlingKobling> oppgaver = repository.hentAlle(OppgaveBehandlingKobling.class);
+        List<OppgaveBehandlingKobling> oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandlingId);
         assertThat(oppgaver).hasSize(1);
         oppgaver.get(0).setFerdigstilt(true);
         repository.lagre(oppgaver.get(0));
@@ -147,12 +146,12 @@ public class OppgaveTjenesteTest {
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.GODKJENNE_VEDTAK);
 
         // Assert
-        oppgaver = repository.hentAlle(OppgaveBehandlingKobling.class);
+        oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandlingId);
         assertThat(oppgaver).hasSize(2);
     }
 
     @Test
-    public void skal_kunne_opprette_en_ny_oppgave_med_en_annen_årsak_selv_om_det_finnes_en_aktiv_oppgave() throws Exception {
+    public void skal_kunne_opprette_en_ny_oppgave_med_en_annen_årsak_selv_om_det_finnes_en_aktiv_oppgave() {
         // Arrange
         Long behandlingId = behandling.getId();
         when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
@@ -164,7 +163,7 @@ public class OppgaveTjenesteTest {
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.GODKJENNE_VEDTAK);
 
         // Assert
-        List<OppgaveBehandlingKobling> aktiveOppgaver = repository.hentAlle(OppgaveBehandlingKobling.class).stream()
+        List<OppgaveBehandlingKobling> aktiveOppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandlingId).stream()
             .filter(oppgave -> !oppgave.isFerdigstilt())
             .collect(Collectors.toList());
         assertThat(aktiveOppgaver).hasSize(2);
@@ -182,7 +181,7 @@ public class OppgaveTjenesteTest {
         tjeneste.avslutt(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
 
         // Assert
-        List<OppgaveBehandlingKobling> oppgaver = repository.hentAlle(OppgaveBehandlingKobling.class);
+        List<OppgaveBehandlingKobling> oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandlingId);
         OppgaveBehandlingKobling behandlingKobling = oppgaver.get(0);
         assertThat(behandlingKobling.isFerdigstilt()).isTrue();
     }
