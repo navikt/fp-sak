@@ -143,11 +143,11 @@ public class KunYtelseHistorikkTjenesteTest {
         if (overstyrt != null && overstyrt.equals(fastsattÅrsbeløp)) {
             assertThat(fordelingInnslag.isPresent()).isFalse();
         } else if (overstyrt == null) {
-            assertThat(fordelingInnslag.isPresent()).isTrue();
+            assertThat(fordelingInnslag).isPresent();
             assertThat(fordelingInnslag.get().getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).get().getFraVerdi()).isNull();
             assertThat(fordelingInnslag.get().getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).get().getTilVerdi()).isEqualTo(fastsatt.toString());
         } else {
-            assertThat(fordelingInnslag.isPresent()).isTrue();
+            assertThat(fordelingInnslag).isPresent();
             assertThat(fordelingInnslag.get().getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).get().getFraVerdi()).isEqualTo(overstyrt.toString());
             assertThat(fordelingInnslag.get().getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).get().getTilVerdi()).isEqualTo(fastsatt.toString());
         }

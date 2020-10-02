@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 
-public class FeedRepositoryImplTest {// TODO
+public class FeedRepositoryImplTest { // TODO
 
     private static final String TYPE2 = "type2";
     private static final String TYPE1 = "type1";
@@ -27,35 +27,40 @@ public class FeedRepositoryImplTest {// TODO
     private FpVedtakUtgåendeHendelse hendelseAvType1MedAktørId1MedSek1;
     private FpVedtakUtgåendeHendelse hendelseAvType1MedAktørId2MedSek2;
     private FpVedtakUtgåendeHendelse hendelseAvType2MedAktørId1MedSek3;
-    private FpVedtakUtgåendeHendelse hendelseMedSekvensnummer99ogKilde;
+    private FpVedtakUtgåendeHendelse hendelseMedHøyestSeksvensnummerogKilde;
 
     @Before
     public void setUp() {
         if (hendelseAvType1MedAktørId1MedSek1 == null) {
             hendelseAvType1MedAktørId1MedSek1 = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId(AKTØR_ID).type(TYPE1).build();
-            hendelseAvType1MedAktørId1MedSek1.setSekvensnummer(1L);
+            var nesteSekvensnummer = nesteSeksvensnummer();
+            hendelseAvType1MedAktørId1MedSek1.setSekvensnummer(nesteSekvensnummer);
             feedRepository.lagre(hendelseAvType1MedAktørId1MedSek1);
         }
 
         if (hendelseAvType1MedAktørId2MedSek2 == null) {
             hendelseAvType1MedAktørId2MedSek2 = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId(AKTØR_ID_2).type(TYPE1).build();
-            hendelseAvType1MedAktørId2MedSek2.setSekvensnummer(2L);
+            hendelseAvType1MedAktørId2MedSek2.setSekvensnummer(nesteSeksvensnummer());
             feedRepository.lagre(hendelseAvType1MedAktørId2MedSek2);
         }
 
         if (hendelseAvType2MedAktørId1MedSek3 == null) {
             hendelseAvType2MedAktørId1MedSek3 = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId(AKTØR_ID).type(TYPE2).build();
-            hendelseAvType2MedAktørId1MedSek3.setSekvensnummer(3L);
+            hendelseAvType2MedAktørId1MedSek3.setSekvensnummer(nesteSeksvensnummer());
             feedRepository.lagre(hendelseAvType2MedAktørId1MedSek3);
         }
 
-        if (hendelseMedSekvensnummer99ogKilde == null) {
-            hendelseMedSekvensnummer99ogKilde = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId("1000000002").type("type3")
-                    .kildeId(KILDE_ID).build();
-            hendelseMedSekvensnummer99ogKilde.setSekvensnummer(99L);
-            feedRepository.lagre(hendelseMedSekvensnummer99ogKilde);
+        if (hendelseMedHøyestSeksvensnummerogKilde == null) {
+            hendelseMedHøyestSeksvensnummerogKilde = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId("1000000002")
+                .type("type3").kildeId(KILDE_ID).build();
+            hendelseMedHøyestSeksvensnummerogKilde.setSekvensnummer(nesteSeksvensnummer());
+            feedRepository.lagre(hendelseMedHøyestSeksvensnummerogKilde);
         }
         repoRule.getEntityManager().flush();
+    }
+
+    private long nesteSeksvensnummer() {
+        return feedRepository.hentNesteSekvensnummer(FpVedtakUtgåendeHendelse.class);
     }
 
     @Test
@@ -97,8 +102,11 @@ public class FeedRepositoryImplTest {// TODO
     @Test
     public void skal_lagre_hendelse_flushe_sjekke_om_kilde_eksisterer() {
         assertThat(feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, "ny_kilde")).isFalse();
-        FpVedtakUtgåendeHendelse utgåendeHendelse = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId("1000000002").type("type3")
-                .kildeId("ny_kilde").build();
+        FpVedtakUtgåendeHendelse utgåendeHendelse = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD)
+            .aktørId("1000000002")
+            .type("type3")
+            .kildeId("ny_kilde")
+            .build();
         feedRepository.lagre(utgåendeHendelse);
         repoRule.getEntityManager().flush();
         assertThat(feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, "ny_kilde")).isTrue();
@@ -107,23 +115,27 @@ public class FeedRepositoryImplTest {// TODO
     @Test
     public void skal_hente_hendelser_med_type1() {
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
-                new HendelseCriteria.Builder().medSisteLestSekvensId(0L).medType(TYPE1).medMaxAntall(100L).build());
+                new HendelseCriteria.Builder()
+                    .medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1)
+                    .medType(TYPE1)
+                    .medMaxAntall(100L).build());
 
-        assertThat(alle).containsOnly(hendelseAvType1MedAktørId1MedSek1, hendelseAvType1MedAktørId2MedSek2);
+        assertThat(alle).contains(hendelseAvType1MedAktørId1MedSek1, hendelseAvType1MedAktørId2MedSek2);
     }
 
     @Test
     public void skal_hente_alle_hendelser_med_sekvens_id_større_enn_sist_lest() {
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
-                new HendelseCriteria.Builder().medSisteLestSekvensId(1L).medMaxAntall(100L).build());
+                new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId2MedSek2.getSekvensnummer() - 1)
+                    .medMaxAntall(100L).build());
 
-        assertThat(alle).containsOnly(hendelseAvType1MedAktørId2MedSek2, hendelseAvType2MedAktørId1MedSek3, hendelseMedSekvensnummer99ogKilde);
+        assertThat(alle).contains(hendelseAvType1MedAktørId2MedSek2, hendelseAvType2MedAktørId1MedSek3, hendelseMedHøyestSeksvensnummerogKilde);
     }
 
     @Test
     public void skal_returnerer_tom_liste_hvis_result_set_er_tom() {
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
-                new HendelseCriteria.Builder().medSisteLestSekvensId(9999L).medMaxAntall(100L).build());
+                new HendelseCriteria.Builder().medSisteLestSekvensId(nesteSeksvensnummer() + 100).medMaxAntall(100L).build());
 
         assertThat(alle).isEmpty();
     }
@@ -139,7 +151,8 @@ public class FeedRepositoryImplTest {// TODO
     @Test
     public void skal_hente_max_antall_1() {
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
-                new HendelseCriteria.Builder().medSisteLestSekvensId(0L).medMaxAntall(1L).build());
+                new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1)
+                    .medMaxAntall(1L).build());
 
         assertThat(alle).containsOnly(hendelseAvType1MedAktørId1MedSek1);
     }
@@ -147,10 +160,11 @@ public class FeedRepositoryImplTest {// TODO
     @Test
     public void skal_hente_max_antall_4_med_hopp_i_sekvensnummer() {
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
-                new HendelseCriteria.Builder().medSisteLestSekvensId(0L).medMaxAntall(4L).build());
+                new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1)
+                    .medMaxAntall(4L).build());
 
         assertThat(alle).containsOnly(hendelseAvType1MedAktørId1MedSek1, hendelseAvType1MedAktørId2MedSek2,
-                hendelseAvType2MedAktørId1MedSek3, hendelseMedSekvensnummer99ogKilde);
+                hendelseAvType2MedAktørId1MedSek3, hendelseMedHøyestSeksvensnummerogKilde);
     }
 
     private static FpVedtakUtgåendeHendelse byggUtgåendeFpHendelse() {

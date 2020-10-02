@@ -430,7 +430,7 @@ public class UttakStegImplTest {
 
         // assert
         Optional<UttakResultatEntitet> resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
-        assertThat(resultat.isPresent()).isTrue();
+        assertThat(resultat).isPresent();
     }
 
     @Test

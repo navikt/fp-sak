@@ -107,7 +107,7 @@ public class UttakPerioderDtoTjenesteTest {
 
         Optional<UttakResultatPerioderDto> result = tjeneste.mapFra(behandling);
 
-        assertThat(result.isPresent()).isTrue();
+        assertThat(result).isPresent();
         assertThat(result.get().getPerioderSøker()).hasSize(1);
         assertThat(result.get().getPerioderSøker().get(0).getFom()).isEqualTo(periode.getFom());
         assertThat(result.get().getPerioderSøker().get(0).getTom()).isEqualTo(periode.getTom());
@@ -187,7 +187,7 @@ public class UttakPerioderDtoTjenesteTest {
 
         Optional<UttakResultatPerioderDto> result = tjeneste.mapFra(behandling);
 
-        assertThat(result.isPresent()).isTrue();
+        assertThat(result).isPresent();
         assertThat(result.get().getPerioderSøker()).hasSize(2);
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter()).hasSize(2);
         assertThat(result.get().getPerioderSøker().get(1).getAktiviteter()).hasSize(1);
@@ -267,7 +267,7 @@ public class UttakPerioderDtoTjenesteTest {
 
         Optional<UttakResultatPerioderDto> result = tjeneste.mapFra(behandlingSøker);
 
-        assertThat(result.isPresent()).isTrue();
+        assertThat(result).isPresent();
         assertThat(result.get().getPerioderSøker()).hasSize(2);
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter()).hasSize(1);
         assertThat(result.get().getPerioderSøker().get(1).getAktiviteter()).hasSize(1);
@@ -309,7 +309,7 @@ public class UttakPerioderDtoTjenesteTest {
 
         Optional<UttakResultatPerioderDto> result = tjeneste.mapFra(behandlingSøker);
 
-        assertThat(result.isPresent()).isTrue();
+        assertThat(result).isPresent();
         assertThat(result.get().getPerioderSøker()).hasSize(1);
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter()).hasSize(1);
 

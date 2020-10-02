@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -78,20 +79,26 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
 
     @Test
     public void skal_ikke_finne_saker_til_revurdering() {
-        opprettRevurderingsKandidat(BehandlingStatus.UTREDES, cutoff.minusDays(5));
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
-        String svar = tjeneste.launch(batchArgs);
-        assertThat(svar).isEqualTo(AutomatiskArenaReguleringBatchTjeneste.BATCHNAME+"-0");
+        var revurdering1 = opprettRevurderingsKandidat(BehandlingStatus.UTREDES, cutoff.minusDays(5));
+        var revurdering2 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
+        var kandidater = tjeneste.hentKandidater(batchArgs)
+            .stream()
+            .map(longAktørIdTuple -> longAktørIdTuple.getElement1())
+            .collect(Collectors.toSet());
+        assertThat(kandidater).doesNotContain(revurdering1.getFagsakId(), revurdering2.getFagsakId());
     }
 
     @Test
     public void skal_finne_tre_saker_til_revurdering() {
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2));
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2));
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusMonths(2));
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
-        String svar = tjeneste.launch(batchArgs);
-        assertThat(svar).isEqualTo(AutomatiskArenaReguleringBatchTjeneste.BATCHNAME+"-3");
+        var kandidat1 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2));
+        var kandidat2 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2));
+        var kandidat3 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusMonths(2));
+        var kandidat4 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
+        var kandidater = tjeneste.hentKandidater(batchArgs).stream()
+            .map(fagsakAktørIdTuple -> fagsakAktørIdTuple.getElement1())
+            .collect(Collectors.toSet());
+        assertThat(kandidater).contains(kandidat1.getFagsakId(), kandidat2.getFagsakId(), kandidat3.getFagsakId());
+        assertThat(kandidater).doesNotContain(kandidat4.getFagsakId());
     }
 
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status, LocalDate uttakFom) {

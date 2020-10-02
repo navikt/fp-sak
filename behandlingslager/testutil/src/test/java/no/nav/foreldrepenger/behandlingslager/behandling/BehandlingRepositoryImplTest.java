@@ -10,11 +10,9 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
-import javax.inject.Inject;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -50,43 +48,32 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-@RunWith(CdiRunner.class)
-public class BehandlingRepositoryImplTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BehandlingRepositoryImplTest extends EntityManagerAwareTest {
 
     private static final String ANSVARLIG_SAKSBEHANDLER = "Ansvarlig Saksbehandler";
     private final static int REVURDERING_DAGER_TILBAKE = 60;
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final Repository repository = repoRule.getRepository();
 
-    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
 
-    @Inject
     private BehandlingRepository behandlingRepository;
 
-    @Inject
     private BehandlingKandidaterRepository behandlingKandidaterRepository;
 
-    @Inject
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
-    @Inject
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
-    @Inject
     private FagsakRepository fagsakRepository;
 
-    @Inject
     private KlageRepository klageRepository;
 
-    @Inject
     private LegacyESBeregningRepository beregningRepository;
 
     private Saksnummer saksnummer = new Saksnummer("2");
@@ -95,6 +82,19 @@ public class BehandlingRepositoryImplTest {
 
     private LocalDateTime imorgen = LocalDateTime.now().plusDays(1);
     private LocalDateTime igår = LocalDateTime.now().minusDays(1);
+
+    @BeforeEach
+    public void setUp() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        behandlingKandidaterRepository = new BehandlingKandidaterRepository(entityManager);
+        behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
+        behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
+        klageRepository = new KlageRepository(entityManager);
+        beregningRepository = new LegacyESBeregningRepository(entityManager);
+    }
 
     @Test
     public void skal_finne_behandling_gitt_id() {
@@ -230,8 +230,7 @@ public class BehandlingRepositoryImplTest {
         Long id = vedtak.getId();
         assertThat(id).isNotNull();
 
-        repository.flushAndClear();
-        BehandlingVedtak vedtakLest = repository.hent(BehandlingVedtak.class, id);
+        BehandlingVedtak vedtakLest = behandlingVedtakRepository.hentForBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
         assertThat(vedtakLest).isNotNull();
 
     }
@@ -297,7 +296,6 @@ public class BehandlingRepositoryImplTest {
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
-        repository.flushAndClear();
     }
 
     @Test
@@ -338,14 +336,13 @@ public class BehandlingRepositoryImplTest {
         // Act
         behandlingRepository.lagre(behandling, lås);
         var vilkårId = behandlingRepository.lagre(vilkårResultat, lås);
-        repository.flushAndClear();
 
         // Assert
-        Behandling opphentetBehandling = repository.hent(Behandling.class, behandling.getId());
+        Behandling opphentetBehandling = behandlingRepository.hentBehandling(behandling.getId());
         assertThat(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene()).hasSize(1);
         assertThat(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene().iterator().next().getVilkårType())
             .isEqualTo(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
-        var vilkårResultat1 = new VilkårResultatRepository(repoRule.getEntityManager()).hentHvisEksisterer(behandling.getId());
+        var vilkårResultat1 = new VilkårResultatRepository(getEntityManager()).hentHvisEksisterer(behandling.getId());
         assertThat(vilkårResultat1).isPresent();
         assertThat(vilkårResultat1.get().getVilkårene()).isEqualTo(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene());
     }
@@ -471,7 +468,7 @@ public class BehandlingRepositoryImplTest {
         List<Behandling> liste = behandlingKandidaterRepository.finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt();
 
         // Assert
-        assertThat(liste).isEmpty();
+        assertThat(liste).doesNotContain(behandling1, behandling2, behandling3);
 
         // Arrange
         AksjonspunktTestSupport.setTilUtført(ap2, "Begrunnelse");
@@ -482,9 +479,7 @@ public class BehandlingRepositoryImplTest {
         liste = behandlingKandidaterRepository.finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt();
 
         // Assert
-        assertThat(liste).hasSize(2);
-        assertThat(liste).contains(behandling2);
-        assertThat(liste).contains(behandling3);
+        assertThat(liste).contains(behandling2, behandling3);
     }
 
 
@@ -627,7 +622,7 @@ public class BehandlingRepositoryImplTest {
             .build();
 
         lagreBehandling(behandling);
-        repository.flushAndClear();
+        new Repository(getEntityManager()).flushAndClear();
 
         // Act
         Optional<Behandling> resultatBehandling = behandlingRepository.hentBehandlingHvisFinnes(behandling.getUuid());

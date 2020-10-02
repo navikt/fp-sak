@@ -52,15 +52,20 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
     public String launch(BatchArguments arguments) {
         AutomatiskArenaReguleringBatchArguments batchArguments = (AutomatiskArenaReguleringBatchArguments)arguments;
         String executionId = BATCHNAME + EXECUTION_ID_SEPARATOR;
-        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId()) + "_";
 
-        List<Tuple<Long, AktørId>> tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForArenaRegulering(DATO, batchArguments.getSatsDato());
+        List<Tuple<Long, AktørId>> tilVurdering = hentKandidater(batchArguments);
+
+        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId()) + "_";
         if (batchArguments.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.getElement1(), sak.getElement2(), callId));
         } else {
             tilVurdering.forEach(sak -> log.info("Skal revurdere sak {}", sak.getElement1()));
         }
         return executionId + tilVurdering.size();
+    }
+
+    List<Tuple<Long, AktørId>> hentKandidater(AutomatiskArenaReguleringBatchArguments batchArguments) {
+        return behandlingRevurderingRepository.finnSakerMedBehovForArenaRegulering(DATO, batchArguments.getSatsDato());
     }
 
     @Override

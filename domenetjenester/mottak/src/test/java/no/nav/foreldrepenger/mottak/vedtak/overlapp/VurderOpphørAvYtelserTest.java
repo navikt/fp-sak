@@ -11,7 +11,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -52,8 +54,10 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
@@ -276,16 +280,17 @@ public class VurderOpphørAvYtelserTest {
 
     @Test
     public void oppretteTaskVurderKonsekvensMedAktørId() {
-        String KEY_GJELDENDE_AKTØR_ID="aktuellAktoerId";
-
         Behandling nyBehMorSomIkkeOverlapper = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1, AKTØR_ID_MOR, null);
         Fagsak fagsakNy = nyBehMorSomIkkeOverlapper.getFagsak();
 
-        vurderOpphørAvYtelser.opprettTaskForÅVurdereKonsekvens(fagsakNy.getId(), "Test2", "Test2", Optional.of(AKTØR_ID_MOR.getId()));
-        ProsessTaskData vurderKonsekvens = prosessTaskRepository.finnIkkeStartet().stream().findFirst().orElse(null);
-        Optional<String> gjeldendeAktørId = Optional.ofNullable(vurderKonsekvens.getPropertyValue(KEY_GJELDENDE_AKTØR_ID));
-
-        assertThat(gjeldendeAktørId.isPresent()).isTrue();
+        vurderOpphørAvYtelser.opprettTaskForÅVurdereKonsekvens(fagsakNy.getId(), "Test2",
+            "Test2", Optional.of(nyBehMorSomIkkeOverlapper.getAktørId().getId()));
+        var tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var vurderKonsekvensTaskForFagsak = tasks.stream()
+            .filter(p -> p.getTaskType().equals(OpprettOppgaveVurderKonsekvensTask.TASKTYPE))
+            .filter(p -> Objects.equals(p.getFagsakId(), nyBehMorSomIkkeOverlapper.getFagsakId()))
+            .collect(Collectors.toList());
+        assertThat(vurderKonsekvensTaskForFagsak).hasSize(1);
     }
 
     @Test
