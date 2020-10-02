@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,7 +39,7 @@ public class OppgaveBehandlingKoblingTest {
     }
 
     @Test
-    public void skal_lagre_ned_en_oppgave() throws Exception {
+    public void skal_lagre_ned_en_oppgave() {
         // Arrange
         String oppgaveIdFraGSAK = "IDFRAGSAK";
         OppgaveÅrsak behandleSøknad = OppgaveÅrsak.BEHANDLE_SAK;
@@ -65,7 +64,7 @@ public class OppgaveBehandlingKoblingTest {
     }
 
     @Test
-    public void skal_knytte_en_oppgave_til_en_behandling() throws Exception {
+    public void skal_knytte_en_oppgave_til_en_behandling() {
         // Arrange
         String oppgaveIdFraGSAK = "IDFRAGSAK";
         OppgaveÅrsak behandleSøknad = OppgaveÅrsak.BEHANDLE_SAK;
@@ -81,14 +80,12 @@ public class OppgaveBehandlingKoblingTest {
         lagreOppgave(oppgave);
 
         // Assert
-        List<Behandling> behandlinger = repository.hentAlle(Behandling.class);
-        assertThat(behandlinger).hasSize(1);
-        List<OppgaveBehandlingKobling> oppgaveBehandlingKoblinger = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandlinger.get(0).getId());
-        assertThat(OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(OppgaveÅrsak.BEHANDLE_SAK, oppgaveBehandlingKoblinger)).isNotNull();
+        var kobling = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
+        assertThat(OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(OppgaveÅrsak.BEHANDLE_SAK, kobling)).isNotNull();
     }
 
     @Test
-    public void skal_kunne_ferdigstille_en_eksisterende_oppgave() throws Exception {
+    public void skal_kunne_ferdigstille_en_eksisterende_oppgave() {
         // Arrange
         String oppgaveIdFraGSAK = "IDFRAGSAK";
         OppgaveÅrsak behandleSøknad = OppgaveÅrsak.BEHANDLE_SAK;
@@ -104,11 +101,13 @@ public class OppgaveBehandlingKoblingTest {
         Long id = lagreOppgave(oppgave);
 
         // Act
-        OppgaveBehandlingKobling oppgaveFraBase = repository.hent(OppgaveBehandlingKobling.class, id);
-        oppgaveFraBase.ferdigstillOppgave(saksbehandler);
-        lagreOppgave(oppgaveFraBase);
+        var oppgaverFraBase = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
+        assertThat(oppgaverFraBase).hasSize(1);
+        var oppgaveKoblingFraBase = oppgaverFraBase.get(0);
+        oppgaveKoblingFraBase.ferdigstillOppgave(saksbehandler);
+        lagreOppgave(oppgaveKoblingFraBase);
 
-        OppgaveBehandlingKobling oppgaveHentetFraBasen = repository.hent(OppgaveBehandlingKobling.class, oppgaveFraBase.getId());
+        OppgaveBehandlingKobling oppgaveHentetFraBasen = repository.hent(OppgaveBehandlingKobling.class, oppgaveKoblingFraBase.getId());
         assertThat(oppgaveHentetFraBasen.isFerdigstilt()).isTrue();
     }
 

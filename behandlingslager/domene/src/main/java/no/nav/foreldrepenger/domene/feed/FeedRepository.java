@@ -65,14 +65,6 @@ public class FeedRepository {
         return Optional.ofNullable(entityManager.find(UtgåendeHendelse.class, hendelseId));
     }
 
-    public <V extends UtgåendeHendelse> List<V> hentAlle(Class<V> cls) {
-        CriteriaQuery<V> criteria = entityManager.getCriteriaBuilder().createQuery(cls);
-        criteria.select(criteria.from(cls));
-        return entityManager.createQuery(criteria)
-            .setHint(QueryHints.HINT_READONLY, "true")
-            .getResultList();
-    }
-
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V extends UtgåendeHendelse> List<V> hentUtgåendeHendelser(Class<V> cls, HendelseCriteria hendelseCriteria) {
         DiscriminatorValue discVal = cls.getDeclaredAnnotation(DiscriminatorValue.class);

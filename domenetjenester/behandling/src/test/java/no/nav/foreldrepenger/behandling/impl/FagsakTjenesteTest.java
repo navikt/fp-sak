@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.MANN
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
@@ -54,14 +52,12 @@ public class FagsakTjenesteTest extends EntityManagerAwareTest {
 
     private Fagsak fagsak;
     private Personinfo personinfo;
-    private Repository repository;
 
     private final AktørId forelderAktørId = AktørId.dummy();
     private LocalDate forelderFødselsdato = LocalDate.of(1990, JANUARY, 1);
 
     @BeforeEach
     public void oppsett() {
-        repository = new Repository(getEntityManager());
         behandlingRepository = new BehandlingRepository(getEntityManager());
         personopplysningRepository = new PersonopplysningRepository(getEntityManager());
         tjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
@@ -138,13 +134,13 @@ public class FagsakTjenesteTest extends EntityManagerAwareTest {
         tjeneste.oppdaterFagsak(behandling, personopplysningerAggregat, personopplysningerAggregat.getBarna());
 
         // Assert
-        List<Fagsak> oppdatertFagsak = repository.hentAlle(Fagsak.class);
+        var oppdatertFagsak = tjeneste.finnFagsakerForAktør(forelderAktørId);
         assertThat(oppdatertFagsak).hasSize(1);
         assertThat(oppdatertFagsak.get(0).getRelasjonsRolleType().getKode()).isEqualTo(RelasjonsRolleType.FARA.getKode());
     }
 
     @Test
-    public void opprettFlereFagsakerSammeBruker() throws Exception {
+    public void opprettFlereFagsakerSammeBruker() {
         // Opprett en fagsak i systemet
         fagsak = lagNyFagsak(personinfo);
         Whitebox.setInternalState(fagsak, "fagsakStatus", FagsakStatus.LØPENDE); // dirty, men eksponerer ikke status nå

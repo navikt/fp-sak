@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -39,8 +38,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -271,11 +270,8 @@ public class BehandlingRepositoryImplTest {
         Behandlingsresultat behandlingsresultat = oppdaterMedBehandlingsresultatOgLagre(behandling, true, false);
 
         setKonsekvensForYtelsen(behandlingsresultat, List.of(KonsekvensForYtelsen.ENDRING_I_BEREGNING, KonsekvensForYtelsen.ENDRING_I_UTTAK));
-        List<BehandlingsresultatKonsekvensForYtelsen> brKonsekvenser = repository.hentAlle(BehandlingsresultatKonsekvensForYtelsen.class);
-        assertThat(brKonsekvenser).hasSize(2);
-        brKonsekvenser.forEach(brk -> assertThat(brk.getBehandlingsresultat()).isNotNull());
-        List<KonsekvensForYtelsen> konsekvenser = brKonsekvenser.stream().map(BehandlingsresultatKonsekvensForYtelsen::getKonsekvensForYtelsen).collect(Collectors.toList());
-        assertThat(konsekvenser).containsExactlyInAnyOrder(KonsekvensForYtelsen.ENDRING_I_BEREGNING, KonsekvensForYtelsen.ENDRING_I_UTTAK);
+        var brKonsekvenser = behandlingsresultatRepository.hent(behandling.getId()).getKonsekvenserForYtelsen();
+        assertThat(brKonsekvenser).containsExactlyInAnyOrder(KonsekvensForYtelsen.ENDRING_I_BEREGNING, KonsekvensForYtelsen.ENDRING_I_UTTAK);
     }
 
     @Test
@@ -288,11 +284,10 @@ public class BehandlingRepositoryImplTest {
         Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling)).fjernKonsekvenserForYtelsen();
         setKonsekvensForYtelsen(getBehandlingsresultat(behandling), List.of(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
 
-        List<BehandlingsresultatKonsekvensForYtelsen> brKonsekvenser = repository.hentAlle(BehandlingsresultatKonsekvensForYtelsen.class);
+        var brKonsekvenser = behandlingsresultatRepository.hent(behandling.getId())
+            .getKonsekvenserForYtelsen();
         assertThat(brKonsekvenser).hasSize(1);
-        brKonsekvenser.forEach(brk -> assertThat(brk.getBehandlingsresultat()).isNotNull());
-        List<KonsekvensForYtelsen> konsekvenser = brKonsekvenser.stream().map(BehandlingsresultatKonsekvensForYtelsen::getKonsekvensForYtelsen).collect(Collectors.toList());
-        assertThat(konsekvenser).containsExactlyInAnyOrder(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
+        assertThat(brKonsekvenser).containsExactlyInAnyOrder(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
     }
 
     private void setKonsekvensForYtelsen(Behandlingsresultat behandlingsresultat, List<KonsekvensForYtelsen> konsekvenserForYtelsen) {
@@ -342,7 +337,7 @@ public class BehandlingRepositoryImplTest {
 
         // Act
         behandlingRepository.lagre(behandling, lås);
-        behandlingRepository.lagre(vilkårResultat, lås);
+        var vilkårId = behandlingRepository.lagre(vilkårResultat, lås);
         repository.flushAndClear();
 
         // Assert
@@ -350,9 +345,9 @@ public class BehandlingRepositoryImplTest {
         assertThat(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene()).hasSize(1);
         assertThat(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene().iterator().next().getVilkårType())
             .isEqualTo(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
-        List<Vilkår> alleVilkår = repository.hentAlle(Vilkår.class);
-        assertThat(alleVilkår).hasSize(1);
-        assertThat(alleVilkår.get(0)).isEqualTo(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene().iterator().next());
+        var vilkårResultat1 = new VilkårResultatRepository(repoRule.getEntityManager()).hentHvisEksisterer(behandling.getId());
+        assertThat(vilkårResultat1).isPresent();
+        assertThat(vilkårResultat1.get().getVilkårene()).isEqualTo(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene());
     }
 
     private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {

@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.KVIN
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +41,7 @@ public class VergeGrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_verge_grunnlag() throws Exception {
+    public void skal_lagre_verge_grunnlag() {
         Behandling behandling = opprettBehandling();
 
         Personinfo.Builder builder = new Personinfo.Builder();
@@ -62,8 +61,8 @@ public class VergeGrunnlagEntitetTest extends EntityManagerAwareTest {
 
         vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
 
-        List<VergeGrunnlagEntitet> resultat = repository.hentAlle(VergeGrunnlagEntitet.class);
-        assertThat(resultat).hasSize(1);
+        var resultat = vergeRepository.hentAggregat(behandling.getId());
+        assertThat(resultat).isPresent();
     }
 
     private Behandling opprettBehandling() {

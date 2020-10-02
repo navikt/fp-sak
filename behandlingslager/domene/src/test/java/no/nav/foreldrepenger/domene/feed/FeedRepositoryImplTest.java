@@ -82,17 +82,17 @@ public class FeedRepositoryImplTest {
         assertThat(utgåendeHendelse1.get().getId()).isEqualTo(id);
         assertThat(utgåendeHendelse1.get().getSekvensnummer()).isGreaterThanOrEqualTo(1L);
     }
-    
-    @Test 
+
+    @Test
     public void skal_returnere_true_hvis_hendelse_med_kilde_id_eksisterer() {
         assertThat(feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, KILDE_ID)).isTrue();
     }
-    
-    @Test 
+
+    @Test
     public void skal_returnere_false_hvis_hendelse_med_kilde_id_ikke_eksisterer() {
         assertThat(feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, "eksisterer_ikke")).isFalse();
     }
-    
+
     @Test
     public void skal_lagre_hendelse_flushe_sjekke_om_kilde_eksisterer() {
         assertThat(feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, "ny_kilde")).isFalse();
@@ -100,14 +100,6 @@ public class FeedRepositoryImplTest {
         feedRepository.lagre(utgåendeHendelse);
         repoRule.getEntityManager().flush();
         assertThat(feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, "ny_kilde")).isTrue();
-    }
-
-    @Test
-    public void skal_hente_alle_hendelser() {
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentAlle(FpVedtakUtgåendeHendelse.class);
-
-        assertThat(alle).containsOnly(hendelseAvType1MedAktørId1MedSek1, hendelseAvType1MedAktørId2MedSek2,
-                hendelseAvType2MedAktørId1MedSek3, hendelseMedSekvensnummer99ogKilde);
     }
 
     @Test
@@ -149,7 +141,7 @@ public class FeedRepositoryImplTest {
 
         assertThat(alle).containsOnly(hendelseAvType1MedAktørId1MedSek1);
     }
-    
+
     @Test
     public void skal_hente_max_antall_4_med_hopp_i_sekvensnummer() {
         List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
