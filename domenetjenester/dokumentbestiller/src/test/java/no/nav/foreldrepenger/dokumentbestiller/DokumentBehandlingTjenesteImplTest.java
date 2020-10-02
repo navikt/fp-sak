@@ -129,7 +129,7 @@ public class DokumentBehandlingTjenesteImplTest {
 
         // Assert
         Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
-        assertThat(behandlingDokument.isPresent()).isTrue();
+        assertThat(behandlingDokument).isPresent();
         assertThat(behandlingDokument.get().getBestilteDokumenter().size()).isEqualTo(1);
         assertThat(behandlingDokument.get().getBestilteDokumenter().get(0).getDokumentMalType()).isEqualTo(DokumentMalType.INNHENT_DOK.getKode());
     }

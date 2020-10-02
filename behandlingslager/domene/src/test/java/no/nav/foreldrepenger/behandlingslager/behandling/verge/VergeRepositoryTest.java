@@ -63,13 +63,13 @@ public class VergeRepositoryTest {
 
         // Assert
         Optional<VergeAggregat> vergeAggregat = vergeRepository.hentAggregat(behandling.getId());
-        assertThat(vergeAggregat.isPresent()).isTrue();
-        assertThat(vergeAggregat.get().getVerge().isPresent()).isTrue();
+        assertThat(vergeAggregat).isPresent();
+        assertThat(vergeAggregat.get().getVerge()).isPresent();
         VergeEntitet verge = vergeAggregat.get().getVerge().get();
         assertThat(verge.getGyldigFom()).isEqualTo(GYLDIG_FOM);
         assertThat(verge.getGyldigTom()).isEqualTo(GYLDIG_TOM);
         assertThat(verge.getVergeType()).isEqualTo(VergeType.BARN);
-        assertThat(verge.getVergeOrganisasjon().isPresent()).isTrue();
+        assertThat(verge.getVergeOrganisasjon()).isPresent();
         VergeOrganisasjonEntitet vergeOrg = verge.getVergeOrganisasjon().get();
         assertThat(vergeOrg.getVerge()).isEqualTo(verge);
         assertThat(vergeOrg.getOrganisasjonsnummer()).isEqualTo(ORGANISASJONSNUMMER);
@@ -102,11 +102,11 @@ public class VergeRepositoryTest {
 
         // Assert
         Optional<VergeAggregat> vergeAggregat = vergeRepository.hentAggregat(nyBehandling.getId());
-        assertThat(vergeAggregat.isPresent()).isTrue();
-        assertThat(vergeAggregat.get().getVerge().isPresent()).isTrue();
+        assertThat(vergeAggregat).isPresent();
+        assertThat(vergeAggregat.get().getVerge()).isPresent();
         VergeEntitet verge = vergeAggregat.get().getVerge().get();
         assertThat(verge).isEqualTo(vergeRepository.hentAggregat(gammelBehandling.getId()).get().getVerge().get());
-        assertThat(verge.getVergeOrganisasjon().isPresent()).isTrue();
+        assertThat(verge.getVergeOrganisasjon()).isPresent();
     }
 
     private NavBruker opprettBruker() {

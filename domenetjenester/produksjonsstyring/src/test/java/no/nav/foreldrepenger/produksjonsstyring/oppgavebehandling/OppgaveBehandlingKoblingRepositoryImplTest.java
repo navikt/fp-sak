@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -85,16 +84,20 @@ public class OppgaveBehandlingKoblingRepositoryImplTest {
         lagOppgave(registrer);
 
         // Act
-        List<OppgaveBehandlingKobling> behandlingKobling = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(LocalDate.now(), LocalDate.now(), Set.of(OppgaveÅrsak.BEHANDLE_SAK, OppgaveÅrsak.REVURDER));
+        var behandlingKobling = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(LocalDate.now(),
+            LocalDate.now(), Set.of(OppgaveÅrsak.BEHANDLE_SAK, OppgaveÅrsak.REVURDER));
 
         // Assert
-        assertThat(behandlingKobling).hasSize(2);
+        assertThat(behandlingKobling).contains(bsAapen, revurder);
+        assertThat(behandlingKobling).doesNotContain(godkjenn, registrer, bsAvsl);
 
         // Change + reassert
         revurder.ferdigstillOppgave("I11111");
         lagOppgave(revurder);
-        behandlingKobling = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(LocalDate.now(), LocalDate.now(), Set.of(OppgaveÅrsak.BEHANDLE_SAK, OppgaveÅrsak.REVURDER));
-        assertThat(behandlingKobling).hasSize(1);
+        behandlingKobling = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(LocalDate.now(), LocalDate.now(),
+            Set.of(OppgaveÅrsak.BEHANDLE_SAK, OppgaveÅrsak.REVURDER));
+        assertThat(behandlingKobling).contains(bsAapen);
+        assertThat(behandlingKobling).doesNotContain(godkjenn, registrer, bsAvsl, revurder);
 
     }
 

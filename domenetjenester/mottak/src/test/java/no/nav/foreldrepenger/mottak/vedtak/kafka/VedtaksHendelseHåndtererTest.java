@@ -131,7 +131,9 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         vedtaksHendelseHåndterer.oprettTasksForFpsakVedtak(esYtelse);
 
         List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        List<String> tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
+        List<ProsessTaskData> tasktyper = prosessTaskDataList.stream()
+            .filter(t -> t.getFagsakId().equals(esBehandling.getFagsakId()))
+            .collect(Collectors.toList());
 
         assertThat(tasktyper).isEmpty();
     }

@@ -157,7 +157,7 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
         // Assert
         Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
-        assertThat(behandlingDokument.isPresent()).isTrue();
+        assertThat(behandlingDokument).isPresent();
         assertThat(behandlingDokument.get().getVedtakFritekst()).isEqualTo(BEGRUNNELSE);
         assertThat(behandlingDokument.get().getOverstyrtBrevOverskrift()).isEqualTo(OVERSKRIFT);
         assertThat(behandlingDokument.get().getOverstyrtBrevFritekst()).isEqualTo(FRITEKST);
@@ -190,7 +190,7 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
         // Assert
         Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
-        assertThat(behandlingDokument.isPresent()).isTrue();
+        assertThat(behandlingDokument).isPresent();
         assertThat(behandlingDokument.get().getOverstyrtBrevOverskrift()).isNull();
         assertThat(behandlingDokument.get().getOverstyrtBrevFritekst()).isNull();
     }

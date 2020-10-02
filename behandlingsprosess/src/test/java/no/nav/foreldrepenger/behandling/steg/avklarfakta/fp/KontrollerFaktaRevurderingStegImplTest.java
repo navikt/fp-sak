@@ -201,7 +201,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();
         Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository().hentAggregatHvisEksisterer(behandling.getId());
-        assertThat(ytelseFordelingAggregat.isPresent()).isTrue();
+        assertThat(ytelseFordelingAggregat).isPresent();
         YtelseFordelingAggregat aggregat = ytelseFordelingAggregat.get();
         assertThat(aggregat.getOppgittFordeling()).isNotNull();
         assertThat(aggregat.getOppgittFordeling().getOppgittePerioder()).isEmpty();
@@ -250,7 +250,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();
         Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository().hentAggregatHvisEksisterer(revurdering.getId());
-        assertThat(ytelseFordelingAggregat.isPresent()).isTrue();
+        assertThat(ytelseFordelingAggregat).isPresent();
         YtelseFordelingAggregat aggregat = ytelseFordelingAggregat.get();
         assertThat(aggregat.getOppgittFordeling()).isNotNull();
         assertThat(aggregat.getOppgittFordeling().getOppgittePerioder()).isNotEmpty();
@@ -275,7 +275,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();
         Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository().hentAggregatHvisEksisterer(revurdering.getId());
-        assertThat(ytelseFordelingAggregat.isPresent()).isTrue();
+        assertThat(ytelseFordelingAggregat).isPresent();
         YtelseFordelingAggregat aggregat = ytelseFordelingAggregat.get();
         assertThat(aggregat.getOppgittFordeling()).isNotNull();
         assertThat(aggregat.getOppgittFordeling().getOppgittePerioder()).isNotEmpty();

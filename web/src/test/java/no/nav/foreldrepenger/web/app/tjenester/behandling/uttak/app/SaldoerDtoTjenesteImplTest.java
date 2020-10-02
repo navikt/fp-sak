@@ -173,7 +173,7 @@ public class SaldoerDtoTjenesteImplTest {
         assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
         StønadskontoDto fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (10 * 5));
-        assertThat(saldoer.getMaksDatoUttak().isPresent()).isTrue();
+        assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(16 /* forbrukte uker */ + 9 /* saldo MK */ + 6 /* saldo FP */).minusDays(1));
     }
 
@@ -373,7 +373,7 @@ public class SaldoerDtoTjenesteImplTest {
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (10 * 5));
         StønadskontoDto fbDto = saldoer.getStonadskontoer().get(StønadskontoType.FLERBARNSDAGER.getKode());
         assertKonto(fbDto, maxDagerFlerbarn, maxDagerFlerbarn - (10 * 5));
-        assertThat(saldoer.getMaksDatoUttak().isPresent()).isTrue();
+        assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(16 /* forbrukte uker */ + 9 /* saldo MK */ + 23 /* saldo FP */).minusDays(1));
     }
 
@@ -488,7 +488,7 @@ public class SaldoerDtoTjenesteImplTest {
         assertThat(aktivitetSaldo2.get().getSaldo()).isEqualTo(maxDagerFP - (10 * 5));
         assertThat(fpDto.getSaldo()).isEqualTo(maxDagerFP - 25);
 
-        assertThat(saldoer.getMaksDatoUttak().isPresent()).isTrue();
+        assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(16 /* forbrukte uker */ + 9 /* saldo MK */ + 11 /* saldo FP */).minusDays(1));
     }
 
@@ -530,7 +530,7 @@ public class SaldoerDtoTjenesteImplTest {
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (12 * 5));
         StønadskontoDto fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
-        assertThat(saldoer.getMaksDatoUttak().isPresent()).isTrue();
+        assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(18 /* forbrukte uker */ + 4 /* saldo FP */ + 15 /* saldo FK*/).minusDays(1));
     }
 
@@ -578,7 +578,7 @@ public class SaldoerDtoTjenesteImplTest {
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (15 * 5));
         StønadskontoDto fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
-        assertThat(saldoer.getMaksDatoUttak().isPresent()).isTrue();
+        assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(21 /* forbrukte uker */ + 1 /* saldo FP */ + 15 /* saldo FK*/).minusDays(1));
     }
 
@@ -659,7 +659,7 @@ public class SaldoerDtoTjenesteImplTest {
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (15 * 5));
         StønadskontoDto fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
-        assertThat(saldoer.getMaksDatoUttak().isPresent()).isTrue();
+        assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(16 /* forbrukte uker */ + 1 /* saldo FP */ + 15 /* saldo FK*/).minusDays(1));
     }
 
@@ -708,7 +708,7 @@ public class SaldoerDtoTjenesteImplTest {
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (5 /* gradert uttak 20% 5 uker */ + 50 /* fullt uttak 10 uker */));
         StønadskontoDto fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
-        assertThat(saldoer.getMaksDatoUttak().isPresent()).isTrue();
+        assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(21 /* forbrukte uker */ + 5 /* saldo FP */ + 15 /* saldo FK */).minusDays(1));
     }
 
