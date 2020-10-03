@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.økonomi.behandlingslager.økonomioppdrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -55,7 +55,7 @@ public class Attestant180EntityTest extends ØkonomiTestBasis {
     private static final Long TASKID = 52L;
     private static final Long BEHANDLINGID = 321L;
 
-    @Before
+    @BeforeEach
     public void setup() {
         attestant180Builder = Attestant180.builder();
         attestant180 = null;
@@ -102,7 +102,6 @@ public class Attestant180EntityTest extends ØkonomiTestBasis {
         assertThat(attestant180_2).isNotEqualTo(attestant180);
     }
 
-
     @Test
     public void skal_bruke_AttestantId_i_equalsOgHashCode() {
         attestant180Builder = lagBuilderMedPaakrevdeFelter();
@@ -115,56 +114,55 @@ public class Attestant180EntityTest extends ØkonomiTestBasis {
 
     }
 
-
     // ----------------------------------------------------------
 
     private Attestant180.Builder lagBuilderMedPaakrevdeFelter() {
         return Attestant180.builder()
-            .medAttestantId(ATTESTANT_ID)
-            .medOppdragslinje150(lagOppdragslinje150MedPaakrevdeFelter().build());
+                .medAttestantId(ATTESTANT_ID)
+                .medOppdragslinje150(lagOppdragslinje150MedPaakrevdeFelter().build());
     }
 
     private Oppdragslinje150.Builder lagOppdragslinje150MedPaakrevdeFelter() {
         return Oppdragslinje150.builder()
-            .medKodeEndringLinje(KODEENDRINGLINJE)
-            .medKodeStatusLinje(KODESTATUSLINJE)
-            .medDatoStatusFom(DATOSTATUSFOM)
-            .medVedtakId(VEDTAKID)
-            .medDelytelseId(DELYTELSEID)
-            .medKodeKlassifik(KODEKLASSIFIK)
-            .medVedtakFomOgTom(DATOVEDTAKFOM, DATOVEDTAKTOM)
-            .medSats(SATS)
-            .medFradragTillegg(FRADRAGTILLEGG)
-            .medTypeSats(TYPESATS)
-            .medBrukKjoreplan(BRUKKJOREPLAN)
-            .medSaksbehId(SAKSBEHID)
-            .medUtbetalesTilId(UTBETALESTILID)
-            .medRefFagsystemId(REFFAGSYSTEMID)
-            .medRefDelytelseId(REFDELYTELSEID)
-            .medHenvisning(21L)
-            .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
+                .medKodeEndringLinje(KODEENDRINGLINJE)
+                .medKodeStatusLinje(KODESTATUSLINJE)
+                .medDatoStatusFom(DATOSTATUSFOM)
+                .medVedtakId(VEDTAKID)
+                .medDelytelseId(DELYTELSEID)
+                .medKodeKlassifik(KODEKLASSIFIK)
+                .medVedtakFomOgTom(DATOVEDTAKFOM, DATOVEDTAKTOM)
+                .medSats(SATS)
+                .medFradragTillegg(FRADRAGTILLEGG)
+                .medTypeSats(TYPESATS)
+                .medBrukKjoreplan(BRUKKJOREPLAN)
+                .medSaksbehId(SAKSBEHID)
+                .medUtbetalesTilId(UTBETALESTILID)
+                .medRefFagsystemId(REFFAGSYSTEMID)
+                .medRefDelytelseId(REFDELYTELSEID)
+                .medHenvisning(21L)
+                .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
     }
 
     private Oppdrag110.Builder lagOppdrag110MedPaakrevdeFelter() {
         return Oppdrag110.builder()
-            .medKodeAksjon(KODEAKSJON)
-            .medKodeEndring(KODEENDRING)
-            .medKodeFagomrade(KODEFAGOMRADE)
-            .medFagSystemId(FAGSYSTEMID)
-            .medUtbetFrekvens(UTBETFREKVENS)
-            .medOppdragGjelderId(OPPDRAGGJELDERID)
-            .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
-            .medSaksbehId(SAKSBEHID)
-            .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build())
-            .medAvstemming115(lagAvstemming115MedPaakrevdeFelter().build());
+                .medKodeAksjon(KODEAKSJON)
+                .medKodeEndring(KODEENDRING)
+                .medKodeFagomrade(KODEFAGOMRADE)
+                .medFagSystemId(FAGSYSTEMID)
+                .medUtbetFrekvens(UTBETFREKVENS)
+                .medOppdragGjelderId(OPPDRAGGJELDERID)
+                .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
+                .medSaksbehId(SAKSBEHID)
+                .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build())
+                .medAvstemming115(lagAvstemming115MedPaakrevdeFelter().build());
     }
 
     private Oppdragskontroll.Builder lagOppdragskontrollMedPaakrevdeFelter() {
         return Oppdragskontroll.builder()
-            .medBehandlingId(BEHANDLINGID)
-            .medSaksnummer(SAKSID)
-            .medVenterKvittering(VENTERKVITTERING)
-            .medProsessTaskId(TASKID);
+                .medBehandlingId(BEHANDLINGID)
+                .medSaksnummer(SAKSID)
+                .medVenterKvittering(VENTERKVITTERING)
+                .medProsessTaskId(TASKID);
     }
 
 }

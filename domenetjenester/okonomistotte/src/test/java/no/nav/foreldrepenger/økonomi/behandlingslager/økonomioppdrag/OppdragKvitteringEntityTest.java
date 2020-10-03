@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.økonomi.behandlingslager.økonomioppdrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomi.behandlingslager.ØkonomiTestBasis;
 
 public class OppdragKvitteringEntityTest extends ØkonomiTestBasis {
-
 
     private OppdragKvittering.Builder oppdragKvitteringBuilder;
     private OppdragKvittering oppdragKvittering;
@@ -42,7 +41,7 @@ public class OppdragKvitteringEntityTest extends ØkonomiTestBasis {
     private static final Long TASKID = 52L;
     private static final String FORVENTET_EXCEPTION = "forventet exception";
 
-    @Before
+    @BeforeEach
     public void setup() {
         oppdragKvitteringBuilder = OppdragKvittering.builder();
         oppdragKvittering = null;
@@ -59,7 +58,7 @@ public class OppdragKvitteringEntityTest extends ØkonomiTestBasis {
 
     @Test
     public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
-        //mangler oppdrag110
+        // mangler oppdrag110
         try {
             oppdragKvitteringBuilder.build();
             fail(FORVENTET_EXCEPTION);
@@ -110,31 +109,31 @@ public class OppdragKvitteringEntityTest extends ØkonomiTestBasis {
 
     private OppdragKvittering.Builder lagOppdragKvitteringMedPaakrevdeFelter() {
         return OppdragKvittering.builder()
-            .medAlvorlighetsgrad(ALVORLIGHETSGRAD)
-            .medBeskrMelding(BESKR_MELDING)
-            .medMeldingKode(MELDING_KODE)
-            .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
+                .medAlvorlighetsgrad(ALVORLIGHETSGRAD)
+                .medBeskrMelding(BESKR_MELDING)
+                .medMeldingKode(MELDING_KODE)
+                .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
     }
 
     private Oppdrag110.Builder lagOppdrag110MedPaakrevdeFelter() {
         return Oppdrag110.builder()
-            .medKodeAksjon(KODEAKSJON)
-            .medKodeEndring(KODEENDRING)
-            .medKodeFagomrade(KODEFAGOMRADE)
-            .medFagSystemId(FAGSYSTEMID)
-            .medUtbetFrekvens(UTBETFREKVENS)
-            .medOppdragGjelderId(OPPDRAGGJELDERID)
-            .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
-            .medSaksbehId(SAKSBEHID)
-            .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build())
-            .medAvstemming115(lagAvstemming115MedPaakrevdeFelter().build());
+                .medKodeAksjon(KODEAKSJON)
+                .medKodeEndring(KODEENDRING)
+                .medKodeFagomrade(KODEFAGOMRADE)
+                .medFagSystemId(FAGSYSTEMID)
+                .medUtbetFrekvens(UTBETFREKVENS)
+                .medOppdragGjelderId(OPPDRAGGJELDERID)
+                .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
+                .medSaksbehId(SAKSBEHID)
+                .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build())
+                .medAvstemming115(lagAvstemming115MedPaakrevdeFelter().build());
     }
 
     private Oppdragskontroll.Builder lagOppdragskontrollMedPaakrevdeFelter() {
         return Oppdragskontroll.builder()
-            .medBehandlingId(BEHANDLINGID)
-            .medSaksnummer(SAKSID)
-            .medVenterKvittering(VENTERKVITTERING)
-            .medProsessTaskId(TASKID);
+                .medBehandlingId(BEHANDLINGID)
+                .medSaksnummer(SAKSID)
+                .medVenterKvittering(VENTERKVITTERING)
+                .medProsessTaskId(TASKID);
     }
 }

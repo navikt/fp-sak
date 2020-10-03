@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.økonomi.behandlingslager.økonomioppdrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -21,12 +21,11 @@ public class OppdragskontrollEntityTest {
     private static final String FORVENTET_EXCEPTION = "forventet exception";
     private static final Long BEHANDLINGID = 321L;
 
-    @Before
+    @BeforeEach
     public void setup() {
         oppdragskontrollBuilder = Oppdragskontroll.builder();
         oppdragskontroll = null;
     }
-
 
     @Test
     public void skal_bygge_instans_med_påkrevde_felter() {
@@ -39,7 +38,7 @@ public class OppdragskontrollEntityTest {
     @Test
     public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
 
-        //mangler behandlingId
+        // mangler behandlingId
         try {
             oppdragskontrollBuilder.build();
             fail(FORVENTET_EXCEPTION);
@@ -47,7 +46,7 @@ public class OppdragskontrollEntityTest {
             assertThat(e.getMessage()).contains("behandlingId");
         }
 
-        //mangler saksnummer
+        // mangler saksnummer
         oppdragskontrollBuilder.medBehandlingId(BEHANDLINGID);
         try {
             oppdragskontrollBuilder.build();
@@ -56,7 +55,7 @@ public class OppdragskontrollEntityTest {
             assertThat(e.getMessage()).contains("saksnummer");
         }
 
-        //mangler venterKvittering
+        // mangler venterKvittering
         oppdragskontrollBuilder.medSaksnummer(SAKSID);
         try {
             oppdragskontrollBuilder.build();
@@ -65,7 +64,7 @@ public class OppdragskontrollEntityTest {
             assertThat(e.getMessage()).contains("venterKvittering");
         }
 
-        //mangler taskId
+        // mangler taskId
         oppdragskontrollBuilder.medVenterKvittering(Boolean.TRUE);
         try {
             oppdragskontrollBuilder.build();
@@ -73,7 +72,6 @@ public class OppdragskontrollEntityTest {
         } catch (NullPointerException e) {
             assertThat(e.getMessage()).contains("prosessTaskId");
         }
-
 
     }
 
@@ -100,7 +98,6 @@ public class OppdragskontrollEntityTest {
         assertThat(oppdragskontroll_2).isNotEqualTo(oppdragskontroll);
     }
 
-
     @Test
     public void skal_bruke_SaksId_i_equalsOgHashCode() {
         oppdragskontrollBuilder = lagBuilderMedPaakrevdeFelter();
@@ -125,12 +122,11 @@ public class OppdragskontrollEntityTest {
 
     }
 
-
     private Oppdragskontroll.Builder lagBuilderMedPaakrevdeFelter() {
         return Oppdragskontroll.builder()
-            .medBehandlingId(BEHANDLINGID)
-            .medSaksnummer(SAKSID)
-            .medVenterKvittering(VENTERKVITTERING)
-            .medProsessTaskId(TASKID);
+                .medBehandlingId(BEHANDLINGID)
+                .medSaksnummer(SAKSID)
+                .medVenterKvittering(VENTERKVITTERING)
+                .medProsessTaskId(TASKID);
     }
 }

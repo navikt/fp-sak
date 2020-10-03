@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -85,61 +85,63 @@ public class OpphørUtilTest {
         Assertions.assertThat(ikkeOpphørteKlassekoder).containsOnly(FPATORD);
     }
 
-    private Oppdragslinje150 lagOpphørslinje(Oppdrag110 oppdrag110, ØkonomiKodeKlassifik klassekode, LocalDate fom, LocalDate tom, Long delytelseId, LocalDate opphørsdatao, Long henvisning) {
+    private Oppdragslinje150 lagOpphørslinje(Oppdrag110 oppdrag110, ØkonomiKodeKlassifik klassekode, LocalDate fom, LocalDate tom, Long delytelseId,
+            LocalDate opphørsdatao, Long henvisning) {
         return lagOppdragslinjeBuilder(oppdrag110, klassekode, fom, tom, delytelseId, henvisning)
-            .medKodeEndringLinje(ØkonomiKodeEndringLinje.ENDR.name())
-            .medKodeStatusLinje(ØkonomiKodeStatusLinje.OPPH.name())
-            .medDatoStatusFom(opphørsdatao)
-            .build();
+                .medKodeEndringLinje(ØkonomiKodeEndringLinje.ENDR.name())
+                .medKodeStatusLinje(ØkonomiKodeStatusLinje.OPPH.name())
+                .medDatoStatusFom(opphørsdatao)
+                .build();
     }
 
-    private Oppdragslinje150 lagOppdragslinje(Oppdrag110 oppdrag110, ØkonomiKodeKlassifik klassekode, LocalDate fom, LocalDate tom, Long delytelseId, Long henvisning) {
+    private Oppdragslinje150 lagOppdragslinje(Oppdrag110 oppdrag110, ØkonomiKodeKlassifik klassekode, LocalDate fom, LocalDate tom, Long delytelseId,
+            Long henvisning) {
         return lagOppdragslinjeBuilder(oppdrag110, klassekode, fom, tom, delytelseId, henvisning)
-            .build();
+                .build();
     }
 
-    private Oppdragslinje150.Builder lagOppdragslinjeBuilder(Oppdrag110 oppdrag110, ØkonomiKodeKlassifik klassekode, LocalDate fom, LocalDate tom, Long delytelseId, Long henvisning) {
+    private Oppdragslinje150.Builder lagOppdragslinjeBuilder(Oppdrag110 oppdrag110, ØkonomiKodeKlassifik klassekode, LocalDate fom, LocalDate tom,
+            Long delytelseId, Long henvisning) {
         return Oppdragslinje150.builder()
-            .medKodeEndringLinje(ØkonomiKodeEndringLinje.NY.name())
-            .medFradragTillegg(TfradragTillegg.T.value())
-            .medKodeKlassifik(klassekode.getKodeKlassifik())
-            .medVedtakFomOgTom(fom, tom)
-            .medSats(1L)
-            .medTypeSats(ØkonomiTypeSats.DAG.name())
-            .medBrukKjoreplan("N")
-            .medSaksbehId("Z11111")
-            .medHenvisning(henvisning)
-            .medOppdrag110(oppdrag110)
-            .medDelytelseId(delytelseId);
+                .medKodeEndringLinje(ØkonomiKodeEndringLinje.NY.name())
+                .medFradragTillegg(TfradragTillegg.T.value())
+                .medKodeKlassifik(klassekode.getKodeKlassifik())
+                .medVedtakFomOgTom(fom, tom)
+                .medSats(1L)
+                .medTypeSats(ØkonomiTypeSats.DAG.name())
+                .medBrukKjoreplan("N")
+                .medSaksbehId("Z11111")
+                .medHenvisning(henvisning)
+                .medOppdrag110(oppdrag110)
+                .medDelytelseId(delytelseId);
     }
 
     private Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, ØkonomiKodeFagområde fagområde, ØkonomiKodeEndring status, long fagsystemId) {
         return Oppdrag110.builder()
-            .medKodeAksjon(ØkonomiKodeAksjon.EN.getKodeAksjon())
-            .medKodeFagomrade(fagområde.name())
-            .medKodeEndring(status.name())
-            .medFagSystemId(fagsystemId)
-            .medUtbetFrekvens(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens())
-            .medOppdragGjelderId("11111111111")
-            .medDatoOppdragGjelderFom(LocalDate.of(2020, 1, 1))
-            .medSaksbehId("Z111111")
-            .medOppdragskontroll(oppdragskontroll)
-            .medAvstemming115(Avstemming115.builder()
-                .medNokkelAvstemming("foo")
-                .medKodekomponent(ØkonomiKodekomponent.VLFP.getKodekomponent())
-                .medTidspnktMelding("nå")
-                .build())
-            .build();
+                .medKodeAksjon(ØkonomiKodeAksjon.EN.getKodeAksjon())
+                .medKodeFagomrade(fagområde.name())
+                .medKodeEndring(status.name())
+                .medFagSystemId(fagsystemId)
+                .medUtbetFrekvens(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens())
+                .medOppdragGjelderId("11111111111")
+                .medDatoOppdragGjelderFom(LocalDate.of(2020, 1, 1))
+                .medSaksbehId("Z111111")
+                .medOppdragskontroll(oppdragskontroll)
+                .medAvstemming115(Avstemming115.builder()
+                        .medNokkelAvstemming("foo")
+                        .medKodekomponent(ØkonomiKodekomponent.VLFP.getKodekomponent())
+                        .medTidspnktMelding("nå")
+                        .build())
+                .build();
     }
 
     private Oppdragskontroll lagOppdragskontroll(Saksnummer saksnummer) {
         return Oppdragskontroll.builder()
-            .medBehandlingId(1L)
-            .medSaksnummer(saksnummer)
-            .medVenterKvittering(false)
-            .medProsessTaskId(-1L)
-            .build();
+                .medBehandlingId(1L)
+                .medSaksnummer(saksnummer)
+                .medVenterKvittering(false)
+                .medProsessTaskId(-1L)
+                .build();
     }
-
 
 }

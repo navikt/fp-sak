@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.økonomi.behandlingslager.økonomioppdrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
@@ -40,7 +40,7 @@ public class Oppdragsenhet120EntityTest extends ØkonomiTestBasis {
     private static final String FORVENTET_EXCEPTION = "forventet exception";
     private static final Long BEHANDLINGID = 321L;
 
-    @Before
+    @BeforeEach
     public void setup() {
         oppdragsenhet120Builder = Oppdragsenhet120.builder();
         oppdragsenhet120 = null;
@@ -57,7 +57,7 @@ public class Oppdragsenhet120EntityTest extends ØkonomiTestBasis {
 
     @Test
     public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
-        //mangler typeEnhet
+        // mangler typeEnhet
         try {
             oppdragsenhet120Builder.build();
             fail(FORVENTET_EXCEPTION);
@@ -65,7 +65,7 @@ public class Oppdragsenhet120EntityTest extends ØkonomiTestBasis {
             assertThat(e.getMessage()).contains("typeEnhet");
         }
 
-        //mangler enhet
+        // mangler enhet
         oppdragsenhet120Builder.medTypeEnhet(TYPEENHET);
         try {
             oppdragsenhet120Builder.build();
@@ -97,7 +97,6 @@ public class Oppdragsenhet120EntityTest extends ØkonomiTestBasis {
         assertThat(oppdragsenhet120).isNotEqualTo(oppdragsenhet120_2);
         assertThat(oppdragsenhet120_2).isNotEqualTo(oppdragsenhet120);
     }
-
 
     @Test
     public void skal_bruke_TypeEnhet_i_equalsOgHashCode() {
@@ -134,34 +133,33 @@ public class Oppdragsenhet120EntityTest extends ØkonomiTestBasis {
         assertThat(oppdragsenhet120.hashCode()).isNotEqualTo(oppdragsenhet120_2.hashCode());
     }
 
-
     private Oppdragsenhet120.Builder lagBuilderMedPaakrevdeFelter() {
         return Oppdragsenhet120.builder()
-            .medTypeEnhet(TYPEENHET)
-            .medEnhet(ENHET)
-            .medDatoEnhetFom(DATOENHETFOM)
-            .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
+                .medTypeEnhet(TYPEENHET)
+                .medEnhet(ENHET)
+                .medDatoEnhetFom(DATOENHETFOM)
+                .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
     }
 
     private Oppdrag110.Builder lagOppdrag110MedPaakrevdeFelter() {
         return Oppdrag110.builder()
-            .medKodeAksjon(KODEAKSJON)
-            .medKodeEndring(KODEENDRING)
-            .medKodeFagomrade(KODEFAGOMRADE)
-            .medFagSystemId(FAGSYSTEMID)
-            .medUtbetFrekvens(UTBETFREKVENS)
-            .medOppdragGjelderId(OPPDRAGGJELDERID)
-            .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
-            .medSaksbehId(SAKSBEHID)
-            .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build())
-            .medAvstemming115(lagAvstemming115MedPaakrevdeFelter().build());
+                .medKodeAksjon(KODEAKSJON)
+                .medKodeEndring(KODEENDRING)
+                .medKodeFagomrade(KODEFAGOMRADE)
+                .medFagSystemId(FAGSYSTEMID)
+                .medUtbetFrekvens(UTBETFREKVENS)
+                .medOppdragGjelderId(OPPDRAGGJELDERID)
+                .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
+                .medSaksbehId(SAKSBEHID)
+                .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build())
+                .medAvstemming115(lagAvstemming115MedPaakrevdeFelter().build());
     }
 
     private Oppdragskontroll.Builder lagOppdragskontrollMedPaakrevdeFelter() {
         return Oppdragskontroll.builder()
-            .medBehandlingId(BEHANDLINGID)
-            .medSaksnummer(SAKSID)
-            .medVenterKvittering(VENTERKVITTERING)
-            .medProsessTaskId(TASKID);
+                .medBehandlingId(BEHANDLINGID)
+                .medSaksnummer(SAKSID)
+                .medVenterKvittering(VENTERKVITTERING)
+                .medProsessTaskId(TASKID);
     }
 }

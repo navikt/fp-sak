@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.økonomi.behandlingslager.økonomioppdrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -36,7 +36,7 @@ public class Oppdrag110EntityTest extends ØkonomiTestBasis {
     private static final Long TASKID = 52L;
     private static final String FORVENTET_EXCEPTION = "forventet exception";
 
-    @Before
+    @BeforeEach
     public void setup() {
         oppdrag110Builder = Oppdrag110.builder();
         oppdrag110 = null;
@@ -58,7 +58,7 @@ public class Oppdrag110EntityTest extends ØkonomiTestBasis {
 
     @Test
     public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
-        //mangler kodeAksjon
+        // mangler kodeAksjon
         try {
             oppdrag110Builder.build();
             fail(FORVENTET_EXCEPTION);
@@ -66,7 +66,7 @@ public class Oppdrag110EntityTest extends ØkonomiTestBasis {
             assertThat(e.getMessage()).contains("kodeAksjon");
         }
 
-        //mangler kodeEndring
+        // mangler kodeEndring
         oppdrag110Builder.medKodeAksjon(KODEAKSJON);
         try {
             oppdrag110Builder.build();
@@ -75,7 +75,7 @@ public class Oppdrag110EntityTest extends ØkonomiTestBasis {
             assertThat(e.getMessage()).contains("kodeEndring");
         }
 
-        //mangler kodeFagomrade
+        // mangler kodeFagomrade
         oppdrag110Builder.medKodeEndring(KODEENDRING);
         try {
             oppdrag110Builder.build();
@@ -84,7 +84,7 @@ public class Oppdrag110EntityTest extends ØkonomiTestBasis {
             assertThat(e.getMessage()).contains("kodeFagomrade");
         }
 
-        //mangler fagsystemId
+        // mangler fagsystemId
         oppdrag110Builder.medKodeFagomrade(KODEFAGOMRADE);
         try {
             oppdrag110Builder.build();
@@ -93,7 +93,7 @@ public class Oppdrag110EntityTest extends ØkonomiTestBasis {
             assertThat(e.getMessage()).contains("fagsystemId");
         }
 
-        //mangler utbetFrekvens
+        // mangler utbetFrekvens
         oppdrag110Builder.medFagSystemId(FAGSYSTEMID);
         try {
             oppdrag110Builder.build();
@@ -102,7 +102,7 @@ public class Oppdrag110EntityTest extends ØkonomiTestBasis {
             assertThat(e.getMessage()).contains("utbetFrekvens");
         }
 
-        //mangler oppdragGjelderId
+        // mangler oppdragGjelderId
         oppdrag110Builder.medUtbetFrekvens(UTBETFREKVENS);
         try {
             oppdrag110Builder.build();
@@ -111,7 +111,7 @@ public class Oppdrag110EntityTest extends ØkonomiTestBasis {
             assertThat(e.getMessage()).contains("oppdragGjelderId");
         }
 
-        //mangler oppdragGjelderId
+        // mangler oppdragGjelderId
         oppdrag110Builder.medOppdragGjelderId(OPPDRAGGJELDERID);
         try {
             oppdrag110Builder.build();
@@ -120,7 +120,7 @@ public class Oppdrag110EntityTest extends ØkonomiTestBasis {
             assertThat(e.getMessage()).contains("datoOppdragGjelderFom");
         }
 
-        //mangler saksbehId
+        // mangler saksbehId
         oppdrag110Builder.medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM);
         try {
             oppdrag110Builder.build();
@@ -190,26 +190,25 @@ public class Oppdrag110EntityTest extends ØkonomiTestBasis {
 
     }
 
-
     private Oppdrag110.Builder lagBuilderMedPaakrevdeFelter() {
         return Oppdrag110.builder()
-            .medKodeAksjon(KODEAKSJON)
-            .medKodeEndring(KODEENDRING)
-            .medKodeFagomrade(KODEFAGOMRADE)
-            .medFagSystemId(FAGSYSTEMID)
-            .medUtbetFrekvens(UTBETFREKVENS)
-            .medOppdragGjelderId(OPPDRAGGJELDERID)
-            .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
-            .medSaksbehId(SAKSBEHID)
-            .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build())
-            .medAvstemming115(lagAvstemming115MedPaakrevdeFelter().build());
+                .medKodeAksjon(KODEAKSJON)
+                .medKodeEndring(KODEENDRING)
+                .medKodeFagomrade(KODEFAGOMRADE)
+                .medFagSystemId(FAGSYSTEMID)
+                .medUtbetFrekvens(UTBETFREKVENS)
+                .medOppdragGjelderId(OPPDRAGGJELDERID)
+                .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
+                .medSaksbehId(SAKSBEHID)
+                .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build())
+                .medAvstemming115(lagAvstemming115MedPaakrevdeFelter().build());
     }
 
     private Oppdragskontroll.Builder lagOppdragskontrollMedPaakrevdeFelter() {
         return Oppdragskontroll.builder()
-            .medBehandlingId(BEHANDLINGID)
-            .medSaksnummer(SAKSID)
-            .medVenterKvittering(VENTERKVITTERING)
-            .medProsessTaskId(TASKID);
+                .medBehandlingId(BEHANDLINGID)
+                .medSaksnummer(SAKSID)
+                .medVenterKvittering(VENTERKVITTERING)
+                .medProsessTaskId(TASKID);
     }
 }

@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -49,32 +49,32 @@ public class MapperForTilkjentYtelseTest {
 
     static BeregningsresultatEntitet lagTilkjentYtelse(UnaryOperator<BeregningsresultatAndel.Builder> andelModifier) {
         BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("foo")
-            .medRegelSporing("bar")
-            .build();
+                .medRegelInput("foo")
+                .medRegelSporing("bar")
+                .build();
 
         BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(LocalDate.of(2018, 3, 1), LocalDate.of(2018, 3, 31))
-            .build(beregningsresultat);
+                .medBeregningsresultatPeriodeFomOgTom(LocalDate.of(2018, 3, 1), LocalDate.of(2018, 3, 31))
+                .build(beregningsresultat);
         BeregningsresultatAndel.Builder andelBuilder = BeregningsresultatAndel.builder()
-            .medDagsats(1000)
-            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-            .medUtbetalingsgrad(BigDecimal.valueOf(100))
-            .medStillingsprosent(BigDecimal.valueOf(100))
-            .medDagsatsFraBg(1001);
+                .medDagsats(1000)
+                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+                .medUtbetalingsgrad(BigDecimal.valueOf(100))
+                .medStillingsprosent(BigDecimal.valueOf(100))
+                .medDagsatsFraBg(1001);
 
         andelBuilder = andelModifier.apply(andelBuilder);
         BeregningsresultatAndel andel = andelBuilder.build(periode);
         BeregningsresultatFeriepenger ferienger = BeregningsresultatFeriepenger.builder()
-            .medFeriepengerRegelInput("foo")
-            .medFeriepengerRegelSporing("bar")
-            .medFeriepengerPeriodeFom(LocalDate.of(2018, 3, 1))
-            .medFeriepengerPeriodeTom(LocalDate.of(2018, 3, 31))
-            .build(beregningsresultat);
+                .medFeriepengerRegelInput("foo")
+                .medFeriepengerRegelSporing("bar")
+                .medFeriepengerPeriodeFom(LocalDate.of(2018, 3, 1))
+                .medFeriepengerPeriodeTom(LocalDate.of(2018, 3, 31))
+                .build(beregningsresultat);
         BeregningsresultatFeriepengerPrÅr.builder()
-            .medOpptjeningsår(LocalDate.of(2018, 12, 31))
-            .medÅrsbeløp(15000L)
-            .build(ferienger, andel);
+                .medOpptjeningsår(LocalDate.of(2018, 12, 31))
+                .medÅrsbeløp(15000L)
+                .build(ferienger, andel);
         return beregningsresultat;
     }
 }

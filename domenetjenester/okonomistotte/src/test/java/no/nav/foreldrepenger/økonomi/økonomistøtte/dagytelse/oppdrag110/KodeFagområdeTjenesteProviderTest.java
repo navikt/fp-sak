@@ -7,8 +7,8 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
@@ -21,32 +21,32 @@ public class KodeFagområdeTjenesteProviderTest {
     private Oppdrag110 oppdrag110 = mock(Oppdrag110.class);
     private TilkjentYtelse tilkjentYtelse = mock(TilkjentYtelse.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(behandlingInfo.getAlleTidligereOppdrag110()).thenReturn(Collections.singletonList(oppdrag110));
     }
 
     @Test
     public void skal_returnere_kode_fagområde_tjeneste_basert_på_behandling_info_oppdrag() {
-        //Act
+        // Act
         when(behandlingInfo.getTilkjentYtelse()).thenReturn(Optional.of(tilkjentYtelse));
         var kodeFagområdeTjeneste = KodeFagområdeTjenesteProvider.getKodeFagområdeTjeneste(behandlingInfo);
 
-        //Assert
+        // Assert
         assertThat(kodeFagområdeTjeneste).isExactlyInstanceOf(KodeFagområdeTjeneste.class);
     }
 
     @Test
     public void skal_returnere_kode_fagområde_tjeneste_basert_på_tidligere_oppdrag() {
-        //Arrange
+        // Arrange
         when(behandlingInfo.getTilkjentYtelse()).thenReturn(Optional.empty());
         when(behandlingInfo.getAlleTidligereOppdrag110()).thenReturn(Collections.singletonList(oppdrag110));
         when(oppdrag110.getKodeFagomrade()).thenReturn(ØkonomiKodeFagområde.FP.name());
 
-        //Act
+        // Act
         var kodeFagområdeTjeneste = KodeFagområdeTjenesteProvider.getKodeFagområdeTjeneste(behandlingInfo);
 
-        //Assert
+        // Assert
         assertThat(kodeFagområdeTjeneste).isExactlyInstanceOf(KodeFagområdeTjeneste.class);
     }
 }

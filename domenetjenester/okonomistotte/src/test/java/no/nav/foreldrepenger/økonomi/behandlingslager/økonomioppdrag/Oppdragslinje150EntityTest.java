@@ -5,8 +5,8 @@ import static org.assertj.core.api.Java6Assertions.fail;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -54,7 +54,7 @@ public class Oppdragslinje150EntityTest extends ØkonomiTestBasis {
     private static final String FORVENTET_EXCEPTION = "forventet exception";
     private static final Long BEHANDLINGID = 321L;
 
-    @Before
+    @BeforeEach
     public void setup() {
         oppdragslinje150Builder = Oppdragslinje150.builder();
         oppdragslinje150 = null;
@@ -85,7 +85,7 @@ public class Oppdragslinje150EntityTest extends ØkonomiTestBasis {
 
     @Test
     public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
-        //mangler kodeEndringLinje
+        // mangler kodeEndringLinje
         try {
             oppdragslinje150Builder.build();
             fail(FORVENTET_EXCEPTION);
@@ -93,7 +93,7 @@ public class Oppdragslinje150EntityTest extends ØkonomiTestBasis {
             assertThat(e.getMessage()).contains("kodeEndringLinje");
         }
 
-        //mangler kodeKlassifik
+        // mangler kodeKlassifik
         oppdragslinje150Builder.medKodeEndringLinje(KODEENDRINGLINJE);
         try {
             oppdragslinje150Builder.build();
@@ -102,7 +102,7 @@ public class Oppdragslinje150EntityTest extends ØkonomiTestBasis {
             assertThat(e.getMessage()).contains("kodeKlassifik");
         }
 
-        //mangler datoVedtakFom
+        // mangler datoVedtakFom
         oppdragslinje150Builder.medKodeKlassifik(KODEKLASSIFIK);
         try {
             oppdragslinje150Builder.build();
@@ -111,7 +111,7 @@ public class Oppdragslinje150EntityTest extends ØkonomiTestBasis {
             assertThat(e.getMessage()).contains("vedtakPeriode");
         }
 
-        //mangler sats
+        // mangler sats
         oppdragslinje150Builder.medVedtakFomOgTom(DATOVEDTAKFOM, DATOVEDTAKTOM);
         try {
             oppdragslinje150Builder.build();
@@ -137,7 +137,6 @@ public class Oppdragslinje150EntityTest extends ØkonomiTestBasis {
         oppdragslinje150 = oppdragslinje150Builder.build();
         oppdragslinje150_2 = oppdragslinje150Builder.build();
 
-
         assertThat(oppdragslinje150).isEqualTo(oppdragslinje150_2);
         assertThat(oppdragslinje150_2).isEqualTo(oppdragslinje150);
 
@@ -145,7 +144,6 @@ public class Oppdragslinje150EntityTest extends ØkonomiTestBasis {
         assertThat(oppdragslinje150).isNotEqualTo(oppdragslinje150_2);
         assertThat(oppdragslinje150_2).isNotEqualTo(oppdragslinje150);
     }
-
 
     @Test
     public void skal_bruke_KodeKlassifik_i_equalsOgHashCode() {
@@ -186,45 +184,45 @@ public class Oppdragslinje150EntityTest extends ØkonomiTestBasis {
     private Oppdragslinje150.Builder lagBuilderMedPaakrevdeFelter() {
 
         return Oppdragslinje150.builder()
-            .medKodeEndringLinje(KODEENDRINGLINJE)
-            .medKodeStatusLinje(KODESTATUSLINJE)
-            .medDatoStatusFom(DATOSTATUSFOM)
-            .medVedtakId(VEDTAKID)
-            .medDelytelseId(DELYTELSEID)
-            .medKodeKlassifik(KODEKLASSIFIK)
-            .medVedtakFomOgTom(DATOVEDTAKFOM, DATOVEDTAKTOM)
-            .medSats(SATS)
-            .medFradragTillegg(FRADRAGTILLEGG)
-            .medTypeSats(TYPESATS)
-            .medBrukKjoreplan(BRUKKJOREPLAN)
-            .medSaksbehId(SAKSBEHID)
-            .medUtbetalesTilId(UTBETALESTILID)
-            .medRefFagsystemId(REFFAGSYSTEMID)
-            .medRefDelytelseId(REFDELYTELSEID)
-            .medHenvisning(43L)
-            .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
+                .medKodeEndringLinje(KODEENDRINGLINJE)
+                .medKodeStatusLinje(KODESTATUSLINJE)
+                .medDatoStatusFom(DATOSTATUSFOM)
+                .medVedtakId(VEDTAKID)
+                .medDelytelseId(DELYTELSEID)
+                .medKodeKlassifik(KODEKLASSIFIK)
+                .medVedtakFomOgTom(DATOVEDTAKFOM, DATOVEDTAKTOM)
+                .medSats(SATS)
+                .medFradragTillegg(FRADRAGTILLEGG)
+                .medTypeSats(TYPESATS)
+                .medBrukKjoreplan(BRUKKJOREPLAN)
+                .medSaksbehId(SAKSBEHID)
+                .medUtbetalesTilId(UTBETALESTILID)
+                .medRefFagsystemId(REFFAGSYSTEMID)
+                .medRefDelytelseId(REFDELYTELSEID)
+                .medHenvisning(43L)
+                .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
 
     }
 
     private Oppdrag110.Builder lagOppdrag110MedPaakrevdeFelter() {
         return Oppdrag110.builder()
-            .medKodeAksjon(KODEAKSJON)
-            .medKodeEndring(KODEENDRING)
-            .medKodeFagomrade(KODEFAGOMRADE)
-            .medFagSystemId(FAGSYSTEMID)
-            .medUtbetFrekvens(UTBETFREKVENS)
-            .medOppdragGjelderId(OPPDRAGGJELDERID)
-            .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
-            .medSaksbehId(SAKSBEHID)
-            .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build())
-            .medAvstemming115(lagAvstemming115MedPaakrevdeFelter().build());
+                .medKodeAksjon(KODEAKSJON)
+                .medKodeEndring(KODEENDRING)
+                .medKodeFagomrade(KODEFAGOMRADE)
+                .medFagSystemId(FAGSYSTEMID)
+                .medUtbetFrekvens(UTBETFREKVENS)
+                .medOppdragGjelderId(OPPDRAGGJELDERID)
+                .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
+                .medSaksbehId(SAKSBEHID)
+                .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build())
+                .medAvstemming115(lagAvstemming115MedPaakrevdeFelter().build());
     }
 
     private Oppdragskontroll.Builder lagOppdragskontrollMedPaakrevdeFelter() {
         return Oppdragskontroll.builder()
-            .medBehandlingId(BEHANDLINGID)
-            .medSaksnummer(SAKSID)
-            .medVenterKvittering(VENTERKVITTERING)
-            .medProsessTaskId(TASKID);
+                .medBehandlingId(BEHANDLINGID)
+                .medSaksnummer(SAKSID)
+                .medVenterKvittering(VENTERKVITTERING)
+                .medProsessTaskId(TASKID);
     }
 }

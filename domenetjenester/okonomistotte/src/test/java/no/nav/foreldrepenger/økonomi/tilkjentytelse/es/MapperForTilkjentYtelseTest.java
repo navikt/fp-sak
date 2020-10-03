@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
@@ -31,8 +31,9 @@ public class MapperForTilkjentYtelseTest {
         Behandling behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagMocked();
 
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
-            .medBeregning(new LegacyESBeregning(satsVerdi, antallBarn, beregnetTilkjentYtelse, beregnetTidspunkt, overstyrt, opprinneligBeregnetTilkjentYtelse))
-            .buildFor(behandling, null);
+                .medBeregning(new LegacyESBeregning(satsVerdi, antallBarn, beregnetTilkjentYtelse, beregnetTidspunkt, overstyrt,
+                        opprinneligBeregnetTilkjentYtelse))
+                .buildFor(behandling, null);
 
         LocalDate vedtaksdato = LocalDate.of(2018, 5, 4);
         List<TilkjentYtelsePeriodeV1> ty = MapperForTilkjentYtelse.mapTilkjentYtelse(beregningResultat.getSisteBeregning().get(), vedtaksdato);

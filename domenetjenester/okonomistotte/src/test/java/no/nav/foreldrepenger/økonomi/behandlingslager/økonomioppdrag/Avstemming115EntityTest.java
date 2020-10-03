@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.økonomi.behandlingslager.økonomioppdrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.LocalDateTime;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
@@ -24,12 +24,11 @@ public class Avstemming115EntityTest extends ØkonomiTestBasis {
 
     private static final String FORVENTET_EXCEPTION = "forventet exception";
 
-    @Before
+    @BeforeEach
     public void setup() {
         avstemming115Builder = Avstemming115.builder();
         avstemming115 = null;
     }
-
 
     @Test
     public void skal_bygge_instans_med_påkrevde_felter() {
@@ -43,7 +42,7 @@ public class Avstemming115EntityTest extends ØkonomiTestBasis {
     @Test
     public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
 
-        //mangler kodeKomponent
+        // mangler kodeKomponent
         try {
             avstemming115Builder.build();
             fail(FORVENTET_EXCEPTION);
@@ -51,7 +50,7 @@ public class Avstemming115EntityTest extends ØkonomiTestBasis {
             assertThat(e.getMessage()).contains("kodekomponent");
         }
 
-        //mangler nokkelAvstemming
+        // mangler nokkelAvstemming
         avstemming115Builder.medKodekomponent(KODEKOMPONENT);
         try {
             avstemming115Builder.build();
@@ -60,7 +59,7 @@ public class Avstemming115EntityTest extends ØkonomiTestBasis {
             assertThat(e.getMessage()).contains("nokkelAvstemming");
         }
 
-        //mangler tidspnktMelding
+        // mangler tidspnktMelding
         avstemming115Builder.medNokkelAvstemming(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(NOKKELAVSTEMMMING));
         try {
             avstemming115Builder.build();
@@ -68,7 +67,6 @@ public class Avstemming115EntityTest extends ØkonomiTestBasis {
         } catch (NullPointerException e) {
             assertThat(e.getMessage()).contains("tidspnktMelding");
         }
-
 
     }
 
@@ -94,7 +92,6 @@ public class Avstemming115EntityTest extends ØkonomiTestBasis {
         assertThat(avstemming115).isNotEqualTo(avstemming115_2);
         assertThat(avstemming115_2).isNotEqualTo(avstemming115);
     }
-
 
     @Test
     public void skal_bruke_Kodekomponent_i_equalsOgHashCode() {
@@ -132,10 +129,8 @@ public class Avstemming115EntityTest extends ØkonomiTestBasis {
 
     }
 
-
-    private Avstemming115.Builder lagBuilderMedPaakrevdeFelter(){
+    private Avstemming115.Builder lagBuilderMedPaakrevdeFelter() {
         return lagAvstemming115MedPaakrevdeFelter(NOKKELAVSTEMMMING, TIDSPNKTMELDING);
     }
 
 }
-
