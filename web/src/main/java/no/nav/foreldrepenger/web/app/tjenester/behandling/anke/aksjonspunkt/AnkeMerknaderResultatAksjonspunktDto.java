@@ -16,24 +16,27 @@ import no.nav.vedtak.util.InputValideringRegex;
 @JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
 public class AnkeMerknaderResultatAksjonspunktDto extends BekreftetAksjonspunktDto {
 
-
-    @NotNull
     @JsonProperty("erMerknaderMottatt")
     private boolean erMerknaderMottatt;
 
+    @JsonProperty("avsluttBehandling")
+    private boolean avsluttBehandling;
+
     @Size(max = 100000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
+    @JsonProperty("merknadKommentar")
     private String merknadKommentar;
 
-    AnkeMerknaderResultatAksjonspunktDto() { // NOSONAR
+    AnkeMerknaderResultatAksjonspunktDto() {
         // For Jackson
     }
 
-    public AnkeMerknaderResultatAksjonspunktDto (// NOSONAR
+    public AnkeMerknaderResultatAksjonspunktDto (boolean avsluttBehandling,
                                                  boolean erMerknaderMottatt,
                                                  String merknadKommentar){
         this.erMerknaderMottatt = erMerknaderMottatt;
         this.merknadKommentar = merknadKommentar;
+        this.avsluttBehandling =avsluttBehandling;
     }
 
     public boolean erMerknaderMottatt() {
@@ -44,4 +47,7 @@ public class AnkeMerknaderResultatAksjonspunktDto extends BekreftetAksjonspunktD
         return merknadKommentar;
     }
 
+    public boolean skalAvslutteBehandling() {
+        return avsluttBehandling;
+    }
 }

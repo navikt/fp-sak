@@ -22,50 +22,42 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
 
     @NotNull
     @ValidKodeverk
+    @JsonProperty("ankeVurdering")
     private AnkeVurdering ankeVurdering;
 
-    @NotNull
     @JsonProperty("erSubsidiartRealitetsbehandles")
     private boolean erSubsidiartRealitetsbehandles;
 
     // Økt størrelsen for å håndtere all fritekst som blir skrevet til ankebrev
     @Size(max = 100000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
+    @JsonProperty("fritekstTilBrev")
     private String fritekstTilBrev;
 
-    @Size(max = 100000)
-    @Pattern(regexp = InputValideringRegex.FRITEKST)
-    private String merknaderFraBruker;
-
-    @NotNull
-    @JsonProperty("erMerknaderMottatt")
-    private boolean erMerknaderMottatt;
-
     @ValidKodeverk
+    @JsonProperty("ankeOmgjoerArsak")
     private AnkeOmgjørÅrsak ankeOmgjoerArsak;
 
     @ValidKodeverk
+    @JsonProperty("ankeVurderingOmgjoer")
     private AnkeVurderingOmgjør ankeVurderingOmgjoer;
 
+    @JsonProperty("erGodkjentAvMedunderskriver")
     private boolean erGodkjentAvMedunderskriver;
 
     @JsonProperty("vedtak")
     // TODO (BehandlingIdDto): bør kunne støtte behandlingUuid også?  Hvorfor heter property "vedtak"?
     private Long påAnketBehandlingId;
 
-    @NotNull
     @JsonProperty("erAnkerIkkePart")
     private boolean erAnkerIkkePart;
 
-    @NotNull
     @JsonProperty("erFristIkkeOverholdt")
     private boolean erFristIkkeOverholdt;
 
-    @NotNull
     @JsonProperty("erIkkeKonkret")
     private boolean erIkkeKonkret;
 
-    @NotNull
     @JsonProperty("erIkkeSignert")
     private boolean erIkkeSignert;
 
@@ -85,9 +77,7 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
                                                  boolean erFristIkkeOverholdt,
                                                  boolean erIkkeKonkret,
                                                  boolean erIkkeSignert,
-                                                 boolean erGodkjentAvMedunderskriver,
-                                                 String merknaderFraBruker,
-                                                 boolean erMerknaderMottatt) {
+                                                 boolean erGodkjentAvMedunderskriver) {
         super(begrunnelse);
         this.ankeVurdering = ankeVurdering;
         this.fritekstTilBrev = fritekstTilBrev;
@@ -100,8 +90,6 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
         this.erIkkeKonkret = erIkkeKonkret;
         this.erIkkeSignert = erIkkeSignert;
         this.erGodkjentAvMedunderskriver = erGodkjentAvMedunderskriver;
-        this.merknaderFraBruker = merknaderFraBruker;
-        this.erMerknaderMottatt = erMerknaderMottatt;
     }
 
     public AnkeVurdering getAnkeVurdering() {
@@ -146,14 +134,6 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
 
     public boolean erIkkeSignert() {
         return erIkkeSignert;
-    }
-
-    public String getMerknaderFraBruker() {
-        return merknaderFraBruker;
-    }
-
-    public boolean erMerknaderMottatt() {
-        return erMerknaderMottatt;
     }
 
 }

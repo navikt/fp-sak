@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
@@ -44,9 +45,12 @@ public class AnkeMerknaderOppdaterer implements AksjonspunktOppdaterer<AnkeMerkn
         håndterAnkeVurdering(behandling, dto);
 
         var builder = OppdateringResultat.utenTransisjon();
-        if (!behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN)) {
-            var apVent = AksjonspunktResultat.opprettForAksjonspunktMedFrist(VENT_TRYGDERETT, Venteårsak.ANKE_OVERSENDT_TIL_TRYGDERETTEN,
-                LocalDateTime.now().plus(Objects.requireNonNull(VENT_TRYGDERETT.getFristPeriod())));
+        if (!dto.skalAvslutteBehandling()) {
+            var frist = behandling.getAksjonspunktMedDefinisjonOptional(VENT_TRYGDERETT).map(Aksjonspunkt::getFristTid)
+                .orElseGet(() -> LocalDateTime.now().plus(Objects.requireNonNull(VENT_TRYGDERETT.getFristPeriod())));
+            if (frist.isBefore(LocalDateTime.now().plusWeeks(4)))
+                frist = LocalDateTime.now().plusWeeks(4);
+            var apVent = AksjonspunktResultat.opprettForAksjonspunktMedFrist(VENT_TRYGDERETT, Venteårsak.ANKE_OVERSENDT_TIL_TRYGDERETTEN, frist);
             builder.medEkstraAksjonspunktResultat(apVent, AksjonspunktStatus.OPPRETTET);
         }
         return builder.build();
