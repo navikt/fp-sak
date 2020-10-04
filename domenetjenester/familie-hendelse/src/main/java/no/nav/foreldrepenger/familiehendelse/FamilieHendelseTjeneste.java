@@ -102,6 +102,35 @@ public class FamilieHendelseTjeneste {
             .allMatch(f -> intervallerGrunnlag.stream().anyMatch(i -> i.encloses(f)));
     }
 
+    public boolean matcherGrunnlagene(FamilieHendelseGrunnlagEntitet grunnlag1, FamilieHendelseGrunnlagEntitet grunnlag2) {
+        // Finn behandling
+        if (grunnlag1 == null || grunnlag2 == null || !kompatibleTyper(grunnlag1.getGjeldendeVersjon(), grunnlag2.getGjeldendeVersjon())) {
+            return false;
+        }
+        if (grunnlag1.getGjeldendeVersjon().getGjelderAdopsjon() && grunnlag2.getGjeldendeVersjon().getGjelderAdopsjon()) {
+            var omsorgIntervall1 = intervallForFødselsdato(grunnlag1.getGjeldendeVersjon().getSkjæringstidspunkt());
+            var omsorgIntervall2 = intervallForFødselsdato(grunnlag2.getGjeldendeVersjon().getSkjæringstidspunkt());
+            if (!omsorgIntervall1.overlapper(omsorgIntervall2))
+                return false;
+        }
+        var intervallerGrunnlag1 =  utledPerioderForRegisterinnhenting(grunnlag1);
+        var intervallerGrunnlag2 =  utledPerioderForRegisterinnhenting(grunnlag2);
+        int antallGrunnlag1 = grunnlag1.getGjeldendeAntallBarn();
+        int antallGrunnlag2 = grunnlag2.getGjeldendeAntallBarn();
+        return antallGrunnlag1 == antallGrunnlag2 &&
+            intervallerGrunnlag1.stream().allMatch(i1 -> intervallerGrunnlag2.stream().anyMatch(i1::overlaps)) &&
+            intervallerGrunnlag2.stream().allMatch(i2 -> intervallerGrunnlag1.stream().anyMatch(i2::overlaps));
+    }
+
+    private boolean kompatibleTyper(FamilieHendelseEntitet hendelse1, FamilieHendelseEntitet hendelse2) {
+        return hendelse1.getGjelderFødsel() && hendelse2.getGjelderFødsel() || gjelderStebarnsadopsjon(hendelse1, hendelse2) ||
+            hendelse1.getType().equals(hendelse2.getType());
+    }
+
+    private boolean gjelderStebarnsadopsjon(FamilieHendelseEntitet hendelse1, FamilieHendelseEntitet hendelse2) {
+        return (hendelse1.getGjelderFødsel() && hendelse2.getGjelderAdopsjon()) || (hendelse1.getGjelderAdopsjon() && hendelse2.getGjelderFødsel());
+    }
+
     public void oppdaterFødselPåGrunnlag(Behandling behandling, List<FødtBarnInfo> bekreftetTps) {
         if (bekreftetTps.isEmpty()) {
             return;

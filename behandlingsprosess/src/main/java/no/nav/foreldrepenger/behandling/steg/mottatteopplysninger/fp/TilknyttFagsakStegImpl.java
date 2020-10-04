@@ -21,13 +21,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
-import no.nav.foreldrepenger.mottak.sakogenhet.KobleSakTjeneste;
+import no.nav.foreldrepenger.mottak.sakogenhet.KobleSakerTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 
@@ -38,7 +42,8 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjenest
 public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     private BehandlingRepository behandlingRepository;
-    private KobleSakTjeneste kobleSakTjeneste;
+    private YtelsesFordelingRepository ytelsesFordelingRepository;
+    private KobleSakerTjeneste kobleSakTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -49,12 +54,13 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     @Inject
     public TilknyttFagsakStegImpl(BehandlingRepositoryProvider provider, // NOSONAR
-                                KobleSakTjeneste kobleSakTjeneste,
+                                KobleSakerTjeneste kobleSakTjeneste,
                                 BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                 OppgaveTjeneste oppgaveTjeneste,
                                 InntektArbeidYtelseTjeneste iayTjeneste) {// NOSONAR
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
+        this.ytelsesFordelingRepository = provider.getYtelsesFordelingRepository();
         this.kobleSakTjeneste = kobleSakTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.oppgaveTjeneste = oppgaveTjeneste;
@@ -92,20 +98,26 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
     }
 
     private void kobleSakerOppdaterEnhetVedBehov(Behandling behandling) {
-        FagsakRelasjon kobling = kobleSakTjeneste.finnFagsakRelasjonDersomOpprettet(behandling).orElse(null);
-        if (kobling != null && kobling.getFagsakNrTo().isPresent()) {
+        if (kobleSakTjeneste.finnFagsakRelasjonDersomOpprettet(behandling).flatMap(FagsakRelasjon::getFagsakNrTo).isPresent()) {
             // Allerede koblet. Da er vi på gjenvisitt og vi ser heller ikke på annen part fra søknad.
             return;
         }
 
         kobleSakTjeneste.kobleRelatertFagsakHvisDetFinnesEn(behandling);
-        kobling = kobleSakTjeneste.finnFagsakRelasjonDersomOpprettet(behandling).orElse(null);
+        var kobling = kobleSakTjeneste.finnFagsakRelasjonDersomOpprettet(behandling);
 
-        if (kobling == null || kobling.getFagsakNrTo().isEmpty()) {
+        if (kobling.isEmpty() || kobling.flatMap(FagsakRelasjon::getFagsakNrTo).isEmpty()) {
+            // Opprett eller oppdater relasjon hvis førstegangsbehandling. Ellers arves dekningsgrad fra koblet sak.
+            if (!behandling.erRevurdering()) {
+                int dekningsgradVerdi = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
+                    .map(YtelseFordelingAggregat::getOppgittDekningsgrad)
+                    .map(OppgittDekningsgradEntitet::getDekningsgrad).orElse(Dekningsgrad._100.getVerdi());
+                kobleSakTjeneste.oppdaterFagsakRelasjonMedDekningsgrad(behandling.getFagsak(), kobling, Dekningsgrad.grad(dekningsgradVerdi));
+            }
             // Ingen kobling foretatt
             return;
         }
-        behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandling, kobling).ifPresent(organisasjonsEnhet -> behandlendeEnhetTjeneste
+        behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandling, kobling.get()).ifPresent(organisasjonsEnhet -> behandlendeEnhetTjeneste
             .oppdaterBehandlendeEnhet(behandling, organisasjonsEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, "Koblet sak"));
     }
 }

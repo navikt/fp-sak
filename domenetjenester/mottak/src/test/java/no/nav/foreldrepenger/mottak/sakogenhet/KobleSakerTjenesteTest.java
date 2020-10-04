@@ -1,8 +1,10 @@
-package no.nav.foreldrepenger.mottak.sakogenhet.impl;
+package no.nav.foreldrepenger.mottak.sakogenhet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -10,13 +12,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
+import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -33,52 +36,48 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.mottak.sakogenhet.KobleSakTjeneste;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.mottak.sakogenhet.KobleSakerTjeneste;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class KobleSakTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+@ExtendWith(MockitoExtension.class)
+public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
     private static AktørId MOR_AKTØR_ID = AktørId.dummy();
     private static PersonIdent MOR_IDENT = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());
-    private static Personinfo MOR_PINFO;
 
     private static AktørId FAR_AKTØR_ID = AktørId.dummy();
     private static PersonIdent FAR_IDENT = new PersonIdent(new FiktiveFnr().nesteMannFnr());
-    private static Personinfo FAR_PINFO;
 
     private static AktørId BARN_AKTØR_ID = AktørId.dummy();
-    private static AktørId ELDRE_BARN_AKTØR_ID = AktørId.dummy();
     private static PersonIdent BARN_IDENT = new PersonIdent(new FiktiveFnr().nesteBarnFnr());
-    private static PersonIdent ELDRE_BARN_IDENT = new PersonIdent(new FiktiveFnr().nesteBarnFnr());
     private static Personinfo BARN_PINFO;
-    private static Personinfo ELDRE_BARN_PINFO;
+    private static FødtBarnInfo BARN_FBI;
     private static LocalDate ELDRE_BARN_FØDT = LocalDate.of(2006, 6, 6);
     private static LocalDate BARN_FØDT = LocalDate.of(2018, 3, 3);
 
-    private static Familierelasjon relasjontilEldreBarn = new Familierelasjon(ELDRE_BARN_IDENT, RelasjonsRolleType.BARN, ELDRE_BARN_FØDT, "Vei", true);
-    private static Familierelasjon relasjontilBarn = new Familierelasjon(BARN_IDENT, RelasjonsRolleType.BARN, BARN_FØDT, "Vei", true);
     private static Familierelasjon relasjontilMor = new Familierelasjon(MOR_IDENT, RelasjonsRolleType.MORA, LocalDate.of(1989, 12, 12), "Vei", true);
     private static Familierelasjon relasjontilFar = new Familierelasjon(FAR_IDENT, RelasjonsRolleType.FARA, LocalDate.of(1991, 11, 11), "Vei", true);
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    @Rule
-    public final ExpectedException exceptionRule = ExpectedException.none();
+    private BehandlingRepositoryProvider repositoryProvider;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private PersoninfoAdapter personinfoAdapter;
+    private KobleSakerTjeneste kobleSakTjeneste;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private FagsakRelasjonRepository fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
-    private TpsTjeneste tpsTjeneste;
-    private KobleSakTjeneste kobleSakTjeneste;
-
-    @Before
+    @BeforeEach
     public void oppsett() {
-        tpsTjeneste = mock(TpsTjeneste.class);
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        personinfoAdapter = mock(PersoninfoAdapter.class);
         FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
             repositoryProvider.getFagsakRepository());
-        kobleSakTjeneste = new KobleSakTjeneste(repositoryProvider, tpsTjeneste,fagsakRelasjonTjeneste);
+        var famHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
+        kobleSakTjeneste = new KobleSakerTjeneste(repositoryProvider, personinfoAdapter, famHendelseTjeneste, fagsakRelasjonTjeneste);
     }
 
     @Test
@@ -124,17 +123,31 @@ public class KobleSakTjenesteTest {
     }
 
     @Test
-    public void finn_ikke_mors_fagsak_dersom_mor_søker_termin_og_gjensidig_oppgitt_søknad_ved_for_tidlig_fødsel() {
+    public void finn_mors_fagsak_dersom_mor_søker_termin_og_gjensidig_oppgitt_søknad_ved_for_tidlig_fødsel() {
         // Oppsett
         settOppTpsStrukturer(true, true);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(19).plusDays(1), FAR_AKTØR_ID);
+        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(15), FAR_AKTØR_ID);
         Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+
+        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+
+        assertThat(morsSak).isPresent();
+    }
+
+    @Test
+    public void finn_ikke_mors_nye_fagsak_ved_ulike_kull() {
+        // Oppsett
+        settOppTpsStrukturer(true, true);
+
+        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(16), FAR_AKTØR_ID);
+        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now().minusWeeks(30), MOR_AKTØR_ID);
 
         Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isNotPresent();
     }
+
 
     @Test
     public void finn_mors_fagsak_dersom_mor_søker_termin_får_bekreftet_fødsel_og_gjensidig_oppgitt_søknad_ved_forsinket_fødsel_uten_at_barnet_er_registrert_i_TPS() {
@@ -151,16 +164,18 @@ public class KobleSakTjenesteTest {
     }
 
     @Test
-    public void finn_ikke_mors_fagsak_dersom_mor_søker_termin_og_gjensidig_oppgitt_søknad_ved_for_sen_fødsel() {
+    public void finn_riktig_mors_fagsak_ved_ulike_kull() {
         // Oppsett
         settOppTpsStrukturer(true, true);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusWeeks(4).minusDays(1), FAR_AKTØR_ID);
-        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+        Behandling behandlingMor1 = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusYears(1), FAR_AKTØR_ID);
+        Behandling behandlingMor2 = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
+        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now().plusWeeks(1), MOR_AKTØR_ID);
 
         Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
-        assertThat(morsSak).isNotPresent();
+        assertThat(morsSak).isPresent();
+        assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor2.getFagsak()));
     }
 
     @Test
@@ -206,16 +221,30 @@ public class KobleSakTjenesteTest {
     }
 
     @Test
-    public void finn_mors_fagsak_dersom_termin_og_en_part_oppgir_annen_part_og_andre_oppgir_tredje_part() {
+    public void finn_ikke_mors_fagsak_dersom_surrogati_adopsjon_og_skrivefeil_dato() {
         // Oppsett
-        settOppTpsStrukturer(false, false);
+        settOppTpsSurrogatiStrukturer();
 
-        opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), BARN_AKTØR_ID);
-        Behandling behandlingFar = opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTerminBekreftetFødsel(LocalDate.now().minusWeeks(8), null);
+        Behandling behandlingFar = opprettBehandlingMedAdopsjonAvEktefellesBarn(LocalDate.now().plusWeeks(8), MOR_AKTØR_ID);
 
         Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isNotPresent();
+    }
+
+    @Test
+    public void finn_mors_fagsak_dersom_termin_og_en_part_oppgir_annen_part_og_andre_oppgir_tredje_part() {
+        // Oppsett
+        settOppTpsStrukturer(false, false);
+
+        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), BARN_AKTØR_ID);
+        Behandling behandlingFar = opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+
+        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+
+        assertThat(morsSak).isPresent();
+        assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
     }
 
     @Test
@@ -384,7 +413,7 @@ public class KobleSakTjenesteTest {
         if (annenPart != null) {
             scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Kari Dunk");
         }
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknadHendelse().medAntallBarn(1).medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
             .medUtstedtDato(LocalDate.now())
             .medTermindato(termindato)
             .medNavnPå("LEGEN MIN"));
@@ -417,28 +446,16 @@ public class KobleSakTjenesteTest {
     }
 
     private void settOppTpsSurrogatiStrukturer() {
-        HashSet<Familierelasjon> tilBarnaForeldreEn = new HashSet<>(List.of(relasjontilEldreBarn, relasjontilBarn));
-        HashSet<Familierelasjon> tilBarnaForeldreTo = new HashSet<>(Collections.singletonList(relasjontilEldreBarn));
         HashSet<Familierelasjon> tilForeldreEn = new HashSet<>(Collections.singletonList(relasjontilMor));
-        HashSet<Familierelasjon> tilForeldreTo = new HashSet<>(List.of(relasjontilMor, relasjontilFar));
-        MOR_PINFO = new Personinfo.Builder().medAktørId(MOR_AKTØR_ID).medPersonIdent(MOR_IDENT).medNavn("Kari Dunk")
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medFødselsdato(LocalDate.of(1989, 12, 12)).medAdresse("Vei")
-            .medFamilierelasjon(tilBarnaForeldreEn).build();
-        FAR_PINFO = new Personinfo.Builder().medAktørId(FAR_AKTØR_ID).medPersonIdent(FAR_IDENT).medNavn("Ola Dunk")
-            .medNavBrukerKjønn(NavBrukerKjønn.MANN).medFødselsdato(LocalDate.of(1991, 11, 11)).medAdresse("Vei")
-            .medFamilierelasjon(tilBarnaForeldreTo).build();
-        ELDRE_BARN_PINFO = new Personinfo.Builder().medAktørId(ELDRE_BARN_AKTØR_ID).medPersonIdent(ELDRE_BARN_IDENT).medFødselsdato(ELDRE_BARN_FØDT)
-            .medNavBrukerKjønn(NavBrukerKjønn.MANN).medNavn("Dunk junior d.e.").medAdresse("Vei").medFamilierelasjon(tilForeldreTo).build();
         BARN_PINFO = new Personinfo.Builder().medAktørId(BARN_AKTØR_ID).medPersonIdent(BARN_IDENT).medFødselsdato(BARN_FØDT)
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").medAdresse("Vei").medFamilierelasjon(tilForeldreEn).build();
-        when(tpsTjeneste.hentAktørForFnr(MOR_IDENT)).thenReturn(Optional.of(MOR_AKTØR_ID));
-        when(tpsTjeneste.hentAktørForFnr(FAR_IDENT)).thenReturn(Optional.of(FAR_AKTØR_ID));
-        when(tpsTjeneste.hentBrukerForAktør(MOR_AKTØR_ID)).thenReturn(Optional.of(MOR_PINFO));
-        when(tpsTjeneste.hentBrukerForAktør(FAR_AKTØR_ID)).thenReturn(Optional.of(FAR_PINFO));
-        when(tpsTjeneste.hentBrukerForAktør(BARN_AKTØR_ID)).thenReturn(Optional.of(BARN_PINFO));
-        when(tpsTjeneste.hentBrukerForAktør(ELDRE_BARN_AKTØR_ID)).thenReturn(Optional.of(ELDRE_BARN_PINFO));
-        when(tpsTjeneste.hentBrukerForFnr(ELDRE_BARN_IDENT)).thenReturn(Optional.of(ELDRE_BARN_PINFO));
-        when(tpsTjeneste.hentBrukerForFnr(BARN_IDENT)).thenReturn(Optional.of(BARN_PINFO));
+        BARN_FBI = new FødtBarnInfo.Builder().medIdent(BARN_IDENT).medFødselsdato(BARN_FØDT).build();
+        lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(MOR_IDENT)).thenReturn(Optional.of(MOR_AKTØR_ID));
+        lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(FAR_IDENT)).thenReturn(Optional.of(FAR_AKTØR_ID));
+        lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(BARN_IDENT)).thenReturn(Optional.of(BARN_AKTØR_ID));
+        lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of(BARN_FBI));
+        lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
+        lenient().when(personinfoAdapter.innhentSaksopplysningerForBarn(BARN_IDENT)).thenReturn(Optional.of(BARN_PINFO));
     }
 
     private void settOppTpsStrukturer(boolean medNyligFødt, boolean medKunMor) {
@@ -446,17 +463,8 @@ public class KobleSakTjenesteTest {
     }
 
     private void settOppTpsStrukturer(boolean medNyligFødt, boolean medKunMor, boolean nyfødtbarnEriTPS) {
-        HashSet<Familierelasjon> tilBarna = new HashSet<>(
-            medNyligFødt ? List.of(relasjontilEldreBarn, relasjontilBarn) : List.of(relasjontilEldreBarn));
         HashSet<Familierelasjon> tilForeldre = new HashSet<>(medKunMor ? List.of(relasjontilMor) : List.of(relasjontilMor, relasjontilFar));
-        MOR_PINFO = new Personinfo.Builder().medAktørId(MOR_AKTØR_ID).medPersonIdent(MOR_IDENT).medNavn("Kari Dunk")
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medFødselsdato(LocalDate.of(1989, 12, 12)).medAdresse("Vei")
-            .medFamilierelasjon(tilBarna).build();
-        FAR_PINFO = new Personinfo.Builder().medAktørId(FAR_AKTØR_ID).medPersonIdent(FAR_IDENT).medNavn("Ola Dunk")
-            .medNavBrukerKjønn(NavBrukerKjønn.MANN).medFødselsdato(LocalDate.of(1991, 11, 11)).medAdresse("Vei")
-            .medFamilierelasjon(tilBarna).build();
-        ELDRE_BARN_PINFO = new Personinfo.Builder().medAktørId(ELDRE_BARN_AKTØR_ID).medPersonIdent(ELDRE_BARN_IDENT).medFødselsdato(ELDRE_BARN_FØDT)
-            .medNavBrukerKjønn(NavBrukerKjønn.MANN).medNavn("Dunk junior d.e.").medAdresse("Vei").medFamilierelasjon(tilForeldre).build();
+        BARN_FBI = new FødtBarnInfo.Builder().medIdent(BARN_IDENT).medFødselsdato(BARN_FØDT).build();
         if (medNyligFødt) {
             BARN_PINFO = new Personinfo.Builder().medAktørId(BARN_AKTØR_ID).medPersonIdent(BARN_IDENT).medFødselsdato(BARN_FØDT)
                 .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").medAdresse("Vei").medFamilierelasjon(tilForeldre).build();
@@ -464,15 +472,14 @@ public class KobleSakTjenesteTest {
             BARN_PINFO = new Personinfo.Builder().medAktørId(BARN_AKTØR_ID).medPersonIdent(BARN_IDENT).medFødselsdato(BARN_FØDT)
                 .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").medAdresse("Vei").build();
         }
-        when(tpsTjeneste.hentAktørForFnr(MOR_IDENT)).thenReturn(Optional.of(MOR_AKTØR_ID));
-        when(tpsTjeneste.hentAktørForFnr(FAR_IDENT)).thenReturn(Optional.of(FAR_AKTØR_ID));
-        when(tpsTjeneste.hentBrukerForAktør(MOR_AKTØR_ID)).thenReturn(Optional.of(MOR_PINFO));
-        when(tpsTjeneste.hentBrukerForAktør(FAR_AKTØR_ID)).thenReturn(Optional.of(FAR_PINFO));
-        when(tpsTjeneste.hentBrukerForAktør(ELDRE_BARN_AKTØR_ID)).thenReturn(Optional.of(ELDRE_BARN_PINFO));
-        when(tpsTjeneste.hentBrukerForFnr(ELDRE_BARN_IDENT)).thenReturn(Optional.of(ELDRE_BARN_PINFO));
+        lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(MOR_IDENT)).thenReturn(Optional.of(MOR_AKTØR_ID));
+        lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(FAR_IDENT)).thenReturn(Optional.of(FAR_AKTØR_ID));
+        lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of());
+        lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
         if(nyfødtbarnEriTPS) {
-            when(tpsTjeneste.hentBrukerForAktør(BARN_AKTØR_ID)).thenReturn(Optional.of(BARN_PINFO));
-            when(tpsTjeneste.hentBrukerForFnr(BARN_IDENT)).thenReturn(Optional.of(BARN_PINFO));
+            lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(BARN_IDENT)).thenReturn(Optional.of(BARN_AKTØR_ID));
+            lenient().when(personinfoAdapter.innhentSaksopplysningerForBarn(BARN_IDENT)).thenReturn(Optional.of(BARN_PINFO));
+            lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of(BARN_FBI));
         }
 
     }
