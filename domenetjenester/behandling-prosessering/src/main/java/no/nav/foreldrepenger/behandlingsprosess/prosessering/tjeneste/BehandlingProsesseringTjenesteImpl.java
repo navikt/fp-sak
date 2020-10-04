@@ -128,10 +128,12 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     @Override
     public ProsessTaskGruppe lagOppdaterFortsettTasksForPolling(Behandling behandling) {
         ProsessTaskGruppe gruppe = new ProsessTaskGruppe();
-        ProsessTaskData registerdataOppdatererTask = new ProsessTaskData(RegisterdataOppdatererTask.TASKTYPE);
-        registerdataOppdatererTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        registerdataOppdatererTask.setCallIdFraEksisterende();
-        gruppe.addNesteSekvensiell(registerdataOppdatererTask);
+        if (behandling.erYtelseBehandling()) {
+            ProsessTaskData registerdataOppdatererTask = new ProsessTaskData(RegisterdataOppdatererTask.TASKTYPE);
+            registerdataOppdatererTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+            registerdataOppdatererTask.setCallIdFraEksisterende();
+            gruppe.addNesteSekvensiell(registerdataOppdatererTask);
+        }
         ProsessTaskData fortsettBehandlingTask = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
         fortsettBehandlingTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         fortsettBehandlingTask.setProperty(FortsettBehandlingTaskProperties.MANUELL_FORTSETTELSE, String.valueOf(true));

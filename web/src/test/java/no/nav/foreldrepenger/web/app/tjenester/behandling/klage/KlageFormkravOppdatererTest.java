@@ -96,7 +96,6 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
                 behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
 
         OppdateringResultat oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
-        assertThat(oppdateringResultat.getNesteAksjonspunktStatus()).isEqualToComparingFieldByField(AksjonspunktStatus.UTFØRT);
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
 
@@ -112,7 +111,6 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         AksjonspunktOppdaterParameter aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(behandling,
                 behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
         OppdateringResultat oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
-        assertThat(oppdateringResultat.getNesteAksjonspunktStatus()).isEqualToComparingFieldByField(AksjonspunktStatus.UTFØRT);
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
         KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
@@ -161,7 +159,6 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
                 behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
         OppdateringResultat oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
-        assertThat(oppdateringResultat.getNesteAksjonspunktStatus()).isEqualToComparingFieldByField(AksjonspunktStatus.UTFØRT);
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
         KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
@@ -214,7 +211,6 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
                 behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
         OppdateringResultat oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
-        assertThat(oppdateringResultat.getNesteAksjonspunktStatus()).isEqualToComparingFieldByField(AksjonspunktStatus.UTFØRT);
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
         KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
@@ -258,7 +254,6 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
                 behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
         OppdateringResultat oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
-        assertThat(oppdateringResultat.getNesteAksjonspunktStatus()).isEqualToComparingFieldByField(AksjonspunktStatus.UTFØRT);
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
         KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());

@@ -374,9 +374,6 @@ public class AksjonspunktApplikasjonTjeneste {
         if (!aksjonspunkt.erAvbrutt() && delresultat.skalUtføreAksjonspunkt()) {
             behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, behandling.getAktivtBehandlingSteg(), aksjonspunkt, dto.getBegrunnelse());
         }
-        if (aksjonspunkt.erÅpentAksjonspunkt() && delresultat.skalAvbryteAksjonspunkt()) {
-            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), List.of(aksjonspunkt));
-        }
     }
 
     @SuppressWarnings("unchecked")

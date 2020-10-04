@@ -14,12 +14,10 @@ import no.nav.vedtak.util.Tuple;
 public class OppdateringResultat {
 
     private BehandlingStegType nesteSteg;
-    private AksjonspunktStatus nesteStatus = AksjonspunktStatus.UTFØRT;
     private OverhoppKontroll overhoppKontroll;
     private BehandlingResultatType henleggelseResultat;
     private String henleggingsbegrunnelse;
     private boolean beholdAksjonspunktÅpent = false;
-    private boolean avbrytAksjonspunkt = false;
     private boolean totrinnsKontroll = false;
     private TransisjonIdentifikator transisjonId;
     private List<Tuple<AksjonspunktResultat, AksjonspunktStatus>> ekstraAksjonspunktResultat = new ArrayList<>();
@@ -81,10 +79,6 @@ public class OppdateringResultat {
         return nesteSteg;
     }
 
-    public AksjonspunktStatus getNesteAksjonspunktStatus() {
-        return nesteStatus;
-    }
-
     public TransisjonIdentifikator getTransisjon() {
         return transisjonId;
     }
@@ -102,11 +96,7 @@ public class OppdateringResultat {
     }
 
     public boolean skalUtføreAksjonspunkt() {
-        return !beholdAksjonspunktÅpent && !avbrytAksjonspunkt;
-    }
-
-    public boolean skalAvbryteAksjonspunkt() {
-        return avbrytAksjonspunkt;
+        return !beholdAksjonspunktÅpent;
     }
 
     public boolean kreverTotrinnsKontroll() {
@@ -128,16 +118,7 @@ public class OppdateringResultat {
          * Lar aksjonspunkt bli stående i  OPPRETTET etter oppdatering
          */
         public Builder medBeholdAksjonspunktÅpent() {
-            resultat.nesteStatus = AksjonspunktStatus.OPPRETTET;
             resultat.beholdAksjonspunktÅpent = true;
-            return this;
-        }
-
-        /*
-         * Sett aksjonspunkt til AVBRUTT etter oppdatering
-         */
-        public Builder medAvbruttAksjonspunkt() {
-            resultat.nesteStatus = AksjonspunktStatus.AVBRUTT;
             return this;
         }
 
@@ -201,7 +182,6 @@ public class OppdateringResultat {
     public String toString() {
         return "OppdateringResultat{" +
             "nesteSteg=" + nesteSteg +
-            ", nesteStatus" + nesteStatus +
             ", transisjonId=" + transisjonId +
             ", overhoppKontroll=" + overhoppKontroll +
             ", henleggelseResultat=" + henleggelseResultat +

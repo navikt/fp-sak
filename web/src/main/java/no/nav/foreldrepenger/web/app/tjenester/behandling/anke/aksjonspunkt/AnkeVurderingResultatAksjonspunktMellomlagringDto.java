@@ -30,28 +30,25 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto implements AbacDt
     private Long behandlingId;
 
     @ValidKodeverk
+    @JsonProperty("ankeVurdering")
     private AnkeVurdering ankeVurdering;
 
     @Size(max = 2000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
+    @JsonProperty("begrunnelse")
     private String begrunnelse;
 
     @Size(max = 100000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
+    @JsonProperty("fritekstTilBrev")
     private String fritekstTilBrev;
 
-    @Size(max = 100000)
-    @Pattern(regexp = InputValideringRegex.FRITEKST)
-    private String merknaderFraBruker;
-
-    @NotNull
-    @JsonProperty("erMerknaderMottatt")
-    private boolean erMerknaderMottatt;
-
     @ValidKodeverk
+    @JsonProperty("ankeOmgjoerArsak")
     private AnkeOmgjørÅrsak ankeOmgjoerArsak;
 
     @ValidKodeverk
+    @JsonProperty("ankeVurderingOmgjoer")
     private AnkeVurderingOmgjør ankeVurderingOmgjoer;
 
     @Min(0)
@@ -60,23 +57,18 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto implements AbacDt
     // TODO (BehandlingIdDto): bør kunne støtte behandlingUuid også?  Hvorfor heter property "vedtak"?
     private Long påAnketBehandlingId;
 
-    @NotNull
     @JsonProperty("erIkkeAnkerPart")
     private boolean erIkkeAnkerPart;
 
-    @NotNull
     @JsonProperty("erFristIkkeOverholdt")
     private boolean erFristIkkeOverholdt;
 
-    @NotNull
     @JsonProperty("erIkkeKonkret")
     private boolean erIkkeKonkret;
 
-    @NotNull
     @JsonProperty("erIkkeSignert")
     private boolean erIkkeSignert;
 
-    @NotNull
     @JsonProperty("erSubsidiartRealitetsbehandles")
     private boolean erSubsidiartRealitetsbehandles;
 
@@ -97,9 +89,7 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto implements AbacDt
                                                               boolean erIkkeAnkerPart,
                                                               boolean erFristIkkeOverholdt,
                                                               boolean erIkkeKonkret,
-                                                              boolean erIkkeSignert,
-                                                              String merknaderFraBruker,
-                                                              boolean erMerknaderMottatt) {
+                                                              boolean erIkkeSignert) {
         this.kode = kode;
         this.behandlingId = behandlingId;
         this.begrunnelse = begrunnelse;
@@ -113,8 +103,6 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto implements AbacDt
         this.erFristIkkeOverholdt = erFristIkkeOverholdt;
         this.erIkkeKonkret = erIkkeKonkret;
         this.erIkkeSignert = erIkkeSignert;
-        this.merknaderFraBruker = merknaderFraBruker;
-        this.erMerknaderMottatt = erMerknaderMottatt;
     }
 
     public AnkeVurdering getAnkeVurdering() {
@@ -169,13 +157,6 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto implements AbacDt
         return påAnketBehandlingId;
     }
 
-    public String getMerknaderFraBruker() {
-        return merknaderFraBruker;
-    }
-
-    public boolean erMerknaderMottatt() {
-        return erMerknaderMottatt;
-    }
 
     @Override
     public AbacDataAttributter abacAttributter() {
