@@ -22,11 +22,13 @@ import no.nav.vedtak.util.InputValideringRegex;
 public class AnkeVurderingResultatAksjonspunktMellomlagringDto implements AbacDto {
 
     @Pattern(regexp = InputValideringRegex.KODEVERK)
+    @JsonProperty("kode")
     private String kode;
 
     @Min(0)
     @Max(Long.MAX_VALUE)
     // TODO (BehandlingIdDto): bør kunne støtte behandlingUuid også?
+    @JsonProperty("behandlingId")
     private Long behandlingId;
 
     @ValidKodeverk
