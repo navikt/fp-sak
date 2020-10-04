@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
@@ -47,7 +46,6 @@ public class KobleSakerTjeneste {
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
-    private YtelsesFordelingRepository ytelsesFordelingRepository;
 
     KobleSakerTjeneste() {
         //For CDI
@@ -64,7 +62,6 @@ public class KobleSakerTjeneste {
         this.fagsakRepository = provider.getFagsakRepository();
         this.behandlingRepository = provider.getBehandlingRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
-        this.ytelsesFordelingRepository = provider.getYtelsesFordelingRepository();
     }
     /*
      * Hva: Koble innkommende sak med annen sak som angår samme barnekull

@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.mottak.sakogenhet.KobleSakerTjeneste;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
