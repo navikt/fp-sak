@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.impl;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
-import static no.nav.vedtak.felles.integrasjon.kafka.Fagsystem.FPSAK;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -114,7 +113,7 @@ public class BehandlingskontrollEventObserver {
         behandling.getAksjonspunkter().forEach(aksjonspunkt -> aksjonspunktKoderMedStatusListe.put(aksjonspunkt.getAksjonspunktDefinisjon().getKode(), aksjonspunkt.getStatus().getKode()));
 
         return BehandlingProsessEventDto.builder()
-            .medFagsystem(FPSAK)
+            .medFagsystem("FPSAK")
             .medBehandlingId(behandling.getId())
             .medSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi())
             .medAktørId(behandling.getAktørId().getId())
