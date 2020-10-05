@@ -89,4 +89,12 @@ public class PersoninfoAdapter {
     public List<FødtBarnInfo> innhentAlleFødteForBehandlingIntervaller(AktørId aktørId, List<LocalDateInterval> intervaller) {
         return tpsFamilieTjeneste.getFødslerRelatertTilBehandling(aktørId, intervaller);
     }
+
+    public Optional<AktørId> hentAktørIdForPersonIdent(PersonIdent personIdent) {
+        return tpsAdapter.hentAktørIdForPersonIdent(personIdent);
+    }
+
+    public Optional<PersonIdent> hentAktørIdForPersonIdent(AktørId aktørId) {
+        return tpsAdapter.hentIdentForAktørId(aktørId);
+    }
 }

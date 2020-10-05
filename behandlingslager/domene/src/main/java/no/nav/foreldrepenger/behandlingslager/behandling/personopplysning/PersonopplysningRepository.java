@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -92,6 +95,12 @@ public class PersonopplysningRepository {
         Optional<PersonopplysningGrunnlagEntitet> pbg = getAktivtGrunnlag(behandlingId);
         PersonopplysningGrunnlagEntitet entitet = pbg.orElse(null);
         return Optional.ofNullable(entitet);
+    }
+
+    public Optional<OppgittAnnenPartEntitet> hentOppgittAnnenPartHvisEksisterer(Long behandlingId) {
+        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
+        Optional<PersonopplysningGrunnlagEntitet> pbg = getAktivtGrunnlag(behandlingId);
+        return pbg.flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart);
     }
 
     private Optional<PersonopplysningGrunnlagEntitet> getAktivtGrunnlag(Long behandlingId) {
@@ -247,6 +256,16 @@ public class PersonopplysningRepository {
         return resultat;
     }
 
+    public List<Long> fagsakerMedOppgittAnnenPart(AktørId annenPart) {
+        Query aktørQuery = entityManager.createNativeQuery("select distinct b.FAGSAK_ID from BEHANDLING b"
+            + " join GR_PERSONOPPLYSNING gr on gr.BEHANDLING_ID=b.ID"
+            + " join SO_ANNEN_PART ap on gr.SO_ANNEN_PART_ID=ap.ID"
+            + " where ap.aktoer_id = :aktoerId and gr.AKTIV='J'")
+            .setParameter("aktoerId", annenPart); // NOSONAR
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultatList = aktørQuery.getResultList();
+        return resultatList.stream().map(row -> ((BigDecimal) row[0]).longValue()).collect(Collectors.toList()); // NOSONAR
+    }
 
     public PersonopplysningGrunnlagEntitet hentFørsteVersjonAvPersonopplysninger(Long behandlingId) {
         Optional<PersonopplysningGrunnlagEntitet> optGrunnlag = getInitiellVersjonAvPersonopplysningBehandlingsgrunnlag(behandlingId);
