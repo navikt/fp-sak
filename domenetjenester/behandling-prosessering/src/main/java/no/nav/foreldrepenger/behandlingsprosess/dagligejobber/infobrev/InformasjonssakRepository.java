@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -298,6 +299,44 @@ public class InformasjonssakRepository {
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return toOverlappData(resultatList);
+    }
+
+    /** One-off for å etterkontrollere ES fra 2019 som mangler avklaring */
+    // TODO (jol): fjerne denne etter bruk
+    public List<Long> finnEngangstonadForEtterkontroll() {
+
+        List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
+        Query query = entityManager.createNativeQuery(
+            " select distinct b.id " +
+                "from fagsak f " +
+                "   join behandling b on b.fagsak_id = f.id " +
+                "   join behandling_resultat br on b.id = br.behandling_id " +
+                "   join (select beh.fagsak_id fsmax, max(brsq.opprettet_tid) maxbr from behandling beh " +
+                "        join behandling_resultat brsq on (brsq.behandling_id=beh.id and brsq.behandling_resultat_type in ('INNVILGET', 'AVSLÅTT')) " +
+                "        where beh.behandling_type in (:behtyper) and beh.behandling_status in (:avsluttet) " +
+                "        group by beh.fagsak_id) on (fsmax=b.fagsak_id and br.opprettet_tid = maxbr) " +
+                "    join gr_familie_hendelse gf on (gf.behandling_id = b.id and gf.aktiv='J') " +
+                "    left outer join fh_familie_hendelse fhs on fhs.id=gf.soeknad_familie_hendelse_id " +
+                "    left outer join fh_familie_hendelse fhr on fhr.id=gf.bekreftet_familie_hendelse_id " +
+                "    left outer join fh_familie_hendelse fho on fho.id=gf.overstyrt_familie_hendelse_id " +
+                "    left outer join etterkontroll e on e.fagsak_id=f.id " +
+                "where behandling_resultat_type in (:restyper) " +
+                "   and b.behandling_type in (:behtyper) and b.behandling_status in (:avsluttet) " +
+                "   and f.ytelse_type = :estype " +
+                "   and fhs.familie_hendelse_type=:termin " +
+                "   and ((fhr.id is null and fho.id is null) or (fho.id is null and fhr.familie_hendelse_type=:termin) " +
+                "        or (fhr.id is null and fho.familie_hendelse_type=:termin) or (fhr.familie_hendelse_type=:termin and fho.familie_hendelse_type=:termin)) " +
+                "   and e.id is null and f.fagsak_status = 'AVSLU'"
+        ); //$NON-NLS-1$
+        query.setParameter("estype", FagsakYtelseType.ENGANGSTØNAD.getKode()); //$NON-NLS-1$
+        query.setParameter("termin", FamilieHendelseType.TERMIN.getKode()); //$NON-NLS-1$
+        query.setParameter("restyper", INNVILGET_TYPER); //$NON-NLS-1$
+        query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
+        query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
+        query.setMaxResults(1000);
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultatList = query.getResultList();
+        return resultatList.stream().map(row -> ((BigDecimal) row[0]).longValue()).collect(Collectors.toList()); // NOSONAR;
     }
 
 }
