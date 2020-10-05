@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandlingsprosess.hjelpemetoder;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -130,10 +131,11 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
         var originalBehandling = behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling);
         var førsteBehandlingMedPeriode = behandling;
         while (originalBehandling.isPresent()) {
-            var p = finnPeriodeIBehandling(periode, originalBehandling.get());
-            if (p.isPresent()) {
+            var finnesIBehandling = finnPeriodeIBehandling(periode, originalBehandling.get());
+            if (finnesIBehandling) {
                 førsteBehandlingMedPeriode = originalBehandling.get();
-            } else {
+            } else if (originalBehandling.get().harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) &&
+                !periode.getFom().isBefore(førsteDagISøknad(originalBehandling.get()))) {
                 return førsteBehandlingMedPeriode;
             }
             originalBehandling = originalBehandling.get().getOriginalBehandlingId().map(behandlingRepository::hentBehandling);
@@ -141,14 +143,27 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
         return førsteBehandlingMedPeriode;
     }
 
-    private Optional<OppgittPeriodeEntitet> finnPeriodeIBehandling(OppgittPeriodeEntitet periode, Behandling behandling) {
+    private LocalDate førsteDagISøknad(Behandling behandling) {
+        var yf = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
+        if (yf.isEmpty()) {
+            return LocalDate.MIN;
+        }
+        var førstePeriode = yf.get().getOppgittFordeling().getOppgittePerioder()
+            .stream().min(Comparator.comparing(OppgittPeriodeEntitet::getFom));
+        if (førstePeriode.isEmpty()) {
+            return LocalDate.MIN;
+        }
+        return førstePeriode.get().getFom();
+    }
+
+    private boolean finnPeriodeIBehandling(OppgittPeriodeEntitet periode, Behandling behandling) {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
         if (ytelseFordelingAggregat.isEmpty()) {
-            return Optional.empty();
+            return false;
         }
         var oppgittFordeling = ytelseFordelingAggregat.get().getOppgittFordeling();
 
-        return oppgittFordeling.getOppgittePerioder().stream().filter(op -> lik(periode, op)).findFirst();
+        return oppgittFordeling.getOppgittePerioder().stream().anyMatch(op -> lik(periode, op));
     }
 
     private boolean lik(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
