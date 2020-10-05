@@ -7,16 +7,14 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -27,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -40,33 +38,30 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.personopplysning.PersonAdresse;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class BrukerHarOmsorgAksjonspunktUtlederTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BrukerHarOmsorgAksjonspunktUtlederTest extends EntityManagerAwareTest {
 
     private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(3);
     private static final LocalDate FØDSELSDATO_NÅ = LocalDate.now();
     private static final Period FORBEHOLDT_MOR_ETTER_FØDSEL = Period.ofWeeks(6);
 
-    private static AktørId GITT_MOR_AKTØR_ID = AktørId.dummy();
-    private static AktørId GITT_BARN_ID = AktørId.dummy();
-    private static AktørId GITT_BARN_ID_2 = AktørId.dummy();
-    private static AktørId GITT_FAR_AKTØR_ID = AktørId.dummy();
+    private static final AktørId GITT_MOR_AKTØR_ID = AktørId.dummy();
+    private static final AktørId GITT_BARN_ID = AktørId.dummy();
+    private static final AktørId GITT_BARN_ID_2 = AktørId.dummy();
+    private static final AktørId GITT_FAR_AKTØR_ID = AktørId.dummy();
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repositoryRule.getEntityManager());
-
-    @Inject
-    private PersonopplysningTjeneste personopplysningTjeneste;
+    private UttakRepositoryProvider repositoryProvider;
 
     private BrukerHarOmsorgAksjonspunktUtleder aksjonspunktUtleder;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
-        aksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(repositoryProvider, personopplysningTjeneste, FORBEHOLDT_MOR_ETTER_FØDSEL);
+        var entityManager = getEntityManager();
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+        aksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(repositoryProvider,
+            new PersonopplysningTjeneste(new PersonopplysningRepository(entityManager)), FORBEHOLDT_MOR_ETTER_FØDSEL);
     }
 
     @Test

@@ -14,17 +14,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -62,18 +60,32 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.IntervalUtils;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakBeregningsandelTjenesteTestUtil;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.AdopsjonGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.AnnenPartGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.ArbeidGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.BehandlingGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.DatoerGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.InngangsvilkårGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.MedlemskapGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.OpptjeningGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RettOgOmsorgGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RevurderingGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.SøknadGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -90,13 +102,14 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.Manuellbehandl
 import no.nav.foreldrepenger.regler.uttak.konfig.Konfigurasjon;
 import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
 import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class FastsettePerioderRegelAdapterTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FastsettePerioderRegelAdapterTest extends EntityManagerAwareTest {
 
     private final LocalDate fødselsdato = LocalDate.of(2018, 6, 22);
     private final LocalDate mottattDato = LocalDate.of(2018, 6, 22);
+    private final LocalDate førsteLovligeUttaksdato = mottattDato.withDayOfMonth(1).minusMonths(3);
 
     private final Konfigurasjon konfigurasjon = StandardKonfigurasjon.KONFIGURASJON;
     private final int uker_før_fødsel_fellesperiode_grense = konfigurasjon.getParameter(Parametertype.LOVLIG_UTTAK_FØR_FØDSEL_UKER, fødselsdato);
@@ -104,22 +117,35 @@ public class FastsettePerioderRegelAdapterTest {
     private final int veker_etter_fødsel_mødrekvote_grense = konfigurasjon.getParameter(Parametertype.UTTAK_MØDREKVOTE_ETTER_FØDSEL_UKER, fødselsdato);
     private final int maxDagerForeldrepengerFørFødsel = 15;
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private final AktivitetIdentifikator arbeidsforhold = AktivitetIdentifikator.forArbeid("1234", "123");
 
-    @Inject
-    private FastsettePerioderRegelResultatKonverterer fastsettePerioderRegelResultatKonverterer;
-
-    @Inject
-    private FastsettePerioderRegelGrunnlagBygger grunnlagBygger;
-
-    private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repoRule.getEntityManager());
-    private LocalDate førsteLovligeUttaksdato = mottattDato.withDayOfMonth(1).minusMonths(3);
-
-    private AktivitetIdentifikator arbeidsforhold = AktivitetIdentifikator.forArbeid("1234", "123");
-    private AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-
+    private UttakRepositoryProvider repositoryProvider;
+    private AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste;
     private FastsettePerioderRegelAdapter fastsettePerioderRegelAdapter;
+
+    @BeforeEach
+    public void setUp() {
+        repositoryProvider = new UttakRepositoryProvider(getEntityManager());
+        var fastsettePerioderRegelResultatKonverterer = new FastsettePerioderRegelResultatKonverterer(repositoryProvider.getFpUttakRepository(),
+            repositoryProvider.getYtelsesFordelingRepository());
+        var grunnlagBygger = new FastsettePerioderRegelGrunnlagBygger(
+            new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
+            new ArbeidGrunnlagBygger(repositoryProvider),
+            new BehandlingGrunnlagBygger(),
+            new DatoerGrunnlagBygger(repositoryProvider.getUttaksperiodegrenseRepository(),
+                new PersonopplysningTjeneste(new PersonopplysningRepository(getEntityManager()))),
+            new MedlemskapGrunnlagBygger(),
+            new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
+            new RevurderingGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository(), repositoryProvider.getFpUttakRepository()),
+            new SøknadGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository()),
+            new InngangsvilkårGrunnlagBygger(repositoryProvider),
+            new OpptjeningGrunnlagBygger(),
+            new AdopsjonGrunnlagBygger(),
+            new KontoerGrunnlagBygger(repositoryProvider)
+        );
+        iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        fastsettePerioderRegelAdapter = new FastsettePerioderRegelAdapter(grunnlagBygger, fastsettePerioderRegelResultatKonverterer);
+    }
 
     private static UttakResultatPeriodeEntitet finnPeriode(List<UttakResultatPeriodeEntitet> perioder, LocalDate fom, LocalDate tom) {
         for (UttakResultatPeriodeEntitet uttakResultatPeriode : perioder) {
@@ -128,11 +154,6 @@ public class FastsettePerioderRegelAdapterTest {
             }
         }
         throw new AssertionError("Fant ikke uttakresultatperiode med fom " + fom + " tom " + tom + " blant " + perioder);
-    }
-
-    @Before
-    public void setUp() {
-        this.fastsettePerioderRegelAdapter = new FastsettePerioderRegelAdapter(grunnlagBygger, fastsettePerioderRegelResultatKonverterer);
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {

@@ -12,11 +12,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.inject.Inject;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonEventPubliserer;
@@ -27,10 +25,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -41,24 +38,30 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class BeregnStønadskontoerTjenesteTest {
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BeregnStønadskontoerTjenesteTest extends EntityManagerAwareTest {
 
-    private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repoRule.getEntityManager());
+    private UttakRepositoryProvider repositoryProvider;
+    private YtelsesFordelingRepository ytelsesFordelingRepository;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
 
-    private YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-    private FagsakRelasjonRepository fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
-    private FagsakRepository fagsakRepository = repositoryProvider.getFagsakRepository();
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(fagsakRelasjonRepository, FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, fagsakRepository);
-
-    @Inject
     private ForeldrepengerUttakTjeneste uttakTjeneste;
 
+    @BeforeEach
+    public void setup() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+        ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        var fagsakRepository = repositoryProvider.getFagsakRepository();
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(fagsakRelasjonRepository, FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, fagsakRepository);
+        uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
+
+    }
 
     @Test
     public void bådeMorOgFarHarRettTermin() {

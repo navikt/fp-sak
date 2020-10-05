@@ -7,10 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -29,36 +28,34 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
 
-@RunWith(CdiRunner.class)
-public class BekreftFaktaForOmsorgAksjonspunktTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BekreftFaktaForOmsorgAksjonspunktTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    private BehandlingRepository behandlingRepository = new BehandlingRepository(repoRule.getEntityManager());
-    private YtelsesFordelingRepository ytelsesFordelingRepository = new YtelsesFordelingRepository(repoRule.getEntityManager());
-    private FagsakRepository fagsakRepository = new FagsakRepository(repoRule.getEntityManager());
-    private Behandling behandling;
+    private BehandlingRepository behandlingRepository;
+    private YtelsesFordelingRepository ytelsesFordelingRepository;
+    private FagsakRepository fagsakRepository;
 
     private BekreftFaktaForOmsorgAksjonspunkt bekreftFaktaForOmsorgAksjonspunkt;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
-        LocalDate iDag = LocalDate.now();
-        bekreftFaktaForOmsorgAksjonspunkt = new BekreftFaktaForOmsorgAksjonspunkt(new YtelsesFordelingRepository(repoRule.getEntityManager()));
-        behandling = opprettBehandling(iDag);
+        var entityManager = getEntityManager();
+        behandlingRepository = new BehandlingRepository(entityManager);
+        ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
+        bekreftFaktaForOmsorgAksjonspunkt = new BekreftFaktaForOmsorgAksjonspunkt(ytelsesFordelingRepository);
     }
-
 
     @Test
     public void skal_lagre_ned_bekreftet_aksjonspunkt_omsorg() {
+        var behandling = opprettBehandling();
         LocalDate iDag = LocalDate.now();
         // simulerer svar fra GUI
         List<DatoIntervallEntitet> ikkeOmsorgPerioder = new ArrayList<>();
@@ -84,6 +81,7 @@ public class BekreftFaktaForOmsorgAksjonspunktTest {
 
     @Test
     public void skal_lagre_ned_bekreftet_aksjonspunkt_aleneomsorg() {
+        var behandling = opprettBehandling();
         BekreftFaktaForOmsorgVurderingAksjonspunktDto dto = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(false, null, null);
         Long behandlingId = behandling.getId();
         bekreftFaktaForOmsorgAksjonspunkt.oppdater(behandlingId, dto);
@@ -114,11 +112,11 @@ public class BekreftFaktaForOmsorgAksjonspunktTest {
         assertThat(periodeAnnenforelderHarRett).isEmpty();
     }
 
-    private Behandling opprettBehandling(LocalDate iDag) {
+    private Behandling opprettBehandling() {
         final Personinfo personinfo = new Personinfo.Builder()
             .medNavn("Navn navnesen")
             .medAktørId(AktørId.dummy())
-            .medFødselsdato(iDag.minusYears(20))
+            .medFødselsdato(LocalDate.now().minusYears(20))
             .medLandkode(Landkoder.NOR)
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
             .medPersonIdent(new PersonIdent("12314"))

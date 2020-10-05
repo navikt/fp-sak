@@ -13,11 +13,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -62,12 +60,13 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -80,6 +79,18 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakBeregningsandelTjenesteTestUtil;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.AdopsjonGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.AnnenPartGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.ArbeidGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.BehandlingGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.DatoerGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.InngangsvilkårGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.MedlemskapGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.OpptjeningGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RettOgOmsorgGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RevurderingGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.SøknadGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering.OverstyrUttakResultatValidator;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -89,41 +100,56 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.fagsak.FagsakBuilder;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class) // TODO replace
-public class FastsettePerioderTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FastsettePerioderTjenesteTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    @Inject
     private UttakRepositoryProvider repositoryProvider;
 
-    @Inject
     private BehandlingRepository behandlingRepository;
 
-    @Inject
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
-    @Inject
     private FagsakRelasjonRepository relasjonRepository;
 
-    @Inject
     private FpUttakRepository fpUttakRepository;
 
-    @Inject
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
-    @Inject
     private FastsettePerioderRegelAdapter regelAdapter;
 
-    @Inject
     private ForeldrepengerUttakTjeneste uttakTjeneste;
-    private AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
+    private final AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private final UttakBeregningsandelTjenesteTestUtil beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
 
+    @BeforeEach
+    public void setup() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        relasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        fpUttakRepository = repositoryProvider.getFpUttakRepository();
+        uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
+        regelAdapter = new FastsettePerioderRegelAdapter(new FastsettePerioderRegelGrunnlagBygger(
+            new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
+            new ArbeidGrunnlagBygger(repositoryProvider),
+            new BehandlingGrunnlagBygger(),
+            new DatoerGrunnlagBygger(repositoryProvider.getUttaksperiodegrenseRepository(),
+                new PersonopplysningTjeneste(new PersonopplysningRepository(getEntityManager()))),
+            new MedlemskapGrunnlagBygger(),
+            new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
+            new RevurderingGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository(), repositoryProvider.getFpUttakRepository()),
+            new SøknadGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository()),
+            new InngangsvilkårGrunnlagBygger(repositoryProvider),
+            new OpptjeningGrunnlagBygger(),
+            new AdopsjonGrunnlagBygger(),
+            new KontoerGrunnlagBygger(repositoryProvider)
+        ), new FastsettePerioderRegelResultatKonverterer(fpUttakRepository, ytelsesFordelingRepository));
+        uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
+    }
 
     @Test
     public void skalInnvilgeFedrekvoteForMedmor() {
