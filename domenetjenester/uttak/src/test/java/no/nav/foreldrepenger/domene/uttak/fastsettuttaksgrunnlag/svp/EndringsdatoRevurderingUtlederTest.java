@@ -5,8 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -21,24 +22,32 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class EndringsdatoRevurderingUtlederTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class EndringsdatoRevurderingUtlederTest extends EntityManagerAwareTest {
 
     private static final LocalDate FØRSTE_DAG = LocalDate.now();
     private static final LocalDate SISTE_DAG = LocalDate.now().plusMonths(3);
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private UttakRepositoryProvider repositoryProvider;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+    private SvangerskapspengerUttakResultatRepository uttakRepository;
+    private EndringsdatoRevurderingUtlederImpl utleder;
 
-    private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repoRule.getEntityManager());
-    private BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-    private SvangerskapspengerUttakResultatRepository uttakRepository = new SvangerskapspengerUttakResultatRepository(repoRule.getEntityManager());
-    private EndringsdatoRevurderingUtlederImpl utleder = new EndringsdatoRevurderingUtlederImpl(repositoryProvider);
+    @BeforeEach
+    public void setup() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+        behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
+        uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
+        utleder = new EndringsdatoRevurderingUtlederImpl(repositoryProvider);
+    }
 
     @Test
     public void skal_utlede_endringsdato_fra_uttak_resultat() {

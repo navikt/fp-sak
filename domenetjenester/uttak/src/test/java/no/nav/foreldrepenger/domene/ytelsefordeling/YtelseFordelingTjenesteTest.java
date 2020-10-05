@@ -8,8 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAnnenforelderHarRettEntitet;
@@ -17,22 +18,26 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class YtelseFordelingTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class YtelseFordelingTjenesteTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repoRule.getEntityManager());
-    private YtelseFordelingTjeneste tjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(repoRule.getEntityManager()));
+    private UttakRepositoryProvider repositoryProvider;
+    private YtelseFordelingTjeneste tjeneste;
 
+    @BeforeEach
+    public void setup() {
+        repositoryProvider = new UttakRepositoryProvider(getEntityManager());
+        tjeneste = new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository());
+    }
 
     @Test
     public void test_lagring_perioderuttakdokumentasjon() {

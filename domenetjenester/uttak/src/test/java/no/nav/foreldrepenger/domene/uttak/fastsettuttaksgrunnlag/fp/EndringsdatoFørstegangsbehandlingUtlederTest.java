@@ -6,9 +6,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -17,24 +17,25 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class EndringsdatoFørstegangsbehandlingUtlederTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class EndringsdatoFørstegangsbehandlingUtlederTest extends EntityManagerAwareTest {
 
     private static final String ORGNR = KUNSTIG_ORG;
 
     private static final LocalDate FØRSTE_UTTAKSDATO_OPPGITT = LocalDate.now().plusDays(10);
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repoRule.getEntityManager());
+    private UttakRepositoryProvider repositoryProvider;
 
     private EndringsdatoFørstegangsbehandlingUtleder endringsdatoFørstegangsbehandlingUtleder;
 
-    @Before
+    @BeforeEach
     public void before() {
+        repositoryProvider = new UttakRepositoryProvider(getEntityManager());
         endringsdatoFørstegangsbehandlingUtleder = new EndringsdatoFørstegangsbehandlingUtleder(repositoryProvider.getYtelsesFordelingRepository());
     }
 

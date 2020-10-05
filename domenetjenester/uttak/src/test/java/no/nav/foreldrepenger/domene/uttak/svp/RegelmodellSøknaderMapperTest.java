@@ -6,13 +6,13 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -20,22 +20,21 @@ import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.svangerskapspenger.domene.søknad.IngenTilrettelegging;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class RegelmodellSøknaderMapperTest {
-
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-    private final UttakRepositoryProvider uttakRepositoryProvider = new UttakRepositoryProvider(repoRule.getEntityManager());
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class RegelmodellSøknaderMapperTest extends EntityManagerAwareTest {
 
     private RegelmodellSøknaderMapper regelmodellSøknaderMapper;
-    private final GrunnlagOppretter grunnlagOppretter = new GrunnlagOppretter(uttakRepositoryProvider);
+    private GrunnlagOppretter grunnlagOppretter;
 
-    private LocalDate skjæringstidspunkt = LocalDate.now();
+    private final LocalDate skjæringstidspunkt = LocalDate.now();
 
-    @Before
+    @BeforeEach
     public void setup() {
+        var uttakRepositoryProvider = new UttakRepositoryProvider(getEntityManager());
         regelmodellSøknaderMapper = new RegelmodellSøknaderMapper();
+        grunnlagOppretter = new GrunnlagOppretter(uttakRepositoryProvider);
     }
 
     @Test

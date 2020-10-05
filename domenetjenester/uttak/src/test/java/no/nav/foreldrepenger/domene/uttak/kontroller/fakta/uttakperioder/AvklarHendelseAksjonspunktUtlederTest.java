@@ -4,38 +4,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class AvklarHendelseAksjonspunktUtlederTest {
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repoRule.getEntityManager());
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AvklarHendelseAksjonspunktUtlederTest extends EntityManagerAwareTest {
 
     private UttakRevurderingTestUtil testUtil;
 
     private AvklarHendelseAksjonspunktUtleder avklarHendelseAksjonspunktUtleder;
 
-    @Before
+    @BeforeEach
     public void before() {
+        var repositoryProvider = new UttakRepositoryProvider(getEntityManager());
         testUtil = new UttakRevurderingTestUtil(repositoryProvider, Mockito.mock(InntektArbeidYtelseTjeneste.class));
         avklarHendelseAksjonspunktUtleder = new AvklarHendelseAksjonspunktUtleder();
     }

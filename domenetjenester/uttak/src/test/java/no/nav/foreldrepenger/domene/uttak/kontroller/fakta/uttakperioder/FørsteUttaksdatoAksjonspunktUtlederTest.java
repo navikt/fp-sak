@@ -8,9 +8,9 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -25,24 +25,25 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class FørsteUttaksdatoAksjonspunktUtlederTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FørsteUttaksdatoAksjonspunktUtlederTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repoRule.getEntityManager());
+    private UttakRepositoryProvider repositoryProvider;
 
     private FørsteUttaksdatoAksjonspunktUtleder avklarFørsteUttaksdato;
     private UttakRevurderingTestUtil testUtil;
 
-    @Before
+    @BeforeEach
     public void before() {
+        repositoryProvider = new UttakRepositoryProvider(getEntityManager());
         avklarFørsteUttaksdato = new FørsteUttaksdatoAksjonspunktUtleder(repositoryProvider);
         testUtil = new UttakRevurderingTestUtil(repositoryProvider, Mockito.mock(InntektArbeidYtelseTjeneste.class));
     }
