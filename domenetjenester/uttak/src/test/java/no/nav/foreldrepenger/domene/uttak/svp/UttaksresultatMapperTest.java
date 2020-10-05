@@ -6,13 +6,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.ArbeidsforholdIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -21,14 +21,10 @@ import no.nav.svangerskapspenger.domene.felles.AktivitetType;
 import no.nav.svangerskapspenger.domene.felles.Arbeidsforhold;
 import no.nav.svangerskapspenger.domene.resultat.Uttaksperiode;
 import no.nav.svangerskapspenger.domene.resultat.Uttaksperioder;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class UttaksresultatMapperTest {
-
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repoRule.getEntityManager());
-    private final UttaksresultatMapper uttaksresultatMapper = new UttaksresultatMapper();
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class UttaksresultatMapperTest extends EntityManagerAwareTest {
 
     @Test
     public void mapping_av_regelmodell() {
@@ -36,6 +32,7 @@ public class UttaksresultatMapperTest {
         String internRef = InternArbeidsforholdRef.nyRef().getReferanse();
 
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
+        var repositoryProvider = new UttakRepositoryProvider(getEntityManager());
         var behandling = scenario.lagre(repositoryProvider);
         var perioder = new Uttaksperioder();
         var periode = new Uttaksperiode(LocalDate.of(2019, Month.JANUARY, 1), LocalDate.of(2019, Month.MARCH, 31), BigDecimal.ZERO);
@@ -43,6 +40,7 @@ public class UttaksresultatMapperTest {
         perioder.leggTilPerioder(Arbeidsforhold.aktør(AktivitetType.ARBEID, aktørId.getId(), internRef), periode);
 
         var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
+        var uttaksresultatMapper = new UttaksresultatMapper();
         var uttakResultatEntitet = uttaksresultatMapper.tilEntiteter(behandlingsresultat, perioder);
 
         assertThat(uttakResultatEntitet).isNotNull();

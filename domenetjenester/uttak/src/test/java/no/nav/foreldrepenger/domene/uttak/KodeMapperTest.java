@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.domene.uttak;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeliste;
 
