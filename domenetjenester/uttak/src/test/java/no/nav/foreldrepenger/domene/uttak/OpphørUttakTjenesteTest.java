@@ -8,10 +8,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -26,22 +25,25 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class OpphørUttakTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class OpphørUttakTjenesteTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repoRule.getEntityManager());
+    private UttakRepositoryProvider repositoryProvider;
+    private OpphørUttakTjeneste opphørUttakTjeneste;
 
-    private Behandling revurdering;
-    private Behandling originalBehandling;
-    private OpphørUttakTjeneste opphørUttakTjeneste = new OpphørUttakTjeneste(repositoryProvider);
 
-    private Behandling opprettOriginalBehandling() {
+    @BeforeEach
+    public void setup() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+        opphørUttakTjeneste = new OpphørUttakTjeneste(repositoryProvider);
+    }
+
+    private Behandling opprettOriginalBehandling(UttakRepositoryProvider repositoryProvider) {
         Behandlingsresultat.Builder originalResultat = Behandlingsresultat.builderForInngangsvilkår()
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
 
@@ -52,28 +54,36 @@ public class OpphørUttakTjenesteTest {
         return scenario.lagre(repositoryProvider);
     }
 
-    @Before
-    public void oppsett() {
-        originalBehandling = opprettOriginalBehandling();
-        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR);
-        revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
+    @Test
+    public void skal_kun_komme_når_behandlingsresultatet_er_av_typen_opphør() {
+        LocalDate skjæringstidspunkt = LocalDate.now();
+        var originalBehandling = opprettOriginalBehandling(repositoryProvider);
+        var revurdering = opprettOpphørtRevurdering(originalBehandling);
+
+        lagreSkjæringstidspunkt(revurdering, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(revurdering, skjæringstidspunkt);
+
+        Optional<LocalDate> kallPåOpphørTjenesteForOpphørBehandling = opphørUttakTjeneste.getOpphørsdato(ref,
+            getBehandlingsresultat(revurdering.getId()));
+        assertThat(kallPåOpphørTjenesteForOpphørBehandling).isNotEmpty();
+
+        Optional<LocalDate> kallPåOpphørTjenesteForInnvilgetBehandling = opphørUttakTjeneste.getOpphørsdato(ref,
+            getBehandlingsresultat(originalBehandling.getId()));
+        assertThat(kallPåOpphørTjenesteForInnvilgetBehandling).isEmpty();
+    }
+
+    private Behandling opprettOpphørtRevurdering(Behandling originalBehandling) {
+        var behandlingsresultat = Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.OPPHØR);
+        return opprettRevurdering(originalBehandling, behandlingsresultat);
+    }
+
+    private Behandling opprettRevurdering(Behandling originalBehandling, Behandlingsresultat.Builder behandlingsresultat) {
+        return ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
             .medBehandlingType(BehandlingType.REVURDERING)
             .medBehandlingsresultat(behandlingsresultat)
             .lagre(repositoryProvider);
-    }
-
-    @Test
-    public void skal_kun_komme_når_behandlingsresultatet_er_av_typen_opphør() {
-        LocalDate skjæringstidspunkt = LocalDate.now();
-        lagreSkjæringstidspunkt(revurdering, skjæringstidspunkt);
-        var ref = BehandlingReferanse.fra(revurdering, skjæringstidspunkt);
-
-        Optional<LocalDate> kallPåOpphørTjenesteForOpphørBehandling = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(revurdering.getId()));
-        assertThat(kallPåOpphørTjenesteForOpphørBehandling).isNotEmpty();
-
-        Optional<LocalDate> kallPåOpphørTjenesteForInnvilgetBehandling = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(originalBehandling.getId()));
-        assertThat(kallPåOpphørTjenesteForInnvilgetBehandling).isEmpty();
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
@@ -84,6 +94,8 @@ public class OpphørUttakTjenesteTest {
     public void skal_returnere_fom_dato_til_tidligste_opphørte_periode_etter_seneste_innvilgede_periode() {
         // arrange
         LocalDate skjæringstidspunkt = LocalDate.now();
+        var originalBehandling = opprettOriginalBehandling(repositoryProvider);
+        var revurdering = opprettOpphørtRevurdering(originalBehandling);
         lagreSkjæringstidspunkt(revurdering, skjæringstidspunkt);
         var ref = BehandlingReferanse.fra(revurdering, skjæringstidspunkt);
         var opphørsÅrsaker = IkkeOppfyltÅrsak.opphørsAvslagÅrsaker().iterator();
@@ -104,6 +116,8 @@ public class OpphørUttakTjenesteTest {
     @Test
     public void skal_bruke_skjæringstidspunkt_hvis_alle_perioder_har_fått_opphør_eller_avslagsårsak() {
         // arrange
+        var originalBehandling = opprettOriginalBehandling(repositoryProvider);
+        var revurdering = opprettOpphørtRevurdering(originalBehandling);
         LocalDate skjæringstidspunkt = lagreSkjæringstidspunkt(revurdering, LocalDate.now());
         var ref = BehandlingReferanse.fra(revurdering, skjæringstidspunkt);
         var opphørsÅrsaker = IkkeOppfyltÅrsak.opphørsAvslagÅrsaker().iterator();
@@ -114,17 +128,18 @@ public class OpphørUttakTjenesteTest {
         // act
         Optional<LocalDate> opphørsdato = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(revurdering.getId()));
         // assert
-        assertThat(opphørsdato.get()).isEqualTo(skjæringstidspunkt);
+        assertThat(opphørsdato.orElseThrow()).isEqualTo(skjæringstidspunkt);
     }
 
     private LocalDate lagreSkjæringstidspunkt(Behandling behandling, LocalDate skjæringstidspunkt) {
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(skjæringstidspunkt).build());
+        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), new AvklarteUttakDatoerEntitet.Builder()
+            .medFørsteUttaksdato(skjæringstidspunkt).build());
         return skjæringstidspunkt;
     }
 
 
     private class MockUttakResultatBuilder {
-        private UttakResultatPerioderEntitet uttakResultatPerioder;
+        private final UttakResultatPerioderEntitet uttakResultatPerioder;
         private LocalDate fom;
 
         MockUttakResultatBuilder(LocalDate fom) {
