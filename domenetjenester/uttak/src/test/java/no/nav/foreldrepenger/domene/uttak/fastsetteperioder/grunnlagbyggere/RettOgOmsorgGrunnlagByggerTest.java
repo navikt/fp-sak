@@ -4,11 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 
-import javax.inject.Inject;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -16,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -25,18 +22,10 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestS
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RettOgOmsorg;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class RettOgOmsorgGrunnlagByggerTest {
-
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
-    @Inject
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
-
-    private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repositoryRule.getEntityManager());
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class RettOgOmsorgGrunnlagByggerTest extends EntityManagerAwareTest {
 
     @Test
     public void skalLeggeTilHvemSomHarRett_SøkerMorHarRettAnnenForeldreHarIkkeRett() {
@@ -135,11 +124,13 @@ public class RettOgOmsorgGrunnlagByggerTest {
             scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
         }
 
-        return scenario.lagre(repositoryProvider);
+        return scenario.lagre(new UttakRepositoryProvider(getEntityManager()));
     }
 
     private RettOgOmsorgGrunnlagBygger grunnlagBygger() {
-        return new RettOgOmsorgGrunnlagBygger(repositoryProvider, uttakTjeneste);
+        var repositoryProvider = new UttakRepositoryProvider(getEntityManager());
+        return new RettOgOmsorgGrunnlagBygger(repositoryProvider,
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
     }
 
     private Behandling morMedRett(boolean søkerHarRett, boolean annenForelderHarRett) {
@@ -157,7 +148,7 @@ public class RettOgOmsorgGrunnlagByggerTest {
         if (!søkerRett) {
             scenario.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         }
-        return scenario.lagre(repositoryProvider);
+        return scenario.lagre(new UttakRepositoryProvider(getEntityManager()));
     }
 
     private RettOgOmsorg byggGrunnlag(Behandling behandling) {

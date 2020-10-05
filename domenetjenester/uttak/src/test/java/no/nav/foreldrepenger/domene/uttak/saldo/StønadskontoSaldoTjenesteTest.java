@@ -7,9 +7,9 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -39,14 +39,17 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class StønadskontoSaldoTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class StønadskontoSaldoTjenesteTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repoRule.getEntityManager());
+    private UttakRepositoryProvider repositoryProvider;
+
+    @BeforeEach
+    public void setup() {
+        repositoryProvider = new UttakRepositoryProvider(getEntityManager());
+    }
 
     @Test
     public void skal_regne_ut_saldo_per_aktivitet() {
@@ -79,7 +82,7 @@ public class StønadskontoSaldoTjenesteTest {
         uttak.leggTilPeriode(uttaksperiode);
         uttaksperiode.leggTilAktivitet(aktivitet1);
         uttaksperiode.leggTilAktivitet(aktivitet2);
-        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
+        lagreUttak(uttak, behandling.getId());
 
         var saldoUtregning = tjeneste.finnSaldoUtregning(input(behandling));
 
@@ -113,7 +116,7 @@ public class StønadskontoSaldoTjenesteTest {
             .build();
         uttak.leggTilPeriode(uttaksperiode);
         uttaksperiode.leggTilAktivitet(aktivitet);
-        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
+        lagreUttak(uttak, behandling.getId());
 
         var saldoUtregning = tjeneste.finnSaldoUtregning(input(behandling));
 
@@ -200,7 +203,7 @@ public class StønadskontoSaldoTjenesteTest {
         uttaksperiode3.leggTilAktivitet(arbeidsgiverAktivitet2);
         uttaksperiode3.leggTilAktivitet(arbeidsgiverAktivitet3);
 
-        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
+        lagreUttak(uttak, behandling.getId());
 
         var saldoUtregning = tjeneste.finnSaldoUtregning(input(behandling));
 
@@ -249,7 +252,7 @@ public class StønadskontoSaldoTjenesteTest {
         uttak.leggTilPeriode(uttaksperiode);
         uttaksperiode.leggTilAktivitet(aktivitet1);
         uttaksperiode.leggTilAktivitet(aktivitet2);
-        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
+        lagreUttak(uttak, behandling.getId());
 
         var saldoUtregning = tjeneste.finnSaldoUtregning(input(behandling));
 
@@ -259,6 +262,10 @@ public class StønadskontoSaldoTjenesteTest {
         assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE)).isEqualTo(15);
         assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE, AktivitetIdentifikator.forFrilans())).isEqualTo(15);
         assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE, AktivitetIdentifikator.forArbeid(arbeidsgiver.getIdentifikator(), null))).isEqualTo(15);
+    }
+
+    private void lagreUttak(UttakResultatPerioderEntitet uttak, Long behandlingId) {
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandlingId, uttak);
     }
 
     private Behandling behandlingMedKonto(Stønadskonto konto) {

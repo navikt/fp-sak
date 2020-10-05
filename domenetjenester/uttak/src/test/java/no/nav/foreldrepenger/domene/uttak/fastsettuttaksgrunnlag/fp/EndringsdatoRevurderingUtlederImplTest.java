@@ -21,15 +21,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonEventPubliserer;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -59,7 +58,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
@@ -83,38 +82,39 @@ import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class EndringsdatoRevurderingUtlederImplTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class EndringsdatoRevurderingUtlederImplTest extends EntityManagerAwareTest {
 
     private static final LocalDate MANUELT_SATT_FØRSTE_UTTAKSDATO = FØDSELSDATO.plusDays(1);
     private static final LocalDate OMSORGSOVERTAKELSEDATO = FØDSELSDATO.plusDays(10);
     private static final LocalDate ANKOMSTDATO = FØDSELSDATO.plusDays(11);
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repoRule.getEntityManager());
+    private UttakRepositoryProvider repositoryProvider;
 
     private UttakRevurderingTestUtil testUtil;
 
-    @Inject
     private BehandlingRepository behandlingRepository;
-    @Inject
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
-    private AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private final AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
-    @Inject
-    private DekningsgradTjeneste dekningsgradTjeneste;
-    @Inject
     private FagsakRelasjonRepository fagsakRelasjonRepository;
 
     private EndringsdatoRevurderingUtlederImpl utleder;
     private UttakBeregningsandelTjenesteTestUtil uttakBeregningsandelTjeneste;
 
-    @Before
+    @BeforeEach
     public void before() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var dekningsgradTjeneste = new DekningsgradTjeneste(new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(),
+            FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, repositoryProvider.getFagsakRepository()),
+            repositoryProvider.getBehandlingsresultatRepository());
+        fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         testUtil = new UttakRevurderingTestUtil(repositoryProvider, iayTjeneste);
         uttakBeregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
         utleder = new EndringsdatoRevurderingUtlederImpl(repositoryProvider, dekningsgradTjeneste);

@@ -5,11 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.inject.Inject;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -17,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
@@ -29,19 +27,21 @@ import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Datoer;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-@RunWith(CdiRunner.class)
-public class DatoerGrunnlagByggerTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class DatoerGrunnlagByggerTest extends EntityManagerAwareTest {
 
     private final LocalDate førsteUttaksdato = LocalDate.now().minusWeeks(12);
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repositoryRule.getEntityManager());
-
-    @Inject
+    private UttakRepositoryProvider repositoryProvider;
     private PersonopplysningTjeneste personopplysningTjeneste;
+
+    @BeforeEach
+    public void setup() {
+        repositoryProvider = new UttakRepositoryProvider(getEntityManager());
+        personopplysningTjeneste = new PersonopplysningTjeneste(new PersonopplysningRepository(getEntityManager()));
+    }
 
     @Test
     public void skal_ha_familiehendelsedato() {
@@ -121,7 +121,7 @@ public class DatoerGrunnlagByggerTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         leggTilSøkersDødsdato(behandling, søkersDødsdato);
-        Repository repository = repositoryRule.getRepository();
+        Repository repository = new Repository(getEntityManager());
         var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
         repository.lagre(br);
         lagreUttaksperiodegrense(repositoryProvider.getUttaksperiodegrenseRepository(), førsteLovligeUttaksdag, behandling.getId());

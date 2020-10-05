@@ -7,16 +7,15 @@ import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -25,29 +24,20 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class AvklarteDatoerTjenesteTest {
-
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-
-    @Inject
-    private UttakRepositoryProvider repositoryProvider;
-
-    @Inject
-    private BasisPersonopplysningTjeneste basisPersonopplysningTjeneste;
-
-    @Inject
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AvklarteDatoerTjenesteTest extends EntityManagerAwareTest {
 
     private GrunnlagOppretter grunnlagOppretter;
     private AvklarteDatoerTjeneste avklarteDatoerTjeneste;
 
-    @Before
+    @BeforeEach
     public void setup() {
+        var entityManager = getEntityManager();
+        UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(entityManager);
+        BasisPersonopplysningTjeneste basisPersonopplysningTjeneste = new BasisPersonopplysningTjeneste(new PersonopplysningRepository(entityManager));
+        InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste());
         avklarteDatoerTjeneste = new AvklarteDatoerTjeneste(repositoryProvider.getUttaksperiodegrenseRepository(),
             basisPersonopplysningTjeneste, inntektsmeldingTjeneste);
         grunnlagOppretter = new GrunnlagOppretter(repositoryProvider);

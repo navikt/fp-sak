@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@RunWith(CdiRunner.class) //TODO skrive bort fra cdi
 public class KontrollerFaktaUttakTjenesteTest {
 
     private final AktørId aktørId = AktørId.dummy();

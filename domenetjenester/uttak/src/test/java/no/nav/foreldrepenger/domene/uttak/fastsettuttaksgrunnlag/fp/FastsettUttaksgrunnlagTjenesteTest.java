@@ -8,9 +8,9 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -32,30 +32,29 @@ import no.nav.foreldrepenger.domene.uttak.input.OriginalBehandling;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class FastsettUttaksgrunnlagTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FastsettUttaksgrunnlagTjenesteTest extends EntityManagerAwareTest {
 
-    private LocalDate idag = LocalDate.now();
+    private UttakRepositoryProvider repositoryProvider;
 
-    @Rule
-    public RepositoryRule repositoryRule = new UnittestRepositoryRule();
+    private final EndringsdatoFørstegangsbehandlingUtleder endringsdatoUtleder = mock(EndringsdatoFørstegangsbehandlingUtleder.class);
+    private FastsettUttaksgrunnlagTjeneste tjeneste;
 
-    private UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repositoryRule.getEntityManager());
-
-    private EndringsdatoFørstegangsbehandlingUtleder endringsdatoUtleder = mock(EndringsdatoFørstegangsbehandlingUtleder.class);
-    private FastsettUttaksgrunnlagTjeneste tjeneste = new FastsettUttaksgrunnlagTjeneste(repositoryProvider,
-        endringsdatoUtleder,
-        mock(EndringsdatoRevurderingUtlederImpl.class));
-
+    @BeforeEach
+    public void setup() {
+        repositoryProvider = new UttakRepositoryProvider(getEntityManager());
+        tjeneste = new FastsettUttaksgrunnlagTjeneste(repositoryProvider,
+            endringsdatoUtleder,
+            mock(EndringsdatoRevurderingUtlederImpl.class));
+    }
 
     @Test
     public void skal_kopiere_søknadsperioder_fra_forrige_behandling_hvis_forrige_behandling_ikke_har_uttaksresultat() {
 
-        LocalDate førsteUttaksdato = idag;
-        OppgittPeriodeEntitet periode = OppgittPeriodeBuilder.ny().medPeriode(førsteUttaksdato, idag.plusDays(10))
+        LocalDate førsteUttaksdato = LocalDate.now();
+        OppgittPeriodeEntitet periode = OppgittPeriodeBuilder.ny().medPeriode(førsteUttaksdato, LocalDate.now().plusDays(10))
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build();
         OppgittFordelingEntitet oppgittFordelingForrigeBehandling = new OppgittFordelingEntitet(List.of(periode), true);
@@ -72,9 +71,9 @@ public class FastsettUttaksgrunnlagTjenesteTest {
 
         Behandling revurderingBehandling = revurdering.lagre(repositoryProvider);
 
-        var familieHendelse = FamilieHendelse.forAdopsjonOmsorgsovertakelse(idag, List.of(), 0, null, false);
+        var familieHendelse = FamilieHendelse.forAdopsjonOmsorgsovertakelse(LocalDate.now(), List.of(), 0, null, false);
         var originalBehandling = new OriginalBehandling(førstegangsbehandling.getId(),
-            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(null, idag, List.of(new Barn()), 1)));
+            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(new Barn()), 1)));
         ForeldrepengerGrunnlag fpGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(new FamilieHendelser()
             .medSøknadHendelse(familieHendelse))
@@ -90,7 +89,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     private UttakInput lagInput(Behandling behandling, ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
-        var ref = BehandlingReferanse.fra(behandling, idag);
+        var ref = BehandlingReferanse.fra(behandling, LocalDate.now());
         return new UttakInput(ref, null, ytelsespesifiktGrunnlag);
     }
 

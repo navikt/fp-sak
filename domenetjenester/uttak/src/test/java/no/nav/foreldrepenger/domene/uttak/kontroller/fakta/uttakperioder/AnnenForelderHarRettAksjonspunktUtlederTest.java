@@ -6,20 +6,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -33,28 +31,25 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class AnnenForelderHarRettAksjonspunktUtlederTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AnnenForelderHarRettAksjonspunktUtlederTest extends EntityManagerAwareTest {
 
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
     private static final AktørId AKTØR_ID_FAR = AktørId.dummy();
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(repositoryRule.getEntityManager());
 
-    @Inject
-    private PersonopplysningTjeneste personopplysningTjeneste;
-
-    @Inject
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
-
+    private UttakRepositoryProvider repositoryProvider;
     private AnnenForelderHarRettAksjonspunktUtleder aksjonspunktUtleder;
 
-    @Before
+    @BeforeEach
     public void before() {
-        aksjonspunktUtleder = new AnnenForelderHarRettAksjonspunktUtleder(repositoryProvider, personopplysningTjeneste, uttakTjeneste);
+        var entityManager = getEntityManager();
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+        PersonopplysningTjeneste personopplysningTjeneste = new PersonopplysningTjeneste(new PersonopplysningRepository(entityManager));
+        ForeldrepengerUttakTjeneste uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
+        aksjonspunktUtleder = new AnnenForelderHarRettAksjonspunktUtleder(repositoryProvider, personopplysningTjeneste,
+            uttakTjeneste);
     }
 
     @Test
