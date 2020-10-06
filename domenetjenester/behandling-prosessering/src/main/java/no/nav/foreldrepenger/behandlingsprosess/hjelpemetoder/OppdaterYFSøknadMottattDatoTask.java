@@ -87,6 +87,9 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
     }
 
     private void oppdaterMottattDato(OppgittPeriodeEntitet periode, Behandling behandling, boolean oppdaterFraAP) {
+        if (periode.getMottattDatoTemp() != null) {
+            return;
+        }
         var mottattDato = utledMottattDato(periode, behandling, oppdaterFraAP);
         if (mottattDato == null) {
             throw new IllegalStateException("Kunne ikke utlede mottatt dato for behandling " + behandling.getId());

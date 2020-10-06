@@ -757,7 +757,7 @@ public class VedtaksperioderHelperTest {
             .build());
 
         OppgittPeriodeEntitet konvertetPeriode = vedtaksperioderHelper.konverter(uttaksperiode);
-        assertThat(konvertetPeriode.getMottattDato()).isEqualTo(uttaksperiode.getPeriodeSøknad().orElseThrow().getMottattDatoTemp());
+        assertThat(konvertetPeriode.getMottattDatoTemp()).isEqualTo(uttaksperiode.getPeriodeSøknad().orElseThrow().getMottattDatoTemp());
     }
 
     private UttakAktivitetEntitet opprettArbeidstakerUttakAktivitet(String arbeidsgiverIdentifikator) {

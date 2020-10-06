@@ -47,7 +47,9 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     @Column(name = "mottatt_dato")
     private LocalDate mottattDato;
 
-    @Column(name = "mottatt_dato_2")
+    //TODO palfi TFP-2394 set temp_2 til unused
+
+    @Column(name = "mottatt_dato_3")
     private LocalDate mottattDatoTemp;
 
     @Column(name = "MORS_AKTIVITET", updatable = false, nullable = false)

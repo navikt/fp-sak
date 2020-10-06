@@ -34,7 +34,7 @@ public class OppgittPeriodeBuilder {
                 .medErFrilanser(oppgittPeriode.getErFrilanser())
                 .medErSelvstendig(oppgittPeriode.getErSelvstendig())
                 .medVurdering(oppgittPeriode.getPeriodeVurderingType())
-                .medMottattDato(oppgittPeriode.getMottattDato())
+                .medMottattDato(oppgittPeriode.getMottattDatoTemp())
                 .medPeriodeKilde(oppgittPeriode.getPeriodeKilde());
 
         if (oppgittPeriode.getArbeidsprosent() != null) {

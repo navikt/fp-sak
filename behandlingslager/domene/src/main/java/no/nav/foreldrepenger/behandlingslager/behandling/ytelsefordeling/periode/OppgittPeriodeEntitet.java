@@ -121,6 +121,9 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     @Column(name = "mottatt_dato")
     private LocalDate mottattDato;
 
+    @Column(name = "mottatt_dato_temp")
+    private LocalDate mottattDatoTemp;
+
     protected OppgittPeriodeEntitet() {
         // Hibernate
     }
@@ -277,13 +280,13 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return getArbeidsprosent() != null && getArbeidsprosent().compareTo(BigDecimal.ZERO) > 0;
     }
 
-
-    public LocalDate getMottattDato() {
-        return mottattDato;
+    public LocalDate getMottattDatoTemp() {
+        return mottattDatoTemp;
     }
 
     public void setMottattDato(LocalDate mottattDato) {
         this.mottattDato = mottattDato;
+        this.mottattDatoTemp = mottattDato;
     }
 
     public boolean erOmsluttetAv(OppgittPeriodeEntitet periode2) {
