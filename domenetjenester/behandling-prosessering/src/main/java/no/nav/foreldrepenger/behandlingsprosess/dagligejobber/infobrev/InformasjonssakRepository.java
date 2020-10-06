@@ -307,7 +307,7 @@ public class InformasjonssakRepository {
 
         List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
         Query query = entityManager.createNativeQuery(
-            " select distinct b.id " +
+            " select b.id, f.id " +
                 "from fagsak f " +
                 "   join behandling b on b.fagsak_id = f.id " +
                 "   join behandling_resultat br on b.id = br.behandling_id " +
@@ -336,7 +336,11 @@ public class InformasjonssakRepository {
         query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> ((BigDecimal) row[0]).longValue()).collect(Collectors.toList()); // NOSONAR;
+        return resultatList.stream().map(row -> konverterTilLong(row[0])).collect(Collectors.toList()); // NOSONAR;
     }
 
+    private Long konverterTilLong(Object object) {
+        var bd = (BigDecimal) object;
+        return Long.valueOf(bd.longValue());
+    }
 }
