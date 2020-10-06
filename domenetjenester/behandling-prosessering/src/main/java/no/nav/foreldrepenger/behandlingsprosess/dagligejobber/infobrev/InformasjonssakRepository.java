@@ -307,7 +307,7 @@ public class InformasjonssakRepository {
 
         List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
         Query query = entityManager.createNativeQuery(
-            " select b.id, f.id " +
+            " select distinct b.id, f.saksnummer " +
                 "from fagsak f " +
                 "   join behandling b on b.fagsak_id = f.id " +
                 "   join behandling_resultat br on b.id = br.behandling_id " +
