@@ -213,7 +213,7 @@ public class KontrollerFaktaPeriodeLagreDto {
             medMorsaktivitet(periode.getOppgittPeriode().getMorsAktivitet());
             medFlerbarnsdager(periode.getOppgittPeriode().isFlerbarnsdager());
             medPeriodeKilde(periode.getOppgittPeriode().getPeriodeKilde());
-            medMottattDato(periode.getOppgittPeriode().getMottattDato());
+            medMottattDato(periode.getOppgittPeriode().getMottattDatoTemp());
 
             if (periode.getOppgittPeriode().getÅrsak() instanceof UtsettelseÅrsak) {
                 medUtsettelseÅrsak((UtsettelseÅrsak) periode.getOppgittPeriode().getÅrsak()); //NOSONAR

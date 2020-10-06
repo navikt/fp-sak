@@ -127,8 +127,8 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
             .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .collect(Collectors.toList());
         //Skal ikke oppdatere vedtaksperioder
-        assertThat(justertFordelingSortert.get(0).getMottattDato()).isNotEqualTo(nyMottattDato);
-        assertThat(justertFordelingSortert.get(1).getMottattDato()).isEqualTo(nyMottattDato);
+        assertThat(justertFordelingSortert.get(0).getMottattDatoTemp()).isNotEqualTo(nyMottattDato);
+        assertThat(justertFordelingSortert.get(1).getMottattDatoTemp()).isEqualTo(nyMottattDato);
     }
 
     @Test

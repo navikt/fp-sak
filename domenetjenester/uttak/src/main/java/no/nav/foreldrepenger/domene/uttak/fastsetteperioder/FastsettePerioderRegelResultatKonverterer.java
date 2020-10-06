@@ -335,7 +335,7 @@ public class FastsettePerioderRegelResultatKonverterer {
             .medGraderingArbeidsprosent(oppgittPeriode.getArbeidsprosent())
             .medUttakPeriodeType(oppgittPeriode.getPeriodeType())
             .medMottattDato(søknadMottattDato)
-            .medMottattDatoTemp(oppgittPeriode.getMottattDato())
+            .medMottattDatoTemp(oppgittPeriode.getMottattDatoTemp())
             .medMorsAktivitet(oppgittPeriode.getMorsAktivitet())
             .medSamtidigUttak(oppgittPeriode.isSamtidigUttak())
             .medSamtidigUttaksprosent(oppgittPeriode.getSamtidigUttaksprosent());
