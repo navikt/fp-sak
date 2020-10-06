@@ -88,14 +88,6 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         String options = prosessTaskData.getPropertyValue(OPTIONS_KEY);
-        if (OPTIONS_OPPRETT_EK.equals(options)) {
-            opprettEtterkontroll(behandling);
-        }
-        if (OPTIONS_MANUELL_EK.equals(options)) {
-            opprettEtterkontroll(behandling);
-            etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
-            return;
-        }
 
         etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
 
@@ -116,6 +108,16 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 
         EtterkontrollTjeneste automatiskEtterkontrollTjeneste = FagsakYtelseTypeRef.Lookup.find(EtterkontrollTjeneste.class, behandling.getFagsak().getYtelseType()).orElseThrow();
         Optional<BehandlingÅrsakType> revurderingsÅrsak = automatiskEtterkontrollTjeneste.utledRevurderingÅrsak(behandling, familieHendelseGrunnlag, barnFødtIPeriode);
+
+        if (OPTIONS_OPPRETT_EK.equals(options) || OPTIONS_MANUELL_EK.equals(options)) {
+            if (revurderingsÅrsak.isPresent()) {
+                LOG.info("Etterkontroll Restanse sak {} ville gitt årsak {}", behandling.getFagsak().getSaksnummer().getVerdi(), revurderingsÅrsak.get().getKode());
+            } else {
+                opprettEtterkontroll(behandling);
+                etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
+            }
+            return;
+        }
 
         revurderingsÅrsak.ifPresent(årsak -> {
             OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());

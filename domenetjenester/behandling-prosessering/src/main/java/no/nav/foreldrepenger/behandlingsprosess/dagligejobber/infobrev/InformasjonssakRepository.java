@@ -334,7 +334,6 @@ public class InformasjonssakRepository {
         query.setParameter("restyper", INNVILGET_TYPER); //$NON-NLS-1$
         query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
         query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
-        query.setMaxResults(1000);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return resultatList.stream().map(row -> ((BigDecimal) row[0]).longValue()).collect(Collectors.toList()); // NOSONAR;
