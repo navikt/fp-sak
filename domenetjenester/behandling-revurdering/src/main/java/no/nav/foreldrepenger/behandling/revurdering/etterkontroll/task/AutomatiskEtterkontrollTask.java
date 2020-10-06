@@ -46,6 +46,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
     public static final String TASKTYPE = "behandlingsprosess.etterkontroll";
     public static final String OPTIONS_KEY = "ekoptions";
     public static final String OPTIONS_OPPRETT_EK = "ekopprett";
+    public static final String OPTIONS_MANUELL_EK = "ekmanuell";
 
     private static final Logger LOG = LoggerFactory.getLogger(AutomatiskEtterkontrollTask.class);
 
@@ -87,9 +88,6 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         String options = prosessTaskData.getPropertyValue(OPTIONS_KEY);
-        if (OPTIONS_OPPRETT_EK.equals(options)) {
-            opprettEtterkontroll(behandling);
-        }
 
         etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
 
@@ -110,6 +108,16 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 
         EtterkontrollTjeneste automatiskEtterkontrollTjeneste = FagsakYtelseTypeRef.Lookup.find(EtterkontrollTjeneste.class, behandling.getFagsak().getYtelseType()).orElseThrow();
         Optional<BehandlingÅrsakType> revurderingsÅrsak = automatiskEtterkontrollTjeneste.utledRevurderingÅrsak(behandling, familieHendelseGrunnlag, barnFødtIPeriode);
+
+        if (OPTIONS_OPPRETT_EK.equals(options) || OPTIONS_MANUELL_EK.equals(options)) {
+            if (revurderingsÅrsak.isPresent()) {
+                LOG.info("Etterkontroll Restanse sak {} ville gitt årsak {}", behandling.getFagsak().getSaksnummer().getVerdi(), revurderingsÅrsak.get().getKode());
+            } else {
+                opprettEtterkontroll(behandling);
+                etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
+            }
+            return;
+        }
 
         revurderingsÅrsak.ifPresent(årsak -> {
             OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());

@@ -326,14 +326,14 @@ public class InformasjonssakRepository {
                 "   and fhs.familie_hendelse_type=:termin " +
                 "   and ((fhr.id is null and fho.id is null) or (fho.id is null and fhr.familie_hendelse_type=:termin) " +
                 "        or (fhr.id is null and fho.familie_hendelse_type=:termin) or (fhr.familie_hendelse_type=:termin and fho.familie_hendelse_type=:termin)) " +
-                "   and e.id is null and f.fagsak_status = 'AVSLU'"
+                "   and e.id is null and f.fagsak_status = 'AVSLU' " +
+                "   and f.id not in (select beh.fagsak_id from behandling beh join FPSAK.behandling_arsak brsq on (brsq.behandling_id=beh.id and brsq.behandling_arsak_type in ('RE-MF', 'RE-MFIP', 'RE-AVAB')))"
         ); //$NON-NLS-1$
         query.setParameter("estype", FagsakYtelseType.ENGANGSTØNAD.getKode()); //$NON-NLS-1$
         query.setParameter("termin", FamilieHendelseType.TERMIN.getKode()); //$NON-NLS-1$
         query.setParameter("restyper", INNVILGET_TYPER); //$NON-NLS-1$
         query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
         query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
-        query.setMaxResults(1000);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return resultatList.stream().map(row -> ((BigDecimal) row[0]).longValue()).collect(Collectors.toList()); // NOSONAR;
