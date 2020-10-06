@@ -30,14 +30,18 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.task.AutomatiskEtterkontrollTask;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemTask;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
@@ -45,6 +49,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriode
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingSaksnummerDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltningUttrekk")
@@ -55,6 +60,7 @@ public class ForvaltningUttrekkRestTjeneste {
     private EntityManager entityManager;
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
+    private InformasjonssakRepository informasjonssakRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private OverlappVedtakRepository overlappRepository;
 
@@ -64,12 +70,15 @@ public class ForvaltningUttrekkRestTjeneste {
 
     @Inject
     public ForvaltningUttrekkRestTjeneste(EntityManager entityManager,
-            BehandlingRepositoryProvider repositoryProvider,
+            FagsakRepository fagsakRepository,
+            BehandlingRepository behandlingRepository,
+            InformasjonssakRepository informasjonssakRepository,
             ProsessTaskRepository prosessTaskRepository,
             OverlappVedtakRepository overlappRepository) {
         this.entityManager = entityManager;
-        this.fagsakRepository = repositoryProvider.getFagsakRepository();
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.fagsakRepository = fagsakRepository;
+        this.behandlingRepository = behandlingRepository;
+        this.informasjonssakRepository = informasjonssakRepository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.overlappRepository = overlappRepository;
     }
@@ -168,5 +177,31 @@ public class ForvaltningUttrekkRestTjeneste {
                 .sorted(Comparator.comparing(OverlappVedtak::getOpprettetTidspunkt).reversed())
                 .collect(Collectors.toList());
         return Response.ok(resultat).build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/etterkontrollES")
+    @Operation(description = "Oppretter tasks for å etterkontrollere ES", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    public Response etterkontrollES() {
+        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
+        var behandlinger = informasjonssakRepository.finnEngangstonadForEtterkontroll();
+        behandlinger.forEach(bid -> {
+            Behandling behandling = behandlingRepository.hentBehandling(bid);
+            opprettEtterkontrollTask(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId(), callId);
+        });
+        return Response.ok(behandlinger.size()).build();
+    }
+
+    private void opprettEtterkontrollTask(Long fagsakId, Long behandlingId, AktørId aktørId, String callId) {
+        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        prosessTaskData.setBehandling(fagsakId, behandlingId, aktørId.getId());
+        prosessTaskData.setProperty(AutomatiskEtterkontrollTask.OPTIONS_KEY, AutomatiskEtterkontrollTask.OPTIONS_OPPRETT_EK);
+        prosessTaskData.setSekvens("1");
+        prosessTaskData.setPrioritet(100);
+        prosessTaskData.setCallId(callId + fagsakId);
+        prosessTaskRepository.lagre(prosessTaskData);
     }
 }

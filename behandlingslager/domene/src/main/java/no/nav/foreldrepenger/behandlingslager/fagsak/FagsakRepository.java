@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -89,20 +88,6 @@ public class FagsakRepository {
         }
 
         return fagsaker.isEmpty() ? Optional.empty() : Optional.of(fagsaker.get(0));
-    }
-
-    public List<Fagsak> hentIkkeAvsluttedeFagsakerIPeriode(LocalDateTime fom, LocalDateTime tom) {
-        TypedQuery<Fagsak> query = entityManager.createQuery(
-            "select f from Fagsak f join FagsakRelasjon fr on f.id = fr.fagsakNrEn " +
-            "where fagsak_status<>'AVSLU' and aktiv='J' "+
-            "and fr.avsluttningsdato >= '01.09.2020' "+
-            "and nvl(fr.endretTidspunkt, fr.opprettetTidspunkt) > :fom "+
-            "and nvl(fr.endretTidspunkt, fr.opprettetTidspunkt) < :tom "+
-            "and f.id not in (select fagsak.id from Behandling where behandlingType in ('BT-002', 'BT-004') and status not in ('IVED', 'AVSLU'))"
-            , Fagsak.class);
-        query.setParameter("fom", fom);
-        query.setParameter("tom", tom);
-        return query.getResultList();
     }
 
     public List<Tuple<Long, AktørId>> hentIkkeAvsluttedeFagsakerIPeriodeNaticve(LocalDate fom, LocalDate tom) {

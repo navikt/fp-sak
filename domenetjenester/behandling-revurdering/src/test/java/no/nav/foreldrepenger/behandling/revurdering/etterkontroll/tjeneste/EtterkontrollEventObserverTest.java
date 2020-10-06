@@ -8,9 +8,10 @@ import java.time.Month;
 import java.time.Period;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.Etterkontroll;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
@@ -32,27 +33,32 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class EtterkontrollEventObserverTest {
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class EtterkontrollEventObserverTest extends EntityManagerAwareTest {
 
     private static AktørId GITT_MOR_AKTØR_ID = AktørId.dummy();
     private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(3);
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT_OPPTJENING = LocalDate.of(2018, Month.APRIL, 10);
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
 
     private EtterkontrollEventObserver etterkontrollEventObserver;
-    private final EtterkontrollRepository etterkontrollRepository = new EtterkontrollRepository( repositoryRule.getEntityManager());
-    private FamilieHendelseRepository familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    private EtterkontrollRepository etterkontrollRepository;
+    private FamilieHendelseRepository familieHendelseRepository;
+    private BehandlingRepository behandlingRepository;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        etterkontrollRepository = new EtterkontrollRepository(getEntityManager());
+        familieHendelseRepository = new FamilieHendelseRepository(getEntityManager());
+        behandlingRepository = new BehandlingRepository(getEntityManager());
         etterkontrollEventObserver = new EtterkontrollEventObserver(etterkontrollRepository, familieHendelseRepository, behandlingRepository, Period.parse("P60D"));
     }
 

@@ -3,10 +3,10 @@ package no.nav.foreldrepenger.behandling.revurdering.etterkontroll.es;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Collections;
 import java.util.List;
@@ -21,19 +21,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.task.AutomatiskEtterkontrollTask;
-import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste.EtterkontrollTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -45,12 +45,10 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.person.tps.TpsFamilieTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
@@ -74,11 +72,9 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
 
     private EtterkontrollRepository etterkontrollRepository;
 
-    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
-
-    private EtterkontrollTjeneste etterkontrollTjeneste;
-
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+
+    private LegacyESBeregningRepository legacyESBeregningRepository;
 
     @Mock
     private HistorikkRepository historikkRepository;
@@ -87,19 +83,16 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setUp() {
+        repo = new Repository(getEntityManager());
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        legacyESBeregningRepository = new LegacyESBeregningRepository(getEntityManager());
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         etterkontrollRepository = new EtterkontrollRepository(getEntityManager());
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        foreldrepengerUttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
         task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository, familieHendelseTjeneste, tpsFamilieTjenesteMock,
-                prosessTaskRepositoryMock, Period.ofWeeks(11), behandlendeEnhetTjeneste, etterkontrollTjeneste);
-        repo = new Repository(getEntityManager());
+                prosessTaskRepositoryMock, behandlendeEnhetTjeneste);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
                 .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
-        etterkontrollTjeneste = new EtterkontrollTjeneste(repositoryProvider, prosessTaskRepositoryMock, mock(BehandlingskontrollTjeneste.class),
-                foreldrepengerUttakTjeneste, mock(LegacyESBeregningRepository.class));
-
     }
 
     @Test
@@ -136,13 +129,8 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
 
     private void createTask() {
         Period etterkontrollTpsRegistreringPeriode = Period.parse("P11W");
-
-        task = new AutomatiskEtterkontrollTask(repositoryProvider,
-                etterkontrollRepository,
-                historikkRepository, familieHendelseTjeneste, tpsFamilieTjenesteMock,
-                prosessTaskRepositoryMock, etterkontrollTpsRegistreringPeriode, behandlendeEnhetTjeneste,
-                etterkontrollTjeneste);
-
+        task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository, familieHendelseTjeneste, tpsFamilieTjenesteMock,
+            prosessTaskRepositoryMock, behandlendeEnhetTjeneste);
     }
 
     @Test
@@ -252,7 +240,7 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
                         .medNavnPå("Lege Legesen")
                         .medTermindato(terminDato)
                         .medUtstedtDato(terminDato.minusDays(40)))
-                .medAntallBarn(1);
+                .medAntallBarn(antallBarn);
 
         if (medBekreftet) {
             scenario.medBekreftetHendelse()
@@ -278,7 +266,7 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
 
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET);
 
-        Whitebox.setInternalState(behandling, "status", BehandlingStatus.AVSLUTTET);
+        behandling.avsluttBehandling();
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
@@ -291,6 +279,11 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
                 .build();
 
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, lås);
+
+        var sats = legacyESBeregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getVerdi();
+        LegacyESBeregning beregning = new LegacyESBeregning(sats, antallBarn, antallBarn*sats, LocalDateTime.now());
+        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, behandling.getBehandlingsresultat());
+        legacyESBeregningRepository.lagre(beregningResultat, lås);
 
         repo.flushAndClear();
 
