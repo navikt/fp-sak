@@ -46,6 +46,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
     public static final String TASKTYPE = "behandlingsprosess.etterkontroll";
     public static final String OPTIONS_KEY = "ekoptions";
     public static final String OPTIONS_OPPRETT_EK = "ekopprett";
+    public static final String OPTIONS_MANUELL_EK = "ekmanuell";
 
     private static final Logger LOG = LoggerFactory.getLogger(AutomatiskEtterkontrollTask.class);
 
@@ -89,6 +90,11 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         String options = prosessTaskData.getPropertyValue(OPTIONS_KEY);
         if (OPTIONS_OPPRETT_EK.equals(options)) {
             opprettEtterkontroll(behandling);
+        }
+        if (OPTIONS_MANUELL_EK.equals(options)) {
+            opprettEtterkontroll(behandling);
+            etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
+            return;
         }
 
         etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
