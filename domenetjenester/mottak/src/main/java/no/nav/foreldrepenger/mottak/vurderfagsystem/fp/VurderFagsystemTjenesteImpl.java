@@ -95,8 +95,13 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
     public BehandlendeFagsystem vurderFagsystemUstrukturert(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
         List<Fagsak> kompatibleFagsaker = fellesUtils.filtrerSakerForBehandlingTema(sakerGittYtelseType, vurderFagsystem.getBehandlingTema());
 
+        if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && vurderFagsystem.getDokumentTypeId().erSøknadType() && kompatibleFagsaker.isEmpty()) {
+            return new BehandlendeFagsystem(VURDER_INFOTRYGD);
+        }
+
         if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && (DokumentTypeId.UDEFINERT.equals(vurderFagsystem.getDokumentTypeId()) || !vurderFagsystem.getDokumentTypeId().erEndringsSøknadType())) {
             // Inntil videre kan man ikke se periode. OBS på forskjell mot ES: FP-saker lever mye lenger.
+            LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling for {}", vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 

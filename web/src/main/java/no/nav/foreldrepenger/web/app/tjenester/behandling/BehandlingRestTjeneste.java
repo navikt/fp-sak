@@ -5,8 +5,11 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREAT
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -24,6 +27,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -50,6 +56,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingRettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ByttBehandlendeEnhetDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.GjenopptaBehandlingDto;
@@ -78,6 +85,8 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Produces(MediaType.APPLICATION_JSON)
 public class BehandlingRestTjeneste {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BehandlingRestTjeneste.class);
+
     static final String BASE_PATH = "/behandlinger";
     private static final String ANNEN_PART_BEHANDLING_PART_PATH = "/annen-part-behandling";
     public static final String ANNEN_PART_BEHANDLING_PATH = BASE_PATH + ANNEN_PART_BEHANDLING_PART_PATH; // NOSONAR TFP-2234
@@ -99,6 +108,8 @@ public class BehandlingRestTjeneste {
     public static final String SETT_PA_VENT_PATH = BASE_PATH + SETT_PA_VENT_PART_PATH;
     private static final String HANDLING_RETTIGHETER_PART_PATH = "/handling-rettigheter";
     public static final String HANDLING_RETTIGHETER_PATH = BASE_PATH + HANDLING_RETTIGHETER_PART_PATH;
+    private static final String HANDLING_OPPRETTING_PART_PATH = "/handling-oppretting";
+    public static final String HANDLING_OPPRETTING_PATH = BASE_PATH + HANDLING_OPPRETTING_PART_PATH;
     private static final String ENDRE_VENTEFRIST_PART_PATH = "/endre-pa-vent";
     public static final String ENDRE_VENTEFRIST_PATH = BASE_PATH + ENDRE_VENTEFRIST_PART_PATH;
 
@@ -281,31 +292,34 @@ public class BehandlingRestTjeneste {
             @Parameter(description = "Saksnummer og flagg om det er ny behandling etter klage") @Valid NyBehandlingDto dto) {
         Saksnummer saksnummer = new Saksnummer(Long.toString(dto.getSaksnummer()));
         Optional<Fagsak> funnetFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, true);
-        String kode = dto.getBehandlingType().getKode();
+        BehandlingType kode = BehandlingType.fraKode(dto.getBehandlingType().getKode());
 
         if (funnetFagsak.isEmpty()) {
             throw BehandlingRestTjenesteFeil.FACTORY.fantIkkeFagsak(saksnummer).toException();
         }
 
         Fagsak fagsak = funnetFagsak.get();
+        if (!behandlingsoppretterApplikasjonTjeneste.kanOppretteNyBehandlingAvType(fagsak.getId(), kode)) {
+            LOG.info("BEHREST opprett behandling får nei for sak {} behandlingtype {}", fagsak.getSaksnummer().getVerdi(), kode.getKode());
+        }
 
-        if (BehandlingType.INNSYN.getKode().equals(kode)) {
+        if (BehandlingType.INNSYN.equals(kode)) {
             Behandling behandling = behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.INNSYN);
             String gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
-        } else if (BehandlingType.ANKE.getKode().equals(kode)) {
+        } else if (BehandlingType.ANKE.equals(kode)) {
             Behandling behandling = behandlingOpprettingTjeneste.opprettBehandlingVedKlageinstans(fagsak, BehandlingType.ANKE);
             String gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
-        } else if (BehandlingType.REVURDERING.getKode().equals(kode)) {
+        } else if (BehandlingType.REVURDERING.equals(kode)) {
             BehandlingÅrsakType behandlingÅrsakType = BehandlingÅrsakType.fraKode(dto.getBehandlingArsakType().getKode());
             Behandling behandling = behandlingsoppretterApplikasjonTjeneste.opprettRevurdering(fagsak, behandlingÅrsakType);
             String gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
-        } else if (BehandlingType.FØRSTEGANGSSØKNAD.getKode().equals(kode)) {
+        } else if (BehandlingType.FØRSTEGANGSSØKNAD.equals(kode)) {
             behandlingsoppretterApplikasjonTjeneste.opprettNyFørstegangsbehandling(fagsak.getId(), saksnummer, dto.getNyBehandlingEtterKlage());
             // ved førstegangssønad opprettes egen task for vurdere denne,
             // sender derfor ikke viderer til prosesser behandling (i motsetning til de
@@ -313,7 +327,7 @@ public class BehandlingRestTjeneste {
             // må også oppfriske hele sakskomplekset, så sender til fagsak poll url
             return Redirect.tilFagsakPollStatus(fagsak.getSaksnummer(), Optional.empty());
 
-        } else if (BehandlingType.KLAGE.getKode().equals(kode)) {
+        } else if (BehandlingType.KLAGE.equals(kode)) {
             Behandling behandling = behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.KLAGE);
             String gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
@@ -404,6 +418,23 @@ public class BehandlingRestTjeneste {
         // behandlingsmeny i frontend
         return new BehandlingRettigheterDto(harSoknad);
     }
+
+    @GET
+    @Path(HANDLING_OPPRETTING_PART_PATH)
+    @Operation(description = "Henter rettigheter for lovlige behandlingsoppretting", tags = "behandlinger")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public BehandlingOpprettingDto hentMuligeBehandlingOpprettinger(
+        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        Behandling behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
+        Boolean harSoknad = behandlingDtoTjeneste.finnBehandlingOperasjonRettigheter(behandling);
+        List<BehandlingType> lovligeOpprettinger = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
+            .flatMap(Collection::stream)
+            .filter(bt -> behandlingsoppretterApplikasjonTjeneste.kanOppretteNyBehandlingAvType(behandling.getFagsakId(), bt))
+            .collect(Collectors.toList());
+        return new BehandlingOpprettingDto(harSoknad, lovligeOpprettinger);
+    }
+
+
 
     private interface BehandlingRestTjenesteFeil extends DeklarerteFeil {
         BehandlingRestTjenesteFeil FACTORY = FeilFactory.create(BehandlingRestTjenesteFeil.class); // NOSONAR

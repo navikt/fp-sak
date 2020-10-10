@@ -108,6 +108,9 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
     @Override
     public BehandlendeFagsystem vurderFagsystemUstrukturert(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
+        if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && vurderFagsystem.getDokumentTypeId().erSøknadType() && sakerGittYtelseType.isEmpty()) {
+            return new BehandlendeFagsystem(VEDTAKSLØSNING);
+        }
         return fellesUtils.standardUstrukturertDokumentVurdering(sakerGittYtelseType).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
     }
 
