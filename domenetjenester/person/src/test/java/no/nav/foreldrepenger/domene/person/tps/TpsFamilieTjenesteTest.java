@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -28,13 +27,13 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 public class TpsFamilieTjenesteTest {
 
     private static final AktørId AKTØR = AktørId.dummy();
-    private TpsTjeneste tpsTjeneste;
-    private TpsFamilieTjeneste tpsFamilieTjeneste;
+    private TpsAdapter tpsTjeneste;
+    private PersoninfoAdapter tpsFamilieTjeneste;
 
     @BeforeEach
     public void setUp() throws Exception {
-        tpsTjeneste = mock(TpsTjeneste.class);
-        tpsFamilieTjeneste = new TpsFamilieTjeneste(tpsTjeneste);
+        tpsTjeneste = mock(TpsAdapter.class);
+        tpsFamilieTjeneste = new PersoninfoAdapter(tpsTjeneste);
     }
 
     @Test
@@ -44,10 +43,9 @@ public class TpsFamilieTjenesteTest {
         final int antallBarn = 1;
 
         final Personinfo personinfo = opprettPersonInfo(AKTØR, antallBarn, mottattDato);
-        when(tpsTjeneste.hentBrukerForAktør(AKTØR)).thenReturn(Optional.of(personinfo));
         when(tpsTjeneste.hentFødteBarn(AKTØR)).thenReturn(genererBarn(personinfo.getFamilierelasjoner(), mottattDato));
 
-        final List<FødtBarnInfo> fødslerRelatertTilBehandling = tpsFamilieTjeneste.getFødslerRelatertTilBehandling(AKTØR, List.of(intervall));
+        final List<FødtBarnInfo> fødslerRelatertTilBehandling = tpsFamilieTjeneste.innhentAlleFødteForBehandlingIntervaller(AKTØR, List.of(intervall));
 
         assertThat(fødslerRelatertTilBehandling).hasSize(antallBarn);
     }

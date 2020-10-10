@@ -5,7 +5,7 @@ import no.nav.foreldrepenger.datavarehus.domene.KlageFormkravDvh;
 
 public class KlageFormkravDvhMapper {
 
-    public KlageFormkravDvh map(KlageFormkravEntitet klageFormkrav) {
+    public static KlageFormkravDvh map(KlageFormkravEntitet klageFormkrav) {
         return KlageFormkravDvh.builder()
             .medErFristOverholdt(klageFormkrav.erFristOverholdt())
             .medErKlagerPart(klageFormkrav.erKlagerPart())

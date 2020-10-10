@@ -15,7 +15,6 @@ import static no.nav.foreldrepenger.datavarehus.tjeneste.DvhTestDataUtil.VEDTAK_
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,13 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -74,42 +72,45 @@ import no.nav.foreldrepenger.datavarehus.domene.KlageFormkravDvh;
 import no.nav.foreldrepenger.datavarehus.domene.KlageVurderingResultatDvh;
 import no.nav.foreldrepenger.datavarehus.domene.VedtakUtbetalingDvh;
 import no.nav.foreldrepenger.datavarehus.xml.DvhVedtakXmlTjeneste;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnRepository;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class DatavarehusTjenesteImplTest {
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class DatavarehusTjenesteImplTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
+    @Mock
     private DatavarehusRepository datavarehusRepository;
+    @Mock
     private DvhVedtakXmlTjeneste dvhVedtakTjenesteEngangsstønad;
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-
-    private TotrinnRepository totrinnRepository = mock(TotrinnRepository.class);
-    private AnkeRepository ankeRepository = mock(AnkeRepository.class);
-    private KlageRepository klageRepository = mock(KlageRepository.class);
-    private MottatteDokumentRepository mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
-    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste = mock(ForeldrepengerUttakTjeneste.class);
-
+    @Mock
+    private TotrinnRepository totrinnRepository;
+    @Mock
+    private AnkeRepository ankeRepository;
+    @Mock
+    private KlageRepository klageRepository;
+    @Mock
+    private MottatteDokumentRepository mottatteDokumentRepository;
+    @Mock
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
+    @Mock
     private MottattDokument mottattDokument;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
-    @Inject
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
     private InternalManipulerBehandling manipulerInternBehandling;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        mottattDokument = mock(MottattDokument.class);
-        dvhVedtakTjenesteEngangsstønad = mock(DvhVedtakXmlTjeneste.class);
-        datavarehusRepository = mock(DatavarehusRepository.class);
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        behandlingRepository = new BehandlingRepository(getEntityManager());
+        manipulerInternBehandling = new InternalManipulerBehandling();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
     }
@@ -199,7 +200,7 @@ public class DatavarehusTjenesteImplTest {
 
         ArgumentCaptor<BehandlingDvh> captor = ArgumentCaptor.forClass(BehandlingDvh.class);
         DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(scenario.mockBehandlingRepositoryProvider());
-        datavarehusTjeneste.lagreNedBehandling(behandling);
+        datavarehusTjeneste.lagreNedBehandling(behandling.getId());
         // Act
         verify(datavarehusRepository).lagre(captor.capture());
 
@@ -227,7 +228,7 @@ public class DatavarehusTjenesteImplTest {
 
         ArgumentCaptor<BehandlingDvh> captor = ArgumentCaptor.forClass(BehandlingDvh.class);
         DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(behandlingRepositoryProvider);
-        datavarehusTjeneste.lagreNedBehandling(behandling);
+        datavarehusTjeneste.lagreNedBehandling(behandling.getId());
         // Act
         verify(datavarehusRepository).lagre(captor.capture());
 

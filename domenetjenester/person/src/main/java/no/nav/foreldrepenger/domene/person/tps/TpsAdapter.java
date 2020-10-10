@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.extra.Interval;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
@@ -42,6 +44,8 @@ import no.nav.vedtak.felles.integrasjon.person.PersonConsumer;
 
 @ApplicationScoped
 public class TpsAdapter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TpsAdapter.class);
 
     private AktørConsumerMedCache aktørConsumer;
     private PersonConsumer personConsumer;
@@ -100,6 +104,41 @@ public class TpsAdapter {
         request.getInformasjonsbehov().add(Informasjonsbehov.FAMILIERELASJONER);
         try {
             return håndterPersoninfoRespons(aktørId, request);
+        } catch (HentPersonPersonIkkeFunnet e) {
+            throw TpsFeilmeldinger.FACTORY.fantIkkePerson(e).toException();
+        } catch (HentPersonSikkerhetsbegrensning e) {
+            throw TpsFeilmeldinger.FACTORY.tpsUtilgjengeligSikkerhetsbegrensning(e).toException();
+        }
+    }
+
+    public List<PersonIdent> hentForeldreTil(PersonIdent personIdent) {
+        HentPersonRequest request = new HentPersonRequest();
+        request.setAktoer(TpsUtil.lagPersonIdent(personIdent.getIdent()));
+        request.getInformasjonsbehov().add(Informasjonsbehov.FAMILIERELASJONER);
+        try {
+            HentPersonResponse response = personConsumer.hentPersonResponse(request);
+            Person person = response.getPerson();
+            if (!(person instanceof Bruker)) {
+                throw TpsFeilmeldinger.FACTORY.ukjentBrukerType().toException();
+            }
+            return tpsOversetter.tilForeldre((Bruker) person);
+        } catch (HentPersonPersonIkkeFunnet e) {
+            throw TpsFeilmeldinger.FACTORY.fantIkkePerson(e).toException();
+        } catch (HentPersonSikkerhetsbegrensning e) {
+            throw TpsFeilmeldinger.FACTORY.tpsUtilgjengeligSikkerhetsbegrensning(e).toException();
+        }
+    }
+
+    public FødtBarnInfo hentFødtBarnInformasjonFor(PersonIdent personIdent) {
+        HentPersonRequest request = new HentPersonRequest();
+        request.setAktoer(TpsUtil.lagPersonIdent(personIdent.getIdent()));
+        try {
+            HentPersonResponse response = personConsumer.hentPersonResponse(request);
+            Person person = response.getPerson();
+            if (!(person instanceof Bruker)) {
+                throw TpsFeilmeldinger.FACTORY.ukjentBrukerType().toException();
+            }
+            return tpsOversetter.tilFødtBarn((Bruker) person);
         } catch (HentPersonPersonIkkeFunnet e) {
             throw TpsFeilmeldinger.FACTORY.fantIkkePerson(e).toException();
         } catch (HentPersonSikkerhetsbegrensning e) {
@@ -166,18 +205,15 @@ public class TpsAdapter {
 
     private FødtBarnInfo mapTilInfo(Familierelasjon familierelasjon) {
         String identNr = ((no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent) familierelasjon.getTilPerson().getAktoer()).getIdent().getIdent();
-        no.nav.foreldrepenger.domene.typer.PersonIdent ident = no.nav.foreldrepenger.domene.typer.PersonIdent.fra(identNr);
+        PersonIdent ident = PersonIdent.fra(identNr);
         if (ident.erFdatNummer()) {
             return tpsOversetter.relasjonTilPersoninfo(familierelasjon);
         } else {
-            final PersonIdent fra = PersonIdent.fra(identNr);
-            Optional<AktørId> aktørId = hentAktørIdForPersonIdent(fra);
+            Optional<AktørId> aktørId = hentAktørIdForPersonIdent(ident);
             if (aktørId.isEmpty()) {
-                return tpsOversetter.relasjonTilPersoninfo(familierelasjon);
+                LOG.error("Merk Dem! Barn med ident {} mangler AktørId. Feil i FREG/PDL/Aktoer. Si fra om TFP-2768", ident);
             }
-
-            final Personinfo personinfo = hentKjerneinformasjon(fra, aktørId.get());
-            return tpsOversetter.tilFødteBarn(personinfo);
+            return hentFødtBarnInformasjonFor(ident);
         }
     }
 }

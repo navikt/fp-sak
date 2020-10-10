@@ -8,7 +8,7 @@ import static no.nav.foreldrepenger.datavarehus.tjeneste.DvhTestDataUtil.VEDTAK_
 import static no.nav.foreldrepenger.datavarehus.tjeneste.DvhTestDataUtil.VEDTAK_RESULTAT_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.datavarehus.domene.BehandlingVedtakDvh;
 
 public class BehandlingVedtakDvhMapperTest {
 
-    private BehandlingVedtakDvhMapper mapper = new BehandlingVedtakDvhMapper();
 
     @Test
     public void skal_mappe_til_behandling_vedtak_dvh() {
@@ -31,7 +30,7 @@ public class BehandlingVedtakDvhMapperTest {
                 .medVedtakResultatType(VedtakResultatType.INNVILGET)
                 .build();
 
-        BehandlingVedtakDvh dvh = mapper.map(vedtak, behandling);
+        BehandlingVedtakDvh dvh = BehandlingVedtakDvhMapper.map(vedtak, behandling);
         assertThat(dvh).isNotNull();
         assertThat(dvh.getAnsvarligBeslutter()).isEqualTo(ANSVARLIG_BESLUTTER);
         assertThat(dvh.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);

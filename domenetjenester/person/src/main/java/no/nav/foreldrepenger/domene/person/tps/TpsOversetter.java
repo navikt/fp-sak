@@ -71,6 +71,24 @@ public class TpsOversetter {
         return landkode;
     }
 
+    public List<no.nav.foreldrepenger.domene.typer.PersonIdent> tilForeldre(Bruker person) {
+        return person.getHarFraRolleI().stream()
+            .map(this::tilRelasjon)
+            .filter(r -> RelasjonsRolleType.erRegistrertForeldre(r.getRelasjonsrolle()))
+            .map(Familierelasjon::getPersonIdent)
+            .collect(Collectors.toList());
+    }
+
+    public FødtBarnInfo tilFødtBarn(Bruker person) {
+        return new FødtBarnInfo.Builder()
+            .medIdent(no.nav.foreldrepenger.domene.typer.PersonIdent.fra(((PersonIdent)person.getAktoer()).getIdent().getIdent()))
+            .medNavn(person.getPersonnavn().getSammensattNavn())
+            .medNavBrukerKjønn(tilBrukerKjønn(person.getKjoenn()))
+            .medFødselsdato(finnFødselsdato(person))
+            .medDødsdato(finnDødsdato(person))
+            .build();
+    }
+
     public Personinfo tilBrukerInfo(AktørId aktørId, Bruker bruker) { // NOSONAR - ingen forbedring å forkorte metoden her
         String navn = bruker.getPersonnavn().getSammensattNavn();
         String adresse = tpsAdresseOversetter.finnAdresseFor(bruker);
@@ -259,14 +277,6 @@ public class TpsOversetter {
         return tpsAdresseOversetter.tilAdresseInfo(person);
     }
 
-    public List<FødtBarnInfo> tilFødteBarn(Bruker person) {
-
-        return person.getHarFraRolleI().stream()
-            .filter(f -> erBarnRolle(f.getTilRolle()))
-            .map(this::relasjonTilPersoninfo)
-            .collect(Collectors.toList());
-    }
-
     static boolean erBarnRolle(Familierelasjoner familierelasjoner) {
         return familierelasjoner.getValue().matches(RelasjonsRolleType.BARN.getKode());
     }
@@ -312,13 +322,4 @@ public class TpsOversetter {
         throw new IllegalArgumentException("Kan bare utledes basert på fdatnr.");
     }
 
-    FødtBarnInfo tilFødteBarn(Personinfo personinfo) {
-        return new FødtBarnInfo.Builder()
-            .medIdent(personinfo.getPersonIdent())
-            .medNavn(personinfo.getNavn())
-            .medNavBrukerKjønn(personinfo.getKjønn())
-            .medFødselsdato(personinfo.getFødselsdato())
-            .medDødsdato(personinfo.getDødsdato())
-            .build();
-    }
 }

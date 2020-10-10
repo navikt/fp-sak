@@ -454,7 +454,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(BARN_IDENT)).thenReturn(Optional.of(BARN_AKTØR_ID));
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of(BARN_FBI));
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
-        lenient().when(personinfoAdapter.innhentSaksopplysningerForBarn(BARN_IDENT)).thenReturn(Optional.of(BARN_PINFO));
+        lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(BARN_IDENT)).thenReturn(List.of(MOR_AKTØR_ID));
     }
 
     private void settOppTpsStrukturer(boolean medNyligFødt, boolean medKunMor) {
@@ -477,7 +477,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
         if(nyfødtbarnEriTPS) {
             lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(BARN_IDENT)).thenReturn(Optional.of(BARN_AKTØR_ID));
-            lenient().when(personinfoAdapter.innhentSaksopplysningerForBarn(BARN_IDENT)).thenReturn(Optional.of(BARN_PINFO));
+            lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(BARN_IDENT)).thenReturn(List.of(MOR_AKTØR_ID, FAR_AKTØR_ID));
             lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of(BARN_FBI));
         }
 

@@ -2,21 +2,22 @@ package no.nav.foreldrepenger.datavarehus.domene;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class DatavarehusRepositoryImplTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class DatavarehusRepositoryImplTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
-    private final DatavarehusRepository datavarehusRepository = new DatavarehusRepository(repoRule.getEntityManager());
+    private DatavarehusRepository datavarehusRepository;
 
-    @Test
-    public void skal_laste_opp_test_konfig() throws Exception {
-
+    @BeforeEach
+    public void setUp() {
+        datavarehusRepository= new DatavarehusRepository(getEntityManager());
     }
 
     @Test
@@ -78,7 +79,7 @@ public class DatavarehusRepositoryImplTest {
     public void skal_lagre_vedtak_utbetaling_dvh() {
         VedtakUtbetalingDvh vedtakUtbetalingDvh = DatavarehusTestUtils.byggVedtakUtbetalingDvh();
         long id = datavarehusRepository.lagre(vedtakUtbetalingDvh);
-        repoRule.getEntityManager().flush();
+        getEntityManager().flush();
         final String oppdatertXml = vedtakUtbetalingDvh.getXmlClob()+vedtakUtbetalingDvh.getXmlClob();
         long idOppdatert = datavarehusRepository.oppdater(vedtakUtbetalingDvh.getBehandlingId(), vedtakUtbetalingDvh.getVedtakId(), oppdatertXml);
         assertThat(id).isEqualTo(idOppdatert);

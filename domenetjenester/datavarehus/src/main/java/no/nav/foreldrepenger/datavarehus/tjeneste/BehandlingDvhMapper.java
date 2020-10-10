@@ -32,7 +32,7 @@ public class BehandlingDvhMapper {
         AVBRUTT_BEHANDLINGSRESULTAT.add(BehandlingResultatType.HENLAGT_SØKNAD_MANGLER);
     }
 
-    public BehandlingDvh map(Behandling behandling,
+    public static BehandlingDvh map(Behandling behandling,
                              LocalDateTime mottattTidspunkt,
                              Optional<BehandlingVedtak> vedtak,
                              Optional<FamilieHendelseGrunnlagEntitet> fh,
@@ -71,35 +71,35 @@ public class BehandlingDvhMapper {
     /**
      * Er det klage, hentes relatert behandling fra klageresultat. Hvis ikke hentes relatert behandling fra orginalbehandling-referansen på behandlingen.
      */
-    private Long getRelatertBehandling(Behandling behandling, Optional<KlageVurderingResultat> klageVurderingResultat) {
+    private static Long getRelatertBehandling(Behandling behandling, Optional<KlageVurderingResultat> klageVurderingResultat) {
         if (BehandlingType.KLAGE.equals(behandling.getType()) && klageVurderingResultat.isPresent()) {
             return klageVurderingResultat.get().getKlageResultat().getPåKlagdBehandlingId().orElse(null);
         }
         return behandling.getOriginalBehandlingId().orElse(null);
     }
 
-    private String mapSoeknadFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh){
+    private static String mapSoeknadFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh){
        if( fh.isPresent() ){
            return fh.get().getSøknadVersjon().getType().getKode();
        }
         return null;
     }
 
-    private String mapbekreftetFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh){
+    private static String mapbekreftetFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh){
         if( fh.isPresent() && fh.get().getBekreftetVersjon().isPresent() ){
             return  fh.get().getBekreftetVersjon().get().getType().getKode();
         }
         return null;
     }
 
-    private String mapoverstyrtFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh){
+    private static String mapoverstyrtFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh){
         if( fh.isPresent() && fh.get().getOverstyrtVersjon().isPresent() ){
             return  fh.get().getOverstyrtVersjon().get().getType().getKode();
         }
         return null;
     }
 
-    private boolean mapAvbrutt(Behandling behandling) {
+    private static boolean mapAvbrutt(Behandling behandling) {
         if (FagsakStatus.AVSLUTTET.equals(behandling.getFagsak().getStatus())) {
             Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
             if (Objects.nonNull(behandlingsresultat)) {
@@ -109,7 +109,7 @@ public class BehandlingDvhMapper {
         return false;
     }
 
-    private boolean mapVedtatt(Behandling behandling) {
+    private static boolean mapVedtatt(Behandling behandling) {
         if (Objects.nonNull(getBehandlingsresultat(behandling))) {
             BehandlingResultatType behandlingResultatType = getBehandlingsresultat(behandling).getBehandlingResultatType();
 
@@ -122,21 +122,21 @@ public class BehandlingDvhMapper {
         return false;
     }
 
-    private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
+    private static Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
         return behandling.getBehandlingsresultat();
     }
 
-    private boolean mapFerdig(Behandling behandling) {
+    private static boolean mapFerdig(Behandling behandling) {
         return FagsakStatus.AVSLUTTET.equals(behandling.getFagsak().getStatus());
     }
 
-    private String finnBehandlingResultatType(Behandling b) {
+    private static String finnBehandlingResultatType(Behandling b) {
         Optional<Behandling> ob = Optional.ofNullable(b);
         return ob.map(Behandling::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingResultatType).map(BehandlingResultatType::getKode)
             .orElse(null);
     }
 
-    private String mapUtlandstilsnitt(Behandling behandling) {
+    private static String mapUtlandstilsnitt(Behandling behandling) {
 
         String utenlandstilsnitt = "NASJONAL";
 

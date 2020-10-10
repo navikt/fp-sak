@@ -2,8 +2,7 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -12,9 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
@@ -36,8 +38,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.person.tps.TpsFamilieTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftEktefelleAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFodselDto;
@@ -49,23 +51,39 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnh
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 import no.nav.vedtak.felles.jpa.TomtResultatException;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
+import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class SjekkManglendeFødselOppdatererTest {
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
+
 
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
-    @Rule
+
     public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
+    private Repository repo;
     private final LocalDate now = LocalDate.now();
 
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
+    private HistorikkInnslagTekstBuilder tekstBuilder;
 
     private DateTimeFormatter formatterer = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    private final SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-        new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-    private TpsFamilieTjeneste tpsFamilieTjeneste = Mockito.mock(TpsFamilieTjeneste.class);
-    private FamiliehendelseEventPubliserer familiehendelseEventPubliserer = Mockito.mock(FamiliehendelseEventPubliserer.class);
-    private final FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer, repositoryProvider.getFamilieHendelseRepository());
+    private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
+    @Mock
+    private FamiliehendelseEventPubliserer familiehendelseEventPubliserer;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
+
+    @BeforeEach
+    public void setUp() {
+        repo = new Repository(getEntityManager());
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        tekstBuilder =  new HistorikkInnslagTekstBuilder();
+        familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer, repositoryProvider.getFamilieHendelseRepository());
+
+    }
 
     @Test
     public void skal_generere_historikkinnslag_ved_avklaring_av_ektefelle() {
@@ -163,7 +181,6 @@ public class SjekkManglendeFødselOppdatererTest {
         scenario.lagre(repositoryProvider);
 
         Behandling behandling = scenario.getBehandling();
-        when(tpsFamilieTjeneste.getFødslerRelatertTilBehandling(any(), any())).thenReturn(new ArrayList<>());
 
         UidentifisertBarnDto[] uidentifiserteBarn = {new UidentifisertBarnDto(avklartFødseldato, null),
             new UidentifisertBarnDto(avklartFødseldato, null)};
@@ -213,8 +230,6 @@ public class SjekkManglendeFødselOppdatererTest {
             true, false, List.of(uidentifiserteBarn));
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
 
-        when(tpsFamilieTjeneste.getFødslerRelatertTilBehandling(any(), any())).thenReturn(new ArrayList<>());
-
         // Act
         new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste,familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
@@ -243,8 +258,6 @@ public class SjekkManglendeFødselOppdatererTest {
         SjekkManglendeFodselDto dto = new SjekkManglendeFodselDto("Begrunnelse",
             true, false, List.of(uidentifiserteBarn));
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
-
-        when(tpsFamilieTjeneste.getFødslerRelatertTilBehandling(any(), any())).thenReturn(new ArrayList<>());
 
         // Act
         OppdateringResultat resultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste,familieHendelseTjeneste)
@@ -278,8 +291,6 @@ public class SjekkManglendeFødselOppdatererTest {
         SjekkManglendeFodselDto dto = new SjekkManglendeFodselDto("Begrunnelse",
             true, false, List.of(uidentifiserteBarn));
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode()).get();
-
-        when(tpsFamilieTjeneste.getFødslerRelatertTilBehandling(any(), any())).thenReturn(new ArrayList<>());
 
         // Act
         OppdateringResultat resultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste)
@@ -316,8 +327,6 @@ public class SjekkManglendeFødselOppdatererTest {
         SjekkManglendeFodselDto dto = new SjekkManglendeFodselDto("Begrunnelse",
             true, false, List.of(uidentifiserteBarn));
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
-
-        when(tpsFamilieTjeneste.getFødslerRelatertTilBehandling(any(), any())).thenReturn(new ArrayList<>());
 
         // Act
         new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste)
@@ -409,7 +418,7 @@ public class SjekkManglendeFødselOppdatererTest {
 
     private HistorikkTjenesteAdapter lagMockHistory() {
         HistorikkTjenesteAdapter mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
-        Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
+        lenient().when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
         return mockHistory;
     }
 }

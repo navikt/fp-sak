@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.domene.person.tps;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.ws.soap.SOAPFaultException;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -33,7 +31,7 @@ public class TpsTjenesteImpl implements TpsTjeneste {
             return Optional.empty();
         }
         Optional<AktørId> aktørId = tpsAdapter.hentAktørIdForPersonIdent(fnr);
-        if (!aktørId.isPresent()) {
+        if (aktørId.isEmpty()) {
             return Optional.empty();
         }
         try {
@@ -81,11 +79,6 @@ public class TpsTjenesteImpl implements TpsTjeneste {
     @Override
     public GeografiskTilknytning hentGeografiskTilknytning(PersonIdent fnr) {
         return tpsAdapter.hentGeografiskTilknytning(fnr);
-    }
-
-    @Override
-    public List<FødtBarnInfo> hentFødteBarn(AktørId aktørId) {
-        return tpsAdapter.hentFødteBarn(aktørId);
     }
 
 }

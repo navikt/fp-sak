@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.domene.person.tps;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -20,16 +22,14 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 public class PersoninfoAdapter {
 
     private TpsAdapter tpsAdapter;
-    private TpsFamilieTjeneste tpsFamilieTjeneste;
 
     public PersoninfoAdapter() {
         // for CDI proxy
     }
 
     @Inject
-    public PersoninfoAdapter(TpsAdapter tpsAdapter, TpsFamilieTjeneste tpsFamilieTjeneste) {
+    public PersoninfoAdapter(TpsAdapter tpsAdapter) {
         this.tpsAdapter = tpsAdapter;
-        this.tpsFamilieTjeneste = tpsFamilieTjeneste;
     }
 
     public Personinfo innhentSaksopplysningerForSøker(AktørId aktørId) {
@@ -61,6 +61,15 @@ public class PersoninfoAdapter {
         return Optional.empty();
     }
 
+    public List<AktørId> finnAktørIdForForeldreTil(PersonIdent personIdent) {
+        if(personIdent.erFdatNummer()) {
+            return Collections.emptyList();
+        }
+        return tpsAdapter.hentForeldreTil(personIdent).stream()
+            .flatMap(p -> tpsAdapter.hentAktørIdForPersonIdent(p).stream())
+            .collect(Collectors.toList());
+    }
+
     private Optional<Personinfo> hentKjerneinformasjonForBarn(AktørId aktørId, PersonIdent personIdent) {
         if(personIdent.erFdatNummer()) {
             return Optional.empty();
@@ -87,7 +96,8 @@ public class PersoninfoAdapter {
     }
 
     public List<FødtBarnInfo> innhentAlleFødteForBehandlingIntervaller(AktørId aktørId, List<LocalDateInterval> intervaller) {
-        return tpsFamilieTjeneste.getFødslerRelatertTilBehandling(aktørId, intervaller);
+        List<FødtBarnInfo> barneListe = tpsAdapter.hentFødteBarn(aktørId);
+        return barneListe.stream().filter(p -> intervaller.stream().anyMatch(i -> i.encloses(p.getFødselsdato()))).collect(Collectors.toList());
     }
 
     public Optional<AktørId> hentAktørIdForPersonIdent(PersonIdent personIdent) {

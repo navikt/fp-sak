@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.domene.person.tps;
 
-import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -29,6 +27,4 @@ public interface TpsTjeneste {
     GeografiskTilknytning hentGeografiskTilknytning(PersonIdent fnr);
 
     Optional<PersonIdent> hentFnr(AktørId aktørId);
-
-    List<FødtBarnInfo> hentFødteBarn(AktørId aktørId);
 }

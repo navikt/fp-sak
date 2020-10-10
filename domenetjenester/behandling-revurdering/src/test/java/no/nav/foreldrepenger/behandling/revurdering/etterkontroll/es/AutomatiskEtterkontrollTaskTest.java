@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
-import no.nav.foreldrepenger.domene.person.tps.TpsFamilieTjeneste;
+import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -57,7 +57,7 @@ import no.nav.vedtak.felles.testutilities.db.Repository;
 public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
 
     @Mock
-    private TpsFamilieTjeneste tpsFamilieTjenesteMock;
+    private PersoninfoAdapter tpsFamilieTjenesteMock;
 
     private BehandlingRepository behandlingRepository;
 
@@ -99,7 +99,7 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
     public void skal_opprette_revurderingsbehandling_med_årsak_fødsel_mangler_dersom_fødsel_mangler_i_tps() {
 
         Behandling behandling = opprettRevurderingsKandidat(4, 1, true, false, true);
-        when(tpsFamilieTjenesteMock.getFødslerRelatertTilBehandling(any(), any())).thenReturn(Collections.emptyList());
+        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(Collections.emptyList());
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -137,7 +137,7 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
     public void skal_opprette_revurderingsbehandling_med_årsak_fødsel_mangler_i_periode_dersom_fødsel_mangler_i_tps_og_vedtaksdato_er_før_uke29() {
 
         Behandling behandling = opprettRevurderingsKandidat(12, 1, true, false, true);
-        when(tpsFamilieTjenesteMock.getFødslerRelatertTilBehandling(any(), any())).thenReturn(Collections.emptyList());
+        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(Collections.emptyList());
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -155,7 +155,7 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
 
         List<FødtBarnInfo> barn = Collections.singletonList(byggBaby(LocalDate.now().minusDays(70)));
         Behandling behandling = opprettRevurderingsKandidat(0, 2, true, false, true);
-        when(tpsFamilieTjenesteMock.getFødslerRelatertTilBehandling(any(), any())).thenReturn(barn);
+        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(barn);
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -171,7 +171,7 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
     public void skal_registrere_fødsler_dersom_de_oppdages_i_tps() {
         List<FødtBarnInfo> barn = Collections.singletonList(byggBaby(LocalDate.now().minusDays(70)));
         Behandling behandling = opprettRevurderingsKandidat(0, 2, true, false, true);
-        when(tpsFamilieTjenesteMock.getFødslerRelatertTilBehandling(any(), any())).thenReturn(barn);
+        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(barn);
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -188,7 +188,7 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
     public void skal_ikke_opprette_revurdering_dersom_barn_i_tps_matcher_søknad() {
         List<FødtBarnInfo> barn = Collections.singletonList(byggBaby(LocalDate.now().minusDays(70)));
         Behandling behandling = opprettRevurderingsKandidat(0, 1, true, false, true);
-        when(tpsFamilieTjenesteMock.getFødslerRelatertTilBehandling(any(), any())).thenReturn(barn);
+        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(barn);
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -204,7 +204,7 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
     public void skal_ikke_opprette_revurdering_dersom_barn_i_tps_matcher_søknad_og_bekreftet() {
         List<FødtBarnInfo> barn = Collections.singletonList(byggBaby(LocalDate.now().minusDays(70)));
         Behandling behandling = opprettRevurderingsKandidat(0, 1, true, true, false);
-        when(tpsFamilieTjenesteMock.getFødslerRelatertTilBehandling(any(), any())).thenReturn(barn);
+        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(barn);
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());

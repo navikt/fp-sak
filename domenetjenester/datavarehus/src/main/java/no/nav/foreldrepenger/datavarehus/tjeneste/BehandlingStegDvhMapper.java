@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.datavarehus.domene.BehandlingStegDvh;
 
 public class BehandlingStegDvhMapper {
 
-    public BehandlingStegDvh map(BehandlingStegTilstandSnapshot behandlingStegTilstand, Long behandlingId) {
+    public static BehandlingStegDvh map(BehandlingStegTilstandSnapshot behandlingStegTilstand, Long behandlingId) {
         return BehandlingStegDvh.builder()
             .behandlingId(behandlingId)
             .behandlingStegId(behandlingStegTilstand.getId())
@@ -20,7 +20,7 @@ public class BehandlingStegDvhMapper {
             .build();
     }
 
-    private String finnBehandlingStegStatusKode(BehandlingStegTilstandSnapshot behandlingStegTilstand) {
+    private static String finnBehandlingStegStatusKode(BehandlingStegTilstandSnapshot behandlingStegTilstand) {
         return Optional.ofNullable(behandlingStegTilstand)
                 .map(BehandlingStegTilstandSnapshot::getStatus)
                 .map(BehandlingStegStatus::getKode).orElse(null);

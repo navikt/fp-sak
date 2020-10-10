@@ -201,6 +201,22 @@ public class ForvaltningUttrekkRestTjeneste {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/reberegnES")
+    @Operation(description = "Oppretter tasks for å etterkontrollere ES", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    public Response reberegnES() {
+        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
+        var behandlinger = informasjonssakRepository.finnEngangstonadForReberegning();
+        behandlinger.forEach(bid -> {
+            Behandling behandling = behandlingRepository.hentBehandling(bid);
+            opprettEtterkontrollTask(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId(), callId, AutomatiskEtterkontrollTask.OPTIONS_REBEREGN_ES);
+        });
+        return Response.ok(behandlinger.size()).build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/manuellEtterkontroll")
     @Operation(description = "Bekrefter at termin er etterkontrollert", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)

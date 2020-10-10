@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.datavarehus.domene.BehandlingVedtakDvh;
 
 public class BehandlingVedtakDvhMapper {
 
-    public BehandlingVedtakDvh map(BehandlingVedtak behandlingVedtak, Behandling behandling) {
+    public static BehandlingVedtakDvh map(BehandlingVedtak behandlingVedtak, Behandling behandling) {
         return BehandlingVedtakDvh.builder()
                 .ansvarligBeslutter(behandling.getAnsvarligBeslutter())
                 .ansvarligSaksbehandler(behandlingVedtak.getAnsvarligSaksbehandler())

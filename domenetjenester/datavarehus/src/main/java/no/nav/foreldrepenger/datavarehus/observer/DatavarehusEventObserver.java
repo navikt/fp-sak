@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegTilstandEndringEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokumentPersistertEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
@@ -82,12 +83,18 @@ public class DatavarehusEventObserver {
         tjeneste.lagreNedBehandling(event.getBehandlingId());
     }
 
+    public void observerMottattDokumentPersistert(@Observes MottattDokumentPersistertEvent event) {
+        // Lagre behandling med rettighetsdato o.l.
+        if (event.getMottattDokument().getDokumentType().erSøknadType() || event.getMottattDokument().getDokumentType().erEndringsSøknadType()) {
+            tjeneste.lagreNedBehandling(event.getBehandlingId());
+        }
+    }
+
     public void observerBehandlingVedtakEvent(@Observes BehandlingVedtakEvent event) {
         if (IverksettingStatus.IVERKSATT.equals(event.getVedtak().getIverksettingStatus())) {
             log.debug("Lagrer vedtak {} for behandling {} i DVH datavarehus", event.getVedtak().getId(), event.getBehandlingId());//NOSONAR
             tjeneste.lagreNedVedtak(event.getVedtak(), event.getBehandling());
         }
     }
-
 
 }

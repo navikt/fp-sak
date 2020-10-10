@@ -5,7 +5,7 @@ import no.nav.foreldrepenger.datavarehus.domene.AnkeVurderingResultatDvh;
 
 public class AnkeVurderingResultatDvhMapper {
 
-    public AnkeVurderingResultatDvh map(AnkeVurderingResultatEntitet ankevurderingresultat) {
+    public static AnkeVurderingResultatDvh map(AnkeVurderingResultatEntitet ankevurderingresultat) {
         return AnkeVurderingResultatDvh.builder()
             .medAnkeOmgjørÅrsak(ankevurderingresultat.getAnkeOmgjørÅrsak().getKode())
             .medAnkeBehandlingId(ankevurderingresultat.getAnkeResultat().getAnkeBehandlingId())
