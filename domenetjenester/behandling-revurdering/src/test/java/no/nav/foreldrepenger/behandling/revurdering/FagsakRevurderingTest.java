@@ -4,22 +4,24 @@ package no.nav.foreldrepenger.behandling.revurdering;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -31,26 +33,21 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
+@ExtendWith(MockitoExtension.class)
 public class FagsakRevurderingTest {
 
+    @Mock
     private BehandlingRepository behandlingRepository;
     private Behandling behandling;
     private Behandling nyesteBehandling;
     private Behandling eldreBehandling;
-    private Behandling klageBehandling;
-    private Behandling innsynBehandling;
     private Fagsak fagsak;
     private Saksnummer fagsakSaksnummer  = new Saksnummer("1");
 
     private Fagsak fagsakMedFlereBehandlinger;
     private Saksnummer fagsakMedFlereBehSaksnr  = new Saksnummer("2");
 
-    @Before
-    public void setup(){
-        behandlingRepository = mock(BehandlingRepository.class);
-    }
-
-    @Before
+    @BeforeEach
     public void opprettBehandlinger() {
         fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(fagsakSaksnummer).build();
         behandling = Behandling.forFørstegangssøknad(fagsak).build();
@@ -62,21 +59,13 @@ public class FagsakRevurderingTest {
         eldreBehandling = Behandling.forFørstegangssøknad(fagsakMedFlereBehandlinger)
             .medAvsluttetDato(LocalDateTime.now().minusDays(1))
             .build();
-        klageBehandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.KLAGE)
-            .build();
-        innsynBehandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.INNSYN)
-            .build();
-
-        when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(fagsakSaksnummer))
-            .thenReturn(singletonList(behandling));
-        when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(fagsakMedFlereBehSaksnr))
-            .thenReturn(asList(nyesteBehandling, eldreBehandling));
+        lenient().when(behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(Optional.of(behandling));
     }
 
     @Test
     public void kanIkkeOppretteRevurderingNårÅpenBehandling() throws Exception {
         Behandlingsresultat.opprettFor(behandling);
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(anyLong())).thenReturn(Arrays.asList(behandling));
+        lenient().when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(singletonList(behandling));
 
         FagsakRevurdering tjeneste = new FagsakRevurdering(behandlingRepository);
         Boolean kanRevurderingOpprettes = tjeneste.kanRevurderingOpprettes(fagsak);
@@ -91,6 +80,7 @@ public class FagsakRevurderingTest {
             VilkårUtfallType.IKKE_OPPFYLT, VilkårUtfallMerknad.VM_1005, null,
             Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O, false, false, null, null).buildFor(behandling);
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())).thenReturn(Collections.emptyList());
+
 
         FagsakRevurdering tjeneste = new FagsakRevurdering(behandlingRepository);
         Boolean kanRevurderingOpprettes = tjeneste.kanRevurderingOpprettes(fagsak);
@@ -114,7 +104,7 @@ public class FagsakRevurderingTest {
     @Test
     public void kanIkkeOppretteRevurderingNårBehandlingErHenlagt() {
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET).buildFor(behandling);
-
+        lenient().when(behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(Optional.empty());
         FagsakRevurdering tjeneste = new FagsakRevurdering(behandlingRepository);
         Boolean kanRevurderingOpprettes = tjeneste.kanRevurderingOpprettes(fagsak);
 
@@ -158,7 +148,7 @@ public class FagsakRevurderingTest {
         VilkårResultat.builder().leggTilVilkårResultat(VilkårType.SØKERSOPPLYSNINGSPLIKT,
             VilkårUtfallType.OPPFYLT, null, null,
             null, false, false, null, null).buildFor(eldreBehandling);
-
+        lenient().when(behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(Optional.of(eldreBehandling));
         FagsakRevurdering tjeneste = new FagsakRevurdering(behandlingRepository);
         Boolean kanRevurderingOpprettes = tjeneste.kanRevurderingOpprettes(fagsakMedFlereBehandlinger);
 
@@ -178,7 +168,7 @@ public class FagsakRevurderingTest {
         VilkårResultat.builder().leggTilVilkårResultat(VilkårType.SØKERSOPPLYSNINGSPLIKT,
             VilkårUtfallType.OPPFYLT, null, null,
             null, false, false, null, null).buildFor(nyesteBehandling);
-
+        lenient().when(behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(Optional.of(nyesteBehandling));
         FagsakRevurdering tjeneste = new FagsakRevurdering(behandlingRepository);
         Boolean kanRevurderingOpprettes = tjeneste.kanRevurderingOpprettes(fagsakMedFlereBehandlinger);
 
@@ -196,7 +186,7 @@ public class FagsakRevurderingTest {
         VilkårResultat.builder().leggTilVilkårResultat(VilkårType.SØKERSOPPLYSNINGSPLIKT,
             VilkårUtfallType.OPPFYLT, null, null,
             null, false, false, null, null).buildFor(eldreBehandling);
-
+        lenient().when(behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(Optional.of(nyesteBehandling));
         FagsakRevurdering tjeneste = new FagsakRevurdering(behandlingRepository);
         Boolean kanRevurderingOpprettes = tjeneste.kanRevurderingOpprettes(fagsakMedFlereBehandlinger);
 

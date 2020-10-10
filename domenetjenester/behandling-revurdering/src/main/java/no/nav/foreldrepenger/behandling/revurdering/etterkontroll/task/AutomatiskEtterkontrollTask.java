@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -105,7 +106,9 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
             var intervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
             barnFødtIPeriode.addAll(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(behandling.getAktørId(), intervaller));
             if (!barnFødtIPeriode.isEmpty()) {
-                revurderingHistorikk.opprettHistorikkinnslagForFødsler(behandling, barnFødtIPeriode);
+                if (!(OPTIONS_OPPRETT_EK.equals(options) || OPTIONS_MANUELL_EK.equals(options) || OPTIONS_REBEREGN_ES.equals(options))) {
+                    revurderingHistorikk.opprettHistorikkinnslagForFødsler(behandling, barnFødtIPeriode);
+                }
             }
         }
 
@@ -113,9 +116,10 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         Optional<BehandlingÅrsakType> revurderingsÅrsak = automatiskEtterkontrollTjeneste.utledRevurderingÅrsak(behandling, familieHendelseGrunnlag, barnFødtIPeriode);
 
         if (OPTIONS_OPPRETT_EK.equals(options) || OPTIONS_MANUELL_EK.equals(options) || OPTIONS_REBEREGN_ES.equals(options)) {
-            if (revurderingsÅrsak.isPresent()) {
-                LOG.info("Etterkontroll Restanse sak {} ville gitt årsak {}", behandling.getFagsak().getSaksnummer().getVerdi(), revurderingsÅrsak.get().getKode());
-            } else if (!OPTIONS_REBEREGN_ES.equals(options)) {
+            revurderingsÅrsak.ifPresent(årsakType -> LOG.info("Etterkontroll Restanse sak {} ville gitt årsak {}", behandling.getFagsak().getSaksnummer().getVerdi(), årsakType.getKode()));
+            if (!OPTIONS_REBEREGN_ES.equals(options) &&
+                !Set.of(BehandlingÅrsakType.RE_MANGLER_FØDSEL, BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE, BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN)
+                    .contains(revurderingsÅrsak.orElse(BehandlingÅrsakType.RE_MANGLER_FØDSEL))) {
                 opprettEtterkontroll(behandling);
                 etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
             }

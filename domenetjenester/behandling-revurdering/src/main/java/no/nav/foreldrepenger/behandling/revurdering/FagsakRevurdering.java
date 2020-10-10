@@ -2,9 +2,7 @@ package no.nav.foreldrepenger.behandling.revurdering;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -25,17 +23,10 @@ class FagsakRevurdering {
         if (harÅpenBehandling(fagsak)) {
             return false;
         }
-        List<Behandling> behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(fagsak.getSaksnummer());
-        return kanRevurderingOpprettes(behandlinger);
+        var behandling = hentBehandlingMedVedtak(fagsak);
+        return behandling.filter(this::kanVilkårRevurderes).isPresent();
     }
 
-    private boolean kanRevurderingOpprettes(List<Behandling> behandlinger) {
-        Optional<Behandling> gjeldendeBehandling = hentBehandlingMedVedtak(behandlinger);
-        if (!gjeldendeBehandling.isPresent()) {
-            return false;
-        }
-        return kanVilkårRevurderes(gjeldendeBehandling.get());
-    }
 
     private boolean kanVilkårRevurderes(Behandling behandling) {
         return behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene()
@@ -47,14 +38,8 @@ class FagsakRevurdering {
             && vilkår.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT);
     }
 
-    private Optional<Behandling> hentBehandlingMedVedtak(List<Behandling> behandlinger) {
-        List<Behandling> behandlingerMedVedtak = behandlinger.stream()
-            .filter(Behandling::erYtelseBehandling)
-            .filter(Behandling::erStatusFerdigbehandlet)
-            .filter(behandling -> !behandling.isBehandlingHenlagt())
-            .collect(Collectors.toList());
-        List<Behandling> sorterteBehandlinger = behandlingerMedVedtak.stream().sorted(new BehandlingAvsluttetDatoComparator()).collect(Collectors.toList());
-        return sorterteBehandlinger.isEmpty() ? Optional.empty() : Optional.of(sorterteBehandlinger.get(0));
+    private Optional<Behandling> hentBehandlingMedVedtak(Fagsak fagsak) {
+        return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId());
     }
 
     private boolean harÅpenBehandling(Fagsak fagsak) {

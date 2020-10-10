@@ -74,6 +74,10 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
     public BehandlendeFagsystem vurderFagsystemUstrukturert(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
         List<Fagsak> kompatibleFagsaker = fellesUtils.filtrerSakerForBehandlingTema(sakerGittYtelseType, vurderFagsystem.getBehandlingTema());
 
+        if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && vurderFagsystem.getDokumentTypeId().erSøknadType() && kompatibleFagsaker.isEmpty()) {
+            return new BehandlendeFagsystem(VEDTAKSLØSNING);
+        }
+
         Optional<BehandlendeFagsystem> standardVurdering = fellesUtils.standardUstrukturertDokumentVurdering(kompatibleFagsaker);
         if (standardVurdering.isPresent() || !VurderFagsystemFellesUtils.erSøknad(vurderFagsystem)) {
             return standardVurdering.orElse(new BehandlendeFagsystem(MANUELL_VURDERING));

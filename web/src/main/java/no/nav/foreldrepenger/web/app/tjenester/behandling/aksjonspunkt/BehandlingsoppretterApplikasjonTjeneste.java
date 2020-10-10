@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -16,6 +17,7 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -23,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -52,6 +55,30 @@ public class BehandlingsoppretterApplikasjonTjeneste {
         this.mottatteDokumentRepository = behandlingRepositoryProvider.getMottatteDokumentRepository();
         this.saksbehandlingDokumentmottakTjeneste = saksbehandlingDokumentmottakTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
+    }
+
+    public boolean kanOppretteNyBehandlingAvType(Long fagsakId, BehandlingType type) {
+        boolean finnesÅpneBehandlingerAvType = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsakId).stream()
+            .map(Behandling::getType).anyMatch(type::equals);
+        if (finnesÅpneBehandlingerAvType) {
+            return false;
+        }
+        switch (type) {
+            case ANKE:
+                Optional<Behandling> sisteKlage = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakId, BehandlingType.KLAGE);
+                return sisteKlage.filter(Behandling::erAvsluttet).isPresent();
+            case KLAGE:
+                Optional<Behandling> sisteFørstegang = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakId, BehandlingType.FØRSTEGANGSSØKNAD);
+                return sisteFørstegang.filter(Behandling::erAvsluttet).isPresent();
+            case INNSYN:
+                return true;
+            case REVURDERING:
+                return kanOppretteRevurdering(fagsakId);
+            case FØRSTEGANGSSØKNAD:
+                return kanOppretteFørstegangsbehandling(fagsakId);
+            default:
+                return false;
+        }
     }
 
     /** Opprett ny behandling. Returner Prosess Task gruppe for å ta den videre. */
@@ -115,13 +142,38 @@ public class BehandlingsoppretterApplikasjonTjeneste {
 
     public Behandling opprettRevurdering(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
-        Boolean kanRevurderingOpprettes = revurderingTjeneste.kanRevurderingOpprettes(fagsak);
+        Boolean kanRevurderingOpprettes = kanOppretteRevurdering(fagsak.getId());
         if (!kanRevurderingOpprettes) {
             throw BehandlingsoppretterApplikasjonTjenesteFeil.FACTORY.kanIkkeOppretteRevurdering(fagsak.getSaksnummer()).toException();
         }
 
         OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
         return revurderingTjeneste.opprettManuellRevurdering(fagsak, behandlingÅrsakType, enhet);
+    }
+
+    private boolean kanOppretteRevurdering(Long fagsakId) {
+        boolean finnesÅpneBehandlingerAvType = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsakId).stream()
+            .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getFagsakYtelseType()) || BehandlingType.REVURDERING.equals(b.getType()));
+        var behandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsakId).orElse(null);
+        if (finnesÅpneBehandlingerAvType || behandling == null) {
+            return false;
+        }
+        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType()).orElseThrow();
+        return revurderingTjeneste.kanRevurderingOpprettes(behandling.getFagsak());
+    }
+
+    private boolean kanOppretteFørstegangsbehandling(Long fagsakId) {
+        boolean finnesÅpneBehandlingerAvType = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsakId).stream()
+            .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getFagsakYtelseType()) || BehandlingType.REVURDERING.equals(b.getType()));
+        var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElse(null);
+        var sisteIkkeHenlagteBehandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakId).orElse(null);
+        if (finnesÅpneBehandlingerAvType || sisteBehandling == null) {
+            return false;
+        }
+        if (sisteIkkeHenlagteBehandling == null || FagsakYtelseType.ENGANGSTØNAD.equals(sisteIkkeHenlagteBehandling.getFagsakYtelseType())) {
+            return true;
+        }
+        return Set.of(BehandlingResultatType.AVSLÅTT, BehandlingResultatType.OPPHØR).contains(sisteBehandling.getBehandlingsresultat().getBehandlingResultatType());
     }
 
     private MottattDokument finnSisteMottatteSøknadPåFagsak(Long fagsakId) {
