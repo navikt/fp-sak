@@ -299,8 +299,12 @@ public class BehandlingRestTjeneste {
         }
 
         Fagsak fagsak = funnetFagsak.get();
-        if (!behandlingsoppretterApplikasjonTjeneste.kanOppretteNyBehandlingAvType(fagsak.getId(), kode)) {
-            LOG.info("BEHREST opprett behandling får nei for sak {} behandlingtype {}", fagsak.getSaksnummer().getVerdi(), kode.getKode());
+        try {
+            if (!behandlingsoppretterApplikasjonTjeneste.kanOppretteNyBehandlingAvType(fagsak.getId(), kode)) {
+                LOG.info("BEHREST opprett behandling får nei for sak {} behandlingtype {}", fagsak.getSaksnummer().getVerdi(), kode.getKode());
+            }
+        } catch (Exception e) {
+            LOG.info("BEHREST opprett behandling feil", e);
         }
 
         if (BehandlingType.INNSYN.equals(kode)) {

@@ -153,7 +153,7 @@ public class BehandlingsoppretterApplikasjonTjeneste {
 
     private boolean kanOppretteRevurdering(Long fagsakId) {
         boolean finnesÅpneBehandlingerAvType = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsakId).stream()
-            .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getFagsakYtelseType()) || BehandlingType.REVURDERING.equals(b.getType()));
+            .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()) || BehandlingType.REVURDERING.equals(b.getType()));
         var behandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsakId).orElse(null);
         if (finnesÅpneBehandlingerAvType || behandling == null) {
             return false;
@@ -164,7 +164,7 @@ public class BehandlingsoppretterApplikasjonTjeneste {
 
     private boolean kanOppretteFørstegangsbehandling(Long fagsakId) {
         boolean finnesÅpneBehandlingerAvType = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsakId).stream()
-            .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getFagsakYtelseType()) || BehandlingType.REVURDERING.equals(b.getType()));
+            .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()) || BehandlingType.REVURDERING.equals(b.getType()));
         var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElse(null);
         var sisteIkkeHenlagteBehandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakId).orElse(null);
         if (finnesÅpneBehandlingerAvType || sisteBehandling == null) {
