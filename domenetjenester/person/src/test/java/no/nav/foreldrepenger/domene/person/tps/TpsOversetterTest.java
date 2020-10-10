@@ -24,11 +24,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
@@ -37,9 +35,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.AktoerId;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bostedsadresse;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Doedsdato;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjoner;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Foedselsdato;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Gateadresse;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Gyldighetsperiode;
@@ -414,42 +409,6 @@ public class TpsOversetterTest extends EntityManagerAwareTest {
         assertThat(personstatushistorikk.get(1).getGyldighetsperiode().getFom()).isEqualTo(tomPeriode1);
         assertThat(personstatushistorikk.get(1).getGyldighetsperiode().getTom()).isEqualTo(Tid.TIDENES_ENDE);
         assertThat(personstatushistorikk.get(1).getPersonstatus().getKode()).isEqualTo(PersonstatusType.UTVA.getKode());
-    }
-
-    @Test
-    public void skal_returnere_fødte_barn_liste() throws DatatypeConfigurationException {
-        LocalDate førsteJanuarNitten = LocalDate.of(2019, 01, 01);
-        LocalDate andreFebruarNitten = LocalDate.of(2019, 02, 02);
-
-        tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
-
-        no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker bruker = new no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker();
-
-        no.nav.tjeneste.virksomhet.person.v3.informasjon.Person barnFnr = fødBarn("01011999928", false);
-        barnFnr.setFoedselsdato(new Foedselsdato().withFoedselsdato(DateUtil.convertToXMLGregorianCalendar(førsteJanuarNitten)));
-
-        no.nav.tjeneste.virksomhet.person.v3.informasjon.Person barnDnr = fødBarn("41011999847", true);
-        barnDnr.setFoedselsdato(new Foedselsdato().withFoedselsdato(DateUtil.convertToXMLGregorianCalendar(førsteJanuarNitten)));
-        barnDnr.setDoedsdato(new Doedsdato().withDoedsdato(DateUtil.convertToXMLGregorianCalendar(andreFebruarNitten)));
-
-        no.nav.tjeneste.virksomhet.person.v3.informasjon.Person barnFdat = fødBarn("01011900001", true);
-
-        Familierelasjoner familierelasjoner = new Familierelasjoner().withValue(RelasjonsRolleType.BARN.getKode());
-        Familierelasjon familierelasjonBarnFnr = new Familierelasjon().withTilRolle(familierelasjoner).withTilPerson(barnFnr);
-        Familierelasjon familierelasjonBarnDnr = new Familierelasjon().withTilRolle(familierelasjoner).withTilPerson(barnDnr);
-        Familierelasjon familierelasjonBarnFdat = new Familierelasjon().withTilRolle(familierelasjoner).withTilPerson(barnFdat);
-
-        List<FødtBarnInfo> fødteBarn = tpsOversetter.tilFødteBarn(bruker
-                .withHarFraRolleI(familierelasjonBarnFnr).withHarFraRolleI(familierelasjonBarnDnr).withHarFraRolleI(familierelasjonBarnFdat));
-
-        assertThat(fødteBarn).hasSize(3);
-        assertThat(fødteBarn.get(0).getFødselsdato()).isEqualTo(førsteJanuarNitten);
-        assertThat(fødteBarn.get(1).getFødselsdato()).isEqualTo(førsteJanuarNitten);
-        assertThat(fødteBarn.get(1).getDødsdato().get()).isEqualTo(andreFebruarNitten);
-        assertThat(fødteBarn.get(1).getIdent().erDnr()).isTrue();
-        assertThat(fødteBarn.get(2).getFødselsdato()).isEqualTo(førsteJanuarNitten);
-        assertThat(fødteBarn.get(2).getDødsdato().get()).isEqualTo(førsteJanuarNitten);
-        assertThat(fødteBarn.get(2).getIdent().erFdatNummer()).isTrue();
     }
 
     private no.nav.tjeneste.virksomhet.person.v3.informasjon.Person fødBarn(String ident, boolean erJente) {

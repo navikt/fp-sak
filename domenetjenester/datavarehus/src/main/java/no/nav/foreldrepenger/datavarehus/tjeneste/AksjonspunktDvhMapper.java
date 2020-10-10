@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh;
 
 public class AksjonspunktDvhMapper {
 
-    public AksjonspunktDvh map(Aksjonspunkt aksjonspunkt, Behandling behandling, Optional<BehandlingStegTilstand> behandlingStegTilstand, boolean aksjonspunktGodkjennt) {
+    public static AksjonspunktDvh map(Aksjonspunkt aksjonspunkt, Behandling behandling, Optional<BehandlingStegTilstand> behandlingStegTilstand, boolean aksjonspunktGodkjennt) {
         return AksjonspunktDvh.builder()
             .aksjonspunktDef(aksjonspunkt.getAksjonspunktDefinisjon().getKode())
             .aksjonspunktId(aksjonspunkt.getId())

@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
-import no.nav.foreldrepenger.domene.person.tps.TpsFamilieTjeneste;
+import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
@@ -47,10 +47,11 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
     public static final String OPTIONS_KEY = "ekoptions";
     public static final String OPTIONS_OPPRETT_EK = "ekopprett";
     public static final String OPTIONS_MANUELL_EK = "ekmanuell";
+    public static final String OPTIONS_REBEREGN_ES = "esrebergn";
 
     private static final Logger LOG = LoggerFactory.getLogger(AutomatiskEtterkontrollTask.class);
 
-    private TpsFamilieTjeneste tpsFamilieTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
@@ -69,12 +70,12 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
                                        EtterkontrollRepository etterkontrollRepository,
                                        HistorikkRepository historikkRepository,
                                        FamilieHendelseTjeneste familieHendelseTjeneste,
-                                       TpsFamilieTjeneste tpsFamilieTjeneste,
+                                       PersoninfoAdapter personinfoAdapter,
                                        ProsessTaskRepository prosessTaskRepository,
                                        BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-        this.tpsFamilieTjeneste = tpsFamilieTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.prosessTaskRepository = prosessTaskRepository;
         this.revurderingHistorikk = new RevurderingHistorikk(historikkRepository);
@@ -92,15 +93,17 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
 
         if (behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId)) {
-            opprettTaskForÅVurdereKonsekvens(fagsakId, behandling.getBehandlendeEnhet());
-            return;
+            if (!(OPTIONS_OPPRETT_EK.equals(options) || OPTIONS_MANUELL_EK.equals(options) || OPTIONS_REBEREGN_ES.equals(options))) {
+                opprettTaskForÅVurdereKonsekvens(fagsakId, behandling.getBehandlendeEnhet());
+                return;
+            }
         }
 
         List<FødtBarnInfo> barnFødtIPeriode = new ArrayList<>();
         final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = familieHendelseTjeneste.finnAggregat(behandling.getId()).orElse(null);
         if (familieHendelseGrunnlag != null) {
             var intervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
-            barnFødtIPeriode.addAll(tpsFamilieTjeneste.getFødslerRelatertTilBehandling(behandling.getAktørId(), intervaller));
+            barnFødtIPeriode.addAll(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(behandling.getAktørId(), intervaller));
             if (!barnFødtIPeriode.isEmpty()) {
                 revurderingHistorikk.opprettHistorikkinnslagForFødsler(behandling, barnFødtIPeriode);
             }
@@ -109,10 +112,10 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         EtterkontrollTjeneste automatiskEtterkontrollTjeneste = FagsakYtelseTypeRef.Lookup.find(EtterkontrollTjeneste.class, behandling.getFagsak().getYtelseType()).orElseThrow();
         Optional<BehandlingÅrsakType> revurderingsÅrsak = automatiskEtterkontrollTjeneste.utledRevurderingÅrsak(behandling, familieHendelseGrunnlag, barnFødtIPeriode);
 
-        if (OPTIONS_OPPRETT_EK.equals(options) || OPTIONS_MANUELL_EK.equals(options)) {
+        if (OPTIONS_OPPRETT_EK.equals(options) || OPTIONS_MANUELL_EK.equals(options) || OPTIONS_REBEREGN_ES.equals(options)) {
             if (revurderingsÅrsak.isPresent()) {
                 LOG.info("Etterkontroll Restanse sak {} ville gitt årsak {}", behandling.getFagsak().getSaksnummer().getVerdi(), revurderingsÅrsak.get().getKode());
-            } else {
+            } else if (!OPTIONS_REBEREGN_ES.equals(options)) {
                 opprettEtterkontroll(behandling);
                 etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
             }

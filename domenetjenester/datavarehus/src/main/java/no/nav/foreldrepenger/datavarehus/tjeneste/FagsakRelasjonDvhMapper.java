@@ -7,7 +7,7 @@ import no.nav.foreldrepenger.datavarehus.domene.FagsakRelasjonDvh;
 
 public class FagsakRelasjonDvhMapper {
 
-    public FagsakRelasjonDvh map(FagsakRelasjon fagsakRelasjon) {
+    public static FagsakRelasjonDvh map(FagsakRelasjon fagsakRelasjon) {
         Long fagsakNrTo = null;
 
         if (fagsakRelasjon.getFagsakNrTo().isPresent()) {

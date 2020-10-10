@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -27,7 +27,7 @@ public class CommonDvhMapperTest {
     public void skal_mappe_til_endret_av() {
         assertThat(CommonDvhMapper.finnEndretAvEllerOpprettetAv(byggOppdatertBehandling())).isEqualTo(ENDRET_AV);
     }
-   
+
 
     private Behandling byggNyBehandling() {
         Behandling behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagMocked();

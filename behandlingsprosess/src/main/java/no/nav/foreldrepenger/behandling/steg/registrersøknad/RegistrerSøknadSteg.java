@@ -36,11 +36,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
+import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 
 @BehandlingStegRef(kode = "REGSØK")
 @BehandlingTypeRef
@@ -49,7 +48,7 @@ import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 public class RegistrerSøknadSteg implements BehandlingSteg {
     private static final Period VENT_PÅ_SØKNAD_PERIODE = Period.parse("P4W");
     private BehandlingRepository behandlingRepository;
-    private MottatteDokumentRepository mottatteDokumentRepository;
+    private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
 
     RegistrerSøknadSteg() {
@@ -57,18 +56,18 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
     }
 
     @Inject
-    public RegistrerSøknadSteg(BehandlingRepositoryProvider behandlingRepositoryProvider,
+    public RegistrerSøknadSteg(BehandlingRepository behandlingRepository,
+                               MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
-
-        this.mottatteDokumentRepository = behandlingRepositoryProvider.getMottatteDokumentRepository();
-        this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
+        this.behandlingRepository = behandlingRepository;
+        this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        List<MottattDokument> mottatteDokumenterBehandling = mottatteDokumentRepository.hentMottatteDokument(kontekst.getBehandlingId());
-        List<MottattDokument> alleDokumentSak = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(kontekst.getFagsakId());
+        List<MottattDokument> mottatteDokumenterBehandling = mottatteDokumentTjeneste.hentMottatteDokument(kontekst.getBehandlingId());
+        List<MottattDokument> alleDokumentSak = mottatteDokumentTjeneste.hentMottatteDokumentFagsak(kontekst.getFagsakId());
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         if (alleDokumentSak.isEmpty()) {

@@ -13,10 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -31,10 +28,6 @@ import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
 public class AksjonspunktDvhMapperTest {
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-    private AksjonspunktDvhMapper mapper = new AksjonspunktDvhMapper();
 
     @Test
     public void skal_mappe_til_aksjonspunkt_dvh() {
@@ -56,7 +49,7 @@ public class AksjonspunktDvhMapperTest {
         Whitebox.setInternalState(behandling.getAksjonspunktMedDefinisjonOptional(AKSJONSPUNKT_DEF).get(), "opprettetTidspunkt", OPPRETTET_TID);
         Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(AKSJONSPUNKT_DEF).get();
 
-        AksjonspunktDvh dvh = mapper.map(aksjonspunkt, behandling, byggBehandlingStegTilstand(behandling), true);
+        AksjonspunktDvh dvh = AksjonspunktDvhMapper.map(aksjonspunkt, behandling, byggBehandlingStegTilstand(behandling), true);
 
         assertThat(dvh).isNotNull();
         assertThat(dvh.getAksjonspunktDef()).isEqualTo(AKSJONSPUNKT_DEF.getKode());
@@ -92,7 +85,7 @@ public class AksjonspunktDvhMapperTest {
         Whitebox.setInternalState(behandling.getAksjonspunktMedDefinisjonOptional(AKSJONSPUNKT_DEF).get(), "venteårsak", Venteårsak.UDEFINERT);
         Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(AKSJONSPUNKT_DEF).get();
 
-        AksjonspunktDvh dvh = mapper.map(aksjonspunkt, behandling, Optional.empty(), true);
+        AksjonspunktDvh dvh = AksjonspunktDvhMapper.map(aksjonspunkt, behandling, Optional.empty(), true);
 
         assertThat(dvh).isNotNull();
 

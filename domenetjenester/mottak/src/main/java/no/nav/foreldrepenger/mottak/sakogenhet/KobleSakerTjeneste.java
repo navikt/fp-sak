@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.sakogenhet;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -16,8 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -83,8 +80,7 @@ public class KobleSakerTjeneste {
 
         // Mangler familiehendelseinformasjon og mulighet for å finne samme barnekull.
         FamilieHendelseGrunnlagEntitet grunnlag = familieHendelseTjeneste.finnAggregat(behandling.getId()).orElse(null);
-        if (grunnlag == null || FamilieHendelseType.UDEFINERT.equals(grunnlag.getGjeldendeVersjon().getType())
-            || grunnlag.getGjeldendeVersjon().getSkjæringstidspunkt() == null) {
+        if (grunnlag == null || FamilieHendelseType.UDEFINERT.equals(grunnlag.getGjeldendeVersjon().getType())) {
             HendelserFeil.FACTORY.familiehendelseUtenDato(fagsak.getSaksnummer()).log(LOG);
             return Optional.empty();
         }
@@ -131,15 +127,8 @@ public class KobleSakerTjeneste {
 
     private Set<AktørId> finnAndreRegistrerteForeldreForBarnekull(AktørId aktørId, List<LocalDateInterval> intervaller) {
         // Hent fødsler i intervall og deretter kjerneinfo m/familierelasjoner for disse
-        List<Personinfo> brukersBarnForHendelse = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(aktørId, intervaller).stream()
-            .flatMap(b -> personinfoAdapter.innhentSaksopplysningerForBarn(b.getIdent()).stream())
-            .collect(Collectors.toList());
-        // Samle andre registrerte foreldre enn bruker/aktørId
-        return brukersBarnForHendelse.stream()
-            .map(Personinfo::getFamilierelasjoner)
-            .flatMap(Collection::stream)
-            .map(Familierelasjon::getPersonIdent)
-            .flatMap(pi -> personinfoAdapter.hentAktørIdForPersonIdent(pi).stream())
+        return personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(aktørId, intervaller).stream()
+            .flatMap(b -> personinfoAdapter.finnAktørIdForForeldreTil(b.getIdent()).stream())
             .filter(a -> !aktørId.equals(a))
             .collect(Collectors.toSet());
     }

@@ -114,7 +114,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     @Override
     public void lagreNedFagsakRelasjon(FagsakRelasjon fr) {
 
-        FagsakRelasjonDvh fagsakRelasjonDvh = new FagsakRelasjonDvhMapper().map(fr);
+        FagsakRelasjonDvh fagsakRelasjonDvh = FagsakRelasjonDvhMapper.map(fr);
         datavarehusRepository.lagre(fagsakRelasjonDvh);
     }
 
@@ -127,20 +127,19 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
             annenPartAktørId = personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandling.get().getId())
                 .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart).map(OppgittAnnenPartEntitet::getAktørId);
         }
-        FagsakDvh fagsakDvh = new FagsakDvhMapper().map(fagsak, annenPartAktørId);
+        FagsakDvh fagsakDvh = FagsakDvhMapper.map(fagsak, annenPartAktørId);
         datavarehusRepository.lagre(fagsakDvh);
     }
 
     @Override
     public void lagreNedAksjonspunkter(Collection<Aksjonspunkt> aksjonspunkter, Long behandlingId, BehandlingStegType behandlingStegType) {
-        AksjonspunktDvhMapper mapper = new AksjonspunktDvhMapper();
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         Optional<BehandlingStegTilstand> behandlingStegTilstand = behandling.getBehandlingStegTilstand(behandlingStegType);
         Collection<Totrinnsvurdering> totrinnsvurderings = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling);
         for (Aksjonspunkt aksjonspunkt : aksjonspunkter) {
             if (aksjonspunkt.getId() != null) {
                 boolean godkjennt = totrinnsvurderings.stream().anyMatch(ttv -> ttv.getAksjonspunktDefinisjon() == aksjonspunkt.getAksjonspunktDefinisjon() && ttv.isGodkjent());
-                AksjonspunktDvh aksjonspunktDvh = mapper.map(aksjonspunkt, behandling, behandlingStegTilstand, godkjennt);
+                AksjonspunktDvh aksjonspunktDvh = AksjonspunktDvhMapper.map(aksjonspunkt, behandling, behandlingStegTilstand, godkjennt);
                 datavarehusRepository.lagre(aksjonspunktDvh);
             }
         }
@@ -148,7 +147,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     @Override
     public void lagreNedBehandlingStegTilstand(Long behandlingId, BehandlingStegTilstandSnapshot tilTilstand) {
-        BehandlingStegDvh behandlingStegDvh = new BehandlingStegDvhMapper().map(tilTilstand, behandlingId);
+        BehandlingStegDvh behandlingStegDvh = BehandlingStegDvhMapper.map(tilTilstand, behandlingId);
         datavarehusRepository.lagre(behandlingStegDvh);
     }
 
@@ -157,8 +156,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         lagreNedBehandling(behandlingRepository.hentBehandling(behandlingId));
     }
 
-    @Override
-    public void lagreNedBehandling(Behandling behandling) {
+    private void lagreNedBehandling(Behandling behandling) {
         Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
         lagreNedBehandling(behandling, vedtak);
     }
@@ -176,7 +174,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
             }
         }
         LocalDateTime mottattTidspunkt = finnMottattTidspunkt(behandling);
-        BehandlingDvh behandlingDvh = new BehandlingDvhMapper().map(behandling, mottattTidspunkt, vedtak, fh, gjeldendeKlagevurderingresultat,
+        BehandlingDvh behandlingDvh = BehandlingDvhMapper.map(behandling, mottattTidspunkt, vedtak, fh, gjeldendeKlagevurderingresultat,
             uttak, skjæringstidspunkt);
         datavarehusRepository.lagre(behandlingDvh);
     }
@@ -194,7 +192,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     @Override
     public void lagreNedVedtak(BehandlingVedtak vedtak, Behandling behandling) {
-        BehandlingVedtakDvh behandlingVedtakDvh = new BehandlingVedtakDvhMapper().map(vedtak, behandling);
+        BehandlingVedtakDvh behandlingVedtakDvh = BehandlingVedtakDvhMapper.map(vedtak, behandling);
         datavarehusRepository.lagre(behandlingVedtakDvh);
 
         lagreNedBehandling(behandling, Optional.of(vedtak));
@@ -210,7 +208,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
                 .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
                 .map(FamilieHendelseEntitet::getType)
                 .orElse(FamilieHendelseType.UDEFINERT);
-            VedtakUtbetalingDvh vedtakUtbetalingDvh = new VedtakUtbetalingDvhMapper().map(vedtakXml, behandling, behandlingVedtakOpt.get(), hendelseType);
+            VedtakUtbetalingDvh vedtakUtbetalingDvh = VedtakUtbetalingDvhMapper.map(vedtakXml, behandling, behandlingVedtakOpt.get(), hendelseType);
             datavarehusRepository.lagre(vedtakUtbetalingDvh);
         }
     }
@@ -255,7 +253,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     }
 
     private void lagreAnkeVurderingResultat(AnkeVurderingResultatEntitet ankeVurderingResultat) {
-        AnkeVurderingResultatDvh ankeVurderingResultatDvh = new AnkeVurderingResultatDvhMapper().map(ankeVurderingResultat);
+        AnkeVurderingResultatDvh ankeVurderingResultatDvh = AnkeVurderingResultatDvhMapper.map(ankeVurderingResultat);
         datavarehusRepository.lagre(ankeVurderingResultatDvh);
     }
     @Override

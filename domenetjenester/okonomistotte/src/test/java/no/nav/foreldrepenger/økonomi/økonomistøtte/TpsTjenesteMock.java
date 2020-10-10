@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.økonomi.økonomistøtte;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
@@ -53,10 +51,5 @@ public class TpsTjenesteMock implements TpsTjeneste {
     @Override
     public Optional<PersonIdent> hentFnr(AktørId aktørId) {
         return Optional.empty();
-    }
-
-    @Override
-    public List<FødtBarnInfo> hentFødteBarn(AktørId aktørId) {
-        return null;
     }
 }

@@ -36,7 +36,6 @@ public class PersoninfoAdapterTest {
         Personinfo kjerneinfobarn = lagHentPersonResponseForBarn();
 
         TpsAdapter mockTpsAdapter = mock(TpsAdapter.class);
-        TpsFamilieTjeneste mockTpsFamilieTjeneste = mock(TpsFamilieTjeneste.class);
         when(mockTpsAdapter.hentAktørIdForPersonIdent(FNR_BARN)).thenReturn(Optional.of(AKTØR_ID_BARN));
         when(mockTpsAdapter.hentIdentForAktørId(AKTØR_ID_SØKER)).thenReturn(Optional.of(FNR_SØKER));
         when(mockTpsAdapter.hentIdentForAktørId(AKTØR_ID_BARN)).thenReturn(Optional.of(FNR_BARN));
@@ -46,7 +45,7 @@ public class PersoninfoAdapterTest {
         mockPersoninfo = mock(Personinfo.class);
         when(mockPersoninfo.getFødselsdato()).thenReturn(LocalDate.now()); // trenger bare en verdi
 
-        adapter = new PersoninfoAdapter(mockTpsAdapter, mockTpsFamilieTjeneste);
+        adapter = new PersoninfoAdapter(mockTpsAdapter);
     }
 
     @Test

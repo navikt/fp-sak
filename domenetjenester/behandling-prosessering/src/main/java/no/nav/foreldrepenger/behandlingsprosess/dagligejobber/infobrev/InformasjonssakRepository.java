@@ -312,7 +312,7 @@ public class InformasjonssakRepository {
                 "   join behandling b on b.fagsak_id = f.id " +
                 "   join behandling_resultat br on b.id = br.behandling_id " +
                 "   join (select beh.fagsak_id fsmax, max(brsq.opprettet_tid) maxbr from behandling beh " +
-                "        join behandling_resultat brsq on (brsq.behandling_id=beh.id and brsq.behandling_resultat_type in ('INNVILGET', 'AVSLÅTT')) " +
+                "        join behandling_resultat brsq on (brsq.behandling_id=beh.id and brsq.behandling_resultat_type in ('INNVILGET', 'FORELDREPENGER_ENDRET', 'INGEN_ENDRING', 'OPPHØR')) " +
                 "        where beh.behandling_type in (:behtyper) and beh.behandling_status in (:avsluttet) " +
                 "        group by beh.fagsak_id) on (fsmax=b.fagsak_id and br.opprettet_tid = maxbr) " +
                 "    join gr_familie_hendelse gf on (gf.behandling_id = b.id and gf.aktiv='J') " +
@@ -320,18 +320,60 @@ public class InformasjonssakRepository {
                 "    left outer join fh_familie_hendelse fhr on fhr.id=gf.bekreftet_familie_hendelse_id " +
                 "    left outer join fh_familie_hendelse fho on fho.id=gf.overstyrt_familie_hendelse_id " +
                 "    left outer join etterkontroll e on e.fagsak_id=f.id " +
-                "where behandling_resultat_type in (:restyper) " +
-                "   and b.behandling_type in (:behtyper) and b.behandling_status in (:avsluttet) " +
-                "   and f.ytelse_type = :estype " +
+                "where f.ytelse_type <> :estype " +
                 "   and fhs.familie_hendelse_type=:termin " +
                 "   and ((fhr.id is null and fho.id is null) or (fho.id is null and fhr.familie_hendelse_type=:termin) " +
                 "        or (fhr.id is null and fho.familie_hendelse_type=:termin) or (fhr.familie_hendelse_type=:termin and fho.familie_hendelse_type=:termin)) " +
-                "   and e.id is null and f.fagsak_status = 'AVSLU' " +
-                "   and f.id not in (select beh.fagsak_id from behandling beh join FPSAK.behandling_arsak brsq on (brsq.behandling_id=beh.id and brsq.behandling_arsak_type in ('RE-MF', 'RE-MFIP', 'RE-AVAB')))"
+                "   and e.id is null"
         ); //$NON-NLS-1$
+        query.setParameter("estype", FagsakYtelseType.SVANGERSKAPSPENGER.getKode()); //$NON-NLS-1$
+        query.setParameter("termin", FamilieHendelseType.TERMIN.getKode()); //$NON-NLS-1$
+        query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
+        query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultatList = query.getResultList();
+        return resultatList.stream().map(row -> konverterTilLong(row[0])).collect(Collectors.toList()); // NOSONAR;
+    }
+
+    public List<Long> finnEngangstonadForReberegning() {
+
+        List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
+        Query query = entityManager.createNativeQuery(
+            " select distinct b.id, f.saksnummer " +
+                "from fagsak f " +
+                "   join behandling b on b.fagsak_id = f.id " +
+                "   join behandling_resultat br on b.id = br.behandling_id " +
+                "   join (select beh.fagsak_id fsmax, max(brsq.opprettet_tid) maxbr from behandling beh " +
+                "        join behandling_resultat brsq on (brsq.behandling_id=beh.id and brsq.behandling_resultat_type in ('INNVILGET')) " +
+                "        where beh.behandling_type in (:behtyper) and beh.behandling_status in (:avsluttet) " +
+                "        group by beh.fagsak_id) on (fsmax=b.fagsak_id and br.opprettet_tid = maxbr) " +
+                "    join (select beh.fagsak_id fsmin, min(bvsq.opprettet_tid) minbv from behandling beh " +
+                "        join behandling_resultat brsq on (brsq.behandling_id=beh.id and brsq.behandling_resultat_type in ('INNVILGET')) " +
+                "        join behandling_vedtak bvsq on brsq.id = bvsq.behandling_resultat_id " +
+                "        where beh.behandling_type in (:behtyper) and beh.behandling_status in (:avsluttet) " +
+                "        group by beh.fagsak_id) on fsmin=b.fagsak_id " +
+                "    join behandling_vedtak bv on bv.opprettet_tid = minbv " +
+                "    join gr_familie_hendelse gf on (gf.behandling_id = b.id and gf.aktiv='J') " +
+                "    join fh_familie_hendelse fhs on fhs.id=gf.soeknad_familie_hendelse_id " +
+                "    left outer join fh_familie_hendelse fhr on fhr.id=gf.bekreftet_familie_hendelse_id " +
+                "    left outer join fh_familie_hendelse fho on fho.id=gf.overstyrt_familie_hendelse_id " +
+                "    left outer join fh_terminbekreftelse ts on ts.familie_hendelse_id=gf.soeknad_familie_hendelse_id"  +
+                "    left outer join fh_terminbekreftelse tov on tov.familie_hendelse_id=gf.overstyrt_familie_hendelse_id " +
+                "    left outer join BR_LEGACY_ES_BEREGNING esb on esb.BEREGNING_RESULTAT_ID=br.BEREGNING_RESULTAT_ID " +
+                "    left outer join gr_soeknad gs on (gs.behandling_id = b.id and gs.aktiv='J') " +
+                "    left outer join so_soeknad sok on sok.id = gs.soeknad_id " +
+                "where f.ytelse_type=:estype " +
+                "   and (ts.termindato is null or ts.termindato < sysdate or tov.termindato < sysdate)" +
+                "   and fhs.familie_hendelse_type=:termin " +
+                "   and (fhr.familie_hendelse_type is null or fhr.familie_hendelse_type <> 'FODSL')" +
+                "   and (((to_char(ts.termindato, 'YYYY')='2019' or to_char(tov.termindato, 'YYYY')='2019') and esb.sats_verdi < 83140) or" +
+                "   ((to_char(ts.termindato, 'YYYY')='2020' or to_char(tov.termindato, 'YYYY')='2020') and esb.sats_verdi < 84720))" +
+                "   and ((to_char(ts.termindato, 'YYYY') > to_char(bv.vedtak_dato, 'YYYY')) " +
+                "        or (to_char(tov.termindato, 'YYYY') > to_char(bv.vedtak_dato, 'YYYY')) " +
+                "        or (to_char(tov.termindato, 'YYYY') > to_char(sok.soeknadsdato, 'YYYY'))) "
+        );
         query.setParameter("estype", FagsakYtelseType.ENGANGSTØNAD.getKode()); //$NON-NLS-1$
         query.setParameter("termin", FamilieHendelseType.TERMIN.getKode()); //$NON-NLS-1$
-        query.setParameter("restyper", INNVILGET_TYPER); //$NON-NLS-1$
         query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
         query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
         @SuppressWarnings("unchecked")
