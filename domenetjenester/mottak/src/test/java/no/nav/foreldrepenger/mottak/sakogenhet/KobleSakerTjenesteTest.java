@@ -37,7 +37,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
-import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -447,11 +447,8 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     private void settOppTpsSurrogatiStrukturer() {
         HashSet<Familierelasjon> tilForeldreEn = new HashSet<>(Collections.singletonList(relasjontilMor));
         BARN_PINFO = new Personinfo.Builder().medAktørId(BARN_AKTØR_ID).medPersonIdent(BARN_IDENT).medFødselsdato(BARN_FØDT)
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").medAdresse("Vei").medFamilierelasjon(tilForeldreEn).build();
+            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").medFamilierelasjon(tilForeldreEn).build();
         BARN_FBI = new FødtBarnInfo.Builder().medIdent(BARN_IDENT).medFødselsdato(BARN_FØDT).build();
-        lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(MOR_IDENT)).thenReturn(Optional.of(MOR_AKTØR_ID));
-        lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(FAR_IDENT)).thenReturn(Optional.of(FAR_AKTØR_ID));
-        lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(BARN_IDENT)).thenReturn(Optional.of(BARN_AKTØR_ID));
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of(BARN_FBI));
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
         lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(BARN_IDENT)).thenReturn(List.of(MOR_AKTØR_ID));
@@ -466,17 +463,14 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         BARN_FBI = new FødtBarnInfo.Builder().medIdent(BARN_IDENT).medFødselsdato(BARN_FØDT).build();
         if (medNyligFødt) {
             BARN_PINFO = new Personinfo.Builder().medAktørId(BARN_AKTØR_ID).medPersonIdent(BARN_IDENT).medFødselsdato(BARN_FØDT)
-                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").medAdresse("Vei").medFamilierelasjon(tilForeldre).build();
+                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").medFamilierelasjon(tilForeldre).build();
         } else {
             BARN_PINFO = new Personinfo.Builder().medAktørId(BARN_AKTØR_ID).medPersonIdent(BARN_IDENT).medFødselsdato(BARN_FØDT)
-                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").medAdresse("Vei").build();
+                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").build();
         }
-        lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(MOR_IDENT)).thenReturn(Optional.of(MOR_AKTØR_ID));
-        lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(FAR_IDENT)).thenReturn(Optional.of(FAR_AKTØR_ID));
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of());
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
         if(nyfødtbarnEriTPS) {
-            lenient().when(personinfoAdapter.hentAktørIdForPersonIdent(BARN_IDENT)).thenReturn(Optional.of(BARN_AKTØR_ID));
             lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(BARN_IDENT)).thenReturn(List.of(MOR_AKTØR_ID, FAR_AKTØR_ID));
             lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of(BARN_FBI));
         }

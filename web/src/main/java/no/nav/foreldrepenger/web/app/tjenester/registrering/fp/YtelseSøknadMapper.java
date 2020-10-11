@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
@@ -58,15 +58,15 @@ import no.nav.vedtak.util.StringUtils;
 @ApplicationScoped
 public class YtelseSøknadMapper implements SøknadMapper {
 
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private VirksomhetTjeneste virksomhetTjeneste;
 
     public YtelseSøknadMapper() {
     }
 
     @Inject
-    public YtelseSøknadMapper(TpsTjeneste tpsTjeneste, VirksomhetTjeneste virksomhetTjeneste) {
-        this.tpsTjeneste = tpsTjeneste;
+    public YtelseSøknadMapper(PersoninfoAdapter personinfoAdapter, VirksomhetTjeneste virksomhetTjeneste) {
+        this.personinfoAdapter = personinfoAdapter;
         this.virksomhetTjeneste = virksomhetTjeneste;
     }
 
@@ -81,7 +81,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         foreldrepenger.setRettigheter(mapRettigheter(dto));
         foreldrepenger.setMedlemskap(SøknadMapperFelles.mapMedlemskap(registreringDto));
-        foreldrepenger.setAnnenForelder(mapAnnenForelder(registreringDto, tpsTjeneste));
+        foreldrepenger.setAnnenForelder(mapAnnenForelder(registreringDto, personinfoAdapter));
         foreldrepenger.setDekningsgrad(mapDekningsgrad(dto));
         foreldrepenger.setFordeling(mapFordeling(dto));
         foreldrepenger.setOpptjening(SøknadMapperFelles.mapOpptjening(dto, virksomhetTjeneste));

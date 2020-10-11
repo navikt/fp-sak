@@ -105,7 +105,7 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektPeriodeType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -156,7 +156,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     private Repository repository = repoRule.getRepository();
 
     @Mock
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter tpsTjeneste;
 
     @Inject
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;

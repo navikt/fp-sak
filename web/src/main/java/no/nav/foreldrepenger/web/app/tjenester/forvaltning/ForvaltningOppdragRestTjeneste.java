@@ -34,6 +34,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.vedtak.task.SendØkonomiOppdragTask;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.KvitteringDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
@@ -41,7 +43,6 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.Oppdragsl
 import no.nav.foreldrepenger.økonomi.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomiKvittering;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -59,7 +60,7 @@ public class ForvaltningOppdragRestTjeneste {
     private BehandleØkonomioppdragKvittering økonomioppdragKvitteringTjeneste;
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandlingRepository behandlingRepository;
-    private AktørConsumerMedCache aktørConsumer;
+    private PersoninfoAdapter personinfoAdapter;
     private ProsessTaskRepository prosessTaskRepository;
     private EntityManager entityManager;
     private BehandlingVedtakRepository behandlingVedtakRepository;
@@ -72,14 +73,14 @@ public class ForvaltningOppdragRestTjeneste {
     public ForvaltningOppdragRestTjeneste(BehandleØkonomioppdragKvittering økonomioppdragKvitteringTjeneste,
             ØkonomioppdragRepository økonomioppdragRepository,
             BehandlingRepository behandlingRepository,
-            AktørConsumerMedCache aktørConsumer,
+            PersoninfoAdapter personinfoAdapter,
             ProsessTaskRepository prosessTaskRepository,
             EntityManager entityManager,
             BehandlingVedtakRepository behandlingVedtakRepository) {
         this.økonomioppdragKvitteringTjeneste = økonomioppdragKvitteringTjeneste;
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.behandlingRepository = behandlingRepository;
-        this.aktørConsumer = aktørConsumer;
+        this.personinfoAdapter = personinfoAdapter;
         this.prosessTaskRepository = prosessTaskRepository;
         this.entityManager = entityManager;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
@@ -158,13 +159,13 @@ public class ForvaltningOppdragRestTjeneste {
         validerFagsystemId(behandling, dto.getFagsystemId());
         validerDelytelseId(dto);
 
-        String fnrBruker = aktørConsumer.hentPersonIdentForAktørId(behandling.getAktørId().getId())
+        PersonIdent fnrBruker = personinfoAdapter.hentFnr(behandling.getAktørId())
                 .orElseThrow(() -> new IllegalArgumentException("Fant ikke FNR for aktør på behandlingId=" + behandlingId));
 
         kvitterBortEksisterendeOppdrag(dto, oppdragskontroll);
 
         var behandlingVedtak = behandlingVedtakRepository.hentForBehandling(behandling.getId());
-        OppdragMapper mapper = new OppdragMapper(dto, behandling, fnrBruker, behandlingVedtak);
+        OppdragMapper mapper = new OppdragMapper(dto, behandling, fnrBruker.getIdent(), behandlingVedtak);
         mapper.mapTil(oppdragskontroll);
         oppdragskontroll.setVenterKvittering(true);
         økonomioppdragRepository.lagre(oppdragskontroll);

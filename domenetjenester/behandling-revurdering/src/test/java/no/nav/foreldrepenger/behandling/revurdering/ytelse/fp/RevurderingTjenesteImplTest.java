@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -184,8 +183,6 @@ public class RevurderingTjenesteImplTest {
         return new FødtBarnInfo.Builder()
             .medFødselsdato(fødselsdato)
             .medIdent(PersonIdent.fra("12345678901"))
-            .medNavn("barn")
-            .medNavBrukerKjønn(NavBrukerKjønn.MANN)
             .build();
     }
 }

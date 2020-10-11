@@ -1,24 +1,36 @@
-package no.nav.foreldrepenger.domene.person.tps;
+package no.nav.foreldrepenger.domene.person;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
+import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
+import no.nav.foreldrepenger.domene.person.pdl.TilknytningTjeneste;
+import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
+@ExtendWith(MockitoExtension.class)
 public class PersoninfoAdapterTest {
+
+    @Mock
+    private FødselTjeneste fødselTjeneste;
+    @Mock
+    private TilknytningTjeneste tilknytningTjeneste;
 
     private PersoninfoAdapter adapter; // objektet vi tester
 
@@ -36,22 +48,21 @@ public class PersoninfoAdapterTest {
         Personinfo kjerneinfobarn = lagHentPersonResponseForBarn();
 
         TpsAdapter mockTpsAdapter = mock(TpsAdapter.class);
-        when(mockTpsAdapter.hentAktørIdForPersonIdent(FNR_BARN)).thenReturn(Optional.of(AKTØR_ID_BARN));
-        when(mockTpsAdapter.hentIdentForAktørId(AKTØR_ID_SØKER)).thenReturn(Optional.of(FNR_SØKER));
-        when(mockTpsAdapter.hentIdentForAktørId(AKTØR_ID_BARN)).thenReturn(Optional.of(FNR_BARN));
-        when(mockTpsAdapter.hentKjerneinformasjon(FNR_BARN, AKTØR_ID_BARN)).thenReturn(kjerneinfobarn);
-        when(mockTpsAdapter.hentKjerneinformasjon(FNR_SØKER, AKTØR_ID_SØKER)).thenReturn(kjerneinfoSøker);
+        lenient().when(mockTpsAdapter.hentAktørIdForPersonIdent(FNR_BARN)).thenReturn(Optional.of(AKTØR_ID_BARN));
+        lenient().when(mockTpsAdapter.hentIdentForAktørId(AKTØR_ID_SØKER)).thenReturn(Optional.of(FNR_SØKER));
+        lenient().when(mockTpsAdapter.hentIdentForAktørId(AKTØR_ID_BARN)).thenReturn(Optional.of(FNR_BARN));
+        lenient().when(mockTpsAdapter.hentKjerneinformasjon(FNR_BARN, AKTØR_ID_BARN)).thenReturn(kjerneinfobarn);
+        lenient().when(mockTpsAdapter.hentKjerneinformasjon(FNR_SØKER, AKTØR_ID_SØKER)).thenReturn(kjerneinfoSøker);
 
         mockPersoninfo = mock(Personinfo.class);
-        when(mockPersoninfo.getFødselsdato()).thenReturn(LocalDate.now()); // trenger bare en verdi
+        lenient().when(mockPersoninfo.getFødselsdato()).thenReturn(LocalDate.now()); // trenger bare en verdi
 
-        adapter = new PersoninfoAdapter(mockTpsAdapter);
+        adapter = new PersoninfoAdapter(mockTpsAdapter, fødselTjeneste, tilknytningTjeneste);
     }
 
     @Test
     public void skal_innhente_saksopplysninger_for_søker() {
-        when(mockPersoninfo.getAktørId()).thenReturn(AKTØR_ID_SØKER);
-        when(mockPersoninfo.getKjønn()).thenReturn(NavBrukerKjønn.KVINNE);
+        lenient().when(mockPersoninfo.getAktørId()).thenReturn(AKTØR_ID_SØKER);
 
         Personinfo søker = adapter.innhentSaksopplysningerForSøker(AKTØR_ID_SØKER);
 
@@ -62,8 +73,7 @@ public class PersoninfoAdapterTest {
 
     @Test
     public void skal_innhente_saksopplysninger_for_barn() {
-        when(mockPersoninfo.getAktørId()).thenReturn(AKTØR_ID_BARN);
-        when(mockPersoninfo.getKjønn()).thenReturn(NavBrukerKjønn.KVINNE);
+        lenient().when(mockPersoninfo.getAktørId()).thenReturn(AKTØR_ID_BARN);
 
         Optional<Personinfo> barn = adapter.innhentSaksopplysningerForBarn(FNR_BARN);
 

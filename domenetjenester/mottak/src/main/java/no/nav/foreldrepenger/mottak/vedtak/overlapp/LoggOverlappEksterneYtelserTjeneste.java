@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -42,7 +43,6 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.util.env.Environment;
@@ -62,7 +62,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingRepository behandlingRepository;
-    private AktørConsumerMedCache aktørConsumer;
+    private PersoninfoAdapter personinfoAdapter;
     private InfotrygdPSGrunnlag infotrygdPSGrTjeneste;
     private InfotrygdSPGrunnlag infotrygdSPGrTjeneste;
     private AbakusTjeneste abakusTjeneste;
@@ -78,7 +78,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     @Inject
     public LoggOverlappEksterneYtelserTjeneste(BeregningsresultatRepository beregningsresultatRepository,
-                                               AktørConsumerMedCache aktørConsumer,
+                                               PersoninfoAdapter personinfoAdapter,
                                                InfotrygdPSGrunnlag infotrygdPSGrTjeneste,
                                                InfotrygdSPGrunnlag infotrygdSPGrTjeneste,
                                                AbakusTjeneste abakusTjeneste,
@@ -87,7 +87,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                                BehandlingRepository behandlingRepository) {
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.behandlingRepository = behandlingRepository;
-        this.aktørConsumer = aktørConsumer;
+        this.personinfoAdapter = personinfoAdapter;
         this.infotrygdPSGrTjeneste = infotrygdPSGrTjeneste;
         this.infotrygdSPGrTjeneste = infotrygdSPGrTjeneste;
         this.abakusTjeneste = abakusTjeneste;
@@ -242,7 +242,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     private PersonIdent getFnrFraAktørId(AktørId aktørId) {
-        return aktørConsumer.hentPersonIdentForAktørId(aktørId.getId()).map(PersonIdent::new).orElseThrow();
+        return personinfoAdapter.hentFnr(aktørId).orElseThrow();
     }
 
     private static LocalDateSegment<BigDecimal> max(LocalDateInterval dateInterval, LocalDateSegment<BigDecimal> lhs, LocalDateSegment<BigDecimal> rhs) {

@@ -12,11 +12,11 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdFPGrunnlag;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.StatusKode;
@@ -30,16 +30,16 @@ public class OverlappFPInfotrygdTjeneste {
 
 
     private InfotrygdFPGrunnlag tjeneste ;
-    private AktørConsumerMedCache aktørConsumer;
+    private PersoninfoAdapter personinfoAdapter;
 
     OverlappFPInfotrygdTjeneste() {
         // CDI
     }
 
     @Inject
-    public OverlappFPInfotrygdTjeneste(InfotrygdFPGrunnlag tjeneste, AktørConsumerMedCache aktørConsumer) {
+    public OverlappFPInfotrygdTjeneste(InfotrygdFPGrunnlag tjeneste, PersoninfoAdapter personinfoAdapter) {
         this.tjeneste = tjeneste;
-        this.aktørConsumer = aktørConsumer;
+        this.personinfoAdapter = personinfoAdapter;
     }
 
     public boolean harForeldrepengerInfotrygdSomOverlapper(AktørId aktørId, LocalDate vedtakDato) {
@@ -82,7 +82,7 @@ public class OverlappFPInfotrygdTjeneste {
     }
 
     private PersonIdent getFnrFraAktørId(AktørId aktørId) {
-        return aktørConsumer.hentPersonIdentForAktørId(aktørId.getId()).map(PersonIdent::new).orElseThrow();
+        return personinfoAdapter.hentFnr(aktørId).orElseThrow();
     }
 
     private boolean harUtbetaling(Vedtak v) {

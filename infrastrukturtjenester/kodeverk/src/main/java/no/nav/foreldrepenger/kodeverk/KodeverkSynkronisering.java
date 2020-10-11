@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.kodeverk;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
@@ -84,21 +83,6 @@ class KodeverkSynkronisering {
         }
 
         masterKoderMap.forEach((key, value) -> synkroniserNyEllerEksisterendeKode(kodeverk, eksisterendeKoderMap, value));
-        behandleEksisterendeKoderIkkeMottatt(eksisterendeKoderMap, masterKoderMap);
-    }
-
-    /**
-     * Koder slettes aldri. Dersom en eksisterende kode ikke mottas logges dette som
-     * en warning.
-     */
-    private static void behandleEksisterendeKoderIkkeMottatt(Map<String, DefaultKodeverdi> eksisterendeKoderMap,
-            Map<String, KodeverkKode> masterKoderMap) {
-        Set<String> eksisterendeKoderIkkeMottatt = eksisterendeKoderMap.keySet().stream()
-                .filter(eksisterendeKode -> !masterKoderMap.containsKey(eksisterendeKode))
-                .collect(Collectors.toSet());
-        eksisterendeKoderIkkeMottatt.forEach(
-                ikkeMottatt -> KodeverkFeil.FACTORY.eksisterendeKodeIkkeMottatt(eksisterendeKoderMap.get(ikkeMottatt).getKodeverk(), ikkeMottatt)
-                        .log(LOGGER));
     }
 
     private void synkroniserNyEllerEksisterendeKode(Kodeverk kodeverk, Map<String, DefaultKodeverdi> eksisterendeKoderMap,
@@ -116,20 +100,12 @@ class KodeverkSynkronisering {
     }
 
     private void synkroniserNyKode(String kodeverk, KodeverkKode kodeverkKode) {
-        LOGGER.info("Ny kode: {} {}", // NOSONAR
-                LoggerUtils.removeLineBreaks(kodeverk), // NOSONAR
-                LoggerUtils.removeLineBreaks(kodeverkKode.getKode())); // NOSONAR
-
         kodeverkSynkroniseringRepository.opprettNyKode(kodeverk, kodeverkKode.getKode(),
                 kodeverkKode.getKode(), kodeverkKode.getNavn(), kodeverkKode.getGyldigFom(), kodeverkKode.getGyldigTom());
     }
 
     private void synkroniserEksisterendeKode(KodeverkKode kodeverkKode, DefaultKodeverdi kodeliste) {
         if (!erLike(kodeverkKode, kodeliste)) {
-            LOGGER.info("Oppdaterer kode: {} {}", // NOSONAR
-                    LoggerUtils.removeLineBreaks(kodeliste.getKodeverk()), // NOSONAR
-                    LoggerUtils.removeLineBreaks(kodeliste.getKode())); // NOSONAR
-
             kodeverkSynkroniseringRepository.oppdaterEksisterendeKode(kodeliste.getKodeverk(), kodeliste.getKode(),
                     kodeverkKode.getKode(), kodeverkKode.getNavn(), kodeverkKode.getGyldigFom(), kodeverkKode.getGyldigTom());
         }

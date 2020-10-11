@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.web.RepositoryAwareTest;
 public class OpprettSakTjenesteImplTest extends RepositoryAwareTest {
 
     @Mock
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
 
     @Mock
     private BrukerTjeneste brukerTjeneste;
@@ -54,7 +54,7 @@ public class OpprettSakTjenesteImplTest extends RepositoryAwareTest {
                 .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
                 .medAktørId(aktørId)
                 .medForetrukketSpråk(Språkkode.NB).build();
-        lenient().when(tpsTjeneste.hentBrukerForAktør(any(AktørId.class))).thenReturn(Optional.of(personinfo));
+        lenient().when(personinfoAdapter.hentBrukerForAktør(any(AktørId.class))).thenReturn(Optional.of(personinfo));
 
         // Mock BersonTjeneste
         NavBruker navBruker = NavBruker.opprettNy(personinfo);
@@ -62,7 +62,7 @@ public class OpprettSakTjenesteImplTest extends RepositoryAwareTest {
 
         var fagsakTjeneste = new FagsakTjeneste(fagsakRepository, søknadRepository, null);
         var opprettGSakTjeneste = new OpprettGSakTjeneste(null);
-        this.opprettSakTjeneste = new OpprettSakTjeneste(tpsTjeneste, fagsakTjeneste, opprettGSakTjeneste, brukerTjeneste, null);
+        this.opprettSakTjeneste = new OpprettSakTjeneste(personinfoAdapter, fagsakTjeneste, opprettGSakTjeneste, brukerTjeneste, null);
     }
 
     @Test

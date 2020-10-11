@@ -15,7 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles;
@@ -30,14 +30,14 @@ public class SøknadMapperTest {
     public static final AktørId STD_KVINNE_AKTØR_ID = AktørId.dummy();
 
     @Mock
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
 
     private SøknadMapper ytelseSøknadMapper;
 
     @BeforeEach
     public void setUp() {
-        tpsTjeneste = mock(TpsTjeneste.class);
-        ytelseSøknadMapper = new YtelseSøknadMapper(tpsTjeneste);
+        personinfoAdapter = mock(PersoninfoAdapter.class);
+        ytelseSøknadMapper = new YtelseSøknadMapper(personinfoAdapter);
     }
 
     @Test

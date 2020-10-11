@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.dto.AndreYtelserDto;
@@ -81,7 +81,7 @@ public class SøknadMapperFelles {
         return søknad;
     }
 
-    public static AnnenForelder mapAnnenForelder(ManuellRegistreringDto registreringDto, TpsTjeneste tpsTjeneste) {
+    public static AnnenForelder mapAnnenForelder(ManuellRegistreringDto registreringDto, PersoninfoAdapter personinfoAdapter) {
         AnnenForelderDto annenForelderDto = registreringDto.getAnnenForelder();
         if (annenForelderDto == null) {
             return null;
@@ -102,7 +102,7 @@ public class SøknadMapperFelles {
         }
 
         AnnenForelderMedNorskIdent annenForelderMedNorskIdent = new AnnenForelderMedNorskIdent();
-        AktørId aktørId = tpsTjeneste.hentAktørForFnr(PersonIdent.fra(annenForelderDto.getFoedselsnummer()))
+        AktørId aktørId = personinfoAdapter.hentAktørForFnr(PersonIdent.fra(annenForelderDto.getFoedselsnummer()))
             .orElseThrow(() -> FeilFactory.create(ManuellRegistreringFeil.class).feilVedhentingAvAktørId(annenForelderDto.getFoedselsnummer()).toException());
         annenForelderMedNorskIdent.setAktoerId(aktørId.getId());
 

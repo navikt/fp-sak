@@ -28,15 +28,16 @@ import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.iay.modell.UtsettelsePeriode;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.InntektsmeldingFeil;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.NamespaceRef;
 import no.nav.inntektsmelding.xml.kodeliste._2018xxyy.NaturalytelseKodeliste;
 import no.nav.inntektsmelding.xml.kodeliste._2018xxyy.ÅrsakInnsendingKodeliste;
 import no.nav.inntektsmelding.xml.kodeliste._2018xxyy.ÅrsakUtsettelseKodeliste;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.konfig.Tid;
 import no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsforhold;
@@ -60,7 +61,7 @@ public class MottattDokumentOversetterInntektsmelding implements MottattDokument
     }
 
     private VirksomhetTjeneste virksomhetTjeneste;
-    private AktørConsumerMedCache aktørConsumer;
+    private PersoninfoAdapter personinfoAdapter;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     MottattDokumentOversetterInntektsmelding() {
@@ -70,10 +71,10 @@ public class MottattDokumentOversetterInntektsmelding implements MottattDokument
     @Inject
     public MottattDokumentOversetterInntektsmelding(InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                                     VirksomhetTjeneste virksomhetTjeneste,
-                                                    AktørConsumerMedCache aktørConsumer) {
+                                                    PersoninfoAdapter personinfoAdapter) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.virksomhetTjeneste = virksomhetTjeneste;
-        this.aktørConsumer = aktørConsumer;
+        this.personinfoAdapter = personinfoAdapter;
     }
 
     @Override
@@ -132,11 +133,9 @@ public class MottattDokumentOversetterInntektsmelding implements MottattDokument
             Virksomhet virksomhet = virksomhetTjeneste.hentOrganisasjon(orgNummer);
             builder.medArbeidsgiver(Arbeidsgiver.virksomhet(orgNummer));
         } else if (wrapper.getArbeidsgiverPrivat().isPresent()) {
-            Optional<String> aktørIdArbeidsgiver = aktørConsumer.hentAktørIdForPersonIdent(wrapper.getArbeidsgiverPrivat().get().getArbeidsgiverFnr());
-            if (!aktørIdArbeidsgiver.isPresent()) {
-                throw InntektsmeldingFeil.FACTORY.finnerIkkeArbeidsgiverITPS().toException();
-            }
-            builder.medArbeidsgiver(Arbeidsgiver.person(new AktørId(aktørIdArbeidsgiver.get())));
+            AktørId aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(new PersonIdent(wrapper.getArbeidsgiverPrivat().get().getArbeidsgiverFnr()))
+                .orElseThrow(() -> InntektsmeldingFeil.FACTORY.finnerIkkeArbeidsgiverITPS().toException());
+            builder.medArbeidsgiver(Arbeidsgiver.person(aktørIdArbeidsgiver));
         } else {
             throw InntektsmeldingFeil.FACTORY.manglendeArbeidsgiver().toException();
         }

@@ -12,9 +12,6 @@ import javax.ws.rs.core.Response;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -23,29 +20,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.EnhetsTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.event.BehandlingEnhetEventPubliserer;
 import no.nav.foreldrepenger.web.RepositoryAwareTest;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverkTjeneste;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRestKlient;
 
-@ExtendWith(MockitoExtension.class)
 public class KodeverkRestTjenesteTest extends RepositoryAwareTest {
 
     private HentKodeverkTjeneste hentKodeverkTjeneste;
-    @Mock
-    private BehandlingEnhetEventPubliserer eventPubliserer;
-    @Mock
-    private TpsTjeneste tpsTjeneste;
-    @Mock
-    private ArbeidsfordelingRestKlient arbeidsfordelingRestKlient;
 
     @BeforeEach
     public void before() {
-        hentKodeverkTjeneste = new HentKodeverkTjeneste(new BehandlendeEnhetTjeneste(new EnhetsTjeneste(tpsTjeneste, arbeidsfordelingRestKlient), eventPubliserer, repositoryProvider));
+        hentKodeverkTjeneste = new HentKodeverkTjeneste(new BehandlendeEnhetTjeneste());
     }
 
     @Test

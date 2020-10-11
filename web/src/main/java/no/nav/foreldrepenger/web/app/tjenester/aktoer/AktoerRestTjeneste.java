@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.exceptions.FeilDto;
@@ -47,7 +47,7 @@ public class AktoerRestTjeneste {
     public static final String AKTOER_INFO_PATH = BASE_PATH + AKTOER_INFO_PART_PATH; // NOSONAR TFP-2234
 
     private FagsakRepository fagsakRepository;
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private DekningsgradTjeneste dekningsgradTjeneste;
 
     public AktoerRestTjeneste() {
@@ -55,9 +55,9 @@ public class AktoerRestTjeneste {
     }
 
     @Inject
-    public AktoerRestTjeneste(FagsakRepository fagsakRepository, TpsTjeneste tpsTjeneste, DekningsgradTjeneste dekningsgradTjeneste) {
+    public AktoerRestTjeneste(FagsakRepository fagsakRepository, PersoninfoAdapter personinfoAdapter, DekningsgradTjeneste dekningsgradTjeneste) {
         this.fagsakRepository = fagsakRepository;
-        this.tpsTjeneste = tpsTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
@@ -71,7 +71,7 @@ public class AktoerRestTjeneste {
         Optional<AktørId> aktoerId = aktoerIdDto.get();
         AktoerInfoDto aktoerInfoDto = new AktoerInfoDto();
         if (aktoerId.isPresent()) {
-            Optional<Personinfo> personinfo = tpsTjeneste.hentBrukerForAktør(aktoerId.get());
+            Optional<Personinfo> personinfo = personinfoAdapter.hentBrukerForAktør(aktoerId.get());
             if (personinfo.isPresent()) {
                 Personinfo pi = personinfo.get();
                 PersonDto personDto = new PersonDto(

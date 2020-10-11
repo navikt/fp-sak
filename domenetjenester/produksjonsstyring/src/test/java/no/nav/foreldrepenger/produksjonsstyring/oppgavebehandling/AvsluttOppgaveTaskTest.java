@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
@@ -33,7 +33,7 @@ public class AvsluttOppgaveTaskTest extends EntityManagerAwareTest {
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
 
     @Mock
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     @Mock
     private OppgaveRestKlient oppgaveRestKlient;
     @Mock
@@ -44,7 +44,7 @@ public class AvsluttOppgaveTaskTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(getEntityManager());
         oppgaveTjeneste = new OppgaveTjeneste(repositoryProvider, oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository,
-                tpsTjeneste);
+            personinfoAdapter);
     }
 
     @Test

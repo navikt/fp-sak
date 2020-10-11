@@ -8,7 +8,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.GregorianCalendar;
 import java.util.Map;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,10 +28,11 @@ import no.nav.tjeneste.virksomhet.kodeverk.v2.informasjon.Term;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkRequest;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkResponse;
 import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.kodeverk.KodeverkConsumer;
 
 public class KodeverkTjenesteImplTest {
+
+    private static final DatatypeFactory DATATYPE_FACTORY;
 
     private KodeverkConsumer kodeverkConsumer = mock(KodeverkConsumer.class);
     private KodeverkTjeneste kodeverkTjeneste;
@@ -118,8 +125,8 @@ public class KodeverkTjenesteImplTest {
 
     private static Kode lagKode(String kodeNavn, String termNavn, LocalDate fom, LocalDate tom) {
         Periode periode = new Periode();
-        periode.setFom(DateUtil.convertToXMLGregorianCalendar(fom));
-        periode.setTom(DateUtil.convertToXMLGregorianCalendar(tom));
+        periode.setFom(convertToXMLGregorianCalendar(fom));
+        periode.setTom(convertToXMLGregorianCalendar(tom));
         Kode kode = new Kode();
         kode.setNavn(kodeNavn);
         kode.getGyldighetsperiode().add(periode);
@@ -129,5 +136,22 @@ public class KodeverkTjenesteImplTest {
         term.getGyldighetsperiode().add(periode);
         kode.getTerm().add(term);
         return kode;
+    }
+
+    public static XMLGregorianCalendar convertToXMLGregorianCalendar(LocalDate localDate) {
+        if (localDate == null) {
+            return null;
+        } else {
+            GregorianCalendar gregorianCalendar = GregorianCalendar.from(localDate.atStartOfDay(ZoneId.systemDefault()));
+            return DATATYPE_FACTORY.newXMLGregorianCalendar(gregorianCalendar);
+        }
+    }
+
+    static {
+        try {
+            DATATYPE_FACTORY = DatatypeFactory.newInstance();
+        } catch (DatatypeConfigurationException var1) {
+            throw new IllegalStateException(var1);
+        }
     }
 }

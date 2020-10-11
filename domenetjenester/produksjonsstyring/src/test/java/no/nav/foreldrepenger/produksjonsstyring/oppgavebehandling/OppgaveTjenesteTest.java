@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.historikk.Oppgavetyper;
@@ -62,7 +62,7 @@ public class OppgaveTjenesteTest {
     private Repository repository = repoRule.getRepository();
 
     private OppgaveTjeneste tjeneste;
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private ProsessTaskRepository prosessTaskRepository;
     private OppgaveRestKlient oppgaveRestKlient;
 
@@ -75,11 +75,11 @@ public class OppgaveTjenesteTest {
     @Before
     public void oppsett() {
 
-        tpsTjeneste = mock(TpsTjeneste.class);
+        personinfoAdapter = mock(PersoninfoAdapter.class);
         prosessTaskRepository = mock(ProsessTaskRepository.class);
         oppgaveRestKlient = Mockito.mock(OppgaveRestKlient.class);
         oppgaveBehandlingKoblingRepository = spy(new OppgaveBehandlingKoblingRepository(entityManager));
-        tjeneste = new OppgaveTjeneste(repositoryProvider, oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository, tpsTjeneste);
+        tjeneste = new OppgaveTjeneste(repositoryProvider, oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository, personinfoAdapter);
         lagBehandling();
     }
 
@@ -330,7 +330,7 @@ public class OppgaveTjenesteTest {
             .medFødselsdato(LocalDate.of(1980,4,1))
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
             .build();
-        when(tpsTjeneste.hentBrukerForAktør(behandling.getAktørId())).thenReturn(Optional.of(personinfo));
+        when(personinfoAdapter.hentBrukerForAktør(behandling.getAktørId())).thenReturn(Optional.of(personinfo));
         LocalDate forventetFrist = VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1));
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);

@@ -70,8 +70,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndrin
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.person.tps.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.HentOppdragMedPositivKvittering;
@@ -81,7 +80,6 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFac
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettBehandlingForOppdrag;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.OppdragskontrollManagerFactoryDagYtelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.SjekkOmDetFinnesTilkjentYtelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.adapter.BehandlingTilOppdragMapperTjeneste;
@@ -90,6 +88,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.endring.Oppdrags
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.førstegangsoppdrag.OppdragskontrollFørstegang;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.OppdragskontrollOpphør;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.OpprettOpphørIEndringsoppdrag;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public abstract class OppdragskontrollTjenesteImplBaseTest {
@@ -135,12 +134,11 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
 
     public void setUp() {
         PersoninfoAdapter personinfoAdapterMock = mock(PersoninfoAdapter.class);
-        TpsTjeneste tpsTjeneste = mock(TpsTjeneste.class);
 
         HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
         SjekkOmDetFinnesTilkjentYtelse sjekkOmDetFinnesTilkjentYtelse = new SjekkOmDetFinnesTilkjentYtelse(beregningsresultatRepository);
         MapBehandlingVedtak mapBehandlingVedtakFP = new MapBehandlingVedtak(repositoryProvider.getBehandlingVedtakRepository());
-        BehandlingTilOppdragMapperTjeneste behandlingTilOppdragMapperTjenesteFP = new BehandlingTilOppdragMapperTjeneste(hentOppdragMedPositivKvittering, mapBehandlingVedtakFP, tpsTjeneste, tilbakekrevingRepository, beregningsresultatRepository, familieHendelseRepository, sjekkOmDetFinnesTilkjentYtelse);
+        BehandlingTilOppdragMapperTjeneste behandlingTilOppdragMapperTjenesteFP = new BehandlingTilOppdragMapperTjeneste(hentOppdragMedPositivKvittering, mapBehandlingVedtakFP, personinfoAdapterMock, tilbakekrevingRepository, beregningsresultatRepository, familieHendelseRepository, sjekkOmDetFinnesTilkjentYtelse);
         OppdragskontrollFørstegang oppdragskontrollFørstegangFP = new OppdragskontrollFørstegang(behandlingTilOppdragMapperTjenesteFP);
         OppdragskontrollOpphør oppdragskontrollOpphørFP = new OppdragskontrollOpphør(behandlingTilOppdragMapperTjenesteFP, unleash);
         OpprettOpphørIEndringsoppdrag opprettOpphørIEndringsoppdragBruker = new OpprettOpphørIEndringsoppdrag(oppdragskontrollOpphørFP);
@@ -157,7 +155,7 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
 
         personInfo = OpprettBehandlingForOppdrag.opprettPersonInfo();
         when(personinfoAdapterMock.innhentSaksopplysningerForSøker(any(AktørId.class))).thenReturn(personInfo);
-        when(tpsTjeneste.hentFnrForAktør(any(AktørId.class))).thenReturn(personInfo.getPersonIdent());
+        when(personinfoAdapterMock.hentFnrForAktør(any(AktørId.class))).thenReturn(personInfo.getPersonIdent());
     }
 
     protected Behandling opprettOgLagreBehandlingFPForSammeFagsak(Fagsak fagsak) {

@@ -31,8 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.ArbeidsforholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.RettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
@@ -59,9 +58,8 @@ import no.nav.vedtak.konfig.Tid;
 @ExtendWith(MockitoExtension.class)
 public class SøknadMapperFellesTest {
 
-    public static final AktørId STD_KVINNE_AKTØR_ID = AktørId.dummy();
     @Mock
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     @Mock
     private VirksomhetTjeneste virksomhetTjeneste;
 
@@ -201,7 +199,7 @@ public class SøknadMapperFellesTest {
                 omsorgsovertakelsesdato, RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, antallBarn, LocalDate.now());
 
         manuellRegistreringEngangsstonadDto.setAnnenForelder(opprettAnnenForelderDto(true, true, true));
-        AnnenForelder annenForelder = SøknadMapperFelles.mapAnnenForelder(manuellRegistreringEngangsstonadDto, tpsTjeneste);
+        AnnenForelder annenForelder = SøknadMapperFelles.mapAnnenForelder(manuellRegistreringEngangsstonadDto, personinfoAdapter);
         assertThat(annenForelder).isInstanceOf(UkjentForelder.class);
     }
 

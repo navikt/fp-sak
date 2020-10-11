@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -41,16 +41,16 @@ public class ForvaltningSøknadRestTjeneste {
     private FagsakRepository fagsakRepository;
     private PersonopplysningRepository personopplysningRepository;
     private EntityManager entityManager;
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
 
     @Inject
-    public ForvaltningSøknadRestTjeneste(BehandlingRepositoryProvider repositoryProvider, TpsTjeneste tpsTjeneste) {
+    public ForvaltningSøknadRestTjeneste(BehandlingRepositoryProvider repositoryProvider, PersoninfoAdapter personinfoAdapter) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.entityManager = repositoryProvider.getEntityManager();
-        this.tpsTjeneste = tpsTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
     }
 
     public ForvaltningSøknadRestTjeneste() {
@@ -88,7 +88,7 @@ public class ForvaltningSøknadRestTjeneste {
         AktørId eksisterendeAnnenPart = oap.getAktørId();
         if (oap.getAktørId() != null && !eksisterendeAnnenPart.equals(behandling.getAktørId()))
             throw new IllegalArgumentException("Støtter bare patching der aktørId er null eller lik bruker i saken");
-        var nyAktørId = tpsTjeneste.hentAktørForFnr(new PersonIdent(dto.getIdentAnnenPart())).orElseThrow();
+        var nyAktørId = personinfoAdapter.hentAktørForFnr(new PersonIdent(dto.getIdentAnnenPart())).orElseThrow();
         int antall = entityManager.createNativeQuery(
                 "UPDATE SO_ANNEN_PART SET AKTOER_ID = :anpa, utl_person_ident = :ident, endret_av = :begr WHERE id = :apid")
                 .setParameter("anpa", nyAktørId.getId())

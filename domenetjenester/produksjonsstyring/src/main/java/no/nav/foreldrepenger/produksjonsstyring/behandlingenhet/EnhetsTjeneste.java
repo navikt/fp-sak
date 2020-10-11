@@ -18,9 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.Temagrupper;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
@@ -39,7 +38,7 @@ public class EnhetsTjeneste {
 
     private static final OrganisasjonsEnhet KLAGE_ENHET =  new OrganisasjonsEnhet(NK_ENHET_ID, "NAV Klageinstans Midt-Norge");
 
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private ArbeidsfordelingRestKlient norgRest;
 
     private LocalDate sisteInnhenting = LocalDate.MIN;
@@ -51,9 +50,9 @@ public class EnhetsTjeneste {
     }
 
     @Inject
-    public EnhetsTjeneste(TpsTjeneste tpsTjeneste,
+    public EnhetsTjeneste(PersoninfoAdapter personinfoAdapter,
                           ArbeidsfordelingRestKlient arbeidsfordelingRestKlient) {
-        this.tpsTjeneste = tpsTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
         this.norgRest = arbeidsfordelingRestKlient;
     }
 
@@ -65,9 +64,10 @@ public class EnhetsTjeneste {
 
     OrganisasjonsEnhet hentEnhetSjekkKunAktør(AktørId aktørId, BehandlingTema behandlingTema) {
         oppdaterEnhetCache();
-        PersonIdent fnr = tpsTjeneste.hentFnrForAktør(aktørId);
+        GeografiskTilknytning geografiskTilknytning = personinfoAdapter.hentGeografiskTilknytning(aktørId);
 
-        GeografiskTilknytning geografiskTilknytning = tpsTjeneste.hentGeografiskTilknytning(fnr);
+        if (geografiskTilknytning.getTilknytning() == null && geografiskTilknytning.getDiskresjonskode() == null)
+            return tilfeldigEnhet();
 
         return hentEnheterFor(geografiskTilknytning.getTilknytning(), geografiskTilknytning.getDiskresjonskode(), behandlingTema).get(0);
     }
@@ -88,8 +88,7 @@ public class EnhetsTjeneste {
 
     private boolean harNoenDiskresjonskode6(Set<AktørId> aktører) {
         return aktører.stream()
-            .map(tpsTjeneste::hentFnrForAktør)
-            .map(tpsTjeneste::hentGeografiskTilknytning)
+            .map(personinfoAdapter::hentGeografiskTilknytning)
             .map(GeografiskTilknytning::getDiskresjonskode)
             .filter(Objects::nonNull)
             .anyMatch(DISKRESJON_K6::equalsIgnoreCase);
@@ -103,6 +102,11 @@ public class EnhetsTjeneste {
             alleBehandlendeEnheter.add(KLAGE_ENHET);
             sisteInnhenting = LocalDate.now();
         }
+    }
+
+    private OrganisasjonsEnhet tilfeldigEnhet() {
+        oppdaterEnhetCache();
+        return alleBehandlendeEnheter.stream().filter(e -> !KLAGE_ENHET.equals(e) && !enhetKode6.equals(e)).findAny().orElseThrow();
     }
 
     Optional<OrganisasjonsEnhet> finnOrganisasjonsEnhet(String enhetId) {

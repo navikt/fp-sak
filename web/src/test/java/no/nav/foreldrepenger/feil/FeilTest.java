@@ -25,7 +25,8 @@ public class FeilTest {
     private final static String KAFKA_PREFIX = "VLKAFKA-";
     private final static String FPSAK_PREFIX = "FP-";
     private final static String VL_PREFIX = "F-";
-    private final static List<String> GYLDIGE_PREFIXER = List.of(FPSAK_PREFIX, VL_PREFIX, KAFKA_PREFIX, KALKULUS_PREFIX, TASK_PREFIX);
+    private final static String K9_PREFIX = "K9-";
+    private final static List<String> GYLDIGE_PREFIXER = List.of(FPSAK_PREFIX, VL_PREFIX, KAFKA_PREFIX, KALKULUS_PREFIX, TASK_PREFIX, K9_PREFIX);
 
     @Test
     public void test_Feil_annotation_deklarasjoner() {

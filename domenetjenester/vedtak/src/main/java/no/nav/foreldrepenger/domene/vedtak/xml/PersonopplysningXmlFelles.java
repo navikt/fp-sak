@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.vedtak.felles.xml.felles.v2.DateOpplysning;
@@ -29,7 +29,7 @@ import no.nav.vedtak.felles.xml.vedtak.personopplysninger.v2.PersonUidentifiserb
 public class PersonopplysningXmlFelles {
 
     private final ObjectFactory personopplysningObjectFactory = new ObjectFactory();
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
 
 
     PersonopplysningXmlFelles() {
@@ -37,8 +37,8 @@ public class PersonopplysningXmlFelles {
     }
 
     @Inject
-    public PersonopplysningXmlFelles(TpsTjeneste tpsTjeneste) {
-        this.tpsTjeneste = tpsTjeneste;
+    public PersonopplysningXmlFelles(PersoninfoAdapter personinfoAdapter) {
+        this.personinfoAdapter = personinfoAdapter;
     }
 
     public Medlemskapsperiode lagMedlemskapPeriode(MedlemskapPerioderEntitet medlemskapPeriodeIn) {
@@ -56,7 +56,7 @@ public class PersonopplysningXmlFelles {
     }
 
     public String hentVergeNavn(AktørId aktørId) {
-        return tpsTjeneste.hentBrukerForAktør(aktørId).map(Personinfo::getNavn).orElse("Ukjent navn"); //$NON-NLS-1$
+        return personinfoAdapter.hentBrukerForAktør(aktørId).map(Personinfo::getNavn).orElse("Ukjent navn"); //$NON-NLS-1$
     }
 
     public PersonIdentifiserbar lagBruker(PersonopplysningerAggregat aggregat, PersonopplysningEntitet personopplysning) {
@@ -68,7 +68,7 @@ public class PersonopplysningXmlFelles {
         person.setNavn(navn);
 
         if (personopplysning.getAktørId() != null) {
-            Optional<PersonIdent> norskIdent = tpsTjeneste.hentFnr(personopplysning.getAktørId());
+            Optional<PersonIdent> norskIdent = personinfoAdapter.hentFnr(personopplysning.getAktørId());
             person.setNorskIdent(VedtakXmlUtil.lagStringOpplysning(norskIdent.map(PersonIdent::getIdent).orElse(null)));
         }
 

@@ -56,7 +56,7 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -82,7 +82,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
     @Mock
     private InntektArbeidYtelseTjeneste iayTjeneste;
     @Mock
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     @Mock
     private DatavarehusTjeneste datavarehusTjeneste;
 
@@ -100,7 +100,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
                 .medNavn("Espen Utvikler")
                 .medPersonIdent(PersonIdent.fra("12345678901"))
                 .medFødselsdato(LocalDate.now().minusYears(20)).build());
-        ytelseSøknadMapper = new YtelseSøknadMapper(tpsTjeneste, virksomhetTjeneste);
+        ytelseSøknadMapper = new YtelseSøknadMapper(personinfoAdapter, virksomhetTjeneste);
     }
 
     @Test
@@ -416,11 +416,11 @@ public class SøknadMapperTest extends RepositoryAwareTest {
         AnnenForelderDto annenForelderDto = new AnnenForelderDto();
         annenForelderDto.setDenAndreForelderenHarRettPaForeldrepenger(true);
         dto.setAnnenForelder(annenForelderDto);
-        when(tpsTjeneste.hentBrukerForAktør(any(AktørId.class))).thenReturn(kvinne);
-        when(tpsTjeneste.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
+        when(personinfoAdapter.hentBrukerForAktør(any(AktørId.class))).thenReturn(kvinne);
+        when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
         var soeknad = ytelseSøknadMapper.mapSøknad(dto, navBruker);
         var oversetter = new MottattDokumentOversetterSøknad(repositoryProvider,
-                virksomhetTjeneste, iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository,
+                virksomhetTjeneste, iayTjeneste, personinfoAdapter, datavarehusTjeneste, svangerskapspengerRepository,
                 oppgittPeriodeMottattDato);
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
@@ -469,16 +469,16 @@ public class SøknadMapperTest extends RepositoryAwareTest {
         annenForelderDto.setDenAndreForelderenHarRettPaForeldrepenger(false);
         annenForelderDto.setSokerHarAleneomsorg(true);
         manuellRegistreringForeldrepengerDto.setAnnenForelder(annenForelderDto);
-        when(tpsTjeneste.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
+        when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
 
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringForeldrepengerDto, navBruker);
         var oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste, iayTjeneste,
-                tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDato);
+            personinfoAdapter, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDato);
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        when(tpsTjeneste.hentBrukerForAktør(any(AktørId.class))).thenReturn(kvinne);
+        when(personinfoAdapter.hentBrukerForAktør(any(AktørId.class))).thenReturn(kvinne);
         oversetter.trekkUtDataOgPersister((MottattDokumentWrapperSøknad) MottattDokumentWrapperSøknad.tilXmlWrapper(soeknad),
                 new MottattDokument.Builder().medMottattDato(LocalDate.now())
                         .medFagsakId(behandling.getFagsakId()).medElektroniskRegistrert(true).build(),
@@ -555,7 +555,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
     @Test
     public void skal_ikke_mappe_og_lagre_oppgitt_opptjening_når_det_allerede_finnes_i_grunnlaget() {
         var iayGrunnlag = mock(InntektArbeidYtelseGrunnlag.class);
-        when(tpsTjeneste.hentBrukerForAktør(any(AktørId.class))).thenReturn(kvinne);
+        when(personinfoAdapter.hentBrukerForAktør(any(AktørId.class))).thenReturn(kvinne);
         when(iayGrunnlag.getOppgittOpptjening()).thenReturn(Optional.of(mock(OppgittOpptjening.class)));
         when(iayTjeneste.finnGrunnlag(any(Long.class))).thenReturn(Optional.of(iayGrunnlag));
         when(virksomhetTjeneste.hentOrganisasjon(any()))
@@ -580,7 +580,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now()).medFagsakId(behandling.getFagsakId())
                 .medElektroniskRegistrert(true);
         var oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste, iayTjeneste,
-                tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDato);
+            personinfoAdapter, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDato);
 
         oversetter.trekkUtDataOgPersister((MottattDokumentWrapperSøknad) MottattDokumentWrapperSøknad.tilXmlWrapper(soeknad), mottattDokument.build(),
                 behandling, Optional.empty());
@@ -591,7 +591,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
     @Test
     public void skal_mappe_og_lagre_oppgitt_opptjening_når_det_ikke_finnes_i_grunnlaget() {
         var iayGrunnlag = mock(InntektArbeidYtelseGrunnlag.class);
-        when(tpsTjeneste.hentBrukerForAktør(any(AktørId.class))).thenReturn(kvinne);
+        when(personinfoAdapter.hentBrukerForAktør(any(AktørId.class))).thenReturn(kvinne);
         when(iayGrunnlag.getOppgittOpptjening()).thenReturn(Optional.empty());
         when(iayTjeneste.finnGrunnlag(any(Long.class))).thenReturn(Optional.of(iayGrunnlag));
         when(virksomhetTjeneste.hentOrganisasjon(any()))
@@ -616,7 +616,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now()).medFagsakId(behandling.getFagsakId())
                 .medElektroniskRegistrert(true);
         var oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste, iayTjeneste,
-                tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDato);
+            personinfoAdapter, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDato);
 
         oversetter.trekkUtDataOgPersister((MottattDokumentWrapperSøknad) MottattDokumentWrapperSøknad.tilXmlWrapper(soeknad), mottattDokument.build(),
                 behandling, Optional.empty());

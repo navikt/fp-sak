@@ -6,10 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -20,7 +18,6 @@ import org.junit.rules.ExpectedException;
 import org.threeten.extra.Interval;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
-import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
@@ -152,15 +149,7 @@ public class TpsTjenesteTest {
                     new HentGeografiskTilknytningPersonIkkeFunnet("finner ikke person", new PersonIkkeFunnet())).toException();
         }
 
-        @Override
-        public List<FødtBarnInfo> hentFødteBarn(AktørId aktørId) {
-            return Collections.singletonList(new FødtBarnInfo.Builder()
-                    .medIdent(FNR)
-                    .medNavn(NAVN)
-                    .medNavBrukerKjønn(KVINNE)
-                    .medFødselsdato(FØDSELSDATO)
-                    .build());
-        }
+
 
     }
 }

@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuil
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavPersoninfoBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -55,7 +55,7 @@ public class FagsakApplikasjonTjenesteTest {
     @Mock
     private BehandlingRepository behandlingRepository;
     @Mock
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     @Mock
     private FamilieHendelseTjeneste hendelseTjeneste;
     @Mock
@@ -77,7 +77,7 @@ public class FagsakApplikasjonTjenesteTest {
     public void oppsett() {
 
         ProsesseringAsynkTjeneste prosesseringAsynkTjeneste = mock(ProsesseringAsynkTjeneste.class);
-        tjeneste = new FagsakApplikasjonTjeneste(fagsakRepository, behandlingRepository, prosesseringAsynkTjeneste, tpsTjeneste, hendelseTjeneste,
+        tjeneste = new FagsakApplikasjonTjeneste(fagsakRepository, behandlingRepository, prosesseringAsynkTjeneste, personinfoAdapter, hendelseTjeneste,
                 dekningsgradTjeneste);
     }
 
@@ -85,7 +85,7 @@ public class FagsakApplikasjonTjenesteTest {
     public void skal_hente_saker_på_fnr() {
         Personinfo personinfo = new NavPersoninfoBuilder().medAktørId(AKTØR_ID).build();
         NavBruker navBruker = new NavBrukerBuilder().medPersonInfo(personinfo).build();
-        when(tpsTjeneste.hentBrukerForFnr(new PersonIdent(FNR))).thenReturn(Optional.of(personinfo));
+        when(personinfoAdapter.hentBrukerForFnr(new PersonIdent(FNR))).thenReturn(Optional.of(personinfo));
 
         Fagsak fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
         Whitebox.setInternalState(fagsak, "id", -1L);
@@ -125,7 +125,7 @@ public class FagsakApplikasjonTjenesteTest {
         var dekningsgrad = Optional.of(Dekningsgrad._80);
         when(dekningsgradTjeneste.finnDekningsgrad(any())).thenReturn(dekningsgrad);
 
-        when(tpsTjeneste.hentBrukerForAktør(AKTØR_ID)).thenReturn(Optional.of(personinfo));
+        when(personinfoAdapter.hentBrukerForAktør(AKTØR_ID)).thenReturn(Optional.of(personinfo));
 
         FagsakSamlingForBruker view = tjeneste.hentSaker(SAKSNUMMER.getVerdi());
 
@@ -155,7 +155,7 @@ public class FagsakApplikasjonTjenesteTest {
 
     @Test
     public void skal_returnere_tomt_view_ved_ukjent_fnr() {
-        when(tpsTjeneste.hentBrukerForFnr(new PersonIdent(FNR))).thenReturn(Optional.empty());
+        when(personinfoAdapter.hentBrukerForFnr(new PersonIdent(FNR))).thenReturn(Optional.empty());
 
         FagsakSamlingForBruker view = tjeneste.hentSaker(FNR);
 

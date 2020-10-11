@@ -54,6 +54,10 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private TilgangerTjeneste tilgangerTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
+    BekreftSvangerskapspengerOppdaterer() {
+        //CDI
+    }
+
     @Inject
     public BekreftSvangerskapspengerOppdaterer(SvangerskapspengerRepository svangerskapspengerRepository,
                                                HistorikkTjenesteAdapter historikkAdapter,

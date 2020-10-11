@@ -21,19 +21,14 @@ public class Personinfo {
     private AktørId aktørId;
     private String navn;
     private PersonIdent personIdent;
-    private String adresse;
     private LocalDate fødselsdato;
     private LocalDate dødsdato;
     private PersonstatusType personstatus;
     private NavBrukerKjønn kjønn;
     private Set<Familierelasjon> familierelasjoner = Collections.emptySet();
-    private Statsborgerskap statsborgerskap;
     private Region region;
-    private String utlandsadresse;
-    private String geografiskTilknytning;
     private String diskresjonskode;
     private Språkkode foretrukketSpråk;
-    private String adresseLandkode;
     private Landkoder landkode;
 
     private List<Adresseinfo> adresseInfoList = new ArrayList<>();
@@ -78,36 +73,16 @@ public class Personinfo {
         return kjønn.equals(NavBrukerKjønn.KVINNE);
     }
 
-    public String getAdresse() {
-        return adresse;
-    }
-
     public LocalDate getDødsdato() {
         return dødsdato;
-    }
-
-    public Statsborgerskap getStatsborgerskap() {
-        return statsborgerskap;
-    }
-
-    public String getUtlandsadresse() {
-        return utlandsadresse;
     }
 
     public Region getRegion() {
         return region;
     }
 
-    public String getAdresseLandkode() {
-        return adresseLandkode;
-    }
-
     public Språkkode getForetrukketSpråk() {
         return foretrukketSpråk;
-    }
-
-    public String getGeografiskTilknytning() {
-        return geografiskTilknytning;
     }
 
     public String getDiskresjonskode() {
@@ -153,11 +128,6 @@ public class Personinfo {
             return this;
         }
 
-        public Builder medAdresse(String adresse) {
-            personinfoMal.adresse = adresse;
-            return this;
-        }
-
         public Builder medFødselsdato(LocalDate fødselsdato) {
             personinfoMal.fødselsdato = fødselsdato;
             return this;
@@ -183,23 +153,8 @@ public class Personinfo {
             return this;
         }
 
-        public Builder medStatsborgerskap(Statsborgerskap statsborgerskap) {
-            personinfoMal.statsborgerskap = statsborgerskap;
-            return this;
-        }
-
         public Builder medRegion(Region region) {
             personinfoMal.region = region;
-            return this;
-        }
-
-        public Builder medUtlandsadresse(String utlandsadresse) {
-            personinfoMal.utlandsadresse = utlandsadresse;
-            return this;
-        }
-
-        public Builder medGegrafiskTilknytning(String geoTilkn) {
-            personinfoMal.geografiskTilknytning = geoTilkn;
             return this;
         }
 
@@ -210,11 +165,6 @@ public class Personinfo {
 
         public Builder medForetrukketSpråk(Språkkode språk) {
             personinfoMal.foretrukketSpråk = språk;
-            return this;
-        }
-
-        public Builder medAdresseLandkode(String adresseLandkode) {
-            personinfoMal.adresseLandkode = adresseLandkode;
             return this;
         }
 

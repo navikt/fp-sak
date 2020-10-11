@@ -328,7 +328,6 @@ public class TpsOversetterTest extends EntityManagerAwareTest {
         // Assert
         assertThat(personinfo.getRegion()).isEqualTo(Region.NORDEN);
         assertThat(personinfo.getLandkode()).isEqualTo(norge);
-        assertThat(personinfo.getStatsborgerskap().getLandkode()).isEqualTo(norge.getKode());
     }
 
     @Test
