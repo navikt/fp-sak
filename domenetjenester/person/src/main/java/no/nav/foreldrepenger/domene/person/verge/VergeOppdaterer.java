@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjon
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
 import no.nav.foreldrepenger.domene.personopplysning.OppdatererAksjonspunktFeil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -38,7 +38,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
 
     private HistorikkTjenesteAdapter historikkAdapter;
     private VergeRepository vergeRepository;
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private NavBrukerRepository navBrukerRepository;
 
     protected VergeOppdaterer() {
@@ -47,12 +47,12 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
 
     @Inject
     public VergeOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                           TpsTjeneste tpsTjeneste,
+                           PersoninfoAdapter personinfoAdapter,
                            VergeRepository vergeRepository,
                            NavBrukerRepository navBrukerRepository) {
         this.historikkAdapter = historikkAdapter;
         this.vergeRepository = vergeRepository;
-        this.tpsTjeneste = tpsTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
         this.navBrukerRepository = navBrukerRepository;
     }
 
@@ -66,8 +66,8 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
         // Verge må enten være oppgitt med fnr (hent ut fra TPS), eller orgnr
         PersonIdent fnr = VergeType.ADVOKAT.equals(dto.getVergeType()) || dto.getFnr() == null ? null : new PersonIdent(dto.getFnr());
         if (fnr != null) {
-            var vergeAktørId = tpsTjeneste.hentAktørForFnr(fnr).orElseThrow(() -> new IllegalArgumentException("Ugyldig FNR for Verge"));
-            vergeBuilder.medBruker(hentEllerOpprettBruker(fnr, vergeAktørId));
+            var vergeAktørId = personinfoAdapter.hentAktørForFnr(fnr).orElseThrow(() -> new IllegalArgumentException("Ugyldig FNR for Verge"));
+            vergeBuilder.medBruker(hentEllerOpprettBruker(vergeAktørId));
         } else if (dto.getOrganisasjonsnummer() != null) {
             vergeBuilder.medVergeOrganisasjon(opprettVergeOrganisasjon(dto));
         } else {
@@ -81,9 +81,9 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
         return OppdateringResultat.utenOveropp();
     }
 
-    private NavBruker hentEllerOpprettBruker(PersonIdent fnr, AktørId aktoerId) {
+    private NavBruker hentEllerOpprettBruker(AktørId aktoerId) {
         return navBrukerRepository.hent(aktoerId)
-            .orElseGet(() -> tpsTjeneste.hentBrukerForFnr(fnr).map(NavBruker::opprettNy).orElse(null));
+            .orElseGet(() -> personinfoAdapter.hentBrukerForAktør(aktoerId).map(NavBruker::opprettNy).orElse(null));
     }
 
     private VergeOrganisasjonEntitet opprettVergeOrganisasjon(AvklarVergeDto adapter) {
@@ -109,7 +109,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
         HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
         Optional<AktørId> aktørId = vergeAggregat.getAktørId();
         if (aktørId.isPresent()) {
-            Optional<Personinfo> personinfo = tpsTjeneste.hentBrukerForAktør(aktørId.get());
+            Optional<Personinfo> personinfo = personinfoAdapter.hentBrukerForAktør(aktørId.get());
             if (personinfo.isPresent()) {
                 tekstBuilder.medEndretFelt(HistorikkEndretFeltType.NAVN, personinfo.get().getNavn(), dto.getNavn());
                 tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FNR, personinfo.get().getPersonIdent().getIdent(), dto.getFnr());

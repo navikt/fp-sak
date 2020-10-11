@@ -44,6 +44,10 @@
 			<groupId>no.nav.foreldrepenger</groupId>
 			<artifactId>behandlingslager-domene</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>person</artifactId>
+        </dependency>
 
 		<!-- Kontrakter -->
 		<dependency>
@@ -53,14 +57,6 @@
 		<dependency>
 			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
 			<artifactId>felles-integrasjon-rest-klient</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-			<artifactId>aktoer-klient</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-			<artifactId>person-klient</artifactId>
 		</dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>

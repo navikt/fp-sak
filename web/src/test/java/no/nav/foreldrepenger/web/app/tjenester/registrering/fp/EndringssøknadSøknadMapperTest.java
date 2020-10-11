@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeMottattDatoTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.MottattDokumentOversetterSøknad;
@@ -37,7 +37,7 @@ public class EndringssøknadSøknadMapperTest extends RepositoryAwareTest {
     @Mock
     private InntektArbeidYtelseTjeneste iayTjeneste;
     @Mock
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     @Mock
     private VirksomhetTjeneste virksomhetTjeneste;
     @Mock
@@ -59,7 +59,7 @@ public class EndringssøknadSøknadMapperTest extends RepositoryAwareTest {
         Soeknad soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
         MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste,
-                iayTjeneste, tpsTjeneste, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDatoTjeneste);
+                iayTjeneste, personinfoAdapter, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDatoTjeneste);
 
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();

@@ -9,27 +9,27 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 @ApplicationScoped
 public class PersonopplysningDtoPersonIdentTjeneste {
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
 
     public PersonopplysningDtoPersonIdentTjeneste() {
     }
 
     @Inject
-    public PersonopplysningDtoPersonIdentTjeneste(TpsTjeneste tpsTjeneste) {
-        this.tpsTjeneste = tpsTjeneste;
+    public PersonopplysningDtoPersonIdentTjeneste(PersoninfoAdapter personinfoAdapter) {
+        this.personinfoAdapter = personinfoAdapter;
     }
 
     // oppdater med foedselsnr
     public void oppdaterMedPersonIdent(PersonopplysningDto personopplysningDto) {
         // memoriser oppslagsfunksjoner - unngår repeterende tjeneste kall eksternt
-        Function<AktørId, Optional<PersonIdent>> personInfoFinder = memoize((aktørId) -> tpsTjeneste.hentFnr(aktørId));
-        Function<String, Optional<String>> diskresjonskodeFinder = memoize((fnr) -> tpsTjeneste.hentDiskresjonskodeForAktør(new PersonIdent(fnr)));
+        Function<AktørId, Optional<PersonIdent>> personInfoFinder = memoize((aktørId) -> personinfoAdapter.hentFnr(aktørId));
+        Function<AktørId, Optional<String>> diskresjonskodeFinder = memoize((aktørId) -> personinfoAdapter.hentDiskresjonskodeForAktør(aktørId));
 
         // Sett fødselsnummer og diskresjonskodepå personopplysning for alle
         // behandlinger. Fødselsnummer og diskresjonskode lagres ikke i basen og må derfor hentes fra
@@ -43,21 +43,21 @@ public class PersonopplysningDtoPersonIdentTjeneste {
     }
 
     void setFnrPaPersonopplysning(PersonopplysningDto dto, Function<AktørId, Optional<PersonIdent>> tpsFnrFinder,
-                                  Function<String, Optional<String>> tpsKodeFinder) {
+                                  Function<AktørId, Optional<String>> tpsKodeFinder) {
 
         // Soker
         dto.setFnr(findFnr(dto.getAktoerId(), tpsFnrFinder)); // forelder / soeker
-        dto.setDiskresjonskode(findKode(dto.getFnr(), tpsKodeFinder));
+        dto.setDiskresjonskode(findKode(dto.getAktoerId(), tpsKodeFinder));
 
         // Medsoker
         if (dto.getAnnenPart() != null) {
             dto.getAnnenPart().setFnr(findFnr(dto.getAnnenPart().getAktoerId(), tpsFnrFinder));
-            dto.getAnnenPart().setDiskresjonskode(findKode(dto.getAnnenPart().getFnr(), tpsKodeFinder));
+            dto.getAnnenPart().setDiskresjonskode(findKode(dto.getAnnenPart().getAktoerId(), tpsKodeFinder));
             // Medsøkers barn
             if (!dto.getAnnenPart().getBarn().isEmpty()) {
                 for (PersonopplysningDto dtoBarn : dto.getAnnenPart().getBarn()) {
                     dtoBarn.setFnr(findFnr(dtoBarn.getAktoerId(), tpsFnrFinder));
-                    dtoBarn.setDiskresjonskode(findKode(dtoBarn.getFnr(), tpsKodeFinder));
+                    dtoBarn.setDiskresjonskode(findKode(dtoBarn.getAktoerId(), tpsKodeFinder));
                 }
             }
         }
@@ -65,19 +65,19 @@ public class PersonopplysningDtoPersonIdentTjeneste {
         // ektefelle
         if (dto.getEktefelle() != null) {
             dto.getEktefelle().setFnr(findFnr(dto.getEktefelle().getAktoerId(), tpsFnrFinder));
-            dto.getEktefelle().setDiskresjonskode(findKode(dto.getEktefelle().getFnr(), tpsKodeFinder));
+            dto.getEktefelle().setDiskresjonskode(findKode(dto.getEktefelle().getAktoerId(), tpsKodeFinder));
         }
 
         // Barn
         for (PersonopplysningDto dtoBarn : dto.getBarn()) {
             dtoBarn.setFnr(findFnr(dtoBarn.getAktoerId(), tpsFnrFinder));
-            dtoBarn.setDiskresjonskode(findKode(dtoBarn.getFnr(), tpsKodeFinder));
+            dtoBarn.setDiskresjonskode(findKode(dtoBarn.getAktoerId(), tpsKodeFinder));
         }
     }
 
-    private Diskresjonskode findKode(String fnr, Function<String, Optional<String>> tpsKodeFinder) {
-        if (fnr != null) {
-            Optional<String> kode = tpsKodeFinder.apply(fnr);
+    private Diskresjonskode findKode(AktørId aktørId, Function<AktørId, Optional<String>> tpsKodeFinder) {
+        if (aktørId != null) {
+            Optional<String> kode = tpsKodeFinder.apply(aktørId);
             if (kode.isPresent()) {
                 return Diskresjonskode.fraKode(kode.get());
             }

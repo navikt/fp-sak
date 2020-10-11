@@ -27,7 +27,6 @@ import no.nav.tjeneste.virksomhet.kodeverk.v2.informasjon.Term;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.FinnKodeverkListeResponse;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkRequest;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkResponse;
-import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.kodeverk.KodeverkConsumer;
 
 public class KodeverkSynkroniseringTest {
@@ -110,7 +109,7 @@ public class KodeverkSynkroniseringTest {
         element.setNavn(navn);
         element.setVersjonsnummer(versjon);
         element.setUri("http://nav.no/kodeverk/Kodeverk/" + navn + "?v=" + versjon);
-        element.setVersjoneringsdato(DateUtil.convertToXMLGregorianCalendar(LocalDate.now().minusDays(1)));
+        element.setVersjoneringsdato(KodeverkTjenesteImplTest.convertToXMLGregorianCalendar(LocalDate.now().minusDays(1)));
         FinnKodeverkListeResponse response = new FinnKodeverkListeResponse();
         response.getKodeverkListe().add(element);
         return response;
@@ -131,8 +130,8 @@ public class KodeverkSynkroniseringTest {
 
     private static Kode lagKode(String kodeNavn, String termNavn, String uri, LocalDate fom, LocalDate tom) {
         Periode periode = new Periode();
-        periode.setFom(DateUtil.convertToXMLGregorianCalendar(fom));
-        periode.setTom(DateUtil.convertToXMLGregorianCalendar(tom));
+        periode.setFom(KodeverkTjenesteImplTest.convertToXMLGregorianCalendar(fom));
+        periode.setTom(KodeverkTjenesteImplTest.convertToXMLGregorianCalendar(tom));
         Kode kode = new Kode();
         kode.setNavn(kodeNavn);
         kode.getGyldighetsperiode().add(periode);

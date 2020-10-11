@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -38,7 +38,7 @@ public class FagsakApplikasjonTjeneste {
 
     private FagsakRepository fagsakRespository;
 
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private BehandlingRepository behandlingRepository;
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
 
@@ -53,13 +53,12 @@ public class FagsakApplikasjonTjeneste {
     @Inject
     public FagsakApplikasjonTjeneste(FagsakRepository fagsakRespository,
             BehandlingRepository behandlingRepository,
-            ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
-            TpsTjeneste tpsTjeneste,
+            ProsesseringAsynkTjeneste prosesseringAsynkTjeneste, PersoninfoAdapter personinfoAdapter,
             FamilieHendelseTjeneste familieHendelseTjeneste,
             DekningsgradTjeneste dekningsgradTjeneste) {
 
         this.fagsakRespository = fagsakRespository;
-        this.tpsTjeneste = tpsTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = behandlingRepository;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
@@ -92,7 +91,7 @@ public class FagsakApplikasjonTjeneste {
     }
 
     private FagsakSamlingForBruker hentSakerForFnr(PersonIdent fnr) {
-        Optional<Personinfo> funnetNavBruker = tpsTjeneste.hentBrukerForFnr(fnr);
+        Optional<Personinfo> funnetNavBruker = personinfoAdapter.hentBrukerForFnr(fnr);
         if (funnetNavBruker.isEmpty()) {
             return FagsakSamlingForBruker.emptyView();
         }
@@ -109,7 +108,7 @@ public class FagsakApplikasjonTjeneste {
         List<Fagsak> fagsaker = Collections.singletonList(fagsak.get());
         AktørId aktørId = fagsak.get().getNavBruker().getAktørId();
 
-        Optional<Personinfo> funnetNavBruker = tpsTjeneste.hentBrukerForAktør(aktørId);
+        Optional<Personinfo> funnetNavBruker = personinfoAdapter.hentBrukerForAktør(aktørId);
         if (funnetNavBruker.isEmpty()) {
             return FagsakSamlingForBruker.emptyView();
         }

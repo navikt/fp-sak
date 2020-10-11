@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.person.tps;
+package no.nav.foreldrepenger.domene.person;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,8 +12,13 @@ import javax.xml.ws.soap.SOAPFaultException;
 import org.threeten.extra.Interval;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
+import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
+import no.nav.foreldrepenger.domene.person.pdl.TilknytningTjeneste;
+import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
+import no.nav.foreldrepenger.domene.person.tps.TpsFeilmeldinger;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -22,14 +27,25 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 public class PersoninfoAdapter {
 
     private TpsAdapter tpsAdapter;
+    private FødselTjeneste fødselTjeneste;
+    private TilknytningTjeneste tilknytningTjeneste;
 
     public PersoninfoAdapter() {
         // for CDI proxy
     }
 
-    @Inject
+    // Midlertidig under refaktorering
     public PersoninfoAdapter(TpsAdapter tpsAdapter) {
         this.tpsAdapter = tpsAdapter;
+    }
+
+    @Inject
+    public PersoninfoAdapter(TpsAdapter tpsAdapter,
+                             FødselTjeneste fødselTjeneste,
+                             TilknytningTjeneste tilknytningTjeneste) {
+        this.tpsAdapter = tpsAdapter;
+        this.fødselTjeneste = fødselTjeneste;
+        this.tilknytningTjeneste = tilknytningTjeneste;
     }
 
     public Personinfo innhentSaksopplysningerForSøker(AktørId aktørId) {
@@ -65,7 +81,10 @@ public class PersoninfoAdapter {
         if(personIdent.erFdatNummer()) {
             return Collections.emptyList();
         }
-        return tpsAdapter.hentForeldreTil(personIdent).stream()
+        var foreldre = tpsAdapter.hentForeldreTil(personIdent);
+        if (fødselTjeneste != null)
+            fødselTjeneste.hentForeldreTil(personIdent, foreldre);
+        return foreldre.stream()
             .flatMap(p -> tpsAdapter.hentAktørIdForPersonIdent(p).stream())
             .collect(Collectors.toList());
     }
@@ -96,15 +115,47 @@ public class PersoninfoAdapter {
     }
 
     public List<FødtBarnInfo> innhentAlleFødteForBehandlingIntervaller(AktørId aktørId, List<LocalDateInterval> intervaller) {
-        List<FødtBarnInfo> barneListe = tpsAdapter.hentFødteBarn(aktørId);
+        PersonIdent personIdent = tpsAdapter.hentIdentForAktørId(aktørId).orElseThrow(() -> TpsFeilmeldinger.FACTORY.fantIkkePersonForAktørId().toException());
+        List<FødtBarnInfo> barneListe = tpsAdapter.hentFødteBarn(personIdent);
+        if (fødselTjeneste != null)
+            fødselTjeneste.hentFødteBarnInfoFor(aktørId, barneListe, intervaller);
         return barneListe.stream().filter(p -> intervaller.stream().anyMatch(i -> i.encloses(p.getFødselsdato()))).collect(Collectors.toList());
     }
 
-    public Optional<AktørId> hentAktørIdForPersonIdent(PersonIdent personIdent) {
-        return tpsAdapter.hentAktørIdForPersonIdent(personIdent);
+    public Optional<AktørId> hentAktørForFnr(PersonIdent fnr) {
+        return tpsAdapter.hentAktørIdForPersonIdent(fnr);
     }
 
-    public Optional<PersonIdent> hentAktørIdForPersonIdent(AktørId aktørId) {
+    public PersonIdent hentFnrForAktør(AktørId aktørId) {
+        return hentFnr(aktørId).orElseThrow(() -> TpsFeilmeldinger.FACTORY.fantIkkePersonForAktørId().toException());
+    }
+
+    public Optional<PersonIdent> hentFnr(AktørId aktørId) {
         return tpsAdapter.hentIdentForAktørId(aktørId);
     }
+
+    public Optional<Personinfo> hentBrukerForAktør(AktørId aktørId) {
+        Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
+        return funnetFnr.map(fnr -> tpsAdapter.hentKjerneinformasjon(fnr, aktørId));
+    }
+
+    public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {
+        var gt = hentFnr(aktørId).map(fnr -> tpsAdapter.hentGeografiskTilknytning(fnr))
+            .orElseGet(() -> new GeografiskTilknytning(null, null));
+        if (tilknytningTjeneste != null)
+            tilknytningTjeneste.hentGeografiskTilknytning(aktørId, gt);
+        return gt;
+    }
+
+    public Optional<String> hentDiskresjonskodeForAktør(AktørId aktørId) {
+        return Optional.ofNullable(hentGeografiskTilknytning(aktørId).getDiskresjonskode());
+    }
+
+    public Optional<Personinfo> hentBrukerForFnr(PersonIdent fnr) {
+        if (fnr.erFdatNummer()) {
+            return Optional.empty();
+        }
+        return tpsAdapter.hentAktørIdForPersonIdent(fnr).map(a -> tpsAdapter.hentKjerneinformasjon(fnr, a));
+    }
+
 }

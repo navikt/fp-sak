@@ -82,8 +82,6 @@ public class TpsOversetter {
     public FødtBarnInfo tilFødtBarn(Bruker person) {
         return new FødtBarnInfo.Builder()
             .medIdent(no.nav.foreldrepenger.domene.typer.PersonIdent.fra(((PersonIdent)person.getAktoer()).getIdent().getIdent()))
-            .medNavn(person.getPersonnavn().getSammensattNavn())
-            .medNavBrukerKjønn(tilBrukerKjønn(person.getKjoenn()))
             .medFødselsdato(finnFødselsdato(person))
             .medDødsdato(finnDødsdato(person))
             .build();
@@ -301,13 +299,9 @@ public class TpsOversetter {
         } else if (ident.erFdatNummer() && ident.getIdent().endsWith("1")) { //Dødfødt barn
             dødsLocalDate = fødselLocalDate;
         }
-        String navn = person.getPersonnavn() != null ? person.getPersonnavn().getSammensattNavn() : FødtBarnInfo.UTEN_NAVN;
-        NavBrukerKjønn kjønn = tilBrukerKjønn(person.getKjoenn());
 
         return new FødtBarnInfo.Builder()
             .medIdent(ident)
-            .medNavn(navn)
-            .medNavBrukerKjønn(kjønn)
             .medFødselsdato(fødselLocalDate)
             .medDødsdato(dødsLocalDate)
             .build();

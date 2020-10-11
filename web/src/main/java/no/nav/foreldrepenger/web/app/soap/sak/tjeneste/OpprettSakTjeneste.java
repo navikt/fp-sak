@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Journalpost;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.produksjonsstyring.opprettgsak.OpprettGSakTjeneste;
  */
 public class OpprettSakTjeneste {
 
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private FagsakTjeneste fagsakTjeneste;
     private OpprettGSakTjeneste opprettGSakTjeneste;
     private BrukerTjeneste brukerTjeneste;
@@ -41,9 +41,9 @@ public class OpprettSakTjeneste {
     }
 
     @Inject
-    public OpprettSakTjeneste(TpsTjeneste tpsTjeneste, FagsakTjeneste fagsakTjeneste,
-                                  OpprettGSakTjeneste opprettGSakTjeneste, BrukerTjeneste brukerTjeneste, DatavarehusTjeneste datavarehusTjeneste) {
-        this.tpsTjeneste = tpsTjeneste;
+    public OpprettSakTjeneste(PersoninfoAdapter personinfoAdapter, FagsakTjeneste fagsakTjeneste,
+                              OpprettGSakTjeneste opprettGSakTjeneste, BrukerTjeneste brukerTjeneste, DatavarehusTjeneste datavarehusTjeneste) {
+        this.personinfoAdapter = personinfoAdapter;
         this.fagsakTjeneste = fagsakTjeneste;
         this.opprettGSakTjeneste = opprettGSakTjeneste;
         this.brukerTjeneste = brukerTjeneste;
@@ -68,7 +68,7 @@ public class OpprettSakTjeneste {
     }
 
     public Personinfo hentBruker(AktørId aktørId) {
-        Optional<Personinfo> personinfoOptional = tpsTjeneste.hentBrukerForAktør(aktørId);
+        Optional<Personinfo> personinfoOptional = personinfoAdapter.hentBrukerForAktør(aktørId);
 
         if (!personinfoOptional.isPresent()) {
             throw OpprettSakFeil.FACTORY.finnerIkkePersonMedAktørId(aktørId).toException();
@@ -77,7 +77,7 @@ public class OpprettSakTjeneste {
     }
 
     public AktørId hentGjeldendeAktørId(AktørId aktørId) {
-        return tpsTjeneste.hentFnr(aktørId).flatMap(tpsTjeneste::hentAktørForFnr)
+        return personinfoAdapter.hentFnr(aktørId).flatMap(personinfoAdapter::hentAktørForFnr)
             .orElseThrow(() -> new IllegalStateException("Kan ikke mappe aktørId - ident - aktørId" + aktørId));
     }
 

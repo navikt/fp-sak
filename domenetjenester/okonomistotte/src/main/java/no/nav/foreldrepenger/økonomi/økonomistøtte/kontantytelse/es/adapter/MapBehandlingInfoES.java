@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.FinnNyesteOppdragForSak;
@@ -34,7 +34,7 @@ public class MapBehandlingInfoES {
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private FamilieHendelseRepository familieGrunnlagRepository;
     private FinnNyesteOppdragForSak finnNyesteOppdragForSak;
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
 
     MapBehandlingInfoES() {
         // for CDI proxy
@@ -42,7 +42,7 @@ public class MapBehandlingInfoES {
 
     @Inject
     public MapBehandlingInfoES(FinnNyesteOppdragForSak finnNyesteOppdragForSak,
-                               TpsTjeneste tpsTjeneste,
+                               PersoninfoAdapter personinfoAdapter,
                                LegacyESBeregningRepository beregningRepository,
                                BehandlingVedtakRepository behandlingVedtakRepository,
                                FamilieHendelseRepository familieHendelseRepository) {
@@ -50,13 +50,13 @@ public class MapBehandlingInfoES {
         this.beregningRepository = beregningRepository;
         this.familieGrunnlagRepository = familieHendelseRepository;
         this.finnNyesteOppdragForSak = finnNyesteOppdragForSak;
-        this.tpsTjeneste = tpsTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
     }
 
     public OppdragInputES oppsettBehandlingInfo(Behandling behandling) {
         Saksnummer saksnummer = behandling.getFagsak().getSaksnummer();
         // kallet kan fjernes en gang i fremtiden, når Oppdragssystemet ikke lenger krever fnr i sine meldinger.
-        PersonIdent personIdent = tpsTjeneste.hentFnrForAktør(behandling.getAktørId());
+        PersonIdent personIdent = personinfoAdapter.hentFnrForAktør(behandling.getAktørId());
         BehandlingVedtak behVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).orElse(null);
 
         String kodeKlassifik = mapKodeKlassifik(behandling);

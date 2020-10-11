@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles;
@@ -24,14 +24,14 @@ import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 @ApplicationScoped
 public class YtelseSøknadMapper implements SøknadMapper {
 
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
 
     protected YtelseSøknadMapper() {
     }
 
     @Inject
-    public YtelseSøknadMapper(TpsTjeneste tpsTjeneste) {
-        this.tpsTjeneste = tpsTjeneste;
+    public YtelseSøknadMapper(PersoninfoAdapter personinfoAdapter) {
+        this.personinfoAdapter = personinfoAdapter;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = mapRelasjonTilBarnet(registreringDto);
         engangsstønad.setSoekersRelasjonTilBarnet(søkersRelasjonTilBarnet);
         engangsstønad.setMedlemskap(SøknadMapperFelles.mapMedlemskap(registreringDto));
-        engangsstønad.setAnnenForelder(mapAnnenForelder(registreringDto, tpsTjeneste));
+        engangsstønad.setAnnenForelder(mapAnnenForelder(registreringDto, personinfoAdapter));
 
         søknad.setOmYtelse(mapOmYtelse(engangsstønad));
         return søknad;

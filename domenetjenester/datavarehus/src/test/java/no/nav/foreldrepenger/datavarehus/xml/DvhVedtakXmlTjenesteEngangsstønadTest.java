@@ -50,7 +50,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -82,7 +82,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     @Mock
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     @Inject
     private PersonopplysningTjeneste personopplysningTjeneste;
     private Repository repository = repoRule.getRepository();
@@ -121,7 +121,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     public void oppsett() {
         HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
         vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
-        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
+        var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         personopplysningXmlTjenesteEngangsstønad =
                 new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
                     familieHendelseRepository,

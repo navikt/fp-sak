@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -16,14 +16,14 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 @ApplicationScoped
 public class VergeDtoTjeneste {
 
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
 
     VergeDtoTjeneste() {
     }
 
     @Inject
-    public VergeDtoTjeneste(TpsTjeneste tpsTjeneste) {
-        this.tpsTjeneste = tpsTjeneste;
+    public VergeDtoTjeneste(PersoninfoAdapter personinfoAdapter) {
+        this.personinfoAdapter = personinfoAdapter;
     }
 
     public Optional<VergeDto> lagVergeDto(Optional<VergeAggregat> vergeAggregat) {
@@ -50,7 +50,7 @@ public class VergeDtoTjeneste {
     }
 
     private void setPersonIdent(AktørId aktørId, VergeDto dto) {
-        Optional<Personinfo> personinfoDto = tpsTjeneste.hentBrukerForAktør(aktørId);
+        Optional<Personinfo> personinfoDto = personinfoAdapter.hentBrukerForAktør(aktørId);
         if (personinfoDto.isPresent()) {
             Personinfo personinfo = personinfoDto.get();
             String navn = personinfoDto.map(Personinfo::getNavn).orElse("Ukjent navn"); //$NON-NLS-1$

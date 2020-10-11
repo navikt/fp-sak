@@ -41,12 +41,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdPSGrunnlag;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
 import no.nav.foreldrepenger.mottak.vedtak.spokelse.SpokelseKlient;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Tema;
@@ -66,7 +66,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
     private OverlappVedtakRepository overlappRepository;
 
     @Mock
-    private AktørConsumerMedCache aktørConsumerMock;
+    private PersoninfoAdapter personinfoAdapter;
     @Mock
     private InfotrygdPSGrunnlag infotrygdPSGrTjenesteMock;
     @Mock
@@ -80,7 +80,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         overlappRepository = new OverlappVedtakRepository(getEntityManager());
         beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
-        overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsresultatRepository, aktørConsumerMock,
+        overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsresultatRepository, personinfoAdapter,
                 infotrygdPSGrTjenesteMock,
                 infotrygdSPGrTjenesteMock, mock(AbakusTjeneste.class), mock(SpokelseKlient.class), overlappRepository,
                 mock(BehandlingRepository.class));
@@ -88,7 +88,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
         førsteUttaksdatoFp = VirkedagUtil.fomVirkedag(førsteUttaksdatoFp);
 
         PersonIdent person = new PersonIdent("12345678901");
-        when(aktørConsumerMock.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(person.getIdent()));
+        when(personinfoAdapter.hentFnr(any())).thenReturn(Optional.of(person));
     }
 
     private ScenarioMorSøkerForeldrepenger avsluttetBehandlingMor() {

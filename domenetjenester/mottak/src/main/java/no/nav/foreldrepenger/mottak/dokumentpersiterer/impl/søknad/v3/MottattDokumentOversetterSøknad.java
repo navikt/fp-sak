@@ -73,7 +73,7 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilansoppdrag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittUtenlandskVirksomhet;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -139,7 +139,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     private SøknadRepository søknadRepository;
     private MedlemskapRepository medlemskapRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
     private DatavarehusTjeneste datavarehusTjeneste;
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -151,7 +151,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     public MottattDokumentOversetterSøknad(BehandlingRepositoryProvider repositoryProvider,
                                            VirksomhetTjeneste virksomhetTjeneste,
                                            InntektArbeidYtelseTjeneste iayTjeneste,
-                                           TpsTjeneste tpsTjeneste,
+                                           PersoninfoAdapter personinfoAdapter,
                                            DatavarehusTjeneste datavarehusTjeneste,
                                            SvangerskapspengerRepository svangerskapspengerRepository,
                                            OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste) {
@@ -162,7 +162,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.virksomhetTjeneste = virksomhetTjeneste;
-        this.tpsTjeneste = tpsTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
         this.datavarehusTjeneste = datavarehusTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
@@ -292,7 +292,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private RelasjonsRolleType utledRolle(Bruker bruker, Long behandlingId, AktørId aktørId) {
-        NavBrukerKjønn kjønn = tpsTjeneste.hentBrukerForAktør(aktørId)
+        NavBrukerKjønn kjønn = personinfoAdapter.hentBrukerForAktør(aktørId)
             .map(Personinfo::getKjønn)
             .orElseThrow(() -> MottattDokumentFeil.FACTORY.dokumentManglerRelasjonsRolleType(behandlingId).toException());
 
@@ -422,7 +422,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
                 arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
             } else {
                 PersonIdent arbeidsgiverIdent = new PersonIdent(((no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver) arbeidsforhold).getIdentifikator());
-                Optional<AktørId> aktørIdArbeidsgiver = tpsTjeneste.hentAktørForFnr(arbeidsgiverIdent);
+                Optional<AktørId> aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(arbeidsgiverIdent);
                 if (!aktørIdArbeidsgiver.isPresent()) {
                     throw MottattDokumentFeil.FACTORY.finnerIkkeArbeidsgiverITPS().toException();
                 }
@@ -611,7 +611,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
     private no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver oversettArbeidsgiver(no.nav.vedtak.felles.xml.soeknad.uttak.v3.Arbeidsgiver arbeidsgiverFraSøknad) {
         if (arbeidsgiverFraSøknad instanceof Person) { // NOSONAR
-            Optional<AktørId> aktørId = tpsTjeneste.hentAktørForFnr(PersonIdent.fra(arbeidsgiverFraSøknad.getIdentifikator()));
+            Optional<AktørId> aktørId = personinfoAdapter.hentAktørForFnr(PersonIdent.fra(arbeidsgiverFraSøknad.getIdentifikator()));
             if (!aktørId.isPresent()) {
                 throw new IllegalStateException("Finner ikke arbeidsgiver");
             }
@@ -917,7 +917,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             AnnenForelderUtenNorskIdent annenForelderUtenNorskIdent = (AnnenForelderUtenNorskIdent) annenForelder;
             String annenPartIdentString = annenForelderUtenNorskIdent.getUtenlandskPersonidentifikator();
             if (PersonIdent.erGyldigFnr(annenPartIdentString)) {
-                tpsTjeneste.hentAktørForFnr(new PersonIdent(annenPartIdentString))
+                personinfoAdapter.hentAktørForFnr(new PersonIdent(annenPartIdentString))
                     .filter(a -> !behandling.getAktørId().equals(a))
                     .ifPresent(oppgittAnnenPartBuilder::medAktørId);
             }

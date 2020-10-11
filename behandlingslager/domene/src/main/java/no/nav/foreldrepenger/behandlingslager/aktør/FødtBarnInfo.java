@@ -1,36 +1,25 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 public class FødtBarnInfo {
-    public static final String UTEN_NAVN = "UTEN NAVN";
+
     private PersonIdent ident;
-    private String navn;
-    private NavBrukerKjønn kjønn;
     private LocalDate fødselsdato;
     private LocalDate dødsdato;
 
-    private FødtBarnInfo(PersonIdent ident, String navn, NavBrukerKjønn kjønn, LocalDate fødselsdato, LocalDate dødsdato) {
+    private FødtBarnInfo(PersonIdent ident, LocalDate fødselsdato, LocalDate dødsdato) {
         this.ident = ident;
-        this.navn = navn;
-        this.kjønn = kjønn;
         this.fødselsdato = fødselsdato;
         this.dødsdato = dødsdato;
     }
 
     public PersonIdent getIdent() {
         return ident;
-    }
-
-    public String getNavn() {
-        return navn == null ? UTEN_NAVN : navn;
-    }
-
-    public NavBrukerKjønn getKjønn() {
-        return kjønn;
     }
 
     public LocalDate getFødselsdato() {
@@ -41,25 +30,36 @@ public class FødtBarnInfo {
         return Optional.ofNullable(dødsdato);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FødtBarnInfo that = (FødtBarnInfo) o;
+        return Objects.equals(ident, that.ident) &&
+            Objects.equals(fødselsdato, that.fødselsdato) &&
+            Objects.equals(dødsdato, that.dødsdato);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ident, fødselsdato, dødsdato);
+    }
+
+    @Override
+    public String toString() {
+        return "FødtBarnInfo{" +
+            "fødselsdato=" + fødselsdato +
+            ", dødsdato=" + dødsdato +
+            '}';
+    }
+
     public static class Builder {
         private PersonIdent ident;
-        private String navn;
-        private NavBrukerKjønn kjønn;
         private LocalDate fødselsdato;
         private LocalDate dødsdato;
 
         public Builder medIdent(PersonIdent ident) {
             this.ident = ident;
-            return this;
-        }
-
-        public Builder medNavn(String navn) {
-            this.navn = navn;
-            return this;
-        }
-
-        public Builder medNavBrukerKjønn(NavBrukerKjønn kjønn) {
-            this.kjønn = kjønn;
             return this;
         }
 
@@ -74,7 +74,7 @@ public class FødtBarnInfo {
         }
 
         public FødtBarnInfo build() {
-            return new FødtBarnInfo(ident, navn, kjønn, fødselsdato, dødsdato);
+            return new FødtBarnInfo(ident, fødselsdato, dødsdato);
         }
     }
 }

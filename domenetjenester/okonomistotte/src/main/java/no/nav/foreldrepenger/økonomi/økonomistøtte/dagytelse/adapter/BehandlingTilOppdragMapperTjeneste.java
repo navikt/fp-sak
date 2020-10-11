@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.HentOppdragMedPositivKvittering;
@@ -34,7 +34,7 @@ public class BehandlingTilOppdragMapperTjeneste {
     private BeregningsresultatRepository beregningsresultatRepository;
     private HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering;
     private MapBehandlingVedtak mapBehandlingVedtak;
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private FamilieHendelseRepository familieHendelseRepository;
     private TilbakekrevingRepository tilbakekrevingRepository;
     private SjekkOmDetFinnesTilkjentYtelse sjekkOmDetFinnesTilkjentYtelse;
@@ -46,7 +46,7 @@ public class BehandlingTilOppdragMapperTjeneste {
     @Inject
     public BehandlingTilOppdragMapperTjeneste(HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering,
                                               MapBehandlingVedtak mapBehandlingVedtak,
-                                              TpsTjeneste tpsTjeneste,
+                                              PersoninfoAdapter personinfoAdapter,
                                               TilbakekrevingRepository tilbakekrevingRepository,
                                               BeregningsresultatRepository beregningsresultatRepository,
                                               FamilieHendelseRepository familieHendelseRepository,
@@ -54,7 +54,7 @@ public class BehandlingTilOppdragMapperTjeneste {
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.hentOppdragMedPositivKvittering = hentOppdragMedPositivKvittering;
         this.mapBehandlingVedtak = mapBehandlingVedtak;
-        this.tpsTjeneste = tpsTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
         this.familieHendelseRepository = familieHendelseRepository;
         this.tilbakekrevingRepository = tilbakekrevingRepository;
         this.sjekkOmDetFinnesTilkjentYtelse = sjekkOmDetFinnesTilkjentYtelse;
@@ -62,7 +62,7 @@ public class BehandlingTilOppdragMapperTjeneste {
 
     public OppdragInput map(Behandling behandling) {
         // kallet kan fjernes en gang i fremtiden, når Oppdragssystemet ikke lenger krever fnr i sine meldinger.
-        PersonIdent personIdent = tpsTjeneste.hentFnrForAktør(behandling.getAktørId());
+        PersonIdent personIdent = personinfoAdapter.hentFnrForAktør(behandling.getAktørId());
         Long behandlingId = behandling.getId();
         TilkjentYtelseMapper tilkjentYtelseMapper = new TilkjentYtelseMapper(finnFamilieYtelseType(behandling));
         TilkjentYtelse tilkjentYtelse = null;

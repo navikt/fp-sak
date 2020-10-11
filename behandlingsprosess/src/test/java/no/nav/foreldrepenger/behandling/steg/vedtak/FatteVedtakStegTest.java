@@ -47,7 +47,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -69,7 +68,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.es.BeregningsgrunnlagXmlTjenesteImpl;
@@ -121,8 +120,6 @@ public class FatteVedtakStegTest {
     @Inject
     private InternalManipulerBehandling manipulerBehandling;
     @Inject
-    private InnsynRepository innsynRepository;
-    @Inject
     private KlageRepository klageRepository;
     @Inject
     private AnkeRepository ankeRepository;
@@ -140,7 +137,7 @@ public class FatteVedtakStegTest {
         LagretVedtakRepository vedtakRepository = new LagretVedtakRepository(entityManager);
 
         OppgaveTjeneste oppgaveTjeneste = mock(OppgaveTjeneste.class);
-        TpsTjeneste tpsTjeneste = Mockito.mock(TpsTjeneste.class);
+        PersoninfoAdapter personinfoAdapter = Mockito.mock(PersoninfoAdapter.class);
         PersonopplysningTjeneste personopplysningTjeneste = Mockito.mock(PersonopplysningTjeneste.class);
 
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
@@ -148,7 +145,7 @@ public class FatteVedtakStegTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
 
         VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
-        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
+        var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(
             poXmlFelles, repositoryProvider, personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
         VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste = new VilkårsgrunnlagXmlTjenesteImpl(repositoryProvider, kompletthetssjekkerProvider, skjæringstidspunktTjeneste);
@@ -344,12 +341,12 @@ public class FatteVedtakStegTest {
 
         OppgaveTjeneste oppgaveTjeneste = mock(OppgaveTjeneste.class);
         SøknadRepository søknadRepository = mock(SøknadRepository.class);
-        TpsTjeneste tpsTjeneste = Mockito.mock(TpsTjeneste.class);
+        PersoninfoAdapter personinfoAdapter = Mockito.mock(PersoninfoAdapter.class);
         PersonopplysningTjeneste personopplysningTjeneste = Mockito.mock(PersonopplysningTjeneste.class);
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
-        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
+        var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider,
             personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
         VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
@@ -406,13 +403,13 @@ public class FatteVedtakStegTest {
 
         OppgaveTjeneste oppgaveTjeneste = mock(OppgaveTjeneste.class);
         SøknadRepository søknadRepository = mock(SøknadRepository.class);
-        TpsTjeneste tpsTjeneste = Mockito.mock(TpsTjeneste.class);
+        PersoninfoAdapter personinfoAdapter = Mockito.mock(PersoninfoAdapter.class);
         PersonopplysningTjeneste personopplysningTjeneste = Mockito.mock(PersonopplysningTjeneste.class);
         VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
-        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
+        var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider,
             personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
         VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste = new VilkårsgrunnlagXmlTjenesteImpl(repositoryProvider, kompletthetssjekkerProvider,

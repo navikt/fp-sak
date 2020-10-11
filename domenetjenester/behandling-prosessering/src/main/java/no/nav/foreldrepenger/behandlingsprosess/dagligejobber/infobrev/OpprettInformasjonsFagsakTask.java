@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveFeilmeldinger;
@@ -55,7 +55,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     private static final Period FH_DIFF_PERIODE = Period.parse("P4W");
 
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private FagsakTjeneste fagsakTjeneste;
     private BrukerTjeneste brukerTjeneste;
     private OpprettGSakTjeneste opprettGSakTjeneste;
@@ -71,13 +71,13 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     @Inject
     public OpprettInformasjonsFagsakTask(BehandlingRepositoryProvider repositoryProvider,
                                          BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
-                                         TpsTjeneste tpsTjeneste,
+                                         PersoninfoAdapter personinfoAdapter,
                                          BrukerTjeneste brukerTjeneste,
                                          FagsakTjeneste fagsakTjeneste,
                                          OpprettGSakTjeneste opprettGSakTjeneste,
                                          FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
-        this.tpsTjeneste = tpsTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
         this.brukerTjeneste = brukerTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.opprettGSakTjeneste = opprettGSakTjeneste;
@@ -166,7 +166,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     }
 
     private Personinfo hentPersonInfo(AktørId aktørId) {
-        return tpsTjeneste.hentBrukerForAktør(aktørId)
+        return personinfoAdapter.hentBrukerForAktør(aktørId)
             .orElseThrow(() -> OppgaveFeilmeldinger.FACTORY.identIkkeFunnet(aktørId).toException());
     }
 }

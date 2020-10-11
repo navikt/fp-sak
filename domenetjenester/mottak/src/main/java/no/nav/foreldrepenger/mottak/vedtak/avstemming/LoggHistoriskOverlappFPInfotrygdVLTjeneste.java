@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.OverlappData;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -33,7 +34,6 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 
 /*
@@ -46,7 +46,7 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
     private static final long HUNDRE = 100L;
 
     private BeregningsresultatRepository beregningsresultatRepository;
-    private AktørConsumerMedCache aktørConsumer;
+    private PersoninfoAdapter personinfoAdapter;
     private InfotrygdSVPGrunnlag infotrygdSVPGrTjeneste;
     private InfotrygdFPGrunnlag infotrygdFPGrTjeneste;
     private OverlappVedtakRepository overlappRepository;
@@ -57,12 +57,12 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
 
     @Inject
     public LoggHistoriskOverlappFPInfotrygdVLTjeneste(BeregningsresultatRepository beregningsresultatRepository,
-                                                      AktørConsumerMedCache aktørConsumer,
+                                                      PersoninfoAdapter personinfoAdapter,
                                                       InfotrygdSVPGrunnlag infotrygdSVPGrTjeneste,
                                                       InfotrygdFPGrunnlag infotrygdFPGrTjeneste,
                                                       OverlappVedtakRepository overlappRepository) {
         this.beregningsresultatRepository = beregningsresultatRepository;
-        this.aktørConsumer = aktørConsumer;
+        this.personinfoAdapter = personinfoAdapter;
         this.infotrygdSVPGrTjeneste = infotrygdSVPGrTjeneste;
         this.infotrygdFPGrTjeneste = infotrygdFPGrTjeneste;
         this.overlappRepository = overlappRepository;
@@ -130,7 +130,7 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
 
 
     private PersonIdent getFnrFraAktørId(AktørId aktørId) {
-        return aktørConsumer.hentPersonIdentForAktørId(aktørId.getId()).map(PersonIdent::new).orElseThrow();
+        return personinfoAdapter.hentFnr(aktørId).orElseThrow();
     }
 
     private LocalDateTimeline<Boolean> hentPerioderSVP(Long behandlingId) {

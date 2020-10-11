@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
@@ -64,16 +64,16 @@ public class OpprettOppgaveForBehandlingTaskTest {
     private Fagsak fagsak;
 
     @Mock
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
 
     @Before
     public void setup() {
-        tpsTjeneste = Mockito.mock(TpsTjeneste.class);
+        personinfoAdapter = Mockito.mock(PersoninfoAdapter.class);
         oppgaveRestKlient = Mockito.mock(OppgaveRestKlient.class);
         oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
-        tjeneste = new OppgaveTjeneste(repositoryProvider, oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository, tpsTjeneste);
+        tjeneste = new OppgaveTjeneste(repositoryProvider, oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository, personinfoAdapter);
 
         // Bygg fagsak som gjenbrukes over testene
         fagsak = opprettOgLagreFagsak();
@@ -87,7 +87,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
             .build();
 
-        when(tpsTjeneste.hentBrukerForAktør(personinfo.getAktørId())).thenReturn(Optional.of(personinfo));
+        when(personinfoAdapter.hentBrukerForAktør(personinfo.getAktørId())).thenReturn(Optional.of(personinfo));
     }
 
     @Test

@@ -50,7 +50,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatus
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.FinnNyesteOppdragForSak;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
@@ -58,10 +58,10 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFac
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettBehandlingForOppdrag;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.OppdragskontrollEngangsstønad;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.OppdragskontrollManagerFactoryKontantytelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -93,7 +93,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
     @Before
     public void setUp() {
 
-        var tpsTjeneste = mock(TpsTjeneste.class);
+        var tpsTjeneste = mock(PersoninfoAdapter.class);
         var mapBehandlingInfo = new MapBehandlingInfoES(finnNyesteOppdragForSak, tpsTjeneste,
             beregningRepository, behandlingVedtakRepository, familieHendelseRepository
             );

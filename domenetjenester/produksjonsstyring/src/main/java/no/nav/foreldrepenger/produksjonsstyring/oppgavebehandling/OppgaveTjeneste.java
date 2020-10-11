@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.domene.person.tps.TpsTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -68,7 +68,7 @@ public class OppgaveTjeneste {
     private BehandlingRepository behandlingRepository;
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
     private ProsessTaskRepository prosessTaskRepository;
-    private TpsTjeneste tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private OppgaveRestKlient restKlient;
 
     OppgaveTjeneste() {
@@ -79,13 +79,13 @@ public class OppgaveTjeneste {
     public OppgaveTjeneste(BehandlingRepositoryProvider repositoryProvider,
             OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
             OppgaveRestKlient restKlient,
-            ProsessTaskRepository prosessTaskRepository, TpsTjeneste tpsTjeneste) {
+            ProsessTaskRepository prosessTaskRepository, PersoninfoAdapter personinfoAdapter) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
         this.restKlient = restKlient;
         this.prosessTaskRepository = prosessTaskRepository;
-        this.tpsTjeneste = tpsTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
     }
 
     /*
@@ -345,7 +345,7 @@ public class OppgaveTjeneste {
     }
 
     private Personinfo hentPersonInfo(AktørId aktørId) {
-        return tpsTjeneste.hentBrukerForAktør(aktørId)
+        return personinfoAdapter.hentBrukerForAktør(aktørId)
                 .orElseThrow(() -> OppgaveFeilmeldinger.FACTORY.identIkkeFunnet(aktørId).toException());
     }
 

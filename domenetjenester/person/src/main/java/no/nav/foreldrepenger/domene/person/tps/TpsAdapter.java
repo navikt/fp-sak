@@ -180,13 +180,9 @@ public class TpsAdapter {
         }
     }
 
-    public List<FødtBarnInfo> hentFødteBarn(AktørId aktørId) {
-        Optional<PersonIdent> personIdent = hentIdentForAktørId(aktørId);
-        if (personIdent.isEmpty()) {
-            throw TpsFeilmeldinger.FACTORY.fantIkkePersonForAktørId().toException();
-        }
+    public List<FødtBarnInfo> hentFødteBarn(PersonIdent personIdent) {
         HentPersonRequest request = new HentPersonRequest();
-        request.setAktoer(TpsUtil.lagPersonIdent(personIdent.get().getIdent()));
+        request.setAktoer(TpsUtil.lagPersonIdent(personIdent.getIdent()));
         request.getInformasjonsbehov().add(Informasjonsbehov.FAMILIERELASJONER);
         try {
             HentPersonResponse response = personConsumer.hentPersonResponse(request);

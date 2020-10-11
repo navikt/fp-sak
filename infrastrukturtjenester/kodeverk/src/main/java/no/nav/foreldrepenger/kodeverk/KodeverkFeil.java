@@ -21,12 +21,5 @@ public interface KodeverkFeil extends DeklarerteFeil {
     @IntegrasjonFeil(feilkode = "FP-563155", feilmelding = "Synkronisering med kodeverk feilet: %s", logLevel = LogLevel.WARN)
     Feil synkronoseringAvKodeverkFeilet(String kodeverkKode, IntegrasjonException e);
 
-    @IntegrasjonFeil(feilkode = "FP-840390", feilmelding = "Eksisterende koderelasjon ikke mottatt: %s %s -> %s %s", logLevel = LogLevel.WARN)
-    Feil eksisterendeKodeRelasjonIkkeMottatt(String kodeverk1, String kode1, String kodeverk2, String kode2);
 
-    @IntegrasjonFeil(feilkode = "FP-075896", feilmelding = "Eksisterende kode ikke mottatt: %s %s", logLevel = LogLevel.INFO)
-    Feil eksisterendeKodeIkkeMottatt(String kodeverk, String kode);
-
-    @IntegrasjonFeil(feilkode = "FP-924461", feilmelding = "Kan ikke opprette koderelasjon med kode som ikke eksisterer: %s %s", logLevel = LogLevel.WARN)
-    Feil nyKodeRelasjonMedIkkeEksisterendeKode(String kodeverk, String kode);
 }
