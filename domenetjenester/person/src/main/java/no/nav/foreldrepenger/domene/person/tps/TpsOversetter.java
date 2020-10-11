@@ -89,9 +89,6 @@ public class TpsOversetter {
 
     public Personinfo tilBrukerInfo(AktørId aktørId, Bruker bruker) { // NOSONAR - ingen forbedring å forkorte metoden her
         String navn = bruker.getPersonnavn().getSammensattNavn();
-        String adresse = tpsAdresseOversetter.finnAdresseFor(bruker);
-        String adresseLandkode = tpsAdresseOversetter.finnAdresseLandkodeFor(bruker);
-        String utlandsadresse = tpsAdresseOversetter.finnUtlandsadresseFor(bruker);
 
         LocalDate fødselsdato = finnFødselsdato(bruker);
         LocalDate dødsdato = finnDødsdato(bruker);
@@ -109,7 +106,6 @@ public class TpsOversetter {
         Region region = MapRegionLandkoder.mapLandkode(landkoder.getKode());
 
         String diskresjonskode = bruker.getDiskresjonskode() == null ? null : bruker.getDiskresjonskode().getValue();
-        String geografiskTilknytning = bruker.getGeografiskTilknytning() != null ? bruker.getGeografiskTilknytning().getGeografiskTilknytning() : null;
 
         List<Adresseinfo> adresseinfoList = tpsAdresseOversetter.lagListeMedAdresseInfo(bruker);
         SivilstandType sivilstandType = bruker.getSivilstand() == null ? null : SivilstandType.fraKode(bruker.getSivilstand().getSivilstand().getValue());
@@ -118,18 +114,13 @@ public class TpsOversetter {
             .medAktørId(aktørId)
             .medPersonIdent(no.nav.foreldrepenger.domene.typer.PersonIdent.fra(ident))
             .medNavn(navn)
-            .medAdresse(adresse)
-            .medAdresseLandkode(adresseLandkode)
             .medFødselsdato(fødselsdato)
             .medDødsdato(dødsdato)
             .medNavBrukerKjønn(kjønn)
             .medPersonstatusType(personstatus)
-            .medStatsborgerskap(new no.nav.foreldrepenger.behandlingslager.aktør.Statsborgerskap(landkoder.getKode()))
             .medRegion(region)
             .medFamilierelasjon(familierelasjoner)
-            .medUtlandsadresse(utlandsadresse)
             .medForetrukketSpråk(bestemForetrukketSpråk(bruker))
-            .medGegrafiskTilknytning(geografiskTilknytning)
             .medDiskresjonsKode(diskresjonskode)
             .medAdresseInfoList(adresseinfoList)
             .medSivilstandType(sivilstandType)

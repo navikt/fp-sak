@@ -447,7 +447,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     private void settOppTpsSurrogatiStrukturer() {
         HashSet<Familierelasjon> tilForeldreEn = new HashSet<>(Collections.singletonList(relasjontilMor));
         BARN_PINFO = new Personinfo.Builder().medAktørId(BARN_AKTØR_ID).medPersonIdent(BARN_IDENT).medFødselsdato(BARN_FØDT)
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").medAdresse("Vei").medFamilierelasjon(tilForeldreEn).build();
+            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").medFamilierelasjon(tilForeldreEn).build();
         BARN_FBI = new FødtBarnInfo.Builder().medIdent(BARN_IDENT).medFødselsdato(BARN_FØDT).build();
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of(BARN_FBI));
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
@@ -463,10 +463,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         BARN_FBI = new FødtBarnInfo.Builder().medIdent(BARN_IDENT).medFødselsdato(BARN_FØDT).build();
         if (medNyligFødt) {
             BARN_PINFO = new Personinfo.Builder().medAktørId(BARN_AKTØR_ID).medPersonIdent(BARN_IDENT).medFødselsdato(BARN_FØDT)
-                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").medAdresse("Vei").medFamilierelasjon(tilForeldre).build();
+                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").medFamilierelasjon(tilForeldre).build();
         } else {
             BARN_PINFO = new Personinfo.Builder().medAktørId(BARN_AKTØR_ID).medPersonIdent(BARN_IDENT).medFødselsdato(BARN_FØDT)
-                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").medAdresse("Vei").build();
+                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE).medNavn("Dunk junior d.y.").build();
         }
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of());
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
