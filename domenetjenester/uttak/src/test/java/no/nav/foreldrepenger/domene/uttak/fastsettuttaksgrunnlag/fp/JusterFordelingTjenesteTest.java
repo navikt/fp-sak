@@ -18,12 +18,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
 public class JusterFordelingTjenesteTest {
 
-    private LocalDate fødselsdato = LocalDate.of(2018, 1, 1);
-    private JusterFordelingTjeneste justerFordelingTjeneste = new JusterFordelingTjeneste();
+    private final LocalDate fødselsdato = LocalDate.of(2018, 1, 1);
+    private final JusterFordelingTjeneste justerFordelingTjeneste = new JusterFordelingTjeneste();
 
     @Test
     public void normal_case_føder_på_termin() {
@@ -942,6 +943,26 @@ public class JusterFordelingTjenesteTest {
         assertThat(justertePerioder).hasSize(3);
     }
 
+    @Test
+    public void ikke_justere_perioder_med_samtidig_uttak() {
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
+        var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(15).minusDays(1));
+        var fpMedSamtidigUttak = OppgittPeriodeBuilder.ny()
+            .medPeriode(fødselsdato.plusWeeks(15), fødselsdato.plusWeeks(20))
+            .medPeriodeType(FELLESPERIODE)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
+            .medSamtidigUttak(true)
+            .build();
+        var oppgittePerioder = List.of(fpff, mk, fpMedSamtidigUttak);
+
+        var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, fødselsdato, fødselsdato.plusWeeks(1));
+
+        //3 perioder + Fellesperiode før fødsel
+        assertThat(justertePerioder).hasSize(4);
+        assertThat(justertePerioder.get(3).getFom()).isEqualTo(fpMedSamtidigUttak.getFom());
+        assertThat(justertePerioder.get(3).getTom()).isEqualTo(fpMedSamtidigUttak.getTom());
+    }
+
     private OppgittPeriodeEntitet lagPeriode(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom) {
         return OppgittPeriodeBuilder.ny()
             .medPeriode(fom, tom)
@@ -974,10 +995,10 @@ public class JusterFordelingTjenesteTest {
      * Sammenligning av eksakt match på perioder(sammenligner bare fom-tom). Vanlig equals har "fuzzy" logikk rundt helg, så den kan ikke brukes i dette tilfellet.
      */
     private boolean likePerioder(List<OppgittPeriodeEntitet> perioder1, List<OppgittPeriodeEntitet> perioder2) {
-        if (perioder1.size()!=perioder2.size()) {
+        if (perioder1.size() != perioder2.size()) {
             return false;
         }
-        for (int i = 0; i<perioder1.size(); i++) {
+        for (int i = 0; i < perioder1.size(); i++) {
             var oppgittPeriode1 = perioder1.get(i);
             var oppgittPeriode2 = perioder2.get(i);
             if (!oppgittPeriode1.getFom().equals(oppgittPeriode2.getFom()) || !oppgittPeriode1.getTom().equals(oppgittPeriode2.getTom())) {

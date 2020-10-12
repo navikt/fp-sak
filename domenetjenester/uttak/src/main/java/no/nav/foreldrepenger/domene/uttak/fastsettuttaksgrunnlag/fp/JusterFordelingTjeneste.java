@@ -469,7 +469,8 @@ class JusterFordelingTjeneste {
     }
 
     /**
-     * Sjekk om perioden er flyttbar. Perioden er ikke flyttbar dersom det er en utsettelse, opphold eller en gradert periode.
+     * Sjekk om perioden er flyttbar. Perioden er ikke flyttbar dersom det er en utsettelse, opphold, en gradert periode
+     * eller samtidig uttak
      *
      * @param periode perioden som skal sjekkes.
      * @return true dersom perioden kan flyttes, ellers false.
@@ -480,7 +481,7 @@ class JusterFordelingTjeneste {
                 return false;
             }
         }
-        return !periode.erGradert() && !(periode instanceof JusterPeriodeHull);
+        return !periode.erGradert() && !(periode instanceof JusterPeriodeHull) && !periode.isSamtidigUttak();
     }
 
 
