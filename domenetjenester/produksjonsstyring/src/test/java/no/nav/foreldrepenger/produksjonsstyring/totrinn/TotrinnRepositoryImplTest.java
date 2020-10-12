@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.produksjonsstyring.totrinn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,8 +15,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
@@ -26,11 +24,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 public class TotrinnRepositoryImplTest {
 
@@ -150,16 +146,8 @@ public class TotrinnRepositoryImplTest {
             .build();
     }
 
-    private Personinfo lagPerson() {
-        return new Personinfo.Builder()
-            .medNavn("Navn navnesen")
-            .medAktørId(AktørId.dummy())
-            .medFødselsdato(LocalDate.now().minusYears(20))
-            .medLandkode(Landkoder.NOR)
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medPersonIdent(new PersonIdent("12345678901"))
-            .medForetrukketSpråk(Språkkode.NB)
-            .build();
+    private PersoninfoSpråk lagPerson() {
+        return new PersoninfoSpråk(AktørId.dummy(), Språkkode.NB);
     }
 
 }

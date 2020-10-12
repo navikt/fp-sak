@@ -13,6 +13,7 @@ import org.threeten.extra.Interval;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -36,7 +37,7 @@ public class PersonInfoAdapterMock extends PersoninfoAdapter {
     }
 
     @Override
-    public Optional<Personinfo> hentBrukerForFnr(PersonIdent fnr) {
+    public Optional<PersoninfoBasis> hentBrukerBasisForAktør(AktørId aktørId) {
         return Optional.empty();
     }
 

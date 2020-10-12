@@ -16,6 +16,7 @@ import org.threeten.extra.Interval;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
@@ -144,9 +145,14 @@ public class PersoninfoAdapter {
         return tpsAdapter.hentIdentForAktørId(aktørId);
     }
 
-    public Optional<Personinfo> hentBrukerForAktør(AktørId aktørId) {
+    private Optional<Personinfo> hentBrukerForAktør(AktørId aktørId) {
         Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
         return funnetFnr.map(fnr -> tpsAdapter.hentKjerneinformasjon(fnr, aktørId));
+    }
+
+    public Optional<PersoninfoBasis> hentBrukerBasisForAktør(AktørId aktørId) {
+        Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
+        return funnetFnr.map(fnr -> tpsAdapter.hentKjerneinformasjonBasis(fnr, aktørId));
     }
 
     public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {
@@ -159,13 +165,6 @@ public class PersoninfoAdapter {
 
     public Optional<String> hentDiskresjonskodeForAktør(AktørId aktørId) {
         return Optional.ofNullable(hentGeografiskTilknytning(aktørId).getDiskresjonskode());
-    }
-
-    public Optional<Personinfo> hentBrukerForFnr(PersonIdent fnr) {
-        if (fnr.erFdatNummer()) {
-            return Optional.empty();
-        }
-        return tpsAdapter.hentAktørIdForPersonIdent(fnr).map(a -> tpsAdapter.hentKjerneinformasjon(fnr, a));
     }
 
     public PersoninfoSpråk hentForetrukketSpråk(AktørId aktørId) {

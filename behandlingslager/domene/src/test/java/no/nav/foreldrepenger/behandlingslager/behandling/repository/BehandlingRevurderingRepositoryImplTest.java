@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Properties;
@@ -11,8 +10,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -29,11 +27,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class BehandlingRevurderingRepositoryImplTest {
@@ -163,16 +159,7 @@ public class BehandlingRevurderingRepositoryImplTest {
         return behandling.getBehandlingsresultat();
     }
 
-    private Personinfo lagPerson() {
-        final Personinfo personinfo = new Personinfo.Builder()
-            .medNavn("Navn navnesen")
-            .medAktørId(AktørId.dummy())
-            .medFødselsdato(LocalDate.now().minusYears(20))
-            .medLandkode(Landkoder.NOR)
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medPersonIdent(new PersonIdent("12345678901"))
-            .medForetrukketSpråk(Språkkode.NB)
-            .build();
-        return personinfo;
+    private PersoninfoSpråk lagPerson() {
+        return new PersoninfoSpråk(AktørId.dummy(), Språkkode.NB);
     }
 }

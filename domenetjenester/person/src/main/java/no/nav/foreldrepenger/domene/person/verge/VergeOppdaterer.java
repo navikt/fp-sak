@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
@@ -83,7 +82,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
 
     private NavBruker hentEllerOpprettBruker(AktørId aktoerId) {
         return navBrukerRepository.hent(aktoerId)
-            .orElseGet(() -> personinfoAdapter.hentBrukerForAktør(aktoerId).map(NavBruker::opprettNy).orElse(null));
+            .orElseGet(() -> NavBruker.opprettNy(aktoerId, personinfoAdapter.hentForetrukketSpråk(aktoerId).getForetrukketSpråk()));
     }
 
     private VergeOrganisasjonEntitet opprettVergeOrganisasjon(AvklarVergeDto adapter) {
@@ -109,11 +108,10 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
         HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
         Optional<AktørId> aktørId = vergeAggregat.getAktørId();
         if (aktørId.isPresent()) {
-            Optional<Personinfo> personinfo = personinfoAdapter.hentBrukerForAktør(aktørId.get());
-            if (personinfo.isPresent()) {
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.NAVN, personinfo.get().getNavn(), dto.getNavn());
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FNR, personinfo.get().getPersonIdent().getIdent(), dto.getFnr());
-            }
+            personinfoAdapter.hentBrukerBasisForAktør(aktørId.get()).ifPresent(pib -> {
+                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.NAVN, pib.getNavn(), dto.getNavn());
+                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FNR, pib.getPersonIdent().getIdent(), dto.getFnr());
+            });
         }
         if (vergeAggregat.getVerge().isPresent()) {
             VergeEntitet vergeEntitet = vergeAggregat.getVerge().get();

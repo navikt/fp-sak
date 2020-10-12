@@ -12,8 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
@@ -31,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
@@ -60,16 +57,8 @@ public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
     public void opprette_registrer_endringssøknad_aksjonspunkt_hvis_mottatt_førstegangssøknad_i_en_revurdering() {
 
         AktørId aktørId = AktørId.dummy();
-        Personinfo personinfo = new Personinfo.Builder()
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medPersonIdent(PersonIdent.fra("123"))
-            .medAktørId(aktørId)
-            .medNavn("Navn Navnesen")
-            .medFødselsdato(LocalDate.now().minusYears(30))
-            .medForetrukketSpråk(Språkkode.NB)
-            .build();
         Long fagsakId = fagsakRepository
-            .opprettNy(new Fagsak(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(personinfo), RelasjonsRolleType.MORA, new Saksnummer("123")));
+            .opprettNy(new Fagsak(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(aktørId, Språkkode.NB), RelasjonsRolleType.MORA, new Saksnummer("123")));
 
         Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         Behandling forrigeBehandling = Behandling.forFørstegangssøknad(fagsak)
@@ -98,16 +87,8 @@ public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
     public void opprett_registrer_papirsøknad_svangerskapspenger_hvis_fagsaktype_er_svp() {
 
         var aktørId = AktørId.dummy();
-        var personinfo = new Personinfo.Builder()
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medPersonIdent(PersonIdent.fra("123"))
-            .medAktørId(aktørId)
-            .medNavn("Navn Navnesen")
-            .medFødselsdato(LocalDate.now().minusYears(30))
-            .medForetrukketSpråk(Språkkode.NB)
-            .build();
         Long fagsakId = fagsakRepository
-            .opprettNy(new Fagsak(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNy(personinfo), RelasjonsRolleType.MORA, new Saksnummer("124")));
+            .opprettNy(new Fagsak(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNy(aktørId, Språkkode.NB), RelasjonsRolleType.MORA, new Saksnummer("124")));
 
         Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         Behandling forrigeBehandling = Behandling.forFørstegangssøknad(fagsak)

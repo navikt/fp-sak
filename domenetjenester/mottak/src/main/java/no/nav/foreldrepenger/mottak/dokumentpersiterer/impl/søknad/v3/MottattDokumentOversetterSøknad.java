@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -292,8 +292,8 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private RelasjonsRolleType utledRolle(Bruker bruker, Long behandlingId, AktørId aktørId) {
-        NavBrukerKjønn kjønn = personinfoAdapter.hentBrukerForAktør(aktørId)
-            .map(Personinfo::getKjønn)
+        NavBrukerKjønn kjønn = personinfoAdapter.hentBrukerBasisForAktør(aktørId)
+            .map(PersoninfoBasis::getKjønn)
             .orElseThrow(() -> MottattDokumentFeil.FACTORY.dokumentManglerRelasjonsRolleType(behandlingId).toException());
 
         if (bruker == null || bruker.getSoeknadsrolle() == null) {

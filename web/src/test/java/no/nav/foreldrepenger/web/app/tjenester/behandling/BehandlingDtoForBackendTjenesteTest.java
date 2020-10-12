@@ -2,15 +2,12 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.junit.Rule;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -29,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoForBackendTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingÅrsakDto;
@@ -71,8 +67,7 @@ public class BehandlingDtoForBackendTjenesteTest {
     }
 
     private Behandling lagBehandling() {
-        Personinfo personinfo = lagPersonInfo();
-        NavBruker navBruker = NavBruker.opprettNy(personinfo);
+        NavBruker navBruker = NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, RelasjonsRolleType.MORA, new Saksnummer("12345"));
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
 
@@ -88,15 +83,6 @@ public class BehandlingDtoForBackendTjenesteTest {
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
         Long behandlingId = behandlingRepository.lagre(behandling, behandlingLås);
         return behandlingRepository.hentBehandling(behandlingId);
-    }
-
-    private Personinfo lagPersonInfo() {
-        return new Personinfo.Builder().medAktørId(AktørId.dummy())
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medNavn("Lorem Ipsum")
-            .medPersonIdent(new PersonIdent("1243434"))
-            .medFødselsdato(LocalDate.now().minusYears(20))
-            .medForetrukketSpråk(Språkkode.NB).build();
     }
 
     private void lagBehandligVedtak(Behandling behandling) {

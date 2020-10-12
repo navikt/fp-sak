@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent.BehandlingAvsluttetEvent;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
@@ -29,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.Oppgavetyper;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
@@ -333,7 +333,7 @@ public class OppgaveTjeneste {
 
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         Saksnummer saksnummer = behandling.getFagsak().getSaksnummer();
-        String arbeidsgiverIdent = hentPersonInfo(arbeidsgiverAktørId).getPersonIdent().getIdent();
+        String arbeidsgiverIdent = hentPersonInfo(arbeidsgiverAktørId).getIdent();
 
         final String beskrivelse = String.format("Refusjon til privat arbeidsgiver," +
                 "Saksnummer: %s," +
@@ -344,8 +344,8 @@ public class OppgaveTjeneste {
         return opprettOkonomiSettPåVent(beskrivelse, behandling);
     }
 
-    private Personinfo hentPersonInfo(AktørId aktørId) {
-        return personinfoAdapter.hentBrukerForAktør(aktørId)
+    private PersonIdent hentPersonInfo(AktørId aktørId) {
+        return personinfoAdapter.hentFnr(aktørId)
                 .orElseThrow(() -> OppgaveFeilmeldinger.FACTORY.identIkkeFunnet(aktørId).toException());
     }
 

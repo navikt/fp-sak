@@ -9,19 +9,14 @@ import java.util.Collections;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.dto.AndreYtelserDto;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.dto.NaringsvirksomhetTypeDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.AnnenForelderDto;
@@ -76,18 +71,7 @@ public class SøknadMapperUtil {
 
     public static NavBruker opprettBruker() {
         AktørId aktørId = AktørId.dummy();
-        LocalDate fødselsdato = LocalDate.of(1990, 1, 1);
-        String fnr = new FiktiveFnr().nesteKvinneFnr();
-        Personinfo personinfo = new Personinfo.Builder()
-                .medAktørId(aktørId)
-                .medPersonIdent(new PersonIdent(fnr))
-                .medNavn("Fornavn Etternavn")
-                .medFødselsdato(fødselsdato)
-                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-                .medForetrukketSpråk(Språkkode.NB)
-                .medLandkode(Landkoder.NOR)
-                .build();
-        return NavBruker.opprettNy(personinfo);
+        return NavBruker.opprettNy(aktørId, Språkkode.NB);
 
     }
 

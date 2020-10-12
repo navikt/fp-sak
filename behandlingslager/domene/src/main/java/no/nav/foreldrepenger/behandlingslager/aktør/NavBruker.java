@@ -38,7 +38,7 @@ public class NavBruker extends Person {
         this.språkkode = språkkode;
     }
 
-    public static NavBruker opprettNy(Personinfo personinfo) {
+    public static NavBruker opprettNy(PersoninfoSpråk personinfo) {
         return new NavBruker(personinfo.getAktørId(), personinfo.getForetrukketSpråk());
     }
 

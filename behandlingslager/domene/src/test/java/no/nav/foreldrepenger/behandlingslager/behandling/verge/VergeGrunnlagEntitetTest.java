@@ -1,17 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.verge;
 
-import static java.time.Month.JANUARY;
-import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.KVINNE;
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -21,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
@@ -44,16 +38,7 @@ public class VergeGrunnlagEntitetTest extends EntityManagerAwareTest {
     public void skal_lagre_verge_grunnlag() {
         Behandling behandling = opprettBehandling();
 
-        Personinfo.Builder builder = new Personinfo.Builder();
-        builder.medAktørId(AktørId.dummy())
-                .medPersonIdent(new PersonIdent("12345678901"))
-                .medNavn("Kari Verge")
-                .medFødselsdato(LocalDate.of(1990, JANUARY, 1))
-                .medForetrukketSpråk(Språkkode.NB)
-                .medNavBrukerKjønn(KVINNE);
-
-        Personinfo personinfo = builder.build();
-        NavBruker bruker = NavBruker.opprettNy(personinfo);
+        NavBruker bruker = NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
 
         VergeBuilder vergeBuilder = new VergeBuilder()
                 .medVergeType(VergeType.BARN)
@@ -74,15 +59,7 @@ public class VergeGrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     private Fagsak opprettFagsak() {
-        NavBruker bruker = NavBruker.opprettNy(
-                new Personinfo.Builder()
-                        .medAktørId(AktørId.dummy())
-                        .medPersonIdent(new PersonIdent("12345678901"))
-                        .medNavn("Kari Nordmann")
-                        .medFødselsdato(LocalDate.of(1990, JANUARY, 1))
-                        .medForetrukketSpråk(Språkkode.NB)
-                        .medNavBrukerKjønn(KVINNE)
-                        .build());
+        NavBruker bruker = NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
 
         // Opprett fagsak
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker, null, new Saksnummer("1000"));

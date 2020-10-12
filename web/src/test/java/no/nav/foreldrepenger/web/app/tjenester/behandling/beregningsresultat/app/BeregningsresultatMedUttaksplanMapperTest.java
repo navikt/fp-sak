@@ -19,8 +19,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
@@ -31,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -43,7 +42,6 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -379,13 +377,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     private static Behandling lagBehandling() {
-        NavBruker søker = NavBruker.opprettNy(new Personinfo.Builder()
-                .medAktørId(AKTØR_ID)
-                .medPersonIdent(PersonIdent.fra("42424242424"))
-                .medNavn("42")
-                .medFødselsdato(LocalDate.of(42, 42 % 12 + 1, 42 % 31 + 1))
-                .medNavBrukerKjønn(NavBrukerKjønn.UDEFINERT)
-                .build());
+        NavBruker søker = NavBruker.opprettNy(AKTØR_ID, Språkkode.NB);
         Fagsak fagsak = FagsakBuilder.nyForeldrepengerForMor().medBruker(søker).build();
         var behandling = Behandling.forFørstegangssøknad(fagsak)
                 .build();

@@ -20,8 +20,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -29,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDoku
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavPersoninfoBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
@@ -84,9 +81,7 @@ public class DokumentRestTjenesteTest {
         Long fagsakId = 5L;
         Long behandlingId = 150L;
         AktørId aktørId = AktørId.dummy();
-        Personinfo personinfo = new NavPersoninfoBuilder().medAktørId(aktørId).medDiskresjonskode("6").medPersonstatusType(PersonstatusType.DØD)
-                .build();
-        NavBruker navBruker = new NavBrukerBuilder().medPersonInfo(personinfo).build();
+        NavBruker navBruker = new NavBrukerBuilder().medAktørId(aktørId).build();
         Fagsak fagsak = FagsakBuilder.nyForeldrepengerForMor()
                 .medBruker(navBruker)
                 .medSaksnummer(new Saksnummer("123456"))

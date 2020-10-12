@@ -5,20 +5,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 
 // View = respons fra applikasjonslag (velges foreløpig fremfor å la applikasjonslag bruke DTO direkte)
 public class FagsakSamlingForBruker {
 
-    private Personinfo brukerInfo;
+    private PersoninfoBasis brukerInfo;
     private List<FagsakRad> fagsakInfoer = new ArrayList<>();
 
     private FagsakSamlingForBruker() {
     }
 
-    FagsakSamlingForBruker(Personinfo brukerInfo) {
+    FagsakSamlingForBruker(PersoninfoBasis brukerInfo) {
         this.brukerInfo = brukerInfo;
     }
 
@@ -26,7 +26,7 @@ public class FagsakSamlingForBruker {
         return new FagsakSamlingForBruker();
     }
 
-    public Personinfo getBrukerInfo() {
+    public PersoninfoBasis getBrukerInfo() {
         return brukerInfo;
     }
 

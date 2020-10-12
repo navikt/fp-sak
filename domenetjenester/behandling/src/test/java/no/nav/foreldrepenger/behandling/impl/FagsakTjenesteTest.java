@@ -14,9 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
@@ -36,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
@@ -51,7 +48,6 @@ public class FagsakTjenesteTest extends EntityManagerAwareTest {
     private PersonopplysningRepository personopplysningRepository;
 
     private Fagsak fagsak;
-    private Personinfo personinfo;
 
     private final AktørId forelderAktørId = AktørId.dummy();
     private LocalDate forelderFødselsdato = LocalDate.of(1990, JANUARY, 1);
@@ -65,19 +61,10 @@ public class FagsakTjenesteTest extends EntityManagerAwareTest {
 
         brukerTjeneste = new BrukerTjeneste(new NavBrukerRepository(getEntityManager()));
 
-        personinfo = new Personinfo.Builder()
-                .medAktørId(forelderAktørId)
-                .medPersonIdent(new PersonIdent("12345678901"))
-                .medNavn("Kari Nordmann")
-                .medFødselsdato(forelderFødselsdato)
-                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-                .medForetrukketSpråk(Språkkode.NB)
-                .build();
-
     }
 
-    private Fagsak lagNyFagsak(Personinfo personinfo) {
-        NavBruker søker = NavBruker.opprettNy(personinfo);
+    private Fagsak lagNyFagsak() {
+        NavBruker søker = NavBruker.opprettNy(forelderAktørId, Språkkode.NB);
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, søker);
         tjeneste.opprettFagsak(fagsak);
         return fagsak;
@@ -85,7 +72,7 @@ public class FagsakTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_oppdatere_fagsakrelasjon_med_barn_og_endret_kjønn() {
-        fagsak = lagNyFagsak(personinfo);
+        fagsak = lagNyFagsak();
         LocalDate barnsFødselsdato = LocalDate.of(2017, JANUARY, 1);
         AktørId barnAktørId = AktørId.dummy();
 
@@ -142,12 +129,12 @@ public class FagsakTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void opprettFlereFagsakerSammeBruker() {
         // Opprett en fagsak i systemet
-        fagsak = lagNyFagsak(personinfo);
+        fagsak = lagNyFagsak();
         Whitebox.setInternalState(fagsak, "fagsakStatus", FagsakStatus.LØPENDE); // dirty, men eksponerer ikke status nå
 
         // Ifølgeregler i mottak skal vi opprette en nyTerminbekreftelse sak hvis vi
         // ikke har sak nyere enn 10 mnd:
-        NavBruker søker = brukerTjeneste.hentEllerOpprettFraAktorId(personinfo.getAktørId(), Språkkode.NB);
+        NavBruker søker = brukerTjeneste.hentEllerOpprettFraAktorId(forelderAktørId, Språkkode.NB);
         Fagsak fagsakNy = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, søker);
         tjeneste.opprettFagsak(fagsakNy);
         assertThat(fagsak.getNavBruker().getId()).as("Forventer at fagsakene peker til samme bruker")

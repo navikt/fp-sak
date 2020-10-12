@@ -16,8 +16,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -35,7 +33,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.publiserer.producer.DialogHendelseProducer;
@@ -69,15 +66,7 @@ public class PubliserPersistertDokumentHendelseTaskImplTest {
         var mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
         var inntektsmeldingTjeneste = mock(InntektsmeldingTjeneste.class);
         dialogHendelseProducer = mock(DialogHendelseProducer.class);
-        final Personinfo personinfo = new Personinfo.Builder()
-            .medAktørId(AktørId.dummy())
-            .medPersonIdent(new PersonIdent("12345678901"))
-            .medNavn("Kari Nordmann")
-            .medFødselsdato(LocalDate.of(1999, 3, 3))
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medForetrukketSpråk(Språkkode.NB)
-            .build();
-        FAGSAK_ID = repositoryProvider.getFagsakRepository().opprettNy(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(personinfo), RelasjonsRolleType.MORA, SAKSNUMMER));
+        FAGSAK_ID = repositoryProvider.getFagsakRepository().opprettNy(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB), RelasjonsRolleType.MORA, SAKSNUMMER));
         var fagsak = repositoryProvider.getFagsakRepository().finnEksaktFagsak(FAGSAK_ID);
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         BEHANDLING_ID = repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));

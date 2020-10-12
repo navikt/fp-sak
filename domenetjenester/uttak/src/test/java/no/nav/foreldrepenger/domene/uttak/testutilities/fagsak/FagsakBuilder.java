@@ -4,10 +4,10 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.testutilities.aktør.NavBrukerBuilder;
 
@@ -48,9 +48,9 @@ public class FagsakBuilder {
         return this;
     }
 
-    public FagsakBuilder medBrukerPersonInfo(Personinfo personinfo) {
+    public FagsakBuilder medAktørId(AktørId aktørId) {
         validerFagsakIkkeSatt();
-        brukerBuilder.medPersonInfo(personinfo);
+        brukerBuilder.medAktørId(aktørId);
         return this;
     }
 

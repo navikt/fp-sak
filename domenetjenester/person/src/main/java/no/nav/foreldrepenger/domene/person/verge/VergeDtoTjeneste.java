@@ -5,13 +5,11 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 @ApplicationScoped
 public class VergeDtoTjeneste {
@@ -50,14 +48,9 @@ public class VergeDtoTjeneste {
     }
 
     private void setPersonIdent(AktørId aktørId, VergeDto dto) {
-        Optional<Personinfo> personinfoDto = personinfoAdapter.hentBrukerForAktør(aktørId);
-        if (personinfoDto.isPresent()) {
-            Personinfo personinfo = personinfoDto.get();
-            String navn = personinfoDto.map(Personinfo::getNavn).orElse("Ukjent navn"); //$NON-NLS-1$
-            dto.setNavn(navn);
-
-            PersonIdent personIdent = personinfo.getPersonIdent();
-            dto.setFnr(personIdent.getIdent());
-        }
+        personinfoAdapter.hentBrukerBasisForAktør(aktørId).ifPresent(pib -> {
+            dto.setNavn(pib.getNavn());
+            dto.setFnr(pib.getPersonIdent().getIdent());
+        });
     }
 }

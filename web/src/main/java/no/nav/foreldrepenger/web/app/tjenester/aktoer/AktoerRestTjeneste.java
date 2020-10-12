@@ -24,7 +24,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -71,9 +72,9 @@ public class AktoerRestTjeneste {
         Optional<AktørId> aktoerId = aktoerIdDto.get();
         AktoerInfoDto aktoerInfoDto = new AktoerInfoDto();
         if (aktoerId.isPresent()) {
-            Optional<Personinfo> personinfo = personinfoAdapter.hentBrukerForAktør(aktoerId.get());
+            Optional<PersoninfoBasis> personinfo = personinfoAdapter.hentBrukerBasisForAktør(aktoerId.get());
             if (personinfo.isPresent()) {
-                Personinfo pi = personinfo.get();
+                PersoninfoBasis pi = personinfo.get();
                 PersonDto personDto = new PersonDto(
                         pi.getNavn(),
                         pi.getAlder(),
@@ -111,7 +112,7 @@ public class AktoerRestTjeneste {
     }
 
     private Integer finnDekningsgrad(Saksnummer saksnummer) {
-        return dekningsgradTjeneste.finnDekningsgrad(saksnummer).map(dekningsgrad -> dekningsgrad.getVerdi()).orElse(null);
+        return dekningsgradTjeneste.finnDekningsgrad(saksnummer).map(Dekningsgrad::getVerdi).orElse(null);
     }
 
 }

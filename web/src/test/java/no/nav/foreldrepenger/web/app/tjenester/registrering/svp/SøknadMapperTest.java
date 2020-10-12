@@ -11,11 +11,9 @@ import javax.xml.bind.JAXBElement;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger;
 
 public class SøknadMapperTest {
@@ -57,14 +55,7 @@ public class SøknadMapperTest {
     }
 
     private NavBruker lagNavBruker() {
-        var personinfo = new Personinfo.Builder()
-                .medAktørId(new AktørId(1234567890123L))
-                .medPersonIdent(new PersonIdent("12345678901"))
-                .medNavn("Anonym")
-                .medFødselsdato(LocalDate.now().minusYears(25))
-                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-                .build();
-        return NavBruker.opprettNy(personinfo);
+        return NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
     }
 
 }

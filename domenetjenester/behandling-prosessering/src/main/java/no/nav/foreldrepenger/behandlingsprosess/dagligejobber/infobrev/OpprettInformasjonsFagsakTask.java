@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -102,7 +102,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         }
 
         OrganisasjonsEnhet enhet = new OrganisasjonsEnhet(prosessTaskData.getPropertyValue(BEH_ENHET_ID_KEY), prosessTaskData.getPropertyValue(BEH_ENHET_NAVN_KEY));
-        Personinfo bruker = hentPersonInfo(aktørId);
+        PersoninfoBasis bruker = hentPersonInfo(aktørId);
         if (bruker.getDødsdato() != null) {
             return; // Unngå brev til død annen part
         }
@@ -166,8 +166,8 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         return fhDato.isAfter(fagsakFhDato.minus(FH_DIFF_PERIODE)) && fhDato.isBefore(fagsakFhDato.plus(FH_DIFF_PERIODE));
     }
 
-    private Personinfo hentPersonInfo(AktørId aktørId) {
-        return personinfoAdapter.hentBrukerForAktør(aktørId)
+    private PersoninfoBasis hentPersonInfo(AktørId aktørId) {
+        return personinfoAdapter.hentBrukerBasisForAktør(aktørId)
             .orElseThrow(() -> OppgaveFeilmeldinger.FACTORY.identIkkeFunnet(aktørId).toException());
     }
 

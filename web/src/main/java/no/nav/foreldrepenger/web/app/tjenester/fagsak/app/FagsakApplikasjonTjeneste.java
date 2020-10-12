@@ -12,7 +12,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -91,11 +91,15 @@ public class FagsakApplikasjonTjeneste {
     }
 
     private FagsakSamlingForBruker hentSakerForFnr(PersonIdent fnr) {
-        Optional<Personinfo> funnetNavBruker = personinfoAdapter.hentBrukerForFnr(fnr);
+        AktørId aktørId = personinfoAdapter.hentAktørForFnr(fnr).orElse(null);
+        if (aktørId == null) {
+            return FagsakSamlingForBruker.emptyView();
+        }
+        Optional<PersoninfoBasis> funnetNavBruker = personinfoAdapter.hentBrukerBasisForAktør(aktørId);
         if (funnetNavBruker.isEmpty()) {
             return FagsakSamlingForBruker.emptyView();
         }
-        List<Fagsak> fagsaker = fagsakRespository.hentForBruker(funnetNavBruker.get().getAktørId());
+        List<Fagsak> fagsaker = fagsakRespository.hentForBruker(aktørId);
         return tilFagsakView(fagsaker, finnAntallBarnTps(fagsaker), funnetNavBruker.get());
     }
 
@@ -108,7 +112,7 @@ public class FagsakApplikasjonTjeneste {
         List<Fagsak> fagsaker = Collections.singletonList(fagsak.get());
         AktørId aktørId = fagsak.get().getNavBruker().getAktørId();
 
-        Optional<Personinfo> funnetNavBruker = personinfoAdapter.hentBrukerForAktør(aktørId);
+        Optional<PersoninfoBasis> funnetNavBruker = personinfoAdapter.hentBrukerBasisForAktør(aktørId);
         if (funnetNavBruker.isEmpty()) {
             return FagsakSamlingForBruker.emptyView();
         }
@@ -116,7 +120,7 @@ public class FagsakApplikasjonTjeneste {
         return tilFagsakView(fagsaker, finnAntallBarnTps(fagsaker), funnetNavBruker.get());
     }
 
-    private FagsakSamlingForBruker tilFagsakView(List<Fagsak> fagsaker, Map<Long, Integer> antallBarnPerFagsak, Personinfo personinfo) {
+    private FagsakSamlingForBruker tilFagsakView(List<Fagsak> fagsaker, Map<Long, Integer> antallBarnPerFagsak, PersoninfoBasis personinfo) {
         FagsakSamlingForBruker view = new FagsakSamlingForBruker(personinfo);
         fagsaker.forEach(sak -> {
             var dekningsgrad = dekningsgradTjeneste.finnDekningsgrad(sak.getSaksnummer());

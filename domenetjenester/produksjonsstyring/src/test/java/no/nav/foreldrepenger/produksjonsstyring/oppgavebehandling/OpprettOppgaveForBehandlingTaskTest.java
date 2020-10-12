@@ -16,9 +16,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
@@ -79,15 +77,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
         fagsak = opprettOgLagreFagsak();
 
         // Sett opp default mock-oppførsel
-        Personinfo personinfo = new Personinfo.Builder()
-            .medAktørId(fagsak.getNavBruker().getAktørId())
-            .medPersonIdent(new PersonIdent(FNR))
-            .medNavn(FORNAVN_ETTERNAVN)
-            .medFødselsdato(FØDSELSDATO)
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .build();
-
-        when(personinfoAdapter.hentBrukerForAktør(personinfo.getAktørId())).thenReturn(Optional.of(personinfo));
+        when(personinfoAdapter.hentFnr(fagsak.getNavBruker().getAktørId())).thenReturn(Optional.of(new PersonIdent(FNR)));
     }
 
     @Test

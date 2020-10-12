@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.SaksopplysningerFeil;
 
@@ -32,10 +32,8 @@ public class InnhentPersonopplysningStegImpl implements InnhentRegisteropplysnin
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         // TODO (essv): Avklare om vi må hente inn mer info om søker (medsøker, barn, +++)
-        Personinfo søkerInfo = registerdataInnhenter.innhentSaksopplysningerForSøker(kontekst.getAktørId());
-        if (søkerInfo == null) {
-            throw SaksopplysningerFeil.FACTORY.feilVedOppslagITPS(kontekst.getAktørId().getId()).toException();
-        }
+        PersoninfoBasis søkerInfo = registerdataInnhenter.hentBrukerBasisForAktør(kontekst.getAktørId())
+            .orElseThrow(SaksopplysningerFeil.FACTORY.feilVedOppslagITPS(kontekst.getAktørId().getId()).toException();
 
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }

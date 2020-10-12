@@ -1011,8 +1011,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             final EntityManager entityManager = (EntityManager) Whitebox.getInternalState(fagsakRepo, "entityManager");
             if (entityManager != null) {
                 BrukerTjeneste brukerTjeneste = new BrukerTjeneste(new NavBrukerRepository(entityManager));
-                final NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(fagsakBuilder.getBrukerBuilder().getAktørId(),
-                    fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode() : Språkkode.NB);
+                final NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB);
                 fagsakBuilder.medBruker(navBruker);
             }
         }

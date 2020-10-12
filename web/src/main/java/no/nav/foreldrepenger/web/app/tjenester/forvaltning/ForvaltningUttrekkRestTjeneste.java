@@ -31,17 +31,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
-import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.task.AutomatiskEtterkontrollTask;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemTask;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
@@ -50,7 +46,6 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriode
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingSaksnummerDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltningUttrekk")
@@ -182,59 +177,4 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(resultat).build();
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/etterkontrollES")
-    @Operation(description = "Oppretter tasks for å etterkontrollere ES", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response etterkontrollES() {
-        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
-        var behandlinger = informasjonssakRepository.finnEngangstonadForEtterkontroll();
-        behandlinger.forEach(bid -> {
-            Behandling behandling = behandlingRepository.hentBehandling(bid);
-            opprettEtterkontrollTask(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId(), callId, AutomatiskEtterkontrollTask.OPTIONS_OPPRETT_EK);
-        });
-        return Response.ok(behandlinger.size()).build();
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/reberegnES")
-    @Operation(description = "Oppretter tasks for å etterkontrollere ES", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response reberegnES() {
-        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
-        var behandlinger = informasjonssakRepository.finnEngangstonadForReberegning();
-        behandlinger.forEach(bid -> {
-            Behandling behandling = behandlingRepository.hentBehandling(bid);
-            opprettEtterkontrollTask(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId(), callId, AutomatiskEtterkontrollTask.OPTIONS_REBEREGN_ES);
-        });
-        return Response.ok(behandlinger.size()).build();
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/manuellEtterkontroll")
-    @Operation(description = "Bekrefter at termin er etterkontrollert", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response manuellEtterkontroll(@Parameter(description = "Saksnummer") @BeanParam @Valid AvstemmingSaksnummerDto s) {
-        Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(s.getSaksnummer())).orElseThrow();
-        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
-        behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
-            .ifPresent(b -> opprettEtterkontrollTask(b.getFagsakId(), b.getId(), b.getAktørId(), callId, AutomatiskEtterkontrollTask.OPTIONS_MANUELL_EK));
-        return Response.ok(1).build();
-    }
-
-    private void opprettEtterkontrollTask(Long fagsakId, Long behandlingId, AktørId aktørId, String callId, String opsjon) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
-        prosessTaskData.setBehandling(fagsakId, behandlingId, aktørId.getId());
-        prosessTaskData.setProperty(AutomatiskEtterkontrollTask.OPTIONS_KEY, opsjon);
-        prosessTaskData.setSekvens("1");
-        prosessTaskData.setPrioritet(100);
-        prosessTaskData.setCallId(callId + fagsakId);
-        prosessTaskRepository.lagre(prosessTaskData);
-    }
 }
