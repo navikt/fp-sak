@@ -461,7 +461,7 @@ public class OpptjeningsperioderTjenesteImplTest {
         List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
 
         // Assert
-        assertThat(perioder.size()).isEqualTo(1);
+        assertThat(perioder).hasSize(1);
     }
 
     @Test

@@ -109,7 +109,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
         // Assert
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAndeler = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId());
         assertThat(bgMedAndeler).isPresent();
-        assertThat(ap.size()).isEqualTo(1);
+        assertThat(ap).hasSize(1);
         List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfelles = finnTilfeller(bgMedAndeler);
         assertThat(faktaOmBeregningTilfelles).containsExactlyInAnyOrder(FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE, FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING);
 
@@ -143,7 +143,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
         // Assert
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAndeler = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId());
         assertThat(bgMedAndeler).isPresent();
-        assertThat(ap.size()).isEqualTo(1);
+        assertThat(ap).hasSize(1);
         List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfelles = finnTilfeller(bgMedAndeler);
         assertThat(faktaOmBeregningTilfelles).containsExactlyInAnyOrder(FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE, FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING);
         Boolean erLønnsendring = bgMedAndeler.get().getBeregningsgrunnlag().get()

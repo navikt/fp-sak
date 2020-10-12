@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -41,7 +41,7 @@ public class ForvaltningBeregningRestTjenesteTest extends RepositoryAwareTest {
         List<ProsessTaskData> prosessTaskData = prosessTaskRepository.finnIkkeStartet();
         List<ProsessTaskData> opprettTasker = prosessTaskData.stream().filter(task -> task.getTaskType().equals(OpprettGrunnbeløpTask.TASKNAME))
                 .collect(Collectors.toList());
-        assertThat(opprettTasker.size()).isEqualTo(1);
+        assertThat(opprettTasker).hasSize(1);
         assertThat(opprettTasker.get(0).getBehandlingId()).isEqualTo(behandling.getId().toString());
     }
 

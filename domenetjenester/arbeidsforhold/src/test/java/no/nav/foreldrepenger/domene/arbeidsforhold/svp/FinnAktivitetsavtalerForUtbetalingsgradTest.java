@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.svp;
 
 import static no.nav.foreldrepenger.domene.arbeidsforhold.svp.FinnAktivitetsavtalerForUtbetalingsgrad.finnAktivitetsavtalerSomSkalBrukes;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,7 +27,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
         List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
-        assertThat(aktivitetsAvtales.size()).isEqualTo(0);
+        assertThat(aktivitetsAvtales).hasSize(0);
     }
 
     @Test
@@ -44,7 +44,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
         List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
-        assertThat(aktivitetsAvtales.size()).isEqualTo(0);
+        assertThat(aktivitetsAvtales).hasSize(0);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
         List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
-        assertThat(aktivitetsAvtales.size()).isEqualTo(1);
+        assertThat(aktivitetsAvtales).hasSize(1);
     }
 
     @Test
@@ -78,7 +78,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
         List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
-        assertThat(aktivitetsAvtales.size()).isEqualTo(1);
+        assertThat(aktivitetsAvtales).hasSize(1);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
         List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
-        assertThat(aktivitetsAvtales.size()).isEqualTo(1);
+        assertThat(aktivitetsAvtales).hasSize(1);
         assertThat(aktivitetsAvtales.get(0).getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, jordmorsdato.plusDays(10)));
     }
 
@@ -121,7 +121,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
         List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
-        assertThat(aktivitetsAvtales.size()).isEqualTo(2);
+        assertThat(aktivitetsAvtales).hasSize(2);
     }
 
     @Test
@@ -150,7 +150,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
         List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
-        assertThat(aktivitetsAvtales.size()).isEqualTo(2);
+        assertThat(aktivitetsAvtales).hasSize(2);
         assertThat(aktivitetsAvtales.get(0).getPeriode().getFomDato()).isEqualTo(jordmorsdato.plusDays(2));
     }
 

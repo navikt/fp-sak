@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

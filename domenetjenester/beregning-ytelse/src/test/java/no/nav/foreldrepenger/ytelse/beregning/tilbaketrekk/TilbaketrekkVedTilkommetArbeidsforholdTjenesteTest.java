@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.TilbaketrekkVedTilkommetArbeidsforholdTjeneste.finnStørsteTilbaketrekkForTilkomneArbeidsforhold;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -156,8 +156,8 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
         // Assert
         assertThat(tilbaketrekkForTilkommetArbeidEntry).isPresent();
         assertThat(tilbaketrekkForTilkommetArbeidEntry.get().finnHindretTilbaketrekk()).isEqualTo(DAGSATS);
-        assertThat(tilbaketrekkForTilkommetArbeidEntry.get().getAndelerIRevurderingMedSluttFørDatoSortertPåDato().size()).isEqualTo(2);
-        assertThat(tilbaketrekkForTilkommetArbeidEntry.get().getTilkomneNøklerMedStartEtterDato().size()).isEqualTo(1);
+        assertThat(tilbaketrekkForTilkommetArbeidEntry.get().getAndelerIRevurderingMedSluttFørDatoSortertPåDato()).hasSize(2);
+        assertThat(tilbaketrekkForTilkommetArbeidEntry.get().getTilkomneNøklerMedStartEtterDato()).hasSize(1);
     }
 
 
@@ -187,8 +187,8 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
         // Assert
         assertThat(tilbaketrekkForTilkommetArbeidEntry).isPresent();
         assertThat(tilbaketrekkForTilkommetArbeidEntry.get().finnHindretTilbaketrekk()).isEqualTo(2*DAGSATS);
-        assertThat(tilbaketrekkForTilkommetArbeidEntry.get().getAndelerIRevurderingMedSluttFørDatoSortertPåDato().size()).isEqualTo(2);
-        assertThat(tilbaketrekkForTilkommetArbeidEntry.get().getTilkomneNøklerMedStartEtterDato().size()).isEqualTo(1);
+        assertThat(tilbaketrekkForTilkommetArbeidEntry.get().getAndelerIRevurderingMedSluttFørDatoSortertPåDato()).hasSize(2);
+        assertThat(tilbaketrekkForTilkommetArbeidEntry.get().getTilkomneNøklerMedStartEtterDato()).hasSize(1);
     }
 
     @Test
@@ -221,8 +221,8 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
         // Assert
         assertThat(tilbaketrekkForTilkommetArbeidEntry).isPresent();
         assertThat(tilbaketrekkForTilkommetArbeidEntry.get().finnHindretTilbaketrekk()).isEqualTo(180);
-        assertThat(tilbaketrekkForTilkommetArbeidEntry.get().getAndelerIRevurderingMedSluttFørDatoSortertPåDato().size()).isEqualTo(3);
-        assertThat(tilbaketrekkForTilkommetArbeidEntry.get().getTilkomneNøklerMedStartEtterDato().size()).isEqualTo(2);
+        assertThat(tilbaketrekkForTilkommetArbeidEntry.get().getAndelerIRevurderingMedSluttFørDatoSortertPåDato()).hasSize(3);
+        assertThat(tilbaketrekkForTilkommetArbeidEntry.get().getTilkomneNøklerMedStartEtterDato()).hasSize(2);
     }
 
 

@@ -80,7 +80,7 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
         List<EndringIBeregningsresultat> endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        assertThat(endringer.size()).isEqualTo(2);
+        assertThat(endringer).hasSize(2);
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER1);
             assertThat(endring.erBrukerMottaker()).isEqualTo(true);
@@ -116,7 +116,7 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
         List<EndringIBeregningsresultat> endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        assertThat(endringer.size()).isEqualTo(2);
+        assertThat(endringer).hasSize(2);
         assertThat(endringer).anySatisfy(endring -> {
             // Det er tilfeldig kva for ein andel som får hindret tilbaketrekk her, kan vere enten ARBEIDSGIVER1 eller ARBEIDSGIVER3
             assertThat(endring.getArbeidsgiver().equals(ARBEIDSGIVER1) || endring.getArbeidsgiver().equals(ARBEIDSGIVER3)).isEqualTo(true);
@@ -157,7 +157,7 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
         List<EndringIBeregningsresultat> endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        assertThat(endringer.size()).isEqualTo(4);
+        assertThat(endringer).hasSize(4);
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER1);
             assertThat(endring.erBrukerMottaker()).isEqualTo(true);
@@ -213,7 +213,7 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
         List<EndringIBeregningsresultat> endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        assertThat(endringer.size()).isEqualTo(5);
+        assertThat(endringer).hasSize(5);
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER1);
             assertThat(endring.erBrukerMottaker()).isEqualTo(true);

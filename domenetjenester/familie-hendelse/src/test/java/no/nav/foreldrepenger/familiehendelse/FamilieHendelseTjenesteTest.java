@@ -157,7 +157,7 @@ public class FamilieHendelseTjenesteTest {
 
         var intervaller = FamilieHendelseTjeneste.utledPerioderForRegisterinnhenting(grunnlag);
 
-        assertThat(intervaller.size()).isEqualTo(1);
+        assertThat(intervaller).hasSize(1);
         assertThat(intervaller.get(0)).isEqualByComparingTo(new LocalDateInterval(termindato.minusWeeks(19),
             termindato.plusWeeks(6)));
     }

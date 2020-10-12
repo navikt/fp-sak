@@ -128,11 +128,11 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
 
         List<HistorikkinnslagDto> historikkInnslager = historikkTjenesteAdapter
                 .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer());
-        assertThat(historikkInnslager.size()).isEqualTo(2);
+        assertThat(historikkInnslager).hasSize(2);
         historikkInnslager.sort(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt));
         HistorikkinnslagDto historikkinnslagDto = historikkInnslager.get(0);
         assertThat(historikkinnslagDto.getType()).isEqualByComparingTo(HistorikkinnslagType.KLAGE_BEH_NFP);
-        assertThat(historikkinnslagDto.getHistorikkinnslagDeler().size()).isEqualTo(1);
+        assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         List<HistorikkinnslagEndretFeltDto> historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
                 .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
@@ -141,7 +141,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
                                 .isTrue();
 
         historikkinnslagDto = historikkInnslager.get(1);
-        assertThat(historikkinnslagDto.getHistorikkinnslagDeler().size()).isEqualTo(1);
+        assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
                 .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
@@ -179,11 +179,11 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
 
         List<HistorikkinnslagDto> historikkInnslager = historikkTjenesteAdapter
                 .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer());
-        assertThat(historikkInnslager.size()).isEqualTo(2);
+        assertThat(historikkInnslager).hasSize(2);
         historikkInnslager.sort(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt));
         HistorikkinnslagDto historikkinnslagDto = historikkInnslager.get(0);
         assertThat(historikkinnslagDto.getType()).isEqualByComparingTo(HistorikkinnslagType.KLAGE_BEH_NFP);
-        assertThat(historikkinnslagDto.getHistorikkinnslagDeler().size()).isEqualTo(1);
+        assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         List<HistorikkinnslagEndretFeltDto> historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
                 .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
@@ -191,7 +191,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
                         && historikkinnslagEndretFeltDto.getTilVerdi().toString().contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
 
         historikkinnslagDto = historikkInnslager.get(1);
-        assertThat(historikkinnslagDto.getHistorikkinnslagDeler().size()).isEqualTo(1);
+        assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
                 .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
@@ -224,11 +224,11 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
 
         List<HistorikkinnslagDto> historikkInnslager = historikkTjenesteAdapter
                 .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer());
-        assertThat(historikkInnslager.size()).isEqualTo(2);
+        assertThat(historikkInnslager).hasSize(2);
         historikkInnslager.sort(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt));
         HistorikkinnslagDto historikkinnslagDto = historikkInnslager.get(0);
         assertThat(historikkinnslagDto.getType()).isEqualByComparingTo(HistorikkinnslagType.KLAGE_BEH_NFP);
-        assertThat(historikkinnslagDto.getHistorikkinnslagDeler().size()).isEqualTo(1);
+        assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         List<HistorikkinnslagEndretFeltDto> historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
                 .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
@@ -236,7 +236,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
                         && historikkinnslagEndretFeltDto.getTilVerdi().toString().contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
 
         historikkinnslagDto = historikkInnslager.get(1);
-        assertThat(historikkinnslagDto.getHistorikkinnslagDeler().size()).isEqualTo(1);
+        assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
                 .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
@@ -267,11 +267,11 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
 
         List<HistorikkinnslagDto> historikkInnslager = historikkTjenesteAdapter
                 .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer());
-        assertThat(historikkInnslager.size()).isEqualTo(2);
+        assertThat(historikkInnslager).hasSize(2);
         historikkInnslager.sort(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt));
         HistorikkinnslagDto historikkinnslagDto = historikkInnslager.get(0);
         assertThat(historikkinnslagDto.getType()).isEqualByComparingTo(HistorikkinnslagType.KLAGE_BEH_NFP);
-        assertThat(historikkinnslagDto.getHistorikkinnslagDeler().size()).isEqualTo(1);
+        assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         List<HistorikkinnslagEndretFeltDto> historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
                 .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
@@ -279,7 +279,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
                         && historikkinnslagEndretFeltDto.getTilVerdi().toString().contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
 
         historikkinnslagDto = historikkInnslager.get(1);
-        assertThat(historikkinnslagDto.getHistorikkinnslagDeler().size()).isEqualTo(1);
+        assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
                 .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
@@ -301,7 +301,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     private void fellesKlageHistoriskAssert() {
         List<HistorikkinnslagDto> historikkInnslager = historikkTjenesteAdapter
                 .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer());
-        assertThat(historikkInnslager.size()).isEqualTo(1);
+        assertThat(historikkInnslager).hasSize(1);
         HistorikkinnslagDto historikkinnslagDto = historikkInnslager.get(0);
         assertThat(historikkinnslagDto.getType()).isEqualByComparingTo(HistorikkinnslagType.KLAGE_BEH_NFP);
     }

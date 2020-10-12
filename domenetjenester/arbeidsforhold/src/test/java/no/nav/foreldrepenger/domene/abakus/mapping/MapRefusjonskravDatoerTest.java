@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.abakus.mapping;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,7 +29,7 @@ public class MapRefusjonskravDatoerTest {
         List<RefusjonskravDato> refusjonskravDatoer = MapRefusjonskravDatoer.map(dto);
 
         // Assert
-        assertThat(refusjonskravDatoer.size()).isEqualTo(1);
+        assertThat(refusjonskravDatoer).hasSize(1);
         assertThat(refusjonskravDatoer.get(0).getArbeidsgiver()).isEqualTo(Arbeidsgiver.virksomhet(orgnr));
         assertThat(refusjonskravDatoer.get(0).getFørsteDagMedRefusjonskrav().get()).isEqualTo(førsteDagMedRefusjonskrav);
         assertThat(refusjonskravDatoer.get(0).getFørsteInnsendingAvRefusjonskrav()).isEqualTo(førsteInnsendingAvRefusjonskrav);
