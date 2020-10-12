@@ -10,16 +10,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBereg
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 
 @ApplicationScoped
-public class BeregnYtelseTjeneste {
+public class BeregnYtelseTjenesteES {
 
     private LegacyESBeregningRepository beregningRepository;
 
-    BeregnYtelseTjeneste() {
+    BeregnYtelseTjenesteES() {
         // for CDI proxy
     }
 
     @Inject
-    public BeregnYtelseTjeneste(LegacyESBeregningRepository beregningRepository) {
+    public BeregnYtelseTjenesteES(LegacyESBeregningRepository beregningRepository) {
         this.beregningRepository = beregningRepository;
     }
 

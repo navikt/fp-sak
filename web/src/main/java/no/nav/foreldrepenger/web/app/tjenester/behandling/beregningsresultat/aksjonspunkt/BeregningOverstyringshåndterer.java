@@ -18,14 +18,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.ytelse.beregning.es.BeregnYtelseTjeneste;
+import no.nav.foreldrepenger.ytelse.beregning.es.BeregnYtelseTjenesteES;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyringBeregningDto.class, adapter = Overstyringshåndterer.class)
 public class BeregningOverstyringshåndterer extends AbstractOverstyringshåndterer<OverstyringBeregningDto> {
 
     private LegacyESBeregningRepository beregningRepository;
-    private BeregnYtelseTjeneste beregnTjeneste;
+    private BeregnYtelseTjenesteES beregnTjeneste;
 
     BeregningOverstyringshåndterer() {
         // for CDI proxy
@@ -34,7 +34,7 @@ public class BeregningOverstyringshåndterer extends AbstractOverstyringshåndte
     @Inject
     public BeregningOverstyringshåndterer(LegacyESBeregningRepository beregningRepository,
             HistorikkTjenesteAdapter historikkAdapter,
-            BeregnYtelseTjeneste beregnTjeneste) {
+            BeregnYtelseTjenesteES beregnTjeneste) {
         super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING);
         this.beregningRepository = beregningRepository;
         this.beregnTjeneste = beregnTjeneste;
