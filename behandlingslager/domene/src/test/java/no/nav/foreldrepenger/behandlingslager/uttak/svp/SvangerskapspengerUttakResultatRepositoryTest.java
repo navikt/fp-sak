@@ -7,28 +7,36 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class SvangerskapspengerUttakResultatRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class SvangerskapspengerUttakResultatRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+    private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
+
+    @BeforeEach
+    public void setUp() {
+        var entityManager = getEntityManager();
+        behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
+        svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
+
+    }
 
     @Test
     public void skal_kunne_lagre_og_uttak_med_oppfylt_periode() {
@@ -51,15 +59,12 @@ public class SvangerskapspengerUttakResultatRepositoryTest {
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medPeriode(uttakPeriode)
             .build();
-        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
+        var br = behandlingsresultatRepository.hent(behandling.getId());
         var uttakResultat= new SvangerskapspengerUttakResultatEntitet.Builder(br)
             .medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
-        repositoryProvider.getSvangerskapspengerUttakResultatRepository().lagre(behandling.getId(), uttakResultat);
+        svangerskapspengerUttakResultatRepository.lagre(behandling.getId(), uttakResultat);
 
-        repoRule.getEntityManager().flush();
-        repoRule.getEntityManager().clear();
-
-        var hentetUttaksresultat = repositoryProvider.getSvangerskapspengerUttakResultatRepository().hentHvisEksisterer(behandling.getId());
+        var hentetUttaksresultat = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId());
 
         assertThat(hentetUttaksresultat).isPresent();
         var arbeidsforholdListe = hentetUttaksresultat.get().getUttaksResultatArbeidsforhold();
@@ -95,14 +100,11 @@ public class SvangerskapspengerUttakResultatRepositoryTest {
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medPeriode(uttakPeriode)
             .build();
-        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
+        var br = behandlingsresultatRepository.hent(behandling.getId());
         var uttakResultat= new SvangerskapspengerUttakResultatEntitet.Builder(br).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
-        repositoryProvider.getSvangerskapspengerUttakResultatRepository().lagre(behandling.getId(), uttakResultat);
+        svangerskapspengerUttakResultatRepository.lagre(behandling.getId(), uttakResultat);
 
-        repoRule.getEntityManager().flush();
-        repoRule.getEntityManager().clear();
-
-        var hentetUttaksresultat = repositoryProvider.getSvangerskapspengerUttakResultatRepository().hentHvisEksisterer(behandling.getId());
+        var hentetUttaksresultat = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId());
 
         assertThat(hentetUttaksresultat).isPresent();
         var arbeidsforhold = hentetUttaksresultat.get().getUttaksResultatArbeidsforhold();
@@ -125,14 +127,12 @@ public class SvangerskapspengerUttakResultatRepositoryTest {
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.UTTAK_KUN_PÅ_HELG)
             .build();
-        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
+        var br = behandlingsresultatRepository.hent(behandling.getId());
         var uttakResultat= new SvangerskapspengerUttakResultatEntitet.Builder(br).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
-        repositoryProvider.getSvangerskapspengerUttakResultatRepository().lagre(behandling.getId(), uttakResultat);
+        svangerskapspengerUttakResultatRepository.lagre(behandling.getId(), uttakResultat);
 
-        repoRule.getEntityManager().flush();
-        repoRule.getEntityManager().clear();
 
-        var hentetUttaksresultat = repositoryProvider.getSvangerskapspengerUttakResultatRepository().hentHvisEksisterer(behandling.getId());
+        var hentetUttaksresultat = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId());
 
         assertThat(hentetUttaksresultat).isPresent();
         var arbeidsforhold = hentetUttaksresultat.get().getUttaksResultatArbeidsforhold();
@@ -143,9 +143,10 @@ public class SvangerskapspengerUttakResultatRepositoryTest {
     }
 
     private Behandling opprettBehandling() {
-        var behandling = new BasicBehandlingBuilder(repoRule.getEntityManager()).opprettOgLagreFørstegangssøknad(FagsakYtelseType.SVANGERSKAPSPENGER);
+        var entityManager = getEntityManager();
+        var behandling = new BasicBehandlingBuilder(entityManager).opprettOgLagreFørstegangssøknad(FagsakYtelseType.SVANGERSKAPSPENGER);
         var behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
-        new BehandlingsresultatRepository(repoRule.getEntityManager()).lagre(behandling.getId(), behandlingsresultat);
+        new BehandlingsresultatRepository(entityManager).lagre(behandling.getId(), behandlingsresultat);
         return behandling;
     }
 }

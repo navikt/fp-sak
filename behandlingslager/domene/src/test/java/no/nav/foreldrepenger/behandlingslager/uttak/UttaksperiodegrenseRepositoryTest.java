@@ -5,51 +5,58 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class UttaksperiodegrenseRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class UttaksperiodegrenseRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
-    private final UttaksperiodegrenseRepository uttaksperiodegrenseRepository = new UttaksperiodegrenseRepository(repoRule.getEntityManager());
-    private Behandlingsresultat behandlingsresultat;
-
-    @Before
+    @BeforeEach
     public void setUp() {
-        var behandling = new BasicBehandlingBuilder(repoRule.getEntityManager()).opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
-        behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
-        new BehandlingsresultatRepository(repoRule.getEntityManager()).lagre(behandling.getId(), behandlingsresultat);
+        var entityManager = getEntityManager();
+        uttaksperiodegrenseRepository = new UttaksperiodegrenseRepository(entityManager);
     }
 
     @Test
     public void skal_lagre_og_sette_uttaksperiodegrense_inaktiv() {
         // Arrange
+        var behandlingsresultat = lagBehandlingMedResultat();
         Uttaksperiodegrense uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
             .medMottattDato(LocalDate.now())
             .medFørsteLovligeUttaksdag((LocalDate.now().minusDays(5)))
             .build();
 
         // Act
-        uttaksperiodegrenseRepository.lagre(behandlingsresultat.getBehandlingId(), uttaksperiodegrense);
+        var behandlingId = behandlingsresultat.getBehandlingId();
+        uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
 
         // Assert
-        Uttaksperiodegrense uttaksperiodegrenseFør = uttaksperiodegrenseRepository.hent(behandlingsresultat.getBehandlingId());
+        Uttaksperiodegrense uttaksperiodegrenseFør = uttaksperiodegrenseRepository.hent(behandlingId);
         assertThat(uttaksperiodegrense).isEqualTo(uttaksperiodegrenseFør);
 
         // Act
-        uttaksperiodegrenseRepository.ryddUttaksperiodegrense(behandlingsresultat.getBehandlingId());
+        uttaksperiodegrenseRepository.ryddUttaksperiodegrense(behandlingId);
 
         // Assert
-        assertThat(uttaksperiodegrenseRepository.hentHvisEksisterer(behandlingsresultat.getBehandlingId())).isEmpty();
+        assertThat(uttaksperiodegrenseRepository.hentHvisEksisterer(behandlingId)).isEmpty();
+    }
+
+    private Behandlingsresultat lagBehandlingMedResultat() {
+        var entityManager = getEntityManager();
+        var behandling = new BasicBehandlingBuilder(entityManager)
+            .opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
+        var behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
+        new BehandlingsresultatRepository(entityManager).lagre(behandling.getId(), behandlingsresultat);
+        return behandlingsresultat;
     }
 }
