@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -84,7 +84,7 @@ public class AksjonspunktutlederTilbaketrekkTest {
         List<AksjonspunktResultat> aksjonspunktResultater = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(new AksjonspunktUtlederInput(behandlingReferanse));
 
         // Assert
-        assertThat(aksjonspunktResultater.size()).isEqualTo(1);
+        assertThat(aksjonspunktResultater).hasSize(1);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class AksjonspunktutlederTilbaketrekkTest {
         List<AksjonspunktResultat> aksjonspunktResultater = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(new AksjonspunktUtlederInput(behandlingReferanse));
 
         // Assert
-        assertThat(aksjonspunktResultater.size()).isEqualTo(1);
+        assertThat(aksjonspunktResultater).hasSize(1);
     }
 
     private void leggTilYrkesaktiviteter(InntektArbeidYtelseAggregatBuilder registerBuilder, YrkesaktivitetBuilder... yas) {

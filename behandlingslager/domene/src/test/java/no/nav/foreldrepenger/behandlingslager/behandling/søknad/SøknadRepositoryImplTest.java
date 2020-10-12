@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.søknad;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Optional;

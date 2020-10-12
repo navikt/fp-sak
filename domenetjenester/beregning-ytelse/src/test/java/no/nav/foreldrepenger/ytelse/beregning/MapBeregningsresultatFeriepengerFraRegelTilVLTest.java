@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -48,7 +48,7 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
 
         // Assert
         var beregningsresultatFeriepengerPrÅrListe = beregningsresultat.getBeregningsresultatFeriepenger().get().getBeregningsresultatFeriepengerPrÅrListe();
-        assertThat(beregningsresultatFeriepengerPrÅrListe.size()).isEqualTo(0);
+        assertThat(beregningsresultatFeriepengerPrÅrListe).hasSize(0);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
 
         // Assert
         var beregningsresultatFeriepengerPrÅrListe = beregningsresultat.getBeregningsresultatFeriepenger().get().getBeregningsresultatFeriepengerPrÅrListe();
-        assertThat(beregningsresultatFeriepengerPrÅrListe.size()).isEqualTo(1);
+        assertThat(beregningsresultatFeriepengerPrÅrListe).hasSize(1);
     }
 
     private no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet lagVlBeregningsresultat() {

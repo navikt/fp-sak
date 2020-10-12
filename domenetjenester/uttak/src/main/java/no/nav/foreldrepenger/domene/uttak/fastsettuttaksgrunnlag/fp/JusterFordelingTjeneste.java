@@ -421,7 +421,9 @@ class JusterFordelingTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        List<OppgittPeriodeEntitet> ikkeFlyttbare = oppgittePerioder.stream().filter(periode -> !erPeriodeFlyttbar(periode)).collect(Collectors.toList());
+        List<OppgittPeriodeEntitet> ikkeFlyttbare = oppgittePerioder.stream()
+            .filter(periode -> !erPeriodeFlyttbar(periode))
+            .collect(Collectors.toList());
         ikkeFlyttbare.addAll(hullPerioder(oppgittePerioder));
         return ikkeFlyttbare;
     }
@@ -432,7 +434,8 @@ class JusterFordelingTjeneste {
             LocalDate nesteVirkedag = plusVirkedager(oppgittePerioder.get(i - 1).getTom(), 1);
             LocalDate startDatoNestePeriode = oppgittePerioder.get(i).getFom();
             if (!nesteVirkedag.isEqual(startDatoNestePeriode)) {
-                hull.add(new JusterPeriodeHull(nesteVirkedag, Virkedager.plusVirkedager(nesteVirkedag, beregnAntallVirkedager(nesteVirkedag, startDatoNestePeriode) - 2)));
+                hull.add(new JusterPeriodeHull(nesteVirkedag, Virkedager.plusVirkedager(nesteVirkedag,
+                    beregnAntallVirkedager(nesteVirkedag, startDatoNestePeriode) - 2)));
             }
         }
         return hull;

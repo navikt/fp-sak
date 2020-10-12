@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk.tilfeller;
 
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori.ARBEIDSTAKER;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -166,10 +166,10 @@ public class VurderRefusjonHistorikkTjenesteTest {
 
     private void assertHistorikk(HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder, Boolean tilVerdi) {
         List<HistorikkinnslagDel> deler = historikkInnslagTekstBuilder.build(historikkinnslag);
-        assertThat(deler.size()).isEqualTo(1);
+        assertThat(deler).hasSize(1);
         HistorikkinnslagDel del = deler.get(0);
         List<HistorikkinnslagFelt> endredeFelt = del.getEndredeFelt();
-        assertThat(endredeFelt.size()).isEqualTo(1);
+        assertThat(endredeFelt).hasSize(1);
         assertThat(endredeFelt.get(0).getNavn()).isEqualTo(HistorikkEndretFeltType.NY_REFUSJONSFRIST.getKode());
         assertThat(endredeFelt.get(0).getFraVerdi()).isNull();
         assertThat(endredeFelt.get(0).getTilVerdi()).isEqualTo(tilVerdi.toString());
@@ -177,10 +177,10 @@ public class VurderRefusjonHistorikkTjenesteTest {
 
     private void assertHistorikk(HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder, Boolean tilVerdi, Boolean fraVerdi) {
         List<HistorikkinnslagDel> deler = historikkInnslagTekstBuilder.build(historikkinnslag);
-        assertThat(deler.size()).isEqualTo(1);
+        assertThat(deler).hasSize(1);
         HistorikkinnslagDel del = deler.get(0);
         List<HistorikkinnslagFelt> endredeFelt = del.getEndredeFelt();
-        assertThat(endredeFelt.size()).isEqualTo(1);
+        assertThat(endredeFelt).hasSize(1);
         assertThat(endredeFelt.get(0).getNavn()).isEqualTo(HistorikkEndretFeltType.NY_REFUSJONSFRIST.getKode());
         assertThat(endredeFelt.get(0).getFraVerdi()).isEqualTo(fraVerdi.toString());
         assertThat(endredeFelt.get(0).getTilVerdi()).isEqualTo(tilVerdi.toString());

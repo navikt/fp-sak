@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
 import static java.util.Optional.empty;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -105,7 +105,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
             behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter).isPresent();
         assertThat(bgMedAktiviteter.get().getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.OPPRETTET);
-        assertThat(ap.size()).isEqualTo(1);
+        assertThat(ap).hasSize(1);
     }
 
     @Test
@@ -121,7 +121,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
             behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter).isPresent();
-        assertThat(ap.size()).isEqualTo(1);
+        assertThat(ap).hasSize(1);
 
         // Arrange: lag bekreftet aggregat
         lagreSaksbehandletFjernArbeidOgDeaktiver(bgMedAktiviteter);
@@ -133,7 +133,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedSaksbehandlet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
             behandlingReferanse.getBehandlingId());
         assertThat(bgMedSaksbehandlet).isPresent();
-        assertThat(ap2.size()).isEqualTo(1);
+        assertThat(ap2).hasSize(1);
         assertThat(bgMedSaksbehandlet.get().getSaksbehandletAktiviteter()).isPresent();
         assertThat(bgMedSaksbehandlet.get().getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
     }
@@ -151,7 +151,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
             behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter).isPresent();
-        assertThat(ap.size()).isEqualTo(0);
+        assertThat(ap).hasSize(0);
 
         // Act: kjør andre gang
         List<BeregningAksjonspunktResultat> ap2 = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
@@ -160,7 +160,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter2 = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
             behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter2).isPresent();
-        assertThat(ap2.size()).isEqualTo(0);
+        assertThat(ap2).hasSize(0);
         assertThat(bgMedAktiviteter2.get().getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.OPPRETTET);
     }
 
@@ -177,7 +177,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
             behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter).isPresent();
-        assertThat(ap.size()).isEqualTo(1);
+        assertThat(ap).hasSize(1);
 
         // Arrange: lag bekreftet aggregat
         lagreSaksbehandletFjernArbeidOgDeaktiver(bgMedAktiviteter);
@@ -193,7 +193,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgUtenSaksbehandlet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
             behandlingReferanse.getBehandlingId());
         assertThat(bgUtenSaksbehandlet).isPresent();
-        assertThat(ap2.size()).isEqualTo(1);
+        assertThat(ap2).hasSize(1);
         assertThat(bgUtenSaksbehandlet.get().getSaksbehandletAktiviteter()).isEmpty();
         assertThat(bgUtenSaksbehandlet.get().getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.OPPRETTET);
     }
@@ -211,7 +211,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
             behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter).isPresent();
-        assertThat(ap.size()).isEqualTo(0);
+        assertThat(ap).hasSize(0);
 
         // Arrange: lag overstyrt aggregat
         lagreOverstyrtFjernEttArbeidsforholdOgDeaktiver(bgMedAktiviteter);
@@ -227,7 +227,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedOverstyring = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
             behandlingReferanse.getBehandlingId());
         assertThat(bgMedOverstyring).isPresent();
-        assertThat(ap2.size()).isEqualTo(0);
+        assertThat(ap2).hasSize(0);
         assertThat(bgMedOverstyring.get().getOverstyring()).isPresent();
         assertThat(bgMedOverstyring.get().getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.OPPRETTET);
     }
@@ -245,7 +245,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
             behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter).isPresent();
-        assertThat(ap.size()).isEqualTo(0);
+        assertThat(ap).hasSize(0);
 
         // Arrange: lag overstyrt aggregat
         lagreOverstyrtFjernEttArbeidsforholdOgDeaktiver(bgMedAktiviteter);
@@ -257,7 +257,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedOverstyring = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
             behandlingReferanse.getBehandlingId());
         assertThat(bgMedOverstyring).isPresent();
-        assertThat(ap2.size()).isEqualTo(0);
+        assertThat(ap2).hasSize(0);
         assertThat(bgMedOverstyring.get().getOverstyring()).isPresent();
         assertThat(bgMedOverstyring.get().getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
     }

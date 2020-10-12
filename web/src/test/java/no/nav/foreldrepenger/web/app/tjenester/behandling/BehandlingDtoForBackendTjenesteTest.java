@@ -60,7 +60,7 @@ public class BehandlingDtoForBackendTjenesteTest {
         assertThat(utvidetBehandlingDto.isBehandlingPåVent()).isFalse();
 
         assertThat(utvidetBehandlingDto.getBehandlingÅrsaker()).isNotEmpty();
-        assertThat(utvidetBehandlingDto.getBehandlingÅrsaker().size()).isEqualTo(1);
+        assertThat(utvidetBehandlingDto.getBehandlingÅrsaker()).hasSize(1);
         BehandlingÅrsakDto behandlingÅrsak = utvidetBehandlingDto.getBehandlingÅrsaker().get(0);
         assertThat(behandlingÅrsak.getBehandlingArsakType()).isEqualByComparingTo(BEHANDLING_ÅRSAK_TYPE);
 

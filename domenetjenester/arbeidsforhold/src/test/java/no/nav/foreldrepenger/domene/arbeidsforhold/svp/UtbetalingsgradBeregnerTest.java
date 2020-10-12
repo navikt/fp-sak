@@ -264,7 +264,7 @@ public class UtbetalingsgradBeregnerTest {
         DatoIntervallEntitet førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminDatoMinus3UkerOg1Dag);
 
         // Assert
-        assertThat(resultat.size()).isEqualTo(1);
+        assertThat(resultat).hasSize(1);
         assertThat(resultat.get(førstePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(65));
     }
 
@@ -298,7 +298,7 @@ public class UtbetalingsgradBeregnerTest {
         DatoIntervallEntitet førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(sluttetIArbeid, terminDatoMinus3UkerOg1Dag);
 
         // Assert
-        assertThat(resultat.size()).isEqualTo(1);
+        assertThat(resultat).hasSize(1);
         assertThat(resultat.get(førstePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
     }
 
@@ -334,7 +334,7 @@ public class UtbetalingsgradBeregnerTest {
         DatoIntervallEntitet andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(sluttetIArbeid, terminDatoMinus3UkerOg1Dag);
 
         // Assert
-        assertThat(resultat.size()).isEqualTo(2);
+        assertThat(resultat).hasSize(2);
         assertThat(resultat.get(førstePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(0));
         assertThat(resultat.get(andrePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
     }
@@ -372,7 +372,7 @@ public class UtbetalingsgradBeregnerTest {
         DatoIntervallEntitet andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminDatoMinus3UkerOg1Dag);
 
         // Assert
-        assertThat(resultat.size()).isEqualTo(2);
+        assertThat(resultat).hasSize(2);
         assertThat(resultat.get(førstePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
         assertThat(resultat.get(andrePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(34));
     }
@@ -411,7 +411,7 @@ public class UtbetalingsgradBeregnerTest {
         DatoIntervallEntitet tredjePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminDatoMinus3UkerOg1Dag);
 
         // Assert
-        assertThat(resultat.size()).isEqualTo(3);
+        assertThat(resultat).hasSize(3);
         assertThat(resultat.get(førstePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
         assertThat(resultat.get(andrePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(0));
         assertThat(resultat.get(tredjePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(34));
@@ -449,7 +449,7 @@ public class UtbetalingsgradBeregnerTest {
         DatoIntervallEntitet tredjePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDatoMinus3);
 
         // Assert
-        assertThat(resultat.size()).isEqualTo(1);
+        assertThat(resultat).hasSize(1);
         assertThat(resultat.get(tredjePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(34));
     }
 
@@ -483,7 +483,7 @@ public class UtbetalingsgradBeregnerTest {
         DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDatoMinus3);
 
         // Assert
-        assertThat(resultat.size()).isEqualTo(1);
+        assertThat(resultat).hasSize(1);
         assertThat(resultat.get(periode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
     }
 
@@ -515,7 +515,7 @@ public class UtbetalingsgradBeregnerTest {
         DatoIntervallEntitet tredjePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminDatoMinus3UkerOg1Dag);
 
         // Assert
-        assertThat(resultat.size()).isEqualTo(3);
+        assertThat(resultat).hasSize(3);
         assertThat(resultat.get(førstePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
         assertThat(resultat.get(andrePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(0));
         assertThat(resultat.get(tredjePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(34));
@@ -555,7 +555,7 @@ public class UtbetalingsgradBeregnerTest {
         DatoIntervallEntitet tredjePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminDatoMinus3UkerOg1Dag);
 
         // Assert
-        assertThat(resultat.size()).isEqualTo(3);
+        assertThat(resultat).hasSize(3);
         assertThat(resultat.get(førstePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
         assertThat(resultat.get(andrePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(0));
         assertThat(resultat.get(tredjePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(34));
@@ -801,7 +801,7 @@ public class UtbetalingsgradBeregnerTest {
         DatoIntervallEntitet tredjePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminDatoMinus3UkerOg1Dag);
 
         // Assert
-        assertThat(resultat.size()).isEqualTo(3);
+        assertThat(resultat).hasSize(3);
         assertThat(resultat.get(førstePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(0));
         assertThat(resultat.get(andrePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
         assertThat(resultat.get(tredjePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(50));
@@ -848,7 +848,7 @@ public class UtbetalingsgradBeregnerTest {
 
         DatoIntervallEntitet førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDatoMinus3UkerOg1Dag);
 
-        assertThat(resultat.size()).isEqualTo(1);
+        assertThat(resultat).hasSize(1);
         assertThat(resultat.get(førstePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
 
     }
