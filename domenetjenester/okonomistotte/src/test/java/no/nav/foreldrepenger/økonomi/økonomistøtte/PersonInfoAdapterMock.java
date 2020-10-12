@@ -27,11 +27,6 @@ public class PersonInfoAdapterMock extends PersoninfoAdapter {
     private static final PersonIdent PERSON_IDENT = PersonIdent.fra("12345678901");
 
     @Override
-    public Optional<Personinfo> hentBrukerForAktør(AktørId aktørId) {
-        return Optional.empty();
-    }
-
-    @Override
     public PersonIdent hentFnrForAktør(AktørId aktørId) {
         return PERSON_IDENT;
     }
