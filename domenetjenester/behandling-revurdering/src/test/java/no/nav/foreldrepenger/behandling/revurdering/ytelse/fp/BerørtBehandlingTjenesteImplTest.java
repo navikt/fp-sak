@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -10,9 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.BerørtBehandlingTjeneste;
@@ -43,6 +44,7 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 
+@ExtendWith(MockitoExtension.class)
 public class BerørtBehandlingTjenesteImplTest {
 
     private BerørtBehandlingTjeneste berørtBehandlingTjeneste;
@@ -59,13 +61,8 @@ public class BerørtBehandlingTjenesteImplTest {
 
     private Behandling revurdering;
 
-    @Before
+    @BeforeEach
     public void fellesOppsett() {
-        stønadskontoSaldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
-        historikkRepository = mock(HistorikkRepository.class);
-        fpUttakRepository = mock(FpUttakRepository.class);
-        repositoryProvider = mock(BehandlingRepositoryProvider.class);
-        uttakInputTjeneste = mock(UttakInputTjeneste.class);
         when(repositoryProvider.getHistorikkRepository()).thenReturn(historikkRepository);
         when(repositoryProvider.getFpUttakRepository()).thenReturn(fpUttakRepository);
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, new NavBrukerBuilder().medAktørId(AktørId.dummy()).build());

@@ -9,12 +9,17 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.ws.soap.SOAPFaultException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.extra.Interval;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.domene.person.dkif.DkifSpråkKlient;
 import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.TilknytningTjeneste;
 import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
@@ -26,9 +31,12 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 @ApplicationScoped
 public class PersoninfoAdapter {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PersoninfoAdapter.class);
+
     private TpsAdapter tpsAdapter;
     private FødselTjeneste fødselTjeneste;
     private TilknytningTjeneste tilknytningTjeneste;
+    private DkifSpråkKlient dkifSpråkKlient;
 
     public PersoninfoAdapter() {
         // for CDI proxy
@@ -42,10 +50,12 @@ public class PersoninfoAdapter {
     @Inject
     public PersoninfoAdapter(TpsAdapter tpsAdapter,
                              FødselTjeneste fødselTjeneste,
-                             TilknytningTjeneste tilknytningTjeneste) {
+                             TilknytningTjeneste tilknytningTjeneste,
+                             DkifSpråkKlient dkifSpråkKlient) {
         this.tpsAdapter = tpsAdapter;
         this.fødselTjeneste = fødselTjeneste;
         this.tilknytningTjeneste = tilknytningTjeneste;
+        this.dkifSpråkKlient = dkifSpråkKlient;
     }
 
     public Personinfo innhentSaksopplysningerForSøker(AktørId aktørId) {
@@ -156,6 +166,24 @@ public class PersoninfoAdapter {
             return Optional.empty();
         }
         return tpsAdapter.hentAktørIdForPersonIdent(fnr).map(a -> tpsAdapter.hentKjerneinformasjon(fnr, a));
+    }
+
+    public PersoninfoSpråk hentForetrukketSpråk(AktørId aktørId) {
+        var person = hentBrukerForAktør(aktørId);
+        var fraTPS = person.map(p -> new PersoninfoSpråk(aktørId, p.getForetrukketSpråk())).orElseGet(() -> new PersoninfoSpråk(aktørId, Språkkode.NB));
+        if (dkifSpråkKlient != null && person.isPresent()) {
+            try {
+                var fraDkif = dkifSpråkKlient.finnSpråkkodeForBruker(person.get().getPersonIdent().getIdent());
+                if (fraTPS.getForetrukketSpråk().equals(fraDkif)) {
+                    LOG.info("FPSAK PDL DKIF: like svar");
+                } else {
+                    LOG.info("FPSAK PDL DKIF: ulike svar TPS {} og DKIF {}", fraTPS, fraDkif);
+                }
+            } catch (Exception e) {
+                LOG.info("FPSAK PDL DKIF: feil");
+            }
+        }
+        return fraTPS;
     }
 
 }

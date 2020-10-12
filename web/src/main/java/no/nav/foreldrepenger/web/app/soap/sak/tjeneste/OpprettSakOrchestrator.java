@@ -6,6 +6,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -30,21 +31,21 @@ public class OpprettSakOrchestrator {
     }
 
     public Saksnummer opprettSak(BehandlingTema behandlingTema, AktørId aktørId) {
-        Personinfo bruker = opprettSakTjeneste.hentBruker(aktørId);
+        PersoninfoSpråk bruker = opprettSakTjeneste.hentBruker(aktørId);
         FagsakYtelseType ytelseType = opprettSakTjeneste.utledYtelseType(behandlingTema);
         Fagsak fagsak = opprettSakTjeneste.opprettSakVL(bruker, ytelseType);
-        return opprettEllerFinnGsak(bruker, fagsak);
+        return opprettEllerFinnGsak(aktørId, fagsak);
     }
 
     public Saksnummer opprettSak(JournalpostId journalpostId, BehandlingTema behandlingTema, AktørId aktørId) {
         Saksnummer saksnummer;
-        Personinfo bruker = opprettSakTjeneste.hentBruker(aktørId);
+        PersoninfoSpråk bruker = opprettSakTjeneste.hentBruker(aktørId);
         FagsakYtelseType ytelseType = opprettSakTjeneste.utledYtelseType(behandlingTema);
         Fagsak fagsak = finnEllerOpprettFagSak(journalpostId, ytelseType, bruker);
         if (fagsak.getSaksnummer() != null) {
             saksnummer = fagsak.getSaksnummer();
         } else {
-            saksnummer = opprettEllerFinnGsak(bruker, fagsak);
+            saksnummer = opprettEllerFinnGsak(aktørId, fagsak);
         }
         return saksnummer;
     }
@@ -57,7 +58,7 @@ public class OpprettSakOrchestrator {
             .anyMatch(ytelsetype::equals);
     }
 
-    private Fagsak finnEllerOpprettFagSak(JournalpostId journalpostId, FagsakYtelseType ytelseType, Personinfo bruker) {
+    private Fagsak finnEllerOpprettFagSak(JournalpostId journalpostId, FagsakYtelseType ytelseType, PersoninfoSpråk bruker) {
         Optional<Journalpost> journalpost = fagsakRepository.hentJournalpost(journalpostId);
         if (journalpost.isPresent()) {
             return journalpost.get().getFagsak();
@@ -66,8 +67,8 @@ public class OpprettSakOrchestrator {
         return opprettSakTjeneste.opprettSakVL(bruker, ytelseType, journalpostId);
     }
 
-    private Saksnummer opprettEllerFinnGsak(Personinfo bruker, Fagsak fagsak) {
-        Saksnummer saksnummer = opprettSakTjeneste.opprettEllerFinnGsak(fagsak.getId(), bruker);
+    private Saksnummer opprettEllerFinnGsak(AktørId aktørId, Fagsak fagsak) {
+        Saksnummer saksnummer = opprettSakTjeneste.opprettEllerFinnGsak(aktørId);
         opprettSakTjeneste.oppdaterFagsakMedGsakSaksnummer(fagsak.getId(), saksnummer);
         return saksnummer;
     }

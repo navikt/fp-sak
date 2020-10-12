@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -50,16 +51,16 @@ public class OpprettSakTjeneste {
         this.datavarehusTjeneste = datavarehusTjeneste;
     }
 
-    public Fagsak opprettSakVL(Personinfo bruker, FagsakYtelseType ytelseType) {
-        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(bruker);
+    public Fagsak opprettSakVL(PersoninfoSpråk bruker, FagsakYtelseType ytelseType) {
+        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(bruker.getAktørId(), bruker.getForetrukketSpråk());
         Fagsak fagsak = Fagsak.opprettNy(ytelseType, navBruker);
         fagsakTjeneste.opprettFagsak(fagsak);
 
         return fagsak;
     }
 
-    public Fagsak opprettSakVL(Personinfo bruker, FagsakYtelseType ytelseType, JournalpostId journalpostId) {
-        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(bruker);
+    public Fagsak opprettSakVL(PersoninfoSpråk bruker, FagsakYtelseType ytelseType, JournalpostId journalpostId) {
+        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(bruker.getAktørId(), bruker.getForetrukketSpråk());
         Fagsak fagsak = Fagsak.opprettNy(ytelseType, navBruker);
         fagsakTjeneste.opprettFagsak(fagsak);
         knyttFagsakOgJournalpost(fagsak.getId(), journalpostId);
@@ -67,13 +68,8 @@ public class OpprettSakTjeneste {
         return fagsak;
     }
 
-    public Personinfo hentBruker(AktørId aktørId) {
-        Optional<Personinfo> personinfoOptional = personinfoAdapter.hentBrukerForAktør(aktørId);
-
-        if (!personinfoOptional.isPresent()) {
-            throw OpprettSakFeil.FACTORY.finnerIkkePersonMedAktørId(aktørId).toException();
-        }
-        return personinfoOptional.get();
+    public PersoninfoSpråk hentBruker(AktørId aktørId) {
+        return personinfoAdapter.hentForetrukketSpråk(aktørId);
     }
 
     public AktørId hentGjeldendeAktørId(AktørId aktørId) {
@@ -94,8 +90,8 @@ public class OpprettSakTjeneste {
         return fagsakYtelseType;
     }
 
-    public Saksnummer opprettEllerFinnGsak(@SuppressWarnings("unused") Long fagsakId, Personinfo bruker) {
-        return opprettGSakTjeneste.opprettArkivsak(bruker.getAktørId());
+    public Saksnummer opprettEllerFinnGsak(AktørId aktørId) {
+        return opprettGSakTjeneste.opprettArkivsak(aktørId);
     }
 
     public void oppdaterFagsakMedGsakSaksnummer(Long fagsakId, Saksnummer saksnummer) {

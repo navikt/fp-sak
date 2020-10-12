@@ -57,6 +57,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingMuligDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingRettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ByttBehandlendeEnhetDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.GjenopptaBehandlingDto;
@@ -431,9 +432,9 @@ public class BehandlingRestTjeneste {
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
         Boolean harSoknad = behandlingDtoTjeneste.finnBehandlingOperasjonRettigheter(behandling);
-        List<BehandlingType> lovligeOpprettinger = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
+        List<BehandlingOpprettingMuligDto> lovligeOpprettinger = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
             .flatMap(Collection::stream)
-            .filter(bt -> behandlingsoppretterApplikasjonTjeneste.kanOppretteNyBehandlingAvType(behandling.getFagsakId(), bt))
+            .map(bt -> new BehandlingOpprettingMuligDto(bt, behandlingsoppretterApplikasjonTjeneste.kanOppretteNyBehandlingAvType(behandling.getFagsakId(), bt)))
             .collect(Collectors.toList());
         return new BehandlingOpprettingDto(harSoknad, lovligeOpprettinger);
     }

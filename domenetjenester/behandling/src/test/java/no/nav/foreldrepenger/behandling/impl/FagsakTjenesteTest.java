@@ -147,7 +147,7 @@ public class FagsakTjenesteTest extends EntityManagerAwareTest {
 
         // Ifølgeregler i mottak skal vi opprette en nyTerminbekreftelse sak hvis vi
         // ikke har sak nyere enn 10 mnd:
-        NavBruker søker = brukerTjeneste.hentEllerOpprettFraAktorId(personinfo);
+        NavBruker søker = brukerTjeneste.hentEllerOpprettFraAktorId(personinfo.getAktørId(), Språkkode.NB);
         Fagsak fagsakNy = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, søker);
         tjeneste.opprettFagsak(fagsakNy);
         assertThat(fagsak.getNavBruker().getId()).as("Forventer at fagsakene peker til samme bruker")

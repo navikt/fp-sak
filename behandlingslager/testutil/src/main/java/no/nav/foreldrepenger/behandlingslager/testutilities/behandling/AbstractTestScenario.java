@@ -114,7 +114,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
@@ -1012,17 +1011,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             final EntityManager entityManager = (EntityManager) Whitebox.getInternalState(fagsakRepo, "entityManager");
             if (entityManager != null) {
                 BrukerTjeneste brukerTjeneste = new BrukerTjeneste(new NavBrukerRepository(entityManager));
-                final Personinfo personinfo = new Personinfo.Builder()
-                        .medFødselsdato(LocalDate.now())
-                        .medPersonIdent(PersonIdent.fra("123451234123"))
-                        .medNavn("asdf")
-                        .medAktørId(fagsakBuilder.getBrukerBuilder().getAktørId())
-                        .medNavBrukerKjønn(getKjønnFraFagsak())
-                        .medForetrukketSpråk(
-                                fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode()
-                                        : Språkkode.NB)
-                        .build();
-                final NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(personinfo);
+                final NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(fagsakBuilder.getBrukerBuilder().getAktørId(),
+                    fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode() : Språkkode.NB);
                 fagsakBuilder.medBruker(navBruker);
             }
         }

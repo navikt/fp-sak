@@ -2,16 +2,14 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
 import java.util.List;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-
 //TODO Utvid med flere relevante opplysninger
 public class BehandlingOpprettingDto {
 
     private Boolean harSoknad;
 
-    private List<BehandlingType> kanOppretteBehandlingType;
+    private List<BehandlingOpprettingMuligDto> kanOppretteBehandlingType;
 
-    public BehandlingOpprettingDto(Boolean harSoknad, List<BehandlingType> kanOppretteBehandlingType) {
+    public BehandlingOpprettingDto(Boolean harSoknad, List<BehandlingOpprettingMuligDto> kanOppretteBehandlingType) {
         this.harSoknad = harSoknad;
         this.kanOppretteBehandlingType = kanOppretteBehandlingType;
     }
@@ -20,7 +18,7 @@ public class BehandlingOpprettingDto {
         return harSoknad;
     }
 
-    public List<BehandlingType> getKanOppretteBehandlingType() {
+    public List<BehandlingOpprettingMuligDto> getKanOppretteBehandlingType() {
         return kanOppretteBehandlingType;
     }
 }
