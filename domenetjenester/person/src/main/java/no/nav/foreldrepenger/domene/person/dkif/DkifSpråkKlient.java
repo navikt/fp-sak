@@ -50,11 +50,12 @@ public class DkifSpråkKlient {
             DigitalKontaktinfo match = this.oidcRestClient.get(request, this.lagHeader(fnr), DigitalKontaktinfo.class);
             return Optional.ofNullable(match).flatMap(m -> m.getSpraak(fnr)).map(String::toUpperCase).map(Språkkode::defaultNorsk).orElse(Språkkode.NB);
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Utviklerfeil syntax-exception for finnArbeidsforholdForArbeidstaker");
+            throw new IllegalArgumentException("Utviklerfeil syntax-exception for finnSpråkkodeForBruker");
         }
     }
 
     private Set<Header> lagHeader(String fnr) {
-        return Set.of(new BasicHeader(HEADER_NAV_PERSONIDENT, "List [ \"" + fnr + "\" ]"));
+        //return Set.of(new BasicHeader(HEADER_NAV_PERSONIDENT, "List [ \"" + fnr + "\" ]"));
+        return Set.of(new BasicHeader(HEADER_NAV_PERSONIDENT, fnr));
     }
 }

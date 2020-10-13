@@ -179,7 +179,7 @@ public class PersoninfoAdapter {
                     LOG.info("FPSAK PDL DKIF: ulike svar TPS {} og DKIF {}", fraTPS, fraDkif);
                 }
             } catch (Exception e) {
-                LOG.info("FPSAK PDL DKIF: feil");
+                LOG.info("FPSAK PDL DKIF: feil", e);
             }
         }
         return fraTPS;
