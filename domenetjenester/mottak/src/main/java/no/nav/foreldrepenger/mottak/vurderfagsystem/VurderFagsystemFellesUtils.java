@@ -7,7 +7,6 @@ import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeS
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.time.temporal.TemporalAmount;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +46,6 @@ public class VurderFagsystemFellesUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(VurderFagsystemFellesUtils.class);
 
-    private static final TemporalAmount UKER_FH_SAMME = Period.ofWeeks(5);
-    private static final TemporalAmount UKER_FH_ULIK = Period.ofWeeks(19);
     private static final Period MAKS_AVVIK_DAGER_IM_INPUT = Period.of(0,3,1);
     private static final Period OPPLYSNINGSPLIKT_INTERVALL = Period.of(0,2,1);
     private static final Period PERIODE_FOR_AKTUELLE_SAKER = Period.ofMonths(10);
@@ -103,7 +100,7 @@ public class VurderFagsystemFellesUtils {
     }
 
     public Optional<FamilieHendelseEntitet> finnGjeldendeFamilieHendelse(Fagsak fagsak) {
-        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+        return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
             .flatMap(behandling -> familieHendelseTjeneste.finnAggregat(behandling.getId())
                 .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon));
     }
@@ -119,7 +116,7 @@ public class VurderFagsystemFellesUtils {
 
     public boolean erFagsakMedFamilieHendelsePassendeForFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
         // Finn behandling
-        Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+        Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
             .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()));
         if (fhGrunnlag.isEmpty()) {
             return false;
@@ -127,10 +124,11 @@ public class VurderFagsystemFellesUtils {
         return erGrunnlagPassendeFor(fhGrunnlag.get(), fagsak.getYtelseType(), vurderFagsystem);
     }
 
-    public boolean erFagsakPassendeForFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
+    public boolean erFagsakPassendeForFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak, boolean vurderHenlagte) {
         // Vurder omskriving av denne og neste til Predicate<Fagsak> basert på bruksmønster
         // Finn behandling
-        Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
+        Optional<Behandling> behandling = vurderHenlagte ? behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()) :
+            behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId());
         if (behandling.isEmpty()) {
             return true;
         }
@@ -277,7 +275,7 @@ public class VurderFagsystemFellesUtils {
     }
 
     private BehandlingTema getBehandlingsTemaForFagsak(Fagsak s) {
-        Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(s.getId());
+        Optional<Behandling> behandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(s.getId());
         if (behandling.isEmpty()) {
             return BehandlingTema.fraFagsakHendelse(s.getYtelseType(), FamilieHendelseType.UDEFINERT);
         }

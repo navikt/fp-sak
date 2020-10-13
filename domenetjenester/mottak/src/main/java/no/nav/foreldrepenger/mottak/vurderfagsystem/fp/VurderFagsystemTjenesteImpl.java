@@ -59,7 +59,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         }
 
         List<Fagsak> relevanteFagsaker = sakerGittYtelseType.stream()
-            .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s))
+            .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s, true))
             .collect(Collectors.toList());
 
         if (relevanteFagsaker.size() == 1) {
@@ -114,7 +114,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
     private boolean harAnnenPartSakVL(VurderFagsystem vurderFagsystem) {
         return vurderFagsystem.getAnnenPart().map(fagsakRepository::hentForBruker).orElse(Collections.emptyList()).stream()
-            .anyMatch(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s));
+            .anyMatch(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s, true));
     }
 
     private boolean skalVurdereInfotrygdForAnnenPart(VurderFagsystem vurderFagsystem) {

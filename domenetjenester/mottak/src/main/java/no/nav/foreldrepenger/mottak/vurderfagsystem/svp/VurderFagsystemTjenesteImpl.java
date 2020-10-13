@@ -63,7 +63,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         }
 
         List<Fagsak> relevanteFagsaker = sakerGittYtelseType.stream()
-            .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s))
+            .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s, true))
             .collect(Collectors.toList());
 
         if (relevanteFagsaker.size() > 1) {
@@ -144,7 +144,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
     }
 
     private Boolean fagsakManglerSøknad(Fagsak fagsak) {
-        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).map(behandling -> svangerskapspengerRepository.hentGrunnlag(behandling.getId()).isEmpty()).orElse(true);
+        return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId()).map(behandling -> svangerskapspengerRepository.hentGrunnlag(behandling.getId()).isEmpty()).orElse(true);
     }
 
     private Boolean hendelseDatoIPeriode(FamilieHendelseEntitet familieHendelse) {

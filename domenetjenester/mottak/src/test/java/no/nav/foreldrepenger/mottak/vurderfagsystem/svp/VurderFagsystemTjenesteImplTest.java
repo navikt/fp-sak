@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.vurderfagsystem.svp;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -12,8 +13,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
@@ -39,6 +43,7 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.impl.BehandlingslagerTestUti
 import no.nav.foreldrepenger.mottak.vurderfagsystem.impl.VurderFagsystemTestUtils;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
+@ExtendWith(MockitoExtension.class)
 public class VurderFagsystemTjenesteImplTest {
 
     public static final long FAGSAK_EN_ID = 111L;
@@ -46,25 +51,24 @@ public class VurderFagsystemTjenesteImplTest {
     private static AktørId BRUKER_ID = AktørId.dummy();
 
     private VurderFagsystemFellesTjeneste tjeneste;
+    @Mock
     private FagsakRepository fagsakRepository;
+    @Mock
     private BehandlingRepository behandlingRepository;
+    @Mock
     private FamilieHendelseRepository grunnlagRepository;
+    @Mock
     private SvangerskapspengerRepository svangerskapspengerRepository;
+    @Mock
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        fagsakRepository = mock(FagsakRepository.class);
-        behandlingRepository = mock(BehandlingRepository.class);
-        grunnlagRepository = mock(FamilieHendelseRepository.class);
-        svangerskapspengerRepository = mock(SvangerskapspengerRepository.class);
-        mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
-
         BehandlingRepositoryProvider repositoryProvider = mock(BehandlingRepositoryProvider.class);
-        when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(grunnlagRepository);
-        when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
-        when(repositoryProvider.getSvangerskapspengerRepository()).thenReturn(svangerskapspengerRepository);
-        when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
+        lenient().when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(grunnlagRepository);
+        lenient().when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
+        lenient().when(repositoryProvider.getSvangerskapspengerRepository()).thenReturn(svangerskapspengerRepository);
+        lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
         var familieTjeneste = new FamilieHendelseTjeneste(null, grunnlagRepository);
         var fellesUtils = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjeneste, null, null);
@@ -101,14 +105,14 @@ public class VurderFagsystemTjenesteImplTest {
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_TO_ID)).thenReturn(Collections.singletonList(behandling2));
 
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(eq(FAGSAK_EN_ID))).thenReturn(Optional.of(behandling1));
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(eq(FAGSAK_TO_ID))).thenReturn(Optional.of(behandling2));
+        lenient().when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(eq(FAGSAK_EN_ID))).thenReturn(Optional.of(behandling1));
+        lenient().when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(eq(FAGSAK_TO_ID))).thenReturn(Optional.of(behandling2));
 
         FamilieHendelseGrunnlagEntitet familieHendelse1 = BehandlingslagerTestUtil.byggFødselGrunnlag(LocalDate.now().plusMonths(2), null);
         FamilieHendelseGrunnlagEntitet familieHendelse2 = BehandlingslagerTestUtil.byggFødselGrunnlag(null, LocalDate.now().minusYears(1));
 
-        when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
-        when(grunnlagRepository.hentAggregatHvisEksisterer(behandling2.getId())).thenReturn(Optional.of(familieHendelse2));
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling2.getId())).thenReturn(Optional.of(familieHendelse2));
 
         BehandlendeFagsystem result = tjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
@@ -124,10 +128,10 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(Arrays.asList(fagsak1));
 
         Behandling behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
+        lenient().when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
 
         FamilieHendelseGrunnlagEntitet familieHendelse1 = BehandlingslagerTestUtil.byggFødselGrunnlag(LocalDate.now().plusMonths(2), null);
-        when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
 
         BehandlendeFagsystem result = tjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
@@ -212,13 +216,13 @@ public class VurderFagsystemTjenesteImplTest {
         Behandling behandling2 = Behandling.forFørstegangssøknad(fagsak2).build();
         behandling1.avsluttBehandling();
         behandling2.avsluttBehandling();
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_TO_ID)).thenReturn(Collections.singletonList(behandling2));
+        lenient().when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
+        lenient().when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_TO_ID)).thenReturn(Collections.singletonList(behandling2));
 
         FamilieHendelseGrunnlagEntitet familieHendelse1 = BehandlingslagerTestUtil.byggFødselGrunnlag(LocalDate.now().minusMonths(8), null);
         FamilieHendelseGrunnlagEntitet familieHendelse2 = BehandlingslagerTestUtil.byggFødselGrunnlag(null, LocalDate.now().minusYears(1));
-        when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
-        when(grunnlagRepository.hentAggregatHvisEksisterer(behandling2.getId())).thenReturn(Optional.of(familieHendelse2));
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling2.getId())).thenReturn(Optional.of(familieHendelse2));
 
         BehandlendeFagsystem result = tjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
@@ -236,12 +240,12 @@ public class VurderFagsystemTjenesteImplTest {
         Behandling behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
         FamilieHendelseGrunnlagEntitet familieHendelse1 = BehandlingslagerTestUtil.byggFødselGrunnlag(LocalDate.now().plusMonths(3), null);
-        when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
+        lenient().when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
 
         SvpGrunnlagEntitet svpGrunnlagEntitet = new SvpGrunnlagEntitet.Builder().medBehandlingId(1L).build();
 
-        when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.of(svpGrunnlagEntitet));
+        lenient().when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.of(svpGrunnlagEntitet));
 
         BehandlendeFagsystem result = tjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
@@ -259,9 +263,9 @@ public class VurderFagsystemTjenesteImplTest {
         Behandling behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
         FamilieHendelseGrunnlagEntitet familieHendelse1 = BehandlingslagerTestUtil.byggFødselGrunnlag(LocalDate.now().plusMonths(3), null);
-        when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
-        when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.empty());
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
+        lenient().when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
+        lenient().when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.empty());
 
         BehandlendeFagsystem result = tjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
@@ -280,9 +284,9 @@ public class VurderFagsystemTjenesteImplTest {
         Behandling behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.singletonList(behandling1));
         FamilieHendelseGrunnlagEntitet familieHendelse1 = BehandlingslagerTestUtil.byggFødselGrunnlag(LocalDate.now().plusMonths(3), null);
-        when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
-        when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.empty());
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
+        lenient().when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
+        lenient().when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.empty());
 
         BehandlendeFagsystem result = tjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
@@ -299,11 +303,11 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(Collections.singletonList(fagsak1));
 
         Behandling behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.emptyList());
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
-        when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.empty());
-        when(mottatteDokumentTjeneste.erSisteYtelsesbehandlingAvslåttPgaManglendeDokumentasjon(any())).thenReturn(false);
-        when(mottatteDokumentTjeneste.harFristForInnsendingAvDokGåttUt(any())).thenReturn(true);
+        lenient().when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_EN_ID)).thenReturn(Collections.emptyList());
+        lenient().when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
+        lenient().when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.empty());
+        lenient().when(mottatteDokumentTjeneste.erSisteYtelsesbehandlingAvslåttPgaManglendeDokumentasjon(any())).thenReturn(false);
+        lenient().when(mottatteDokumentTjeneste.harFristForInnsendingAvDokGåttUt(any())).thenReturn(true);
 
         BehandlendeFagsystem result = tjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
