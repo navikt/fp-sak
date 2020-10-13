@@ -478,13 +478,6 @@ public class BehandlingDtoTjeneste {
         return Optional.of(new SkjæringstidspunktDto(skjæringstidspunktHvisUtledet.get()));
     }
 
-    private LocalDate finnSkjæringstidspunktForSøknad(Behandling behandling) {
-        if (!behandling.erYtelseBehandling()) {
-            return null;
-        }
-        return skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getSkjæringstidspunktHvisUtledet().orElse(null);
-    }
-
     private Optional<ResourceLink> lagSimuleringResultatLink(Behandling behandling) {
         //fpoppdrag.override.proxy.url brukes ved testing lokalt og docker-compose
         BehandlingIdDto idDto = new BehandlingIdDto(behandling.getId());

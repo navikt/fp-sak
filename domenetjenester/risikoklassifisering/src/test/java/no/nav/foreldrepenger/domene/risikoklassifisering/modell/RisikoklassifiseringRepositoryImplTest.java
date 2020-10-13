@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.modell;
 
-import static java.time.Month.JANUARY;
-import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.KVINNE;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -13,7 +10,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -23,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
@@ -166,15 +161,7 @@ public class RisikoklassifiseringRepositoryImplTest {
     }
 
     private Fagsak opprettFagsak() {
-        NavBruker bruker = NavBruker.opprettNy(
-            new Personinfo.Builder()
-                .medAktørId(AktørId.dummy())
-                .medPersonIdent(new PersonIdent("12345678901"))
-                .medNavn("Kari Nordmann")
-                .medFødselsdato(LocalDate.of(1990, JANUARY, 1))
-                .medForetrukketSpråk(Språkkode.NB)
-                .medNavBrukerKjønn(KVINNE)
-                .build());
+        NavBruker bruker = NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
 
         // Opprett fagsak
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker, null, new Saksnummer("1000"));

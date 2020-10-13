@@ -164,12 +164,11 @@ public class VedtakXmlTest {
 
         SøknadEntitet søknad = new SøknadEntitet.Builder().medMottattDato(LocalDate.now()).medSøknadsdato(LocalDate.now()).build();
         when(søknadRepository.hentSøknadHvisEksisterer(any())).thenReturn(Optional.ofNullable(søknad));
-        when(personinfoAdapter.innhentSaksopplysningerForSøker(any(AktørId.class))).thenReturn(personinfoMor);
 
     }
 
     private Fagsak opprettFagsak() {
-        NavBruker søker = NavBruker.opprettNy(personinfoMor);
+        NavBruker søker = NavBruker.opprettNy(personinfoMor.getAktørId(), Språkkode.NB);
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, søker);
         fagsakRepository.opprettNy(fagsak);
         return fagsak;

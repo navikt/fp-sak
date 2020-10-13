@@ -23,9 +23,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -323,14 +321,7 @@ public class OppgaveTjenesteTest {
     @Test
     public void opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver() {
         // Arrange
-        Personinfo personinfo = new Personinfo.Builder()
-            .medAktørId(behandling.getAktørId())
-            .medPersonIdent(new PersonIdent(FNR))
-            .medNavn("Fornavn Etternavn")
-            .medFødselsdato(LocalDate.of(1980,4,1))
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .build();
-        when(personinfoAdapter.hentBrukerForAktør(behandling.getAktørId())).thenReturn(Optional.of(personinfo));
+        when(personinfoAdapter.hentFnr(behandling.getAktørId())).thenReturn(Optional.of(new PersonIdent(FNR)));
         LocalDate forventetFrist = VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1));
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);

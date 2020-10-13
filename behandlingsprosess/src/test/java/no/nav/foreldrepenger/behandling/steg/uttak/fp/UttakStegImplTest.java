@@ -23,8 +23,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -64,8 +62,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
@@ -90,7 +86,6 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
@@ -162,15 +157,7 @@ public class UttakStegImplTest {
     public void setUp() {
         fagsak = FagsakBuilder.nyForeldrepengerForMor()
             .medSaksnummer(new Saksnummer("1234"))
-            .medBrukerPersonInfo(new Personinfo.Builder()
-                .medNavn("Navn navnesen")
-                .medAktørId(AKTØRID)
-                .medFødselsdato(LocalDate.now().minusYears(20))
-                .medLandkode(Landkoder.NOR)
-                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-                .medPersonIdent(PersonIdent.fra("12312312312"))
-                .medForetrukketSpråk(Språkkode.NB)
-                .build())
+            .medBrukerAktørId(AKTØRID)
             .build();
         fagsakRepository.opprettNy(fagsak);
         fagsakRelasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);

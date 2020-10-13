@@ -38,8 +38,12 @@ public class NavBruker extends Person {
         this.språkkode = språkkode;
     }
 
-    public static NavBruker opprettNy(Personinfo personinfo) {
+    public static NavBruker opprettNy(PersoninfoSpråk personinfo) {
         return new NavBruker(personinfo.getAktørId(), personinfo.getForetrukketSpråk());
+    }
+
+    public static NavBruker opprettNy(AktørId aktørId, Språkkode språk) {
+        return new NavBruker(aktørId, språk);
     }
 
     public Long getId() {

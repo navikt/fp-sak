@@ -18,9 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -33,17 +32,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ExtendWith(MockitoExtension.class)
-
 public class VergeOppdatererTest {
 
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_VERGE;
@@ -56,7 +52,6 @@ public class VergeOppdatererTest {
     private NavBrukerRepository navBrukerRepository;
 
     private NavBruker vergeBruker;
-    private Personinfo pInfo;
 
     @BeforeEach
     public void oppsett() {
@@ -66,18 +61,10 @@ public class VergeOppdatererTest {
         @SuppressWarnings("unused")
         Behandling behandling = scenario.lagMocked();
 
-        pInfo = new Personinfo.Builder()
-            .medNavn("Verger Vergusen")
-            .medAktørId(AktørId.dummy())
-            .medPersonIdent(new PersonIdent(new FiktiveFnr().nesteKvinneFnr()))
-            .medFødselsdato(LocalDate.now().minusYears(33))
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medForetrukketSpråk(Språkkode.NB)
-            .build();
-
-        vergeBruker = NavBruker.opprettNy(pInfo);
+        vergeBruker = NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
 
         lenient().when(personinfoAdapter.hentAktørForFnr(Mockito.any())).thenReturn(Optional.of(AktørId.dummy()));
+        lenient().when(personinfoAdapter.hentForetrukketSpråk(Mockito.any())).thenReturn(new PersoninfoSpråk(vergeBruker.getAktørId(), Språkkode.NB));
         lenient().when(navBrukerRepository.hent(Mockito.any())).thenReturn(Optional.of(vergeBruker));
     }
 

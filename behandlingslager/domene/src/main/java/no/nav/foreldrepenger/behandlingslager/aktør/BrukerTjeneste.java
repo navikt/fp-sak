@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ApplicationScoped
@@ -20,9 +21,9 @@ public class BrukerTjeneste {
         this.brukerRepository = brukerRepository;
     }
 
-    public NavBruker hentEllerOpprettFraAktorId(Personinfo personinfo) {
-        Optional<NavBruker> hent = brukerRepository.hent(personinfo.getAktørId());
-        return hent.orElse(NavBruker.opprettNy(personinfo));
+    public NavBruker hentEllerOpprettFraAktorId(AktørId aktørId, Språkkode språk) {
+        Optional<NavBruker> hent = brukerRepository.hent(aktørId);
+        return hent.orElseGet(() -> NavBruker.opprettNy(aktørId, språk));
     }
 
     public Optional<NavBruker> hentBrukerForAktørId(AktørId aktørId) {

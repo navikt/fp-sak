@@ -14,8 +14,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -29,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.DokumentPersistererTjeneste;
 import no.nav.foreldrepenger.mottak.publiserer.publish.MottattDokumentPersistertPubliserer;
@@ -60,15 +57,7 @@ public class HåndterMottattDokumentTaskTest {
         innhentDokumentTjeneste = mock(InnhentDokumentTjeneste.class);
         mottatteDokumentTjeneste = new MottatteDokumentTjeneste(fristInnsendingPeriode, dokumentPersistererTjeneste, mottatteDokumentRepository, repositoryProvider);
         håndterMottattDokumentTask = new HåndterMottattDokumentTask(innhentDokumentTjeneste, dokumentPersistererTjeneste, mottatteDokumentTjeneste, repositoryProvider);
-        final Personinfo personinfo = new Personinfo.Builder()
-            .medAktørId(AktørId.dummy())
-            .medPersonIdent(new PersonIdent("12345678901"))
-            .medNavn("Kari Nordmann")
-            .medFødselsdato(LocalDate.of(1999, 3, 3))
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .medForetrukketSpråk(Språkkode.NB)
-            .build();
-        FAGSAK_ID = repositoryProvider.getFagsakRepository().opprettNy(Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNy(personinfo)));
+        FAGSAK_ID = repositoryProvider.getFagsakRepository().opprettNy(Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB)));
         var fagsak = repositoryProvider.getFagsakRepository().finnEksaktFagsak(FAGSAK_ID);
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         BEHANDLING_ID = repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));

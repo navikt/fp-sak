@@ -17,7 +17,8 @@ import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -101,21 +102,21 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         }
 
         OrganisasjonsEnhet enhet = new OrganisasjonsEnhet(prosessTaskData.getPropertyValue(BEH_ENHET_ID_KEY), prosessTaskData.getPropertyValue(BEH_ENHET_NAVN_KEY));
-        Personinfo bruker = hentPersonInfo(aktørId);
+        PersoninfoBasis bruker = hentPersonInfo(aktørId);
         if (bruker.getDødsdato() != null) {
             return; // Unngå brev til død annen part
         }
-
-        Fagsak fagsak = opprettNyFagsak(bruker);
+        var språk = hentSpråk(aktørId);
+        Fagsak fagsak = opprettNyFagsak(språk);
         kobleNyFagsakTilMors(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_MOR_KEY)), fagsak);
         Behandling behandling = opprettFørstegangsbehandlingInformasjonssak(fagsak, enhet, behandlingÅrsakType);
         behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
         log.info("Opprettet fagsak/informasjon {} med behandling {}", fagsak.getSaksnummer().getVerdi(), behandling.getId()); //NOSONAR
     }
 
-    private Fagsak opprettNyFagsak(Personinfo bruker) {
+    private Fagsak opprettNyFagsak(PersoninfoSpråk bruker) {
         FagsakYtelseType ytelseType = FagsakYtelseType.FORELDREPENGER;
-        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(bruker);
+        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(bruker.getAktørId(), bruker.getForetrukketSpråk());
         Fagsak fagsak = Fagsak.opprettNy(ytelseType, navBruker);
         fagsakTjeneste.opprettFagsak(fagsak);
         Saksnummer saksnummer = opprettGSakTjeneste.opprettArkivsak(bruker.getAktørId());
@@ -165,8 +166,12 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         return fhDato.isAfter(fagsakFhDato.minus(FH_DIFF_PERIODE)) && fhDato.isBefore(fagsakFhDato.plus(FH_DIFF_PERIODE));
     }
 
-    private Personinfo hentPersonInfo(AktørId aktørId) {
-        return personinfoAdapter.hentBrukerForAktør(aktørId)
+    private PersoninfoBasis hentPersonInfo(AktørId aktørId) {
+        return personinfoAdapter.hentBrukerBasisForAktør(aktørId)
             .orElseThrow(() -> OppgaveFeilmeldinger.FACTORY.identIkkeFunnet(aktørId).toException());
+    }
+
+    private PersoninfoSpråk hentSpråk(AktørId aktørId) {
+        return personinfoAdapter.hentForetrukketSpråk(aktørId);
     }
 }

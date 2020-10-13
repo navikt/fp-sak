@@ -51,7 +51,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
         }
 
         List<Fagsak> passendeFagsaker = sakerGittYtelseType.stream()
-            .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s))
+            .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s, false))
             .collect(Collectors.toList());
 
         if (passendeFagsaker.size() == 1) {

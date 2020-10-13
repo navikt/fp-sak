@@ -154,7 +154,6 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
         behandling = opprettOgLagreBehandling(FamilieYtelseType.FØDSEL);
 
         personInfo = OpprettBehandlingForOppdrag.opprettPersonInfo();
-        when(personinfoAdapterMock.innhentSaksopplysningerForSøker(any(AktørId.class))).thenReturn(personInfo);
         when(personinfoAdapterMock.hentFnrForAktør(any(AktørId.class))).thenReturn(personInfo.getPersonIdent());
     }
 

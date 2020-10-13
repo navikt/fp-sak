@@ -13,6 +13,7 @@ import org.threeten.extra.Interval;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -26,17 +27,12 @@ public class PersonInfoAdapterMock extends PersoninfoAdapter {
     private static final PersonIdent PERSON_IDENT = PersonIdent.fra("12345678901");
 
     @Override
-    public Optional<Personinfo> hentBrukerForAktør(AktørId aktørId) {
-        return Optional.empty();
-    }
-
-    @Override
     public PersonIdent hentFnrForAktør(AktørId aktørId) {
         return PERSON_IDENT;
     }
 
     @Override
-    public Optional<Personinfo> hentBrukerForFnr(PersonIdent fnr) {
+    public Optional<PersoninfoBasis> hentBrukerBasisForAktør(AktørId aktørId) {
         return Optional.empty();
     }
 

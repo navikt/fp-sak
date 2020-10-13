@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
@@ -57,9 +57,9 @@ public class ArbeidsgiverTjeneste {
         } else if (arbeidsgiver.getErVirksomhet() && Organisasjonstype.erKunstig(arbeidsgiver.getOrgnr())) {
             return new ArbeidsgiverOpplysninger(OrgNummer.KUNSTIG_ORG, "Kunstig(Lagt til av saksbehandling)");
         } else if (arbeidsgiver.erAktørId()) {
-            Optional<Personinfo> personinfo = hentInformasjonFraTps(arbeidsgiver);
+            Optional<PersoninfoBasis> personinfo = hentInformasjonFraTps(arbeidsgiver);
             if (personinfo.isPresent()) {
-                Personinfo info = personinfo.get();
+                PersoninfoBasis info = personinfo.get();
                 String fødselsdato = info.getFødselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
                 ArbeidsgiverOpplysninger nyOpplysninger = new ArbeidsgiverOpplysninger(fødselsdato, info.getNavn(), info.getFødselsdato());
                 cache.put(arbeidsgiver.getIdentifikator(), nyOpplysninger);
@@ -78,7 +78,7 @@ public class ArbeidsgiverTjeneste {
         return virksomhetTjeneste.finnOrganisasjon(orgNummer).orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + orgNummer));
     }
 
-    private Optional<Personinfo> hentInformasjonFraTps(Arbeidsgiver arbeidsgiver) {
+    private Optional<PersoninfoBasis> hentInformasjonFraTps(Arbeidsgiver arbeidsgiver) {
         try {
             return tpsTjeneste.hentBrukerForAktør(arbeidsgiver.getAktørId());
         } catch (VLException feil) {

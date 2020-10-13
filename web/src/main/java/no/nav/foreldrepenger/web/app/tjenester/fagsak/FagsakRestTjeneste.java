@@ -31,7 +31,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
@@ -126,7 +126,7 @@ public class FagsakRestTjeneste {
         if (view.isEmpty()) {
             return new ArrayList<>();
         }
-        Personinfo brukerInfo = view.getBrukerInfo();
+        PersoninfoBasis brukerInfo = view.getBrukerInfo();
 
         PersonDto personDto = new PersonDto(brukerInfo.getNavn(), brukerInfo.getAlder(), String.valueOf(brukerInfo.getPersonIdent().getIdent()),
                 brukerInfo.erKvinne(), brukerInfo.getPersonstatus(), brukerInfo.getDiskresjonskode(), brukerInfo.getDødsdato());

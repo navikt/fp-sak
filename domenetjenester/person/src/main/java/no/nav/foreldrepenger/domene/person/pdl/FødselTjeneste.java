@@ -62,6 +62,8 @@ public class FødselTjeneste {
                 .filter(df -> df.getDato() != null)
                 .map(FødselTjeneste::fraDødfødsel)
                 .forEach(fraPDL::add);
+            if (!fraPDL.isEmpty())
+                LOG.info("FPSAK PDL FØDSEL dødfødsel registrert");
             person.getFamilierelasjoner().stream()
                 .filter(b -> Familierelasjonsrolle.BARN.equals(b.getRelatertPersonsRolle()))
                 .map(Familierelasjon::getRelatertPersonsIdent)

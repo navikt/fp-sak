@@ -57,7 +57,7 @@ public class PersoninfoAdapterTest {
         mockPersoninfo = mock(Personinfo.class);
         lenient().when(mockPersoninfo.getFødselsdato()).thenReturn(LocalDate.now()); // trenger bare en verdi
 
-        adapter = new PersoninfoAdapter(mockTpsAdapter, fødselTjeneste, tilknytningTjeneste);
+        adapter = new PersoninfoAdapter(mockTpsAdapter, fødselTjeneste, tilknytningTjeneste, null);
     }
 
     @Test

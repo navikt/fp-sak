@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling.Builder;
@@ -50,7 +49,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.testutilities.aktør.NavBrukerBuilder;
@@ -354,15 +352,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             final EntityManager entityManager = (EntityManager) Whitebox.getInternalState(fagsakRepo, "entityManager");
             if (entityManager != null) {
                 BrukerTjeneste brukerTjeneste = new BrukerTjeneste(new NavBrukerRepository(entityManager));
-                final Personinfo personinfo = new Personinfo.Builder()
-                    .medFødselsdato(LocalDate.now())
-                    .medPersonIdent(PersonIdent.fra("123"))
-                    .medNavn("asdf")
-                    .medAktørId(fagsakBuilder.getBrukerBuilder().getAktørId())
-                    .medNavBrukerKjønn(getKjønnFraFagsak())
-                    .medForetrukketSpråk(Språkkode.NB)
-                    .build();
-                final NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(personinfo);
+                final NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB);
                 fagsakBuilder.medBruker(navBruker);
             }
         }

@@ -8,7 +8,6 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDAT
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -46,17 +45,18 @@ import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingT
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingRettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ByttBehandlendeEnhetDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.GjenopptaBehandlingDto;
@@ -64,6 +64,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.HenleggBehandlingD
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.NyBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ReåpneBehandlingDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SakRettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SettBehandlingPaVentDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
@@ -427,15 +428,29 @@ public class BehandlingRestTjeneste {
     @Path(HANDLING_OPPRETTING_PART_PATH)
     @Operation(description = "Henter rettigheter for lovlige behandlingsoppretting", tags = "behandlinger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public BehandlingOpprettingDto hentMuligeBehandlingOpprettinger(
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
-        Boolean harSoknad = behandlingDtoTjeneste.finnBehandlingOperasjonRettigheter(behandling);
-        List<BehandlingType> lovligeOpprettinger = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
+    public SakRettigheterDto hentMuligeBehandlingOpprettinger(
+        @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
+        Saksnummer saksnummer = new Saksnummer(s.getVerdi());
+        Fagsak f = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false).orElseThrow();
+        var builder = SakRettigheterDto.builder();
+        if (f.getSkalTilInfotrygd())
+            builder.skalTilInfotrygd();
+        behandlingsutredningApplikasjonTjeneste.hentBehandlingerForSaksnummer(saksnummer).stream()
+            .filter(b -> !b.erSaksbehandlingAvsluttet() && !BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus()))
+            .forEach(b -> {
+                builder.kanBytteEnhet(b.getUuid()).kanHenlegges(b.getUuid());
+                if (!b.isBehandlingPåVent()) {
+                    builder.kanSettesPaVent(b.getUuid());
+                } else {
+                    builder.kanGjenopptas(b.getUuid());
+                }
+                if (!FagsakYtelseType.ENGANGSTØNAD.equals(f.getYtelseType()) && b.erRevurdering() && !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
+                    builder.kanOpnesForEndringer(b.getUuid());
+            });
+         Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
             .flatMap(Collection::stream)
-            .filter(bt -> behandlingsoppretterApplikasjonTjeneste.kanOppretteNyBehandlingAvType(behandling.getFagsakId(), bt))
-            .collect(Collectors.toList());
-        return new BehandlingOpprettingDto(harSoknad, lovligeOpprettinger);
+            .forEach(bt -> builder.behandlingTypeKanOpprettes(bt, behandlingsoppretterApplikasjonTjeneste.kanOppretteNyBehandlingAvType(f.getId(), bt)));
+        return builder.build();
     }
 
 

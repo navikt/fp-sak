@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,8 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -30,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ExtendWith(MockitoExtension.class)
@@ -79,15 +75,7 @@ public class TilbakekrevingRestTjenesteTest {
     }
 
     private Behandling lagBehandling() {
-        Personinfo personinfo = new Personinfo.Builder()
-                .medAktørId(AktørId.dummy())
-                .medPersonIdent(new PersonIdent("12345678901"))
-                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-                .medNavn("navn")
-                .medFødselsdato(LocalDate.now().minusYears(25))
-                .medForetrukketSpråk(Språkkode.NB)
-                .build();
-        NavBruker navBruker = NavBruker.opprettNy(personinfo);
+        NavBruker navBruker = NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, RelasjonsRolleType.MORA, new Saksnummer("123456"));
         return Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
     }

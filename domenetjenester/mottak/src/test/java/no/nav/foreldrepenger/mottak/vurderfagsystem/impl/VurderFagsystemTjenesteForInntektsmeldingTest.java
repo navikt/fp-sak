@@ -10,6 +10,7 @@ import static no.nav.foreldrepenger.mottak.vurderfagsystem.impl.VurderFagsystemT
 import static no.nav.foreldrepenger.mottak.vurderfagsystem.impl.VurderFagsystemTestUtils.byggVurderFagsystemForInntektsmelding;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -18,12 +19,12 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
@@ -48,13 +49,13 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.fp.VurderFagsystemTjenesteIm
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
+@ExtendWith(MockitoExtension.class)
 public class VurderFagsystemTjenesteForInntektsmeldingTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
     private VurderFagsystemFellesTjeneste vurderFagsystemTjeneste;
     @Mock
     private BehandlingRepository behandlingRepositoryMock;
+    @Mock
     private FamilieHendelseRepository grunnlagRepository;
 
     @Mock
@@ -64,24 +65,19 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     @Mock
     private FagsakTjeneste fagsakTjenesteMock;
 
-
     private Fagsak fpFagsakUdefinert = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker());
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        fagsakTjenesteMock = mock(FagsakTjeneste.class);
-        when(fagsakTjenesteMock.hentJournalpost(any())).thenReturn(Optional.empty());
+        lenient().when(fagsakTjenesteMock.hentJournalpost(any())).thenReturn(Optional.empty());
         BehandlingRepositoryProvider repositoryProvider = mock(BehandlingRepositoryProvider.class);
-        behandlingRepositoryMock = mock(BehandlingRepository.class);
-        when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
-        grunnlagRepository = mock(FamilieHendelseRepository.class);
-        when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(grunnlagRepository);
-        fagsakRepositoryMock = mock(FagsakRepository.class);
-        when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepositoryMock);
+        lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
+        lenient().when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(grunnlagRepository);
+        lenient().when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepositoryMock);
         MottatteDokumentTjeneste mottatteDokumentTjenesteMock = Mockito.mock(MottatteDokumentTjeneste.class);
 
         var skjæringsTidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-        when(skjæringsTidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now()).medUtledetSkjæringstidspunkt(LocalDate.now()).build());
+        lenient().when(skjæringsTidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now()).medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         var familieTjeneste = new FamilieHendelseTjeneste(null, grunnlagRepository);
         var fellesUtil = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjenesteMock, inntektsmeldingTjeneste, skjæringsTidspunktTjeneste);
         var tjenesteFP = new VurderFagsystemTjenesteImpl(fellesUtil, repositoryProvider);
@@ -96,9 +92,9 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(Collections.singletonList(buildFagsakMedUdefinertRelasjon(123L, false)));
 
         Optional<Behandling> behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
-        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(behandling);
+        lenient().when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(behandling);
         final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(null, null);
-        when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
 
         BehandlendeFagsystem result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
@@ -110,8 +106,8 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
         VurderFagsystem fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_NY, BehandlingTema.FORELDREPENGER, LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 
-        when(fagsakRepositoryMock.hentJournalpost(any())).thenReturn(Optional.empty());
-        when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(Collections.emptyList());
+        lenient().when(fagsakRepositoryMock.hentJournalpost(any())).thenReturn(Optional.empty());
+        lenient().when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(Collections.emptyList());
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(Collections.emptyList());
 
         BehandlendeFagsystem result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
@@ -131,9 +127,9 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(Collections.singletonList(buildFagsakMedUdefinertRelasjon(123L, false)));
 
         Optional<Behandling> behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
-        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(behandling);
+        lenient().when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(behandling);
         final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(null, null);
-        when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
 
         BehandlendeFagsystem result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);

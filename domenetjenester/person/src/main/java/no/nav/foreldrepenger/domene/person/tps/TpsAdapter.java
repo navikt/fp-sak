@@ -16,6 +16,7 @@ import org.threeten.extra.Interval;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -104,6 +105,23 @@ public class TpsAdapter {
         request.getInformasjonsbehov().add(Informasjonsbehov.FAMILIERELASJONER);
         try {
             return håndterPersoninfoRespons(aktørId, request);
+        } catch (HentPersonPersonIkkeFunnet e) {
+            throw TpsFeilmeldinger.FACTORY.fantIkkePerson(e).toException();
+        } catch (HentPersonSikkerhetsbegrensning e) {
+            throw TpsFeilmeldinger.FACTORY.tpsUtilgjengeligSikkerhetsbegrensning(e).toException();
+        }
+    }
+
+    public PersoninfoBasis hentKjerneinformasjonBasis(PersonIdent personIdent, AktørId aktørId) {
+        HentPersonRequest request = new HentPersonRequest();
+        request.setAktoer(TpsUtil.lagPersonIdent(personIdent.getIdent()));
+        try {
+            HentPersonResponse response = personConsumer.hentPersonResponse(request);
+            Person person = response.getPerson();
+            if (!(person instanceof Bruker)) {
+                throw TpsFeilmeldinger.FACTORY.ukjentBrukerType().toException();
+            }
+            return tpsOversetter.tilBrukerInfoBasis(aktørId, (Bruker) person);
         } catch (HentPersonPersonIkkeFunnet e) {
             throw TpsFeilmeldinger.FACTORY.fantIkkePerson(e).toException();
         } catch (HentPersonSikkerhetsbegrensning e) {

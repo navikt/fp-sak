@@ -44,9 +44,6 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjenest
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BehandlingAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SøknadGrunnlagManglerDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -62,7 +59,6 @@ public class ForvaltningTekniskRestTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private SøknadRepository søknadRepository;
-    private ProsessTaskRepository prosessTaskRepository;
     private AksjonspunktRepository aksjonspunktRepository = new AksjonspunktRepository();
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
@@ -73,37 +69,12 @@ public class ForvaltningTekniskRestTjeneste {
 
     @Inject
     public ForvaltningTekniskRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
-            ProsessTaskRepository prosessTaskRepository,
             OppgaveTjeneste oppgaveTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
-        this.prosessTaskRepository = prosessTaskRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.oppgaveTjeneste = oppgaveTjeneste;
-    }
-
-    @POST
-    @Path("/sett-task-ferdig")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Setter prosesstask til status FERDIG", tags = "FORVALTNING-teknisk", responses = {
-            @ApiResponse(responseCode = "200", description = "Task satt til ferdig."),
-            @ApiResponse(responseCode = "400", description = "Fant ikke aktuell prosessTask."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response setTaskFerdig(
-            @TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class) @Parameter(description = "Task som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto taskId) {
-        ProsessTaskData data = prosessTaskRepository.finn(taskId.getProsessTaskId());
-        if (data != null) {
-            data.setStatus(ProsessTaskStatus.FERDIG);
-            data.setSisteFeil(null);
-            data.setSisteFeilKode(null);
-            prosessTaskRepository.lagre(data);
-            return Response.ok().build();
-        }
-        return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @POST

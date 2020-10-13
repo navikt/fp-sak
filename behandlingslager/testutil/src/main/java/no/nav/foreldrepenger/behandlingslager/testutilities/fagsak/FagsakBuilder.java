@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -60,12 +59,6 @@ public class FagsakBuilder {
     public FagsakBuilder medBrukerKjønn(NavBrukerKjønn kjønn) {
         validerFagsakIkkeSatt();
         brukerBuilder.medKjønn(kjønn);
-        return this;
-    }
-
-    public FagsakBuilder medBrukerPersonInfo(Personinfo personinfo) {
-        validerFagsakIkkeSatt();
-        brukerBuilder.medPersonInfo(personinfo);
         return this;
     }
 

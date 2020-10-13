@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
@@ -13,9 +11,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class BehandlingslagerTestUtil {
@@ -35,16 +32,7 @@ public class BehandlingslagerTestUtil {
     }
 
     public static final NavBruker lagNavBruker() {
-        Personinfo.Builder personinfoBuilder = new Personinfo.Builder();
-        personinfoBuilder.medAktørId(AktørId.dummy());
-        personinfoBuilder.medPersonIdent(new PersonIdent(new FiktiveFnr().nesteMannFnr()));
-        personinfoBuilder.medNavn("Anonym");
-        personinfoBuilder.medFødselsdato(LocalDate.now());
-        personinfoBuilder.medNavBrukerKjønn(NavBrukerKjønn.KVINNE);
-        Personinfo personinfo = personinfoBuilder.build();
-
-        NavBruker navBruker = NavBruker.opprettNy(personinfo);
-        return navBruker;
+        return NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
     }
 
     public static final Behandling byggBehandlingFødsel(final Fagsak fagsakFødsel) {
