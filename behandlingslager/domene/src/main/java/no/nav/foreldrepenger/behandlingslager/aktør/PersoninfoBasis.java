@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -60,6 +61,26 @@ public class PersoninfoBasis {
 
     public String getDiskresjonskode() {
         return diskresjonskode;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PersoninfoBasis that = (PersoninfoBasis) o;
+        return aktørId.equals(that.aktørId) &&
+            Objects.equals(navn, that.navn) &&
+            Objects.equals(personIdent, that.personIdent) &&
+            Objects.equals(fødselsdato, that.fødselsdato) &&
+            Objects.equals(dødsdato, that.dødsdato) &&
+            personstatus == that.personstatus &&
+            kjønn == that.kjønn &&
+            Objects.equals(diskresjonskode, that.diskresjonskode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(aktørId);
     }
 
     @Override

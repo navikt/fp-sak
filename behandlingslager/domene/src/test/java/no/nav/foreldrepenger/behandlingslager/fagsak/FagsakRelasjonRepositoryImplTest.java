@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -31,7 +30,7 @@ public class FagsakRelasjonRepositoryImplTest {
 
     @Test(expected = VLException.class)
     public void skal_ikke_kunne_kobles_med_seg_selv() {
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB));
+        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         relasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
         relasjonRepository.kobleFagsaker(fagsak, fagsak, null);
@@ -39,7 +38,7 @@ public class FagsakRelasjonRepositoryImplTest {
 
     @Test(expected = VLException.class)
     public void skal_ikke_kunne_kobles_med_fagsak_med_identisk_aktørid() {
-        final NavBruker bruker = NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
+        final NavBruker bruker = NavBruker.opprettNyNB(AktørId.dummy());
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
         fagsakRepository.opprettNy(fagsak);
         final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
@@ -51,9 +50,9 @@ public class FagsakRelasjonRepositoryImplTest {
 
     @Test(expected = VLException.class)
     public void skal_ikke_kunne_kobles_med_fagsak_med_ulik_ytelse() {
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB));
+        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
-        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB));
+        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak2);
 
         relasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
@@ -62,9 +61,9 @@ public class FagsakRelasjonRepositoryImplTest {
 
     @Test
     public void skal_koble_sammen_fagsak_med_lik_ytelse_type_og_ulik_aktør() {
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB));
+        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
-        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB));
+        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak2);
 
         relasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
@@ -79,7 +78,7 @@ public class FagsakRelasjonRepositoryImplTest {
 
     @Test
     public void skal_lage_relasjon_når_mangler() {
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB));
+        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         relasjonRepository.opprettEllerOppdaterRelasjon(fagsak, Optional.empty(), Dekningsgrad._100);
         final FagsakRelasjon fagsakRelasjon = relasjonRepository.finnRelasjonFor(fagsak);
@@ -91,7 +90,7 @@ public class FagsakRelasjonRepositoryImplTest {
     @Test
     public void skal_oppdatere_relasjon_når_1gang() {
 
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB));
+        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
 
@@ -113,8 +112,8 @@ public class FagsakRelasjonRepositoryImplTest {
     @Test
     public void skal_overstyre_dekningsgrad_eier_av_relasjon(){
         // Arrange
-        final Fagsak fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB));
-        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB));
+        final Fagsak fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak1);
         fagsakRepository.opprettNy(fagsak2);
         relasjonRepository.opprettRelasjon(fagsak1, Dekningsgrad._80);
@@ -138,8 +137,8 @@ public class FagsakRelasjonRepositoryImplTest {
     @Test
     public void skal_overstyre_dekningsgrad_ikke_eier_av_relasjon(){
         // Arrange
-        final Fagsak fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB));
-        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB));
+        final Fagsak fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak1);
         fagsakRepository.opprettNy(fagsak2);
         relasjonRepository.opprettRelasjon(fagsak1, Dekningsgrad._80);
@@ -164,7 +163,7 @@ public class FagsakRelasjonRepositoryImplTest {
     public void skal_finne_relasjon_med_saksnummer(){
         // Arrange
         Saksnummer saksnummer = new Saksnummer("1337");
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB), RelasjonsRolleType.MORA, saksnummer);
+        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), RelasjonsRolleType.MORA, saksnummer);
         fagsakRepository.opprettNy(fagsak);
         relasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._80);
 
@@ -179,8 +178,8 @@ public class FagsakRelasjonRepositoryImplTest {
     @Test
     public void skal_oppdatere_med_avslutningsdato(){
         // Arrange
-        final Fagsak fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB));
-        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB));
+        final Fagsak fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak1);
         fagsakRepository.opprettNy(fagsak2);
         relasjonRepository.opprettRelasjon(fagsak1, Dekningsgrad._100);

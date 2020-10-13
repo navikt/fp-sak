@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkin
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.person.dkif.DkifSpråkKlient;
 import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
+import no.nav.foreldrepenger.domene.person.pdl.PersonBasisTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.TilknytningTjeneste;
 import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
 import no.nav.foreldrepenger.domene.person.tps.TpsFeilmeldinger;
@@ -37,6 +38,7 @@ public class PersoninfoAdapter {
     private TpsAdapter tpsAdapter;
     private FødselTjeneste fødselTjeneste;
     private TilknytningTjeneste tilknytningTjeneste;
+    private PersonBasisTjeneste basisTjeneste;
     private DkifSpråkKlient dkifSpråkKlient;
 
     public PersoninfoAdapter() {
@@ -52,10 +54,12 @@ public class PersoninfoAdapter {
     public PersoninfoAdapter(TpsAdapter tpsAdapter,
                              FødselTjeneste fødselTjeneste,
                              TilknytningTjeneste tilknytningTjeneste,
+                             PersonBasisTjeneste basisTjeneste,
                              DkifSpråkKlient dkifSpråkKlient) {
         this.tpsAdapter = tpsAdapter;
         this.fødselTjeneste = fødselTjeneste;
         this.tilknytningTjeneste = tilknytningTjeneste;
+        this.basisTjeneste = basisTjeneste;
         this.dkifSpråkKlient = dkifSpråkKlient;
     }
 
@@ -152,7 +156,9 @@ public class PersoninfoAdapter {
 
     public Optional<PersoninfoBasis> hentBrukerBasisForAktør(AktørId aktørId) {
         Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
-        return funnetFnr.map(fnr -> tpsAdapter.hentKjerneinformasjonBasis(fnr, aktørId));
+        Optional<PersoninfoBasis> pi = funnetFnr.map(fnr -> tpsAdapter.hentKjerneinformasjonBasis(fnr, aktørId));
+        pi.ifPresent(p -> basisTjeneste.hentBasisPersoninfo(aktørId, p.getPersonIdent(), p));
+        return pi;
     }
 
     public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {
@@ -176,7 +182,7 @@ public class PersoninfoAdapter {
                 if (fraTPS.getForetrukketSpråk().equals(fraDkif)) {
                     LOG.info("FPSAK PDL DKIF: like svar");
                 } else {
-                    LOG.info("FPSAK PDL DKIF: ulike svar TPS {} og DKIF {}", fraTPS, fraDkif);
+                    LOG.info("FPSAK PDL DKIF: ulike svar TPS {} og DKIF {}", fraTPS.getForetrukketSpråk(), fraDkif);
                 }
             } catch (Exception e) {
                 LOG.info("FPSAK PDL DKIF: feil", e);

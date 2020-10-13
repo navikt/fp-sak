@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.dto.AndreYtelserDto;
@@ -70,8 +69,7 @@ public class SøknadMapperUtil {
     }
 
     public static NavBruker opprettBruker() {
-        AktørId aktørId = AktørId.dummy();
-        return NavBruker.opprettNy(aktørId, Språkkode.NB);
+        return NavBruker.opprettNyNB(AktørId.dummy());
 
     }
 

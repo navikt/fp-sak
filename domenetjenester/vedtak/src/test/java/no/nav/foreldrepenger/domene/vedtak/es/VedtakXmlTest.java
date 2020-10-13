@@ -168,7 +168,7 @@ public class VedtakXmlTest {
     }
 
     private Fagsak opprettFagsak() {
-        NavBruker søker = NavBruker.opprettNy(personinfoMor.getAktørId(), Språkkode.NB);
+        NavBruker søker = NavBruker.opprettNyNB(personinfoMor.getAktørId());
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, søker);
         fagsakRepository.opprettNy(fagsak);
         return fagsak;

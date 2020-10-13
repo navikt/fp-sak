@@ -10,7 +10,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -21,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
@@ -40,7 +38,7 @@ public class YtelsesFordelingRepositoryImplTest {
 
     @Before
     public void setup() {
-        fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(lagPersoninfo()));
+        fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
 
         behandling = Behandling.forFørstegangssøknad(fagsak).build();
@@ -94,10 +92,6 @@ public class YtelsesFordelingRepositoryImplTest {
             .medPeriode(fom, tom)
             .medPeriodeType(uttakPeriodeType)
             .build();
-    }
-
-    private PersoninfoSpråk lagPersoninfo() {
-        return new PersoninfoSpråk(AktørId.dummy(), Språkkode.NB);
     }
 
 }

@@ -42,7 +42,7 @@ public class TpsFamilieTjenesteTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        personinfoAdapter = new PersoninfoAdapter(tpsTjeneste, fødselTjeneste, null, null);
+        personinfoAdapter = new PersoninfoAdapter(tpsTjeneste, fødselTjeneste, null, null, null);
     }
 
     @Test

@@ -61,7 +61,7 @@ public class VergeOppdatererTest {
         @SuppressWarnings("unused")
         Behandling behandling = scenario.lagMocked();
 
-        vergeBruker = NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
+        vergeBruker = NavBruker.opprettNyNB(AktørId.dummy());
 
         lenient().when(personinfoAdapter.hentAktørForFnr(Mockito.any())).thenReturn(Optional.of(AktørId.dummy()));
         lenient().when(personinfoAdapter.hentForetrukketSpråk(Mockito.any())).thenReturn(new PersoninfoSpråk(vergeBruker.getAktørId(), Språkkode.NB));

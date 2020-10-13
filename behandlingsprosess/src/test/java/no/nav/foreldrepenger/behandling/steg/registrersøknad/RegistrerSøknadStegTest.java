@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDoku
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -58,7 +57,7 @@ public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
 
         AktørId aktørId = AktørId.dummy();
         Long fagsakId = fagsakRepository
-            .opprettNy(new Fagsak(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(aktørId, Språkkode.NB), RelasjonsRolleType.MORA, new Saksnummer("123")));
+            .opprettNy(new Fagsak(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørId), RelasjonsRolleType.MORA, new Saksnummer("123")));
 
         Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         Behandling forrigeBehandling = Behandling.forFørstegangssøknad(fagsak)
@@ -88,7 +87,7 @@ public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
 
         var aktørId = AktørId.dummy();
         Long fagsakId = fagsakRepository
-            .opprettNy(new Fagsak(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNy(aktørId, Språkkode.NB), RelasjonsRolleType.MORA, new Saksnummer("124")));
+            .opprettNy(new Fagsak(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNyNB(aktørId), RelasjonsRolleType.MORA, new Saksnummer("124")));
 
         Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         Behandling forrigeBehandling = Behandling.forFørstegangssøknad(fagsak)

@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseHåndteringRepository;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -40,7 +39,7 @@ public class HendelseHåndteringRepositoryImplTest {
         AktørId barnAktørId = AktørId.dummy();
         LocalDate fødselsdato = LocalDate.now();
 
-        NavBruker navBruker = NavBruker.opprettNy(morAktørId, Språkkode.NB);
+        NavBruker navBruker = NavBruker.opprettNyNB(morAktørId);
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         repository.lagre(navBruker);
         repository.lagre(fagsak);

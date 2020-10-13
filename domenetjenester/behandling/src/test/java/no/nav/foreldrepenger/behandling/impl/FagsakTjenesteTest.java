@@ -64,7 +64,7 @@ public class FagsakTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Fagsak lagNyFagsak() {
-        NavBruker søker = NavBruker.opprettNy(forelderAktørId, Språkkode.NB);
+        NavBruker søker = NavBruker.opprettNyNB(forelderAktørId);
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, søker);
         tjeneste.opprettFagsak(fagsak);
         return fagsak;
