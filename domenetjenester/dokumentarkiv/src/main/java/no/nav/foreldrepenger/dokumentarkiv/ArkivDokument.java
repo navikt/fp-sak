@@ -38,7 +38,7 @@ public class ArkivDokument {
     }
 
     public List<ArkivDokumentVedlegg> getInterneVedlegg() {
-        return interneVedlegg;
+        return interneVedlegg != null ? interneVedlegg : List.of();
     }
 
     public void setInterneVedlegg(List<ArkivDokumentVedlegg> interneVedlegg) {
@@ -46,7 +46,7 @@ public class ArkivDokument {
     }
 
     public List<ArkivDokumentHentbart> getTilgjengeligSom() {
-        return tilgjengeligSom;
+        return tilgjengeligSom != null ? tilgjengeligSom : List.of();
     }
 
     public void setTilgjengeligSom(List<ArkivDokumentHentbart> tilgjengeligSom) {

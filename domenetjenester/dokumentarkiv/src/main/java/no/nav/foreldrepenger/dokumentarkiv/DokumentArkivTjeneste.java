@@ -111,12 +111,9 @@ public class DokumentArkivTjeneste {
     }
 
     private boolean erDokumentArkivPdf(ArkivDokument arkivDokument) {
-        for (ArkivDokumentHentbart format : arkivDokument.getTilgjengeligSom()) {
-            if (variantFormatArkiv.equals(format.getVariantFormat()) && filTyperPdf.contains(format.getArkivFilType())) {
-                return true;
-            }
-        }
-        return false;
+        return arkivDokument.getTilgjengeligSom().stream()
+            .filter(f -> f.getVariantFormat() != null)
+            .anyMatch(f -> variantFormatArkiv.equals(f.getVariantFormat()) && (f.getArkivFilType() == null || filTyperPdf.contains(f.getArkivFilType())));
     }
 
     public List<ArkivJournalPost> hentAlleJournalposterForSak(Saksnummer saksnummer) {

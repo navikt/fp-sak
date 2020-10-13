@@ -112,8 +112,8 @@ public class BehandlingRestTjeneste {
     public static final String SETT_PA_VENT_PATH = BASE_PATH + SETT_PA_VENT_PART_PATH;
     private static final String HANDLING_RETTIGHETER_PART_PATH = "/handling-rettigheter";
     public static final String HANDLING_RETTIGHETER_PATH = BASE_PATH + HANDLING_RETTIGHETER_PART_PATH;
-    private static final String HANDLING_OPPRETTING_PART_PATH = "/handling-oppretting";
-    public static final String HANDLING_OPPRETTING_PATH = BASE_PATH + HANDLING_OPPRETTING_PART_PATH;
+    private static final String HANDLING_RETTIGHETER_V2_PART_PATH = "/handling-rettigheter-v2";
+    public static final String HANDLING_RETTIGHETER_V2_PATH = BASE_PATH + HANDLING_RETTIGHETER_V2_PART_PATH;
     private static final String ENDRE_VENTEFRIST_PART_PATH = "/endre-pa-vent";
     public static final String ENDRE_VENTEFRIST_PATH = BASE_PATH + ENDRE_VENTEFRIST_PART_PATH;
 
@@ -428,7 +428,7 @@ public class BehandlingRestTjeneste {
     }
 
     @GET
-    @Path(HANDLING_OPPRETTING_PART_PATH)
+    @Path(HANDLING_RETTIGHETER_V2_PATH)
     @Operation(description = "Henter rettigheter for lovlige behandlingsoppretting", tags = "behandlinger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SakRettigheterDto hentMuligeBehandlingOpprettinger(

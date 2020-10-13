@@ -157,7 +157,7 @@ public class BehandlingDtoTjeneste {
 
         // Felles for alle behandlingstyper
         dto.leggTil(get(BehandlingRestTjeneste.HANDLING_RETTIGHETER_PATH, "handling-rettigheter", uuidDto));
-        dto.leggTil(get(BehandlingRestTjeneste.HANDLING_OPPRETTING_PATH, "handling-oppretting", uuidDto));
+        dto.leggTil(get(BehandlingRestTjeneste.HANDLING_RETTIGHETER_V2_PATH, "handling-rettigheter-v2", uuidDto));
 
         if (behandling.erYtelseBehandling()) {
             dto.leggTil(get(VergeRestTjeneste.VERGE_BEHANDLINGSMENY_PATH, "finn-menyvalg-for-verge", uuidDto));
@@ -449,7 +449,7 @@ public class BehandlingDtoTjeneste {
         dto.setAvslagsarsak(behandlingsresultat.getAvslagsårsak());
         dto.setKonsekvenserForYtelsen(behandlingsresultat.getKonsekvenserForYtelsen());
         dto.setRettenTil(behandlingsresultat.getRettenTil());
-        dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling).orElse(null));
+        dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling, behandlingsresultat).orElse(null));
         dto.setErRevurderingMedUendretUtfall(erRevurderingMedUendretUtfall(behandling));
 
         Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
@@ -467,8 +467,8 @@ public class BehandlingDtoTjeneste {
         return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType()).orElseThrow().erRevurderingMedUendretUtfall(behandling);
     }
 
-    private Optional<SkjæringstidspunktDto> finnSkjæringstidspunktForBehandling(Behandling behandling) {
-        if (!behandling.erYtelseBehandling()) {
+    private Optional<SkjæringstidspunktDto> finnSkjæringstidspunktForBehandling(Behandling behandling, Behandlingsresultat behandlingsresultat) {
+        if (!behandling.erYtelseBehandling() || behandlingsresultat.isBehandlingHenlagt()) {
             return Optional.empty();
         }
         Optional<LocalDate> skjæringstidspunktHvisUtledet = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getSkjæringstidspunktHvisUtledet();
