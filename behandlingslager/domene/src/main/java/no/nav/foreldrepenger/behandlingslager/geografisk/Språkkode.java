@@ -2,9 +2,8 @@ package no.nav.foreldrepenger.behandlingslager.geografisk;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -66,11 +65,7 @@ public enum Språkkode implements Kodeverdi {
             return null;
         }
         String kode = TempAvledeKode.getVerdi(Språkkode.class, node, "kode");
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent Språkkode: " + kode);
-        }
-        return ad;
+        return finnSpråkIgnoreCase(kode).orElseThrow(() -> new IllegalArgumentException("Ukjent Språkkode: " + kode));
     }
 
     public static Map<String, Språkkode> kodeMap() {
@@ -118,10 +113,18 @@ public enum Språkkode implements Kodeverdi {
 
 
     public static Språkkode finnForKodeverkEiersKode(String offisiellSpråkkode) {
-        return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, offisiellSpråkkode)).findFirst().orElse(Språkkode.NB);
+        var kode = offisiellSpråkkode == null ? null : offisiellSpråkkode.toUpperCase();
+        return finnSpråkIgnoreCase(kode).orElse(Språkkode.NB);
     }
 
     public static Språkkode defaultNorsk(String kode) {
-        return kode == null ? Språkkode.NB : KODER.getOrDefault(kode, Språkkode.NB);
+        return finnSpråkIgnoreCase(kode).orElse(Språkkode.NB);
+    }
+
+    private static Optional<Språkkode> finnSpråkIgnoreCase(String kode) {
+        if (kode == null) {
+            return Optional.empty();
+        }
+        return KODER.entrySet().stream().filter(e -> kode.equalsIgnoreCase(e.getKey())).findFirst().map(Map.Entry::getValue);
     }
 }
