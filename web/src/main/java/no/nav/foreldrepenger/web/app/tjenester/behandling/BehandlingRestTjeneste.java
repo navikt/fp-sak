@@ -8,6 +8,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDAT
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -57,6 +58,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOperasjonerDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingRettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ByttBehandlendeEnhetDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.GjenopptaBehandlingDto;
@@ -432,25 +435,16 @@ public class BehandlingRestTjeneste {
         @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
         Saksnummer saksnummer = new Saksnummer(s.getVerdi());
         Fagsak f = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false).orElseThrow();
-        var builder = SakRettigheterDto.builder();
-        if (f.getSkalTilInfotrygd())
-            builder.skalTilInfotrygd();
-        behandlingsutredningApplikasjonTjeneste.hentBehandlingerForSaksnummer(saksnummer).stream()
+        var operasjoner = behandlingsutredningApplikasjonTjeneste.hentBehandlingerForSaksnummer(saksnummer).stream()
             .filter(b -> !b.erSaksbehandlingAvsluttet() && !BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus()))
-            .forEach(b -> {
-                builder.kanBytteEnhet(b.getUuid()).kanHenlegges(b.getUuid());
-                if (!b.isBehandlingPåVent()) {
-                    builder.kanSettesPaVent(b.getUuid());
-                } else {
-                    builder.kanGjenopptas(b.getUuid());
-                }
-                if (!FagsakYtelseType.ENGANGSTØNAD.equals(f.getYtelseType()) && b.erRevurdering() && !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
-                    builder.kanOpnesForEndringer(b.getUuid());
-            });
-         Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
+            .map(b -> new BehandlingOperasjonerDto(b.getUuid(), true, true, b.isBehandlingPåVent(), !b.isBehandlingPåVent(),
+                    !FagsakYtelseType.ENGANGSTØNAD.equals(f.getYtelseType()) && b.erRevurdering() && !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)))
+            .collect(Collectors.toList());
+         var oppretting = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
             .flatMap(Collection::stream)
-            .forEach(bt -> builder.behandlingTypeKanOpprettes(bt, behandlingsoppretterApplikasjonTjeneste.kanOppretteNyBehandlingAvType(f.getId(), bt)));
-        return builder.build();
+            .map(bt -> new BehandlingOpprettingDto(bt, behandlingsoppretterApplikasjonTjeneste.kanOppretteNyBehandlingAvType(f.getId(), bt)))
+             .collect(Collectors.toList());
+        return new SakRettigheterDto(f.getSkalTilInfotrygd(), oppretting, operasjoner);
     }
 
 
