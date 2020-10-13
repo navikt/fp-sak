@@ -108,19 +108,27 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                                             InntektArbeidYtelseGrunnlag iayGrunnlag,
                                             InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder,
                                             SvpArbeidsforholdDto arbeidsforhold) {
-        Optional<Yrkesaktivitet> yrkesaktivitet = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId()))
+        List<Yrkesaktivitet> yrkesaktiviteter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId()))
             .getYrkesaktiviteter().stream()
             .filter(ya -> ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(arbeidsforhold.getArbeidsgiverIdent()))
             .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(InternArbeidsforholdRef.ref(arbeidsforhold.getInternArbeidsforholdReferanse())))
-            .findFirst();
-        List<VelferdspermisjonDto> velferdspermisjoner = arbeidsforhold.getVelferdspermisjoner();
-        if (yrkesaktivitet.isPresent() && velferdspermisjoner != null) {
-            List<Permisjon> inkludertePermisjoner = finnGyldigePermisjoner(yrkesaktivitet.get(), velferdspermisjoner);
-            YrkesaktivitetBuilder yrkesaktivitetBuilder = aktørArbeidBuilder
-                .getYrkesaktivitetBuilderForNøkkelAvType(Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(yrkesaktivitet.get().getArbeidsforholdRef(), yrkesaktivitet.get().getArbeidsgiver()), yrkesaktivitet.get().getArbeidType())
-                .tilbakestillPermisjon();
-            inkludertePermisjoner.forEach(yrkesaktivitetBuilder::leggTilPermisjon);
-        }
+            .collect(Collectors.toList());
+        yrkesaktiviteter.forEach(yrkesaktivitet -> {
+            List<VelferdspermisjonDto> velferdspermisjoner = arbeidsforhold.getVelferdspermisjoner();
+            if (velferdspermisjoner != null && harEndretPermisjonForYrkesaktivitet(yrkesaktivitet, velferdspermisjoner)) {
+                List<Permisjon> inkludertePermisjoner = finnGyldigePermisjoner(yrkesaktivitet, velferdspermisjoner);
+                    YrkesaktivitetBuilder yrkesaktivitetBuilder = aktørArbeidBuilder
+                        .getYrkesaktivitetBuilderForNøkkelAvType(Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(yrkesaktivitet.getArbeidsforholdRef(), yrkesaktivitet.getArbeidsgiver()), yrkesaktivitet.getArbeidType())
+                        .tilbakestillPermisjon();
+                    inkludertePermisjoner.forEach(yrkesaktivitetBuilder::leggTilPermisjon);
+            }
+        });
+    }
+
+    private boolean harEndretPermisjonForYrkesaktivitet(Yrkesaktivitet yrkesaktivitet, List<VelferdspermisjonDto> velferdspermisjoner) {
+        return yrkesaktivitet.getPermisjon().stream()
+            .anyMatch(p -> p.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.VELFERDSPERMISJON)
+                && velferdspermisjoner.stream().anyMatch(vp -> vp.getPermisjonFom().isEqual(p.getFraOgMed()) && vp.getPermisjonsprosent().compareTo(p.getProsentsats().getVerdi()) == 0));
     }
 
     private List<Permisjon> finnGyldigePermisjoner(Yrkesaktivitet yrkesaktivitet, List<VelferdspermisjonDto> velferdspermisjoner) {
