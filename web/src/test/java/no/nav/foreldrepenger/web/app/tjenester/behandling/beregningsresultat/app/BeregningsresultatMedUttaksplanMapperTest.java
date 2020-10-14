@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -377,7 +376,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     private static Behandling lagBehandling() {
-        NavBruker søker = NavBruker.opprettNy(AKTØR_ID, Språkkode.NB);
+        NavBruker søker = NavBruker.opprettNyNB(AKTØR_ID);
         Fagsak fagsak = FagsakBuilder.nyForeldrepengerForMor().medBruker(søker).build();
         var behandling = Behandling.forFørstegangssøknad(fagsak)
                 .build();

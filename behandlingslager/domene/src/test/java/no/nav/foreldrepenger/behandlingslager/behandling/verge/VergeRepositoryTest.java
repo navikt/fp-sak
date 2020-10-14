@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
@@ -106,7 +105,7 @@ public class VergeRepositoryTest {
     }
 
     private NavBruker opprettBruker() {
-        NavBruker navBruker = NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
+        NavBruker navBruker = NavBruker.opprettNyNB(AktørId.dummy());
         repositoryRule.getRepository().lagre(navBruker);
         return navBruker;
     }

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
@@ -21,7 +20,7 @@ public class NavBrukerEntityTest extends EntityManagerAwareTest {
         var navBrukerRepo = new NavBrukerRepository(entityManager);
 
         AktørId aktørId = AktørId.dummy();
-        NavBruker søker = NavBruker.opprettNy(aktørId, Språkkode.NB);
+        NavBruker søker = NavBruker.opprettNyNB(aktørId);
 
         repository.lagre(søker);
         repository.flush();

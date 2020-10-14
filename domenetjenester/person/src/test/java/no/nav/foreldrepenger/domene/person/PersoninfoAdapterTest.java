@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
+import no.nav.foreldrepenger.domene.person.pdl.PersonBasisTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.TilknytningTjeneste;
 import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -31,6 +32,8 @@ public class PersoninfoAdapterTest {
     private FødselTjeneste fødselTjeneste;
     @Mock
     private TilknytningTjeneste tilknytningTjeneste;
+    @Mock
+    private PersonBasisTjeneste basisTjeneste;
 
     private PersoninfoAdapter adapter; // objektet vi tester
 
@@ -57,7 +60,7 @@ public class PersoninfoAdapterTest {
         mockPersoninfo = mock(Personinfo.class);
         lenient().when(mockPersoninfo.getFødselsdato()).thenReturn(LocalDate.now()); // trenger bare en verdi
 
-        adapter = new PersoninfoAdapter(mockTpsAdapter, fødselTjeneste, tilknytningTjeneste, null);
+        adapter = new PersoninfoAdapter(mockTpsAdapter, fødselTjeneste, tilknytningTjeneste, basisTjeneste, null);
     }
 
     @Test

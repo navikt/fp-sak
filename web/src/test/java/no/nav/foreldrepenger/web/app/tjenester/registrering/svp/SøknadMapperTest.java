@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger;
 
@@ -55,7 +54,7 @@ public class SøknadMapperTest {
     }
 
     private NavBruker lagNavBruker() {
-        return NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
+        return NavBruker.opprettNyNB(AktørId.dummy());
     }
 
 }

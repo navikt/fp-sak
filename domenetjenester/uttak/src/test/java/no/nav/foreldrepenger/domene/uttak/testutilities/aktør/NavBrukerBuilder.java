@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.uttak.testutilities.aktør;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class NavBrukerBuilder {
@@ -46,6 +45,6 @@ public class NavBrukerBuilder {
         if (bruker != null) {
             return bruker;
         }
-        return NavBruker.opprettNy(aktørId, Språkkode.NB);
+        return NavBruker.opprettNyNB(aktørId);
     }
 }

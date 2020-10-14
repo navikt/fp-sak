@@ -67,7 +67,7 @@ public class BehandlingDtoForBackendTjenesteTest {
     }
 
     private Behandling lagBehandling() {
-        NavBruker navBruker = NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
+        NavBruker navBruker = NavBruker.opprettNyNB(AktørId.dummy());
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, RelasjonsRolleType.MORA, new Saksnummer("12345"));
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
 

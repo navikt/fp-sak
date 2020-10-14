@@ -10,7 +10,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -96,7 +95,7 @@ public class FagsakRepositoryImplTest {
     }
 
     private Fagsak opprettFagsak(Saksnummer saksnummer, AktørId aktørId) {
-        NavBruker bruker = NavBruker.opprettNy(aktørId, Språkkode.NB);
+        NavBruker bruker = NavBruker.opprettNyNB(aktørId);
 
         // Opprett fagsak
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker, null, saksnummer);

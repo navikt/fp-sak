@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -66,7 +65,7 @@ public class FagsakBehandlingBuilder {
 
     public Fagsak opprettFagsak(FagsakYtelseType ytelse, AktørId aktørId) {
 
-        var bruker = lagredeBrukere.computeIfAbsent(aktørId, aid -> NavBruker.opprettNy(aid, Språkkode.NB));
+        var bruker = lagredeBrukere.computeIfAbsent(aktørId, NavBruker::opprettNyNB);
         em.persist(bruker);
 
         // Opprett fagsak

@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -32,7 +31,7 @@ public class BehandlingslagerTestUtil {
     }
 
     public static final NavBruker lagNavBruker() {
-        return NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
+        return NavBruker.opprettNyNB(AktørId.dummy());
     }
 
     public static final Behandling byggBehandlingFødsel(final Fagsak fagsakFødsel) {

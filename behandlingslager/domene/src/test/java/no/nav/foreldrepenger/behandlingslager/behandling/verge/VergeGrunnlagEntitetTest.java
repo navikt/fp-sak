@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -38,7 +37,7 @@ public class VergeGrunnlagEntitetTest extends EntityManagerAwareTest {
     public void skal_lagre_verge_grunnlag() {
         Behandling behandling = opprettBehandling();
 
-        NavBruker bruker = NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
+        NavBruker bruker = NavBruker.opprettNyNB(AktørId.dummy());
 
         VergeBuilder vergeBuilder = new VergeBuilder()
                 .medVergeType(VergeType.BARN)
@@ -59,7 +58,7 @@ public class VergeGrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     private Fagsak opprettFagsak() {
-        NavBruker bruker = NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB);
+        NavBruker bruker = NavBruker.opprettNyNB(AktørId.dummy());
 
         // Opprett fagsak
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker, null, new Saksnummer("1000"));
