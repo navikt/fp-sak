@@ -2,28 +2,26 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
@@ -32,47 +30,46 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
 import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumer;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class ArbeidsforholdHistorikkinnslagTjenesteTest {
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class ArbeidsforholdHistorikkinnslagTjenesteTest extends EntityManagerAwareTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
-    @Rule
-    public RepositoryRule repositoryRule = new UnittestRepositoryRule();
+    @Mock
+    private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
 
     @Mock
-    private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = Mockito.mock(ArbeidsgiverHistorikkinnslag.class);
+    private JournalConsumer journalConsumer;
 
-    private JournalConsumer mockJournalProxyService = mock(JournalConsumer.class);
-    private IAYRepositoryProvider provider = new IAYRepositoryProvider(repositoryRule.getEntityManager());
-    private HistorikkRepository historikkRepository = new HistorikkRepository(repositoryRule.getEntityManager());
-    private HistorikkInnslagKonverter historikkInnslagKonverter = new HistorikkInnslagKonverter();
-    private DokumentArkivTjeneste dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(mockJournalProxyService, provider.getFagsakRepository());
+    private final HistorikkInnslagKonverter historikkInnslagKonverter = new HistorikkInnslagKonverter();
+
+    private IAYRepositoryProvider provider;
     private HistorikkTjenesteAdapter historikkAdapter;
     private ArbeidsforholdHistorikkinnslagTjeneste arbeidsforholdHistorikkinnslagTjeneste;
-    private Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("1");
-    private InternArbeidsforholdRef ref = InternArbeidsforholdRef.nyRef();
-    Behandling behandling;
-    Aksjonspunkt aksjonspunkt;
-    Skjæringstidspunkt skjæringstidspunkt;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
+        var entityManager = getEntityManager();
+        provider = new IAYRepositoryProvider(entityManager);
+        HistorikkRepository historikkRepository = new HistorikkRepository(entityManager);
+        DokumentArkivTjeneste dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(journalConsumer, provider.getFagsakRepository());
         historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, historikkInnslagKonverter, dokumentApplikasjonTjeneste);
         arbeidsforholdHistorikkinnslagTjeneste = new ArbeidsforholdHistorikkinnslagTjeneste(historikkAdapter, arbeidsgiverHistorikkinnslagTjeneste);
+    }
+
+    private Behandling opprettBehandling() {
         IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        behandling = scenario.lagre(provider);
-        aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
-        skjæringstidspunkt = Skjæringstidspunkt.builder()
-                .medUtledetSkjæringstidspunkt(LocalDate.now())
-                .build();
+        return scenario.lagre(provider);
     }
 
     @Test
     public void skal_ikke_opprette_noen_historikkinnslag_når_arbeidsforholdet_kun_har_null_verdier() {
-
         // Arrange
+        var behandling = opprettBehandling();
+
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukArbeidsforholdet(true);
         arbeidsforholdDto.setFomDato(SKJÆRINGSTIDSPUNKT.minusDays(1));
@@ -80,19 +77,31 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
-                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
-                arbeidsforholdDto, virksomhet, ref, List.of());
+        opprettHistorikkInnslag(behandling, arbeidsforholdDto);
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(0);
 
     }
 
+    private void opprettHistorikkInnslag(Behandling behandling,
+                                         ArbeidsforholdDto arbeidsforholdDto) {
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+            .build();
+        var virksomhet = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
+            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
+            arbeidsforholdDto, virksomhet, ref, List.of());
+    }
+
     @Test
     public void skal_opprette_kun_et_historikkinnslag_når_arbeidsforholdet_skal_kun_bruke_permisjon() {
-
         // Arrange
+        var behandling = opprettBehandling();
+
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukPermisjon(true);
         arbeidsforholdDto.setBrukArbeidsforholdet(true);
@@ -101,9 +110,7 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
-                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
-                arbeidsforholdDto, virksomhet, ref, List.of());
+        opprettHistorikkInnslag(behandling, arbeidsforholdDto);
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(1);
@@ -117,8 +124,9 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
 
     @Test
     public void skal_opprette_kun_et_historikkinnslag_når_arbeidsforholdet_skal_forsette_uten_inntektsmelding() {
-
         // Arrange
+        var behandling = opprettBehandling();
+
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setFortsettBehandlingUtenInntektsmelding(true);
         arbeidsforholdDto.setBrukArbeidsforholdet(true);
@@ -127,9 +135,7 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
-                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
-                arbeidsforholdDto, virksomhet, ref, List.of());
+        opprettHistorikkInnslag(behandling, arbeidsforholdDto);
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(1);
@@ -143,8 +149,9 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
 
     @Test
     public void skal_opprette_to_historikkinnslag_når_arbeidsforholdet_skal_forsette_uten_inntektsmelding_og_ikke_bruke_permisjon() {
-
         // Arrange
+        var behandling = opprettBehandling();
+
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukPermisjon(false);
         arbeidsforholdDto.setFortsettBehandlingUtenInntektsmelding(true);
@@ -154,9 +161,7 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
-                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
-                arbeidsforholdDto, virksomhet, ref, List.of());
+        opprettHistorikkInnslag(behandling, arbeidsforholdDto);
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(2);
@@ -175,8 +180,9 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
 
     @Test
     public void skal_opprette_et_historikkinnslag_når_arbeidsforholdet_ikke_skal_brukes() {
-
         // Arrange
+        var behandling = opprettBehandling();
+
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukArbeidsforholdet(false);
         arbeidsforholdDto.setFomDato(SKJÆRINGSTIDSPUNKT.minusDays(1));
@@ -184,9 +190,7 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
-                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
-                arbeidsforholdDto, virksomhet, ref, List.of());
+        opprettHistorikkInnslag(behandling, arbeidsforholdDto);
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(1);
@@ -200,8 +204,15 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
 
     @Test
     public void skal_ikke_opprette_noen_historikkinnslag_når_arbeidsforholdet_starter_på_stp() {
-
         // Arrange
+        var virksomhet = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+        var behandling = opprettBehandling();
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+                .medUtledetSkjæringstidspunkt(LocalDate.now())
+                .build();
+
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukArbeidsforholdet(true);
         arbeidsforholdDto.setFomDato(SKJÆRINGSTIDSPUNKT);
@@ -209,9 +220,7 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
-                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
-                arbeidsforholdDto, virksomhet, ref, List.of());
+        opprettHistorikkInnslag(behandling, arbeidsforholdDto);
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(0);
@@ -220,6 +229,13 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
 
     @Test
     public void skal_ikke_opprette_noen_historikkinnslag_når_arbeidsforholdet_starter_etter_stp() {
+        var virksomhet = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+        var behandling = opprettBehandling();
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+                .medUtledetSkjæringstidspunkt(LocalDate.now())
+                .build();
 
         // Arrange
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
@@ -229,9 +245,7 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
         when(arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(any(), any(), any())).thenReturn("navn");
 
         // Act
-        arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(
-                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, arbeidsforholdDto.getBegrunnelse()),
-                arbeidsforholdDto, virksomhet, ref, List.of());
+        opprettHistorikkInnslag(behandling, arbeidsforholdDto);
 
         // Assert
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(0);
