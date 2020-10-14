@@ -5,29 +5,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class FamilieHendelseRepositoryImplTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FamilieHendelseRepositoryImplTest extends EntityManagerAwareTest {
 
-    @Rule
-    public RepositoryRule repositoryRule = new UnittestRepositoryRule();
+    private FamilieHendelseRepository repository;
+    private FagsakRepository fagsakRepository;
+    private BehandlingRepository behandlingRepository;
 
-    private FamilieHendelseRepository repository = new FamilieHendelseRepository(repositoryRule.getEntityManager());
-    private FagsakRepository fagsakRepository = new FagsakRepository(repositoryRule.getEntityManager());
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        repository = new FamilieHendelseRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+    }
 
     @Test
     public void skal_lage_søknad_versjon() {
