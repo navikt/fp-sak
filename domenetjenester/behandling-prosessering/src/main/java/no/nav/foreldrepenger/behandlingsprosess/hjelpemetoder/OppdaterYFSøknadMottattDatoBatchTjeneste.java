@@ -118,12 +118,13 @@ public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste 
             var sql = "select * from " +
                 "(select distinct f.id, bruker.AKTOER_ID from fagsak f " +
                 "join behandling b on f.id = b.fagsak_id " +
-                "join BEHANDLING_RESULTAT br on b.id = br.behandling_id and br.BEHANDLING_RESULTAT_TYPE <> :eskluderResultat " +
+                "left join BEHANDLING_RESULTAT br on b.id = br.behandling_id " +
                 "join BRUKER bruker on f.BRUKER_ID = bruker.ID " +
                 "join GR_YTELSES_FORDELING gryf on gryf.behandling_id = b.id and gryf.aktiv = 'J'" +
                 "join YF_FORDELING yf on yf.id in (gryf.SO_FORDELING_ID, gryf.JUSTERT_FORDELING_ID, gryf.OVERSTYRT_FORDELING_ID) " +
                 "join YF_FORDELING_PERIODE yfp on yfp.FORDELING_ID = yf.ID " +
-                "where b.id = gryf.behandling_id and yfp.mottatt_dato_temp is null order by f.id desc) " +
+                "where b.id = gryf.behandling_id and yfp.mottatt_dato_temp is null " +
+                "and (br.behandling_resultat_type is null or br.behandling_resultat_type <> :eskluderResultat) order by f.id desc) " +
                 "where ROWNUM <= :antall";
 
             var query = entityManager.createNativeQuery(sql);

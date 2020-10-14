@@ -71,10 +71,9 @@ public class FastsettePerioderRegelResultatKonverterer {
         var ref = input.getBehandlingReferanse();
         Long behandlingId = ref.getBehandlingId();
         OppgittFordelingEntitet oppgittFordeling = hentOppgittFordeling(behandlingId);
-        LocalDate søknadMottattDato = input.getSøknadMottattDato();
         UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
 
-        List<PeriodeSøknad> periodeSøknader = lagPeriodeSøknader(oppgittFordeling, søknadMottattDato);
+        List<PeriodeSøknad> periodeSøknader = lagPeriodeSøknader(oppgittFordeling);
         List<FastsettePeriodeResultat> resultatSomSkalKonverteres = resultat.stream()
             .sorted(Comparator.comparing(periodeRes -> periodeRes.getUttakPeriode().getFom()))
             .collect(Collectors.toList());
@@ -111,10 +110,9 @@ public class FastsettePerioderRegelResultatKonverterer {
         }
     }
 
-    private List<PeriodeSøknad> lagPeriodeSøknader(OppgittFordelingEntitet oppgittFordeling,
-                                                   LocalDate søknadMottattDato) {
+    private List<PeriodeSøknad> lagPeriodeSøknader(OppgittFordelingEntitet oppgittFordeling) {
         return oppgittFordeling.getOppgittePerioder().stream()
-            .map(oppgittPeriode -> lagPeriodeSøknad(oppgittPeriode, søknadMottattDato))
+            .map(oppgittPeriode -> lagPeriodeSøknad(oppgittPeriode))
             .collect(Collectors.toList());
     }
 
@@ -330,12 +328,11 @@ public class FastsettePerioderRegelResultatKonverterer {
         return UttakUtsettelseType.UDEFINERT;
     }
 
-    private PeriodeSøknad lagPeriodeSøknad(OppgittPeriodeEntitet oppgittPeriode, LocalDate søknadMottattDato) {
+    private PeriodeSøknad lagPeriodeSøknad(OppgittPeriodeEntitet oppgittPeriode) {
         UttakResultatPeriodeSøknadEntitet.Builder builder = new UttakResultatPeriodeSøknadEntitet.Builder()
             .medGraderingArbeidsprosent(oppgittPeriode.getArbeidsprosent())
             .medUttakPeriodeType(oppgittPeriode.getPeriodeType())
-            .medMottattDato(søknadMottattDato)
-            .medMottattDatoTemp(oppgittPeriode.getMottattDatoTemp())
+            .medMottattDato(oppgittPeriode.getMottattDato())
             .medMorsAktivitet(oppgittPeriode.getMorsAktivitet())
             .medSamtidigUttak(oppgittPeriode.isSamtidigUttak())
             .medSamtidigUttaksprosent(oppgittPeriode.getSamtidigUttaksprosent());

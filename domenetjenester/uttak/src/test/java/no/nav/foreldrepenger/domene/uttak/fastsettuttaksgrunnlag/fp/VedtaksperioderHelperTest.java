@@ -722,7 +722,7 @@ public class VedtaksperioderHelperTest {
             .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medOverføringÅrsak(OverføringÅrsak.SYKDOM_ANNEN_FORELDER)
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
-                .medMottattDatoTemp(LocalDate.of(2017, 1, 1))
+                .medMottattDato(LocalDate.of(2017, 1, 1))
                 .medUttakPeriodeType(UttakPeriodeType.FEDREKVOTE)
                 .build())
             .build();
@@ -745,7 +745,7 @@ public class VedtaksperioderHelperTest {
             .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
                 .medUttakPeriodeType(UttakPeriodeType.FEDREKVOTE)
-                .medMottattDatoTemp(mottattDato)
+                .medMottattDato(mottattDato)
                 .build())
             .build();
         uttaksperiode.leggTilAktivitet(UttakResultatPeriodeAktivitetEntitet
@@ -756,7 +756,7 @@ public class VedtaksperioderHelperTest {
             .build());
 
         OppgittPeriodeEntitet konvertetPeriode = vedtaksperioderHelper.konverter(uttaksperiode);
-        assertThat(konvertetPeriode.getMottattDatoTemp()).isEqualTo(uttaksperiode.getPeriodeSøknad().orElseThrow().getMottattDatoTemp());
+        assertThat(konvertetPeriode.getMottattDato()).isEqualTo(uttaksperiode.getPeriodeSøknad().orElseThrow().getMottattDato());
     }
 
     private UttakAktivitetEntitet opprettArbeidstakerUttakAktivitet(String arbeidsgiverIdentifikator) {

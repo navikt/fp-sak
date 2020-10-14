@@ -280,7 +280,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return getArbeidsprosent() != null && getArbeidsprosent().compareTo(BigDecimal.ZERO) > 0;
     }
 
-    public LocalDate getMottattDatoTemp() {
+    public LocalDate getMottattDato() {
         return mottattDatoTemp;
     }
 
