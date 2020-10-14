@@ -17,7 +17,7 @@ public class DigitalKontaktinfo {
     private Map<String, Kontaktinformasjon> kontaktinfo;
 
     public Optional<String> getSpraak(String ident) {
-        return Optional.ofNullable(kontaktinfo.get(ident)).map(Kontaktinformasjon::getSpraak);
+        return Optional.ofNullable(kontaktinfo).map(k -> k.get(ident)).map(Kontaktinformasjon::getSpraak);
     }
 
     private static class Kontaktinformasjon {

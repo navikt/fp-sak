@@ -56,7 +56,6 @@ public class DkifSpråkKlient {
     }
 
     private Set<Header> lagHeader(String fnr) {
-        //return Set.of(new BasicHeader(HEADER_NAV_PERSONIDENT, "List [ \"" + fnr + "\" ]"));
         return Set.of(new BasicHeader(HEADER_NAV_PERSONIDENT, fnr));
     }
 }

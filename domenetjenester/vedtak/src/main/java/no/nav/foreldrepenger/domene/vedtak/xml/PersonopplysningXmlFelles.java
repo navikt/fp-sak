@@ -6,7 +6,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
@@ -56,7 +56,7 @@ public class PersonopplysningXmlFelles {
     }
 
     public String hentVergeNavn(AktørId aktørId) {
-        return personinfoAdapter.hentBrukerBasisForAktør(aktørId).map(PersoninfoBasis::getNavn).orElse("Ukjent navn"); //$NON-NLS-1$
+        return personinfoAdapter.hentBrukerArbeidsgiverForAktør(aktørId).map(PersoninfoArbeidsgiver::getNavn).orElse("Ukjent navn"); //$NON-NLS-1$
     }
 
     public PersonIdentifiserbar lagBruker(PersonopplysningerAggregat aggregat, PersonopplysningEntitet personopplysning) {

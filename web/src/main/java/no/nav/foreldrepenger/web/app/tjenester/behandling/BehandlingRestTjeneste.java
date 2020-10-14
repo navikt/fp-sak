@@ -51,7 +51,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterApplikasjonTjeneste;
@@ -437,8 +436,9 @@ public class BehandlingRestTjeneste {
         Fagsak f = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false).orElseThrow();
         var operasjoner = behandlingsutredningApplikasjonTjeneste.hentBehandlingerForSaksnummer(saksnummer).stream()
             .filter(b -> !b.erSaksbehandlingAvsluttet() && !BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus()))
-            .map(b -> new BehandlingOperasjonerDto(b.getUuid(), true, true, b.isBehandlingPåVent(), !b.isBehandlingPåVent(),
-                    !FagsakYtelseType.ENGANGSTØNAD.equals(f.getYtelseType()) && b.erRevurdering() && !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)))
+            .map(b -> new BehandlingOperasjonerDto(b.getUuid(), !b.erKøet(), true,
+                b.isBehandlingPåVent() && !b.erKøet(), !b.isBehandlingPåVent(),
+                b.erRevurdering() && !b.isBehandlingPåVent() && !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !b.erKøet()))
             .collect(Collectors.toList());
          var oppretting = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
             .flatMap(Collection::stream)

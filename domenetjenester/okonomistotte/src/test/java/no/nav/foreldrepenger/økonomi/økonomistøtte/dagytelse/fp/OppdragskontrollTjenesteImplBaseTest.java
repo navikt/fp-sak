@@ -18,7 +18,6 @@ import javax.persistence.EntityManager;
 import org.junit.Rule;
 
 import no.finn.unleash.FakeUnleash;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -73,6 +72,7 @@ import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.HentOppdragMedPositivKvittering;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFactory;
@@ -124,7 +124,7 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
 
     Behandling behandling;
     Fagsak fagsak;
-    Personinfo personInfo;
+    PersonIdent personIdent = PersonIdent.fra("12345678901");
     BehandlingVedtak behVedtak;
 
     protected String virksomhet = ARBEIDSFORHOLD_ID;
@@ -153,8 +153,7 @@ public abstract class OppdragskontrollTjenesteImplBaseTest {
 
         behandling = opprettOgLagreBehandling(FamilieYtelseType.FØDSEL);
 
-        personInfo = OpprettBehandlingForOppdrag.opprettPersonInfo();
-        when(personinfoAdapterMock.hentFnrForAktør(any(AktørId.class))).thenReturn(personInfo.getPersonIdent());
+        when(personinfoAdapterMock.hentFnrForAktør(any(AktørId.class))).thenReturn(personIdent);
     }
 
     protected Behandling opprettOgLagreBehandlingFPForSammeFagsak(Fagsak fagsak) {

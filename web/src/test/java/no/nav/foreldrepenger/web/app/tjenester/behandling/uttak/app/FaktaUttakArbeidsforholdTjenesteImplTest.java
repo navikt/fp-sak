@@ -2,20 +2,19 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -23,26 +22,30 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class FaktaUttakArbeidsforholdTjenesteImplTest {
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FaktaUttakArbeidsforholdTjenesteImplTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
+    private static final String NAVN = "Person Navn";
+    private static final LocalDate FØDSEL = LocalDate.of(2000, 1, 1);
+
+    @Mock
+    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
 
     @Test
     public void skalReturnereArbeidsforhold() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(new BehandlingRepositoryProvider(repositoryRule.getEntityManager()));
+        Behandling behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
 
         String virksomhetOrgnr1 = "123";
         String virksomhetOrgnr2 = "456";
@@ -50,12 +53,11 @@ public class FaktaUttakArbeidsforholdTjenesteImplTest {
         Virksomhet virksomhet2 = lagVirksomhet(virksomhetOrgnr2, "navn2");
 
         AktørId aktørId = AktørId.dummy();
-        Personinfo personinfo = lagrePerson(aktørId, "Person Navn", LocalDate.of(2000, 1, 1));
         Arbeidsgiver virksomhet123 = Arbeidsgiver.virksomhet(virksomhetOrgnr1);
         Arbeidsgiver virksomhet456 = Arbeidsgiver.virksomhet(virksomhetOrgnr2);
         Arbeidsgiver person = Arbeidsgiver.person(aktørId);
 
-        Mockito.when(arbeidsgiverTjeneste.hent(person)).thenReturn(new ArbeidsgiverOpplysninger(aktørId.getId(), personinfo.getNavn(), personinfo.getFødselsdato()));
+        Mockito.when(arbeidsgiverTjeneste.hent(person)).thenReturn(new ArbeidsgiverOpplysninger(aktørId.getId(), NAVN, FØDSEL));
         Mockito.when(arbeidsgiverTjeneste.hent(virksomhet123)).thenReturn(new ArbeidsgiverOpplysninger(virksomhet123.getOrgnr(), virksomhet1.getNavn()));
         Mockito.when(arbeidsgiverTjeneste.hent(virksomhet456)).thenReturn(new ArbeidsgiverOpplysninger(virksomhet456.getOrgnr(), virksomhet2.getNavn()));
 
@@ -82,8 +84,8 @@ public class FaktaUttakArbeidsforholdTjenesteImplTest {
 
         var dtoForPerson = finnDtoFor(arbeidsforhold, UttakArbeidType.ORDINÆRT_ARBEID, person);
         assertThat(dtoForPerson.getArbeidsgiver().getIdentifikator()).isNull();
-        assertThat(dtoForPerson.getArbeidsgiver().getNavn()).isEqualTo(personinfo.getNavn());
-        assertThat(dtoForPerson.getArbeidsgiver().getAktørId()).isEqualTo(personinfo.getAktørId());
+        assertThat(dtoForPerson.getArbeidsgiver().getNavn()).isEqualTo(NAVN);
+        assertThat(dtoForPerson.getArbeidsgiver().getAktørId()).isEqualTo(aktørId);
 
         var dtoForFrilans = finnDtoFor(arbeidsforhold, UttakArbeidType.FRILANS, null);
         assertThat(dtoForFrilans).isNotNull();
@@ -116,7 +118,7 @@ public class FaktaUttakArbeidsforholdTjenesteImplTest {
     @Test
     public void skalHåndtereAnnenStatusEnnArbeidstakerFrilansOgSelvstendigNæringsdrivende() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(new BehandlingRepositoryProvider(repositoryRule.getEntityManager()));
+        Behandling behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
 
         FaktaUttakArbeidsforholdTjeneste tjeneste = tjeneste();
 
@@ -129,16 +131,6 @@ public class FaktaUttakArbeidsforholdTjenesteImplTest {
 
     private BehandlingReferanse lagReferanse(Behandling behandling) {
         return BehandlingReferanse.fra(behandling, LocalDate.now());
-    }
-
-    private Personinfo lagrePerson(AktørId aktørId, String navn, LocalDate fødselsdato) {
-        return new Personinfo.Builder()
-            .medNavn(navn)
-            .medFødselsdato(fødselsdato)
-            .medAktørId(aktørId)
-            .medPersonIdent(new PersonIdent("ident"))
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .build();
     }
 
     private Virksomhet lagVirksomhet(String orgnr, String navn) {

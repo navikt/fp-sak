@@ -13,8 +13,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
@@ -221,11 +220,10 @@ public class MedlemDtoTjenesteTest {
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
                 new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
 
-        PersoninfoBasis person = new PersoninfoBasis.Builder()
+        var person = new PersoninfoArbeidsgiver.Builder()
                 .medNavn(annenPart)
                 .medAktørId(AktørId.dummy())
                 .medPersonIdent(new PersonIdent("12312411252"))
-                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
                 .medFødselsdato(LocalDate.now())
                 .build();
 

@@ -498,7 +498,7 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteImplBase
             .medSaksnummer(behandling.getFagsak().getSaksnummer())
             .medFagsakYtelseType(behandling.getFagsakYtelseType())
             .medBehandlingVedtak(behandlingVedtakFP)
-            .medPersonIdent(personInfo.getPersonIdent())
+            .medPersonIdent(personIdent)
             .medForenkletBeregningsresultat(tilkjentYtelseFP)
             .medTilkjentYtelsePerioderFomEndringsdato(Collections.emptyList())
             .medTidligereBehandlingInfo(forrigeOppdragInputFPFP)

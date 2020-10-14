@@ -16,7 +16,9 @@ import org.threeten.extra.Interval;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
@@ -158,6 +160,22 @@ public class PersoninfoAdapter {
         Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
         Optional<PersoninfoBasis> pi = funnetFnr.map(fnr -> tpsAdapter.hentKjerneinformasjonBasis(fnr, aktørId));
         pi.ifPresent(p -> basisTjeneste.hentBasisPersoninfo(aktørId, p.getPersonIdent(), p));
+        return pi;
+    }
+
+    public Optional<PersoninfoArbeidsgiver> hentBrukerArbeidsgiverForAktør(AktørId aktørId) {
+        Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
+        Optional<PersoninfoArbeidsgiver> pi = funnetFnr.map(fnr -> tpsAdapter.hentKjerneinformasjonBasis(fnr, aktørId))
+            .map(p -> new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(p.getPersonIdent()).medNavn(p.getNavn()).medFødselsdato(p.getFødselsdato()).build());
+        pi.ifPresent(p -> basisTjeneste.hentArbeidsgiverPersoninfo(aktørId, p.getPersonIdent(), p));
+        return pi;
+    }
+
+    public Optional<PersoninfoKjønn> hentBrukerKjønnForAktør(AktørId aktørId) {
+        Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
+        Optional<PersoninfoKjønn> pi = funnetFnr.map(fnr -> tpsAdapter.hentKjerneinformasjonBasis(fnr, aktørId))
+            .map(p -> new PersoninfoKjønn.Builder().medAktørId(aktørId).medPersonIdent(p.getPersonIdent()).medNavBrukerKjønn(p.getKjønn()).build());
+        pi.ifPresent(p -> basisTjeneste.hentKjønnPersoninfo(aktørId, p.getPersonIdent(), p));
         return pi;
     }
 

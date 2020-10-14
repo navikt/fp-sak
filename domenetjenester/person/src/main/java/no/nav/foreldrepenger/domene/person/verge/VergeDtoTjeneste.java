@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -35,8 +36,8 @@ public class VergeDtoTjeneste {
             dto.setVergeType(verge.getVergeType());
 
             if (verge.getVergeOrganisasjon().isPresent()) {
-                dto.setOrganisasjonsnummer(verge.getVergeOrganisasjon().get().getOrganisasjonsnummer());
-                dto.setNavn(verge.getVergeOrganisasjon().get().getNavn());
+                verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).ifPresent(dto::setOrganisasjonsnummer);
+                verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).ifPresent(dto::setNavn);
             } else if (aggregat.getAktørId().isPresent()){
                 setPersonIdent(aggregat.getAktørId().get(), dto);
             }
@@ -48,7 +49,7 @@ public class VergeDtoTjeneste {
     }
 
     private void setPersonIdent(AktørId aktørId, VergeDto dto) {
-        personinfoAdapter.hentBrukerBasisForAktør(aktørId).ifPresent(pib -> {
+        personinfoAdapter.hentBrukerArbeidsgiverForAktør(aktørId).ifPresent(pib -> {
             dto.setNavn(pib.getNavn());
             dto.setFnr(pib.getPersonIdent().getIdent());
         });
