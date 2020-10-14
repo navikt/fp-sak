@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurde
 
 import java.util.Arrays;
 
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -21,9 +20,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.BrevFeil;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import no.nav.vedtak.util.env.Environment;
 
 public class VedtaksbrevUtleder {
-    private static final String FPSAK_FRITEKSTBREV_FOR_INNV_ENGANGSSTONAD = "fpsak.fritekstForInnvilgelseEngangsstonad";
+    private static final Environment ENV = Environment.current();
 
     private VedtaksbrevUtleder() {
     }
@@ -52,8 +52,7 @@ public class VedtaksbrevUtleder {
     public static DokumentMalType velgDokumentMalForVedtak(Behandling behandling, Behandlingsresultat behandlingsresultat,
                                                            BehandlingVedtak behandlingVedtak,
                                                            KlageRepository klageRepository,
-                                                           AnkeRepository ankeRepository,
-                                                           Unleash unleash) {
+                                                           AnkeRepository ankeRepository) {
         DokumentMalType dokumentMal = null;
 
         if (erLagetFritekstBrev(behandlingsresultat)) {
@@ -65,7 +64,7 @@ public class VedtaksbrevUtleder {
         } else if (erAnkeBehandling(behandlingVedtak)) {
             dokumentMal = velgAnkemal(behandling, ankeRepository);
         } else if (erInnvilget(behandlingVedtak)) {
-            dokumentMal = velgPositivtVedtaksmal(behandling, unleash);
+            dokumentMal = velgPositivtVedtaksmal(behandling);
         } else if (erAvlåttEllerOpphørt(behandlingVedtak)) {
             dokumentMal = velgNegativVedtaksmal(behandling, behandlingsresultat);
         }
@@ -95,10 +94,10 @@ public class VedtaksbrevUtleder {
         return null;
     }
 
-    public static DokumentMalType velgPositivtVedtaksmal(Behandling behandling, Unleash unleash) {
+    public static DokumentMalType velgPositivtVedtaksmal(Behandling behandling) {
         FagsakYtelseType ytelse = behandling.getFagsakYtelseType();
         DokumentMalType dokumentMalTypeES;
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) && (unleash != null && unleash.isEnabled(FPSAK_FRITEKSTBREV_FOR_INNV_ENGANGSSTONAD, false))) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) && !ENV.isProd()) {
             dokumentMalTypeES = DokumentMalType.INNVILGELSE_ENGANGSSTØNAD;
         } else {
             dokumentMalTypeES = DokumentMalType.POSITIVT_VEDTAK_DOK;

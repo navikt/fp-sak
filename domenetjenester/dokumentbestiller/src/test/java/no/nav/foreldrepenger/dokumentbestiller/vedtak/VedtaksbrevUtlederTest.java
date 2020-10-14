@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.finn.unleash.FakeUnleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -40,7 +39,6 @@ public class VedtaksbrevUtlederTest {
     private KlageRepository klageRepository;
     @Mock
     private AnkeRepository ankeRepository;
-    private FakeUnleash fakeUnleash = new FakeUnleash();
 
     @BeforeEach
     public void setup() {
@@ -54,21 +52,21 @@ public class VedtaksbrevUtlederTest {
     @Test
     public void skal_velge_positivt_ES() {
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository, fakeUnleash)).isEqualTo(DokumentMalType.POSITIVT_VEDTAK_DOK);
+                ankeRepository)).isEqualTo(DokumentMalType.INNVILGELSE_ENGANGSSTØNAD);
     }
 
     @Test
     public void skal_velge_negativt_ES() {
         doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository, fakeUnleash)).isEqualTo(DokumentMalType.AVSLAGSVEDTAK_DOK);
+                ankeRepository)).isEqualTo(DokumentMalType.AVSLAGSVEDTAK_DOK);
     }
 
     @Test
     public void skal_velge_positivt_FP() {
         doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository, fakeUnleash)).isEqualTo(DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK);
+                ankeRepository)).isEqualTo(DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK);
     }
 
     @Test
@@ -77,7 +75,7 @@ public class VedtaksbrevUtlederTest {
         doReturn(true).when(behandlingsresultatMock).isBehandlingsresultatOpphørt();
         doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository, fakeUnleash)).isEqualTo(DokumentMalType.OPPHØR_DOK);
+                ankeRepository)).isEqualTo(DokumentMalType.OPPHØR_DOK);
     }
 
     @Test
@@ -85,21 +83,21 @@ public class VedtaksbrevUtlederTest {
         doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
         doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository, fakeUnleash)).isEqualTo(DokumentMalType.AVSLAG_FORELDREPENGER_DOK);
+                ankeRepository)).isEqualTo(DokumentMalType.AVSLAG_FORELDREPENGER_DOK);
     }
 
     @Test
     public void skal_velge_uendret_utfall() {
         doReturn(true).when(behandlingVedtakMock).isBeslutningsvedtak();
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository, fakeUnleash)).isEqualTo(DokumentMalType.UENDRETUTFALL_DOK);
+                ankeRepository)).isEqualTo(DokumentMalType.UENDRETUTFALL_DOK);
     }
 
     @Test
     public void skal_velge_fritekst() {
         doReturn(Vedtaksbrev.FRITEKST).when(behandlingsresultatMock).getVedtaksbrev();
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository, fakeUnleash)).isEqualTo(DokumentMalType.FRITEKST_DOK);
+                ankeRepository)).isEqualTo(DokumentMalType.FRITEKST_DOK);
     }
 
     @Test

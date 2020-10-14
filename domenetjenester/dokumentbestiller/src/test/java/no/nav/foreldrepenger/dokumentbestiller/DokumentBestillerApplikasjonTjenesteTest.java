@@ -9,7 +9,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.finn.unleash.FakeUnleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -32,7 +31,6 @@ public class DokumentBestillerApplikasjonTjenesteTest {
     private Behandling behandling;
     private BehandlingRepositoryProvider repositoryProvider;
     private DokumentBestillerApplikasjonTjeneste tjeneste;
-    FakeUnleash fakeUnleash = new FakeUnleash();
 
     private void settOpp(AbstractTestScenario<?> scenario) {
         this.behandling = scenario.lagMocked();
@@ -45,8 +43,7 @@ public class DokumentBestillerApplikasjonTjenesteTest {
                 null,
                 null,
                 brevHistorikkinnslag,
-                dokumentKafkaBestiller,
-                fakeUnleash);
+                dokumentKafkaBestiller);
     }
 
     @Test
