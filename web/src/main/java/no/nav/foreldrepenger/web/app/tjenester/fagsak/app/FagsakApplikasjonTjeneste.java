@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
@@ -118,6 +119,14 @@ public class FagsakApplikasjonTjeneste {
         }
 
         return tilFagsakView(fagsaker, finnAntallBarnTps(fagsaker), funnetNavBruker.get());
+    }
+
+    public Optional<Fagsak> hentFagsakForSaksnummerBackend(Saksnummer saksnummer) {
+        return fagsakRespository.hentSakGittSaksnummer(saksnummer);
+    }
+
+    public Optional<Dekningsgrad> hentDekningsgradForSaksnummerBackend(Saksnummer saksnummer) {
+        return dekningsgradTjeneste.finnDekningsgrad(saksnummer);
     }
 
     private FagsakSamlingForBruker tilFagsakView(List<Fagsak> fagsaker, Map<Long, Integer> antallBarnPerFagsak, PersoninfoBasis personinfo) {
