@@ -87,7 +87,7 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
     }
 
     private void oppdaterMottattDato(OppgittPeriodeEntitet periode, Behandling behandling, boolean oppdaterFraAP) {
-        if (periode.getMottattDatoTemp() != null) {
+        if (periode.getMottattDato() != null) {
             return;
         }
         var mottattDato = utledMottattDato(periode, behandling, oppdaterFraAP);

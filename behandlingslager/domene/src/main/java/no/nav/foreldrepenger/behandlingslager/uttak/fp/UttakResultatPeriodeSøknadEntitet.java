@@ -77,10 +77,6 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     }
 
     public LocalDate getMottattDato() {
-        return mottattDato;
-    }
-
-    public LocalDate getMottattDatoTemp() {
         return mottattDatoTemp;
     }
 
@@ -128,11 +124,7 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
 
         public Builder medMottattDato(LocalDate mottattDato) {
             kladd.mottattDato = mottattDato;
-            return this;
-        }
-
-        public Builder medMottattDatoTemp(LocalDate mottattDatoTemp) {
-            kladd.mottattDatoTemp = mottattDatoTemp;
+            kladd.mottattDatoTemp = mottattDato;
             return this;
         }
 

@@ -45,7 +45,7 @@ public class OppgittPeriodeMottattDatoTjeneste {
             throw new IllegalStateException("Finner mer enn 1 matchende oppgitt periode i original behandling" +
                 " for periode" + periode.getFom() + " - " + periode.getTom());
         }
-        return Optional.ofNullable(matchendePerioderIOriginalBehandling.get(0).getMottattDatoTemp());
+        return Optional.ofNullable(matchendePerioderIOriginalBehandling.get(0).getMottattDato());
     }
 
     private List<OppgittPeriodeEntitet> finnMatchendePerioder(OppgittPeriodeEntitet periode, Long originalBehandling) {
