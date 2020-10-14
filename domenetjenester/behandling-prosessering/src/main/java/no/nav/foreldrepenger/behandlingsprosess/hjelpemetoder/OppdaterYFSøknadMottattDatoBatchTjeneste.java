@@ -138,9 +138,9 @@ public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste 
             var query = entityManager.createNativeQuery(
                 "SELECT beh.id from BEHANDLING beh " +
                     "join fagsak f on f.id = beh.FAGSAK_ID " +
-                    "join BEHANDLING_RESULTAT br on br.behandling_id = beh.id " +
+                    "left join BEHANDLING_RESULTAT br on br.behandling_id = beh.id " +
                     " WHERE f.id=:fagsakId AND beh.BEHANDLING_TYPE in (:typer) " +
-                    "and br.BEHANDLING_RESULTAT_TYPE <> :eskluderResultat")
+                    "and (br.BEHANDLING_RESULTAT_TYPE is null OR br.BEHANDLING_RESULTAT_TYPE <> :eskluderResultat)")
                 .setParameter("fagsakId", fagsakId)
                 .setParameter("eskluderResultat", BehandlingResultatType.MERGET_OG_HENLAGT.getKode());
             var behandlingstyper = BehandlingType.getYtelseBehandlingTyper().stream()
