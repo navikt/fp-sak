@@ -73,6 +73,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.Behandl
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
@@ -124,6 +125,7 @@ public class BehandlingRestTjeneste {
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
     private BehandlingDtoTjeneste behandlingDtoTjeneste;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
+    private VergeTjeneste vergeTjeneste;
 
     public BehandlingRestTjeneste() {
         // for resteasy
@@ -135,6 +137,7 @@ public class BehandlingRestTjeneste {
             BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
             BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
             FagsakTjeneste fagsakTjeneste,
+            VergeTjeneste vergeTjeneste,
             HenleggBehandlingTjeneste henleggBehandlingTjeneste,
             BehandlingDtoTjeneste behandlingDtoTjeneste,
             RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
@@ -143,6 +146,7 @@ public class BehandlingRestTjeneste {
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
+        this.vergeTjeneste = vergeTjeneste;
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
         this.behandlingDtoTjeneste = behandlingDtoTjeneste;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
@@ -427,7 +431,7 @@ public class BehandlingRestTjeneste {
     }
 
     @GET
-    @Path(HANDLING_RETTIGHETER_V2_PATH)
+    @Path(HANDLING_RETTIGHETER_V2_PART_PATH)
     @Operation(description = "Henter rettigheter for lovlige behandlingsoppretting", tags = "behandlinger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SakRettigheterDto hentMuligeBehandlingOpprettinger(
@@ -439,7 +443,7 @@ public class BehandlingRestTjeneste {
             .map(b -> new BehandlingOperasjonerDto(b.getUuid(), !b.erKøet(), true,
                 b.isBehandlingPåVent() && !b.erKøet(), !b.isBehandlingPåVent(),
                 b.erRevurdering() && !b.isBehandlingPåVent() && !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !b.erKøet(),
-                b.erYtelseBehandling() && !b.isBehandlingPåVent() && b.harSattStartpunkt()))
+                vergeTjeneste.utledBehandlingsmeny(b.getId()).getVergeBehandlingsmeny()))
             .collect(Collectors.toList());
          var oppretting = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
             .flatMap(Collection::stream)

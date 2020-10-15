@@ -19,6 +19,8 @@ public class FptilbakeRestKlient {
 
     public static final String FPTILBAKE_HENT_TILBAKEKREVING_VEDTAK_INFO = "/behandlinger/tilbakekreving/vedtak-info";
 
+    public static final String FPTILBAKE_HENT_TILBAKEKREVING_BEHANDLING_INFO = "/behandlinger";
+
     private OidcRestClient restClient;
 
     public FptilbakeRestKlient() {
@@ -36,8 +38,13 @@ public class FptilbakeRestKlient {
     }
 
     public TilbakekrevingVedtakDto hentTilbakekrevingsVedtakInfo(UUID uuid){
-        URI uriHentTilbakekrevingVedtaksInfo = lagRequestUri(uuid);
+        URI uriHentTilbakekrevingVedtaksInfo = lagRequestUri(uuid, FPTILBAKE_HENT_TILBAKEKREVING_VEDTAK_INFO);
         return restClient.get(uriHentTilbakekrevingVedtaksInfo, TilbakekrevingVedtakDto.class);
+    }
+
+    public TilbakeBehandlingDto hentBehandlingInfo(UUID uuid){
+        URI uriHentTilbakekrevingVedtaksInfo = lagRequestUri(uuid, FPTILBAKE_HENT_TILBAKEKREVING_BEHANDLING_INFO);
+        return restClient.get(uriHentTilbakekrevingVedtaksInfo, TilbakeBehandlingDto.class);
     }
 
     private URI lagRequestUri(Saksnummer saksnummer) {
@@ -48,10 +55,10 @@ public class FptilbakeRestKlient {
             throw new IllegalArgumentException(e);
         }
     }
-    private URI lagRequestUri(UUID uuid) {
-        String endpoint = FptilbakeFelles.getFptilbakeBaseUrl() + FPTILBAKE_HENT_TILBAKEKREVING_VEDTAK_INFO;
+    private URI lagRequestUri(UUID uuid, String endpoint) {
+        String endpointURI = FptilbakeFelles.getFptilbakeBaseUrl() + endpoint;
         try {
-            return new URIBuilder(endpoint).addParameter("uuid", uuid.toString()).build();
+            return new URIBuilder(endpointURI).addParameter("uuid", uuid.toString()).build();
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(e);
         }
