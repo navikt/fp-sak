@@ -71,6 +71,7 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
     private void oppdaterMottattDatoForBehandling(Behandling behandling) {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
         if (ytelseFordelingAggregat.isEmpty()) {
+            LOG.info("BVL-2394 ingen YF for behandling {}", behandling.getId());
             return;
         }
         var behandlingLås = behandlingLåsRepository.taLås(behandling.getId());
@@ -88,12 +89,16 @@ public class OppdaterYFSøknadMottattDatoTask extends BehandlingProsessTask {
 
     private void oppdaterMottattDato(OppgittPeriodeEntitet periode, Behandling behandling, boolean oppdaterFraAP) {
         if (periode.getMottattDato() != null) {
+            LOG.info("BVL-2394 periode {} i behandling {} har allerede mottatt dato {}", periode.getFom(), behandling.getId(),
+                periode.getMottattDato());
             return;
         }
         var mottattDato = utledMottattDato(periode, behandling, oppdaterFraAP);
         if (mottattDato == null) {
             throw new IllegalStateException("Kunne ikke utlede mottatt dato for behandling " + behandling.getId());
         }
+        LOG.info("BVL-2394 oppdaterer periode {} i behandling {} med mottatt dato {}", periode.getFom(), behandling.getId(),
+            mottattDato);
         var updated = entityManager.createNativeQuery("update YF_FORDELING_PERIODE set mottatt_dato_temp = :md where id=:periodeId")
             .setParameter("md", mottattDato)
             .setParameter("periodeId", periode.getId())

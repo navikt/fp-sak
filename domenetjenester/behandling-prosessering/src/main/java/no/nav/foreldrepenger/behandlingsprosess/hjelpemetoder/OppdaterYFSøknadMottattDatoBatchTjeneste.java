@@ -13,6 +13,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
@@ -30,6 +33,8 @@ import no.nav.vedtak.log.mdc.MDCOperations;
  */
 @ApplicationScoped
 public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OppdaterYFSøknadMottattDatoBatchTjeneste.class);
 
     private static final String BATCHNAME = "BVL2394";
 
@@ -55,8 +60,10 @@ public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste 
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
 
         var fagsaker = repository.hentFagsakerSomManglerSøknadMottattDato(args.getAntall());
+        LOG.info("BVL-2394 Fagsaker {}", fagsaker.stream().map(f -> f.getFagsakId()).collect(Collectors.toList()));
         var kjøres = LocalDateTime.now();
         for (var fagsak : fagsaker) {
+            LOG.info("BVL-2394 Oppretter gruppe for {} med kjøring {}", fagsak.getFagsakId(), kjøres);
             opprettTaskGruppe(callId, kjøres, fagsak);
             kjøres = kjøres.plus(500, ChronoUnit.MILLIS);
         }
@@ -72,9 +79,11 @@ public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste 
     private void opprettTaskGruppe(String callId, LocalDateTime kjøres, FagsakIdMedBruker fagsak) {
 
         var behandlinger = repository.hentBehandlinger(fagsak.getFagsakId());
+        LOG.info("BVL-2394 Behandlinger for fagsak {}: {}", fagsak.getFagsakId(), behandlinger);
 
         var prosessTaskGruppe = new ProsessTaskGruppe();
         for (var behandling : behandlinger) {
+            LOG.info("BVL-2394 {} Oppretter task for behandling {}", fagsak.getFagsakId(), behandling);
             ProsessTaskData prosessTaskData = new ProsessTaskData(OppdaterYFSøknadMottattDatoTask.TASKTYPE);
             prosessTaskData.setBehandling(fagsak.getFagsakId(), behandling, fagsak.getAktorId());
 
@@ -124,12 +133,17 @@ public class OppdaterYFSøknadMottattDatoBatchTjeneste implements BatchTjeneste 
                 "join YF_FORDELING yf on yf.id in (gryf.SO_FORDELING_ID, gryf.JUSTERT_FORDELING_ID, gryf.OVERSTYRT_FORDELING_ID) " +
                 "join YF_FORDELING_PERIODE yfp on yfp.FORDELING_ID = yf.ID " +
                 "where b.id = gryf.behandling_id and yfp.mottatt_dato_temp is null " +
+                "AND b.BEHANDLING_TYPE in (:typer) " +
                 "and (br.behandling_resultat_type is null or br.behandling_resultat_type <> :eskluderResultat) order by f.id desc) " +
                 "where ROWNUM <= :antall";
 
             var query = entityManager.createNativeQuery(sql);
             query.setParameter("antall", antall);
             query.setParameter("eskluderResultat", BehandlingResultatType.MERGET_OG_HENLAGT.getKode());
+            var behandlingstyper = BehandlingType.getYtelseBehandlingTyper().stream()
+                .map(behandlingType -> behandlingType.getKode())
+                .collect(Collectors.toList());
+            query.setParameter("typer", behandlingstyper);
             var resultList = (List<Object[]>) query.getResultList();
             return resultList.stream().map(o -> new FagsakIdMedBruker(((BigDecimal) o[0]).longValue(), (String) o[1])).collect(Collectors.toList());
         }
