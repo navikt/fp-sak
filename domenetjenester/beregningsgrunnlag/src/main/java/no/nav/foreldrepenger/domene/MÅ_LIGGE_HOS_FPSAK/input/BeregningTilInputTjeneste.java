@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
+package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input;
 
 import java.time.LocalDate;
 import java.time.MonthDay;
@@ -17,6 +17,7 @@ import no.nav.folketrygdloven.kalkulator.modell.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
@@ -30,12 +31,9 @@ public class BeregningTilInputTjeneste {
 
     private static final String UTVIKLER_FEIL_SKAL_HA_BEREGNINGSGRUNNLAG_HER = "Utvikler-feil: skal ha beregningsgrunnlag her";
     private static final Supplier<IllegalStateException> INGEN_BG_EXCEPTION_SUPPLIER = () -> new IllegalStateException(UTVIKLER_FEIL_SKAL_HA_BEREGNINGSGRUNNLAG_HER);
-    private static final MonthDay ENDRING_AV_GRUNNBELØP = MonthDay.of(5, 1);
 
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private KalkulusKonfigInjecter kalkulusKonfigInjecter;
-    private BehandlingRepository behandlingRepository;
-
 
     public BeregningTilInputTjeneste() {
         // CDI
@@ -43,11 +41,9 @@ public class BeregningTilInputTjeneste {
 
     @Inject
     public BeregningTilInputTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository,
-                                     KalkulusKonfigInjecter kalkulusKonfigInjecter,
-                                     BehandlingRepository behandlingRepository) {
+                                     KalkulusKonfigInjecter kalkulusKonfigInjecter) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.kalkulusKonfigInjecter = kalkulusKonfigInjecter;
-        this.behandlingRepository = behandlingRepository;
     }
 
     public BeregningsgrunnlagInput lagInputMedVerdierFraBeregning(BeregningsgrunnlagInput input) {
@@ -57,13 +53,12 @@ public class BeregningTilInputTjeneste {
     private BeregningsgrunnlagInput lagInputMedBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         Long behandlingId = input.getKoblingReferanse().getKoblingId();
         Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagEntitetOpt = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
-        BeregningsgrunnlagInput newInput = lagInputMedGrunnbeløpSatser(input);
         if (grunnlagEntitetOpt.isPresent()) {
             BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = grunnlagEntitetOpt.get();
             BeregningsgrunnlagEntitet beregningsgrunnlag = grunnlagEntitet.getBeregningsgrunnlag()
                 .orElseThrow(INGEN_BG_EXCEPTION_SUPPLIER);
             var ref = oppdaterBehandlingreferanseMedSkjæringstidspunktBeregning(input.getKoblingReferanse(), grunnlagEntitet.getGjeldendeAktiviteter(), beregningsgrunnlag);
-            newInput = newInput
+            input = input
                 .medBehandlingReferanse(ref)
                 .medBeregningsgrunnlagGrunnlag(BehandlingslagerTilKalkulusMapper.mapGrunnlag(grunnlagEntitet));
         }
@@ -71,41 +66,13 @@ public class BeregningTilInputTjeneste {
         Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag = orginalBehandling.flatMap(beh -> beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(beh));
         if (forrigeGrunnlag.isPresent()) {
             // Trenger ikke vite hvilke ander i orginalbehandling som hadde inntektsmeldinger
-            newInput = newInput
+            input = input
                 .medBeregningsgrunnlagGrunnlagFraForrigeBehandling(BehandlingslagerTilKalkulusMapper.mapGrunnlag(forrigeGrunnlag.get()));
         }
-
         kalkulusKonfigInjecter.leggTilKonfigverdier(input);
         kalkulusKonfigInjecter.leggTilFeatureToggles(input);
-        Optional<BeregningsgrunnlagGrunnlagEntitet> førsteFastsatteGrunnlagEtterEndringAvG = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(behandlingId);
-        newInput = førsteFastsatteGrunnlagEtterEndringAvG.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
-            .map(BeregningsgrunnlagEntitet::getGrunnbeløp)
-            .map(Beløp::getVerdi)
-            .map(newInput::medUregulertGrunnbeløp)
-            .orElse(newInput);
-        return lagBeregningsgrunnlagHistorikk(newInput);
-    }
-
-    private BeregningsgrunnlagInput lagBeregningsgrunnlagHistorikk(BeregningsgrunnlagInput input) {
-        BeregningsgrunnlagTilstand[] tilstander = BeregningsgrunnlagTilstand.values();
-        for (BeregningsgrunnlagTilstand tilstand : tilstander) {
-            Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(input.getKoblingReferanse().getKoblingId(), input.getKoblingReferanse().getOriginalKoblingId(), tilstand);
-            sisteBg.ifPresent(gr -> input.leggTilBeregningsgrunnlagIHistorikk(BehandlingslagerTilKalkulusMapper.mapGrunnlag(gr),
-                no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand.fraKode(tilstand.getKode())));
-        }
         return input;
     }
-
-    private BeregningsgrunnlagInput lagInputMedGrunnbeløpSatser(BeregningsgrunnlagInput input) {
-        var tjeneste = FagsakYtelseTypeRef.Lookup.find(GrunnbeløpTjeneste.class, input.getFagsakYtelseType()).orElseThrow();
-        List<Grunnbeløp> grunnbeløpSatser = tjeneste.mapGrunnbeløpSatser();
-        Integer antallGrunnbeløpMilitærHarKravPå = tjeneste.finnAntallGrunnbeløpMilitærHarKravPå();
-        BeregningsgrunnlagInput newInput = input.medGrunnbeløpsatser(grunnbeløpSatser);
-        newInput.getYtelsespesifiktGrunnlag()
-            .setGrunnbeløpMilitærHarKravPå(antallGrunnbeløpMilitærHarKravPå);
-        return newInput;
-    }
-
 
     private KoblingReferanse oppdaterBehandlingreferanseMedSkjæringstidspunktBeregning(KoblingReferanse ref,
                                                                                           BeregningAktivitetAggregatEntitet beregningAktivitetAggregat,
@@ -118,19 +85,6 @@ public class BeregningTilInputTjeneste {
             .medFørsteUttaksdato(førsteUttaksdato)
             .medSkjæringstidspunktBeregning(skjæringstidspunktBeregning).build();
         return ref.medSkjæringstidspunkt(skjæringstidspunkt);
-    }
-
-    private Optional<BeregningsgrunnlagGrunnlagEntitet> finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(Long behandlingId) {
-        Long fagsakId = behandlingRepository.hentBehandling(behandlingId).getFagsak().getId();
-        List<Behandling> behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsakId);
-        return behandlinger.stream()
-            .filter(b -> b.getStatus().erFerdigbehandletStatus())
-            .map(kobling -> beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(kobling.getId(), BeregningsgrunnlagTilstand.FASTSATT))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .filter(gr -> MonthDay.from(gr.getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha beregningsgrunnlag"))
-                .getSkjæringstidspunkt()).isAfter(ENDRING_AV_GRUNNBELØP))
-            .min(Comparator.comparing(BaseEntitet::getOpprettetTidspunkt));
     }
 
 }

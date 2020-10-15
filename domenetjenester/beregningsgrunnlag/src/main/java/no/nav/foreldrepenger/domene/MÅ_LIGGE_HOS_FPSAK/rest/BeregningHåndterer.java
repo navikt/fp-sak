@@ -26,9 +26,12 @@ import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.VurderVarigEndringEllerNyoppstartetSNDto;
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.fordeling.FordelBeregningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.input.HåndterBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDto;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningTilInputTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input.BeregningTilInputTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input.KalkulatorHåndteringInputTjeneste;
 
 /**
  * Fasadetjeneste for håndtering av aksjonspunkt
@@ -39,82 +42,87 @@ public class BeregningHåndterer {
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private BeregningTilInputTjeneste beregningTilInputTjeneste;
     private BeregningFaktaOgOverstyringHåndterer beregningFaktaOgOverstyringHåndterer;
+    private KalkulatorHåndteringInputTjeneste kalkulatorHåndteringInputTjeneste;
 
     public BeregningHåndterer() {
         // CDI
     }
 
     @Inject
-    public BeregningHåndterer(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste, BeregningTilInputTjeneste beregningTilInputTjeneste, BeregningFaktaOgOverstyringHåndterer beregningFaktaOgOverstyringHåndterer) {
+    public BeregningHåndterer(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+                              BeregningTilInputTjeneste beregningTilInputTjeneste,
+                              BeregningFaktaOgOverstyringHåndterer beregningFaktaOgOverstyringHåndterer,
+                              KalkulatorHåndteringInputTjeneste kalkulatorHåndteringInputTjeneste) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.beregningTilInputTjeneste = beregningTilInputTjeneste;
         this.beregningFaktaOgOverstyringHåndterer = beregningFaktaOgOverstyringHåndterer;
+        this.kalkulatorHåndteringInputTjeneste = kalkulatorHåndteringInputTjeneste;
     }
 
     public void håndterAvklarAktiviteter(BeregningsgrunnlagInput input, AvklarteAktiviteterDto dto) {
-        BeregningsgrunnlagInput inputMedBeregningsgrunnlag = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
-        BeregningsgrunnlagGrunnlagDto resultatFraKalkulus = AvklarAktiviteterHåndterer.håndter(dto, inputMedBeregningsgrunnlag);
+        HåndterBeregningsgrunnlagInput håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input, AksjonspunktKodeDefinisjon.AVKLAR_AKTIVITETER_KODE);
+        BeregningsgrunnlagGrunnlagDto resultatFraKalkulus = AvklarAktiviteterHåndterer.håndter(dto, håndterBeregningsgrunnlagInput);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultatFraKalkulus);
     }
 
     public void håndterFastsettBGTidsbegrensetArbeidsforhold(BeregningsgrunnlagInput input, FastsettBGTidsbegrensetArbeidsforholdDto dto) {
-        BeregningsgrunnlagInput inputMedBeregningsgrunnlag = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
-        BeregningsgrunnlagGrunnlagDto resultatFraKalkulus = FastsettBGTidsbegrensetArbeidsforholdHåndterer.håndter(inputMedBeregningsgrunnlag, dto);
+        HåndterBeregningsgrunnlagInput håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input, AksjonspunktKodeDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD_KODE);
+        BeregningsgrunnlagGrunnlagDto resultatFraKalkulus = FastsettBGTidsbegrensetArbeidsforholdHåndterer.håndter(håndterBeregningsgrunnlagInput, dto);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultatFraKalkulus);
     }
 
-    public void håndterFastsettBeregningsgrunnlagATFL(BeregningsgrunnlagInput inputUtenBeregningsgrunnlag, FastsettBeregningsgrunnlagATFLDto dto) {
-        BeregningsgrunnlagInput inputMedBeregningsgrunnlag = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(inputUtenBeregningsgrunnlag);
-        BeregningsgrunnlagGrunnlagDto resultatFraKalkulus = FastsettBeregningsgrunnlagATFLHåndterer.håndter(inputMedBeregningsgrunnlag, dto);
-        beregningsgrunnlagTjeneste.lagre(getBehandlingId(inputUtenBeregningsgrunnlag), resultatFraKalkulus);
+    public void håndterFastsettBeregningsgrunnlagATFL(BeregningsgrunnlagInput input, FastsettBeregningsgrunnlagATFLDto dto) {
+        HåndterBeregningsgrunnlagInput håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input, AksjonspunktKodeDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS_KODE);
+        BeregningsgrunnlagGrunnlagDto resultatFraKalkulus = FastsettBeregningsgrunnlagATFLHåndterer.håndter(håndterBeregningsgrunnlagInput, dto);
+        beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultatFraKalkulus);
     }
 
     public void håndterBeregningAktivitetOverstyring(BeregningsgrunnlagInput input, List<BeregningsaktivitetLagreDto> overstyrAktiviteter) {
-        BeregningsgrunnlagInput inputMedBeregningsgrunnlag = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
-        BeregningsgrunnlagGrunnlagDto grunnlag = AvklarAktiviteterHåndterer.håndterOverstyring(overstyrAktiviteter, inputMedBeregningsgrunnlag);
+        HåndterBeregningsgrunnlagInput håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input, AksjonspunktKodeDefinisjon.OVERSTYRING_AV_BEREGNINGSAKTIVITETER_KODE);
+        BeregningsgrunnlagGrunnlagDto grunnlag = AvklarAktiviteterHåndterer.håndterOverstyring(overstyrAktiviteter, håndterBeregningsgrunnlagInput);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), grunnlag);
     }
 
     public void håndterBeregningsgrunnlagOverstyring(BeregningsgrunnlagInput input, OverstyrBeregningsgrunnlagDto overstyrBeregningsgrunnlagDto) {
-        BeregningsgrunnlagInput inputMedVerdierFraBeregning = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
-        BeregningsgrunnlagGrunnlagDto resultat = beregningFaktaOgOverstyringHåndterer.håndterMedOverstyring(inputMedVerdierFraBeregning, overstyrBeregningsgrunnlagDto);
+        HåndterBeregningsgrunnlagInput håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input, AksjonspunktKodeDefinisjon.OVERSTYRING_AV_BEREGNINGSGRUNNLAG_KODE);
+        BeregningsgrunnlagGrunnlagDto resultat = beregningFaktaOgOverstyringHåndterer.håndterMedOverstyring(håndterBeregningsgrunnlagInput, overstyrBeregningsgrunnlagDto);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 
     public void håndterFastsettBruttoForSNNyIArbeidslivet(BeregningsgrunnlagInput input, FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto) {
-        BeregningsgrunnlagInput inputMedVerdierFraBeregning = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
-        BeregningsgrunnlagGrunnlagDto resultat = FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetHåndterer.oppdater(inputMedVerdierFraBeregning, dto);
+        HåndterBeregningsgrunnlagInput håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input, AksjonspunktKodeDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET_KODE);
+        BeregningsgrunnlagGrunnlagDto resultat = FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetHåndterer.oppdater(håndterBeregningsgrunnlagInput, dto);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 
     public void håndterFastsettBeregningsgrunnlagSN(BeregningsgrunnlagInput input, FastsettBruttoBeregningsgrunnlagSNDto dto) {
-        BeregningsgrunnlagInput inputMedVerdierFraBeregning = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
-        BeregningsgrunnlagGrunnlagDto resultat = FastsettBruttoBeregningsgrunnlagSNHåndterer.håndter(inputMedVerdierFraBeregning, dto);
+        HåndterBeregningsgrunnlagInput håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input, AksjonspunktKodeDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_SELVSTENDIG_NÆRINGSDRIVENDE_KODE);
+        BeregningsgrunnlagGrunnlagDto resultat = FastsettBruttoBeregningsgrunnlagSNHåndterer.håndter(håndterBeregningsgrunnlagInput, dto);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 
     public void håndterFordelBeregningsgrunnlag(BeregningsgrunnlagInput input, FordelBeregningsgrunnlagDto dto) {
-        BeregningsgrunnlagInput inputMedVerdierFraBeregning = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
-        BeregningsgrunnlagGrunnlagDto resultat = FordelBeregningsgrunnlagHåndterer.håndter(dto, inputMedVerdierFraBeregning);
+        HåndterBeregningsgrunnlagInput håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input, AksjonspunktKodeDefinisjon.FORDEL_BEREGNINGSGRUNNLAG_KODE);
+        BeregningsgrunnlagGrunnlagDto resultat = FordelBeregningsgrunnlagHåndterer.håndter(dto, håndterBeregningsgrunnlagInput);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 
     public void håndterVurderRefusjonBeregningsgrunnlag(BeregningsgrunnlagInput input, VurderRefusjonBeregningsgrunnlagDto dto) {
-        BeregningsgrunnlagInput inputMedVerdierFraBeregning = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
-        BeregningsgrunnlagGrunnlagDto resultat = VurderRefusjonBeregningsgrunnlagHåndterer.håndter(dto, inputMedVerdierFraBeregning);
+        HåndterBeregningsgrunnlagInput håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input, AksjonspunktKodeDefinisjon.VURDER_REFUSJON_BERGRUNN);
+        BeregningsgrunnlagGrunnlagDto resultat = VurderRefusjonBeregningsgrunnlagHåndterer.håndter(dto, håndterBeregningsgrunnlagInput);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 
 
     public void håndterVurderFaktaOmBeregning(BeregningsgrunnlagInput input, FaktaBeregningLagreDto dto) {
-        BeregningsgrunnlagInput inputMedBeregningsgrunnlag = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
-        BeregningsgrunnlagGrunnlagDto resultat = beregningFaktaOgOverstyringHåndterer.håndter(inputMedBeregningsgrunnlag, dto);
+        HåndterBeregningsgrunnlagInput håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input, AksjonspunktKodeDefinisjon.VURDER_FAKTA_FOR_ATFL_SN_KODE);
+        BeregningsgrunnlagGrunnlagDto resultat = beregningFaktaOgOverstyringHåndterer.håndter(håndterBeregningsgrunnlagInput, dto);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 
     public void håndterVurderVarigEndretNyoppstartetSN(BeregningsgrunnlagInput input, VurderVarigEndringEllerNyoppstartetSNDto dto) {
-        BeregningsgrunnlagInput inputMedVerdierFraBeregning = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
-        BeregningsgrunnlagGrunnlagDto resultat = VurderVarigEndretNyoppstartetSNHåndterer.håndter(inputMedVerdierFraBeregning, dto);
+        HåndterBeregningsgrunnlagInput håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input, AksjonspunktKodeDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE_KODE);
+        BeregningsgrunnlagGrunnlagDto resultat = VurderVarigEndretNyoppstartetSNHåndterer.håndter(håndterBeregningsgrunnlagInput, dto);
         //TODO(OJR) hvorfor kan denne gi null????
         if (resultat != null) {
             beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
