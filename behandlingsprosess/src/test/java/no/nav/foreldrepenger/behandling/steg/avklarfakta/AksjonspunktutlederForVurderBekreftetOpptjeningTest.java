@@ -2,16 +2,14 @@ package no.nav.foreldrepenger.behandling.steg.avklarfakta;
 
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Spy;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -20,12 +18,13 @@ import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
@@ -40,33 +39,28 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.AksjonspunktutlederF
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityManagerAwareTest {
+
     private static final String NAV_ORGNR = "889640782";
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-
     private OpptjeningRepository opptjeningRepository;
+    private InntektArbeidYtelseTjeneste iayTjeneste;
+    private AksjonspunktutlederForVurderBekreftetOpptjening utleder;
 
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
 
-    @Spy
-    private AksjonspunktutlederForVurderBekreftetOpptjening utleder = new AksjonspunktutlederForVurderBekreftetOpptjening(
-        repositoryProvider.getOpptjeningRepository(),
-        iayTjeneste);
-
-    @Before
-    public void oppsett() {
-        initMocks(this);
-        opptjeningRepository = repositoryProvider.getOpptjeningRepository();
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        opptjeningRepository = new OpptjeningRepository(entityManager, new BehandlingRepository(entityManager));
+        iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        utleder = new AksjonspunktutlederForVurderBekreftetOpptjening(opptjeningRepository, iayTjeneste);
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
-        return scenario.lagre(repositoryProvider);
+        return scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
     }
 
     @Test
@@ -84,7 +78,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
     }
 
     private AksjonspunktUtlederInput lagInput(Behandling behandling) {
-        BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        BehandlingReferanse ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         return new AksjonspunktUtlederInput(ref);
     }
 
