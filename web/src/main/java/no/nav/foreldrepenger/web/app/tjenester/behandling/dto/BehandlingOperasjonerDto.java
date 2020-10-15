@@ -10,15 +10,18 @@ public class BehandlingOperasjonerDto {
     private boolean behandlingKanGjenopptas;
     private boolean behandlingKanOpnesForEndringer;
     private boolean behandlingKanSettesPaVent;
+    private boolean behandlingKanEndreVerge;
 
     public BehandlingOperasjonerDto(UUID uuid, boolean behandlingKanBytteEnhet, boolean behandlingKanHenlegges,
-                                    boolean behandlingKanGjenopptas, boolean behandlingKanSettesPaVent, boolean behandlingKanOpnesForEndringer) {
+                                    boolean behandlingKanGjenopptas, boolean behandlingKanSettesPaVent,
+                                    boolean behandlingKanOpnesForEndringer, boolean behandlingKanEndreVerge) {
         this.uuid = uuid;
         this.behandlingKanBytteEnhet = behandlingKanBytteEnhet;
         this.behandlingKanHenlegges = behandlingKanHenlegges;
         this.behandlingKanGjenopptas = behandlingKanGjenopptas;
         this.behandlingKanOpnesForEndringer = behandlingKanOpnesForEndringer;
         this.behandlingKanSettesPaVent = behandlingKanSettesPaVent;
+        this.behandlingKanEndreVerge = behandlingKanEndreVerge;
     }
 
     public UUID getUuid() {
@@ -43,5 +46,9 @@ public class BehandlingOperasjonerDto {
 
     public boolean isBehandlingKanSettesPaVent() {
         return behandlingKanSettesPaVent;
+    }
+
+    public boolean isBehandlingKanEndreVerge() {
+        return behandlingKanEndreVerge;
     }
 }

@@ -157,7 +157,7 @@ public class BehandlingDtoTjeneste {
 
         // Felles for alle behandlingstyper
         dto.leggTil(get(BehandlingRestTjeneste.HANDLING_RETTIGHETER_PATH, "handling-rettigheter", uuidDto));
-        dto.leggTil(get(BehandlingRestTjeneste.HANDLING_RETTIGHETER_V2_PATH, "handling-rettigheter-v2", uuidDto));
+        dto.leggTil(get(BehandlingRestTjeneste.HANDLING_RETTIGHETER_V2_PATH, "handling-rettigheter-v2", new SaksnummerDto(behandling.getFagsak().getSaksnummer())));
 
         if (behandling.erYtelseBehandling()) {
             dto.leggTil(get(VergeRestTjeneste.VERGE_BEHANDLINGSMENY_PATH, "finn-menyvalg-for-verge", uuidDto));

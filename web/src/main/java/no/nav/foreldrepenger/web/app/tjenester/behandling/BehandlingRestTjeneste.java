@@ -438,7 +438,8 @@ public class BehandlingRestTjeneste {
             .filter(b -> !b.erSaksbehandlingAvsluttet() && !BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus()))
             .map(b -> new BehandlingOperasjonerDto(b.getUuid(), !b.erKøet(), true,
                 b.isBehandlingPåVent() && !b.erKøet(), !b.isBehandlingPåVent(),
-                b.erRevurdering() && !b.isBehandlingPåVent() && !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !b.erKøet()))
+                b.erRevurdering() && !b.isBehandlingPåVent() && !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !b.erKøet(),
+                b.erYtelseBehandling() && !b.isBehandlingPåVent() && b.harSattStartpunkt()))
             .collect(Collectors.toList());
          var oppretting = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
             .flatMap(Collection::stream)
