@@ -5,7 +5,7 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
@@ -23,8 +23,8 @@ public class PersonIdentTjeneste {
         this.personinfoAdapter = personinfoAdapter;
     }
 
-    public Optional<PersoninfoBasis> hentBrukerForAktør(AktørId aktørId) {
-        return personinfoAdapter.hentBrukerBasisForAktør(aktørId);
+    public Optional<PersoninfoArbeidsgiver> hentBrukerForAktør(AktørId aktørId) {
+        return personinfoAdapter.hentBrukerArbeidsgiverForAktør(aktørId);
     }
 
 

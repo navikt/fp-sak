@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.vedtak.es;
 
-import static java.time.Month.JANUARY;
-import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.KVINNE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU;
 import static org.junit.Assert.assertEquals;
@@ -27,7 +25,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
@@ -35,7 +32,6 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -67,13 +63,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.vedtak.xml.BehandlingsresultatXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.BeregningsgrunnlagXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.FatteVedtakXmlTjeneste;
@@ -91,6 +84,8 @@ import no.nav.vedtak.felles.testutilities.db.Repository;
 public class VedtakXmlTest {
     private static final String KLAGE_BEGRUNNELSE = "Begrunnelse for klagevurdering er bla.bla.bla.";
     private static final String BEHANDLENDE_ENHET_ID = "1234";
+
+    private static final AktørId AKTØR_ID = AktørId.dummy();
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
@@ -110,11 +105,6 @@ public class VedtakXmlTest {
     private LegacyESBeregningRepository beregningRepository = new LegacyESBeregningRepository(repoRule.getEntityManager());
 
     private FagsakRepository fagsakRepository = new FagsakRepository(entityManager);
-
-    @Mock
-    private PersoninfoAdapter personinfoAdapter;
-
-    private Personinfo personinfoMor;
 
     @Inject
     private BehandlingsresultatXmlTjeneste behandlingsgrunnlagXmlTjeneste;
@@ -140,17 +130,10 @@ public class VedtakXmlTest {
 
     private FatteVedtakXmlTjeneste tjeneste;
 
+
     @Before
     public void oppsett() {
-        LocalDate morsFødseldato = LocalDate.of(1990, JANUARY, 1);
-        personinfoMor = new Personinfo.Builder()
-            .medAktørId(AktørId.dummy())
-            .medPersonIdent(new PersonIdent("12345678901"))
-            .medNavn("Kari Nordmann")
-            .medFødselsdato(morsFødseldato)
-            .medNavBrukerKjønn(KVINNE)
-            .medForetrukketSpråk(Språkkode.NB)
-            .build();
+
         SøknadRepository søknadRepository = mock(SøknadRepository.class);
 
         VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
@@ -168,7 +151,7 @@ public class VedtakXmlTest {
     }
 
     private Fagsak opprettFagsak() {
-        NavBruker søker = NavBruker.opprettNyNB(personinfoMor.getAktørId());
+        NavBruker søker = NavBruker.opprettNyNB(AKTØR_ID);
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, søker);
         fagsakRepository.opprettNy(fagsak);
         return fagsak;

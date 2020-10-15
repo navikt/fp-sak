@@ -41,7 +41,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
@@ -88,18 +88,16 @@ public class SøknadMapperTest extends RepositoryAwareTest {
 
     private SøknadMapper ytelseSøknadMapper;
     private OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDato;
-    private Optional<PersoninfoBasis> kvinne;
+    private Optional<PersoninfoKjønn> kvinne;
 
     @BeforeEach
     public void before() {
         oppgittPeriodeMottattDato = new OppgittPeriodeMottattDatoTjeneste(new YtelseFordelingTjeneste(ytelsesfordelingRepository));
 
-        kvinne = Optional.of(new PersoninfoBasis.Builder()
+        kvinne = Optional.of(new PersoninfoKjønn.Builder()
                 .medAktørId(STD_KVINNE_AKTØR_ID)
                 .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-                .medNavn("Espen Utvikler")
-                .medPersonIdent(PersonIdent.fra("12345678901"))
-                .medFødselsdato(LocalDate.now().minusYears(20)).build());
+                .medPersonIdent(PersonIdent.fra("12345678901")).build());
         ytelseSøknadMapper = new YtelseSøknadMapper(personinfoAdapter, virksomhetTjeneste);
     }
 
@@ -416,7 +414,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
         AnnenForelderDto annenForelderDto = new AnnenForelderDto();
         annenForelderDto.setDenAndreForelderenHarRettPaForeldrepenger(true);
         dto.setAnnenForelder(annenForelderDto);
-        when(personinfoAdapter.hentBrukerBasisForAktør(any(AktørId.class))).thenReturn(kvinne);
+        when(personinfoAdapter.hentBrukerKjønnForAktør(any(AktørId.class))).thenReturn(kvinne);
         when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
         var soeknad = ytelseSøknadMapper.mapSøknad(dto, navBruker);
         var oversetter = new MottattDokumentOversetterSøknad(repositoryProvider,
@@ -478,7 +476,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        when(personinfoAdapter.hentBrukerBasisForAktør(any(AktørId.class))).thenReturn(kvinne);
+        when(personinfoAdapter.hentBrukerKjønnForAktør(any(AktørId.class))).thenReturn(kvinne);
         oversetter.trekkUtDataOgPersister((MottattDokumentWrapperSøknad) MottattDokumentWrapperSøknad.tilXmlWrapper(soeknad),
                 new MottattDokument.Builder().medMottattDato(LocalDate.now())
                         .medFagsakId(behandling.getFagsakId()).medElektroniskRegistrert(true).build(),
@@ -555,7 +553,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
     @Test
     public void skal_ikke_mappe_og_lagre_oppgitt_opptjening_når_det_allerede_finnes_i_grunnlaget() {
         var iayGrunnlag = mock(InntektArbeidYtelseGrunnlag.class);
-        when(personinfoAdapter.hentBrukerBasisForAktør(any(AktørId.class))).thenReturn(kvinne);
+        when(personinfoAdapter.hentBrukerKjønnForAktør(any(AktørId.class))).thenReturn(kvinne);
         when(iayGrunnlag.getOppgittOpptjening()).thenReturn(Optional.of(mock(OppgittOpptjening.class)));
         when(iayTjeneste.finnGrunnlag(any(Long.class))).thenReturn(Optional.of(iayGrunnlag));
         when(virksomhetTjeneste.hentOrganisasjon(any()))
@@ -591,7 +589,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
     @Test
     public void skal_mappe_og_lagre_oppgitt_opptjening_når_det_ikke_finnes_i_grunnlaget() {
         var iayGrunnlag = mock(InntektArbeidYtelseGrunnlag.class);
-        when(personinfoAdapter.hentBrukerBasisForAktør(any(AktørId.class))).thenReturn(kvinne);
+        when(personinfoAdapter.hentBrukerKjønnForAktør(any(AktørId.class))).thenReturn(kvinne);
         when(iayGrunnlag.getOppgittOpptjening()).thenReturn(Optional.empty());
         when(iayTjeneste.finnGrunnlag(any(Long.class))).thenReturn(Optional.of(iayGrunnlag));
         when(virksomhetTjeneste.hentOrganisasjon(any()))

@@ -496,7 +496,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteIm
             } else {
                 kodeklassifik = ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik();
             }
-            String utbetalesTilId = brukerErMottaker ? personInfo.getPersonIdent().getIdent() : andel.getArbeidsforholdIdentifikator();
+            String utbetalesTilId = brukerErMottaker ? personIdent.getIdent() : andel.getArbeidsforholdIdentifikator();
             assertThat(opp150.getKodeEndringLinje()).isEqualTo(ØkonomiKodeEndringLinje.NY.name());
             assertThat(opp150.getVedtakId()).isEqualTo(behVedtak.getVedtaksdato().toString());
             assertThat(opp150.getKodeKlassifik()).isEqualTo(kodeklassifik);
@@ -614,7 +614,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteIm
             Boolean brukerErMottaker = andel.erBrukerMottaker();
             delYtelseIdListe.add(oppdragslinje150.getDelytelseId());
 
-            String utbetalesTilId = brukerErMottaker ? personInfo.getPersonIdent().getIdent() : andel.getArbeidsforholdIdentifikator();
+            String utbetalesTilId = brukerErMottaker ? personIdent.getIdent() : andel.getArbeidsforholdIdentifikator();
             assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(ØkonomiKodeEndringLinje.NY.name());
             assertThat(oppdragslinje150.getVedtakId()).isEqualTo(vedtaksdatoFP.toString());
             assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(concatenateValues(fagsystemId, løpenummer));
@@ -689,7 +689,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteIm
             assertThat(oppdrag110.getFagsystemId()).isEqualTo(concatenateValues(Long.parseLong(fagsak.getSaksnummer().getVerdi()), initialLøpenummer++));
             assertThat(oppdrag110.getSaksbehId()).isEqualTo(behVedtak.getAnsvarligSaksbehandler());
             assertThat(oppdrag110.getUtbetFrekvens()).isEqualTo(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens());
-            assertThat(oppdrag110.getOppdragGjelderId()).isEqualTo(personInfo.getPersonIdent().getIdent());
+            assertThat(oppdrag110.getOppdragGjelderId()).isEqualTo(personIdent.getIdent());
             assertThat(oppdrag110.getOppdragskontroll()).isEqualTo(oppdragskontroll);
             assertThat(oppdrag110.getAvstemming115()).isNotNull();
             ix110++;

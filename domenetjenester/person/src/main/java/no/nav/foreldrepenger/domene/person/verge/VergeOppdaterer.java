@@ -107,12 +107,10 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     private void opprettHistorikkinnslagForEndring(AvklarVergeDto dto, AksjonspunktOppdaterParameter parameter, VergeAggregat vergeAggregat) {
         HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
         Optional<AktørId> aktørId = vergeAggregat.getAktørId();
-        if (aktørId.isPresent()) {
-            personinfoAdapter.hentBrukerBasisForAktør(aktørId.get()).ifPresent(pib -> {
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.NAVN, pib.getNavn(), dto.getNavn());
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FNR, pib.getPersonIdent().getIdent(), dto.getFnr());
-            });
-        }
+        aktørId.flatMap(id -> personinfoAdapter.hentBrukerArbeidsgiverForAktør(id)).ifPresent(pib -> {
+            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.NAVN, pib.getNavn(), dto.getNavn());
+            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FNR, pib.getPersonIdent().getIdent(), dto.getFnr());
+        });
         if (vergeAggregat.getVerge().isPresent()) {
             VergeEntitet vergeEntitet = vergeAggregat.getVerge().get();
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.PERIODE_FOM, vergeEntitet.getGyldigFom(), dto.getGyldigFom());

@@ -1,13 +1,9 @@
 package no.nav.foreldrepenger.økonomi.økonomistøtte;
 
-import static java.time.Month.JANUARY;
-import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.KVINNE;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -19,25 +15,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 
 public class OpprettBehandlingForOppdrag {
 
     public final static long SATS = 66221L;
     public final static LocalDateTime nå = LocalDateTime.now();
-
-    @SuppressWarnings("deprecation")
-    public static Personinfo opprettPersonInfo() {
-        return new Personinfo.Builder()
-            .medAktørId(AktørId.dummy())
-            .medPersonIdent(PersonIdent.fra("12345678901"))
-            .medNavn("Kari Nordmann")
-            .medFødselsdato(LocalDate.of(1990, JANUARY, 1))
-            .medNavBrukerKjønn(KVINNE)
-            .build();
-    }
 
     public static ScenarioMorSøkerEngangsstønad opprettBehandlingMedTermindato() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();

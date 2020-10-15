@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
@@ -37,7 +36,6 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettin
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -98,24 +96,14 @@ public class BehandlingRestTjenesteESTest extends RepositoryAwareTest {
     public void skal_hente_behandlinger_for_saksnummer() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
-        Personinfo person = new Personinfo.Builder()
-                .medNavn("Helga")
-                .medAktørId(AktørId.dummy())
-                .medPersonIdent(new PersonIdent("12312411252"))
-                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-                .medSivilstandType(SivilstandType.SAMBOER)
-                .medFødselsdato(LocalDate.now())
-                .medRegion(Region.NORDEN)
-                .build();
-
         PersonInformasjon personInformasjon = scenario.opprettBuilderForRegisteropplysninger()
                 .leggTilPersonopplysninger(Personopplysning.builder()
-                        .aktørId(person.getAktørId())
-                        .navn(person.getNavn())
-                        .fødselsdato(person.getFødselsdato())
+                        .aktørId(AktørId.dummy())
+                        .navn("Helga")
+                        .fødselsdato(LocalDate.now())
                         .sivilstand(SivilstandType.SAMBOER)
                         .region(Region.NORDEN)
-                        .brukerKjønn(person.getKjønn()))
+                        .brukerKjønn(NavBrukerKjønn.KVINNE))
                 .build();
 
         scenario.medRegisterOpplysninger(personInformasjon);

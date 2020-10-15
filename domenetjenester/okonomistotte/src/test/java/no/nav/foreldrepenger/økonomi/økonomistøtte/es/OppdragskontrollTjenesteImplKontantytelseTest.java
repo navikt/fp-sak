@@ -20,7 +20,6 @@ import org.junit.runners.MethodSorters;
 import no.finn.unleash.FakeUnleash;
 import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -52,6 +51,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekv
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.FinnNyesteOppdragForSak;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFactoryProvider;
@@ -86,7 +86,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
 
     private BehandlingVedtak behandlingVedtak;
     private Fagsak fagsak;
-    private Personinfo personInfo;
+    private PersonIdent personIdent = PersonIdent.fra("12345678901");
     private RevurderingEndring revurderingEndring;
     private Unleash unleash = new FakeUnleash();
 
@@ -107,8 +107,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
         when(providerMock.getTjeneste(any(FagsakYtelseType.class))).thenReturn(oppdragskontrollManagerFactory);
 
         oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, providerMock, unleash);
-        personInfo = OpprettBehandlingForOppdrag.opprettPersonInfo();
-        when(tpsTjeneste.hentFnrForAktør(any(AktørId.class))).thenReturn(personInfo.getPersonIdent());
+        when(tpsTjeneste.hentFnrForAktør(any(AktørId.class))).thenReturn(personIdent);
 
     }
 
@@ -281,7 +280,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
                 .getBeregningResultat().getSisteBeregning().get().getBeregnetTilkjentYtelse());
             assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TYPE_SATS_ES);
             assertThat(oppdragslinje150.getHenvisning()).isEqualTo(behandling.getId());
-            assertThat(oppdragslinje150.getUtbetalesTilId()).isEqualTo(personInfo.getPersonIdent().getIdent());
+            assertThat(oppdragslinje150.getUtbetalesTilId()).isEqualTo(personIdent.getIdent());
             assertThat(oppdragslinje150.getSaksbehId()).isEqualTo(behandlingVedtak.getAnsvarligSaksbehandler());
             assertThat(oppdragslinje150.getBrukKjoreplan()).isEqualTo("N");
             assertThat(oppdragslinje150.getOppdrag110()).isEqualTo(oppdrag110);
@@ -324,7 +323,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
             assertThat(oppdrag110.getFagsystemId()).isEqualTo(concatenateValues(Long.parseLong(fagsak.getSaksnummer().getVerdi()), initialLøpenummer++));
             assertThat(oppdrag110.getSaksbehId()).isEqualTo(behandlingVedtak.getAnsvarligSaksbehandler());
             assertThat(oppdrag110.getUtbetFrekvens()).isEqualTo(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens());
-            assertThat(oppdrag110.getOppdragGjelderId()).isEqualTo(personInfo.getPersonIdent().getIdent());
+            assertThat(oppdrag110.getOppdragGjelderId()).isEqualTo(personIdent.getIdent());
             assertThat(oppdrag110.getOppdragskontroll()).isEqualTo(oppdragskontroll);
             assertThat(oppdrag110.getAvstemming115()).isNotNull();
         }

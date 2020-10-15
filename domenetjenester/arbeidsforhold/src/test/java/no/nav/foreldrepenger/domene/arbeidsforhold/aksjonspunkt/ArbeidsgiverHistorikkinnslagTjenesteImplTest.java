@@ -16,8 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
@@ -55,11 +54,10 @@ public class ArbeidsgiverHistorikkinnslagTjenesteImplTest {
         arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste);
     }
 
-    private PersoninfoBasis lagPersoninfo() {
-        return new PersoninfoBasis.Builder()
+    private PersoninfoArbeidsgiver lagPersoninfo() {
+        return new PersoninfoArbeidsgiver.Builder()
             .medAktørId(AKTØR_ID)
             .medPersonIdent(new PersonIdent("123"))
-            .medNavBrukerKjønn(NavBrukerKjønn.MANN)
             .medFødselsdato(FØDSELSDATO)
             .medNavn(PRIVATPERSON_NAVN)
             .build();

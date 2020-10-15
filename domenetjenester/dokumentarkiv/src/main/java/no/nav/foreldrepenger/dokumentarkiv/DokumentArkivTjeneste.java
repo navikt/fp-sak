@@ -93,12 +93,12 @@ public class DokumentArkivTjeneste {
         List<ArkivJournalPost> journalPosts = new ArrayList<>();
 
         journalPosterForSak.forEach(jpost -> {
-            if (!erDokumentArkivPdf(jpost.getHovedDokument())) {
+            if (jpost.getHovedDokument() != null && !erDokumentArkivPdf(jpost.getHovedDokument())) {
                 jpost.setHovedDokument(null);
             }
 
             jpost.getAndreDokument().forEach(dok -> {
-                if (!erDokumentArkivPdf(jpost.getHovedDokument())) {
+                if (!erDokumentArkivPdf(dok)) {
                     jpost.getAndreDokument().remove(dok);
                 }
             });

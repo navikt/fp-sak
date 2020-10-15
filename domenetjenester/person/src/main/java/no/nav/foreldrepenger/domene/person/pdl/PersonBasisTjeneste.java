@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.ForenkletPersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -97,6 +99,55 @@ public class PersonBasisTjeneste {
             LOG.info("FPSAK PDL BASIS error", e);
         }
     }
+
+    public void hentArbeidsgiverPersoninfo(AktørId aktørId, PersonIdent personIdent, PersoninfoArbeidsgiver fraTPS) {
+        try {
+            var query = new HentPersonQueryRequest();
+            query.setIdent(aktørId.getId());
+            var projection = new PersonResponseProjection()
+                .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
+                .foedsel(new FoedselResponseProjection().foedselsdato());
+            var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+            var fødselsdato = person.getFoedsel().stream()
+                .map(Foedsel::getFoedselsdato)
+                .filter(Objects::nonNull)
+                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+            var fraPDL = new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
+                .medNavn(person.getNavn().stream().map(PersonBasisTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
+                .medFødselsdato(fødselsdato)
+                .build();
+            if (Objects.equals(fraPDL, fraTPS)) {
+                LOG.info("FPSAK PDL ARBEIDSGIVER: like svar");
+            } else {
+                LOG.info("FPSAK PDL ARBEIDSGIVER: avvik");
+            }
+        } catch (Exception e) {
+            LOG.info("FPSAK PDL ARBEIDSGIVER error", e);
+        }
+    }
+
+    public void hentKjønnPersoninfo(AktørId aktørId, PersonIdent personIdent, PersoninfoKjønn fraTPS) {
+        try {
+            var query = new HentPersonQueryRequest();
+            query.setIdent(aktørId.getId());
+            var projection = new PersonResponseProjection()
+                .kjoenn(new KjoennResponseProjection().kjoenn());
+            var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+            var fraPDL = new PersoninfoKjønn.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
+                .medNavBrukerKjønn(mapKjønn(person))
+                .build();
+
+            if (Objects.equals(fraPDL, fraTPS)) {
+                LOG.info("FPSAK PDL KJØNN: like svar");
+            } else {
+                LOG.info("FPSAK PDL KJØNN: avvik TPS {} PDL {}", fraTPS.getKjønn(), fraPDL.getKjønn());
+            }
+        } catch (Exception e) {
+            LOG.info("FPSAK PDL KJØNN error", e);
+        }
+    }
+
+
 
     private String getDiskresjonskode(Person person) {
         var kode = person.getAdressebeskyttelse().stream()

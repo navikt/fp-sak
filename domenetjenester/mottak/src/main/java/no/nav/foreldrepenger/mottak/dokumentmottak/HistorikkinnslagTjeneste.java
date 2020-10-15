@@ -8,7 +8,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -78,7 +78,7 @@ public class HistorikkinnslagTjeneste {
 
     private NavBrukerKjønn setKjønn(Behandling behandling) {
         if (RelasjonsRolleType.UDEFINERT.equals(behandling.getFagsak().getRelasjonsRolleType())) {
-            PersoninfoBasis personinfo = personinfoAdapter.hentBrukerBasisForAktør(behandling.getAktørId()).orElse(null);
+            PersoninfoKjønn personinfo = personinfoAdapter.hentBrukerKjønnForAktør(behandling.getAktørId()).orElse(null);
             if (personinfo != null) {
                 return personinfo.getKjønn();
             }

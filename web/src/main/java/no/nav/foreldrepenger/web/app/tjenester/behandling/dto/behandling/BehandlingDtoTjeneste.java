@@ -284,6 +284,7 @@ public class BehandlingDtoTjeneste {
 
         SaksnummerDto saksnummerDto = new SaksnummerDto(behandling.getFagsak().getSaksnummer());
         dto.leggTil(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", saksnummerDto));
+        dto.leggTil(get(FagsakRestTjeneste.FAGSAK_BACKEND_PATH, "fagsak-backend", saksnummerDto));
 
         leggTilLenkerForBehandlingsoperasjoner(behandling, dto);
 

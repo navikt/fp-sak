@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
@@ -39,6 +40,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakSamlingForBruker;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
@@ -54,6 +56,8 @@ public class FagsakRestTjeneste {
     static final String BASE_PATH = "/fagsak";
     private static final String FAGSAK_PART_PATH = "";
     public static final String FAGSAK_PATH = BASE_PATH;
+    private static final String FAGSAK_BACKEND_PART_PATH = "/backend";
+    public static final String FAGSAK_BACKEND_PATH = BASE_PATH;
     private static final String STATUS_PART_PATH = "/status";
     public static final String STATUS_PATH = BASE_PATH + STATUS_PART_PATH;
     private static final String SOK_PART_PATH = "/sok";
@@ -107,6 +111,26 @@ public class FagsakRestTjeneste {
             throw new IllegalStateException(
                     "Utvikler-feil: fant mer enn en fagsak for saksnummer [" + saksnummer + "], skal ikke være mulig: fant " + list.size());
         }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path(FAGSAK_BACKEND_PART_PATH)
+    @Operation(description = "Hent fagsak for saksnummer", tags = "fagsak", responses = {
+        @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakBackendDto.class))),
+        @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Response hentFagsakBackend(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
+
+        Saksnummer saksnummer = new Saksnummer(s.getVerdi());
+        var fagsak = fagsakApplikasjonTjeneste.hentFagsakForSaksnummerBackend(saksnummer);
+        if (fagsak.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        var dekning = fagsakApplikasjonTjeneste.hentDekningsgradForSaksnummerBackend(saksnummer).map(Dekningsgrad::getVerdi).orElse(null);
+        var dto = new FagsakBackendDto(fagsak.get(), dekning);
+        return Response.ok(dto).build();
     }
 
     @POST
