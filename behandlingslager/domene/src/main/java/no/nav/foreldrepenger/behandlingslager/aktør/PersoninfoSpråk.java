@@ -8,10 +8,6 @@ public class PersoninfoSpråk {
     private AktørId aktørId;
     private Språkkode foretrukketSpråk;
 
-    public PersoninfoSpråk(Språkkode foretrukketSpråk) {
-        this.foretrukketSpråk = foretrukketSpråk;
-    }
-
     public PersoninfoSpråk(AktørId aktørId, Språkkode foretrukketSpråk) {
         this.aktørId = aktørId;
         this.foretrukketSpråk = foretrukketSpråk;

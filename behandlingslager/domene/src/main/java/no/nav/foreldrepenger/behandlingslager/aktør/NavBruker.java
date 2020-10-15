@@ -54,4 +54,8 @@ public class NavBruker extends Person {
     public Språkkode getSpråkkode() {
         return språkkode;
     }
+
+    public void setSpråkkode(Språkkode språkkode) {
+        this.språkkode = språkkode;
+    }
 }
