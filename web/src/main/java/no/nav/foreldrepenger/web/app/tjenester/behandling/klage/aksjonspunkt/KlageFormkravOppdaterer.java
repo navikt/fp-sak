@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
-import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.TilbakekrevingVedtakDto;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = KlageFormkravAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -227,14 +226,14 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     }
 
     private void lagHistorikkinnslagHvisForrigePåklagdEksternBehandlingUuidFinnes(HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder, KlageFormkravAksjonspunktDto formkravDto, UUID lagretPåklagdEksternBehandlingUuid, KlageTilbakekrevingDto klageTilbakekrevingDto) {
-        TilbakekrevingVedtakDto tilbakekrevingVedtakDto = fptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(lagretPåklagdEksternBehandlingUuid);
+        var tilbakekrevingVedtakDto = fptilbakeRestKlient.hentBehandlingInfo(lagretPåklagdEksternBehandlingUuid);
         if (formkravDto.hentpåKlagdEksternBehandlingUuId() != null) {
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID,
-                hentPåKlagdEksternBehandlingTekst(lagretPåklagdEksternBehandlingUuid, tilbakekrevingVedtakDto.getTilbakekrevingBehandlingType(), tilbakekrevingVedtakDto.getTilbakekrevingVedtakDato()),
+                hentPåKlagdEksternBehandlingTekst(lagretPåklagdEksternBehandlingUuid, tilbakekrevingVedtakDto.getType().getKode(), tilbakekrevingVedtakDto.getOriginalVedtaksDato()),
                 hentPåKlagdEksternBehandlingTekst(formkravDto.hentpåKlagdEksternBehandlingUuId(), klageTilbakekrevingDto.getTilbakekrevingBehandlingType(), klageTilbakekrevingDto.getTilbakekrevingVedtakDato()));
         } else {
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID,
-                hentPåKlagdEksternBehandlingTekst(lagretPåklagdEksternBehandlingUuid, tilbakekrevingVedtakDto.getTilbakekrevingBehandlingType(), tilbakekrevingVedtakDto.getTilbakekrevingVedtakDato()),
+                hentPåKlagdEksternBehandlingTekst(lagretPåklagdEksternBehandlingUuid, tilbakekrevingVedtakDto.getType().getKode(), tilbakekrevingVedtakDto.getOriginalVedtaksDato()),
                 hentPåklagdBehandlingTekst(formkravDto.hentpåKlagdBehandlingId()));
         }
     }

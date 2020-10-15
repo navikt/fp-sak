@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.time.Period;
 
@@ -38,6 +39,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 
 @ExtendWith(MockitoExtension.class)
@@ -79,6 +81,7 @@ public class BehandlingRestTjenesteTest extends RepositoryAwareTest {
                 behandlingOpprettingTjeneste,
                 behandlingsprosessTjenste,
                 fagsakTjeneste,
+                mock(VergeTjeneste.class),
                 Mockito.mock(HenleggBehandlingTjeneste.class),
                 behandlingDtoTjeneste,
                 relatertBehandlingTjeneste);

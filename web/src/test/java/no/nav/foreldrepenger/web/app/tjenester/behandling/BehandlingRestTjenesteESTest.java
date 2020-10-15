@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
@@ -47,6 +47,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 
 @ExtendWith(MockitoExtension.class)
@@ -87,7 +88,8 @@ public class BehandlingRestTjenesteESTest extends RepositoryAwareTest {
                 behandlingOpprettingTjeneste,
                 behandlingsprosessTjenste,
                 fagsakTjeneste,
-                Mockito.mock(HenleggBehandlingTjeneste.class),
+                mock(VergeTjeneste.class),
+                mock(HenleggBehandlingTjeneste.class),
                 behandlingDtoTjeneste,
                 relatertBehandlingTjeneste);
     }

@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -44,7 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
-import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.TilbakekrevingVedtakDto;
+import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.TilbakeBehandlingDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Produces(MediaType.APPLICATION_JSON)
@@ -219,10 +218,10 @@ public class KlageRestTjeneste {
         Optional<UUID> paKlagdEksternBehandlingUuid = klageFormkrav.hentKlageResultat().getPåKlagdEksternBehandlingUuid();
         KlageFormkravResultatDto dto = new KlageFormkravResultatDto();
         if (påklagdBehandling.isEmpty() && paKlagdEksternBehandlingUuid.isPresent()) {
-            Optional<TilbakekrevingVedtakDto> tilbakekrevingVedtakDto = hentPåklagdBehandlingIdForEksternApplikasjon(paKlagdEksternBehandlingUuid.get(), fptilbakeRestKlient);
+            Optional<TilbakeBehandlingDto> tilbakekrevingVedtakDto = hentPåklagdBehandlingIdForEksternApplikasjon(paKlagdEksternBehandlingUuid.get(), fptilbakeRestKlient);
             if (tilbakekrevingVedtakDto.isPresent()) {
-                dto.setPaKlagdBehandlingId(tilbakekrevingVedtakDto.get().getBehandlingId());
-                dto.setPaklagdBehandlingType(BehandlingType.fraKode(tilbakekrevingVedtakDto.get().getTilbakekrevingBehandlingType()));
+                dto.setPaKlagdBehandlingId(tilbakekrevingVedtakDto.get().getId());
+                dto.setPaklagdBehandlingType(tilbakekrevingVedtakDto.get().getType());
             }
         } else {
             dto.setPaKlagdBehandlingId(påklagdBehandling.map(Behandling::getId).orElse(null));
@@ -237,8 +236,8 @@ public class KlageRestTjeneste {
         return dto;
     }
 
-    private static Optional<TilbakekrevingVedtakDto> hentPåklagdBehandlingIdForEksternApplikasjon(UUID paKlagdEksternBehandlingUuid, FptilbakeRestKlient fptilbakeRestKlient){
-        return Optional.ofNullable(fptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(paKlagdEksternBehandlingUuid));
+    private static Optional<TilbakeBehandlingDto> hentPåklagdBehandlingIdForEksternApplikasjon(UUID paKlagdEksternBehandlingUuid, FptilbakeRestKlient fptilbakeRestKlient){
+        return Optional.ofNullable(fptilbakeRestKlient.hentBehandlingInfo(paKlagdEksternBehandlingUuid));
     }
 
 }

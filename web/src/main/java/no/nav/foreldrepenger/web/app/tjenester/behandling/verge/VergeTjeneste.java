@@ -54,12 +54,12 @@ public class VergeTjeneste {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
     }
 
-    VergeBehandlingsmenyDto utledBehandlingsmeny(Long behandlingId) {
+    public VergeBehandlingsmenyDto utledBehandlingsmeny(Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         Optional<VergeAggregat> vergeAggregat = vergeRepository.hentAggregat(behandlingId);
         boolean harRegistrertVerge = vergeAggregat.isPresent() && vergeAggregat.get().getVerge().isPresent();
         boolean harVergeAksjonspunkt = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
-        boolean stårIKofakEllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.KONTROLLER_FAKTA);
+        boolean stårIKofakEllerSenereSteg = behandling.harSattStartpunkt();
 
         if (!stårIKofakEllerSenereSteg || !behandling.erYtelseBehandling()) {
             return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.SKJUL);

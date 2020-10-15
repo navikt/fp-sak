@@ -2,10 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.verge;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -38,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyDto;
@@ -80,7 +79,6 @@ public class VergeTjenesteTest {
         Fagsak fagsak = opprettFagsak();
         Behandling behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(anyLong(), eq(BehandlingStegType.KONTROLLER_FAKTA))).thenReturn(false);
 
         // Act
         VergeBehandlingsmenyDto resultat = vergeTjeneste.utledBehandlingsmeny(behandling.getId());
@@ -95,7 +93,6 @@ public class VergeTjenesteTest {
         Fagsak fagsak = opprettFagsak();
         Behandling behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.KLAGE).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(anyLong(), eq(BehandlingStegType.KONTROLLER_FAKTA))).thenReturn(true);
 
         // Act
         VergeBehandlingsmenyDto resultat = vergeTjeneste.utledBehandlingsmeny(behandling.getId());
@@ -109,8 +106,8 @@ public class VergeTjenesteTest {
         // Arrange
         Fagsak fagsak = opprettFagsak();
         Behandling behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
+        behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(anyLong(), eq(BehandlingStegType.KONTROLLER_FAKTA))).thenReturn(true);
 
         // Act
         VergeBehandlingsmenyDto resultat = vergeTjeneste.utledBehandlingsmeny(behandling.getId());
@@ -124,8 +121,8 @@ public class VergeTjenesteTest {
         // Arrange
         Fagsak fagsak = opprettFagsak();
         Behandling behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
+        behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(anyLong(), eq(BehandlingStegType.KONTROLLER_FAKTA))).thenReturn(true);
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
 
         // Act
@@ -140,8 +137,8 @@ public class VergeTjenesteTest {
         // Arrange
         Fagsak fagsak = opprettFagsak();
         Behandling behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
+        behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(anyLong(), eq(BehandlingStegType.KONTROLLER_FAKTA))).thenReturn(true);
         VergeBuilder vergeBuilder = new VergeBuilder()
             .medVergeType(VergeType.BARN)
             .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
