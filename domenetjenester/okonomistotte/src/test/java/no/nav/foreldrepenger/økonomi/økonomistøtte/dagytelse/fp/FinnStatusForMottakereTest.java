@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.Tilkjent
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.TilkjentYtelseAndel;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.TilkjentYtelsePeriode;
 
-public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteImplBaseTest {
+public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase {
 
     private ForrigeOppdragInput forrigeOppdragInputFPFP;
     private BehandlingVedtakOppdrag behandlingVedtakFP;

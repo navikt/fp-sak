@@ -109,7 +109,7 @@ public class KodeverkSynkroniseringTest {
         element.setNavn(navn);
         element.setVersjonsnummer(versjon);
         element.setUri("http://nav.no/kodeverk/Kodeverk/" + navn + "?v=" + versjon);
-        element.setVersjoneringsdato(KodeverkTjenesteImplTest.convertToXMLGregorianCalendar(LocalDate.now().minusDays(1)));
+        element.setVersjoneringsdato(KodeverkTjenesteTest.convertToXMLGregorianCalendar(LocalDate.now().minusDays(1)));
         FinnKodeverkListeResponse response = new FinnKodeverkListeResponse();
         response.getKodeverkListe().add(element);
         return response;
@@ -130,8 +130,8 @@ public class KodeverkSynkroniseringTest {
 
     private static Kode lagKode(String kodeNavn, String termNavn, String uri, LocalDate fom, LocalDate tom) {
         Periode periode = new Periode();
-        periode.setFom(KodeverkTjenesteImplTest.convertToXMLGregorianCalendar(fom));
-        periode.setTom(KodeverkTjenesteImplTest.convertToXMLGregorianCalendar(tom));
+        periode.setFom(KodeverkTjenesteTest.convertToXMLGregorianCalendar(fom));
+        periode.setTom(KodeverkTjenesteTest.convertToXMLGregorianCalendar(tom));
         Kode kode = new Kode();
         kode.setNavn(kodeNavn);
         kode.getGyldighetsperiode().add(periode);

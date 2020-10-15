@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatus
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.OppdragskontrollConstants;
 
-public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteImplBaseTest {
+public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTestBase {
 
     @Override
     @Before

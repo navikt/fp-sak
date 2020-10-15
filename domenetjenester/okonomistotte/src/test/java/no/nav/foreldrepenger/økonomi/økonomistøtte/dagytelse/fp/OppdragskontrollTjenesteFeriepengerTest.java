@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
 
-public class OppdragskontrollTjenesteFeriepengerTest extends OppdragskontrollTjenesteImplBaseTest {
+public class OppdragskontrollTjenesteFeriepengerTest extends OppdragskontrollTjenesteTestBase {
 
     private static final Long PROSESS_TASK_ID_2 = 89L;
 

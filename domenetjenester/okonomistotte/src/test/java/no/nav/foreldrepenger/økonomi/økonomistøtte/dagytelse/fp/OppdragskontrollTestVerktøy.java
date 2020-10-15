@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp;
 
-import static no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp.OppdragskontrollTjenesteImplBaseTest.I_ÅR;
+import static no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp.OppdragskontrollTjenesteTestBase.I_ÅR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -87,7 +87,7 @@ class OppdragskontrollTestVerktøy {
         List<Oppdragslinje150> revurderingOppdr150Liste = getOppdragslinje150Liste(revurderingOppdrag);
         List<Oppdragslinje150> revurderingOppdr150ListeBruker = revurderingOppdr150Liste.stream().filter(opp150 -> opp150.getOppdrag110().getKodeFagomrade().equals(ØkonomiKodeFagområde.FP.name()))
             .filter(opp150 -> !opp150.getKodeKlassifik().equals(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik())).filter(opp150 -> opp150.getKodeEndringLinje().equals(ØkonomiKodeEndringLinje.NY.name()))
-            .filter(opp150 -> opp150.getDatoVedtakFom().equals(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(8))).collect(Collectors.toList());
+            .filter(opp150 -> opp150.getDatoVedtakFom().equals(OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(8))).collect(Collectors.toList());
 
         assertThat(originaltOppdr150ListeBruker).hasSize(1);
         assertThat(revurderingOppdr150ListeBruker).hasSize(1);
@@ -387,7 +387,7 @@ class OppdragskontrollTestVerktøy {
         assertThat(opp150RevurdListe).anySatisfy(opp150 ->
             assertThat(opp150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik()));
         assertThat(opp150RevurdListe).anySatisfy(opp150 ->
-            assertThat(opp150.getTypeSats()).isEqualTo(OppdragskontrollTjenesteImplBaseTest.TYPE_SATS_FP_FERIEPG));
+            assertThat(opp150.getTypeSats()).isEqualTo(OppdragskontrollTjenesteTestBase.TYPE_SATS_FP_FERIEPG));
         List<Oppdragslinje150> opp150FeriepgBrukerList = opp150RevurdListe.stream().filter(o150 -> o150.getUtbetalesTilId() != null)
             .filter(opp150 -> opp150.getKodeKlassifik().equals(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik()))
             .filter(Oppdragslinje150::gjelderOpphør).collect(Collectors.toList());

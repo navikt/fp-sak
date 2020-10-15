@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagomr
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 
-public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest extends OppdragskontrollTjenesteImplBaseTest {
+public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest extends OppdragskontrollTjenesteTestBase {
 
     @Override
     @Before
@@ -41,8 +41,8 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
     public void skalKunneSendeOpphørPåOpphørNårEndringsdatoBlirEndretTilEnTidligereEndringsdatoISisteBehandling() {
 
         // Arrange
-        LocalDate førsteEndringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(7);
-        LocalDate andreEndringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(4);
+        LocalDate førsteEndringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(7);
+        LocalDate andreEndringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(4);
         BigDecimal utbetalingsgrad = BigDecimal.valueOf(100);
 
         // Førstegangsbehandling
@@ -111,7 +111,7 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
     public void testEndringAvKodeNårEnFørstegangsbehandlingBlirOpphørtAvRevurderingOgEnNyFørstegangsbehandlingBlirOpprettetPåSammeFagsakMedEndringAvBruker() {
 
         // Arrange
-        LocalDate endringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(8);
+        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(8);
         BigDecimal utbetalingsgrad = BigDecimal.valueOf(100);
 
         // Førstegangsbehandling
@@ -172,7 +172,7 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
     public void testEndringAvKodeNårEnFørstegangsbehandlingBlirOpphørtAvRevurderingOgEnNyFørstegangsbehandlingBlirOpprettetPåSammeFagsakMedEndringAvBrukerOgNyAndelForArbeidsgiver() {
 
         // Arrange
-        LocalDate endringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BigDecimal utbetalingsgrad = BigDecimal.valueOf(100);
 
         // Førstegangsbehandling
@@ -518,7 +518,7 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
         BeregningsresultatPeriode b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultatFP_1, 9, 20);
         buildBeregningsresultatAndel(b1Periode_2, true, 1000, utbetalingsgrad, virksomhet);
         BeregningsresultatFeriepenger b1_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFP_1);
-        buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO));
+        buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
         Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
 
@@ -531,7 +531,7 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
         BeregningsresultatPeriode b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatFørsteRevurderingFP, 9, 16);
         buildBeregningsresultatAndel(b2Periode_2, true, 1000, utbetalingsgrad, virksomhet);
         BeregningsresultatFeriepenger b2_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFørsteRevurderingFP);
-        buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO));
+        buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(førsteRevurdering, beregningsresultatFørsteRevurderingFP);
         Oppdragskontroll oppdragForFørsteRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, førsteRevurdering);
 
@@ -544,7 +544,7 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
         BeregningsresultatPeriode b3Periode_2 = buildBeregningsresultatPeriode(beregningsresultatAndreRevurderingFP, 9, 12);
         buildBeregningsresultatAndel(b3Periode_2, true, 900, utbetalingsgrad, virksomhet);
         BeregningsresultatFeriepenger b3_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatAndreRevurderingFP);
-        buildBeregningsresultatFeriepengerPrÅr(b3_feriepenger, b3Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO));
+        buildBeregningsresultatFeriepengerPrÅr(b3_feriepenger, b3Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(andreRevurdering, beregningsresultatAndreRevurderingFP);
 
         // Act
@@ -867,13 +867,13 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
         Oppdragskontroll oppdragForFørstegangsbehandling = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
 
         Behandling førsteRevurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato_1 = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(9);
+        LocalDate endringsdato_1 = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(9);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingEntenForBrukerEllerArbgvr(true, false, endringsdato_1);
         beregningsresultatRepository.lagre(førsteRevurdering, beregningsresultatRevurderingFP);
         Oppdragskontroll oppdragForFørsteRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, førsteRevurdering);
 
         Behandling andreRevurdering = opprettOgLagreRevurdering(førsteRevurdering, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato_2 = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(9);
+        LocalDate endringsdato_2 = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(9);
         BeregningsresultatEntitet beregningsresultatRevurderingFP_2 = buildBeregningsresultatRevurderingEntenForBrukerEllerArbgvr(true, true, endringsdato_2);
         beregningsresultatRepository.lagre(andreRevurdering, beregningsresultatRevurderingFP_2);
 

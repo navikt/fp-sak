@@ -17,30 +17,30 @@ class ØkonomiOppdragUtils {
 
     static String hentTypeSats(Boolean gjelderFP) {
         if (gjelderFP) {
-            return BehandleØkonomioppdragKvitteringImplTest.TYPESATS_FP;
+            return BehandleØkonomioppdragKvitteringTest.TYPESATS_FP;
         }
-        return BehandleØkonomioppdragKvitteringImplTest.TYPESATS_ES;
+        return BehandleØkonomioppdragKvitteringTest.TYPESATS_ES;
     }
 
     static String hentKodeKlassifik(Boolean gjelderFP) {
         if (gjelderFP) {
-            return BehandleØkonomioppdragKvitteringImplTest.KODEKLASSIFIK_FP;
+            return BehandleØkonomioppdragKvitteringTest.KODEKLASSIFIK_FP;
         }
-        return BehandleØkonomioppdragKvitteringImplTest.KODEKLASSIFIK_ES;
+        return BehandleØkonomioppdragKvitteringTest.KODEKLASSIFIK_ES;
     }
 
     static String hentKodeFagomrade(Boolean gjelderFP, Boolean brukerErMottaker) {
         if (gjelderFP) {
-            return brukerErMottaker ? BehandleØkonomioppdragKvitteringImplTest.KODEFAGOMRADE_FP : BehandleØkonomioppdragKvitteringImplTest.KODEFAGOMRADE_FPREF;
+            return brukerErMottaker ? BehandleØkonomioppdragKvitteringTest.KODEFAGOMRADE_FP : BehandleØkonomioppdragKvitteringTest.KODEFAGOMRADE_FPREF;
         }
-        return BehandleØkonomioppdragKvitteringImplTest.KODEFAGOMRADE_ES;
+        return BehandleØkonomioppdragKvitteringTest.KODEFAGOMRADE_ES;
     }
 
     static void leggTilRefusjons156(List<Oppdragslinje150> o150Liste) {
         for (Oppdragslinje150 o150 : o150Liste) {
             Refusjonsinfo156.builder()
                 .medMaksDato(LocalDate.now())
-                .medRefunderesId(BehandleØkonomioppdragKvitteringImplTest.REFUNDERES_ID)
+                .medRefunderesId(BehandleØkonomioppdragKvitteringTest.REFUNDERES_ID)
                 .medDatoFom(LocalDate.now())
                 .medOppdragslinje150(o150)
                 .build();
@@ -50,8 +50,8 @@ class ØkonomiOppdragUtils {
     static void leggTilGrad170(List<Oppdragslinje150> o150Liste) {
         for (Oppdragslinje150 o150 : o150Liste) {
             Grad170.builder()
-                .medGrad(BehandleØkonomioppdragKvitteringImplTest.GRAD)
-                .medTypeGrad(BehandleØkonomioppdragKvitteringImplTest.TYPE_GRAD)
+                .medGrad(BehandleØkonomioppdragKvitteringTest.GRAD)
+                .medTypeGrad(BehandleØkonomioppdragKvitteringTest.TYPE_GRAD)
                 .medOppdragslinje150(o150)
                 .build();
         }
@@ -60,39 +60,39 @@ class ØkonomiOppdragUtils {
     static void setupOppdrag110(Oppdragskontroll oppdrag, Avstemming115 a115, Boolean gjelderFP) {
         Oppdrag110 o110_1 = new Oppdrag110.Builder()
             .medAvstemming115(a115)
-            .medKodeAksjon(BehandleØkonomioppdragKvitteringImplTest.KODEAKSJON)
-            .medKodeEndring(BehandleØkonomioppdragKvitteringImplTest.KODEENDRING)
+            .medKodeAksjon(BehandleØkonomioppdragKvitteringTest.KODEAKSJON)
+            .medKodeEndring(BehandleØkonomioppdragKvitteringTest.KODEENDRING)
             .medKodeFagomrade(hentKodeFagomrade(gjelderFP, true))
-            .medFagSystemId(BehandleØkonomioppdragKvitteringImplTest.FAGSYSTEMID_BRUKER)
-            .medUtbetFrekvens(BehandleØkonomioppdragKvitteringImplTest.UTBETFREKVENS)
-            .medOppdragGjelderId(BehandleØkonomioppdragKvitteringImplTest.OPPDRAGGJELDERID)
+            .medFagSystemId(BehandleØkonomioppdragKvitteringTest.FAGSYSTEMID_BRUKER)
+            .medUtbetFrekvens(BehandleØkonomioppdragKvitteringTest.UTBETFREKVENS)
+            .medOppdragGjelderId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
             .medDatoOppdragGjelderFom(LocalDate.now())
-            .medSaksbehId(BehandleØkonomioppdragKvitteringImplTest.SAKSBEHID)
+            .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
             .medOppdragskontroll(oppdrag)
             .build();
         new Oppdragsenhet120.Builder()
-            .medTypeEnhet(BehandleØkonomioppdragKvitteringImplTest.TYPEENHET)
+            .medTypeEnhet(BehandleØkonomioppdragKvitteringTest.TYPEENHET)
             .medDatoEnhetFom(LocalDate.now())
-            .medEnhet(BehandleØkonomioppdragKvitteringImplTest.ENHET)
+            .medEnhet(BehandleØkonomioppdragKvitteringTest.ENHET)
             .medOppdrag110(o110_1)
             .build();
         Oppdragslinje150 o150_1 = new Oppdragslinje150.Builder()
-            .medVedtakId(BehandleØkonomioppdragKvitteringImplTest.VEDTAKID)
+            .medVedtakId(BehandleØkonomioppdragKvitteringTest.VEDTAKID)
             .medDelytelseId(101002100100L)
-            .medKodeEndringLinje(BehandleØkonomioppdragKvitteringImplTest.KODEENDRINGLINJE)
+            .medKodeEndringLinje(BehandleØkonomioppdragKvitteringTest.KODEENDRINGLINJE)
             .medKodeKlassifik(hentKodeKlassifik(gjelderFP))
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
-            .medSats(BehandleØkonomioppdragKvitteringImplTest.SATS)
-            .medFradragTillegg(BehandleØkonomioppdragKvitteringImplTest.FRADRAGTILLEGG)
+            .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
+            .medFradragTillegg(BehandleØkonomioppdragKvitteringTest.FRADRAGTILLEGG)
             .medTypeSats(hentTypeSats(gjelderFP))
             .medBrukKjoreplan("N")
-            .medSaksbehId(BehandleØkonomioppdragKvitteringImplTest.SAKSBEHID)
-            .medUtbetalesTilId(BehandleØkonomioppdragKvitteringImplTest.OPPDRAGGJELDERID)
-            .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringImplTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringImplTest.BEHANDLINGID_ES)
+            .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
+            .medUtbetalesTilId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
+            .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
             .medOppdrag110(o110_1)
             .build();
         Attestant180.builder()
-            .medAttestantId(BehandleØkonomioppdragKvitteringImplTest.SAKSBEHID)
+            .medAttestantId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
             .medOppdragslinje150(o150_1)
             .build();
         if (gjelderFP) {
@@ -102,38 +102,38 @@ class ØkonomiOppdragUtils {
         if (gjelderFP) {
             Oppdrag110 o110_2 = new Oppdrag110.Builder()
                 .medAvstemming115(a115)
-                .medKodeAksjon(BehandleØkonomioppdragKvitteringImplTest.KODEAKSJON)
-                .medKodeEndring(BehandleØkonomioppdragKvitteringImplTest.KODEENDRING)
+                .medKodeAksjon(BehandleØkonomioppdragKvitteringTest.KODEAKSJON)
+                .medKodeEndring(BehandleØkonomioppdragKvitteringTest.KODEENDRING)
                 .medKodeFagomrade(hentKodeFagomrade(gjelderFP, false))
-                .medFagSystemId(BehandleØkonomioppdragKvitteringImplTest.FAGSYSTEMID_ARBEIDSGIVER)
-                .medUtbetFrekvens(BehandleØkonomioppdragKvitteringImplTest.UTBETFREKVENS)
-                .medOppdragGjelderId(BehandleØkonomioppdragKvitteringImplTest.OPPDRAGGJELDERID)
+                .medFagSystemId(BehandleØkonomioppdragKvitteringTest.FAGSYSTEMID_ARBEIDSGIVER)
+                .medUtbetFrekvens(BehandleØkonomioppdragKvitteringTest.UTBETFREKVENS)
+                .medOppdragGjelderId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
                 .medDatoOppdragGjelderFom(LocalDate.now())
-                .medSaksbehId(BehandleØkonomioppdragKvitteringImplTest.SAKSBEHID)
+                .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
                 .medOppdragskontroll(oppdrag)
                 .build();
             new Oppdragsenhet120.Builder()
-                .medTypeEnhet(BehandleØkonomioppdragKvitteringImplTest.TYPEENHET)
+                .medTypeEnhet(BehandleØkonomioppdragKvitteringTest.TYPEENHET)
                 .medDatoEnhetFom(LocalDate.now())
-                .medEnhet(BehandleØkonomioppdragKvitteringImplTest.ENHET)
+                .medEnhet(BehandleØkonomioppdragKvitteringTest.ENHET)
                 .medOppdrag110(o110_2)
                 .build();
             Oppdragslinje150 o150_2 = new Oppdragslinje150.Builder()
-                .medVedtakId(BehandleØkonomioppdragKvitteringImplTest.VEDTAKID)
+                .medVedtakId(BehandleØkonomioppdragKvitteringTest.VEDTAKID)
                 .medDelytelseId(101002101100L)
-                .medKodeEndringLinje(BehandleØkonomioppdragKvitteringImplTest.KODEENDRINGLINJE)
+                .medKodeEndringLinje(BehandleØkonomioppdragKvitteringTest.KODEENDRINGLINJE)
                 .medKodeKlassifik(hentKodeKlassifik(gjelderFP))
                 .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
-                .medSats(BehandleØkonomioppdragKvitteringImplTest.SATS)
-                .medFradragTillegg(BehandleØkonomioppdragKvitteringImplTest.FRADRAGTILLEGG)
+                .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
+                .medFradragTillegg(BehandleØkonomioppdragKvitteringTest.FRADRAGTILLEGG)
                 .medTypeSats(hentTypeSats(gjelderFP))
                 .medBrukKjoreplan("N")
-                .medSaksbehId(BehandleØkonomioppdragKvitteringImplTest.SAKSBEHID)
-                .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringImplTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringImplTest.BEHANDLINGID_ES)
+                .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
+                .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
                 .medOppdrag110(o110_2)
                 .build();
             Attestant180.builder()
-                .medAttestantId(BehandleØkonomioppdragKvitteringImplTest.SAKSBEHID)
+                .medAttestantId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
                 .medOppdragslinje150(o150_2)
                 .build();
             leggTilGrad170(Collections.singletonList(o150_2));

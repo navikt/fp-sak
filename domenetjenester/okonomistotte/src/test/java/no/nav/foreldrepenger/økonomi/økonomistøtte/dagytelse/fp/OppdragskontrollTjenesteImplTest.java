@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 
-public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteImplBaseTest {
+public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTestBase {
 
     @Override
     @Before
@@ -76,7 +76,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteIm
     public void skalSendeFørstegangsOppdragIRevurderingNårOriginalErInnvilgetOgFinnesIkkeTilkjentYtelseIOriginal() {
         // Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 4);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), virksomhet);
@@ -105,7 +105,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteIm
     public void skalSendeFørstegangsOppdragIRevurderingNårOriginalErAvslagOgFinnesIkkeTilkjentYtelseIOriginal() {
         // Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, false);
-        LocalDate endringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 4);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), virksomhet);
@@ -192,10 +192,10 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteIm
         assertThat(oppdragslinje150Liste).hasSize(2);
         assertThat(oppdragslinje150Liste.stream()
             .anyMatch(odl150 -> IntervallUtil.byggIntervall(odl150.getDatoVedtakFom(), odl150.getDatoVedtakTom())
-                .equals(IntervallUtil.byggIntervall(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(23), OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(30))))).isTrue();
+                .equals(IntervallUtil.byggIntervall(OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(23), OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(30))))).isTrue();
         assertThat(oppdragslinje150Liste.stream()
             .anyMatch(odl150 -> IntervallUtil.byggIntervall(odl150.getDatoVedtakFom(), odl150.getDatoVedtakTom())
-                .equals(IntervallUtil.byggIntervall(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(16), OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(22))))).isFalse();
+                .equals(IntervallUtil.byggIntervall(OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(16), OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(22))))).isFalse();
     }
 
     @Test
@@ -588,11 +588,11 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteIm
             String arbeidsforholdOrgnr = brAndel.getArbeidsforholdIdentifikator();
             String refunderesId = OppdragskontrollTestVerktøy.endreTilElleveSiffer(arbeidsforholdOrgnr);
             if (refunderesId.equals(OppdragskontrollTestVerktøy.endreTilElleveSiffer(ARBEIDSFORHOLD_ID))) {
-                assertThat(refusjonsinfo156.getMaksDato()).isEqualTo(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(7));
+                assertThat(refusjonsinfo156.getMaksDato()).isEqualTo(OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(7));
             } else if (refunderesId.equals(OppdragskontrollTestVerktøy.endreTilElleveSiffer(ARBEIDSFORHOLD_ID_2))) {
-                assertThat(refusjonsinfo156.getMaksDato()).isEqualTo(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(15));
+                assertThat(refusjonsinfo156.getMaksDato()).isEqualTo(OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(15));
             } else {
-                assertThat(refusjonsinfo156.getMaksDato()).isEqualTo(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(22));
+                assertThat(refusjonsinfo156.getMaksDato()).isEqualTo(OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(22));
             }
             assertThat(refusjonsinfo156.getRefunderesId()).isEqualTo(refunderesId);
             assertThat(refusjonsinfo156.getDatoFom()).isEqualTo(behVedtak.getVedtaksdato());
