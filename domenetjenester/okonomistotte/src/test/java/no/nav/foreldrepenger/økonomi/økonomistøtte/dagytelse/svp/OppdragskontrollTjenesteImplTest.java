@@ -21,10 +21,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp.OppdragskontrollTjenesteImplBaseTest;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp.OppdragskontrollTjenesteTestBase;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
 
-public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteImplBaseTest {
+public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTestBase {
 
     @Override
     @Before

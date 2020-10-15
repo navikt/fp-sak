@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 
-class OppdragskontrollFeriepengerTestUtil extends OppdragskontrollTjenesteImplBaseTest {
+class OppdragskontrollFeriepengerTestUtil extends OppdragskontrollTjenesteTestBase {
 
     static void verifiserOpp150NårEndringGjelderEttFeriepengeår(List<Oppdragslinje150> opp150ForrigeFeriepengerListe, List<Oppdragslinje150> opp150RevurderingFeriepengerListe,
                                                                 boolean erEndringForFørsteÅr) {

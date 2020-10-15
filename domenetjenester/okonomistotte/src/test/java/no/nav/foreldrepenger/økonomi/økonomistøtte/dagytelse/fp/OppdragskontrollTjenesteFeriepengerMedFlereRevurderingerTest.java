@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 
-public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extends OppdragskontrollTjenesteImplBaseTest {
+public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extends OppdragskontrollTjenesteTestBase {
 
     @Override
     @Before

@@ -6,17 +6,19 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
 
-import javax.inject.Inject;
+import javax.enterprise.inject.spi.CDI;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -24,30 +26,35 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.TilkjentYtelse;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelseAndelV1;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelseBehandlingInfoV1;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelsePeriodeV1;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelseV1;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class TilkjentYtelseTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class TilkjentYtelseTjenesteTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private TilkjentYtelseTjeneste tjeneste;
+    private BehandlingRepositoryProvider behandlingRepositoryProvider;
+    private BehandlingRepository behandlingRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
-    @Inject
-    TilkjentYtelseTjeneste tjeneste;
-    @Inject
-    BehandlingRepositoryProvider behandlingRepositoryProvider;
-    @Inject
-    BehandlingRepository behandlingRepository;
-    @Inject
-    BeregningsresultatRepository beregningsresultatRepository;
-    @Inject
-    BehandlingVedtakRepository behandlingVedtakRepository;
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        behandlingRepository = new BehandlingRepository(entityManager);
+        behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
+        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
+        tjeneste = new TilkjentYtelseTjeneste(behandlingRepository, behandlingVedtakRepository,
+            new FamilieHendelseRepository(entityManager), CDI.current().select(YtelseTypeTilkjentYtelseTjeneste.class));
+        behandlingRepositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
+    }
 
     @Test
     public void skal_hente_beregningsresultat_og_mappe_om() {
@@ -105,12 +112,14 @@ public class TilkjentYtelseTjenesteTest {
     }
 
     private void lagreResultat(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.builderForBeregningResultat()
+        var behandlingsresultat = Behandlingsresultat.builder()
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-            .buildFor(behandling);
+            .build();
 
-        repoRule.getRepository().lagre(behandlingsresultat.getBeregningResultat());
-        repoRule.getRepository().lagre(behandlingsresultat);
+        if (beregningsresultat != null) {
+            beregningsresultatRepository.lagre(behandling, beregningsresultat);
+        }
+        behandlingsresultatRepository.lagre(behandling.getId(), behandlingsresultat);
 
         BehandlingLås lås = new BehandlingLås(behandling.getId());
         behandlingRepository.lagre(behandling, lås);

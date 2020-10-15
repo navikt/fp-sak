@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragMedPositivKvitterin
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
 
-public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteImplBaseTest {
+public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTestBase {
 
     @Override
     @Before
@@ -56,7 +56,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(true, endringsdato);
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
@@ -695,7 +695,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
         buildBeregningsresultatAndel(b2Periode_1, true, 1000, BigDecimal.valueOf(100), virksomhet);
@@ -781,7 +781,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 5);
         buildBeregningsresultatAndel(b2Periode_1, true, 1500, BigDecimal.valueOf(100), virksomhet,
@@ -928,7 +928,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 5);
         buildBeregningsresultatAndel(b2Periode_1, true, 1500, BigDecimal.valueOf(100), virksomhet2,
@@ -1088,7 +1088,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
         LocalDate sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeTom();
         LocalDate endringsdato = sistePeriodeTom.minusDays(5);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
-        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(1), endringsdato.minusDays(1));
+        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1), endringsdato.minusDays(1));
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100), virksomhet);
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
@@ -1282,7 +1282,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
         buildBeregningsresultatAndel(b1Periode_1, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
         BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
-        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelAT, 20000L, Collections.singletonList(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO));
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelAT, 20000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
         OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
 
@@ -1299,7 +1299,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
         buildBeregningsresultatAndel(b2Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         BeregningsresultatFeriepenger feriepengerRevurdering = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
-        buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingAT, 20000L, Collections.singletonList(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO));
+        buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingAT, 20000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
@@ -1570,7 +1570,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
         BeregningsresultatFeriepenger b1_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFP_1);
-        buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO));
+        buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
         Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
 
@@ -1597,7 +1597,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
         buildBeregningsresultatAndel(b2Periode_3, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
         BeregningsresultatFeriepenger b2_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
-        buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, List.of(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO, OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusYears(1)));
+        buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, List.of(OppdragskontrollTjenesteTestBase.DAGENS_DATO, OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusYears(1)));
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         //Act
@@ -1670,7 +1670,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         BeregningsresultatFeriepenger b1_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFP_1);
-        buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO));
+        buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
         Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
 
@@ -1691,7 +1691,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
         buildBeregningsresultatAndel(b2Periode_3, true, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         BeregningsresultatFeriepenger b2_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
-        buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, List.of(OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO, OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusYears(1)));
+        buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, List.of(OppdragskontrollTjenesteTestBase.DAGENS_DATO, OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusYears(1)));
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         //Act
@@ -1951,7 +1951,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
         buildBeregningsresultatAndel(b2Periode_1, true, 1100, BigDecimal.valueOf(100), virksomhet);
@@ -2008,7 +2008,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
         buildBeregningsresultatAndel(b2Periode_1, true, 1100, BigDecimal.valueOf(100), virksomhet);
@@ -2063,7 +2063,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
         buildBeregningsresultatAndel(b2Periode_1, true, 1200, BigDecimal.valueOf(100), null);
@@ -2114,7 +2114,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteIm
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteImplBaseTest.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
         buildBeregningsresultatAndel(b2Periode_1, false, 1200, BigDecimal.valueOf(100), virksomhet);

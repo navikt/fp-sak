@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class ForeslåVedtakInnsynStegImplTest {
 
     @Test
-    public void skal_gi_aksjonspunkt_for_å_manuelt_foreslå_vedtak_innsyn() throws Exception {
+    public void skal_gi_aksjonspunkt_for_å_manuelt_foreslå_vedtak_innsyn() {
         ForeslåVedtakInnsynStegImpl steg = new ForeslåVedtakInnsynStegImpl();
         BehandleStegResultat resultat = steg.utførSteg(null);
 
