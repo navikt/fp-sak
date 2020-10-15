@@ -8,29 +8,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class OpptjeningRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
+    private OpptjeningRepository opptjeningRepository;
 
-    private final EntityManager em = repoRule.getEntityManager();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(em);
-    private BasicBehandlingBuilder behandlingBuilder = new BasicBehandlingBuilder(em);
-    private final OpptjeningRepository opptjeningRepository = new OpptjeningRepository(em, repositoryProvider.getBehandlingRepository());
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        opptjeningRepository = new OpptjeningRepository(entityManager, new BehandlingRepository(entityManager));
+    }
 
     @Test
     public void skal_lagre_opptjeningsperiode() {
@@ -121,6 +121,7 @@ public class OpptjeningRepositoryTest {
     }
 
     private Behandling opprettBehandling() {
+        var behandlingBuilder = new BasicBehandlingBuilder(getEntityManager());
         Behandling behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
         var resultat = Behandlingsresultat.builder().build();
         behandlingBuilder.lagreBehandlingsresultat(behandling.getId(), resultat);
@@ -138,7 +139,7 @@ public class OpptjeningRepositoryTest {
 
         // Assert
         assertThat(næring.getKode()).isEqualTo(næringKode);
-        assertThat(næring.getNavn()).isNotJavaBlank();
+        assertThat(næring.getNavn()).isNotEmpty();
     }
 
     @Test
@@ -149,6 +150,6 @@ public class OpptjeningRepositoryTest {
 
         // Assert
         assertThat(resultat.getKode()).isEqualTo(kode);
-        assertThat(resultat.getNavn()).isNotJavaBlank();
+        assertThat(resultat.getNavn()).isNotEmpty();
     }
 }
