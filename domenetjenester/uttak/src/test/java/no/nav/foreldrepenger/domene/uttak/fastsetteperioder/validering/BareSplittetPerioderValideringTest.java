@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,7 +31,7 @@ public class BareSplittetPerioderValideringTest {
         var nyePerioder = List.of(periodeMedDato(opprinneligFom, førsteTom), periodeMedDato(sisteFom, opprinneligTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
-        assertThatCode(() -> validering.utfør(nyePerioder)).doesNotThrowAnyException();
+        assertDoesNotThrow(() -> validering.utfør(nyePerioder));
     }
 
     @Test
@@ -45,7 +45,7 @@ public class BareSplittetPerioderValideringTest {
         var nyePerioder = List.of(periodeMedDato(førsteFom, førsteTom), periodeMedDato(sisteFom, opprinneligTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
-        assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
+        assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
     @Test
@@ -59,7 +59,7 @@ public class BareSplittetPerioderValideringTest {
         var nyePerioder = List.of(periodeMedDato(førsteFom, førsteTom), periodeMedDato(sisteFom, opprinneligTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
-        assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
+        assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
     @Test
@@ -73,7 +73,7 @@ public class BareSplittetPerioderValideringTest {
         var nyePerioder = List.of(periodeMedDato(opprinneligFom, førsteTom), periodeMedDato(sisteFom, sisteTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
-        assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
+        assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class BareSplittetPerioderValideringTest {
             periodeMedDato(tredjeFom, opprinneligTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
-        assertThatCode(() -> validering.utfør(nyePerioder)).doesNotThrowAnyException();
+        assertDoesNotThrow(() -> validering.utfør(nyePerioder));
     }
 
     @Test
@@ -101,7 +101,7 @@ public class BareSplittetPerioderValideringTest {
         var nyePerioder = List.of(periodeMedDato(opprinneligFom, opprinneligTom), periodeMedDato(opprinneligFom, opprinneligTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
-        assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
+        assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
     @Test
@@ -113,7 +113,7 @@ public class BareSplittetPerioderValideringTest {
         var nyePerioder = List.of(periodeMedDato(førsteFom, førsteFom), periodeMedDato(førsteTom, andreTom));
 
         BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
-        assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
+        assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
     private ForeldrepengerUttakPeriodeAktivitet aktivitet() {

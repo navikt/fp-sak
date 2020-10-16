@@ -46,7 +46,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilde
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 
 public class VurderRefusjonHistorikkTjenesteTest {
     private static final String NAV_ORGNR = "889640782";
@@ -66,8 +65,7 @@ public class VurderRefusjonHistorikkTjenesteTest {
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(null,
             new FagsakRepository(em));
-        HistorikkInnslagKonverter historikkinnslagKonverter = new HistorikkInnslagKonverter();
-        historikkTjenesteAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(em), historikkinnslagKonverter, dokumentArkivTjeneste);
+        historikkTjenesteAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(em), dokumentArkivTjeneste);
         VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(VIRKSOMHET.getIdentifikator()))
             .thenReturn(new Virksomhet.Builder().medOrgnr(VIRKSOMHET.getOrgnr()).build());

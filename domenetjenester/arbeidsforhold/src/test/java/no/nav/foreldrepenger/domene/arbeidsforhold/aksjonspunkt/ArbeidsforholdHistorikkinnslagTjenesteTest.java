@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYS
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
-import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumer;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
@@ -44,8 +43,6 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest extends EntityManagerAwa
     @Mock
     private JournalConsumer journalConsumer;
 
-    private final HistorikkInnslagKonverter historikkInnslagKonverter = new HistorikkInnslagKonverter();
-
     private IAYRepositoryProvider provider;
     private HistorikkTjenesteAdapter historikkAdapter;
     private ArbeidsforholdHistorikkinnslagTjeneste arbeidsforholdHistorikkinnslagTjeneste;
@@ -56,7 +53,7 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest extends EntityManagerAwa
         provider = new IAYRepositoryProvider(entityManager);
         HistorikkRepository historikkRepository = new HistorikkRepository(entityManager);
         DokumentArkivTjeneste dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(journalConsumer, provider.getFagsakRepository());
-        historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, historikkInnslagKonverter, dokumentApplikasjonTjeneste);
+        historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, dokumentApplikasjonTjeneste);
         arbeidsforholdHistorikkinnslagTjeneste = new ArbeidsforholdHistorikkinnslagTjeneste(historikkAdapter, arbeidsgiverHistorikkinnslagTjeneste);
     }
 

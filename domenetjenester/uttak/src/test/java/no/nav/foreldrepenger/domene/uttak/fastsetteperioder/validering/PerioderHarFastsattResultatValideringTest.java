@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,7 +20,7 @@ public class PerioderHarFastsattResultatValideringTest {
         var nyePerioder = List.of(periodeMedResultat(null));
 
         PerioderHarFastsattResultatValidering validering = new PerioderHarFastsattResultatValidering();
-        assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
+        assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
     @Test
@@ -28,7 +28,7 @@ public class PerioderHarFastsattResultatValideringTest {
         var nyePerioder = List.of(periodeMedResultat(PeriodeResultatType.IKKE_FASTSATT));
 
         PerioderHarFastsattResultatValidering validering = new PerioderHarFastsattResultatValidering();
-        assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
+        assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
     @Test
@@ -36,7 +36,7 @@ public class PerioderHarFastsattResultatValideringTest {
         var nyePerioder = List.of(periodeMedResultat(PeriodeResultatType.INNVILGET));
 
         PerioderHarFastsattResultatValidering validering = new PerioderHarFastsattResultatValidering();
-        assertThatCode(() -> validering.utfør(nyePerioder)).doesNotThrowAnyException();
+        assertDoesNotThrow(() -> validering.utfør(nyePerioder));
     }
 
     private ForeldrepengerUttakPeriode periodeMedResultat(PeriodeResultatType resultatType) {

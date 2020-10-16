@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,7 +26,7 @@ public class EndringerHarBegrunnelseValideringTest {
         var opprinnelig = List.of(periode(null, PeriodeResultatType.IKKE_FASTSATT));
         var nyePerioder = List.of(periode("Ny begrunnelse", PeriodeResultatType.INNVILGET));
         var validering = new EndringerHarBegrunnelseValidering(opprinnelig);
-        assertThatCode(() -> validering.utfør(nyePerioder)).doesNotThrowAnyException();
+        assertDoesNotThrow(() -> validering.utfør(nyePerioder));
     }
 
     @Test
@@ -34,7 +34,7 @@ public class EndringerHarBegrunnelseValideringTest {
         var opprinnelig = List.of(periode(null, PeriodeResultatType.IKKE_FASTSATT));
         var nyePerioder = List.of(periode("", PeriodeResultatType.INNVILGET));
         var validering = new EndringerHarBegrunnelseValidering(opprinnelig);
-        assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
+        assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
     @Test
@@ -42,7 +42,7 @@ public class EndringerHarBegrunnelseValideringTest {
         var opprinnelig = List.of(periode(null, PeriodeResultatType.IKKE_FASTSATT));
         var nyePerioder = List.of(periode(null, PeriodeResultatType.INNVILGET));
         var validering = new EndringerHarBegrunnelseValidering(opprinnelig);
-        assertThatThrownBy(() -> validering.utfør(nyePerioder)).isInstanceOf(TekniskException.class);
+        assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
     @Test
@@ -50,7 +50,7 @@ public class EndringerHarBegrunnelseValideringTest {
         var opprinnelig = List.of(periode(null, PeriodeResultatType.INNVILGET));
         var nyePerioder = List.of(periode(null, PeriodeResultatType.INNVILGET));
         var validering = new EndringerHarBegrunnelseValidering(opprinnelig);
-        assertThatCode(() -> validering.utfør(nyePerioder)).isNull();
+        assertDoesNotThrow(() -> validering.utfør(nyePerioder));
     }
 
     @Test
@@ -58,7 +58,7 @@ public class EndringerHarBegrunnelseValideringTest {
         var opprinnelig = List.of(periode(new Trekkdager(10)));
         var nyePerioder = List.of(periode(new Trekkdager(15)));
         var validering = new EndringerHarBegrunnelseValidering(opprinnelig);
-        assertThatCode(() -> validering.utfør(nyePerioder)).isNull();
+        assertDoesNotThrow(() -> validering.utfør(nyePerioder));
     }
 
     private ForeldrepengerUttakPeriode periode(Trekkdager trekkdager) {

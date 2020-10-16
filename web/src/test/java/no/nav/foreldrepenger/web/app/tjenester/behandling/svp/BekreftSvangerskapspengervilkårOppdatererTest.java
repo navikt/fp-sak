@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 import no.nav.foreldrepenger.web.RepositoryAwareTest;
 
 public class BekreftSvangerskapspengervilkårOppdatererTest extends RepositoryAwareTest {
@@ -88,8 +87,7 @@ public class BekreftSvangerskapspengervilkårOppdatererTest extends RepositoryAw
     }
 
     private BekreftSvangerskapspengervilkårOppdaterer oppdaterer() {
-        return new BekreftSvangerskapspengervilkårOppdaterer(new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(),
-                new HistorikkInnslagKonverter(),
+        return new BekreftSvangerskapspengervilkårOppdaterer(new HistorikkTjenesteAdapter(historikkRepository,
                 mock(DokumentArkivTjeneste.class)));
     }
 

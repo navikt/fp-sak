@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,7 +26,7 @@ public class HarSattUtbetalingsgradValideringTest {
         var nye = perioder(PeriodeResultatType.INNVILGET, new Utbetalingsgrad(50));
 
         HarSattUtbetalingsgradValidering validator = new HarSattUtbetalingsgradValidering(opprinnelig);
-        assertThatCode(() -> validator.utfør(nye)).doesNotThrowAnyException();
+        assertDoesNotThrow(() -> validator.utfør(nye));
     }
 
     @Test
@@ -34,7 +35,7 @@ public class HarSattUtbetalingsgradValideringTest {
         var nye = perioder(PeriodeResultatType.INNVILGET, null);
 
         HarSattUtbetalingsgradValidering validator = new HarSattUtbetalingsgradValidering(opprinnelig);
-        assertThatCode(() -> validator.utfør(nye)).doesNotThrowAnyException();
+        assertDoesNotThrow(() -> validator.utfør(nye));
     }
 
     @Test
@@ -43,7 +44,7 @@ public class HarSattUtbetalingsgradValideringTest {
         var nye = perioder(PeriodeResultatType.INNVILGET, null);
 
         HarSattUtbetalingsgradValidering validator = new HarSattUtbetalingsgradValidering(opprinnelig);
-        assertThatCode(() -> validator.utfør(nye)).isInstanceOf(TekniskException.class);
+        assertThrows(TekniskException.class, () -> validator.utfør(nye));
     }
 
     private List<ForeldrepengerUttakPeriode> perioder(PeriodeResultatType resultat, Utbetalingsgrad utbetalingsgrad) {

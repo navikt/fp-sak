@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilde
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumerImpl;
 
 public class KunYtelseHistorikkTjenesteTest {
@@ -58,7 +57,7 @@ public class KunYtelseHistorikkTjenesteTest {
 
     private final DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(mock(JournalConsumerImpl.class), new FagsakRepository(em));
     private HistorikkTjenesteAdapter historikkAdapter = new HistorikkTjenesteAdapter(
-        new HistorikkRepository(repositoryRule.getEntityManager()), new HistorikkInnslagKonverter(), dokumentArkivTjeneste);
+        new HistorikkRepository(repositoryRule.getEntityManager()), dokumentArkivTjeneste);
     private KunYtelseHistorikkTjeneste kunYtelseHistorikkTjeneste;
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
     private BeregningsgrunnlagEntitet beregningsgrunnlag;

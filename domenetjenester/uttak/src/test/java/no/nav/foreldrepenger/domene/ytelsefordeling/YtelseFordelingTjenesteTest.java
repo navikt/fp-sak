@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.ytelsefordeling;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -104,7 +104,7 @@ public class YtelseFordelingTjenesteTest extends EntityManagerAwareTest {
         var periode1 = mødrekvote(LocalDate.now(), LocalDate.now().plusWeeks(1));
         var periode2 = mødrekvote(LocalDate.now().plusWeeks(1), LocalDate.now().plusWeeks(2));
         var perioder = List.of(periode1, periode2);
-        assertThatThrownBy(() -> tjeneste.overstyrSøknadsperioder(behandling.getId(), perioder, List.of())).isInstanceOf(IllegalArgumentException.class);
+        assertThrows(IllegalArgumentException.class, () -> tjeneste.overstyrSøknadsperioder(behandling.getId(), perioder, List.of()));
     }
 
     private OppgittPeriodeEntitet mødrekvote(LocalDate fom, LocalDate tom) {
