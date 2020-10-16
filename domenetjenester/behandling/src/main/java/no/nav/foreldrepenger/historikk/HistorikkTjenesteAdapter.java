@@ -17,12 +17,13 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
 
-/** RequestScoped fordi HistorikkInnslagTekstBuilder inneholder state og denne deles på tvers av AksjonspunktOppdaterere. */
+/**
+ * RequestScoped fordi HistorikkInnslagTekstBuilder inneholder state og denne deles på tvers av AksjonspunktOppdaterere.
+ */
 @RequestScoped
 public class HistorikkTjenesteAdapter {
     private HistorikkRepository historikkRepository;
     private HistorikkInnslagTekstBuilder builder;
-    private HistorikkInnslagKonverter historikkinnslagKonverter;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
 
     HistorikkTjenesteAdapter() {
@@ -31,10 +32,8 @@ public class HistorikkTjenesteAdapter {
 
     @Inject
     public HistorikkTjenesteAdapter(HistorikkRepository historikkRepository,
-                                        HistorikkInnslagKonverter historikkinnslagKonverter,
-                                        DokumentArkivTjeneste dokumentArkivTjeneste) {
+                                    DokumentArkivTjeneste dokumentArkivTjeneste) {
         this.historikkRepository = historikkRepository;
-        this.historikkinnslagKonverter = historikkinnslagKonverter;
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
         this.builder = new HistorikkInnslagTekstBuilder();
     }
@@ -45,7 +44,7 @@ public class HistorikkTjenesteAdapter {
             .map(ArkivJournalPost::getJournalpostId)
             .collect(Collectors.toList());
         return historikkinnslagList.stream()
-            .map(historikkinnslag -> historikkinnslagKonverter.mapFra(historikkinnslag, journalPosterForSak))
+            .map(historikkinnslag -> HistorikkInnslagKonverter.mapFra(historikkinnslag, journalPosterForSak))
             .sorted()
             .collect(Collectors.toList());
     }
@@ -53,6 +52,7 @@ public class HistorikkTjenesteAdapter {
     /**
      * IKKE BRUK DENNE.
      * Kall på tekstBuilder() for å få HistorikkInnslagTekstBuilder.  Deretter opprettHistorikkInslag når ferdig
+     *
      * @param historikkinnslag
      */
     @Deprecated

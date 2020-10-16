@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 import no.nav.foreldrepenger.ytelse.beregning.rest.VurderTilbaketrekkDto;
 
 public class VurderTilbaketrekkOppdatererTest {
@@ -44,8 +43,7 @@ public class VurderTilbaketrekkOppdatererTest {
 
     @Before
     public void setup() {
-        HistorikkInnslagKonverter historikkInnslagKonverter = new HistorikkInnslagKonverter();
-        historikkAdapter = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(), historikkInnslagKonverter, null);
+        historikkAdapter = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(), null);
         vurderTilbaketrekkOppdaterer = new VurderTilbaketrekkOppdaterer(repositoryProvider, historikkAdapter);
         beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();

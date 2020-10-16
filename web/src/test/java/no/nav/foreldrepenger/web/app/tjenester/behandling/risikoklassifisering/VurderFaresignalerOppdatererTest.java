@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.modell.Risikoklassifise
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 
 public class VurderFaresignalerOppdatererTest {
     @Rule
@@ -46,11 +45,11 @@ public class VurderFaresignalerOppdatererTest {
     @Before
     public void setup() {
         behandlingRepositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-        HistorikkInnslagKonverter historikkInnslagKonverter = new HistorikkInnslagKonverter();
-        historikkAdapter = new HistorikkTjenesteAdapter(behandlingRepositoryProvider.getHistorikkRepository(), historikkInnslagKonverter, null);
+        historikkAdapter = new HistorikkTjenesteAdapter(behandlingRepositoryProvider.getHistorikkRepository(), null);
         behandlingRepository = new BehandlingRepository(repositoryRule.getEntityManager());
         risikoklassifiseringRepository = new RisikoklassifiseringRepository(repositoryRule.getEntityManager());
-        risikovurderingTjeneste = new RisikovurderingTjeneste(risikoklassifiseringRepository, behandlingRepository, null, null, null);
+        risikovurderingTjeneste = new RisikovurderingTjeneste(risikoklassifiseringRepository, behandlingRepository,
+            null, null, null);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagre(behandlingRepositoryProvider);
         vurderFaresignalerOppdaterer = new VurderFaresignalerOppdaterer(risikovurderingTjeneste, historikkAdapter);

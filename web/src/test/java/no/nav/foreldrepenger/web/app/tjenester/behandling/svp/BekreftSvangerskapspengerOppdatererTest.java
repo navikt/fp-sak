@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +50,6 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 import no.nav.foreldrepenger.tilganger.InnloggetNavAnsattDto;
 import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import no.nav.foreldrepenger.web.RepositoryAwareTest;
@@ -75,9 +74,7 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
     @BeforeEach
     public void beforeEach() {
         super.beforeEach();
-        historikkAdapter = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(),
-                new HistorikkInnslagKonverter(),
-                null);
+        historikkAdapter = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(), null);
         oppdaterer = new BekreftSvangerskapspengerOppdaterer(svangerskapspengerRepository, historikkAdapter,
                 repositoryProvider, familieHendelseRepository, tilgangerTjenesteMock, inntektArbeidYtelseTjeneste);
     }
@@ -216,7 +213,7 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
                 new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.DELVIS_TILRETTELEGGING, null));
 
         var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
-        assertThatCode(() -> oppdaterer.oppdater(dto, param)).doesNotThrowAnyException();
+        assertDoesNotThrow(() -> oppdaterer.oppdater(dto, param));
     }
 
     @Test

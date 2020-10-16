@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.oppdaterDtoForFødsel;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettBruker;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -73,9 +73,9 @@ public class EndringssøknadSøknadMapperTest extends RepositoryAwareTest {
                 .medElektroniskRegistrert(true);
 
         var wrapper = (MottattDokumentWrapperSøknad) MottattDokumentWrapperSøknad.tilXmlWrapper(soeknad);
-        assertThatThrownBy(() -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             oversetter.trekkUtDataOgPersister(wrapper, mottattDokumentBuilder.build(), behandling, Optional.empty());
-        }).isInstanceOf(IllegalArgumentException.class);
+        });
     }
 
 }

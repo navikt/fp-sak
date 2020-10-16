@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,7 +21,7 @@ public class EndringerBareEtterEndringsdatoValideringTest {
         var opprinneligePerioder = List.of(periode(LocalDate.of(2017, 12, 1), LocalDate.of(2017, 12, 31), PeriodeResultatType.AVSLÅTT));
         var validering = new EndringerBareEtterEndringsdatoValidering(opprinneligePerioder, LocalDate.of(2018, 1, 1));
 
-        assertThatCode(() -> validering.utfør(perioder)).isInstanceOf(TekniskException.class);
+        assertThrows(TekniskException.class, () -> validering.utfør(perioder));
     }
 
     @Test
@@ -30,7 +31,7 @@ public class EndringerBareEtterEndringsdatoValideringTest {
         var validering = new EndringerBareEtterEndringsdatoValidering(opprinneligePerioder, LocalDate.of(2018, 1, 1));
         validering.utfør(perioder);
 
-        assertThatCode(() -> validering.utfør(perioder)).doesNotThrowAnyException();
+        assertDoesNotThrow(() -> validering.utfør(perioder));
     }
 
     @Test
@@ -39,7 +40,7 @@ public class EndringerBareEtterEndringsdatoValideringTest {
         var opprinneligePerioder = List.of(periode(LocalDate.of(2018, 1, 1), LocalDate.of(2018, 1, 31), PeriodeResultatType.AVSLÅTT));
         var validering = new EndringerBareEtterEndringsdatoValidering(opprinneligePerioder, LocalDate.of(2018, 1, 1));
 
-        assertThatCode(() -> validering.utfør(perioder)).doesNotThrowAnyException();
+        assertDoesNotThrow(() -> validering.utfør(perioder));
     }
 
     @Test
@@ -48,7 +49,7 @@ public class EndringerBareEtterEndringsdatoValideringTest {
         var opprinneligePerioder = List.of(periode(LocalDate.of(2018, 1, 12), LocalDate.of(2018, 1, 31), PeriodeResultatType.AVSLÅTT));
         var validering = new EndringerBareEtterEndringsdatoValidering(opprinneligePerioder, LocalDate.of(2018, 1, 1));
 
-        assertThatCode(() -> validering.utfør(perioder)).doesNotThrowAnyException();
+        assertDoesNotThrow(() -> validering.utfør(perioder));
     }
 
     private ForeldrepengerUttakPeriode periode(LocalDate fom, LocalDate tom, PeriodeResultatType resultatType) {
