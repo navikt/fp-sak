@@ -8,12 +8,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -23,10 +20,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
@@ -50,39 +46,33 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Sammenligningsgrun
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-public class BeregningsgrunnlagRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
 
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
 
     private static final String ORGNR = "55";
     private static final BeregningsgrunnlagTilstand STEG_OPPRETTET = BeregningsgrunnlagTilstand.OPPRETTET;
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusDays(5);
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-    private final Repository repository = repoRule.getRepository();
-    private final BeregningsgrunnlagRepository beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private BehandlingRepository behandlingRepository;
+    private FagsakBehandlingBuilder behandlingBuilder;
 
-    private Behandling behandling;
-
-    private final FagsakBehandlingBuilder behandlingBuilder = new FagsakBehandlingBuilder(entityManager);
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setup() {
-        this.behandling = opprettBehandling();
+        var entityManager = getEntityManager();
+        beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        behandlingBuilder = new FagsakBehandlingBuilder(entityManager);
     }
 
     @Test
     public void skal_kopiere_med_register_aktiviteter_fra_original_behandling() {
         // Arrange
+        var behandling = opprettBehandling();
         BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = lagAktivitetAggregat();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
         BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
@@ -114,6 +104,7 @@ public class BeregningsgrunnlagRepositoryTest {
     @Test
     public void lagreRegisterBeregningAktiviteterOgBeregningsgrunnlag() {
         // Arrange
+        var behandling = opprettBehandling();
         BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = lagAktivitetAggregat();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
         BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
@@ -154,6 +145,7 @@ public class BeregningsgrunnlagRepositoryTest {
     @Test
     public void lagreSaksbehandletBeregningAktiviteterOgHentBeregningsgrunnlag() {
         // Arrange
+        var behandling = opprettBehandling();
         BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = lagAktivitetAggregat();
 
         // Act
@@ -171,6 +163,7 @@ public class BeregningsgrunnlagRepositoryTest {
     @Test
     public void lagreOverstyring() {
         // Arrange
+        var behandling = opprettBehandling();
         BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = lagAktivitetAggregat();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
         BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
@@ -198,6 +191,7 @@ public class BeregningsgrunnlagRepositoryTest {
     @Test
     public void skal_lagre_refusjon_overstrying() {
         // Arrange
+        var behandling = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
         BeregningRefusjonOverstyringEntitet overstyring = BeregningRefusjonOverstyringEntitet.builder().medArbeidsgiver(Arbeidsgiver.virksomhet("test123")).medFørsteMuligeRefusjonFom(LocalDate.now()).build();
         BeregningRefusjonOverstyringerEntitet refusjon = BeregningRefusjonOverstyringerEntitet.builder().leggTilOverstyring(
@@ -269,6 +263,7 @@ public class BeregningsgrunnlagRepositoryTest {
     @Test
     public void lagreBeregningsgrunnlagOgHentBeregningsgrunnlagGrunnlag() {
         // Arrange
+        var behandling = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
 
         // Act
@@ -286,6 +281,7 @@ public class BeregningsgrunnlagRepositoryTest {
     @Test
     public void skalHentSisteBeregningsgrunnlagGrunnlag() {
         // Arrange
+        var behandling = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag1 = buildBeregningsgrunnlag();
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag1, STEG_OPPRETTET);
 
@@ -308,6 +304,7 @@ public class BeregningsgrunnlagRepositoryTest {
     @Test
     public void skalReaktiverBeregningsgrunnlagGrunnlag() {
         // Arrange
+        var behandling = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag1 = buildBeregningsgrunnlag();
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag1, STEG_OPPRETTET);
 
@@ -331,6 +328,7 @@ public class BeregningsgrunnlagRepositoryTest {
     @Test
     public void lagreOgHenteBeregningsgrunnlag() {
         // Arrange
+        var behandling = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
 
         // Act
@@ -340,7 +338,6 @@ public class BeregningsgrunnlagRepositoryTest {
         Long id = beregningsgrunnlag.getId();
         assertThat(id).isNotNull();
 
-        repository.flushAndClear();
         Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagLest = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandling.getId());
 
         assertThat(beregningsgrunnlagLest).isEqualTo(Optional.of(beregningsgrunnlag));
@@ -349,6 +346,7 @@ public class BeregningsgrunnlagRepositoryTest {
     @Test
     public void lagreOgHenteBeregningsgrunnlagMedPrivatpersonSomArbgiver() {
         // Arrange
+        var behandling = opprettBehandling();
         AktørId aktørId = AktørId.dummy();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlagPrivatpersonArbgiver(aktørId);
 
@@ -361,7 +359,6 @@ public class BeregningsgrunnlagRepositoryTest {
         BGAndelArbeidsforhold arbFor = beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().get(0).getBgAndelArbeidsforhold().get();
         assertThat(arbFor.getArbeidsgiver().getIdentifikator()).isEqualTo(aktørId.getId());
 
-        repository.flushAndClear();
         Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagLest = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandling.getId());
 
         assertThat(beregningsgrunnlagLest).isEqualTo(Optional.of(beregningsgrunnlag));
@@ -385,6 +382,7 @@ public class BeregningsgrunnlagRepositoryTest {
     @Test
     public void lagreBeregningsgrunnlagOgUnderliggendeTabeller() {
         // Arrange
+        var behandling = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
 
         // Act
@@ -405,7 +403,7 @@ public class BeregningsgrunnlagRepositoryTest {
         Long bgPeriodeÅrsakId = bgPeriodeLagret.getBeregningsgrunnlagPeriodeÅrsaker().get(0).getId();
         assertThat(bgPeriodeÅrsakId).isNotNull();
 
-
+        var repository = new Repository(getEntityManager());
         repository.flushAndClear();
         BeregningsgrunnlagEntitet beregningsgrunnlagLest = repository.hent(BeregningsgrunnlagEntitet.class, bgId);
         BeregningsgrunnlagAktivitetStatus bgAktivitetStatusLest = repository.hent(BeregningsgrunnlagAktivitetStatus.class, bgAktivitetStatusId);
@@ -431,6 +429,7 @@ public class BeregningsgrunnlagRepositoryTest {
     @Test
     public void toBehandlingerKanHaSammeBeregningsgrunnlag() {
         // Arrange
+        var behandling = opprettBehandling();
         Behandling behandling2 = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
 
@@ -453,6 +452,7 @@ public class BeregningsgrunnlagRepositoryTest {
     @Test
     public void skalHenteRiktigBeregningsgrunnlagBasertPåId() {
         // Arrange
+        var behandling = opprettBehandling();
         Behandling behandling2 = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
         BeregningsgrunnlagEntitet beregningsgrunnlag2 = BeregningsgrunnlagEntitet.builder(Kopimaskin.deepCopy(beregningsgrunnlag))

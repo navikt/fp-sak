@@ -4,14 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -21,33 +16,25 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResul
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioAnkeEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class AnkeRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AnkeRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    private Behandling ankeBehandling;
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-
-    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
     private AnkeRepository ankeRepository;
 
-    @Before
-    public void setup() {
-        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-        ankeBehandling = scenario.lagre(repositoryProvider);
-        entityManager.flush();
+    @BeforeEach
+    void setup() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        ankeRepository = new AnkeRepository(entityManager);
     }
 
     @Test
     public void skal_legge_til_og_hente_ankeresultat() {
+        var ankeBehandling = opprettBehandling();
 
         // Act
         AnkeResultatEntitet hentetAnkeResultat = ankeRepository.hentEllerOpprettAnkeResultat(ankeBehandling.getId());
@@ -59,10 +46,8 @@ public class AnkeRepositoryTest {
     @Test
     public void skal_lagre_og_hente_ankevurderingResultat() {
         // Arrange
-        Repository repository = repoRule.getRepository();
         ScenarioAnkeEngangsstønad scenario = ScenarioAnkeEngangsstønad.forAvvistAnke(ScenarioFarSøkerEngangsstønad.forAdopsjon());
-        ankeBehandling = scenario.lagre(repositoryProvider);
-        entityManager.flush();
+        var ankeBehandling = scenario.lagre(repositoryProvider);
 
         AnkeResultatEntitet ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(ankeBehandling.getId());
         AnkeVurderingResultatEntitet.Builder ankeVurderingResultatBuilder = opprettVurderingResultat(ankeResultat)
@@ -72,7 +57,6 @@ public class AnkeRepositoryTest {
 
         // Act
         Long ankeVurderingResultatId = ankeRepository.lagreVurderingsResultat(ankeBehandling.getId(), ankeVurderingResultatBuilder.build());
-        repository.flushAndClear();
         assertThat(ankeVurderingResultatId).isNotNull();
         Optional<AnkeVurderingResultatEntitet> hentetAnkeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(ankeBehandling.getId());
 
@@ -96,5 +80,10 @@ public class AnkeRepositoryTest {
             .medAnkeResultat(ankeResultat)
             .medAnkeVurdering(AnkeVurdering.ANKE_OMGJOER)
             .medAnkeOmgjørÅrsak(AnkeOmgjørÅrsak.ULIK_VURDERING);
+    }
+
+    private Behandling opprettBehandling() {
+        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
+        return scenario.lagre(repositoryProvider);
     }
 }

@@ -2,22 +2,24 @@ package no.nav.foreldrepenger.behandlingslager.kodeverk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.geografisk.Poststed;
 import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class PoststedKodeverkRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class PoststedKodeverkRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    private PoststedKodeverkRepository repo;
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private PoststedKodeverkRepository repo = new PoststedKodeverkRepository(repoRule.getEntityManager());
+    @BeforeEach
+    void setUp() {
+        repo = new PoststedKodeverkRepository(getEntityManager());
+    }
 
     @Test
     public void test_hent_samme_verdi() {
