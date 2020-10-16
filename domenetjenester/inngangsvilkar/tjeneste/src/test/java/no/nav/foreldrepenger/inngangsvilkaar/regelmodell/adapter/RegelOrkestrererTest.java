@@ -7,6 +7,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårU
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType.IKKE_VURDERT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType.OPPFYLT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,10 +15,8 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -37,17 +36,13 @@ import no.nav.vedtak.exception.TekniskException;
 
 public class RegelOrkestrererTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     private RegelOrkestrerer orkestrerer;
 
     private InngangsvilkårTjeneste inngangsvilkårTjeneste;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
         inngangsvilkårTjeneste = Mockito.mock(InngangsvilkårTjeneste.class);
-
         orkestrerer = new RegelOrkestrerer(inngangsvilkårTjeneste);
     }
 
@@ -279,9 +274,7 @@ public class RegelOrkestrererTest {
 
     @Test
     public void skal_kaste_feil_dersom_vilkårsresultat_ikke_kan_utledes() {
-        expectedException.expect(TekniskException.class);
-
-        orkestrerer.utledInngangsvilkårUtfall(emptyList());
+        assertThrows(TekniskException.class, () -> orkestrerer.utledInngangsvilkårUtfall(emptyList()));
     }
 
     private Behandling byggBehandlingMedVilkårresultat(VilkårResultatType vilkårResultatType, VilkårType vilkårType) {

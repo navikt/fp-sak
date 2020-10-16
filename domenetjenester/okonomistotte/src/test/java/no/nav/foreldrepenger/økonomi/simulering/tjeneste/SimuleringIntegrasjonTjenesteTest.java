@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.økonomi.simulering.tjeneste;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
@@ -9,10 +11,8 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.økonomi.simulering.klient.FpOppdragRestKlient;
 import no.nav.vedtak.exception.TekniskException;
@@ -23,28 +23,21 @@ public class SimuleringIntegrasjonTjenesteTest {
 
     private SimuleringIntegrasjonTjeneste integrasjonTjeneste; // tjenesten som testes
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    private final FpOppdragRestKlient restKlientMock = mock(FpOppdragRestKlient.class);
 
-    private FpOppdragRestKlient restKlientMock = mock(FpOppdragRestKlient.class);
-
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         integrasjonTjeneste = new SimuleringIntegrasjonTjeneste(restKlientMock);
     }
 
     @Test
     public void test_skalFeileVedBehandlingIdNull() {
-        expectedException.expect(NullPointerException.class);
-
-        integrasjonTjeneste.startSimulering(null, null);
+        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(null, null));
     }
 
     @Test
     public void test_skalFeileVedOppdraglisteNull() {
-        expectedException.expect(NullPointerException.class);
-
-        integrasjonTjeneste.startSimulering(BEHANDLING_ID, null);
+        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(BEHANDLING_ID, null));
     }
 
     @Test
@@ -63,8 +56,8 @@ public class SimuleringIntegrasjonTjenesteTest {
     public void test_skalFeileNårOppdragsystemKasterException() {
         doThrow(SimulerOppdragIntegrasjonTjenesteFeil.FACTORY.startSimuleringFeiletMedFeilmelding(BEHANDLING_ID, new RuntimeException()).toException())
             .when(restKlientMock).startSimulering(any());
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage("FP-423523");
-        integrasjonTjeneste.startSimulering(BEHANDLING_ID, Collections.singletonList("test"));
+        assertThatThrownBy(() -> integrasjonTjeneste.startSimulering(BEHANDLING_ID, Collections.singletonList("test")))
+            .isInstanceOf(TekniskException.class)
+            .hasMessageContaining("FP-423523");
     }
 }
