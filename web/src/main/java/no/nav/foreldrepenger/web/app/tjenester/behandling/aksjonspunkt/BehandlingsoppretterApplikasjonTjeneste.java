@@ -154,7 +154,8 @@ public class BehandlingsoppretterApplikasjonTjeneste {
     private boolean kanOppretteRevurdering(Long fagsakId) {
         boolean finnesÅpneBehandlingerAvType = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsakId).stream()
             .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()) || BehandlingType.REVURDERING.equals(b.getType()));
-        var behandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsakId).orElse(null);
+        //Strengere versjon var behandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsakId).orElse(null);
+        var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElse(null);
         if (finnesÅpneBehandlingerAvType || behandling == null) {
             return false;
         }
