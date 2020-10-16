@@ -7,58 +7,50 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-public class BeregningsresultatRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BeregningsresultatRepositoryTest extends EntityManagerAwareTest {
 
     private static final String ORGNR = "55";
+    private static final AktørId ARBEIDSGIVER_AKTØR_ID = AktørId.dummy();
 
-    private static final LocalDate DAGENSDATO = LocalDate.now();
+    private BehandlingRepository behandlingRepository;
 
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final Repository repository = repoRule.getRepository();
+    private BeregningsresultatRepository beregningsresultatRepository;
+    private Repository repository;
 
-    private final BeregningsresultatRepository beregningsresultatRepository = new BeregningsresultatRepository(repoRule.getEntityManager());
-    private Behandling behandling;
-    private AktørId aktørId;
-
-    private final BasicBehandlingBuilder behandlingBuilder = new BasicBehandlingBuilder(repoRule.getEntityManager());
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    @Before
-    public void setup() {
-        aktørId = AktørId.dummy();
-        behandling = opprettBehandling();
+    @BeforeEach
+    void setup() {
+        var entityManager = getEntityManager();
+        behandlingRepository = new BehandlingRepository(entityManager);
+        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
+        repository = new Repository(entityManager);
     }
 
     private Behandling opprettBehandling() {
-        return behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
+        return new BasicBehandlingBuilder(getEntityManager())
+            .opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
     }
 
     @Test
     public void lagreOgHentBeregningsresultatFPAggregat() {
         // Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(DAGENSDATO), false);
+        var behandling = opprettBehandling();
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(LocalDate.now()), false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
@@ -73,7 +65,8 @@ public class BeregningsresultatRepositoryTest {
     @Test
     public void lagreOgHentUtbetBeregningsresultatFPAggregatNårUTBETIkkeEksisterer() {
         // Arrange
-        BeregningsresultatEntitet bgBeregningsresultatFP = buildBeregningsresultatFP(Optional.of(DAGENSDATO), false);
+        var behandling = opprettBehandling();
+        BeregningsresultatEntitet bgBeregningsresultatFP = buildBeregningsresultatFP(Optional.of(LocalDate.now()), false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, bgBeregningsresultatFP);
@@ -88,8 +81,9 @@ public class BeregningsresultatRepositoryTest {
     @Test
     public void lagreOgHentUtbetBeregningsresultatFPAggregatNårUTBETEksisterer() {
         // Arrange
-        BeregningsresultatEntitet bgBeregningsresultatFP = buildBeregningsresultatFP(Optional.of(DAGENSDATO), false);
-        BeregningsresultatEntitet utbetBeregningsresultatFP = buildBeregningsresultatFP(Optional.of(DAGENSDATO.plusDays(1)), false);
+        var behandling = opprettBehandling();
+        BeregningsresultatEntitet bgBeregningsresultatFP = buildBeregningsresultatFP(Optional.of(LocalDate.now()), false);
+        BeregningsresultatEntitet utbetBeregningsresultatFP = buildBeregningsresultatFP(Optional.of(LocalDate.now().plusDays(1)), false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, bgBeregningsresultatFP);
@@ -105,7 +99,8 @@ public class BeregningsresultatRepositoryTest {
     @Test
     public void lagreOgHenteBeregningsresultatFP() {
         // Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(DAGENSDATO), false);
+        var behandling = opprettBehandling();
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(LocalDate.now()), false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
@@ -114,7 +109,6 @@ public class BeregningsresultatRepositoryTest {
         Long id = beregningsresultat.getId();
         assertThat(id).isNotNull();
 
-        repository.flushAndClear();
         Optional<BeregningsresultatEntitet> beregningsresultatFPLest = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
 
         assertThat(beregningsresultatFPLest).isEqualTo(Optional.of(beregningsresultat));
@@ -123,8 +117,9 @@ public class BeregningsresultatRepositoryTest {
     @Test
     public void lagreOgHenteUtbetBeregningsresultatFP() {
         // Arrange
-        BeregningsresultatEntitet bgBeregningsresultatFP = buildBeregningsresultatFP(Optional.of(DAGENSDATO), false);
-        BeregningsresultatEntitet utbetBeregningsresultatFP = buildBeregningsresultatFP(Optional.of(DAGENSDATO.plusDays(1)), false);
+        var behandling = opprettBehandling();
+        BeregningsresultatEntitet bgBeregningsresultatFP = buildBeregningsresultatFP(Optional.of(LocalDate.now()), false);
+        BeregningsresultatEntitet utbetBeregningsresultatFP = buildBeregningsresultatFP(Optional.of(LocalDate.now().plusDays(1)), false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, bgBeregningsresultatFP);
@@ -134,7 +129,6 @@ public class BeregningsresultatRepositoryTest {
         Long id = utbetBeregningsresultatFP.getId();
         assertThat(id).isNotNull();
 
-        repository.flushAndClear();
         Optional<BeregningsresultatEntitet> utbetBeregningsresultatFPLest = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
 
         assertThat(utbetBeregningsresultatFPLest).isEqualTo(Optional.of(utbetBeregningsresultatFP));
@@ -143,7 +137,8 @@ public class BeregningsresultatRepositoryTest {
     @Test
     public void lagreOgHenteBeregningsresultatFPMedPrivatpersonSomArbeidsgiver() {
         // Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(DAGENSDATO), true);
+        var behandling = opprettBehandling();
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(LocalDate.now()), true);
 
         // Act
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
@@ -152,19 +147,19 @@ public class BeregningsresultatRepositoryTest {
         Long id = beregningsresultat.getId();
         assertThat(id).isNotNull();
 
-        repository.flushAndClear();
         Optional<BeregningsresultatEntitet> beregningsresultatFPLest = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
         assertThat(beregningsresultatFPLest).isEqualTo(Optional.of(beregningsresultat));
         assertThat(beregningsresultatFPLest).isPresent();
         Arbeidsgiver arbeidsgiver = beregningsresultatFPLest.get().getBeregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(0).getArbeidsgiver().get();//NOSONAR
-        assertThat(arbeidsgiver.getAktørId()).isEqualTo(aktørId);
-        assertThat(arbeidsgiver.getIdentifikator()).isEqualTo(aktørId.getId());
+        assertThat(arbeidsgiver.getAktørId()).isEqualTo(ARBEIDSGIVER_AKTØR_ID);
+        assertThat(arbeidsgiver.getIdentifikator()).isEqualTo(ARBEIDSGIVER_AKTØR_ID.getId());
     }
 
     @Test
     public void lagreBeregningsresultatFPOgUnderliggendeTabellerMedEndringsdatoLikDagensDato() {
         // Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(DAGENSDATO), false);
+        var behandling = opprettBehandling();
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(LocalDate.now()), false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
@@ -177,7 +172,6 @@ public class BeregningsresultatRepositoryTest {
         assertThat(brPeriodeId).isNotNull();
         Long brAndelId = brPeriode.getBeregningsresultatAndelList().get(0).getId();
 
-        repository.flushAndClear();
         BeregningsresultatEntitet beregningsresultatFPLest = repository.hent(BeregningsresultatEntitet.class, brId);
         BeregningsresultatPeriode brPeriodeLest = repository.hent(BeregningsresultatPeriode.class, brPeriodeId);
         BeregningsresultatAndel brAndelLest = repository.hent(BeregningsresultatAndel.class, brAndelId);
@@ -186,13 +180,14 @@ public class BeregningsresultatRepositoryTest {
         assertThat(beregningsresultatFPLest.getBeregningsresultatPerioder()).hasSize(1);
         assertThat(beregningsresultatFPLest.getRegelInput()).isEqualTo(beregningsresultat.getRegelInput());
         assertThat(beregningsresultatFPLest.getRegelSporing()).isEqualTo(beregningsresultat.getRegelSporing());
-        assertThat(beregningsresultatFPLest.getEndringsdato()).isEqualTo(Optional.of(DAGENSDATO));
+        assertThat(beregningsresultatFPLest.getEndringsdato()).isEqualTo(Optional.of(LocalDate.now()));
         assertBeregningsresultatPeriode(brPeriodeLest, brAndelLest, brPeriode);
     }
 
     @Test
     public void lagreBeregningsresultatFPOgUnderliggendeTabellerMedTomEndringsdato() {
         // Arrange
+        var behandling = opprettBehandling();
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty(), false);
 
         // Act
@@ -206,7 +201,6 @@ public class BeregningsresultatRepositoryTest {
         assertThat(brPeriodeId).isNotNull();
         Long brAndelId = brPeriode.getBeregningsresultatAndelList().get(0).getId();
 
-        repository.flushAndClear();
         BeregningsresultatEntitet beregningsresultatFPLest = repository.hent(BeregningsresultatEntitet.class, brId);
         BeregningsresultatPeriode brPeriodeLest = repository.hent(BeregningsresultatPeriode.class, brPeriodeId);
         BeregningsresultatAndel brAndelLest = repository.hent(BeregningsresultatAndel.class, brAndelId);
@@ -222,7 +216,8 @@ public class BeregningsresultatRepositoryTest {
     @Test
     public void lagreBeregningsresultatFPOgFeriepenger() {
         // Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(DAGENSDATO), false);
+        var behandling = opprettBehandling();
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(LocalDate.now()), false);
         BeregningsresultatFeriepenger feriepenger = BeregningsresultatFeriepenger.builder()
             .medFeriepengerPeriodeFom(LocalDate.now())
             .medFeriepengerPeriodeTom(LocalDate.now())
@@ -240,7 +235,6 @@ public class BeregningsresultatRepositoryTest {
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         // Assert
-        repository.flushAndClear();
         BeregningsresultatEntitet hentetResultat = repository.hent(BeregningsresultatEntitet.class, beregningsresultat.getId());
         assertThat(hentetResultat).isNotNull();
         assertThat(hentetResultat.getBeregningsresultatFeriepenger()).isPresent();
@@ -267,8 +261,9 @@ public class BeregningsresultatRepositoryTest {
     @Test
     public void toBehandlingerKanHaSammeBeregningsresultatFP() {
         // Arrange
-        Behandling behandling2 = opprettBehandling();
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(DAGENSDATO), false);
+        var behandling = opprettBehandling();
+        var behandling2 = opprettBehandling();
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(LocalDate.now()), false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
@@ -285,7 +280,8 @@ public class BeregningsresultatRepositoryTest {
     @Test
     public void slettBeregningsresultatFPOgKobling() {
         // Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(DAGENSDATO), false);
+        var behandling = opprettBehandling();
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(LocalDate.now()), false);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         Optional<BehandlingBeregningsresultatEntitet> koblingOpt = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId());
@@ -294,15 +290,16 @@ public class BeregningsresultatRepositoryTest {
         beregningsresultatRepository.deaktiverBeregningsresultat(behandling.getId(), behandlingRepository.taSkriveLås(behandling));
 
         //Assert
-        BeregningsresultatEntitet hentetBG = repoRule.getEntityManager().find(BeregningsresultatEntitet.class, beregningsresultat.getId());
+        var entityManager = getEntityManager();
+        BeregningsresultatEntitet hentetBG = entityManager.find(BeregningsresultatEntitet.class, beregningsresultat.getId());
         assertThat(hentetBG).isNotNull();
 
         BeregningsresultatPeriode beregningsresultatPeriode = beregningsresultat.getBeregningsresultatPerioder().get(0);
-        BeregningsresultatPeriode hentetBGPeriode = repoRule.getEntityManager().find(BeregningsresultatPeriode.class, beregningsresultatPeriode.getId());
+        BeregningsresultatPeriode hentetBGPeriode = entityManager.find(BeregningsresultatPeriode.class, beregningsresultatPeriode.getId());
         assertThat(hentetBGPeriode).isNotNull();
 
         BeregningsresultatAndel beregningsresultatAndel = beregningsresultatPeriode.getBeregningsresultatAndelList().get(0);
-        BeregningsresultatAndel hentetBRAndel = repoRule.getEntityManager().find(BeregningsresultatAndel.class, beregningsresultatAndel.getId());
+        BeregningsresultatAndel hentetBRAndel = entityManager.find(BeregningsresultatAndel.class, beregningsresultatAndel.getId());
         assertThat(hentetBRAndel).isNotNull();
 
         Optional<BeregningsresultatEntitet> deaktivertBeregningsresultatFP = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
@@ -313,11 +310,12 @@ public class BeregningsresultatRepositoryTest {
             assertThat(kobling.erAktivt()).isFalse());
     }
 
-    private BeregningsresultatAndel buildBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode, boolean medPrivatpersonArbeidsgiver) {
+    private BeregningsresultatAndel buildBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode,
+                                                                 boolean medPrivatpersonArbeidsgiver) {
         return BeregningsresultatAndel.builder()
             .medBrukerErMottaker(true)
             .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
-            .medArbeidsgiver(medPrivatpersonArbeidsgiver ? Arbeidsgiver.person(aktørId) : Arbeidsgiver.virksomhet(ORGNR))
+            .medArbeidsgiver(medPrivatpersonArbeidsgiver ? Arbeidsgiver.person(ARBEIDSGIVER_AKTØR_ID) : Arbeidsgiver.virksomhet(ORGNR))
             .medDagsats(2160)
             .medDagsatsFraBg(2160)
             .medUtbetalingsgrad(BigDecimal.valueOf(100))

@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.person.tps;
 import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.KVINNE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -11,10 +12,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
@@ -22,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningPersonIkkeFunnet;
@@ -30,7 +28,6 @@ import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensn
 import no.nav.tjeneste.virksomhet.person.v3.feil.PersonIkkeFunnet;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class TpsTjenesteTest {
 
@@ -47,17 +44,13 @@ public class TpsTjenesteTest {
     private static final LocalDate FØDSELSDATO_RELASJON = LocalDate.of(2017, Month.JANUARY, 1);
     private static final Familierelasjon FAMILIERELASJON = new Familierelasjon(FNR_RELASJON, RelasjonsRolleType.BARN, FØDSELSDATO_RELASJON,
             "Adresse", true);
-    private static Map<AktørId, PersonIdent> FNR_VED_AKTØR_ID = new HashMap<>();
-    private static Map<PersonIdent, AktørId> AKTØR_ID_VED_FNR = new HashMap<>();
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    public Repository repository = repoRule.getRepository();
+    private static final Map<AktørId, PersonIdent> FNR_VED_AKTØR_ID = new HashMap<>();
+    private static final Map<PersonIdent, AktørId> AKTØR_ID_VED_FNR = new HashMap<>();
+
     private TpsTjeneste tpsTjeneste;
 
-    @Before
-    public void oppsett() {
+    @BeforeEach
+    void oppsett() {
         FNR_VED_AKTØR_ID.put(AKTØR_ID, FNR);
         FNR_VED_AKTØR_ID.put(ENDRET_AKTØR_ID, ENDRET_FNR);
         AKTØR_ID_VED_FNR.put(FNR, AKTØR_ID);
@@ -92,19 +85,17 @@ public class TpsTjenesteTest {
         assertThat(geografiskTilknytning).isNotNull();
     }
 
-    @Test(expected = TekniskException.class)
+    @Test
     public void test_hentGeografiskTilknytning_finnes_ikke() {
-        tpsTjeneste.hentGeografiskTilknytning(new PersonIdent("666"));
+        assertThrows(TekniskException.class, () -> tpsTjeneste.hentGeografiskTilknytning(new PersonIdent("666")));
     }
 
     @Test
     public void skal_kaste_feil_ved_tjenesteexception_dersom_aktør_ikke_er_cachet() {
-        expectedException.expect(TpsException.class);
-
-        tpsTjeneste.hentBrukerForAktør(AKTØR_ID_SOM_TRIGGER_EXCEPTION);
+        assertThrows(TpsException.class, () -> tpsTjeneste.hentBrukerForAktør(AKTØR_ID_SOM_TRIGGER_EXCEPTION));
     }
 
-    private class TpsAdapterMock extends TpsAdapter {
+    private static class TpsAdapterMock extends TpsAdapter {
         @Override
         public Optional<AktørId> hentAktørIdForPersonIdent(PersonIdent fnr) {
             return Optional.ofNullable(AKTØR_ID_VED_FNR.get(fnr));
