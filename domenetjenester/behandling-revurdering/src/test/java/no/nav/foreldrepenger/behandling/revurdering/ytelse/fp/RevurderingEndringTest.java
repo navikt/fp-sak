@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndringBasertPåKonsekvenserForYtelsen;
@@ -20,69 +20,73 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class RevurderingEndringTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class RevurderingEndringTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    private final RevurderingEndring revurderingEndring = new no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingEndring();
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    private BehandlingRepository behandlingRepository ;
 
-    private RevurderingEndring revurderingEndring = new no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingEndring();
-    private Behandling originalBehandling;
-    private Behandling revurdering;
-
-    @Before
-    public void setup() {
-        originalBehandling = opprettOriginalBehandling();
-        revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
-        behandlingRepository.lagre(revurdering, lås);
+    @BeforeEach
+    void setup() {
+        behandlingRepository = new BehandlingRepository(getEntityManager());
     }
 
     @Test
     public void jaHvisRevurderingMedUendretUtfall() {
+        var originalBehandling = opprettOriginalBehandling();
+        var revurdering = opprettRevurdering(originalBehandling);
         Behandlingsresultat.builder()
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
             .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
             .buildFor(revurdering);
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
+        var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
 
         assertThat(revurderingEndring.erRevurderingMedUendretUtfall(revurdering)).isTrue();
         assertThat(revurderingEndring.erRevurderingMedUendretUtfall(revurdering, null)).isTrue();
     }
 
+    private Behandling opprettRevurdering(Behandling originalBehandling) {
+        var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
+        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
+        behandlingRepository.lagre(revurdering, lås);
+        return revurdering;
+    }
+
     @Test
     public void kasterFeilHvisRevurderingMedUendretUtfallOgOpphørAvYtelsen() {
         // Arrange
+        var originalBehandling = opprettOriginalBehandling();
+        var revurdering = opprettRevurdering(originalBehandling);
         Behandlingsresultat.builder()
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
             .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
             .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER)
             .buildFor(revurdering);
 
-        // Assert
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage(RevurderingEndringBasertPåKonsekvenserForYtelsen.UTVIKLERFEIL_INGEN_ENDRING_SAMMEN);
-
         // Act
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
 
         // Assert
-        assertThat(revurderingEndring.erRevurderingMedUendretUtfall(revurdering)).isFalse();
-        assertThat(revurderingEndring.erRevurderingMedUendretUtfall(revurdering, null)).isFalse();
+        assertThatThrownBy(() -> revurderingEndring.erRevurderingMedUendretUtfall(revurdering))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining(RevurderingEndringBasertPåKonsekvenserForYtelsen.UTVIKLERFEIL_INGEN_ENDRING_SAMMEN);
+        assertThatThrownBy(() -> revurderingEndring.erRevurderingMedUendretUtfall(revurdering, null))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining(RevurderingEndringBasertPåKonsekvenserForYtelsen.UTVIKLERFEIL_INGEN_ENDRING_SAMMEN);
     }
 
     @Test
     public void neiHvisRevurderingMedEndring() {
+        var originalBehandling = opprettOriginalBehandling();
+        var revurdering = opprettRevurdering(originalBehandling);
         Behandlingsresultat.builder()
             .medBehandlingResultatType(BehandlingResultatType.FORELDREPENGER_ENDRET)
             .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.ENDRING_I_BEREGNING)
@@ -97,6 +101,8 @@ public class RevurderingEndringTest {
 
     @Test
     public void neiHvisRevurderingMedOpphør() {
+        var originalBehandling = opprettOriginalBehandling();
+        var revurdering = opprettRevurdering(originalBehandling);
         Behandlingsresultat.builder()
             .medBehandlingResultatType(BehandlingResultatType.OPPHØR)
             .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER)
@@ -110,6 +116,7 @@ public class RevurderingEndringTest {
 
     @Test
     public void neiHvisFørstegangsbehandling() {
+        var originalBehandling = opprettOriginalBehandling();
         assertThat(revurderingEndring.erRevurderingMedUendretUtfall(originalBehandling)).isFalse();
     }
 
@@ -117,7 +124,7 @@ public class RevurderingEndringTest {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
             .forFødsel()
             .medDefaultBekreftetTerminbekreftelse();
-        Behandling originalBehandling = scenario.lagre(repositoryProvider);
+        Behandling originalBehandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(originalBehandling);
         behandlingRepository.lagre(originalBehandling, behandlingLås);
         return originalBehandling;
