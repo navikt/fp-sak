@@ -57,7 +57,7 @@ public class FagsakRestTjeneste {
     private static final String FAGSAK_PART_PATH = "";
     public static final String FAGSAK_PATH = BASE_PATH;
     private static final String FAGSAK_BACKEND_PART_PATH = "/backend";
-    public static final String FAGSAK_BACKEND_PATH = BASE_PATH;
+    public static final String FAGSAK_BACKEND_PATH = BASE_PATH + FAGSAK_BACKEND_PART_PATH;
     private static final String STATUS_PART_PATH = "/status";
     public static final String STATUS_PATH = BASE_PATH + STATUS_PART_PATH;
     private static final String SOK_PART_PATH = "/sok";

@@ -46,10 +46,6 @@ public class DekningsgradTjeneste {
     }
 
     public Optional<Dekningsgrad> finnDekningsgrad(Saksnummer saksnummer) {
-        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(saksnummer);
-        if (fagsakRelasjon.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(fagsakRelasjon.get().getGjeldendeDekningsgrad());
+        return fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(saksnummer).map(FagsakRelasjon::getGjeldendeDekningsgrad);
     }
 }
