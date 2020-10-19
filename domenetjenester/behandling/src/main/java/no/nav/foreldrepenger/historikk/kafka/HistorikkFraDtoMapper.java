@@ -125,7 +125,7 @@ public class HistorikkFraDtoMapper {
 
     private HistorikkinnslagDokumentLink mapDokumentlink(HistorikkInnslagDokumentLink dtoLink, Historikkinnslag historikkinnslag) {
         HistorikkinnslagDokumentLink.Builder builder = new HistorikkinnslagDokumentLink.Builder()
-            .medLinkTekst(dtoLink.getLinkTekst())
+            .medLinkTekst(utledLinkTekst(dtoLink.getLinkTekst()))
             .medHistorikkinnslag(historikkinnslag)
             .medDokumentId(dtoLink.getDokumentId());
         if (dtoLink.getJournalpostId() != null && JournalpostId.erGyldig(dtoLink.getJournalpostId().getVerdi())) {
@@ -134,5 +134,12 @@ public class HistorikkFraDtoMapper {
             throw HistorikkFeil.FACTORY.ugyldigJournalpost(dtoLink.getJournalpostId() == null ? null : dtoLink.getJournalpostId().getVerdi()).toException();//Burde aldri skje
         }
         return builder.build();
+    }
+
+    private static String utledLinkTekst(String tekst) {
+        if (tekst == null || tekst.isEmpty() || tekst.isBlank()) {
+            return "Ukjent brev";
+        }
+        return tekst;
     }
 }
