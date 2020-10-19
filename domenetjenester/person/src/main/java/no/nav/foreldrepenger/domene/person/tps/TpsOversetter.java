@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
@@ -51,6 +54,8 @@ import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 
 @ApplicationScoped
 public class TpsOversetter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TpsOversetter.class);
 
     private TpsAdresseOversetter tpsAdresseOversetter;
 
@@ -265,6 +270,8 @@ public class TpsOversetter {
         PersonIdent personIdent = (PersonIdent) familierelasjon.getTilPerson().getAktoer();
         no.nav.foreldrepenger.domene.typer.PersonIdent ident = no.nav.foreldrepenger.domene.typer.PersonIdent.fra(personIdent.getIdent().getIdent());
         Boolean harSammeBosted = familierelasjon.isHarSammeBosted();
+
+        LOG.info("TpsRelasjon rolle {} har samme bosted {}", relasjonsrolle.getKode(), harSammeBosted);
 
         return new Familierelasjon(ident, relasjonsrolle,
             tilLocalDate(familierelasjon.getTilPerson().getFoedselsdato()), adresse, harSammeBosted);

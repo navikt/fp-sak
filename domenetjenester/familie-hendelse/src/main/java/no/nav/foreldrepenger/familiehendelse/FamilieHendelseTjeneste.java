@@ -66,8 +66,8 @@ public class FamilieHendelseTjeneste {
     }
 
     public boolean erFødselsHendelseRelevantFor(Long behandlingId, LocalDate fødselsdato) {
-        final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
-        if (!familieHendelseGrunnlag.getGjeldendeVersjon().getGjelderFødsel()) {
+        var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId).orElse(null);
+        if (familieHendelseGrunnlag == null || !familieHendelseGrunnlag.getGjeldendeVersjon().getGjelderFødsel()) {
             return false;
         }
         return utledPerioderForRegisterinnhenting(familieHendelseGrunnlag).stream()

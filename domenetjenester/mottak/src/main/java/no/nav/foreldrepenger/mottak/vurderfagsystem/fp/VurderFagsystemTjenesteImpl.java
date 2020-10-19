@@ -78,11 +78,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
-        if (skalVurdereInfotrygdForAnnenPart(vurderFagsystem)) {
-            return new BehandlendeFagsystem(VURDER_INFOTRYGD);
-        } else {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING);
-        }
+        return skalVurdereInfotrygdForAnnenPart(vurderFagsystem) ? new BehandlendeFagsystem(VURDER_INFOTRYGD) : new BehandlendeFagsystem(VEDTAKSLØSNING);
     }
 
     @Override
@@ -96,7 +92,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         List<Fagsak> kompatibleFagsaker = fellesUtils.filtrerSakerForBehandlingTema(sakerGittYtelseType, vurderFagsystem.getBehandlingTema());
 
         if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && vurderFagsystem.getDokumentTypeId().erSøknadType() && kompatibleFagsaker.isEmpty()) {
-            return new BehandlendeFagsystem(VURDER_INFOTRYGD);
+            return skalVurdereInfotrygdForAnnenPart(vurderFagsystem) ? new BehandlendeFagsystem(VURDER_INFOTRYGD) : new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
 
         if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && (DokumentTypeId.UDEFINERT.equals(vurderFagsystem.getDokumentTypeId()) || !vurderFagsystem.getDokumentTypeId().erEndringsSøknadType())) {

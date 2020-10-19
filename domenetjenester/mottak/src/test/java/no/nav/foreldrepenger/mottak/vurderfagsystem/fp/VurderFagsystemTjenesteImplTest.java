@@ -112,7 +112,7 @@ public class VurderFagsystemTjenesteImplTest {
         lenient().when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(Collections.emptyList());
 
         BehandlendeFagsystem result = toVurderFagsystem(vfData);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VURDER_INFOTRYGD);
+        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
 
         vfData.setStrukturertSøknad(true);
         result = toVurderFagsystem(vfData);
