@@ -11,15 +11,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -37,42 +33,34 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 import no.nav.vedtak.felles.testutilities.Whitebox;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class AutomatiskGrunnbelopReguleringTaskTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AutomatiskGrunnbelopReguleringTaskTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private final BehandlingFlytkontroll flytkontroll = mock(BehandlingFlytkontroll.class);
+    private final BehandlendeEnhetTjeneste enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
 
-    @Inject
-    private BehandlingRepository behandlingRepository;
-
-    @Inject
-    @FagsakYtelseTypeRef("FP")
-    private RevurderingTjeneste revurderingTjenesteMock;
-
-    @Inject
-    private ProsessTaskRepository prosessTaskRepositoryMock;
-
-    private AutomatiskGrunnbelopReguleringTask task;
-
-    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
+    private ProsessTaskRepository prosessTaskRepository;
 
-    private BehandlingFlytkontroll flytkontroll = mock(BehandlingFlytkontroll.class);
-
-    private BehandlendeEnhetTjeneste enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
-
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, null);
+    }
 
     @Test
     public void skal_opprette_revurderingsbehandling_med_årsak_når_avsluttet_behandling() {
-
         Behandling behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
 
@@ -80,7 +68,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
-        createTask();
+        var task = createTask();
         task.doTask(prosessTaskData);
 
         assertRevurdering(behandling, BehandlingÅrsakType.RE_SATS_REGULERING);
@@ -100,8 +88,9 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         assertThat(revurdering).as("Har revurdering: " + fagsak.getId()).isNotPresent();
     }
 
-    private void createTask() {
-        task = new AutomatiskGrunnbelopReguleringTask(repositoryProvider, prosessTaskRepositoryMock, enhetsTjeneste, flytkontroll);
+    private AutomatiskGrunnbelopReguleringTask createTask() {
+        return new AutomatiskGrunnbelopReguleringTask(new BehandlingRepositoryProvider(getEntityManager()),
+            prosessTaskRepository, enhetsTjeneste, flytkontroll);
 
     }
 
@@ -114,7 +103,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
-        createTask();
+        var task = createTask();
         task.doTask(prosessTaskData);
 
         assertIngenRevurdering(behandling.getFagsak());
@@ -130,7 +119,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
-        createTask();
+        var task = createTask();
         task.doTask(prosessTaskData);
 
         Optional<Behandling> regulering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
@@ -178,9 +167,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
 
         repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
 
-        repoRule.getRepository().flushAndClear();
-
-        return repoRule.getEntityManager().find(Behandling.class, behandling.getId());
+        return behandlingRepository.hentBehandling(behandling.getId());
     }
 
 }
