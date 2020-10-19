@@ -8,12 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
@@ -39,9 +35,6 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 
 public class GrensesnittavstemmingMapperTest {
 
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
-
     private static final int MAKS_AVSTEMMING_MELDING_BYTES = 32000;
 
     private static final String KODE_KLASSIFIK_FODSEL = "FPENFOD-OP";
@@ -49,9 +42,6 @@ public class GrensesnittavstemmingMapperTest {
     private static final String MELDINGKODE = "Kode1234";
 
     private static final String BESKRIVENDE_MELDING = "Melding med lengde 70 tegn slik at vi tester maksimal lengde her......";
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
 
     private Oppdragskontroll.Builder oppdrkontrollBuilder;
     private Oppdrag110.Builder oppdr110Builder;
@@ -65,8 +55,8 @@ public class GrensesnittavstemmingMapperTest {
 
     private List<Oppdrag110> oppdragsliste;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setUp() {
         oppdrkontrollBuilder = Oppdragskontroll.builder();
         oppdr110Builder = Oppdrag110.builder();
         avst115Builder = Avstemming115.builder();

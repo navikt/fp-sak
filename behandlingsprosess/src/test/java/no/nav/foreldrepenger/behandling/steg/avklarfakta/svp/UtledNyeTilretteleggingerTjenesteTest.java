@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.svp;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -8,9 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -21,9 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
 public class UtledNyeTilretteleggingerTjenesteTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private final SvangerskapspengerRepository svangerskapspengerRepository =
         Mockito.mock(SvangerskapspengerRepository.class);
@@ -59,19 +55,10 @@ public class UtledNyeTilretteleggingerTjenesteTest {
 
     @Test
     public void skal_kaste_exception_når_ingen_grunnlag_blir_funnet() {
-
-        // Arrange
         var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagMocked();
         var skjæringstidspunkt = Skjæringstidspunkt.builder().build();
         when(svangerskapspengerRepository.hentGrunnlag(any())).thenReturn(Optional.empty());
 
-        // Expect
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage(String.format("Fant ikke forventet grunnlag for behandling %s", behandling.getId()));
-
-        // Act
-        utledNyeTilretteleggingerTjeneste.utled(behandling, skjæringstidspunkt);
-
+        assertThrows(IllegalStateException.class, () -> utledNyeTilretteleggingerTjeneste.utled(behandling, skjæringstidspunkt));
     }
-
 }

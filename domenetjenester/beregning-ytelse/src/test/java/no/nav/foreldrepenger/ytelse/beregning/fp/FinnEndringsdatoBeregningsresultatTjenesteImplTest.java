@@ -2,16 +2,17 @@ package no.nav.foreldrepenger.ytelse.beregning.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -38,19 +39,17 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private static final String ORGNR = KUNSTIG_ORG;
 
-    private static final LocalDate FØRSTE_AUGUST = LocalDate.of(2018, 8,1);
+    private static final LocalDate FØRSTE_AUGUST = LocalDate.of(2018, 8, 1);
 
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
     private FinnEndringsdatoBeregningsresultatTjeneste finnEndringsdatoBeregningsresultatTjeneste;
-    private BeregningsresultatRepository beregningsresultatRepository = Mockito.mock(BeregningsresultatRepository.class);
+    private BeregningsresultatRepository beregningsresultatRepository = mock(BeregningsresultatRepository.class);
     private BeregningsresultatEntitet brFørstegangsbehandling;
     private BeregningsresultatEntitet brRevurdering;
     private Behandling førstegangsbehandling;
     private Behandling revurdering;
 
-    @Before
-    public void oppsett() {
+    @BeforeEach
+    void setUp() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangsbehandling = scenario.lagMocked();
@@ -63,29 +62,26 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         brFørstegangsbehandling = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
         brRevurdering = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
 
-        Mockito.when(beregningsresultatRepository.hentUtbetBeregningsresultat(Mockito.any())).thenReturn(Optional.of(brFørstegangsbehandling));
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any())).thenReturn(Optional.of(brFørstegangsbehandling));
     }
 
     @Test
-    public void skal_feile_hvis_behandling_ikke_er_en_revurdering(){
-        // Expect
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage(String.format("Behandlingen med id %s er ikke en revurdering", førstegangsbehandling.getId()));
-        // Act
-        finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(førstegangsbehandling, brFørstegangsbehandling);
+    public void skal_feile_hvis_behandling_ikke_er_en_revurdering() {
+        assertThatThrownBy(() -> finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(førstegangsbehandling, brFørstegangsbehandling))
+            .isInstanceOf(TekniskException.class)
+            .hasMessageContaining(String.format("Behandlingen med id %s er ikke en revurdering", førstegangsbehandling.getId()));
     }
 
     @Test
-    public void skal_feile_hvis_revurdering_ikke_har_en_original_behandling(){
+    public void skal_feile_hvis_revurdering_ikke_har_en_original_behandling() {
         // Arrange
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingType(BehandlingType.REVURDERING);
         Behandling revurdering = scenario.lagMocked();
-        // Expect
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage(String.format("Fant ikke en original behandling for revurdering med id %s", revurdering.getId()));
         // Act
-        finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
+        assertThatThrownBy(() -> finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering))
+            .isInstanceOf(TekniskException.class)
+            .hasMessageContaining(String.format("Fant ikke en original behandling for revurdering med id %s", revurdering.getId()));
     }
 
     @Test
@@ -95,16 +91,15 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
-        // Expect
-        expectedException.expect(TekniskException.class);
-        expectedException.expectMessage(String.format("Fant ikke beregningsresultatperiode for beregningsresultat med id %s", brRevurdering.getId()));
         // Act
-        finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
+        assertThatThrownBy(() -> finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering))
+            .isInstanceOf(TekniskException.class)
+            .hasMessageContaining(String.format("Fant ikke beregningsresultatperiode for beregningsresultat med id %s", brRevurdering.getId()));
     }
 
     @Test
-    public void skal_finne_en_tom_endringsdato_for_revurdering_hvor_forrige_behandling_er_avslått_og_mangler_beregningsresultat(){
-        Mockito.when(beregningsresultatRepository.hentUtbetBeregningsresultat(Mockito.any())).thenReturn(Optional.empty());
+    public void skal_finne_en_tom_endringsdato_for_revurdering_hvor_forrige_behandling_er_avslått_og_mangler_beregningsresultat() {
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any())).thenReturn(Optional.empty());
 
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -113,7 +108,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     }
 
     @Test
-    public void skal_finne_en_tom_endringsdato_hvor_revurdering_ikke_er_endret_i_forhold_til_førstegangsbehandlingen(){
+    public void skal_finne_en_tom_endringsdato_hvor_revurdering_ikke_er_endret_i_forhold_til_førstegangsbehandlingen() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode p1_førstegangsbehandling = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(4));
         opprettAndel(p1_førstegangsbehandling, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
@@ -137,7 +132,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     }
 
     @Test
-    public void skal_finne_tom_endringsdato_hvor_revurderingen_har_blitt_forlenget_med_en_periode_med_ingen_dagsats_hvor_det_er_ingen_korresponderende_periode(){
+    public void skal_finne_tom_endringsdato_hvor_revurderingen_har_blitt_forlenget_med_en_periode_med_ingen_dagsats_hvor_det_er_ingen_korresponderende_periode() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode periode1 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 10, 1),
             LocalDate.of(2018, 12, 15));
@@ -177,7 +172,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     }
 
     @Test
-    public void skal_finne_tom_endringsdato_hvor_periode_med_ingen_dagsats_i_førstegangsbehandling_blir_oppholdsperiode_i_revurdering(){
+    public void skal_finne_tom_endringsdato_hvor_periode_med_ingen_dagsats_i_førstegangsbehandling_blir_oppholdsperiode_i_revurdering() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode periode1 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 10, 1),
             LocalDate.of(2018, 12, 15));
@@ -211,7 +206,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     }
 
     @Test
-    public void skal_finne_endringsdato_hvor_den_midterste_perioden_er_delt_i_to_i_revurderingen_hvor_dagsatsen_er_endret(){
+    public void skal_finne_endringsdato_hvor_den_midterste_perioden_er_delt_i_to_i_revurderingen_hvor_dagsatsen_er_endret() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode periode1 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 10, 1),
             LocalDate.of(2018, 12, 15));
@@ -247,11 +242,11 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
         // Assert
-        assertThat(endringsdato).hasValueSatisfying(ed -> assertThat(ed).isEqualTo(LocalDate.of(2019,2,2)));
+        assertThat(endringsdato).hasValueSatisfying(ed -> assertThat(ed).isEqualTo(LocalDate.of(2019, 2, 2)));
     }
 
     @Test
-    public void skal_finne_endringsdato_hvor_inntektskategorien_blir_endret_i_siste_periode_uten_å_reagere_på_perioden_i_midten_som_er_delt_i_to_i_revurderingen_med_ingen_dagsats(){
+    public void skal_finne_endringsdato_hvor_inntektskategorien_blir_endret_i_siste_periode_uten_å_reagere_på_perioden_i_midten_som_er_delt_i_to_i_revurderingen_med_ingen_dagsats() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode periode1 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 10, 1),
             LocalDate.of(2018, 12, 15));
@@ -287,11 +282,11 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
         // Assert
-        assertThat(endringsdato).hasValueSatisfying(ed -> assertThat(ed).isEqualTo(LocalDate.of(2019,2,18)));
+        assertThat(endringsdato).hasValueSatisfying(ed -> assertThat(ed).isEqualTo(LocalDate.of(2019, 2, 18)));
     }
 
     @Test
-    public void skal_finne_tom_endringsdato_hvor_siste_periode_i_revurdering_er_delt_i_to_med_ingen_dagsats(){
+    public void skal_finne_tom_endringsdato_hvor_siste_periode_i_revurdering_er_delt_i_to_med_ingen_dagsats() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode periode1 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 10, 1),
             LocalDate.of(2018, 12, 15));
@@ -323,7 +318,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     }
 
     @Test
-    public void skal_ikke_finne_endringsdato_hvor_siste_periode_i_revurdering_er_delt_i_to_perioder_men_andelene_er_uendret(){
+    public void skal_ikke_finne_endringsdato_hvor_siste_periode_i_revurdering_er_delt_i_to_perioder_men_andelene_er_uendret() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER, ORGNR,
@@ -350,7 +345,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     }
 
     @Test
-    public void skal_finne_endringsdato_hvor_den_siste_perioden_i_revurderingen_ikke_har_en_korresponderende_periode(){
+    public void skal_finne_endringsdato_hvor_den_siste_perioden_i_revurderingen_ikke_har_en_korresponderende_periode() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
@@ -371,7 +366,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     }
 
     @Test
-    public void skal_finne_endringsdato_hvor_den_første_perioden_i_førstegangsbehandlingen_ikke_har_en_korresponderende_periode(){
+    public void skal_finne_endringsdato_hvor_den_første_perioden_i_førstegangsbehandlingen_ikke_har_en_korresponderende_periode() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
@@ -392,7 +387,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     }
 
     @Test
-    public void skal_finne_endringsdato_hvor_revurdering_har_forskjellig_antall_andeler_fra_førstegangsbehandling(){
+    public void skal_finne_endringsdato_hvor_revurdering_har_forskjellig_antall_andeler_fra_førstegangsbehandling() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
@@ -418,7 +413,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     }
 
     @Test
-    public void skal_finne_endringsdato_hvor_andel_i_revurderingen_er_endret_fra_andelen_i_førstegangsbehandlingen(){
+    public void skal_finne_endringsdato_hvor_andel_i_revurderingen_er_endret_fra_andelen_i_førstegangsbehandlingen() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
@@ -442,7 +437,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     }
 
     @Test
-    public void skal_finne_endringsdato_hvor_siste_periode_i_revurdering_er_kortere_enn_siste_periode_i_førstegangsbehandling_og_hvor_andelene_er_uendret(){
+    public void skal_finne_endringsdato_hvor_siste_periode_i_revurdering_er_kortere_enn_siste_periode_i_førstegangsbehandling_og_hvor_andelene_er_uendret() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
@@ -466,7 +461,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     }
 
     @Test
-    public void skal_finne_endringsdato_hvor_den_første_perioden_i_revurderingen_er_lengere_enn_første_periode_i_førstegangsbehandlingen_og_hvor_andelene_er_undret(){
+    public void skal_finne_endringsdato_hvor_den_første_perioden_i_revurderingen_er_lengere_enn_første_periode_i_førstegangsbehandlingen_og_hvor_andelene_er_undret() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
@@ -496,7 +491,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
             .build();
     }
 
-    private BeregningsresultatPeriode opprettPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom, LocalDate tom){
+    private BeregningsresultatPeriode opprettPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom, LocalDate tom) {
         return BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(fom, tom)
             .build(beregningsresultat);

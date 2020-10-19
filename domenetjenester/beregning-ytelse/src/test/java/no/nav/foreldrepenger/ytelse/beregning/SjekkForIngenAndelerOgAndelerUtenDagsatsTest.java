@@ -6,10 +6,8 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -24,17 +22,14 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private static final String ORGNR = KUNSTIG_ORG;
 
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
     private SjekkForIngenAndelerOgAndelerUtenDagsats sjekkForIngenAndelerOgAndelerUtenDagsats;
     private BeregningsresultatEntitet beregningsresultatFørstegangsbehandling;
     private BeregningsresultatEntitet beregningsresultatRevurdering;
     private LocalDate fom;
     private LocalDate tom;
 
-    @Before
-    public void oppsett(){
+    @BeforeEach
+    void setUp(){
         sjekkForIngenAndelerOgAndelerUtenDagsats = new SjekkForIngenAndelerOgAndelerUtenDagsats();
         beregningsresultatFørstegangsbehandling = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")

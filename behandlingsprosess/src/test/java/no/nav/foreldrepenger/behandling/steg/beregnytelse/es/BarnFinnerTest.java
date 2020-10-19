@@ -2,45 +2,28 @@ package no.nav.foreldrepenger.behandling.steg.beregnytelse.es;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
-@RunWith(CdiRunner.class)
 public class BarnFinnerTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    @Inject
-    @KonfigVerdi(value = "es.maks.stønadsalder.adopsjon", defaultVerdi = "15")
-    private int maksStønadsalder;
+    private final int maksStønadsalder = 15;
 
     @Test
     public void skal_finne_antall_barn_basert_på_fødsel() {
@@ -50,8 +33,8 @@ public class BarnFinnerTest {
         Behandling behandling = scenario.lagMocked();
 
         // Act
-        final BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        int funnetAntallBarn = new BarnFinner(repositoryProvider).finnAntallBarn(behandling.getId(), maksStønadsalder);
+        var barnFinner = new BarnFinner(scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository());
+        int funnetAntallBarn = barnFinner.finnAntallBarn(behandling.getId(), maksStønadsalder);
 
         // Assert
         assertThat(antallBarnPåFødsel).isEqualTo(funnetAntallBarn);
@@ -65,8 +48,8 @@ public class BarnFinnerTest {
         Behandling behandling = scenario.lagMocked();
 
         // Act
-        final BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        int funnetAntallBarn = new BarnFinner(repositoryProvider).finnAntallBarn(behandling.getId(), maksStønadsalder);
+        var barnFinner = new BarnFinner(scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository());
+        int funnetAntallBarn = barnFinner.finnAntallBarn(behandling.getId(), maksStønadsalder);
 
         // Assert
         assertThat(antallBarnPåTerminBekreftelse).isEqualTo(funnetAntallBarn);
@@ -86,8 +69,7 @@ public class BarnFinnerTest {
         Behandling behandling = scenario.lagMocked();
 
         // Act
-        BehandlingRepositoryProvider mockBehandlingRepository = scenario.mockBehandlingRepositoryProvider();
-        BarnFinner barnFinner = new BarnFinner(mockBehandlingRepository);
+        BarnFinner barnFinner = new BarnFinner(scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository());
         int funnetAntallBarn = barnFinner.finnAntallBarn(behandling.getId(), maksStønadsalder);
 
         // Assert
@@ -101,8 +83,8 @@ public class BarnFinnerTest {
         Behandling behandling = scenario.lagMocked();
 
         // Act
-        final BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        int funnetAntallBarn = new BarnFinner(repositoryProvider).finnAntallBarn(behandling.getId(), maksStønadsalder);
+        var barnFinner = new BarnFinner(scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository());
+        int funnetAntallBarn = barnFinner.finnAntallBarn(behandling.getId(), maksStønadsalder);
 
         // Assert
         assertThat(2).isEqualTo(funnetAntallBarn);
@@ -113,11 +95,10 @@ public class BarnFinnerTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = scenario.lagMocked();
-        expectedException.expect(FunksjonellException.class);
 
         // Act
-        final BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        new BarnFinner(repositoryProvider).finnAntallBarn(behandling.getId(), maksStønadsalder);
+        var barnFinner = new BarnFinner(scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository());
+        assertThrows(FunksjonellException.class, () -> barnFinner.finnAntallBarn(behandling.getId(), maksStønadsalder));
     }
 
     private ScenarioMorSøkerEngangsstønad byggBehandlingsgrunnlagForFødsel(int antallBarn) {

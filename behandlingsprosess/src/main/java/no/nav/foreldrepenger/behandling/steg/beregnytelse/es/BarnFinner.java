@@ -15,14 +15,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 
 class BarnFinner {
 
-    private FamilieHendelseRepository familieGrunnlagRepository;
+    private final FamilieHendelseRepository familieGrunnlagRepository;
 
-    BarnFinner(BehandlingRepositoryProvider behandlingRepositoryProvider) {
-        this.familieGrunnlagRepository = behandlingRepositoryProvider.getFamilieHendelseRepository();
+    BarnFinner(FamilieHendelseRepository familieGrunnlagRepository) {
+        this.familieGrunnlagRepository = familieGrunnlagRepository;
     }
 
     int finnAntallBarn(Long behandlingId, int maksStønadsalderAdopsjon) {
@@ -46,7 +45,7 @@ class BarnFinner {
 
     private List<BarnInfo> barnKvalifisertForAdopsjon(int maksStønadsalderAdopsjon, final FamilieHendelseGrunnlagEntitet grunnlag, List<BarnInfo> barnSøktFor) {
         Optional<AdopsjonEntitet> gjeldendeAdopsjon = grunnlag.getGjeldendeAdopsjon();
-        if (!gjeldendeAdopsjon.isPresent()) {
+        if (gjeldendeAdopsjon.isEmpty()) {
             // skal aldri kunne skje, men logikken for å sjekke ifPresent er basert på negativ testing hvilket kan være ustabilt.
             // legger derfor på her
             throw new IllegalStateException("Mangler grunnlag#getGjeldendeAdopsjon i " + grunnlag);
