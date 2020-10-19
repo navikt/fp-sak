@@ -4,22 +4,23 @@ import static no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett.VE
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
@@ -31,28 +32,25 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class OpprettProsessTaskIverksettTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class OpprettProsessTaskIverksettTest extends EntityManagerAwareTest {
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
+    private ProsessTaskRepository prosessTaskRepository;
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    private ProsessTaskRepository prosessTaskRepository = new ProsessTaskRepositoryImpl(repoRule.getEntityManager(), null, null);
-
-    @Mock
     private OppgaveTjeneste oppgaveTjeneste;
 
-    private Behandling behandling;
     private OpprettProsessTaskIverksett opprettProsessTaskIverksett;
 
-    @Before
-    public void setup() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        behandling = scenario.lagMocked();
-        opprettProsessTaskIverksett = new OpprettProsessTaskIverksett(prosessTaskRepository, null, null, null, oppgaveTjeneste);
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, null);
+        var behandlingRepository = new BehandlingRepository(entityManager);
+        oppgaveTjeneste = mock(OppgaveTjeneste.class);
+        opprettProsessTaskIverksett = new OpprettProsessTaskIverksett(prosessTaskRepository, behandlingRepository,
+            new AnkeRepository(entityManager), new KlageRepository(entityManager), oppgaveTjeneste);
     }
 
     @Test
@@ -61,7 +59,7 @@ public class OpprettProsessTaskIverksettTest {
         when(oppgaveTjeneste.opprettTaskAvsluttOppgave(any(Behandling.class), any(OppgaveÅrsak.class), anyBoolean())).thenReturn(Optional.empty());
 
         // Act
-        opprettProsessTaskIverksett.opprettIverksettingTasks(behandling);
+        opprettProsessTaskIverksett.opprettIverksettingTasks(opprettBehandling());
 
         // Assert
         List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
@@ -73,7 +71,8 @@ public class OpprettProsessTaskIverksettTest {
     @Test
     public void testOpprettIverksettingstasker() {
         // Arrange
-        mockOpprettTaskAvsluttOppgave();
+        var behandling = opprettBehandling();
+        mockOpprettTaskAvsluttOppgave(behandling);
 
         // Act
         opprettProsessTaskIverksett.opprettIverksettingTasks(behandling);
@@ -86,7 +85,12 @@ public class OpprettProsessTaskIverksettTest {
             VEDTAK_TIL_DATAVAREHUS_TASK);
     }
 
-    private void mockOpprettTaskAvsluttOppgave() {
+    private Behandling opprettBehandling() {
+        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        return scenario.lagMocked();
+    }
+
+    private void mockOpprettTaskAvsluttOppgave(Behandling behandling) {
         ProsessTaskData prosessTaskData = new ProsessTaskData(AvsluttOppgaveTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setOppgaveId("1001");

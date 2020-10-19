@@ -2,53 +2,42 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class BehandlingsresultatTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BehandlingsresultatTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private Repository repository = repoRule.getRepository();
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor().build();
-    private Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-    private Behandling behandling;
+    private BehandlingRepository behandlingRepository;
 
-    @Before
-    public void setup() {
-        repository.lagre(fagsak.getNavBruker());
-        repository.lagre(fagsak);
-        repository.flush();
-
-        behandling = behandlingBuilder.build();
+    @BeforeEach
+    void setUp() {
+        behandlingRepository = new BehandlingRepository(getEntityManager());
     }
 
     @Test
-    public void skal_opprette_ny_behandlingsresultat() throws Exception {
-
+    public void skal_opprette_ny_behandlingsresultat() {
         Behandlingsresultat.Builder behandlingsresultatBuilder = Behandlingsresultat.builderForInngangsvilkår();
-        Behandlingsresultat behandlingsresultat = behandlingsresultatBuilder.buildFor(behandling);
+        Behandlingsresultat behandlingsresultat = behandlingsresultatBuilder.build();
 
         assertThat(behandlingsresultat).isNotNull();
         assertThat(behandlingsresultat.getVilkårResultat()).isNotNull();
     }
 
     @Test
-    public void skal_opprette_ny_behandlingsresultat_og_lagre_med_ikke_fastsatt_vilkårresultat() throws Exception {
-        lagreBehandling(behandling);
+    public void skal_opprette_ny_behandlingsresultat_og_lagre_med_ikke_fastsatt_vilkårresultat() {
+        var behandling = opprettBehandling();
 
         Behandlingsresultat.Builder behandlingsresultatBuilder = Behandlingsresultat.builderForInngangsvilkår();
         Behandlingsresultat behandlingsresultat = behandlingsresultatBuilder.buildFor(behandling);
@@ -59,20 +48,20 @@ public class BehandlingsresultatTest {
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
-        lagreBehandling(behandling);
 
         Long id = behandling.getId();
         assertThat(id).isNotNull();
 
-        Behandling lagretBehandling = repository.hent(Behandling.class, id);
+        Behandling lagretBehandling = behandlingRepository.hentBehandling(behandling.getId());
         assertThat(lagretBehandling).isEqualTo(behandling);
         assertThat(lagretBehandling.getBehandlingsresultat()).isEqualTo(behandlingsresultat);
-
     }
 
-    private void lagreBehandling(Behandling behandling) {
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        behandlingRepository.lagre(behandling, lås);
+    private Behandling opprettBehandling() {
+        var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
+        new FagsakRepository(getEntityManager()).opprettNy(fagsak);
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        behandlingRepository.lagre(behandling, new BehandlingLåsRepository(getEntityManager()).taLås(behandling.getId()));
+        return behandling;
     }
-
 }

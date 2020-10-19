@@ -7,32 +7,32 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class SvangerskapspengerRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
 
-    private LocalDateTime I_GÅR = LocalDateTime.now().minusDays(1);
-    private LocalDate OM_TO_DAGER = LocalDate.now().plusDays(2);
-    private LocalDate OM_TRE_DAGER = LocalDate.now().plusDays(3);
-
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
+    private static final LocalDateTime I_GÅR = LocalDateTime.now().minusDays(1);
+    private static final LocalDate OM_TO_DAGER = LocalDate.now().plusDays(2);
+    private static final LocalDate OM_TRE_DAGER = LocalDate.now().plusDays(3);
 
     private BasicBehandlingBuilder basicBehandlingBuilder;
     private SvangerskapspengerRepository repository;
 
-    @Before
-    public void before() {
-        basicBehandlingBuilder = new BasicBehandlingBuilder(repositoryRule.getEntityManager());
-        repository = new SvangerskapspengerRepository(repositoryRule.getEntityManager());
+    @BeforeEach
+    void before() {
+        var entityManager = getEntityManager();
+        basicBehandlingBuilder = new BasicBehandlingBuilder(entityManager);
+        repository = new SvangerskapspengerRepository(entityManager);
     }
 
     @Test
