@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.web.app.exceptions.FeilType;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -97,7 +97,7 @@ public class AktoerRestTjeneste {
                             null,
                             fagsak.getSkalTilInfotrygd(),
                             fagsak.getRelasjonsRolleType(),
-                            finnDekningsgrad(fagsak.getSaksnummer()), FagsakRestTjeneste.lagLenker(fagsak)));
+                            finnDekningsgrad(fagsak.getSaksnummer()), FagsakApplikasjonTjeneste.lagLenker(fagsak)));
                 }
                 aktoerInfoDto.setFagsaker(fagsakDtoer);
                 return Response.ok(aktoerInfoDto).build();
