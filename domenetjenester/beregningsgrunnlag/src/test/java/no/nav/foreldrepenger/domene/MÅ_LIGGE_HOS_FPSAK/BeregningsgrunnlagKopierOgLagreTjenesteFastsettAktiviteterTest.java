@@ -32,6 +32,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input.BeregningTilInputTjeneste;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input.KalkulatorStegProsesseringInputTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.MapBehandlingRef;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.testutilities.behandling.ScenarioForeldrepenger;
@@ -86,9 +88,10 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
     @Before
     public void setUp() {
         KalkulusKonfigInjecter kalkulusKonfigInjecter = new KalkulusKonfigInjecter(5, unleash);
-        BeregningTilInputTjeneste beregningTilInputTjeneste = new BeregningTilInputTjeneste(beregningsgrunnlagRepository, kalkulusKonfigInjecter, behandlingRepository);
+        BeregningTilInputTjeneste beregningTilInputTjeneste = new BeregningTilInputTjeneste(beregningsgrunnlagRepository, kalkulusKonfigInjecter);
+        KalkulatorStegProsesseringInputTjeneste kalkulatorStegProsesseringInputTjeneste = new KalkulatorStegProsesseringInputTjeneste(beregningsgrunnlagRepository, behandlingRepository, beregningTilInputTjeneste, new GrunnbeløpTjeneste(beregningsgrunnlagRepository), kalkulusKonfigInjecter);
         behandlingReferanse = lagBehandlingReferanse();
-        beregningsgrunnlagKopierOgLagreTjeneste = new BeregningsgrunnlagKopierOgLagreTjeneste(beregningsgrunnlagRepository, beregningsgrunnlagTjeneste, beregningTilInputTjeneste);
+        beregningsgrunnlagKopierOgLagreTjeneste = new BeregningsgrunnlagKopierOgLagreTjeneste(beregningsgrunnlagRepository, beregningsgrunnlagTjeneste, kalkulatorStegProsesseringInputTjeneste);
     }
 
     @Test

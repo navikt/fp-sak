@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.folketrygdloven.beregningsgrunnlag.Grunnbeløp;
@@ -11,15 +12,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 
-public abstract class GrunnbeløpTjeneste {
+@ApplicationScoped
+public class GrunnbeløpTjeneste {
 
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
     public GrunnbeløpTjeneste() {
         // For CDI
     }
-
-    public abstract Integer finnAntallGrunnbeløpMilitærHarKravPå();
 
     @Inject
     public GrunnbeløpTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository) {

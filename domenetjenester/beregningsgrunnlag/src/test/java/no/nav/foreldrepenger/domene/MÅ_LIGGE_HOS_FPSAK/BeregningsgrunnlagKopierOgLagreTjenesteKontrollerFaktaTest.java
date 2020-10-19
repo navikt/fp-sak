@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input.KalkulatorStegProsesseringInputTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.MapBehandlingRef;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.testutilities.behandling.ScenarioForeldrepenger;
@@ -77,17 +78,19 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
     private BeregningsgrunnlagInput input;
 
     @Inject
-    private BeregningTilInputTjeneste beregningTilInputTjeneste;
+    private KalkulatorStegProsesseringInputTjeneste kalkulatorStegProsesseringInputTjeneste;
     @Inject
     private BeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
 
     @Before
     public void setUp() {
 
+
+
         beregningsgrunnlagKopierOgLagreTjeneste = new BeregningsgrunnlagKopierOgLagreTjeneste(
             beregningsgrunnlagRepository,
             beregningsgrunnlagTjeneste,
-            beregningTilInputTjeneste);
+            kalkulatorStegProsesseringInputTjeneste);
 
 
         Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet(ORG_NUMMER);

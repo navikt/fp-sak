@@ -28,9 +28,12 @@ import no.nav.folketrygdloven.kalkulator.BeregningsperiodeTjeneste;
 import no.nav.folketrygdloven.kalkulator.adapter.regelmodelltilvl.MapBGSkjæringstidspunktOgStatuserFraRegelTilVL;
 import no.nav.folketrygdloven.kalkulator.adapter.vltilregelmodell.MapBeregningAktiviteterFraVLTilRegel;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.input.FastsettBeregningsaktiviteterInput;
+import no.nav.folketrygdloven.kalkulator.input.StegProsesseringInput;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.steg.fastsettskjæringstidspunkt.FastsettBeregningAktiviteter;
 import no.nav.folketrygdloven.kalkulator.steg.fastsettskjæringstidspunkt.FastsettSkjæringstidspunktOgStatuser;
+import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
@@ -39,7 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.fp.GrunnbeløpTjenesteImplFP;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.MapBehandlingRef;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.OpptjeningMapperTilKalkulus;
@@ -96,10 +98,10 @@ public class FastsettBeregningAktiviteterOgStatuserTest extends EntityManagerAwa
     private final AtomicLong journalpostIdInc = new AtomicLong(123L);
 
     @BeforeEach
-    void setup() {
+    public void setup() {
         var entityManager = getEntityManager();
         beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
-        grunnbeløpTjeneste = new GrunnbeløpTjenesteImplFP(beregningsgrunnlagRepository, 2);
+        grunnbeløpTjeneste = new GrunnbeløpTjeneste(beregningsgrunnlagRepository);
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         iayTestUtil = new BeregningIAYTestUtil(iayTjeneste);
         fastsettBeregningAktiviteter = new FastsettBeregningAktiviteter(new UnitTestLookupInstanceImpl<>(new MapBeregningAktiviteterFraVLTilRegel()));
@@ -138,7 +140,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest extends EntityManagerAwa
                                           BehandlingReferanse behandling) {
         var ref = lagReferanseMedStp(behandling);
         var input = lagBeregningsgrunnlagInput(ref, opptjeningAktiviteter, inntektsmeldinger);
-        var beregningAktivitetAggregat = fastsettBeregningAktiviteter.fastsettAktiviteter(input);
+        var beregningAktivitetAggregat = fastsettBeregningAktiviteter.fastsettAktiviteter(lagStartInput(input));
         return mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input, beregningAktivitetAggregat, input.getIayGrunnlag(),
             grunnbeløpTjeneste.mapGrunnbeløpSatser()).getBeregningsgrunnlag());
     }
@@ -501,7 +503,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest extends EntityManagerAwa
         // Act
         BehandlingReferanse ref = lagReferanseMedStp(opprettBehandling());
         var input = lagBeregningsgrunnlagInput(ref, opptjeningAktiviteter, List.of());
-        BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = mapSaksbehandletAktivitet(fastsettBeregningAktiviteter.fastsettAktiviteter(input));
+        BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = mapSaksbehandletAktivitet(fastsettBeregningAktiviteter.fastsettAktiviteter(lagStartInput(input)));
 
         BeregningsgrunnlagEntitet BeregningsgrunnlagEntitet = mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input,
             mapSaksbehandletAktivitet(beregningAktivitetAggregat), input.getIayGrunnlag(), grunnbeløpTjeneste.mapGrunnbeløpSatser()).getBeregningsgrunnlag());
@@ -690,5 +692,9 @@ public class FastsettBeregningAktiviteterOgStatuserTest extends EntityManagerAwa
         } else {
             iayTestUtil.leggTilAktørytelse(behandlingReferanse, fom, tom, relatertYtelseTilstand, saksnummer, ytelseType, ytelseStørrelseList, arbeidskategori);
         }
+    }
+
+    private FastsettBeregningsaktiviteterInput lagStartInput(BeregningsgrunnlagInput input) {
+        return new FastsettBeregningsaktiviteterInput(new StegProsesseringInput(input, BeregningsgrunnlagTilstand.OPPRETTET));
     }
 }

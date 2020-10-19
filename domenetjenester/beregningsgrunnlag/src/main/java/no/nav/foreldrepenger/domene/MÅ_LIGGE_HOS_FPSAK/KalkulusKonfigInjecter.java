@@ -38,7 +38,7 @@ public class KalkulusKonfigInjecter {
         this.unleash = unleash;
     }
 
-    void leggTilKonfigverdier(BeregningsgrunnlagInput input) {
+    public void leggTilKonfigverdier(BeregningsgrunnlagInput input) {
         input.leggTilKonfigverdi(INNTEKT_RAPPORTERING_FRIST_DATO, inntektRapporteringFristDagIMåneden);
     }
 

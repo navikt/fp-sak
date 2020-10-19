@@ -1,30 +1,5 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
-import no.nav.folketrygdloven.kalkulator.steg.BeregningsgrunnlagTjeneste;
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
-import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
-import no.nav.folketrygdloven.kalkulator.output.BeregningResultatAggregat;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FASTSATT;
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FASTSATT_INN;
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FORESLÅTT;
@@ -33,6 +8,37 @@ import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsg
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER;
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING;
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.VURDERT_REFUSJON;
+
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.input.FaktaOmBeregningInput;
+import no.nav.folketrygdloven.kalkulator.input.FordelBeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
+import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
+import no.nav.folketrygdloven.kalkulator.output.BeregningResultatAggregat;
+import no.nav.folketrygdloven.kalkulator.steg.BeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input.KalkulatorStegProsesseringInputTjeneste;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 
 /**
  * Fasade tjeneste for å delegere alle kall fra steg
@@ -50,7 +56,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     };
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
-    private BeregningTilInputTjeneste beregningTilInputTjeneste;
+    private KalkulatorStegProsesseringInputTjeneste kalkulatorStegProsesseringInputTjeneste;
 
     public BeregningsgrunnlagKopierOgLagreTjeneste() {
         // CDI Proxy
@@ -59,21 +65,30 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     @Inject
     public BeregningsgrunnlagKopierOgLagreTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository,
                                                    BeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                                   BeregningTilInputTjeneste beregningTilInputTjeneste) {
+                                                   KalkulatorStegProsesseringInputTjeneste kalkulatorStegProsesseringInputTjeneste) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
-        this.beregningTilInputTjeneste = beregningTilInputTjeneste;
+        this.kalkulatorStegProsesseringInputTjeneste = kalkulatorStegProsesseringInputTjeneste;
     }
 
     public List<BeregningAksjonspunktResultat> fastsettBeregningsaktiviteter(BeregningsgrunnlagInput input) {
         var ref = input.getKoblingReferanse();
-        BeregningResultatAggregat resultat = beregningsgrunnlagTjeneste.fastsettBeregningsaktiviteter(beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input));
+        BeregningResultatAggregat resultat = beregningsgrunnlagTjeneste.fastsettBeregningsaktiviteter(
+            kalkulatorStegProsesseringInputTjeneste.lagStartInput(
+                ref.getKoblingId(),
+                input)
+        );
         return lagreOgKopier(ref, resultat);
     }
 
     public void fastsettBeregningsgrunnlag(BeregningsgrunnlagInput input) {
-        BeregningResultatAggregat beregningResultatAggregat = beregningsgrunnlagTjeneste.fastsettBeregningsgrunnlag(beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input));
         Long behandlingId = input.getKoblingReferanse().getKoblingId();
+        BeregningResultatAggregat beregningResultatAggregat = beregningsgrunnlagTjeneste.fastsettBeregningsgrunnlag(
+            kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
+                behandlingId,
+                input,
+                BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG)
+        );
         BeregningsgrunnlagEntitet beregningsgrunnlag = beregningResultatAggregat.getBeregningsgrunnlagGrunnlag()
             .getBeregningsgrunnlag()
             .map(KalkulusTilBehandlingslagerMapper::mapBeregningsgrunnlag)
@@ -86,14 +101,25 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     }
 
     public List<BeregningAksjonspunktResultat> vurderRefusjonBeregningsgrunnlag(BeregningsgrunnlagInput input) {
-        BeregningResultatAggregat resultat = beregningsgrunnlagTjeneste.vurderRefusjonskravForBeregninggrunnlag(beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input));
+        Long behandlingId = input.getKoblingReferanse().getKoblingId();
+        BeregningResultatAggregat resultat = beregningsgrunnlagTjeneste.vurderRefusjonskravForBeregninggrunnlag(
+            kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
+                behandlingId,
+                input,
+                BehandlingStegType.VURDER_REF_BERGRUNN)
+        );
         BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(resultat.getBeregningsgrunnlagGrunnlag());
         beregningsgrunnlagRepository.lagre(input.getKoblingReferanse().getKoblingId(), BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), VURDERT_REFUSJON);
         return resultat.getBeregningAksjonspunktResultater();
     }
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat fordelBeregningsgrunnlag(BeregningsgrunnlagInput input) {
-        BeregningResultatAggregat beregningResultatAggregat = beregningsgrunnlagTjeneste.fordelBeregningsgrunnlag(beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input));
+        Long behandlingId = input.getKoblingReferanse().getKoblingId();
+        FordelBeregningsgrunnlagInput fordelInput = (FordelBeregningsgrunnlagInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
+            behandlingId,
+            input,
+            BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG);
+        BeregningResultatAggregat beregningResultatAggregat = beregningsgrunnlagTjeneste.fordelBeregningsgrunnlag(fordelInput);
         Optional<BeregningsgrunnlagEntitet> forrigeBekreftetBeregningsgrunnlag = finnForrigeBgFraTilstand(input, FASTSATT_INN);
         BeregningsgrunnlagEntitet nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningResultatAggregat.getBeregningsgrunnlag());
         lagreOgKopier(input, beregningResultatAggregat, forrigeBekreftetBeregningsgrunnlag, nyttBg, OPPDATERT_MED_REFUSJON_OG_GRADERING, FASTSATT_INN);
@@ -115,7 +141,13 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     }
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBeregningsgrunnlag(BeregningsgrunnlagInput input) {
-        BeregningResultatAggregat beregningResultatAggregat = beregningsgrunnlagTjeneste.foreslåBeregningsgrunnlag(beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input));
+        Long behandlingId = input.getKoblingReferanse().getKoblingId();
+        ForeslåBeregningsgrunnlagInput foreslåBeregningsgrunnlagInput = (ForeslåBeregningsgrunnlagInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
+            behandlingId,
+            input,
+            BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
+        BeregningResultatAggregat beregningResultatAggregat = beregningsgrunnlagTjeneste.foreslåBeregningsgrunnlag(
+            foreslåBeregningsgrunnlagInput);
         Optional<BeregningsgrunnlagEntitet> forrigeBekreftetBeregningsgrunnlag = finnForrigeBgFraTilstand(input, FORESLÅTT_UT);
         BeregningsgrunnlagEntitet nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningResultatAggregat.getBeregningsgrunnlag());
         lagreOgKopier(input, beregningResultatAggregat, forrigeBekreftetBeregningsgrunnlag, nyttBg, FORESLÅTT, FORESLÅTT_UT);
@@ -127,7 +159,12 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     }
 
     public List<BeregningAksjonspunktResultat> kontrollerFaktaBeregningsgrunnlag(BeregningsgrunnlagInput input) {
-        BeregningResultatAggregat beregningResultatAggregat = beregningsgrunnlagTjeneste.kontrollerFaktaBeregningsgrunnlag(beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input));
+        Long behandlingId = input.getKoblingReferanse().getKoblingId();
+        FaktaOmBeregningInput faktaOmBeregningInput = (FaktaOmBeregningInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
+            behandlingId,
+            input,
+            BehandlingStegType.KONTROLLER_FAKTA_BEREGNING);
+        BeregningResultatAggregat beregningResultatAggregat = beregningsgrunnlagTjeneste.kontrollerFaktaBeregningsgrunnlag(faktaOmBeregningInput);
         Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeBekreftetGrunnlag = finnForrigeGrunnlagFraTilstand(input, KOFAKBER_UT);
         BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(beregningResultatAggregat.getBeregningsgrunnlagGrunnlag());
         BeregningsgrunnlagEntitet nyttBg = nyttGrunnlag.getBeregningsgrunnlag().orElseThrow(INGEN_BG_EXCEPTION_SUPPLIER);

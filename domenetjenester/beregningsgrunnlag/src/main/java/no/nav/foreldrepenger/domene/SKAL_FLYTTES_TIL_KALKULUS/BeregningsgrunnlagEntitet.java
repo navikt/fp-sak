@@ -64,10 +64,8 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
     @OneToOne(mappedBy = "beregningsgrunnlag", cascade = CascadeType.PERSIST)
     private Sammenligningsgrunnlag sammenligningsgrunnlag;
 
-
     @OneToMany(mappedBy = "beregningsgrunnlag")
     private List<SammenligningsgrunnlagPrStatus> sammenligningsgrunnlagPrStatusListe = new ArrayList<>();
-
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "beregningsgrunnlag", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @MapKey(name = "regelType")
