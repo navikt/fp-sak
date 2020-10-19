@@ -874,7 +874,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         this.behandling = behandlingBuilder.build();
 
         if (startSteg != null) {
-            new InternalManipulerBehandling().forceOppdaterBehandlingSteg(behandling, startSteg);
+            InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, startSteg);
         }
 
         leggTilAksjonspunkter(behandling);

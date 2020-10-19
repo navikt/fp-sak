@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +20,6 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
@@ -53,9 +51,6 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     private Behandling behandling;
     private Totrinnresultatgrunnlag totrinnresultatgrunnlag;
 
-    @Inject
-    private InternalManipulerBehandling manipulerInternBehandling;
-
     @Before
     public void oppsett() {
         totrinnskontrollAksjonspunkterTjeneste = new TotrinnskontrollAksjonspunkterTjeneste(totrinnsaksjonspunktDtoTjeneste, totrinnTjeneste);
@@ -67,7 +62,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     public void skal_hente_tom_skjermlenkecontext_for_behandling_med_ikke_status_FATTER_VEDTAK_og_ingen_totrinnsvurdering_og_ingen_aksjonspunkter(){
         // Arrange
         opprettBehandlingForFP(Optional.empty());
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, STEG_KONTROLLER_FAKTA);
+        forceOppdaterBehandlingSteg(behandling, STEG_KONTROLLER_FAKTA);
         TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.emptyList());
         // Act
@@ -80,7 +75,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     public void skal_hente_tom_skjermlenkecontext_for_behandling_med_status_FATTER_VEDTAK_og_ingen_totrinnsvurdering_og_ingen_aksjonspunkter(){
         // Arrange
         opprettBehandlingForFP(Optional.empty());
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, STEG_FATTE_VEDTAK);
+        forceOppdaterBehandlingSteg(behandling, STEG_FATTE_VEDTAK);
         TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.emptyList());
         // Act
@@ -97,7 +92,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         boolean ttvGodkjent = false;
 
         opprettBehandlingForFP(Optional.empty());
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, STEG_KONTROLLER_FAKTA);
+        forceOppdaterBehandlingSteg(behandling, STEG_KONTROLLER_FAKTA);
 
         TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
         Totrinnsvurdering ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
@@ -118,7 +113,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         boolean ttvGodkjent = false;
 
         opprettBehandlingForFP(Optional.empty());
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, STEG_FATTE_VEDTAK);
+        forceOppdaterBehandlingSteg(behandling, STEG_FATTE_VEDTAK);
 
         TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
         Totrinnsvurdering ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
@@ -310,7 +305,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         boolean apAvbrutt = false;
 
         opprettBehandlingForFP(Optional.empty());
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, STEG_FATTE_VEDTAK);
+        forceOppdaterBehandlingSteg(behandling, STEG_FATTE_VEDTAK);
 
         TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.empty());
         opprettAksjonspunkt(behandling, aksjonspunktDefinisjon, apAvbrutt);

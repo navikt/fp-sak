@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
@@ -25,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 
@@ -44,7 +44,6 @@ public class BehandlingskontrollTjenesteImplTest {
     private BehandlingskontrollEventPublisererForTest eventPubliserer = new BehandlingskontrollEventPublisererForTest();
     private BehandlingModellRepository behandlingModellRepository = new BehandlingModellRepository();
     private BehandlingskontrollServiceProvider serviceProvider = new BehandlingskontrollServiceProvider(em, behandlingModellRepository, eventPubliserer);
-    private InternalManipulerBehandling manipulerInternBehandling = new InternalManipulerBehandling();
 
     private BehandlingStegType steg2;
     private BehandlingStegType steg3;
@@ -67,7 +66,7 @@ public class BehandlingskontrollTjenesteImplTest {
         steg3 = modell.finnNesteSteg(steg2).getBehandlingStegType();
         steg4 = modell.finnNesteSteg(steg3).getBehandlingStegType();
         steg5 = modell.finnNesteSteg(steg4).getBehandlingStegType();
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, steg3);
+        forceOppdaterBehandlingSteg(behandling, steg3);
 
         steg2InngangAksjonspunkt = modell.finnAksjonspunktDefinisjonerInngang(steg2).iterator().next();
         steg2UtgangAksjonspunkt = modell.finnAksjonspunktDefinisjonerUtgang(steg2).iterator().next();
@@ -199,7 +198,7 @@ public class BehandlingskontrollTjenesteImplTest {
         // Arrange
         BehandlingStegType iverksettSteg = BehandlingStegType.IVERKSETT_VEDTAK;
         BehandlingStegType forrigeSteg = modell.finnForrigeSteg(iverksettSteg).getBehandlingStegType();
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, iverksettSteg);
+        forceOppdaterBehandlingSteg(behandling, iverksettSteg);
 
         // Act
         kontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, forrigeSteg);
@@ -210,7 +209,7 @@ public class BehandlingskontrollTjenesteImplTest {
 
         // Arrange
         var steg = steg2;
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, steg, BehandlingStegStatus.UTGANG, BehandlingStegStatus.AVBRUTT);
+        forceOppdaterBehandlingSteg(behandling, steg, BehandlingStegStatus.UTGANG, BehandlingStegStatus.AVBRUTT);
 
         assertThat(behandling.getAktivtBehandlingSteg()).isEqualTo(steg);
         assertThat(behandling.getBehandlingStegStatus()).isEqualTo(BehandlingStegStatus.UTGANG);

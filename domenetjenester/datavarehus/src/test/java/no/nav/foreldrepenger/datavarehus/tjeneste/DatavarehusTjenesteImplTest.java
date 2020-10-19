@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP;
 import static no.nav.foreldrepenger.datavarehus.tjeneste.DvhTestDataUtil.AKSJONSPUNKT_DEF;
 import static no.nav.foreldrepenger.datavarehus.tjeneste.DvhTestDataUtil.ANNEN_PART_AKTØR_ID;
@@ -39,7 +40,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -104,13 +104,11 @@ public class DatavarehusTjenesteImplTest extends EntityManagerAwareTest {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
-    private InternalManipulerBehandling manipulerInternBehandling;
 
     @BeforeEach
     public void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         behandlingRepository = new BehandlingRepository(getEntityManager());
-        manipulerInternBehandling = new InternalManipulerBehandling();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
     }
@@ -194,7 +192,7 @@ public class DatavarehusTjenesteImplTest extends EntityManagerAwareTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
         Behandling behandling = scenario.lagMocked();
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
+        forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
         behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
 
@@ -214,7 +212,7 @@ public class DatavarehusTjenesteImplTest extends EntityManagerAwareTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
         Behandling behandling = scenario.lagMocked();
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
+        forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
         behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
         BehandlingRepositoryProvider behandlingRepositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -244,7 +242,7 @@ public class DatavarehusTjenesteImplTest extends EntityManagerAwareTest {
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
 
         Behandling behandling = scenario.lagMocked();
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
+        forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
         behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
 

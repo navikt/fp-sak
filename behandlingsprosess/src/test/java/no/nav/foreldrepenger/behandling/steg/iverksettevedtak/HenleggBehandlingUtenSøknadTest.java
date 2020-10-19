@@ -1,8 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.iverksettevedtak;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 import static org.assertj.core.api.Assertions.assertThat;
-
-import javax.inject.Inject;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
@@ -39,9 +37,6 @@ public class HenleggBehandlingUtenSøknadTest {
 
     @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    @Inject
-    private InternalManipulerBehandling manipulerInternBehandling;
 
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
 
@@ -72,7 +67,7 @@ public class HenleggBehandlingUtenSøknadTest {
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, BehandlingStegType.REGISTRER_SØKNAD);
         behandling = scenario.lagre(repositoryProvider);
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, BehandlingStegType.REGISTRER_SØKNAD);
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.REGISTRER_SØKNAD);
         BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
         henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);

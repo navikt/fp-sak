@@ -2,25 +2,23 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+public final class InternalManipulerBehandling {
 
-@ApplicationScoped
-public class InternalManipulerBehandling {
-
-    @Inject
-    public InternalManipulerBehandling() {
+    private InternalManipulerBehandling() {
     }
 
-    public void forceOppdaterBehandlingSteg(Behandling behandling, BehandlingStegType stegType) {
+    public static void forceOppdaterBehandlingSteg(Behandling behandling, BehandlingStegType stegType) {
         forceOppdaterBehandlingSteg(behandling, stegType, BehandlingStegStatus.UDEFINERT, BehandlingStegStatus.UTFØRT);
     }
 
-    public void forceOppdaterBehandlingSteg(Behandling behandling, BehandlingStegType stegType, BehandlingStegStatus nesteStegStatus, BehandlingStegStatus ikkeFerdigStegStatus) {
+    public static void forceOppdaterBehandlingSteg(Behandling behandling,
+                                                   BehandlingStegType stegType,
+                                                   BehandlingStegStatus nesteStegStatus,
+                                                   BehandlingStegStatus ikkeFerdigStegStatus) {
 
         // finn riktig mapping av kodeverk slik at vi får med dette når Behandling brukes videre.
         Optional<BehandlingStegTilstand> eksisterendeTilstand = behandling.getSisteBehandlingStegTilstand();
-        if (eksisterendeTilstand.isEmpty() || erUlikeSteg(stegType, eksisterendeTilstand)) {
+        if (eksisterendeTilstand.isEmpty() || erUlikeSteg(stegType, eksisterendeTilstand.orElseThrow())) {
             if (eksisterendeTilstand.isPresent() && !BehandlingStegStatus.erSluttStatus(eksisterendeTilstand.get().getBehandlingStegStatus())) {
                 eksisterendeTilstand.ifPresent(it -> it.setBehandlingStegStatus(ikkeFerdigStegStatus));
             }
@@ -32,8 +30,8 @@ public class InternalManipulerBehandling {
         }
     }
 
-    private boolean erUlikeSteg(BehandlingStegType stegType, Optional<BehandlingStegTilstand> eksisterendeTilstand) {
-        return !eksisterendeTilstand.get().getBehandlingSteg().equals(stegType);
+    private static boolean erUlikeSteg(BehandlingStegType stegType, BehandlingStegTilstand eksisterendeTilstand) {
+        return !eksisterendeTilstand.getBehandlingSteg().equals(stegType);
     }
 
 }

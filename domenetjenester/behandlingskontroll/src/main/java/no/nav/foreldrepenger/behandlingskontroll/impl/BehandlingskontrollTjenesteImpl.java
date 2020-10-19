@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingskontroll.impl;
 
 import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_IVERKSETT_VEDTAK;
+import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -70,7 +71,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     private AksjonspunktKontrollRepository aksjonspunktKontrollRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingModellRepository behandlingModellRepository;
-    private InternalManipulerBehandling manipulerInternBehandling;
     private BehandlingskontrollEventPubliserer eventPubliserer;
     private BehandlingStegKonfigurasjon behandlingStegKonfigurasjon;
 
@@ -96,7 +96,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         this.serviceProvider = serviceProvider;
         this.behandlingRepository = serviceProvider.getBehandlingRepository();
         this.behandlingModellRepository = serviceProvider.getBehandlingModellRepository();
-        this.manipulerInternBehandling = new InternalManipulerBehandling();
         this.behandlingStegKonfigurasjon = new BehandlingStegKonfigurasjon(EnumSet.allOf(BehandlingStegStatus.class));
         this.aksjonspunktKontrollRepository = serviceProvider.getAksjonspunktKontrollRepository();
         this.eventPubliserer = serviceProvider.getEventPubliserer();
@@ -681,7 +680,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
             BehandlingStegStatus behandlingStegStatus,
             BehandlingStegStatus sluttStatusForAndreÅpneSteg) {
         oppdaterEksisterendeBehandling(behandling,
-                (beh) -> manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, revidertStegType, behandlingStegStatus,
+                (beh) -> forceOppdaterBehandlingSteg(behandling, revidertStegType, behandlingStegStatus,
                         sluttStatusForAndreÅpneSteg));
     }
 

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.vedtak.es;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU;
 import static org.junit.Assert.assertEquals;
@@ -37,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
@@ -93,9 +93,6 @@ public class VedtakXmlTest {
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private final EntityManager entityManager = repoRule.getEntityManager();
-
-    @Inject
-    private InternalManipulerBehandling manipulerInternBehandling;
 
     private Repository repository = repoRule.getRepository();
     private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
@@ -312,7 +309,7 @@ public class VedtakXmlTest {
         var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, behandlingStegType);
+        forceOppdaterBehandlingSteg(behandling, behandlingStegType);
         final FamilieHendelseRepository fgRepo = repositoryProvider.getFamilieHendelseRepository();
         final FamilieHendelseBuilder søknadVersjon = fgRepo.opprettBuilderFor(behandling);
         søknadVersjon
@@ -364,7 +361,7 @@ public class VedtakXmlTest {
         utførAksjonspunkt(behandling, SØKERS_OPPLYSNINGSPLIKT_MANU);
         utførAksjonspunkt(behandling, KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST);
 
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, stegType);
+        forceOppdaterBehandlingSteg(behandling, stegType);
         Behandlingsresultat behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
@@ -427,7 +424,7 @@ public class VedtakXmlTest {
         var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, stegType);
+        forceOppdaterBehandlingSteg(behandling, stegType);
 
         final FamilieHendelseBuilder søknadVersjon = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling);
         søknadVersjon

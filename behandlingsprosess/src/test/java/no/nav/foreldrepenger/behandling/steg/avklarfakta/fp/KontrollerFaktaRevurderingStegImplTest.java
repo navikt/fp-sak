@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.fp;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -26,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
@@ -66,10 +66,6 @@ public class KontrollerFaktaRevurderingStegImplTest {
 
     @Inject @Any
     private KontrollerFaktaRevurderingStegImpl steg;
-
-    // Trenger denne for å sette aktivt steg. Kunne med fordel heller ha vært mulig i scenariobuilder for behandling.
-    @Inject
-    private InternalManipulerBehandling internalManipulerBehandling;
 
     @Before
     public void oppsett() {
@@ -154,7 +150,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         repositoryProvider.getYtelsesFordelingRepository().kopierGrunnlagFraEksisterendeBehandling(originalBehandling.getId(), behandling.getId());
 
         // Nødvendig å sette aktivt steg for KOFAK revurdering
-        internalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, BehandlingStegType.KONTROLLER_FAKTA);
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.KONTROLLER_FAKTA);
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
     }
@@ -238,7 +234,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         repositoryProvider.getYtelsesFordelingRepository().lagre(revurdering.getId(), fordeling);
 
         // Nødvendig å sette aktivt steg for KOFAK revurdering
-        internalManipulerBehandling.forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.KONTROLLER_FAKTA);
+        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.KONTROLLER_FAKTA);
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, behandlingLås);
 
@@ -306,7 +302,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         repositoryProvider.getYtelsesFordelingRepository().lagre(revurdering.getId(), fordeling);
 
         // Nødvendig å sette aktivt steg for KOFAK revurdering
-        internalManipulerBehandling.forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.KONTROLLER_FAKTA);
+        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.KONTROLLER_FAKTA);
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, behandlingLås);
 
@@ -336,7 +332,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         behandling.getBehandlingÅrsaker().add(builder.medManueltOpprettet(true).buildFor(behandling).get(0));
 
         // Nødvendig å sette aktivt steg for KOFAK revurdering
-        internalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, BehandlingStegType.KONTROLLER_FAKTA);
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.KONTROLLER_FAKTA);
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
 
@@ -369,7 +365,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         repositoryProvider.getYtelsesFordelingRepository().lagre(revurdering.getId(), fordeling);
 
         // Nødvendig å sette aktivt steg for KOFAK revurdering
-        internalManipulerBehandling.forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.KONTROLLER_FAKTA);
+        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.KONTROLLER_FAKTA);
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, behandlingLås);
 
