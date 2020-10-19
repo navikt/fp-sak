@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLÃ
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -41,7 +42,6 @@ import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class OpprettOppgaveForBehandlingTaskTest {
 
-    private static final String FORNAVN_ETTERNAVN = "Fornavn Etternavn";
     private static final String FNR = "00000000000";
     private static final LocalDate FÃ˜DSELSDATO = LocalDate.now().minusYears(20);
     private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
@@ -71,7 +71,8 @@ public class OpprettOppgaveForBehandlingTaskTest {
         personinfoAdapter = Mockito.mock(PersoninfoAdapter.class);
         oppgaveRestKlient = Mockito.mock(OppgaveRestKlient.class);
         oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
-        tjeneste = new OppgaveTjeneste(repositoryProvider, oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository, personinfoAdapter);
+        tjeneste = new OppgaveTjeneste(new FagsakRepository(entityManager), new BehandlingRepository(entityManager),
+            oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository, personinfoAdapter);
 
         // Bygg fagsak som gjenbrukes over testene
         fagsak = opprettOgLagreFagsak();

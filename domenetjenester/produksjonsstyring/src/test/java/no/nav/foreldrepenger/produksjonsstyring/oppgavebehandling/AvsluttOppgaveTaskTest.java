@@ -11,8 +11,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -29,7 +31,6 @@ public class AvsluttOppgaveTaskTest extends EntityManagerAwareTest {
 
     private OppgaveTjeneste oppgaveTjeneste;
 
-    private BehandlingRepositoryProvider repositoryProvider;
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
 
     @Mock
@@ -41,10 +42,10 @@ public class AvsluttOppgaveTaskTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setup() {
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(getEntityManager());
-        oppgaveTjeneste = new OppgaveTjeneste(repositoryProvider, oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository,
-            personinfoAdapter);
+        var entityManager = getEntityManager();
+        oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
+        oppgaveTjeneste = new OppgaveTjeneste(new FagsakRepository(entityManager), new BehandlingRepository(entityManager),
+            oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository, personinfoAdapter);
     }
 
     @Test
@@ -52,7 +53,7 @@ public class AvsluttOppgaveTaskTest extends EntityManagerAwareTest {
 
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        Behandling behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
         Fagsak fagsak = scenario.getFagsak();
 
         String oppgaveId = "99";

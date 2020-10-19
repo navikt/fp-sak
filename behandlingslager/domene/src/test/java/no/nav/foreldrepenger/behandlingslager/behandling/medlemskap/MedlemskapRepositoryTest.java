@@ -6,29 +6,34 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class MedlemskapRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class MedlemskapRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public RepositoryRule repositoryRule = new UnittestRepositoryRule();
+    private MedlemskapRepository repository;
+    private FagsakRepository fagsakRepository;
+    private BehandlingRepository behandlingRepository;
 
-    private MedlemskapRepository repository = new MedlemskapRepository(repositoryRule.getEntityManager());
-    private FagsakRepository fagsakRepository = new FagsakRepository(repositoryRule.getEntityManager());
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        repository = new MedlemskapRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+    }
 
     @Test
     public void skal_hente_eldste_versjon_av_aggregat() {

@@ -5,8 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
@@ -20,21 +21,26 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedle
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class SlettAvklarteDataTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class SlettAvklarteDataTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final Repository repository = repoRule.getRepository();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final MedlemskapRepository medlemskapRepository = repositoryProvider.getMedlemskapRepository();
-    private FamilieHendelseRepository familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
+    private BehandlingRepository behandlingRepository;
+    private MedlemskapRepository medlemskapRepository;
+    private FamilieHendelseRepository familieHendelseRepository;
 
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        behandlingRepository = new BehandlingRepository(entityManager);
+        medlemskapRepository = new MedlemskapRepository(entityManager);
+        familieHendelseRepository = new FamilieHendelseRepository(entityManager);
+    }
 
     @Test
     public void skal_slette_avklarte_omsorgsovertakelsedata() {
@@ -47,21 +53,24 @@ public class SlettAvklarteDataTest {
             .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(LocalDate.now())).medAntallBarn(1));
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        Behandling behandling = lagre(scenario);
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
         // Act
         familieHendelseRepository.slettAvklarteData(behandling.getId(), lås);
-        repository.flushAndClear();
 
         // Assert
-        final FamilieHendelseGrunnlagEntitet grunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
+        final FamilieHendelseGrunnlagEntitet grunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
         assertThat(grunnlag).isNotNull();
         assertThat(grunnlag.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getAdopsjon)).isNotPresent();
         assertThat(grunnlag.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn)).isNotPresent();
         assertThat(grunnlag.getOverstyrtVersjon().map(FamilieHendelseEntitet::getBarna)).isNotPresent();
+    }
+
+    private Behandling lagre(AbstractTestScenario scenario) {
+        return scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
     }
 
     @Test
@@ -78,17 +87,16 @@ public class SlettAvklarteDataTest {
                 .medTermindato(LocalDate.now()).medNavnPå("LEGESEN").medUtstedtDato(LocalDate.now()))
             .medFødselsDato(LocalDate.now())
             .medAntallBarn(1));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        Behandling behandling = lagre(scenario);
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
         // Act
         familieHendelseRepository.slettAvklarteData(behandling.getId(), lås);
-        repository.flushAndClear();
 
         // Assert
-        final FamilieHendelseGrunnlagEntitet grunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
+        final FamilieHendelseGrunnlagEntitet grunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
         assertThat(grunnlag).isNotNull();
         assertThat(grunnlag.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getTerminbekreftelse)).isNotPresent();
         assertThat(grunnlag.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn)).isNotPresent();
@@ -108,17 +116,17 @@ public class SlettAvklarteDataTest {
                 .medOmsorgsovertakelseDato(LocalDate.now()))
             .leggTilBarn(new UidentifisertBarnEntitet(LocalDate.now(), 1)));
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        Behandling behandling = lagre(scenario);
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
         // Act
         familieHendelseRepository.slettAvklarteData(behandling.getId(), lås);
-        repository.flushAndClear();
 
         // Assert
-        final Optional<AdopsjonEntitet> adopsjon = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getAdopsjon);
+        final Optional<AdopsjonEntitet> adopsjon = familieHendelseRepository.hentAggregat(behandling.getId())
+            .getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getAdopsjon);
         assertThat(adopsjon).isNotPresent();
     }
 
@@ -131,7 +139,7 @@ public class SlettAvklarteDataTest {
             .medFødselsDato(LocalDate.now())
             .medAdopsjon(familieHendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
         scenario.medMedlemskap().build();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        Behandling behandling = lagre(scenario);
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
@@ -139,7 +147,6 @@ public class SlettAvklarteDataTest {
         // Act
         Long behandlingId = behandling.getId();
         medlemskapRepository.slettAvklarteMedlemskapsdata(behandlingId, lås);
-        repository.flushAndClear();
 
         // Assert
         Optional<MedlemskapAggregat> medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);

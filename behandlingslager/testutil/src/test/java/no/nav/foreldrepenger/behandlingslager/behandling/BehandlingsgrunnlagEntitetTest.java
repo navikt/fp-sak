@@ -11,9 +11,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -47,40 +47,40 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Sivils
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Poststed;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class BehandlingsgrunnlagEntitetTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private Repository repository = repoRule.getRepository();
+    private BehandlingRepository behandlingRepository;
+    private PersonopplysningRepository personopplysningRepository;
+    private FamilieHendelseRepository familieGrunnlagRepository;
+    private SøknadRepository søknadRepository;
+    private FamilieHendelseRepository familieHendelseRepository;
+    private FagsakRepository fagsakRepository;
+    private MedlemskapRepository medlemskapRepository;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final PersonopplysningRepository personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-
-
-    private Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor().build();
-    private FamilieHendelseRepository familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
-    private SøknadRepository søknadRepository = repositoryProvider.getSøknadRepository();
-
-    @Before
-    public void setup() {
-        repository.lagre(fagsak.getNavBruker());
-        repository.lagre(fagsak);
-        repository.flush();
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        behandlingRepository = new BehandlingRepository(entityManager);
+        personopplysningRepository = new PersonopplysningRepository(entityManager);
+        familieGrunnlagRepository = new FamilieHendelseRepository(entityManager);
+        søknadRepository = new SøknadRepository(entityManager, behandlingRepository);
+        familieHendelseRepository = new FamilieHendelseRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
+        medlemskapRepository = new MedlemskapRepository(entityManager);
     }
 
     @Test
@@ -90,11 +90,7 @@ public class BehandlingsgrunnlagEntitetTest {
         LocalDate fødselsdato = LocalDate.now().plusDays(1);
         int antallBarnFraSøknad = 1;
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-        Behandling behandling = behandlingBuilder.build();
-
-
-        lagreBehandling(behandling);
+        Behandling behandling = lagBehandling();
 
         final FamilieHendelseBuilder hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
             .medAntallBarn(antallBarnFraSøknad)
@@ -107,7 +103,6 @@ public class BehandlingsgrunnlagEntitetTest {
             .medFarSøkerType(FarSøkerType.ADOPTERER_ALENE)
             .medSøknadsdato(søknadsdato);
         søknadRepository.lagreOgFlush(behandling, søknadBuilder.build());
-        repository.flush();
 
         // Assert
         SøknadEntitet søknad = søknadRepository.hentSøknad(behandling.getId());
@@ -132,11 +127,7 @@ public class BehandlingsgrunnlagEntitetTest {
         LocalDate omsorgsovertakelseDato = LocalDate.now().plusDays(1);
         int antallBarnFraSøknad = 1;
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-
-        Behandling behandling = behandlingBuilder.build();
-
-        lagreBehandling(behandling);
+        Behandling behandling = lagBehandling();
 
         final FamilieHendelseBuilder hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
             .medAntallBarn(antallBarnFraSøknad)
@@ -155,10 +146,9 @@ public class BehandlingsgrunnlagEntitetTest {
             .medFarSøkerType(FarSøkerType.ADOPTERER_ALENE)
             .medSøknadsdato(søknadsdato);
         søknadRepository.lagreOgFlush(behandling, søknadBuilder.build());
-        repository.flush();
 
         // Assert
-        final FamilieHendelseGrunnlagEntitet grunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
+        final FamilieHendelseGrunnlagEntitet grunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
         assertThat(grunnlag).isNotNull();
         assertThat(grunnlag.getGjeldendeBekreftetVersjon()).isPresent();
         assertThat(grunnlag.getGjeldendeBekreftetVersjon().get().getBarna()).isNotEmpty();
@@ -182,16 +172,7 @@ public class BehandlingsgrunnlagEntitetTest {
         LocalDate omsorgsovertakelseDato = LocalDate.now().plusDays(1);
         int antallBarnFraSøknad = 1;
 
-        Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor().build();
-        repository.lagre(fagsak.getNavBruker());
-        repository.lagre(fagsak);
-        repository.flush();
-
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-        Behandling behandling = behandlingBuilder.build();
-
-
-        lagreBehandling(behandling);
+        Behandling behandling = lagBehandling();
 
         final FamilieHendelseBuilder hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
             .medAntallBarn(antallBarnFraSøknad)
@@ -204,9 +185,8 @@ public class BehandlingsgrunnlagEntitetTest {
             .medSøknadsdato(søknadsdato)
             .build();
         søknadRepository.lagreOgFlush(behandling, søknad);
-        repository.flush();
 
-        Behandling hentet = repository.hent(Behandling.class, behandling.getId());
+        Behandling hentet = behandlingRepository.hentBehandling(behandling.getId());
 
         // Act
         final FamilieHendelseBuilder oppdatere = familieGrunnlagRepository.opprettBuilderFor(hentet);
@@ -217,10 +197,9 @@ public class BehandlingsgrunnlagEntitetTest {
         familieGrunnlagRepository.lagre(hentet, oppdatere);
 
         lagreBehandling(hentet);
-        repository.flush();
 
         // Arrange
-        final FamilieHendelseEntitet hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
+        final FamilieHendelseEntitet hendelse = familieHendelseRepository.hentAggregat(behandling.getId()).getGjeldendeVersjon();
         final Optional<AdopsjonEntitet> adopsjon1 = hendelse.getAdopsjon();
 
         assertThat(adopsjon1).isPresent();
@@ -240,11 +219,7 @@ public class BehandlingsgrunnlagEntitetTest {
         LocalDate fødselAdopsjonsdato = LocalDate.now();
         int antallBarnFraSøknad = 1;
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-
-        Behandling behandling = behandlingBuilder.build();
-
-        lagreBehandling(behandling);
+        Behandling behandling = lagBehandling();
 
         final FamilieHendelseBuilder hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
             .medAntallBarn(antallBarnFraSøknad)
@@ -257,7 +232,6 @@ public class BehandlingsgrunnlagEntitetTest {
             .medSøknadsdato(søknadsdato)
             .build();
         søknadRepository.lagreOgFlush(behandling, søknad);
-        repository.flush();
 
         // Assert
         søknad = søknadRepository.hentSøknad(behandling.getId());
@@ -271,11 +245,7 @@ public class BehandlingsgrunnlagEntitetTest {
         // Arrange
         LocalDate fødselsdato = LocalDate.now();
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-
-        Behandling behandling = behandlingBuilder.build();
-
-        lagreBehandling(behandling);
+        Behandling behandling = lagBehandling();
 
         final FamilieHendelseBuilder hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
             .medAntallBarn(1)
@@ -287,7 +257,6 @@ public class BehandlingsgrunnlagEntitetTest {
         SøknadEntitet.Builder søknadBuilder = new SøknadEntitet.Builder()
             .medSøknadsdato(LocalDate.now());
         søknadRepository.lagreOgFlush(behandling, søknadBuilder.build());
-        repository.flush();
 
         // Assert
         FamilieHendelseGrunnlagEntitet grunnlag = familieGrunnlagRepository.hentAggregat(behandling.getId());
@@ -304,11 +273,7 @@ public class BehandlingsgrunnlagEntitetTest {
         LocalDate termindato = LocalDate.now();
         LocalDate utstedtDato = LocalDate.now().minusMonths(2);
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-
-        Behandling behandling = behandlingBuilder.build();
-
-        lagreBehandling(behandling);
+        Behandling behandling = lagBehandling();
         final FamilieHendelseBuilder søknadVersjon = familieGrunnlagRepository.opprettBuilderFor(behandling);
         søknadVersjon.medTerminbekreftelse(søknadVersjon.getTerminbekreftelseBuilder()
             .medTermindato(LocalDate.now())
@@ -327,7 +292,6 @@ public class BehandlingsgrunnlagEntitetTest {
             .medSøknadsdato(LocalDate.now())
             .build();
         søknadRepository.lagreOgFlush(behandling, søknad);
-        repository.flush();
 
         // Assert
         final FamilieHendelseGrunnlagEntitet grunnlag = familieGrunnlagRepository.hentAggregat(behandling.getId());
@@ -346,11 +310,7 @@ public class BehandlingsgrunnlagEntitetTest {
         // Arrange
         LocalDate omsorgsovertakelsesdato = LocalDate.now();
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-
-        Behandling behandling = behandlingBuilder.build();
-
-        lagreBehandling(behandling);
+        Behandling behandling = lagBehandling();
 
         final FamilieHendelseBuilder søknadVersjon = familieGrunnlagRepository.opprettBuilderFor(behandling);
         søknadVersjon.medAdopsjon(søknadVersjon.getAdopsjonBuilder()
@@ -367,7 +327,6 @@ public class BehandlingsgrunnlagEntitetTest {
             .medSøknadsdato(LocalDate.now())
             .build();
         søknadRepository.lagreOgFlush(behandling, søknad);
-        repository.flushAndClear();
 
         // Assert
         final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandling.getId());
@@ -386,10 +345,7 @@ public class BehandlingsgrunnlagEntitetTest {
         AktørId forelderAktørId = AktørId.dummy();
         AktørId barnAktørId = AktørId.dummy();
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-        Behandling behandling = behandlingBuilder.build();
-        lagreBehandling(behandling);
-        repository.flushAndClear();
+        Behandling behandling = lagBehandling();
 
         Long behandlingId = behandling.getId();
         final PersonInformasjonBuilder informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
@@ -443,7 +399,7 @@ public class BehandlingsgrunnlagEntitetTest {
 
         // Assert 1: Barn 1 er lagret
         @SuppressWarnings("unused")
-        Behandling opphentet1 = repository.hent(Behandling.class, behandlingId);
+        Behandling opphentet1 = behandlingRepository.hentBehandling(behandlingId);
 
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag = hentSøkerPersonopplysninger(behandlingId);
         PersonInformasjonEntitet personInformasjon = personopplysningGrunnlag.getGjeldendeVersjon();
@@ -470,10 +426,9 @@ public class BehandlingsgrunnlagEntitetTest {
             .medFødselsdato(oppdatertFødselsdato));
 
         personopplysningRepository.lagre(behandlingId, overstyringBuilder);
-        repository.flushAndClear();
 
         // Assert 2: Barn 1 er oppdatert
-        Behandling opphentet2 = repository.hent(Behandling.class, behandlingId);
+        Behandling opphentet2 = behandlingRepository.hentBehandling(behandlingId);
 
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = hentSøkerPersonopplysninger(behandlingId);
         Optional<PersonInformasjonEntitet> personInformasjon2 = personopplysningGrunnlag2.getRegisterVersjon();
@@ -498,11 +453,10 @@ public class BehandlingsgrunnlagEntitetTest {
         familieGrunnlagRepository.lagre(opphentet2, builder);
 
         lagreBehandling(opphentet2);
-        repository.flushAndClear();
 
         // Assert 3: Fortsatt bare barn 1 lagret
         @SuppressWarnings("unused")
-        Behandling opphentet3 = repository.hent(Behandling.class, behandlingId);
+        Behandling opphentet3 = behandlingRepository.hentBehandling(behandlingId);
 
         barna = hentSøkerPersonopplysninger(behandlingId)
             .getGjeldendeVersjon()
@@ -523,9 +477,7 @@ public class BehandlingsgrunnlagEntitetTest {
         AktørId barnNummer1 = AktørId.dummy();
         AktørId barnNummer2 = AktørId.dummy();
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-        Behandling behandling = behandlingBuilder.build();
-        lagreBehandling(behandling);
+        Behandling behandling = lagBehandling();
 
         // Arrange 1. Legge til forelder og barn 1
         Long behandlingId = behandling.getId();
@@ -565,11 +517,10 @@ public class BehandlingsgrunnlagEntitetTest {
             );
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
-        repository.flushAndClear();
 
         // Assert 1: Barn 1 er lagret
         @SuppressWarnings("unused")
-        Behandling opphentet1 = repository.hent(Behandling.class, behandlingId);
+        Behandling opphentet1 = behandlingRepository.hentBehandling(behandlingId);
 
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag = hentSøkerPersonopplysninger(behandlingId);
         PersonInformasjonEntitet personInformasjon = personopplysningGrunnlag.getGjeldendeVersjon();
@@ -614,7 +565,7 @@ public class BehandlingsgrunnlagEntitetTest {
 
         // Assert 2: Barn 1 og barn 2 er lagret
         @SuppressWarnings("unused")
-        Behandling opphentet2 = repository.hent(Behandling.class, behandlingId);
+        Behandling opphentet2 = behandlingRepository.hentBehandling(behandlingId);
         personopplysningGrunnlag = hentSøkerPersonopplysninger(behandlingId);
         personInformasjon = personopplysningGrunnlag.getGjeldendeVersjon();
         assertThat(personInformasjon.getPersonopplysninger()).hasSize(3);
@@ -645,9 +596,7 @@ public class BehandlingsgrunnlagEntitetTest {
         LocalDate oppdatertDødsdato = dødsdato.plusDays(1);
         AktørId forelder = AktørId.dummy();
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-        Behandling behandling = behandlingBuilder.build();
-        lagreBehandling(behandling);
+        Behandling behandling = lagBehandling();
 
         // Arrange 1. Legge til forelder 1
         Long behandlingId = behandling.getId();
@@ -681,11 +630,10 @@ public class BehandlingsgrunnlagEntitetTest {
             .medSøknadsdato(LocalDate.now())
             .build();
         søknadRepository.lagreOgFlush(behandling, søknad);
-        repository.flushAndClear();
 
         // Assert 1: Forelder 1 er lagret
         @SuppressWarnings("unused")
-        Behandling opphentet1 = repository.hent(Behandling.class, behandlingId);
+        Behandling opphentet1 = behandlingRepository.hentBehandling(behandlingId);
 
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag = hentSøkerPersonopplysninger(behandling.getId());
         PersonInformasjonEntitet personInformasjon = personopplysningGrunnlag.getGjeldendeVersjon();
@@ -699,10 +647,9 @@ public class BehandlingsgrunnlagEntitetTest {
                 .medDødsdato(oppdatertDødsdato));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
-        repository.flushAndClear();
 
         // Assert 2: Forelder 1 er oppdatert
-        Behandling opphentet2 = repository.hent(Behandling.class, behandlingId);
+        Behandling opphentet2 = behandlingRepository.hentBehandling(behandlingId);
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = hentSøkerPersonopplysninger(behandling.getId());
         PersonInformasjonEntitet personInformasjon1 = personopplysningGrunnlag1.getGjeldendeVersjon();
         assertThat(personopplysningGrunnlag1).isNotNull();
@@ -722,11 +669,10 @@ public class BehandlingsgrunnlagEntitetTest {
         familieGrunnlagRepository.lagre(opphentet2, builder);
 
         lagreBehandling(opphentet2);
-        repository.flushAndClear();
 
         // Assert 3: Fortsatt bare barn 1 lagret
         @SuppressWarnings("unused")
-        Behandling opphentet3 = repository.hent(Behandling.class, behandlingId);
+        Behandling opphentet3 = behandlingRepository.hentBehandling(behandlingId);
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = hentSøkerPersonopplysninger(behandlingId);
         assertThat(personopplysningGrunnlag2).isNotNull();
         assertThat(personopplysningGrunnlag2.getGjeldendeVersjon()).isNotNull();
@@ -738,10 +684,7 @@ public class BehandlingsgrunnlagEntitetTest {
         LocalDate fødselsdato = dødsdato.minusYears(50);
         AktørId forelder = AktørId.dummy();
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-        Behandling behandling = behandlingBuilder.build();
-        lagreBehandling(behandling);
-        repository.flushAndClear();
+        Behandling behandling = lagBehandling();
 
         // Arrange 1. Legge til forelder 1
         Long behandlingId = behandling.getId();
@@ -773,7 +716,7 @@ public class BehandlingsgrunnlagEntitetTest {
 
         // Assert 1: Forelder 1 er lagret
         @SuppressWarnings("unused")
-        Behandling opphentet1 = repository.hent(Behandling.class, behandlingId);
+        Behandling opphentet1 = behandlingRepository.hentBehandling(behandlingId);
 
         PersonopplysningGrunnlagEntitet personopplysninger = hentSøkerPersonopplysninger(behandlingId);
         PersonInformasjonEntitet personInformasjon = personopplysninger.getGjeldendeVersjon();
@@ -796,9 +739,7 @@ public class BehandlingsgrunnlagEntitetTest {
 
         AktørId aktørId = AktørId.dummy();
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-        Behandling behandling = behandlingBuilder.build();
-        lagreBehandling(behandling);
+        Behandling behandling = lagBehandling();
 
         Long behandlingId = behandling.getId();
         PersonInformasjonBuilder informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
@@ -826,11 +767,10 @@ public class BehandlingsgrunnlagEntitetTest {
         );
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
-        repository.flushAndClear();
 
         // Assert 1: Forelder 1 er lagret
         @SuppressWarnings("unused")
-        Behandling opphentet = repository.hent(Behandling.class, behandlingId);
+        Behandling opphentet = behandlingRepository.hentBehandling(behandlingId);
         PersonopplysningGrunnlagEntitet personopplysninger = hentSøkerPersonopplysninger(behandlingId);
         assertThat(personopplysninger).isNotNull();
 
@@ -860,8 +800,6 @@ public class BehandlingsgrunnlagEntitetTest {
         LocalDate tom = LocalDate.now().plusDays(100);
         LocalDate beslutningsdato = LocalDate.now().minusDays(10);
 
-        MedlemskapRepository medlemskapRepository = repositoryProvider.getMedlemskapRepository();
-
         MedlemskapPerioderEntitet medlemskapPerioder1 = new MedlemskapPerioderBuilder()
             .medPeriode(fom, tom)
             .medMedlemskapType(MedlemskapType.FORELOPIG)
@@ -878,12 +816,7 @@ public class BehandlingsgrunnlagEntitetTest {
             .medBeslutningsdato(beslutningsdato)
             .build();
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-        Behandling behandling = behandlingBuilder.build();
-
-        // Act
-        lagreBehandling(behandling);
-        repository.flushAndClear();
+        Behandling behandling = lagBehandling();
 
         Long behandlingId = behandling.getId();
         medlemskapRepository.lagreMedlemskapRegisterOpplysninger(behandlingId, List.of(medlemskapPerioder1, medlemskapPerioder2));
@@ -896,10 +829,7 @@ public class BehandlingsgrunnlagEntitetTest {
 
     @Test
     public void skal_kunne_lagre_medlemskap() {
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-        Behandling behandling = behandlingBuilder.build();
-        lagreBehandling(behandling);
-        repository.flushAndClear();
+        Behandling behandling = lagBehandling();
 
         VurdertMedlemskap vurdertMedlemskap = new VurdertMedlemskapBuilder()
             .medOppholdsrettVurdering(true)
@@ -907,7 +837,7 @@ public class BehandlingsgrunnlagEntitetTest {
             .medBosattVurdering(true)
             .build();
 
-        MedlemskapRepository medlemskapRepository = repositoryProvider.getMedlemskapRepository();
+        MedlemskapRepository medlemskapRepository = new MedlemskapRepository(getEntityManager());
 
         // Act
         Long behandlingId = behandling.getId();
@@ -917,6 +847,15 @@ public class BehandlingsgrunnlagEntitetTest {
         Optional<MedlemskapAggregat> medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
         assertThat(medlemskap).isNotNull().isPresent();
         assertThat(medlemskap.get().getVurdertMedlemskap().get()).isEqualTo(vurdertMedlemskap);
+    }
+
+    private Behandling lagBehandling() {
+        var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
+        fagsakRepository.opprettNy(fagsak);
+        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
+        Behandling behandling = behandlingBuilder.build();
+        lagreBehandling(behandling);
+        return behandling;
     }
 
 }
