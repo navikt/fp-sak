@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.avklarfakta;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,10 +10,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Spy;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -23,14 +21,14 @@ import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
@@ -44,33 +42,29 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.AksjonspunktutlederForVurderOppgittOpptjening;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class AksjonspunktutlederForVurderOppgittOpptjeningTest {
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityManagerAwareTest {
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
+        .medUtledetSkjæringstidspunkt(LocalDate.now()).build();
 
     private OpptjeningRepository opptjeningRepository;
 
-    private Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
+    private AksjonspunktutlederForVurderOppgittOpptjening utleder;
+    private AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste;
 
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-
-    private VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-
-    @Spy
-    private AksjonspunktutlederForVurderOppgittOpptjening utleder = new AksjonspunktutlederForVurderOppgittOpptjening(
-        repositoryProvider.getOpptjeningRepository(), iayTjeneste, virksomhetTjeneste);
-
-    @Before
-    public void oppsett() {
-        initMocks(this);
-        opptjeningRepository = repositoryProvider.getOpptjeningRepository();
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        opptjeningRepository = new OpptjeningRepository(entityManager, new BehandlingRepository(entityManager));
+        iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        utleder = new AksjonspunktutlederForVurderOppgittOpptjening(opptjeningRepository, iayTjeneste, mock(VirksomhetTjeneste.class));
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
-        return scenario.lagre(repositoryProvider);
+        return scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
     }
 
     @Test
