@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak.app;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,8 +29,17 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
+import no.nav.foreldrepenger.web.app.tjenester.aktoer.AktoerIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.aktoer.AktoerRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.foreldrepenger.web.app.util.RestUtils;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -157,6 +167,23 @@ public class FagsakApplikasjonTjeneste {
             antallBarnPerFagsak.put(fagsak.getId(), 0); // FIXME: Skal ikke være hardkodet.
         }
         return antallBarnPerFagsak;
+    }
+
+    public static List<ResourceLink> lagLenker(Fagsak fagsak) {
+        List<ResourceLink> lenkene = new ArrayList<>();
+        var saksnummer = new SaksnummerDto(fagsak.getSaksnummer());
+        lenkene.add(get(AktoerRestTjeneste.AKTOER_INFO_PATH, "sak-aktoer-person", new AktoerIdDto(fagsak.getAktørId().getId())));
+        lenkene.add(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", saksnummer));
+        lenkene.add(get(BehandlingRestTjeneste.HANDLING_RETTIGHETER_V2_PATH, "handling-rettigheter-v2", saksnummer));
+        lenkene.add(get(HistorikkRestTjeneste.HISTORIKK_PATH, "sak-historikk", saksnummer));
+        lenkene.add(get(DokumentRestTjeneste.DOKUMENTER_PATH, "sak-dokumentliste", saksnummer));
+        lenkene.add(get(BehandlingRestTjeneste.BEHANDLINGER_ALLE_PATH, "sak-alle-behandlinger", saksnummer));
+        lenkene.add(get(BehandlingRestTjeneste.ANNEN_PART_BEHANDLING_PATH, "sak-annen-part-behandling", saksnummer));
+        return lenkene;
+    }
+
+    static ResourceLink get(String path, String rel, Object dto) {
+        return ResourceLink.get(RestUtils.getApiPath(path), rel, dto);
     }
 
 }

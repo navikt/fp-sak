@@ -166,9 +166,10 @@ public class FagsakRestTjeneste {
             Integer antallBarn = info.getAntallBarn();
             var dekningsgrad = info.getDekningsgrad().map(d -> d.getVerdi()).orElse(null);
             dtoer.add(new FagsakDto(fagsak, personDto, fødselsdato, antallBarn, kanRevurderingOpprettes, fagsak.getSkalTilInfotrygd(),
-                    fagsak.getRelasjonsRolleType(), dekningsgrad));
+                    fagsak.getRelasjonsRolleType(), dekningsgrad, FagsakApplikasjonTjeneste.lagLenker(fagsak)));
         }
         return dtoer;
     }
+
 
 }

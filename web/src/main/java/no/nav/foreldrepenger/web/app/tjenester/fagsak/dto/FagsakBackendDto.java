@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 
+import java.time.LocalDateTime;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -10,8 +12,11 @@ public class FagsakBackendDto {
     private FagsakYtelseType sakstype;
     private RelasjonsRolleType relasjonsRolleType;
     private FagsakStatus status;
+    private LocalDateTime opprettet;
+    private LocalDateTime endret;
     private Integer dekningsgrad;
     private String aktoerId;
+
 
     public FagsakBackendDto() {
         // Injiseres i test
@@ -23,6 +28,8 @@ public class FagsakBackendDto {
         this.sakstype = fagsak.getYtelseType();
         this.status = fagsak.getStatus();
         this.relasjonsRolleType = fagsak.getRelasjonsRolleType();
+        this.opprettet = fagsak.getOpprettetTidspunkt();
+        this.endret = fagsak.getEndretTidspunkt();
         this.dekningsgrad = dekningsgrad;
         this.aktoerId = fagsak.getAktørId().getId();
     }
@@ -41,6 +48,14 @@ public class FagsakBackendDto {
 
     public RelasjonsRolleType getRelasjonsRolleType() {
         return relasjonsRolleType;
+    }
+
+    public LocalDateTime getOpprettet() {
+        return opprettet;
+    }
+
+    public LocalDateTime getEndret() {
+        return endret;
     }
 
     public Integer getDekningsgrad() {

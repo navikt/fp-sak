@@ -36,6 +36,8 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 public class HistorikkRestTjeneste {
     private HistorikkTjenesteAdapter historikkTjeneste;
 
+    public static final String HISTORIKK_PATH = "/historikk";
+
     public HistorikkRestTjeneste() {
         // Rest CDI
     }

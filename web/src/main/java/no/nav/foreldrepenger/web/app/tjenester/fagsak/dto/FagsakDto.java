@@ -2,11 +2,14 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 
 public class FagsakDto {
     private Long saksnummer;
@@ -21,6 +24,9 @@ public class FagsakDto {
     private Boolean kanRevurderingOpprettes;
     private Boolean skalBehandlesAvInfotrygd;
     private Integer dekningsgrad;
+    private String aktoerId;
+
+    private List<ResourceLink> links = new ArrayList<>();
 
     public FagsakDto() {
         // Injiseres i test
@@ -33,8 +39,10 @@ public class FagsakDto {
                      Boolean kanRevurderingOpprettes,
                      Boolean skalBehandlesAvInfotrygd,
                      RelasjonsRolleType relasjonsRolleType,
-                     Integer dekningsgrad) {
+                     Integer dekningsgrad,
+                     List<ResourceLink> links) {
         this.saksnummer = Long.parseLong(fagsak.getSaksnummer().getVerdi());
+        this.aktoerId = fagsak.getAktørId().getId();
         this.sakstype = fagsak.getYtelseType();
         this.status = fagsak.getStatus();
         this.person = person;
@@ -46,6 +54,7 @@ public class FagsakDto {
         this.skalBehandlesAvInfotrygd = skalBehandlesAvInfotrygd;
         this.relasjonsRolleType = relasjonsRolleType;
         this.dekningsgrad = dekningsgrad;
+        this.links = links;
     }
 
     public Long getSaksnummer() {
@@ -94,6 +103,14 @@ public class FagsakDto {
 
     public Integer getDekningsgrad() {
         return dekningsgrad;
+    }
+
+    public String getAktoerId() {
+        return aktoerId;
+    }
+
+    public List<ResourceLink> getLinks() {
+        return links;
     }
 
     @Override

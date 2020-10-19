@@ -62,7 +62,7 @@ public class KodeverkRestTjeneste {
     public Response hentGruppertKodeliste() throws IOException {
         String kodelisteJson = getKodeverkRawJson();
         CacheControl cc = new CacheControl();
-        cc.setMaxAge(1 * 60); // tillater klient caching i 1 minutt
+        cc.setMaxAge(60 * 60); // tillater klient caching i 1 time
         return Response.ok()
                 .entity(kodelisteJson)
                 .type(MediaType.APPLICATION_JSON)
