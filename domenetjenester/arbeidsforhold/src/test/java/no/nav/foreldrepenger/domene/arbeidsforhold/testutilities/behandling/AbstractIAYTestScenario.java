@@ -429,8 +429,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
         // FIXME: Fjern avh til startSteg
         if (startSteg != null) {
-            new InternalManipulerBehandling()
-                .forceOppdaterBehandlingSteg(behandling, startSteg);
+            InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, startSteg);
         }
 
         BehandlingLås lås = behandlingRepo.taSkriveLås(behandling);

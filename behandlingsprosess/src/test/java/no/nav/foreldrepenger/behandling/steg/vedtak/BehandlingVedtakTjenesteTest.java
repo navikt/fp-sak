@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.vedtak;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -19,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -49,7 +49,6 @@ public class BehandlingVedtakTjenesteTest {
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private final Repository repository = repoRule.getRepository();
     private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final InternalManipulerBehandling manipulerBehandling = new InternalManipulerBehandling();
     private BehandlingVedtakTjeneste behandlingVedtakTjeneste;
     private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
     private FpUttakRepository fpUttakRepository = repositoryProvider.getFpUttakRepository();
@@ -67,7 +66,7 @@ public class BehandlingVedtakTjenesteTest {
         Behandling originalBehandling = lagInnvilgetOriginalBehandling();
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
             .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
-        manipulerBehandling.forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
+        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
         BehandlingLås behandlingLås = lagreBehandling(revurdering);
         opprettFamilieHendelseGrunnlag(originalBehandling, revurdering);
         Fagsak fagsak = revurdering.getFagsak();

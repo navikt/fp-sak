@@ -152,7 +152,7 @@ public class ScenarioAnkeEngangsstønad {
         );
 
         if (startSteg != null) {
-            new InternalManipulerBehandling().forceOppdaterBehandlingSteg(ankeBehandling, startSteg);
+            InternalManipulerBehandling.forceOppdaterBehandlingSteg(ankeBehandling, startSteg);
         }
 
         return ankeBehandling;

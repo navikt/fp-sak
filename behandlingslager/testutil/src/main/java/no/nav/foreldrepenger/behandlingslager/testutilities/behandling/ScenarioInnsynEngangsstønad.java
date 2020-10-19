@@ -74,7 +74,7 @@ public class ScenarioInnsynEngangsstønad {
         behandling.getAksjonspunkter().forEach(punkt -> Whitebox.setInternalState(punkt, "id", AbstractTestScenario.nyId()));
 
         if (startSteg != null) {
-            new InternalManipulerBehandling().forceOppdaterBehandlingSteg(behandling, startSteg);
+            InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, startSteg);
         }
 
         return behandling;

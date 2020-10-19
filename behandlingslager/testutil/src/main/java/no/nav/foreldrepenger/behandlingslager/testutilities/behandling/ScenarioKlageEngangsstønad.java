@@ -219,7 +219,7 @@ public class ScenarioKlageEngangsstønad {
         );
 
         if (startSteg != null) {
-            new InternalManipulerBehandling().forceOppdaterBehandlingSteg(klageBehandling, startSteg);
+            InternalManipulerBehandling.forceOppdaterBehandlingSteg(klageBehandling, startSteg);
         }
 
         return klageBehandling;

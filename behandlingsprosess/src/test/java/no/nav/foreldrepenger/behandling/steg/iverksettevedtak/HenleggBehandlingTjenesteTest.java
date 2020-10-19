@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.iverksettevedtak;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.IVERKSETT_VEDTAK;
+import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -32,7 +33,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKontrollRepository;
@@ -58,9 +58,6 @@ public class HenleggBehandlingTjenesteTest {
 
     @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    @Inject
-    private InternalManipulerBehandling manipulerInternBehandling;
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -93,7 +90,7 @@ public class HenleggBehandlingTjenesteTest {
         behandling = scenario.lagMocked();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, BehandlingStegType.INNHENT_SØKNADOPP);
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.INNHENT_SØKNADOPP);
 
         when(repositoryProvider.getHistorikkRepository()).thenReturn(historikkRepositoryMock);
 
@@ -114,7 +111,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_henlegge_behandling_med_brev() throws Exception {
+    public void skal_henlegge_behandling_med_brev() {
         // Arrange
         BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
@@ -128,7 +125,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_henlegge_behandling_uten_brev() throws Exception {
+    public void skal_henlegge_behandling_uten_brev() {
         // Arrange
         BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_FEILOPPRETTET;
 
@@ -142,7 +139,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_henlegge_behandling_med_aksjonspunkt() throws Exception {
+    public void skal_henlegge_behandling_med_aksjonspunkt() {
         // Arrange
         BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_FEILOPPRETTET;
         Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
@@ -160,7 +157,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_henlegge_behandling_ved_dødsfall() throws Exception {
+    public void skal_henlegge_behandling_ved_dødsfall() {
         // Arrange
         BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_BRUKER_DØD;
 
@@ -174,13 +171,13 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void kan_henlegge_behandling_som_er_satt_på_vent() throws Exception {
+    public void kan_henlegge_behandling_som_er_satt_på_vent() {
         // Arrange
         AksjonspunktDefinisjon def = AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
         Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, def);
         AksjonspunktTestSupport.setFrist(aksjonspunkt, LocalDateTime.now(), null);
 
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, BehandlingStegType.INNHENT_SØKNADOPP);
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.INNHENT_SØKNADOPP);
 
         BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
@@ -189,7 +186,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void kan_henlegge_behandling_der_vedtak_er_foreslått() throws Exception {
+    public void kan_henlegge_behandling_der_vedtak_er_foreslått() {
         // Arrange
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
         BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
@@ -199,11 +196,11 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void kan_ikke_henlegge_behandling_der_vedtak_er_fattet() throws Exception {
+    public void kan_ikke_henlegge_behandling_der_vedtak_er_fattet() {
         // Arrange
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
         BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
-        manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, IVERKSETT_VEDTAK);
+        forceOppdaterBehandlingSteg(behandling, IVERKSETT_VEDTAK);
 
         // Act
         try {
@@ -215,7 +212,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void kan_ikke_henlegge_behandling_som_allerede_er_henlagt() throws Exception {
+    public void kan_ikke_henlegge_behandling_som_allerede_er_henlagt() {
         // Arrange
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.HENLAGT_FEILOPPRETTET).buildFor(behandling);
         BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;

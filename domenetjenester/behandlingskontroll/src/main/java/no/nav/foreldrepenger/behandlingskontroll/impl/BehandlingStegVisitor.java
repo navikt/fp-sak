@@ -53,11 +53,9 @@ class BehandlingStegVisitor {
 
     private final Behandling behandling;
 
-    private final InternalManipulerBehandling manipulerInternBehandling;
-
     private final AksjonspunktKontrollRepository aksjonspunktKontrollRepository;
 
-    private BehandlingStegModell stegModell;
+    private final BehandlingStegModell stegModell;
 
     BehandlingStegVisitor(BehandlingskontrollServiceProvider serviceProvider, Behandling behandling,
                           BehandlingStegModell stegModell, BehandlingskontrollKontekst kontekst) {
@@ -68,7 +66,6 @@ class BehandlingStegVisitor {
         this.kontekst = Objects.requireNonNull(kontekst, "kontekst");
         this.behandlingRepository = serviceProvider.getBehandlingRepository();
         this.aksjonspunktKontrollRepository = serviceProvider.getAksjonspunktKontrollRepository();
-        this.manipulerInternBehandling = new InternalManipulerBehandling();
 
         this.eventPubliserer = Objects.requireNonNullElse(serviceProvider.getEventPubliserer(), BehandlingskontrollEventPubliserer.NULL_EVENT_PUB);
     }
@@ -216,7 +213,7 @@ class BehandlingStegVisitor {
         Optional<BehandlingStegTilstand> behandlingStegTilstand = behandling.getBehandlingStegTilstand(stegType);
         if (behandlingStegTilstand.isPresent()) {
             if (erForskjellig(førsteStegStatus, nyStegStatus)) {
-                manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, stegType, nyStegStatus, BehandlingStegStatus.UTFØRT);
+                InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, stegType, nyStegStatus, BehandlingStegStatus.UTFØRT);
                 behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
                 eventPubliserer.fireEvent(kontekst, stegType, førsteStegStatus, nyStegStatus);
             }
@@ -335,7 +332,7 @@ class BehandlingStegVisitor {
         if (!erSammeStegSomFør(nesteStegType, siste)) {
 
             // sett status for neste steg
-            manipulerInternBehandling.forceOppdaterBehandlingSteg(behandling, nesteStegType, nesteStegStatus, sluttStegStatusVedOvergang);
+            InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, nesteStegType, nesteStegStatus, sluttStegStatusVedOvergang);
         }
     }
 
