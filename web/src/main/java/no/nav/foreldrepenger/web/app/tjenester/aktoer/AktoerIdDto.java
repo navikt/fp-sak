@@ -28,6 +28,10 @@ public class AktoerIdDto implements AbacDto {
         return Optional.of(new AktørId(aktørId));
     }
 
+    public String getAktørId() {
+        return aktørId;
+    }
+
     @Override
     public AbacDataAttributter abacAttributter() {
         return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, aktørId);

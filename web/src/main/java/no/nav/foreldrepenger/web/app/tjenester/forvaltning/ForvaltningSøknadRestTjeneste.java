@@ -84,7 +84,7 @@ public class ForvaltningSøknadRestTjeneste {
                 .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
                 .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
         var oap = personopplysningRepository.hentPersonopplysninger(behandling.getId()).getOppgittAnnenPart().orElseThrow();
-        
+
         if (dto.getBegrunnelse() == null)
             throw new IllegalArgumentException("Mangler begrunnelse");
         var nyAktørId = personinfoAdapter.hentAktørForFnr(new PersonIdent(dto.getIdentAnnenPart())).orElseThrow();
