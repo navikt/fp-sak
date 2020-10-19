@@ -84,10 +84,9 @@ public class ForvaltningSøknadRestTjeneste {
                 .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
                 .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
         var oap = personopplysningRepository.hentPersonopplysninger(behandling.getId()).getOppgittAnnenPart().orElseThrow();
-
-        AktørId eksisterendeAnnenPart = oap.getAktørId();
-        if (oap.getAktørId() != null && !eksisterendeAnnenPart.equals(behandling.getAktørId()))
-            throw new IllegalArgumentException("Støtter bare patching der aktørId er null eller lik bruker i saken");
+        
+        if (dto.getBegrunnelse() == null)
+            throw new IllegalArgumentException("Mangler begrunnelse");
         var nyAktørId = personinfoAdapter.hentAktørForFnr(new PersonIdent(dto.getIdentAnnenPart())).orElseThrow();
         int antall = entityManager.createNativeQuery(
                 "UPDATE SO_ANNEN_PART SET AKTOER_ID = :anpa, utl_person_ident = :ident, endret_av = :begr WHERE id = :apid")
