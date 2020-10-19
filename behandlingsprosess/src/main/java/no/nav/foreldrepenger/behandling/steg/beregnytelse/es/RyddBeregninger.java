@@ -6,10 +6,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 
-// TODO (Safir): FLytt logikk til BeregningRepository
 class RyddBeregninger {
 
-    private BehandlingRepository behandlingRepository;
+    private final BehandlingRepository behandlingRepository;
     private final BehandlingskontrollKontekst kontekst;
 
     RyddBeregninger(BehandlingRepository behandlingRepository, BehandlingskontrollKontekst kontekst) {
@@ -18,7 +17,7 @@ class RyddBeregninger {
     }
 
     void ryddBeregninger(Behandling behandling, Behandlingsresultat behandlingsresultat) {
-        if (behandlingsresultat == null || behandlingsresultat.getBeregningResultat() == null) {
+        if (behandlingsresultat.getBeregningResultat() == null) {
             return;
         }
 
@@ -33,9 +32,7 @@ class RyddBeregninger {
     }
 
     public void ryddBeregningerHvisIkkeOverstyrt(Behandling behandling, Behandlingsresultat behandlingsresultat) {
-        if (behandlingsresultat == null || behandlingsresultat.getBeregningResultat() == null) {
-            return;
-        } else if (!behandlingsresultat.getBeregningResultat().isOverstyrt()) {
+        if (behandlingsresultat.getBeregningResultat() != null && !behandlingsresultat.getBeregningResultat().isOverstyrt()) {
             ryddBeregninger(behandling, behandlingsresultat);
         }
     }

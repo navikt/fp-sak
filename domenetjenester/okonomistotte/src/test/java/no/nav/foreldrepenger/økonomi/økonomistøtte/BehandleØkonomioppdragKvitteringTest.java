@@ -1,26 +1,20 @@
 package no.nav.foreldrepenger.økonomi.økonomistøtte;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp.AlleMottakereHarPositivKvitteringImpl;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.AlleMottakereHarPositivKvitteringEngangsstønad;
@@ -91,31 +85,19 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     private static final String KVITTERING_MELDINGKODE_FEIL = "QWERTY12";
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Mock
-    private ProsessTaskHendelseMottak hendelsesmottak;
-
     private BehandleØkonomioppdragKvittering behandleØkonomioppdragKvittering;
 
-    private Oppdragskontroll oppdrag;
-
-    @Mock
+    private ProsessTaskHendelseMottak hendelsesmottak;
     private ØkonomioppdragRepository økonomioppdragRepository;
-
-    @Mock
     private AlleMottakereHarPositivKvitteringProvider alleMottakereHarPositivKvitteringProvider;
-
-    @Mock
     private BehandleNegativeKvitteringTjeneste behandleHendelseØkonomioppdrag;
 
-
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
+        hendelsesmottak = mock(ProsessTaskHendelseMottak.class);
+        økonomioppdragRepository = mock(ØkonomioppdragRepository.class);
+        alleMottakereHarPositivKvitteringProvider = mock(AlleMottakereHarPositivKvitteringProvider.class);
+        behandleHendelseØkonomioppdrag = mock(BehandleNegativeKvitteringTjeneste.class);
         behandleØkonomioppdragKvittering = new BehandleØkonomioppdragKvittering(
             alleMottakereHarPositivKvitteringProvider,
             hendelsesmottak,
@@ -126,7 +108,7 @@ public class BehandleØkonomioppdragKvitteringTest {
     @Test
     public void skal_motta_hendelse_når_positiv_kvittering_ES() {
         // Arrange
-        oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_ES, PROSESSTASKID);
+        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_ES, PROSESSTASKID);
         when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringEngangsstønad());
         ØkonomiOppdragUtils.setupOppdrag110(oppdrag, OppdragTestDataHelper.buildAvstemming115(), false);
         when(økonomioppdragRepository.finnVentendeOppdrag(BEHANDLINGID_ES)).thenReturn(oppdrag);
@@ -144,7 +126,7 @@ public class BehandleØkonomioppdragKvitteringTest {
     @Test
     public void skal_ikke_motta_hendelse_når_negativ_kvittering_ES() {
         // Arrange
-        oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_ES, PROSESSTASKID);
+        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_ES, PROSESSTASKID);
         when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringEngangsstønad());
         ØkonomiOppdragUtils.setupOppdrag110(oppdrag, OppdragTestDataHelper.buildAvstemming115(), false);
 
@@ -164,7 +146,7 @@ public class BehandleØkonomioppdragKvitteringTest {
     @Test
     public void skal_motta_hendelse_når_positiv_kvittering_FP() {
         // Arrange
-        oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
         when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringImpl());
         OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         OppdragTestDataHelper.buildOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
@@ -189,13 +171,8 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     @Test
     public void skal_kaste_exception_hvis_ingen_opp110_uten_kvittering_finnes_FP() {
-        // Assert
-        thrown.expect(IllegalStateException.class);
-        thrown.expectMessage(containsString("Finnes ikke oppdrag for kvittering med fagsystemId: "));
-
         // Arrange
-        oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
-        when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringImpl());
+        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
 
         Oppdrag110 oppdrag110 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         OppdragKvittering.builder().medAlvorlighetsgrad(KVITTERING_OK).medOppdrag110(oppdrag110).build();
@@ -204,16 +181,15 @@ public class BehandleØkonomioppdragKvitteringTest {
         ØkonomiKvittering kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
 
         // Act
-        behandleØkonomioppdragKvittering.behandleKvittering(kvittering_1);
-
-        // Assert
-        fail();
+        assertThatThrownBy(() -> behandleØkonomioppdragKvittering.behandleKvittering(kvittering_1))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Finnes ikke oppdrag for kvittering med fagsystemId: ");
     }
 
     @Test
     public void skal_finne_riktig_oppdrag_hvis_to_med_identisk_fagsystemid_finnes_men_kun_en_uten_kvittering_FP() {
         // Arrange
-        oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
         when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringImpl());
 
         Oppdrag110 oppdrag110 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
@@ -238,12 +214,8 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     @Test
     public void skal_kaste_exception_hvis_flere_opp110_med_samme_fagsystemId_uten_kvittering_finnes_FP() {
-        // Assert
-        thrown.expect(IllegalStateException.class);
-        thrown.expectMessage(containsString("Finnes flere oppdrag uten kvittering med samme fagsystemId: "));
-
         // Arrange
-        oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
         when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringImpl());
         OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
@@ -253,24 +225,19 @@ public class BehandleØkonomioppdragKvitteringTest {
         ØkonomiKvittering kvittering_2 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
 
         // Act
-        behandleØkonomioppdragKvittering.behandleKvittering(kvittering_1);
-        behandleØkonomioppdragKvittering.behandleKvittering(kvittering_2);
-
-        // Assert
-        assertThat(oppdrag.getVenterKvittering()).isFalse();
-        verify(økonomioppdragRepository, times(2)).lagre(oppdrag);
-        verify(hendelsesmottak).mottaHendelse(PROSESSTASKID, ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
-        oppdrag.getOppdrag110Liste().forEach(o110 -> {
-            assertThat(o110.getOppdragKvittering()).isNotNull();
-            assertThat(o110.getOppdragKvittering().getOppdrag110()).isNotNull();
-        });
+        assertThatThrownBy(() -> behandleØkonomioppdragKvittering.behandleKvittering(kvittering_1))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Finnes flere oppdrag uten kvittering med samme fagsystemId: ");
+        assertThatThrownBy(() -> behandleØkonomioppdragKvittering.behandleKvittering(kvittering_2))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Finnes flere oppdrag uten kvittering med samme fagsystemId: ");
     }
 
     @Test
     public void skal_ikke_motta_hendelse_når_negativ_kvittering_FP() {
         // Arrange
         when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringImpl());
-        oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
         OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         OppdragTestDataHelper.buildOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
 
@@ -293,7 +260,7 @@ public class BehandleØkonomioppdragKvitteringTest {
     public void skal_ikke_motta_hendelse_når_negativ_kvittering_bruker_og_arbeidsgiver_FP() {
         // Arrange
         when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringImpl());
-        oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
         OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         OppdragTestDataHelper.buildOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
 

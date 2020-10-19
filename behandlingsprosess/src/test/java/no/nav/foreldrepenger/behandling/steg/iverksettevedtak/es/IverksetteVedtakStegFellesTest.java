@@ -1,21 +1,19 @@
 package no.nav.foreldrepenger.behandling.steg.iverksettevedtak.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.IverksetteVedtakStegFelles;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -23,6 +21,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -31,40 +30,38 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class IverksetteVedtakStegFellesTest {
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-
-    private Behandling behandling;
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     private IverksetteVedtakStegFelles iverksetteVedtakSteg;
 
-    @Mock
     private OpprettProsessTaskIverksett opprettProsessTaskIverksett;
 
-    private Repository repository = repoRule.getRepository();
-    private BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+    private BehandlingVedtakRepository behandlingVedtakRepository;
 
-    @Mock
     private VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse;
 
-    @Before
-    public void setup() {
-        iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett, vurderBehandlingerUnderIverksettelse);
+    @BeforeEach
+    void setup() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
+        behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
+
+        opprettProsessTaskIverksett = mock(OpprettProsessTaskIverksett.class);
+        vurderBehandlingerUnderIverksettelse = mock(VurderBehandlingerUnderIverksettelse.class);
+        iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett,
+            vurderBehandlingerUnderIverksettelse);
     }
 
     @Test
@@ -72,14 +69,10 @@ public class IverksetteVedtakStegFellesTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
-        behandling = opprettBehandling();
-
-        // Assert
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage("Utviklerfeil: Kan ikke iverksette, behandling mangler vedtak " + behandling.getId());
+        var behandling = opprettBehandling();
 
         // Act
-        utførSteg(behandling);
+        assertThrows(IllegalStateException.class, () -> utførSteg(behandling));
     }
 
     @Test
@@ -87,9 +80,9 @@ public class IverksetteVedtakStegFellesTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
-        behandling = opprettBehandling();
+        var behandling = opprettBehandling();
         @SuppressWarnings("unused")
-        var vedtak = opprettBehandlingVedtak(VedtakResultatType.AVSLAG, IverksettingStatus.IKKE_IVERKSATT);
+        var vedtak = opprettBehandlingVedtak(VedtakResultatType.AVSLAG, IverksettingStatus.IKKE_IVERKSATT, behandling.getId());
         when(vurderBehandlingerUnderIverksettelse.vurder(any())).thenReturn(true);
 
         // Act
@@ -114,8 +107,8 @@ public class IverksetteVedtakStegFellesTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
-        behandling = opprettBehandling();
-        opprettBehandlingVedtak(VedtakResultatType.INNVILGET, IverksettingStatus.IKKE_IVERKSATT);
+        var behandling = opprettBehandling();
+        opprettBehandlingVedtak(VedtakResultatType.INNVILGET, IverksettingStatus.IKKE_IVERKSATT, behandling.getId());
         when(vurderBehandlingerUnderIverksettelse.vurder(any())).thenReturn(false);
 
         // Act
@@ -136,8 +129,8 @@ public class IverksetteVedtakStegFellesTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
-        behandling = opprettBehandling();
-        opprettBehandlingVedtak(VedtakResultatType.AVSLAG, IverksettingStatus.IKKE_IVERKSATT);
+        var behandling = opprettBehandling();
+        opprettBehandlingVedtak(VedtakResultatType.AVSLAG, IverksettingStatus.IKKE_IVERKSATT, behandling.getId());
 
         // Act
         BehandleStegResultat resultat = utførSteg(behandling);
@@ -152,8 +145,8 @@ public class IverksetteVedtakStegFellesTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
-        behandling = opprettBehandling();
-        opprettBehandlingVedtak(VedtakResultatType.AVSLAG, IverksettingStatus.IVERKSATT);
+        var behandling = opprettBehandling();
+        opprettBehandlingVedtak(VedtakResultatType.AVSLAG, IverksettingStatus.IVERKSATT, behandling.getId());
 
         // Act
         BehandleStegResultat resultat = utførSteg(behandling);
@@ -171,24 +164,24 @@ public class IverksetteVedtakStegFellesTest {
     private Behandling opprettBehandling() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
 
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
+        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling.getId());
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
-        repository.lagre(behandlingsresultat);
-
-        repository.flush();
+        behandlingsresultatRepository.lagre(behandling.getId(), behandlingsresultat);
 
         return behandling;
     }
 
-    private BehandlingVedtak opprettBehandlingVedtak(VedtakResultatType resultatType, IverksettingStatus iverksettingStatus) {
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
+    private BehandlingVedtak opprettBehandlingVedtak(VedtakResultatType resultatType,
+                                                     IverksettingStatus iverksettingStatus,
+                                                     Long behandlingId) {
+        BehandlingLås lås = behandlingRepository.taSkriveLås(behandlingId);
+        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandlingId);
         BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
             .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
-            .medAnsvarligSaksbehandler("E2354345")
+            .medAnsvarligSaksbehandler("E123")
             .medVedtakResultatType(resultatType)
             .medIverksettingStatus(iverksettingStatus)
             .medBehandlingsresultat(behandlingsresultat)
@@ -197,7 +190,7 @@ public class IverksetteVedtakStegFellesTest {
         return behandlingVedtak;
     }
 
-    private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandling.getBehandlingsresultat();
+    private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
+        return behandlingsresultatRepository.hent(behandlingId);
     }
 }

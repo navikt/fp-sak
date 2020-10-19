@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -35,12 +36,12 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
 
     private int maksStønadsalderAdopsjon;
 
-    private BehandlingRepositoryProvider repositoryProvider;
     private LegacyESBeregningRepository beregningRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository resultatRepository;
+    private FamilieHendelseRepository familieHendelseRepository;
 
     BeregneYtelseEngangsstønadStegImpl() {
         // for CDI proxy
@@ -50,15 +51,16 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
      * @param maksStønadsalder - Maks stønadsalder ved adopsjon
      */
     @Inject
-    BeregneYtelseEngangsstønadStegImpl(BehandlingRepositoryProvider repositoryProvider, LegacyESBeregningRepository beregningRepository,
+    BeregneYtelseEngangsstønadStegImpl(BehandlingRepositoryProvider repositoryProvider,
+                                       LegacyESBeregningRepository beregningRepository,
                                        @KonfigVerdi(value = "es.maks.stønadsalder.adopsjon", defaultVerdi = "15") int maksStønadsalder,
                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
-        this.repositoryProvider = repositoryProvider;
         this.beregningRepository = beregningRepository;
         this.maksStønadsalderAdopsjon = maksStønadsalder;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.resultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+        this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
     }
 
     @Override
@@ -67,7 +69,8 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
 
         LegacyESBeregning sisteBeregning = finnSisteBeregning(behandlingId);
         if (sisteBeregning == null || !sisteBeregning.isOverstyrt()) {
-            long antallBarn = new BarnFinner(repositoryProvider).finnAntallBarn(behandlingId, maksStønadsalderAdopsjon);
+            var barnFinner = new BarnFinner(familieHendelseRepository);
+            long antallBarn = barnFinner.finnAntallBarn(behandlingId, maksStønadsalderAdopsjon);
             LocalDate satsDato = getSatsDato(behandlingId);
             BeregningSats sats = beregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, satsDato);
             long beregnetYtelse = sats.getVerdi() * antallBarn;
@@ -97,17 +100,21 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
     @Override
     public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType fraSteg, BehandlingStegType tilSteg) {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        var behResultat = resultatRepository.hentHvisEksisterer(kontekst.getBehandlingId()).orElse(null);
-        RyddBeregninger ryddBeregninger = new RyddBeregninger(repositoryProvider.getBehandlingRepository(), kontekst);
-        ryddBeregninger.ryddBeregninger(behandling, behResultat);
+        var behResultat = resultatRepository.hentHvisEksisterer(kontekst.getBehandlingId());
+        if (behResultat.isPresent()) {
+            RyddBeregninger ryddBeregninger = new RyddBeregninger(behandlingRepository, kontekst);
+            ryddBeregninger.ryddBeregninger(behandling, behResultat.get());
+        }
     }
 
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg, BehandlingStegType fraSteg) {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        var behResultat = resultatRepository.hentHvisEksisterer(kontekst.getBehandlingId()).orElse(null);
-        RyddBeregninger ryddBeregninger = new RyddBeregninger(repositoryProvider.getBehandlingRepository(), kontekst);
-        ryddBeregninger.ryddBeregningerHvisIkkeOverstyrt(behandling, behResultat);
+        var behResultat = resultatRepository.hentHvisEksisterer(kontekst.getBehandlingId());
+        if (behResultat.isPresent()) {
+            RyddBeregninger ryddBeregninger = new RyddBeregninger(behandlingRepository, kontekst);
+            ryddBeregninger.ryddBeregningerHvisIkkeOverstyrt(behandling, behResultat.get());
+        }
     }
 
 }
