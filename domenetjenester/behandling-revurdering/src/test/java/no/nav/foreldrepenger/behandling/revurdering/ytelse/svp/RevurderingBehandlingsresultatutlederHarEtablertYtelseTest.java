@@ -7,64 +7,56 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
-import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagUttakResultatPlanTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-
-    @Inject
     private BeregningRevurderingTestUtil revurderingTestUtil;
-    @Inject
-    @FagsakYtelseTypeRef("FP")
-    private RevurderingEndring revurderingEndring;
 
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
     private SvangerskapspengerUttakResultatRepository uttakRepository;
 
-    private Behandling behandlingSomSkalRevurderes;
     private RevurderingBehandlingsresultatutleder resultatUtleder;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        revurderingTestUtil = new BeregningRevurderingTestUtil(repositoryProvider);
         uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
-        revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
         resultatUtleder = new RevurderingBehandlingsresultatutleder(repositoryProvider, null,
             null, null,null, null);
+    }
+
+    private Behandling opprettBehandling() {
+        var behandlingSomSkalRevurderes = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
+        revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
+        return behandlingSomSkalRevurderes;
     }
 
     @Test
     public void skal_gi_etablert_ytelse_med_tom_for_innvilget_periode_etter_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = LocalDate.now();
+        var behandlingSomSkalRevurderes = opprettBehandling();
 
         SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            Collections.singletonList(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(10)))
+            Collections.singletonList(new LocalDateInterval(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)))
         );
 
         // Act
@@ -78,10 +70,10 @@ public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest {
     @Test
     public void skal_ikke_gi_etablert_ytelse_hvis_finnesInnvilgetIkkeOpphørtVedtak_er_false() {
         // Arrange
-        LocalDate dagensDato = LocalDate.now();
+        var behandlingSomSkalRevurderes = opprettBehandling();
 
         SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            Collections.singletonList(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(10)))
+            Collections.singletonList(new LocalDateInterval(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)))
         );
         boolean finnesInnvilgetIkkeOpphørtVedtak = false;
         // Act
@@ -95,10 +87,10 @@ public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest {
     @Test
     public void skal_gi_etablert_ytelse_med_tom_for_innvilget_periode_på_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = LocalDate.now();
+        var behandlingSomSkalRevurderes = opprettBehandling();
 
         SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            Collections.singletonList(new LocalDateInterval(dagensDato.minusDays(10), dagensDato))
+            Collections.singletonList(new LocalDateInterval(LocalDate.now().minusDays(10), LocalDate.now()))
         );
         // Act
         boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, true,
@@ -111,10 +103,10 @@ public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest {
     @Test
     public void skal_ikkje_gi_etablert_ytelse_med_tom_for_avslått_periode_etter_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = LocalDate.now();
+        var behandlingSomSkalRevurderes = opprettBehandling();
 
         SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            Collections.singletonList(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(5)))
+            Collections.singletonList(new LocalDateInterval(LocalDate.now().minusDays(10), LocalDate.now().plusDays(5)))
         );
         // Act
         boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, false,
@@ -127,10 +119,10 @@ public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest {
     @Test
     public void skal_ikkje_gi_etablert_ytelse_med_tom_for_innvilget_periode_før_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = LocalDate.now();
+        var behandlingSomSkalRevurderes = opprettBehandling();
 
         SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            Collections.singletonList(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5)))
+            Collections.singletonList(new LocalDateInterval(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5)))
         );
         // Act
         boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, true,

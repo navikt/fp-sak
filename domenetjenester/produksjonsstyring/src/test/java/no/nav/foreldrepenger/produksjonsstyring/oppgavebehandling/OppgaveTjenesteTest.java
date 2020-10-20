@@ -15,11 +15,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -30,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -46,9 +44,11 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.Whitebox;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class OppgaveTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class OppgaveTjenesteTest extends EntityManagerAwareTest {
 
     private static final String FNR = "00000000000";
 
@@ -56,10 +56,7 @@ public class OppgaveTjenesteTest {
         Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
         LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET);
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private Repository repository = repoRule.getRepository();
+    private Repository repository;
 
     private OppgaveTjeneste tjeneste;
     private PersoninfoAdapter personinfoAdapter;
@@ -68,12 +65,14 @@ public class OppgaveTjenesteTest {
 
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private Behandling behandling;
 
-    @Before
-    public void oppsett() {
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        repository = new Repository(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
 
         personinfoAdapter = mock(PersoninfoAdapter.class);
         prosessTaskRepository = mock(ProsessTaskRepository.class);
@@ -81,19 +80,20 @@ public class OppgaveTjenesteTest {
         oppgaveBehandlingKoblingRepository = spy(new OppgaveBehandlingKoblingRepository(entityManager));
         tjeneste = new OppgaveTjeneste(new FagsakRepository(entityManager), new BehandlingRepository(entityManager),
             oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository, personinfoAdapter);
-        lagBehandling();
     }
 
-    private void lagBehandling() {
+    private Behandling lagBehandling() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now()).medAntallBarn(1);
-        behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         behandling.setBehandlendeEnhet(new OrganisasjonsEnhet("4802", null));
+        return behandling;
     }
 
     @Test
     public void skal_opprette_oppgave_når_det_ikke_finnes_fra_før() {
         // Arrange
+        var behandling = lagBehandling();
         Long behandlingId = behandling.getId();
 
         when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
@@ -114,6 +114,7 @@ public class OppgaveTjenesteTest {
     @Test
     public void skal_ikke_opprette_en_ny_oppgave_av_samme_type_når_det_finnes_fra_før_og_den_ikke_er_ferdigstilt() {
         // Arrange
+        var behandling = lagBehandling();
         Long behandlingId = behandling.getId();
         when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
 
@@ -134,6 +135,7 @@ public class OppgaveTjenesteTest {
     @Test
     public void skal_opprette_en_ny_oppgave_når_det_finnes_fra_før_og_den_er_ferdigstilt() {
         // Arrange
+        var behandling = lagBehandling();
         Long behandlingId = behandling.getId();
         when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
 
@@ -154,6 +156,7 @@ public class OppgaveTjenesteTest {
     @Test
     public void skal_kunne_opprette_en_ny_oppgave_med_en_annen_årsak_selv_om_det_finnes_en_aktiv_oppgave() {
         // Arrange
+        var behandling = lagBehandling();
         Long behandlingId = behandling.getId();
         when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
 
@@ -173,6 +176,7 @@ public class OppgaveTjenesteTest {
     @Test
     public void skal_avslutte_oppgave() {
         // Arrange
+        var behandling = lagBehandling();
         Long behandlingId = behandling.getId();
         when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
 
@@ -192,6 +196,7 @@ public class OppgaveTjenesteTest {
         // Arrange
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
+        var behandling = lagBehandling();
 
         // Act
         String oppgaveId = tjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), OppgaveÅrsak.VURDER_DOKUMENT, "2010", "bla bla", false);
@@ -207,6 +212,7 @@ public class OppgaveTjenesteTest {
     public void skal_avslutte_oppgave_og_starte_task() {
         // Arrange
         String oppgaveId = "1";
+        var behandling = lagBehandling();
         OppgaveBehandlingKobling kobling = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, oppgaveId, behandling.getFagsak().getSaksnummer(), behandling.getId());
         when(oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(anyLong())).thenReturn(Collections.singletonList(kobling));
 
@@ -232,6 +238,7 @@ public class OppgaveTjenesteTest {
     @Test
     public void skal_hente_oppgave_liste() throws Exception {
         // Arrange
+        var behandling = lagBehandling();
         when(oppgaveRestKlient.finnÅpneOppgaver(any(), eq(Tema.FOR.getOffisiellKode()), eq(List.of(Oppgavetyper.VURDER_DOKUMENT_VL.getKode())))).thenReturn(List.of(OPPGAVE));
         when(oppgaveRestKlient.finnÅpneOppgaver(any(), eq(Tema.FOR.getOffisiellKode()), eq(List.of(Oppgavetyper.VURDER_KONSEKVENS_YTELSE.getKode())))).thenReturn(Collections.emptyList());
 
@@ -247,7 +254,7 @@ public class OppgaveTjenesteTest {
     @Test
     public void skal_opprette_oppgave_vurder_konsekvens_basert_på_fagsakId() {
         // Arrange
-
+        var behandling = lagBehandling();
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
 
@@ -264,7 +271,7 @@ public class OppgaveTjenesteTest {
     @Test
     public void skal_lage_request_som_inneholder_verdier_i_forbindelse_med_manglende_regler() {
         // Arrange
-
+        var behandling = lagBehandling();
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
 
@@ -282,6 +289,7 @@ public class OppgaveTjenesteTest {
     @Test
     public void skal_opprette_oppgave_med_prioritet_og_beskrivelse() {
         // Arrange
+        var behandling = lagBehandling();
         LocalDate forventetFrist = VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1));
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
@@ -302,6 +310,7 @@ public class OppgaveTjenesteTest {
     @Test
     public void opprettOppgaveStopUtbetalingAvARENAYtelse() {
         // Arrange
+        var behandling = lagBehandling();
 
         LocalDate forventetFrist = VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1));
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
@@ -324,6 +333,7 @@ public class OppgaveTjenesteTest {
     @Test
     public void opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver() {
         // Arrange
+        var behandling = lagBehandling();
         when(personinfoAdapter.hentFnr(behandling.getAktørId())).thenReturn(Optional.of(new PersonIdent(FNR)));
         LocalDate forventetFrist = VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1));
         ArgumentCaptor<OpprettOppgave.Builder> captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
