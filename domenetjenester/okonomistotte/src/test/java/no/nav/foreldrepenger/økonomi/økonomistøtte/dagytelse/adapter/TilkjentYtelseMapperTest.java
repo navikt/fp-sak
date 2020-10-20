@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;

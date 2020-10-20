@@ -41,7 +41,7 @@ public class TpsFamilieTjenesteTest {
     private PersoninfoAdapter personinfoAdapter;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         personinfoAdapter = new PersoninfoAdapter(tpsTjeneste, fødselTjeneste, null, null, null);
     }
 

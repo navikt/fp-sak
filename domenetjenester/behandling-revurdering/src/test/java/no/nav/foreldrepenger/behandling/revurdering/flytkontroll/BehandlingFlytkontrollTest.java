@@ -9,10 +9,8 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -40,7 +38,7 @@ public class BehandlingFlytkontrollTest {
     private Fagsak fagsakAnnenPart = mock(Fagsak.class);
 
 
-    @Before
+    @BeforeEach
     public void setup(){
         when(behandling.getFagsak()).thenReturn(fagsak);
         when(behandling.getId()).thenReturn(BEHANDLING_ID);

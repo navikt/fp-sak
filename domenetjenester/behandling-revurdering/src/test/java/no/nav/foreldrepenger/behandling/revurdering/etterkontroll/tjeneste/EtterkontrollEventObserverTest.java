@@ -54,7 +54,7 @@ public class EtterkontrollEventObserverTest extends EntityManagerAwareTest {
     private BehandlingRepository behandlingRepository;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         etterkontrollRepository = new EtterkontrollRepository(getEntityManager());
         familieHendelseRepository = new FamilieHendelseRepository(getEntityManager());

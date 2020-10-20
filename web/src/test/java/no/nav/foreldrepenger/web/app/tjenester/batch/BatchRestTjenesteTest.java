@@ -28,7 +28,7 @@ public class BatchRestTjenesteTest {
     private BatchSupportTjeneste batchSupportTjeneste;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         batchSupportTjeneste = mock(BatchSupportTjeneste.class);
         tjeneste = new BatchRestTjeneste(batchSupportTjeneste);
     }

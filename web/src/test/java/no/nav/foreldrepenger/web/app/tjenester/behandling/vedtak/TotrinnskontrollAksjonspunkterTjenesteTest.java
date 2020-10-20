@@ -13,9 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -36,9 +35,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.Totrinnsaks
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.TotrinnskontrollAksjonspunkterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnskontrollAksjonspunkterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnskontrollSkjermlenkeContextDto;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
 public class TotrinnskontrollAksjonspunkterTjenesteTest {
 
     private static final BehandlingStegType STEG_KONTROLLER_FAKTA = BehandlingStegType.KONTROLLER_FAKTA;
@@ -51,7 +48,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     private Behandling behandling;
     private Totrinnresultatgrunnlag totrinnresultatgrunnlag;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
         totrinnskontrollAksjonspunkterTjeneste = new TotrinnskontrollAksjonspunkterTjeneste(totrinnsaksjonspunktDtoTjeneste, totrinnTjeneste);
         totrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null,

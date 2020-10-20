@@ -9,9 +9,9 @@ import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -40,12 +40,12 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
     private HindreTilbaketrekkNårAlleredeUtbetalt tjeneste;
 
-    @Before
+    @BeforeEach
     public void setup() {
         tjeneste = new HindreTilbaketrekkNårAlleredeUtbetalt();
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         settSimulertNåtidTil(LocalDate.now());
         FPDateUtil.init();

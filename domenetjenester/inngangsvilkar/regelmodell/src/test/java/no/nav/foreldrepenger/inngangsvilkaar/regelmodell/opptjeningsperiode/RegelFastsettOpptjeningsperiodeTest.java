@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.Period;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.SoekerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak;

@@ -23,7 +23,7 @@ public class AutomatiskEtterkontrollBatchTjenesteTest {
     private ProsessTaskRepository prosessTaskRepository;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         prosessTaskRepository = mock(ProsessTaskRepository.class);
         tjeneste = new AutomatiskEtterkontrollBatchTjeneste(prosessTaskRepository, null);
     }

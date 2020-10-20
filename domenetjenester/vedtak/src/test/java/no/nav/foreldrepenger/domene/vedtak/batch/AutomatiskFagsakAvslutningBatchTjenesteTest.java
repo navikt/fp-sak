@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -33,7 +33,7 @@ public class AutomatiskFagsakAvslutningBatchTjenesteTest {
     private AutomatiskFagsakAvslutningTjeneste fagsakAvslutningTjeneste;
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
         behandlingRepository = Mockito.mock(BehandlingRepository.class);
         fagsakRepository = Mockito.mock(FagsakRepository.class);

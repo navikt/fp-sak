@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.økonomi.økonomistøtte.es;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.fail;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.økonomi.økonomistøtte.AlleMottakereHarPositivKvittering;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragKvitteringTestUtil;

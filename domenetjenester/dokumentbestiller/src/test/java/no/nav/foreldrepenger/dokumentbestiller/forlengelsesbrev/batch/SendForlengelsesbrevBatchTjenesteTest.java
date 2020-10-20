@@ -26,7 +26,7 @@ public class SendForlengelsesbrevBatchTjenesteTest {
     private SendForlengelsesbrevTjeneste tjeneste;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         batchTjeneste = new SendForlengelsesbrevBatchTjeneste(tjeneste);
     }
 

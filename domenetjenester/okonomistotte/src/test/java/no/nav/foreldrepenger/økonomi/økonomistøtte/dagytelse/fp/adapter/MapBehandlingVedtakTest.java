@@ -8,10 +8,8 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -26,7 +24,7 @@ public class MapBehandlingVedtakTest {
     private MapBehandlingVedtak mapBehandlingVedtakFP;
     private BehandlingVedtakRepository behandlingVedtakRepository = mock(BehandlingVedtakRepository.class);
 
-    @Before
+    @BeforeEach
     public void setup() {
         mapBehandlingVedtakFP = new MapBehandlingVedtak(behandlingVedtakRepository);
     }

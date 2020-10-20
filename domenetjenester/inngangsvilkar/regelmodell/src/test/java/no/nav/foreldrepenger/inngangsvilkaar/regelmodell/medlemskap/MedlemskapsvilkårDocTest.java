@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.fpsak.nare.doc.RuleDescriptionDigraph;
 import no.nav.fpsak.nare.specification.Specification;

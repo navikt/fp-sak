@@ -5,9 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -36,8 +35,8 @@ public class OppdaterFagsakStatusImplTest {
     private UttakInputTjeneste uttakInputTjeneste;
 
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 

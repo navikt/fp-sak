@@ -8,10 +8,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
@@ -30,7 +28,7 @@ public class HentMedlemskapFraRegisterTest {
 
     private static final long MEDL_ID_1 = 2663947L;
 
-    @Before
+    @BeforeEach
     public void before() {
         medlemTjeneste = new HentMedlemskapFraRegister(restKlient);
     }

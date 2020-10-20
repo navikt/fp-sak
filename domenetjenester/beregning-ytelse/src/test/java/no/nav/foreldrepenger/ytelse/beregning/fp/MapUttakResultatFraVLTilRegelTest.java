@@ -10,10 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -68,7 +66,7 @@ public class MapUttakResultatFraVLTilRegelTest {
     private MapUttakResultatFraVLTilRegel overriddenMapper;
     private MapUttakResultatFraVLTilRegel mapper;
 
-    @Before
+    @BeforeEach
     public void setup() {
         Fagsak fagsak = FagsakBuilder.nyForeldrepengerForMor().build();
         behandling = Behandling.forFørstegangssøknad(fagsak).build();

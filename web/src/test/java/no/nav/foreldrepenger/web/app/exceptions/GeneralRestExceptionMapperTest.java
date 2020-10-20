@@ -34,7 +34,7 @@ public class GeneralRestExceptionMapperTest {
     private GeneralRestExceptionMapper generalRestExceptionMapper = new GeneralRestExceptionMapper();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         logSniffer = MemoryAppender.sniff(GeneralRestExceptionMapper.class);
     }
 

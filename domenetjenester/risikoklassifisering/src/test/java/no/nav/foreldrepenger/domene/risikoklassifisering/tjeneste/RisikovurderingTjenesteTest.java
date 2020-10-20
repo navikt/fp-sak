@@ -11,10 +11,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.UUID;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -44,7 +42,7 @@ public class RisikovurderingTjenesteTest {
     private Behandling behandling;
 
 
-    @Before
+    @BeforeEach
     public void setup() {
         ScenarioMorSøkerForeldrepenger scenarioFørstegang = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenarioFørstegang.lagMocked();

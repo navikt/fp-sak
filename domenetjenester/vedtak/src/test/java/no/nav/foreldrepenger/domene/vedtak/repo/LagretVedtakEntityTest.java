@@ -2,10 +2,8 @@ package no.nav.foreldrepenger.domene.vedtak.repo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
 
 public class LagretVedtakEntityTest {
@@ -16,9 +14,8 @@ public class LagretVedtakEntityTest {
     private static final Long FAGSAK_ID = 22L;
     private static final Long BEHANDLING_ID = 433L;
     private static final String STRING_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><element>test av xml</element>";
-    private static final String FORVENTET_EXCEPTION = "forventet exception";
 
-    @Before
+    @BeforeEach
     public void setup() {
         lagretVedtakBuilder = LagretVedtak.builder();
         lagretVedtak = null;

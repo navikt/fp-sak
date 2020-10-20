@@ -4,17 +4,15 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 
 public class MedlemEndringssjekkerEngangsstønadTest {
     private MedlemEndringssjekker endringssjekker;
 
-    @Before
+    @BeforeEach
     public void before() {
         endringssjekker = new MedlemEndringssjekkerEngangsstønad();
     }

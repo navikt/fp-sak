@@ -6,12 +6,29 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 
-public class BekreftTerminbekreftelseAksjonspunktDtoTest extends DtoTest {
+public class BekreftTerminbekreftelseAksjonspunktDtoTest {
+
+    private ObjectMapper objectMapper;
+
+    @BeforeEach
+    public void setUp() {
+        objectMapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        module.addSerializer(LocalDate.class, new com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer(formatter));
+        module.addDeserializer(LocalDate.class, new com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer(formatter));
+        objectMapper.registerModule(module);
+    }
 
     @Test
     public void test_av_json_mapping() throws IOException {

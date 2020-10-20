@@ -8,7 +8,7 @@ import java.time.Month;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
