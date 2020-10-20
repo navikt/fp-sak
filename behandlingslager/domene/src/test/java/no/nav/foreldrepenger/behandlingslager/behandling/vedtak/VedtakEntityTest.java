@@ -1,12 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -35,48 +30,30 @@ public class VedtakEntityTest {
     public void skal_bygge_instans_med_påkrevde_felter() {
         vedtak = lagBuilderMedPaakrevdeFelter().build();
 
-        assertThat(vedtak.getVedtakstidspunkt(), is(VEDTAKSDATO));
-        assertThat(vedtak.getAnsvarligSaksbehandler(), is(ANSVARLIG_SAKSBEHBANDLER));
-        assertThat(vedtak.getVedtakResultatType(), is(VEDTAK_RESULTAT_TYPE));
+        assertThat(vedtak.getVedtakstidspunkt()).isEqualTo(VEDTAKSDATO);
+        assertThat(vedtak.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHBANDLER);
+        assertThat(vedtak.getVedtakResultatType()).isEqualTo(VEDTAK_RESULTAT_TYPE);
     }
 
     @Test
     public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
 
         // mangler vedtaksdato
-        try {
-            vedtakBuilder.build();
-            fail(FORVENTET_EXCEPTION);
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage(), containsString("vedtakstidspunkt"));
-        }
+        assertThatThrownBy(() -> vedtakBuilder.build())
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("vedtakstidspunkt");
 
         // mangler ansvarligSaksbehandler
         vedtakBuilder.medVedtakstidspunkt(VEDTAKSDATO);
-        try {
-            vedtakBuilder.build();
-            fail(FORVENTET_EXCEPTION);
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage(), containsString("ansvarligSaksbehandler"));
-        }
+        assertThatThrownBy(() -> vedtakBuilder.build())
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("ansvarligSaksbehandler");
 
         // mangler vedtakResultatType
         vedtakBuilder.medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHBANDLER);
-        try {
-            vedtakBuilder.build();
-            fail(FORVENTET_EXCEPTION);
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage(), containsString("vedtakResultatType"));
-        }
-    }
-
-    @Test
-    public void skal_håndtere_null_this_feilKlasse_i_equals() {
-        vedtak = lagBuilderMedPaakrevdeFelter().build();
-
-        assertThat(vedtak, is(notNullValue()));
-        assertThat(vedtak, is(not("blabla")));
-        assertThat(vedtak, is(equalTo(vedtak)));
+        assertThatThrownBy(() -> vedtakBuilder.build())
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("vedtakResultatType");
     }
 
     @Test
@@ -85,13 +62,13 @@ public class VedtakEntityTest {
         vedtak = vedtakBuilder.build();
         vedtak2 = vedtakBuilder.build();
 
-        assertThat(vedtak, is(equalTo(vedtak2)));
-        assertThat(vedtak2, is(equalTo(vedtak)));
+        assertThat(vedtak).isEqualTo(vedtak2);
+        assertThat(vedtak2).isEqualTo(vedtak2);
 
         vedtakBuilder.medAnsvarligSaksbehandler("Kari Larsen");
         vedtak2 = vedtakBuilder.build();
-        assertThat(vedtak2, is(not(equalTo(vedtak))));
-        assertThat(vedtak, is(not(equalTo(vedtak2))));
+        assertThat(vedtak2).isNotEqualTo(vedtak);
+        assertThat(vedtak).isNotEqualTo(vedtak2);
     }
 
     @Test
@@ -101,8 +78,8 @@ public class VedtakEntityTest {
         vedtakBuilder.medVedtakstidspunkt(LocalDateTime.now().plus(1, ChronoUnit.DAYS));
         vedtak2 = vedtakBuilder.build();
 
-        assertThat(vedtak, is(not(equalTo(vedtak2))));
-        assertThat(vedtak.hashCode(), is(not(equalTo(vedtak2.hashCode()))));
+        assertThat(vedtak).isNotEqualTo(vedtak2);
+        assertThat(vedtak.hashCode()).isNotEqualTo(vedtak2.hashCode());
     }
 
     @Test
@@ -112,8 +89,8 @@ public class VedtakEntityTest {
         vedtakBuilder.medAnsvarligSaksbehandler("Jostein Hansen");
         vedtak2 = vedtakBuilder.build();
 
-        assertThat(vedtak, is(not(equalTo(vedtak2))));
-        assertThat(vedtak.hashCode(), is(not(equalTo(vedtak2.hashCode()))));
+        assertThat(vedtak).isNotEqualTo(vedtak2);
+        assertThat(vedtak.hashCode()).isNotEqualTo(vedtak2.hashCode());
     }
 
     @Test
@@ -123,8 +100,8 @@ public class VedtakEntityTest {
         vedtakBuilder.medVedtakResultatType(VedtakResultatType.AVSLAG);
         vedtak2 = vedtakBuilder.build();
 
-        assertThat(vedtak, is(not(equalTo(vedtak2))));
-        assertThat(vedtak.hashCode(), is(not(equalTo(vedtak2.hashCode()))));
+        assertThat(vedtak).isNotEqualTo(vedtak2);
+        assertThat(vedtak.hashCode()).isNotEqualTo(vedtak2.hashCode());
     }
 
     // ----------------------------------------------------------------

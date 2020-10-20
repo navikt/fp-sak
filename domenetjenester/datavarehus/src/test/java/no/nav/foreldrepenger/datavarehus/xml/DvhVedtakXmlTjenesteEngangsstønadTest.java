@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.datavarehus.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -145,7 +144,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
         String xml = dvhVedtakXmlTjenesteES.opprettDvhVedtakXml(behandling.getId());
 
         // Assert
-        assertNotNull(xml);
+        assertThat(xml).isNotNull();
         assertThat(xml).contains(delytelseXmlElement);
         assertThat(xml).contains(fagsystemIdXmlElement);
         assertPersonopplysningDvh(BRUKER_AKTØR_ID, xml);
@@ -160,7 +159,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
         String xml = dvhVedtakXmlTjenesteES.opprettDvhVedtakXml(behandling.getId());
 
         // Assert
-        assertNotNull(xml);
+        assertThat(xml).isNotNull();
         assertThat(xml).doesNotContain(delytelseXmlElement);
         assertPersonopplysningDvh(BRUKER_AKTØR_ID, xml);
     }
@@ -174,7 +173,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
         String xml = dvhVedtakXmlTjenesteES.opprettDvhVedtakXml(behandling.getId());
 
         // Assert
-        assertNotNull(xml);
+        assertThat(xml).isNotNull();
         assertThat(xml).doesNotContain(delytelseXmlElement);
         assertPersonopplysningDvh(BRUKER_AKTØR_ID, xml);
     }
@@ -188,7 +187,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
         String xml = dvhVedtakXmlTjenesteES.opprettDvhVedtakXml(behandling.getId());
 
         // Assert
-        assertNotNull(xml);
+        assertThat(xml).isNotNull();
         assertThat(xml).contains(adopsjonXmlElement);
         assertPersonopplysningDvh(BRUKER_AKTØR_ID, xml);
     }

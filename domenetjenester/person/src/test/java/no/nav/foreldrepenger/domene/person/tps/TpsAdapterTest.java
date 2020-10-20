@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.person.tps;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -90,7 +89,7 @@ public class TpsAdapterTest {
         tpsAdapterImpl = new TpsAdapter(aktørConsumerMock, personProxyServiceMock, tpsOversetterMock);
 
         Personinfo personinfo = tpsAdapterImpl.hentKjerneinformasjon(fnr, aktørId);
-        assertNotNull(personinfo);
+        assertThat(personinfo).isNotNull();
         assertThat(personinfo.getAktørId()).isEqualTo(aktørId);
         assertThat(personinfo.getPersonIdent()).isEqualTo(fnr);
         assertThat(personinfo.getNavn()).isEqualTo(navn);
@@ -106,7 +105,7 @@ public class TpsAdapterTest {
         Mockito.when(personProxyServiceMock.hentGeografiskTilknytning(Mockito.any())).thenReturn(response);
 
         GeografiskTilknytning tilknytning = tpsAdapterImpl.hentGeografiskTilknytning(fnr);
-        assertNotNull(tilknytning);
+        assertThat(tilknytning).isNotNull();
         assertThat(tilknytning.getDiskresjonskode()).isEqualTo(diskresjonskode);
         assertThat(tilknytning.getTilknytning()).isEqualTo(kommune);
     }

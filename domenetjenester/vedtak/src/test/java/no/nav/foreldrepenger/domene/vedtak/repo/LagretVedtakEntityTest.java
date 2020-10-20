@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.repo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -35,33 +35,22 @@ public class LagretVedtakEntityTest {
 
     @Test
     public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
-
         // mangler fagsakId
-        try {
-            lagretVedtakBuilder.build();
-            fail(FORVENTET_EXCEPTION);
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage()).contains("fagsakId");
-        }
+        assertThatThrownBy(() -> lagretVedtakBuilder.build())
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("fagsakId");
 
         // mangler behandlingId
         lagretVedtakBuilder.medFagsakId(FAGSAK_ID);
-        try {
-            lagretVedtakBuilder.build();
-            fail(FORVENTET_EXCEPTION);
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage()).contains("behandlingId");
-        }
+        assertThatThrownBy(() -> lagretVedtakBuilder.build())
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("behandlingId");
 
         // mangler behandlingId
         lagretVedtakBuilder.medFagsakId(FAGSAK_ID).medBehandlingId(BEHANDLING_ID);
-        try {
-            lagretVedtakBuilder.build();
-            fail(FORVENTET_EXCEPTION);
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage()).contains("xmlClob");
-        }
-
+        assertThatThrownBy(() -> lagretVedtakBuilder.build())
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("xmlClob");
     }
 
     @Test
@@ -69,8 +58,6 @@ public class LagretVedtakEntityTest {
         lagretVedtak = lagBuilderMedPaakrevdeFelter().build();
 
         assertThat(lagretVedtak).isNotNull();
-        assertThat(lagretVedtak).isNotEqualTo("blabla");
-        assertThat(lagretVedtak).isEqualTo(lagretVedtak);
     }
 
     @Test

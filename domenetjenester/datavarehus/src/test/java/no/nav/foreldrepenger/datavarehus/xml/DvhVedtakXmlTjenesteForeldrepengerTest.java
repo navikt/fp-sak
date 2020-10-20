@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.datavarehus.xml;
 import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -238,7 +237,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         String xml = dvhVedtakXmlTjenesteFP.opprettDvhVedtakXml(behandling.getId());
 
         // Assert
-        assertNotNull(xml);
+        assertThat(xml).isNotNull();
         assertThat(xml).contains(avkortetXmlElement);
         assertThat(xml).contains(aktørIdElement);
         assertThat(xml).contains(fagsystemIdXmlElement);

@@ -3,9 +3,7 @@ package no.nav.foreldrepenger.domene.vedtak.es;
 import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -75,7 +73,6 @@ import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlUtil;
 import no.nav.foreldrepenger.domene.vedtak.xml.VilkårsgrunnlagXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.YtelseXmlTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 import no.nav.vedtak.felles.testutilities.db.Repository;
@@ -159,15 +156,8 @@ public class VedtakXmlTest {
 
         Behandling behandling = opprettBehandlingMedTermindato(BehandlingStegType.FATTE_VEDTAK);
         oppdaterMedBehandlingsresultat(behandling, true);
-
-        try {
-            // Act
-            String xml = tjeneste.opprettVedtakXml(behandling.getId());
-            // Assert
-            assertNotNull(xml);
-        } catch (VLException e) {
-            fail();
-        }
+        String xml = tjeneste.opprettVedtakXml(behandling.getId());
+        assertThat(xml).isNotNull();
     }
 
     @Test
@@ -175,15 +165,8 @@ public class VedtakXmlTest {
 
         Behandling behandling = opprettBehandlingMedTermindato(BehandlingStegType.FATTE_VEDTAK);
         oppdaterMedBehandlingsresultat(behandling, false);
-
-        try {
-            // Act
-            String xml = tjeneste.opprettVedtakXml(behandling.getId());
-            // Assert
-            assertNotNull(xml);
-        } catch (VLException e) {
-            fail();
-        }
+        String xml = tjeneste.opprettVedtakXml(behandling.getId());
+        assertThat(xml).isNotNull();
     }
 
     @Test
@@ -191,15 +174,8 @@ public class VedtakXmlTest {
 
         Behandling behandling = opprettBehandlingMedAdopsjon(BehandlingStegType.FATTE_VEDTAK);
         oppdaterMedBehandlingsresultat(behandling, true);
-
-        try {
-            // Act
-            String xml = tjeneste.opprettVedtakXml(behandling.getId());
-            // Assert
-            assertNotNull(xml);
-        } catch (VLException e) {
-            fail();
-        }
+        String xml = tjeneste.opprettVedtakXml(behandling.getId());
+        assertThat(xml).isNotNull();
     }
 
     @Test
@@ -207,15 +183,8 @@ public class VedtakXmlTest {
 
         Behandling behandling = opprettBehandlingMedFødsel(BehandlingStegType.FATTE_VEDTAK);
         oppdaterMedBehandlingsresultat(behandling, true);
-
-        try {
-            // Act
-            String xml = tjeneste.opprettVedtakXml(behandling.getId());
-            // Assert
-            assertNotNull(xml);
-        } catch (VLException e) {
-            fail();
-        }
+        String xml = tjeneste.opprettVedtakXml(behandling.getId());
+        assertThat(xml).isNotNull();
     }
 
     @Test
@@ -223,29 +192,17 @@ public class VedtakXmlTest {
         // Arrange
         Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forAvvistNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon()),
             null);
-        try {
-            // Act
-            String xml = tjeneste.opprettVedtakXml(behandling.getId());
-            // Assert
-            assertNotNull(xml);
-        } catch (VLException e) {
-            fail();
-        }
+        String xml = tjeneste.opprettVedtakXml(behandling.getId());
+        assertThat(xml).isNotNull();
     }
 
     @Test
     public void skal_opprette_xml_med_klage_medhold() {
         // Arrange
         Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forMedholdNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon()),
-            KlageMedholdÅrsak.NYE_OPPLYSNINGER);
-        try {
-            // Act
-            String xml = tjeneste.opprettVedtakXml(behandling.getId());
-            // Assert
-            assertNotNull(xml);
-        } catch (VLException e) {
-            fail();
-        }
+        KlageMedholdÅrsak.NYE_OPPLYSNINGER);
+        String xml = tjeneste.opprettVedtakXml(behandling.getId());
+        assertThat(xml).isNotNull();
     }
 
     @Test
@@ -253,14 +210,8 @@ public class VedtakXmlTest {
         // Arrange
         Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forOpphevetNK(ScenarioMorSøkerEngangsstønad.forAdopsjon()),
             KlageMedholdÅrsak.PROSESSUELL_FEIL);
-        try {
-            // Act
-            String xml = tjeneste.opprettVedtakXml(behandling.getId());
-            // Assert
-            assertNotNull(xml);
-        } catch (VLException e) {
-            fail();
-        }
+        String xml = tjeneste.opprettVedtakXml(behandling.getId());
+        assertThat(xml).isNotNull();
     }
 
     @Test
@@ -272,15 +223,8 @@ public class VedtakXmlTest {
                 .medOmsorgsovertakelseDato(LocalDate.now().plusDays(40)))
             .medAntallBarn(3);
         Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forStadfestetNK(adopsjon), null);
-
-        try {
-            // Act
-            String xml = tjeneste.opprettVedtakXml(behandling.getId());
-            // Assert
-            assertNotNull(xml);
-        } catch (VLException e) {
-            fail();
-        }
+        String xml = tjeneste.opprettVedtakXml(behandling.getId());
+        assertThat(xml).isNotNull();
     }
 
     private Behandling opprettKlageBehandling(ScenarioKlageEngangsstønad scenario, KlageMedholdÅrsak klageMedholdÅrsak) {
@@ -294,7 +238,6 @@ public class VedtakXmlTest {
         var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
-        repository.flushAndClear();
         return behandling;
     }
 
@@ -333,7 +276,6 @@ public class VedtakXmlTest {
             .build();
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
 
-        repository.flushAndClear();
         return behandling;
     }
 
@@ -382,7 +324,6 @@ public class VedtakXmlTest {
             .build();
 
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
-        repository.flushAndClear();
         return behandling;
     }
 
@@ -446,7 +387,6 @@ public class VedtakXmlTest {
             .medSøknadsdato(LocalDate.now())
             .build();
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
-        repository.flushAndClear();
         return behandling;
     }
 
@@ -454,8 +394,8 @@ public class VedtakXmlTest {
     public void testTilCalendar() {
         LocalDate localDate = LocalDate.of(2017, Month.APRIL, 18);
         Calendar calendar = VedtakXmlUtil.tilCalendar(localDate);
-        assertEquals(2017, calendar.get(Calendar.YEAR));
-        assertEquals(3, calendar.get(Calendar.MONTH));
-        assertEquals(18, calendar.get(Calendar.DAY_OF_MONTH));
+        assertThat(calendar.get(Calendar.YEAR)).isEqualTo(2017);
+        assertThat(calendar.get(Calendar.MONTH)).isEqualTo(3);
+        assertThat(calendar.get(Calendar.DAY_OF_MONTH)).isEqualTo(18);
     }
 }
