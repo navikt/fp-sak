@@ -9,9 +9,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -34,10 +33,8 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.konfig.Tid;
 
-@RunWith(CdiRunner.class)
 public class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2019, 8, 1);
@@ -51,7 +48,7 @@ public class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
     private UtledTilretteleggingerMedArbeidsgiverTjeneste utledTilretteleggingerMedArbeidsgiverTjeneste =
         new UtledTilretteleggingerMedArbeidsgiverTjeneste(iayTjeneste, inntektsmeldingTjeneste);
 
-    @Before
+    @BeforeEach
     public void oppsett() {
         this.behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagMocked();
         this.skjæringstidspunkt = Skjæringstidspunkt.builder()

@@ -47,7 +47,7 @@ public class DatavarehusEventObserverTest {
     private DatavarehusEventObserver datavarehusEventObserver;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         datavarehusEventObserver = new DatavarehusEventObserver(datavarehusTjeneste);
     }
 

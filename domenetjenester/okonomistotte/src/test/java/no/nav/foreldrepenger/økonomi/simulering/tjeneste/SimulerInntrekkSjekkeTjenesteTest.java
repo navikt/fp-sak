@@ -10,9 +10,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -36,7 +35,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
     private SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste;
     private ArgumentCaptor<Historikkinnslag> hisrotikkInnslagCaptor = ArgumentCaptor.forClass(Historikkinnslag.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         simuleringIntegrasjonTjeneste = mock(SimuleringIntegrasjonTjeneste.class);
         simulerOppdragApplikasjonTjeneste = mock(SimulerOppdragApplikasjonTjeneste.class);

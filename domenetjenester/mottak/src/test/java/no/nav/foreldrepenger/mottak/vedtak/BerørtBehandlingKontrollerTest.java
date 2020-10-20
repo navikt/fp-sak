@@ -17,9 +17,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -87,7 +86,7 @@ public class BerørtBehandlingKontrollerTest {
     private Behandling berørt;
     private Behandling berørtMedforelder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 

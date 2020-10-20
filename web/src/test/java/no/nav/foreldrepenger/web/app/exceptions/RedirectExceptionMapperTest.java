@@ -24,7 +24,7 @@ public class RedirectExceptionMapperTest {
     private RedirectExceptionMapper exceptionMapper;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         exceptionMapper = new RedirectExceptionMapper("https://erstatter.nav.no", generalRestExceptionMapper);
         ContextPathHolder.instance("/fpsak");
     }

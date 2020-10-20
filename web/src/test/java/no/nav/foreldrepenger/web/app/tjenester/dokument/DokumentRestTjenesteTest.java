@@ -64,7 +64,7 @@ public class DokumentRestTjenesteTest {
     private BehandlingRepository behandlingRepository;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         tjeneste = new DokumentRestTjeneste(dokumentArkivTjeneste, inntektsmeldingTjeneste, fagsakRepository, mottatteDokumentRepository,
                 virksomhetTjeneste, behandlingRepository);
     }

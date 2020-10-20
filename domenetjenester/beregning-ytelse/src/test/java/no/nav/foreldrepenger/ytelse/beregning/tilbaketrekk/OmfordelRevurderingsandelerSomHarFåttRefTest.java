@@ -5,10 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -25,7 +23,7 @@ public class OmfordelRevurderingsandelerSomHarFåttRefTest {
     private static final InternArbeidsforholdRef REF2 = InternArbeidsforholdRef.nyRef();
     private BeregningsresultatPeriode bgBrPeriode;
 
-    @Before
+    @BeforeEach
     public void setup() {
         bgBrPeriode = lagBeregningsresultatPeriode();
     }

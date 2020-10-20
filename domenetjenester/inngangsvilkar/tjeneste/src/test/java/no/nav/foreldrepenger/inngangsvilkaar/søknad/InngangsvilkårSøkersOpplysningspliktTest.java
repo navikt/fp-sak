@@ -4,10 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -25,7 +23,7 @@ public class InngangsvilkårSøkersOpplysningspliktTest {
     private KompletthetsjekkerProvider kompletthetssjekkerProvider = mock(KompletthetsjekkerProvider.class);
     private Kompletthetsjekker kompletthetssjekker = mock(Kompletthetsjekker.class);
 
-    @Before
+    @BeforeEach
     public void setup() {
         kompletthetssjekkerProvider = mock(KompletthetsjekkerProvider.class);
         testObjekt = new InngangsvilkårSøkersOpplysningsplikt(kompletthetssjekkerProvider);

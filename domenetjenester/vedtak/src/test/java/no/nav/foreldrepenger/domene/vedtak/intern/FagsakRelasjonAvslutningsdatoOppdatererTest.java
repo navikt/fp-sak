@@ -13,9 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -96,7 +95,7 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
     private Fagsak fagsak;
     private Behandling behandling;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         when(stønadskontoSaldoTjeneste.finnSaldoUtregning(any(UttakInput.class))).thenReturn(saldoUtregning);

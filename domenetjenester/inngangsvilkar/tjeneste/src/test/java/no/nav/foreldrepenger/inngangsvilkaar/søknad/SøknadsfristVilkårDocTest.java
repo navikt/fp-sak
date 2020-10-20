@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.søknad;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SoeknadsfristvilkarGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.Søknadsfristvilkår;
