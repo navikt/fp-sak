@@ -4,48 +4,45 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class HistorikkRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class HistorikkRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final Repository repository = repoRule.getRepository();
+    private HistorikkRepository historikkRepository;
+    private BehandlingRepository behandlingRepository;
+    private BehandlingLåsRepository behandlingLåsRepository;
 
-    private BasicBehandlingBuilder behandlingBuilder = new BasicBehandlingBuilder(repoRule.getEntityManager());
+    @BeforeEach
+    void setup() {
+        var entityManager = getEntityManager();
+        historikkRepository = new HistorikkRepository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
+    }
 
-
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private final HistorikkRepository historikkRepository = new HistorikkRepository(entityManager);
-    private Fagsak fagsak;
-
-    @Before
-    public void setup() {
-        fagsak = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);
+    private Fagsak opprettFagsak() {
+        return new BasicBehandlingBuilder(getEntityManager()).opprettFagsak(FagsakYtelseType.FORELDREPENGER);
     }
 
     @Test
     public void lagrerHistorikkinnslag() {
-        repository.lagre(fagsak.getNavBruker());
-        repository.lagre(fagsak);
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        repository.lagre(behandling);
-        repository.flush();
+        var behandling = opprettBehandling();
 
         Historikkinnslag historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.SØKER);
@@ -66,13 +63,21 @@ public class HistorikkRepositoryTest {
         assertThat(lagretHistorikk.getHistorikkTid()).isNull();
     }
 
+    private Behandling opprettBehandling() {
+        var fagsak = opprettFagsak();
+        return opprettBehandling(fagsak);
+    }
+
+    private Behandling opprettBehandling(Fagsak fagsak) {
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandlingLåsRepository = this.behandlingLåsRepository;
+        behandlingRepository.lagre(behandling, behandlingLåsRepository.taLås(behandling.getId()));
+        return behandling;
+    }
+
     @Test
     public void henterAlleHistorikkinnslagForBehandling() {
-        repository.lagre(fagsak.getNavBruker());
-        repository.lagre(fagsak);
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        repository.lagre(behandling);
-        repository.flush();
+        var behandling = opprettBehandling();
 
         Historikkinnslag vedtakFattet = new Historikkinnslag();
         vedtakFattet.setAktør(HistorikkAktør.SØKER);

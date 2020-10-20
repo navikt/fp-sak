@@ -8,33 +8,45 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseSorteringRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class HendelseSorteringRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    public Repository repository = repositoryRule.getRepository();
+    private HendelseSorteringRepository sorteringRepository;
+    private PersonopplysningRepository personopplysningRepository;
+    private FagsakRepository fagsakRepository;
+    private NavBrukerRepository navBrukerRepository;
+    private BehandlingRepository behandlingRepository;
 
-    private HendelseSorteringRepository sorteringRepository = new HendelseSorteringRepository(repositoryRule.getEntityManager());
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private PersonopplysningRepository personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        sorteringRepository = new HendelseSorteringRepository(entityManager);
+        personopplysningRepository = new PersonopplysningRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
+        navBrukerRepository = new NavBrukerRepository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+    }
 
     @Test
     public void skal_hente_1_aktørId_fra_fagsak() {
@@ -90,16 +102,16 @@ public class HendelseSorteringRepositoryTest {
         Fagsak fagsak4 = opprettFagsak(navBrukerMedÅpenOgAvsluttetSak, FagsakYtelseType.FORELDREPENGER);
         fagsak4.setAvsluttet();
 
-        repository.lagre(navBrukerMedAvsluttetSak);
-        repository.lagre(navBrukerMedÅpenSak);
-        repository.lagre(navBrukerMedÅpenOgAvsluttetSak);
-        repository.lagre(fagsak1);
-        repository.lagre(fagsak2);
-        repository.lagre(fagsak3);
-        repository.lagre(fagsak4);
-        repository.flushAndClear();
+        navBrukerRepository.lagre(navBrukerMedAvsluttetSak);
+        navBrukerRepository.lagre(navBrukerMedÅpenSak);
+        navBrukerRepository.lagre(navBrukerMedÅpenOgAvsluttetSak);
 
-        List<AktørId> aktørList = personinfoList.stream().collect(Collectors.toList());
+        fagsakRepository.opprettNy(fagsak1);
+        fagsakRepository.opprettNy(fagsak2);
+        fagsakRepository.opprettNy(fagsak3);
+        fagsakRepository.opprettNy(fagsak4);
+
+        List<AktørId> aktørList = new ArrayList<>(personinfoList);
         List<AktørId> resultat = sorteringRepository.hentEksisterendeAktørIderMedSak(aktørList);
 
         assertThat(resultat).hasSize(2);
@@ -114,9 +126,8 @@ public class HendelseSorteringRepositoryTest {
         NavBruker navBruker = NavBruker.opprettNyNB(personinfoList.get(0));
         Fagsak fagsak = opprettFagsak(navBruker, FagsakYtelseType.ENGANGSTØNAD);
 
-        repository.lagre(navBruker);
-        repository.lagre(fagsak);
-        repository.flushAndClear();
+        navBrukerRepository.lagre(navBruker);
+        fagsakRepository.opprettNy(fagsak);
 
         List<AktørId> finnAktørIder = List.of(navBruker.getAktørId());
 
@@ -134,9 +145,8 @@ public class HendelseSorteringRepositoryTest {
         NavBruker navBruker = NavBruker.opprettNyNB(personinfoList.get(0));
         Fagsak fagsak = opprettFagsak(navBruker, FagsakYtelseType.SVANGERSKAPSPENGER);
 
-        repository.lagre(navBruker);
-        repository.lagre(fagsak);
-        repository.flushAndClear();
+        navBrukerRepository.lagre(navBruker);
+        fagsakRepository.opprettNy(fagsak);
 
         List<AktørId> finnAktørIder = List.of(navBruker.getAktørId());
 
@@ -157,14 +167,12 @@ public class HendelseSorteringRepositoryTest {
         NavBruker navBruker = NavBruker.opprettNyNB(personinfoList.get(0));
         AktørId morAktørId = navBruker.getAktørId();
         Fagsak fagsak = opprettFagsak(navBruker, FagsakYtelseType.FORELDREPENGER);
-        repository.lagre(navBruker);
-        repository.lagre(fagsak);
-        repository.flushAndClear();
+        navBrukerRepository.lagre(navBruker);
+        fagsakRepository.opprettNy(fagsak);
 
         Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
         Behandling behandling = behandlingBuilder.build();
-        repository.lagre(behandling);
-        repository.flushAndClear();
+        lagreBehandling(behandling);
 
         Long behandlingId = behandling.getId();
         PersonInformasjonBuilder informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
@@ -199,6 +207,10 @@ public class HendelseSorteringRepositoryTest {
         assertThat(resultat2).contains(barnAktørId);
     }
 
+    private Long lagreBehandling(Behandling behandling) {
+        return behandlingRepository.lagre(behandling, new BehandlingLåsRepository(getEntityManager()).taLås(behandling.getId()));
+    }
+
     @Test
     public void skal_ikke_finne_match_på_barn_i_behandlingsgrunnlaget_når_relasjonen_mangler() {
         // Arrange
@@ -210,14 +222,12 @@ public class HendelseSorteringRepositoryTest {
         AktørId morAktørId = navBruker.getAktørId();
 
         Fagsak fagsak = opprettFagsak(navBruker, FagsakYtelseType.FORELDREPENGER);
-        repository.lagre(navBruker);
-        repository.lagre(fagsak);
-        repository.flushAndClear();
+        navBrukerRepository.lagre(navBruker);
+        fagsakRepository.opprettNy(fagsak);
 
         Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
         Behandling behandling = behandlingBuilder.build();
-        repository.lagre(behandling);
-        repository.flushAndClear();
+        lagreBehandling(behandling);
 
         Long behandlingId = behandling.getId();
         PersonInformasjonBuilder informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
@@ -263,9 +273,8 @@ public class HendelseSorteringRepositoryTest {
         }
 
         if (!fagsaker.isEmpty()) {
-            repository.lagre(navBrukere);
-            repository.lagre(fagsaker);
-            repository.flushAndClear();
+            navBrukere.forEach(b -> navBrukerRepository.lagre(b));
+            fagsaker.forEach(f -> fagsakRepository.opprettNy(f));
         }
 
         return personinfoList;
