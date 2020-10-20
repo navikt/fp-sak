@@ -5,10 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
@@ -16,24 +18,29 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class VergeRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class VergeRepositoryTest extends EntityManagerAwareTest {
 
     private static final LocalDate GYLDIG_FOM = LocalDate.now().minusYears(1);
     private static final LocalDate GYLDIG_TOM = LocalDate.now().plusYears(3);
     private static final String ORGANISASJONSNUMMER = "987654321";
     private static final String VERGE_ORGNAVN = "Advokat Advokatsen";
 
-    @Rule
-    public RepositoryRule repositoryRule = new UnittestRepositoryRule();
+    private VergeRepository vergeRepository;
+    private FagsakRepository fagsakRepository;
+    private BehandlingRepository behandlingRepository;
 
-    private VergeRepository vergeRepository = new VergeRepository(repositoryRule.getEntityManager(),
-            new BehandlingLåsRepository(repositoryRule.getEntityManager()));
-    private FagsakRepository fagsakRepository = new FagsakRepository(repositoryRule.getEntityManager());
-    private BehandlingRepository behandlingRepository = new BehandlingRepository(repositoryRule.getEntityManager());
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
+        fagsakRepository = new FagsakRepository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+    }
 
     @Test
     public void skal_lagre_og_hente_ut_vergeinformasjon() {
@@ -106,7 +113,7 @@ public class VergeRepositoryTest {
 
     private NavBruker opprettBruker() {
         NavBruker navBruker = NavBruker.opprettNyNB(AktørId.dummy());
-        repositoryRule.getRepository().lagre(navBruker);
+        new NavBrukerRepository(getEntityManager()).lagre(navBruker);
         return navBruker;
     }
 }
