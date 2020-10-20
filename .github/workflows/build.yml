@@ -17,8 +17,8 @@ jobs:
       # Alternative key med cache fra forrige uke som blir lagret etterpå under CACHE_KEY.
       - name: Set cache key
         run: |
-          echo "::set-env name=CACHE_KEY::$(expr $(date +%V) - 1 + 1)"
-          echo "::set-env name=PREVIOUS_CACHE_KEY::$(expr $(date +%V) - 1)"
+          echo "CACHE_KEY=$(expr $(date +%V) - 1 + 1)" >> $GITHUB_ENV
+          echo "PREVIOUS_CACHE_KEY=$(expr $(date +%V) - 1)" >> $GITHUB_ENV
       - name: Henter maven avhengigheter som er cachet
         uses: actions/cache@v2
         with:
@@ -45,7 +45,7 @@ jobs:
 
       - name: Set build version
         run: |
-          echo "::set-env name=BUILD_VERSION::$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)"
+          echo "BUILD_VERSION=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
       - name: Build artifacts & deploy
         env:
@@ -57,7 +57,7 @@ jobs:
           echo "Building artifacts $BUILD_VERSION"
           mvn jacoco:prepare-agent install --quiet -e --batch-mode --settings ./.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -Djacoco.destFile=$(pwd)/target/jacoco.exec -Pgithub
           echo "Build artifacts"
-          echo "::set-env name=TAG::$(mvn help:evaluate --batch-mode --settings ./.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)"
+          echo "TAG=$(mvn help:evaluate --batch-mode --settings ./.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Stopper og fjerner oracle image/container
         if: success()
@@ -70,7 +70,7 @@ jobs:
         uses: whoan/docker-build-with-cache-action@v5.7.0
         with:
           username: x-access-token
-          password: "${{ secrets.GITHUB_ACCESS_TOKEN }}"
+          password: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           image_name: ${{ github.repository }}/fpsak
           image_tag: ${{ env.TAG }},latest
           push_git_tag: true
@@ -95,3 +95,27 @@ jobs:
           repository: navikt/fpsak-autotest
           event-type: fpsak-autotest
           client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
+
+      - name: Lukk gamle deployment-issues
+        if: success()
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['deployment']
+            }).then(response => {
+              response.data.forEach(issue => {
+                if (issue.number != ${{ steps.createdeployissue.outputs.number }}) {
+                  github.issues.update({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    state: 'closed'
+                  });
+                }
+              });
+            });
