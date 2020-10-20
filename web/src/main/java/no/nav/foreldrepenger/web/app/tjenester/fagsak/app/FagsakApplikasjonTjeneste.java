@@ -13,6 +13,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -23,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -32,7 +35,6 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
 import no.nav.foreldrepenger.web.app.tjenester.aktoer.AktoerIdDto;
-import no.nav.foreldrepenger.web.app.tjenester.aktoer.AktoerRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRestTjeneste;
@@ -56,6 +58,7 @@ public class FagsakApplikasjonTjeneste {
     private Predicate<String> predikatErFnr = søkestreng -> søkestreng.matches("\\d{11}");
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
+    private BrukerTjeneste brukerTjeneste;
 
     protected FagsakApplikasjonTjeneste() {
         // CDI runner
@@ -63,17 +66,19 @@ public class FagsakApplikasjonTjeneste {
 
     @Inject
     public FagsakApplikasjonTjeneste(FagsakRepository fagsakRespository,
-            BehandlingRepository behandlingRepository,
-            ProsesseringAsynkTjeneste prosesseringAsynkTjeneste, PersoninfoAdapter personinfoAdapter,
-            FamilieHendelseTjeneste familieHendelseTjeneste,
-            DekningsgradTjeneste dekningsgradTjeneste) {
-
+                                     BehandlingRepository behandlingRepository,
+                                     ProsesseringAsynkTjeneste prosesseringAsynkTjeneste, PersoninfoAdapter personinfoAdapter,
+                                     FamilieHendelseTjeneste familieHendelseTjeneste,
+                                     DekningsgradTjeneste dekningsgradTjeneste,
+                                     BrukerTjeneste brukerTjeneste) {
         this.fagsakRespository = fagsakRespository;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = behandlingRepository;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
+        this.brukerTjeneste = brukerTjeneste;
+
     }
 
     public Optional<AsyncPollingStatus> sjekkProsessTaskPågår(Saksnummer saksnummer, String gruppe) {
@@ -100,6 +105,15 @@ public class FagsakApplikasjonTjeneste {
             return hentFagsakForSaksnummer(new Saksnummer(søkestreng));
         }
     }
+
+    public Optional<PersoninfoBasis> hentBruker(AktørId aktørId) {
+        return personinfoAdapter.hentBrukerBasisForAktør(aktørId);
+    }
+
+    public Språkkode hentBrukerSpråk(AktørId aktørId) {
+        return brukerTjeneste.hentBrukerForAktørId(aktørId).map(NavBruker::getSpråkkode).orElse(Språkkode.NB);
+    }
+
 
     private FagsakSamlingForBruker hentSakerForFnr(PersonIdent fnr) {
         AktørId aktørId = personinfoAdapter.hentAktørForFnr(fnr).orElse(null);
@@ -172,13 +186,17 @@ public class FagsakApplikasjonTjeneste {
     public static List<ResourceLink> lagLenker(Fagsak fagsak) {
         List<ResourceLink> lenkene = new ArrayList<>();
         var saksnummer = new SaksnummerDto(fagsak.getSaksnummer());
-        lenkene.add(get(AktoerRestTjeneste.AKTOER_INFO_PATH, "sak-aktoer-person", new AktoerIdDto(fagsak.getAktørId().getId())));
-        lenkene.add(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", saksnummer));
         lenkene.add(get(BehandlingRestTjeneste.HANDLING_RETTIGHETER_V2_PATH, "handling-rettigheter-v2", saksnummer));
         lenkene.add(get(HistorikkRestTjeneste.HISTORIKK_PATH, "sak-historikk", saksnummer));
         lenkene.add(get(DokumentRestTjeneste.DOKUMENTER_PATH, "sak-dokumentliste", saksnummer));
         lenkene.add(get(BehandlingRestTjeneste.BEHANDLINGER_ALLE_PATH, "sak-alle-behandlinger", saksnummer));
         lenkene.add(get(BehandlingRestTjeneste.ANNEN_PART_BEHANDLING_PATH, "sak-annen-part-behandling", saksnummer));
+        return lenkene;
+    }
+
+    public static List<ResourceLink> lagLenkerEngangshent(Fagsak fagsak) {
+        List<ResourceLink> lenkene = new ArrayList<>();
+        lenkene.add(get(FagsakRestTjeneste.BRUKER_PATH, "sak-bruker", new AktoerIdDto(fagsak.getAktørId().getId())));
         return lenkene;
     }
 

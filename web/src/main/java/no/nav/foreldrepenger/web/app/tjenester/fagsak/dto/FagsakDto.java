@@ -27,6 +27,7 @@ public class FagsakDto {
     private String aktoerId;
 
     private List<ResourceLink> links = new ArrayList<>();
+    private List<ResourceLink> onceLinks = new ArrayList<>();
 
     public FagsakDto() {
         // Injiseres i test
@@ -40,7 +41,8 @@ public class FagsakDto {
                      Boolean skalBehandlesAvInfotrygd,
                      RelasjonsRolleType relasjonsRolleType,
                      Integer dekningsgrad,
-                     List<ResourceLink> links) {
+                     List<ResourceLink> links,
+                     List<ResourceLink> linksOnce) {
         this.saksnummer = Long.parseLong(fagsak.getSaksnummer().getVerdi());
         this.aktoerId = fagsak.getAktørId().getId();
         this.sakstype = fagsak.getYtelseType();
@@ -55,6 +57,7 @@ public class FagsakDto {
         this.relasjonsRolleType = relasjonsRolleType;
         this.dekningsgrad = dekningsgrad;
         this.links = links;
+        this.onceLinks = linksOnce;
     }
 
     public Long getSaksnummer() {
@@ -111,6 +114,10 @@ public class FagsakDto {
 
     public List<ResourceLink> getLinks() {
         return links;
+    }
+
+    public List<ResourceLink> getOnceLinks() {
+        return onceLinks;
     }
 
     @Override
