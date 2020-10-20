@@ -2,8 +2,9 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -11,16 +12,23 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class FaktaUttakToTrinnsTjenesteTest {
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FaktaUttakToTrinnsTjenesteTest extends EntityManagerAwareTest {
 
-    private BehandlingRepositoryProvider behandlingRepositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private YtelseFordelingTjeneste ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(repositoryRule.getEntityManager()));
+    private BehandlingRepositoryProvider behandlingRepositoryProvider;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        behandlingRepositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
+    }
 
     @Test
     public void skal_sette_totrinns_ved_endring_fakta_uttak() {

@@ -5,11 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -17,37 +15,37 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class BehandlingVedtakRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BehandlingVedtakRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final Repository repository = repoRule.getRepository();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+    private BehandlingVedtakRepository behandlingVedtakRepository;
+    private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
-    private final BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private Behandling behandling;
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
+    }
 
-    private BasicBehandlingBuilder behandlingBuilder = new BasicBehandlingBuilder(entityManager);
-
-    private BehandlingsresultatRepository behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
-
-    @Before
-    public void setup() {
-        behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
+    private Behandling opprettBehandling() {
+        var behandlingBuilder = new BasicBehandlingBuilder(getEntityManager());
+        var behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
         var resultat = Behandlingsresultat.builder().build();
         behandlingBuilder.lagreBehandlingsresultat(behandling.getId(), resultat);
+        return behandling;
     }
 
     @Test
     public void skalLagreVedtak() {
         // Arrange
+        var behandling = opprettBehandling();
         BehandlingVedtak behandlingVedtak = opprettBehandlingVedtak(behandling);
 
         // Act
@@ -57,13 +55,14 @@ public class BehandlingVedtakRepositoryTest {
         // Assert
         Long behandlingVedtakId = behandlingVedtak.getId();
         assertThat(behandlingVedtakId).isNotNull();
-        BehandlingVedtak lagret = repository.hent(BehandlingVedtak.class, behandlingVedtakId);
+        BehandlingVedtak lagret = behandlingVedtakRepository.hentForBehandling(behandling.getId());
         assertThat(lagret).isSameAs(behandlingVedtak);
     }
 
     @Test
     public void skalLagreOgHenteVedtak() {
         // Arrange
+        var behandling = opprettBehandling();
         BehandlingVedtak behandlingVedtak = opprettBehandlingVedtak(behandling);
 
         // Act
@@ -80,13 +79,12 @@ public class BehandlingVedtakRepositoryTest {
 
     private BehandlingVedtak opprettBehandlingVedtak(Behandling behandling) {
         Behandlingsresultat behandlingsresultat = behandlingsresultatRepository.hent(behandling.getId());
-        BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
+        return BehandlingVedtak.builder()
             .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
             .medAnsvarligSaksbehandler("E2354345")
             .medVedtakResultatType(VedtakResultatType.INNVILGET)
             .medIverksettingStatus(IverksettingStatus.IVERKSATT)
             .medBehandlingsresultat(behandlingsresultat)
             .build();
-        return behandlingVedtak;
     }
 }

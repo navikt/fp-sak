@@ -22,7 +22,7 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
 
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
-    public HentOgLagreBeregningsgrunnlagTjeneste() {
+    HentOgLagreBeregningsgrunnlagTjeneste() {
         // for CDI
     }
 
