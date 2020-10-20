@@ -10,16 +10,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.ForeldrepengerGrunnlag;
-import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningAksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -45,10 +44,9 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.output.Beregningsgrunnla
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 
+@ExtendWith(MockitoExtension.class)
 public class ForeslåBeregningsgrunnlagStegTest {
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
     @Mock
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     @Mock
@@ -66,11 +64,14 @@ public class ForeslåBeregningsgrunnlagStegTest {
     @Mock
     BeregningsgrunnlagInputProvider inputProvider;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now()).medSkjæringstidspunktOpptjening(LocalDate.now()).build());
+        var stp = Skjæringstidspunkt.builder()
+            .medFørsteUttaksdato(LocalDate.now())
+            .medSkjæringstidspunktOpptjening(LocalDate.now());
+        var ref = BehandlingReferanse.fra(behandling, stp.build());
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = new ForeldrepengerGrunnlag(100, false);
         var input = new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), null, null, AktivitetGradering.INGEN_GRADERING, List.of(), foreldrepengerGrunnlag);
         var inputTjeneste = mock(BeregningsgrunnlagInputTjeneste.class);
