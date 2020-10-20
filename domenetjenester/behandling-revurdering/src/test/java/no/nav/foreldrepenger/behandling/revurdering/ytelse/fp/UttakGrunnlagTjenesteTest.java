@@ -5,31 +5,45 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import javax.inject.Inject;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.TapendeBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class UttakGrunnlagTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class UttakGrunnlagTjenesteTest extends EntityManagerAwareTest {
 
-    @Rule
-    public RepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    @Inject
-    @FagsakYtelseTypeRef("FP")
     private UttakGrunnlagTjeneste tjeneste;
+
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        var relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
+        var foreldrepengerUttakTjeneste = new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager));
+        var behandlingRepository = new BehandlingRepository(entityManager);
+        var tapendeBehandlingTjeneste = new TapendeBehandlingTjeneste(new SøknadRepository(entityManager,
+            behandlingRepository), relatertBehandlingTjeneste, foreldrepengerUttakTjeneste);
+        var familieHendelseRepository = new FamilieHendelseRepository(entityManager);
+        var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, familieHendelseRepository);
+        tjeneste = new UttakGrunnlagTjeneste(repositoryProvider, tapendeBehandlingTjeneste, relatertBehandlingTjeneste, familieHendelseTjeneste);
+    }
 
     @Test
     public void skal_ignorere_overstyrt_familiehendelse_hvis_saksbehandler_har_valgt_at_fødsel_ikke_er_dokumentert() {

@@ -1,42 +1,49 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.VLException;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class FagsakRelasjonRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
+    private FagsakRepository fagsakRepository;
+    private FagsakRelasjonRepository relasjonRepository;
 
-    private BehandlingRepositoryProvider provider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private FagsakRepository fagsakRepository = provider.getFagsakRepository();
-    private FagsakRelasjonRepository relasjonRepository = provider.getFagsakRelasjonRepository();
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        fagsakRepository = new FagsakRepository(entityManager);
+        relasjonRepository = new FagsakRelasjonRepository(entityManager, new YtelsesFordelingRepository(entityManager),
+            new FagsakLåsRepository(entityManager));
+    }
 
-
-    @Test(expected = VLException.class)
+    @Test
     public void skal_ikke_kunne_kobles_med_seg_selv() {
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         relasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
-        relasjonRepository.kobleFagsaker(fagsak, fagsak, null);
+        assertThrows(VLException.class, () -> relasjonRepository.kobleFagsaker(fagsak, fagsak, null));
     }
 
-    @Test(expected = VLException.class)
+    @Test
     public void skal_ikke_kunne_kobles_med_fagsak_med_identisk_aktørid() {
         final NavBruker bruker = NavBruker.opprettNyNB(AktørId.dummy());
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
@@ -45,10 +52,10 @@ public class FagsakRelasjonRepositoryTest {
         fagsakRepository.opprettNy(fagsak2);
 
         relasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
-        relasjonRepository.kobleFagsaker(fagsak, fagsak2, null);
+        assertThrows(VLException.class, () -> relasjonRepository.kobleFagsaker(fagsak, fagsak2, null));
     }
 
-    @Test(expected = VLException.class)
+    @Test
     public void skal_ikke_kunne_kobles_med_fagsak_med_ulik_ytelse() {
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
@@ -56,7 +63,7 @@ public class FagsakRelasjonRepositoryTest {
         fagsakRepository.opprettNy(fagsak2);
 
         relasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
-        relasjonRepository.kobleFagsaker(fagsak, fagsak2, null);
+        assertThrows(VLException.class, () -> relasjonRepository.kobleFagsaker(fagsak, fagsak2, null));
     }
 
     @Test
