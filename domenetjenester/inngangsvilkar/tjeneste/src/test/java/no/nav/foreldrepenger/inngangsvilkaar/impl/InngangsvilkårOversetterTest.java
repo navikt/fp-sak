@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -238,13 +236,13 @@ public class InngangsvilkårOversetterTest {
         MedlemskapsvilkårGrunnlag grunnlag = oversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
 
         // Assert
-        assertTrue(grunnlag.isBrukerAvklartBosatt());
-        assertTrue(grunnlag.isBrukerAvklartLovligOppholdINorge());
-        assertTrue(grunnlag.isBrukerAvklartOppholdsrett());
-        assertTrue(grunnlag.isBrukerAvklartPliktigEllerFrivillig());
-        assertTrue(grunnlag.isBrukerNorskNordisk());
-        assertFalse(grunnlag.isBrukerBorgerAvEUEOS());
-        assertTrue(grunnlag.harSøkerArbeidsforholdOgInntekt());
+        assertThat(grunnlag.isBrukerAvklartBosatt()).isTrue();
+        assertThat(grunnlag.isBrukerAvklartLovligOppholdINorge()).isTrue();
+        assertThat(grunnlag.isBrukerAvklartOppholdsrett()).isTrue();
+        assertThat(grunnlag.isBrukerAvklartPliktigEllerFrivillig()).isTrue();
+        assertThat(grunnlag.isBrukerNorskNordisk()).isTrue();
+        assertThat(grunnlag.isBrukerBorgerAvEUEOS()).isFalse();
+        assertThat(grunnlag.harSøkerArbeidsforholdOgInntekt()).isTrue();
     }
 
     @Test
@@ -260,7 +258,7 @@ public class InngangsvilkårOversetterTest {
         MedlemskapsvilkårGrunnlag grunnlag = oversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
 
         // Assert
-        assertFalse(grunnlag.harSøkerArbeidsforholdOgInntekt());
+        assertThat(grunnlag.harSøkerArbeidsforholdOgInntekt()).isFalse();
     }
 
     @Test
@@ -276,7 +274,7 @@ public class InngangsvilkårOversetterTest {
         MedlemskapsvilkårGrunnlag grunnlag = oversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
 
         // Assert
-        assertFalse(grunnlag.harSøkerArbeidsforholdOgInntekt());
+        assertThat(grunnlag.harSøkerArbeidsforholdOgInntekt()).isFalse();
     }
 
     private AbstractTestScenario<?> oppsett(LocalDate skjæringstidspunkt) {

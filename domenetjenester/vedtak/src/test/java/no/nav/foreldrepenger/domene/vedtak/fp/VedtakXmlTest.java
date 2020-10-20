@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.vedtak.fp;
 import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
@@ -23,7 +22,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -185,7 +183,7 @@ public class VedtakXmlTest {
         String xml = fpSakVedtakXmlTjeneste.opprettVedtakXml(behandling.getId());
 
         // Assert
-        assertNotNull(xml);
+        assertThat(xml).isNotNull();
         assertThat(xml).contains(avkortetXmlElement);
     }
 
@@ -400,9 +398,5 @@ public class VedtakXmlTest {
 
     private Arbeidsgiver opprettOgLagreArbeidsgiver(String orgNr) {
         return Arbeidsgiver.virksomhet(orgNr);
-    }
-
-    private static BehandlingReferanse lagReferanse(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling);
     }
 }

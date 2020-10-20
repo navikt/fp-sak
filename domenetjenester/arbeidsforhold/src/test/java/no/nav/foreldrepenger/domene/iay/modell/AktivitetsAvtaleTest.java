@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
@@ -18,7 +18,7 @@ public class AktivitetsAvtaleTest {
         AktivitetsAvtale avtale2 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 10, 1), LocalDate.of(2019, 8, 31))).build();
 
-        assertEquals(false, avtale1.equals(avtale2));
+        assertThat(avtale1.equals(avtale2)).isFalse();
     }
 
     @Test
@@ -29,7 +29,7 @@ public class AktivitetsAvtaleTest {
         AktivitetsAvtale avtale2 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 10, 1), LocalDate.of(2019, 8, 30))).build();
 
-        assertEquals(true, avtale1.equals(avtale2));
+        assertThat(avtale1.equals(avtale2)).isTrue();
     }
 
 }

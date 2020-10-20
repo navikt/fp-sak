@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.økonomi.økonomistøtte;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class ØkonomioppdragRepositoryTest {
@@ -114,13 +113,8 @@ public class ØkonomioppdragRepositoryTest {
         // Assert
         Long id = oppdrkontroll.getId();
         assertThat(id).isNotNull();
-
-        try {
-            økonomioppdragRepository.finnVentendeOppdrag(behandlingId);
-            fail("Ventet exception");
-        } catch (TekniskException te) {
-            assertThat(te.getMessage()).contains("F-650018");
-        }
+        assertThatThrownBy(() -> økonomioppdragRepository.finnVentendeOppdrag(behandlingId))
+            .hasMessageContaining("F-650018");
     }
 
     @Test

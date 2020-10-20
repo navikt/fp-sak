@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.domene.person;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 
@@ -69,9 +67,9 @@ public class PersoninfoAdapterTest {
 
         Personinfo søker = adapter.innhentSaksopplysningerForSøker(AKTØR_ID_SØKER);
 
-        assertNotNull(søker);
-        assertEquals(AKTØR_ID_SØKER, søker.getAktørId());
-        assertEquals(NavBrukerKjønn.KVINNE, søker.getKjønn());
+        assertThat(søker).isNotNull();
+        assertThat(søker.getAktørId()).isEqualTo(AKTØR_ID_SØKER);
+        assertThat(søker.getKjønn()).isEqualTo(NavBrukerKjønn.KVINNE);
     }
 
     @Test
@@ -80,9 +78,9 @@ public class PersoninfoAdapterTest {
 
         Optional<Personinfo> barn = adapter.innhentSaksopplysningerForBarn(FNR_BARN);
 
-        assertTrue(barn.isPresent());
-        assertEquals(AKTØR_ID_BARN, barn.get().getAktørId());
-        assertNotNull(barn.get().getFødselsdato());
+        assertThat(barn).isPresent();
+        assertThat(barn.get().getAktørId()).isEqualTo(AKTØR_ID_BARN);
+        assertThat(barn.get().getFødselsdato()).isNotNull();
     }
 
     private Personinfo lagHentPersonResponseForSøker() {

@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.steg.iverksettevedtak;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.IVERKSETT_VEDTAK;
 import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
@@ -16,7 +17,6 @@ import java.time.LocalDateTime;
 
 import javax.inject.Inject;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -84,8 +84,6 @@ public class HenleggBehandlingTjenesteTest {
 
     @Before
     public void setUp() {
-        System.setProperty("systembruker.username", "brukerident");
-
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         behandling = scenario.lagMocked();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -203,12 +201,8 @@ public class HenleggBehandlingTjenesteTest {
         forceOppdaterBehandlingSteg(behandling, IVERKSETT_VEDTAK);
 
         // Act
-        try {
-            henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
-            Assert.fail("Forventet exception");
-        } catch (Exception ex) {
-            assertThat(ex.getMessage()).contains("FP-143308");
-        }
+        assertThatThrownBy(() -> henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse"))
+            .hasMessageContaining("FP-143308");
     }
 
     @Test
@@ -218,12 +212,8 @@ public class HenleggBehandlingTjenesteTest {
         BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
         // Act
-        try {
-            henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
-            Assert.fail("Forventet exception");
-        } catch (Exception ex) {
-            assertThat(ex.getMessage()).contains("FP-143308");
-        }
+        assertThatThrownBy(() -> henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse"))
+            .hasMessageContaining("FP-143308");
     }
 
 }

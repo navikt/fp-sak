@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.svp;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
@@ -194,7 +194,7 @@ public class VedtakXmlTest {
 
         String xml = fpSakVedtakXmlTjeneste.opprettVedtakXml(behandling.getId());
 
-        assertNotNull(xml);
+        assertThat(xml).isNotNull();
 
     }
 
