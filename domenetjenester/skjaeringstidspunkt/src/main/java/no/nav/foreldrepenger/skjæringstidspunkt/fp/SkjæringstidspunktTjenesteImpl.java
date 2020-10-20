@@ -58,7 +58,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     @Inject
     public SkjæringstidspunktTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                          YtelseMaksdatoTjeneste beregnMorsMaksdatoTjeneste,
+                                          YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste,
                                           SkjæringstidspunktUtils utlederUtils) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -67,7 +67,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.utlederUtils = utlederUtils;
-        this.ytelseMaksdatoTjeneste = beregnMorsMaksdatoTjeneste;
+        this.ytelseMaksdatoTjeneste = ytelseMaksdatoTjeneste;
     }
 
     @Override
