@@ -24,6 +24,9 @@
     <sequence-generator name="SEQ_BG_REFUSJON_OVERSTYRING" allocation-size="50" sequence-name="SEQ_BG_REFUSJON_OVERSTYRING"/>
     <sequence-generator name="SEQ_BG_REFUSJON_PERIODE" allocation-size="50" sequence-name="SEQ_BG_REFUSJON_PERIODE"/>
 
+    <sequence-generator name="SEQ_REGEL_SPORING_PERIODE" allocation-size="50" sequence-name="SEQ_REGEL_SPORING_PERIODE"/>
+    <sequence-generator name="SEQ_REGEL_SPORING_GRUNNLAG" allocation-size="50" sequence-name="SEQ_REGEL_SPORING_GRUNNLAG"/>
+
     <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet" />
     <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelSporing" />
     <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus" />
@@ -45,5 +48,9 @@
     <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonOverstyringerEntitet" />
     <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonOverstyringEntitet" />
     <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonPeriodeEntitet" />
+
+
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.sporing.RegelSporingGrunnlagEntitet" />
+    <entity class="no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.sporing.RegelSporingPeriodeEntitet" />
 
 </entity-mappings>
