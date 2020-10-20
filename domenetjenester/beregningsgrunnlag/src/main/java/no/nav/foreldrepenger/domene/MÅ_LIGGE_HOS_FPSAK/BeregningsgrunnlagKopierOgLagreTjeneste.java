@@ -12,8 +12,10 @@ import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsg
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,6 +28,9 @@ import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
 import no.nav.folketrygdloven.kalkulator.output.BeregningResultatAggregat;
+import no.nav.folketrygdloven.kalkulator.output.RegelSporingAggregat;
+import no.nav.folketrygdloven.kalkulator.output.RegelSporingGrunnlag;
+import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.folketrygdloven.kalkulator.steg.BeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -37,8 +42,13 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.output.Beregningsgrunnla
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.sporing.RegelSporingGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.sporing.RegelSporingPeriodeEntitet;
+import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
 /**
  * Fasade tjeneste for å delegere alle kall fra steg
@@ -94,6 +104,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             .map(KalkulusTilBehandlingslagerMapper::mapBeregningsgrunnlag)
             .orElseThrow(INGEN_BG_EXCEPTION_SUPPLIER);
         beregningsgrunnlagRepository.lagre(behandlingId, beregningsgrunnlag, FASTSATT);
+        lagreRegelsporing(behandlingId, beregningResultatAggregat.getRegelSporingAggregat());
     }
 
     public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
@@ -227,6 +238,9 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         if (kanKopiereBekreftet) {
             forrigeBekreftetBeregningsgrunnlag.ifPresent(bg -> beregningsgrunnlagRepository.lagre(behandlingId, bg, bekreftetTilstand));
         }
+
+        lagreRegelsporing(ref.getKoblingId(), beregningResultatAggregat.getRegelSporingAggregat());
+
     }
 
     private List<BeregningAksjonspunktResultat> lagreOgKopier(KoblingReferanse ref, BeregningResultatAggregat resultat) {
@@ -245,6 +259,9 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         if (kanKopiereGrunnlag) {
             forrigeBekreftetGrunnlag.ifPresent(gr -> beregningsgrunnlagRepository.lagre(ref.getKoblingId(), BeregningsgrunnlagGrunnlagBuilder.oppdatere(gr), BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER));
         }
+
+        lagreRegelsporing(ref.getKoblingId(), resultat.getRegelSporingAggregat());
+
         return beregningAksjonspunktResultater;
     }
 
@@ -273,6 +290,50 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             bekreftetGrunnlagBuilder
                 .ifPresent(b -> beregningsgrunnlagRepository.lagre(behandlingId, b, KOFAKBER_UT));
         }
+
+        lagreRegelsporing(ref.getKoblingId(), beregningResultatAggregat.getRegelSporingAggregat());
+
+    }
+
+
+
+    private void lagreRegelsporing(Long koblingId, Optional<RegelSporingAggregat> regelsporinger) {
+        if (regelsporinger.isPresent()) {
+            lagreRegelSporingPerioder(koblingId, regelsporinger.get());
+            lagreRegelSporingGrunnlag(koblingId, regelsporinger.get());
+        }
+    }
+
+    private void lagreRegelSporingGrunnlag(Long behandlingId, RegelSporingAggregat regelsporinger) {
+        List<RegelSporingGrunnlag> regelsporingGrunnlag = regelsporinger.getRegelsporingerGrunnlag();
+        if (regelsporingGrunnlag != null) {
+            regelsporingGrunnlag.forEach(sporing -> {
+                    RegelSporingGrunnlagEntitet.Builder sporingGrunnlagEntitet = RegelSporingGrunnlagEntitet.ny()
+                        .medRegelEvaluering(sporing.getRegelEvaluering())
+                        .medRegelInput(sporing.getRegelInput());
+                    beregningsgrunnlagRepository.lagre(behandlingId, sporingGrunnlagEntitet, BeregningsgrunnlagRegelType.fraKode(sporing.getRegelType().getKode()));
+                }
+            );
+        }
+    }
+
+    private void lagreRegelSporingPerioder(Long behandlingId, RegelSporingAggregat regelsporinger) {
+        if (regelsporinger.getRegelsporingPerioder() != null) {
+            Map<BeregningsgrunnlagPeriodeRegelType, List<RegelSporingPeriode>> sporingPerioderPrType = regelsporinger.getRegelsporingPerioder()
+                .stream()
+                .collect(Collectors.groupingBy(rs -> BeregningsgrunnlagPeriodeRegelType.fraKode(rs.getRegelType().getKode())));
+            Map<BeregningsgrunnlagPeriodeRegelType, List<RegelSporingPeriodeEntitet.Builder>> builderMap = sporingPerioderPrType.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, this::lagRegelSporingPeriodeBuilders));
+            beregningsgrunnlagRepository.lagre(behandlingId, builderMap);
+        }
+    }
+
+    private List<RegelSporingPeriodeEntitet.Builder> lagRegelSporingPeriodeBuilders(Map.Entry<BeregningsgrunnlagPeriodeRegelType, List<RegelSporingPeriode>> e) {
+        return e.getValue().stream().map(sporing ->
+            RegelSporingPeriodeEntitet.ny()
+                .medRegelEvaluering(sporing.getRegelEvaluering())
+                .medRegelInput(sporing.getRegelInput())
+                .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(sporing.getPeriode().getFomDato(), sporing.getPeriode().getTomDato())))
+            .collect(Collectors.toList());
     }
 
 

@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -20,17 +21,14 @@ import javax.persistence.TypedQuery;
 
 import org.hibernate.jpa.QueryHints;
 
+
+import no.nav.folketrygdloven.kalkulus.felles.verktøy.HibernateVerktøy;
 import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.sporing.RegelSporingGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.sporing.RegelSporingPeriodeEntitet;
 
-/**
- * Henter siste {@link BeregningsgrunnlagGrunnlagEntitet} opprettet i et bestemt steg for revurdering. Ignorerer om grunnlaget er aktivt eller ikke.
- * Om revurderingen ikke har grunnlag opprettet i denne tilstanden returneres grunnlaget fra originalbehandlingen for samme tilstand.
- * @param behandlingId en behandlingId
- * @param beregningsgrunnlagTilstand steget {@link BeregningsgrunnlagGrunnlagEntitet} er opprettet i
- * @return Hvis det finnes et eller fler BeregningsgrunnlagGrunnlagEntitet som har blitt opprettet i {@code stegOpprettet} returneres den som ble opprettet sist
- */
 @ApplicationScoped
 public class BeregningsgrunnlagRepository {
     private static final String BEHANDLING_ID = "behandlingId";
@@ -394,13 +392,6 @@ public class BeregningsgrunnlagRepository {
         return BeregningsgrunnlagGrunnlagBuilder.oppdatere(grunnlag);
     }
 
-    private BeregningsgrunnlagGrunnlagBuilder opprettGrunnlagBuilderForEndring(Long behandlingId) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
-        Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlag = entitetOpt.isPresent() ? Optional.of(entitetOpt.get()) : Optional.empty();
-        return BeregningsgrunnlagGrunnlagBuilder.endre(grunnlag);
-    }
-
-
     public void deaktiverBeregningsgrunnlagGrunnlagEntitet(Long behandlingId) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
         entitetOpt.ifPresent(this::deaktiverBeregningsgrunnlagGrunnlagEntitet);
@@ -497,5 +488,85 @@ public class BeregningsgrunnlagRepository {
 
         return grunnlagMedForrigeTiltandOpt;
     }
+
+    /**
+     * Lagrer regelsporing for periode
+     *
+     * @param regelSporingPerioder regelsporingperioder som skal lagres
+     */
+    public void lagre(Long behandlingId, Map<BeregningsgrunnlagPeriodeRegelType, List<RegelSporingPeriodeEntitet.Builder>> regelSporingPerioder) {
+        regelSporingPerioder.forEach((key, value) -> {
+            var eksisterendeRegelsporinger = hentRegelSporingPeriodeMedGittType(behandlingId, key);
+            eksisterendeRegelsporinger.forEach(rs -> {
+                rs.setAktiv(false);
+                entityManager.persist(rs);
+            });
+            value.stream().map(builder -> builder.build(behandlingId, key)).forEach(sporing -> {
+                if (!sporing.erAktiv()) {
+                    throw new IllegalArgumentException("Kan ikke lagre en inaktivt regelsporing");
+                }
+                entityManager.persist(sporing);
+            });
+        });
+        entityManager.flush();
+    }
+
+
+    /**
+     * Lagrer regelsporing
+     *
+     * @param behandlingId behandlingId
+     * @param regelSporingGrunnlag builder for regelsporing-grunnlag
+     * @param regelType regeltype
+     */
+    public void lagre(Long behandlingId,
+                      RegelSporingGrunnlagEntitet.Builder regelSporingGrunnlag,
+                      BeregningsgrunnlagRegelType regelType) {
+        var eksisterendeRegelsporing = hentRegelSporingGrunnlagMedGittType(behandlingId, regelType);
+        eksisterendeRegelsporing.ifPresent(rs -> {
+            rs.setAktiv(false);
+            entityManager.persist(rs);
+        });
+        entityManager.persist(regelSporingGrunnlag.build(behandlingId, regelType));
+        entityManager.flush();
+    }
+
+    /**
+     * Henter aktiv RegelsporingPeriode med gitt type
+     *
+     * @param behandlingId en behandlingId
+     * @return Alle aktive {@link RegelSporingPeriodeEntitet}
+     */
+    private List<RegelSporingPeriodeEntitet> hentRegelSporingPeriodeMedGittType(Long behandlingId, BeregningsgrunnlagPeriodeRegelType regelType) {
+        TypedQuery<RegelSporingPeriodeEntitet> query = entityManager.createQuery(
+            "from RegelSporingPeriodeEntitet sporing " +
+                "where sporing.behandlingId=:behandlingId " +
+                "and sporing.aktiv = :aktiv " +
+                "and sporing.regelType = :regeltype", RegelSporingPeriodeEntitet.class); //$NON-NLS-1$
+        query.setParameter("behandlingId", behandlingId); //$NON-NLS-1$
+        query.setParameter("aktiv", true); //$NON-NLS-1$
+        query.setParameter("regeltype", regelType);
+        return query.getResultList();
+    }
+
+    /**
+     * Henter aktiv RegelsporingPeriode med gitt type
+     *
+     * @param behandlingId en behandlingId
+     * @return Alle aktive {@link RegelSporingPeriodeEntitet}
+     */
+    private Optional<RegelSporingGrunnlagEntitet> hentRegelSporingGrunnlagMedGittType(Long behandlingId, BeregningsgrunnlagRegelType regelType) {
+        TypedQuery<RegelSporingGrunnlagEntitet> query = entityManager.createQuery(
+            "from RegelSporingGrunnlagEntitet sporing " +
+                "where sporing.behandlingId=:behandlingId " +
+                "and sporing.aktiv = :aktiv " +
+                "and sporing.regelType = :regeltype", RegelSporingGrunnlagEntitet.class); //$NON-NLS-1$
+        query.setParameter("behandlingId", behandlingId); //$NON-NLS-1$
+        query.setParameter("aktiv", true); //$NON-NLS-1$
+        query.setParameter("regeltype", regelType);
+        return HibernateVerktøy.hentUniktResultat(query);
+    }
+
+
 }
 

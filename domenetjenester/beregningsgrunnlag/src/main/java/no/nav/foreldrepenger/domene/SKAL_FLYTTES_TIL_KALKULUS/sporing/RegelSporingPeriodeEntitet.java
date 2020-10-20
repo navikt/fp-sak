@@ -15,9 +15,10 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
-import no.nav.folketrygdloven.kalkulus.felles.jpa.BaseEntitet;
-import no.nav.folketrygdloven.kalkulus.felles.jpa.IntervallEntitet;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
+
 
 @Entity(name = "RegelSporingPeriodeEntitet")
 @Table(name = "REGEL_SPORING_PERIODE")
@@ -51,7 +52,7 @@ public class RegelSporingPeriodeEntitet extends BaseEntitet {
             @AttributeOverride(name = "fomDato", column = @Column(name = "fom")),
             @AttributeOverride(name = "tomDato", column = @Column(name = "tom"))
     })
-    private IntervallEntitet periode;
+    private ÅpenDatoIntervallEntitet periode;
 
     @Column(name = "aktiv", nullable = false)
     private boolean aktiv = true;
@@ -79,7 +80,7 @@ public class RegelSporingPeriodeEntitet extends BaseEntitet {
         return regelType;
     }
 
-    public IntervallEntitet getPeriode() {
+    public ÅpenDatoIntervallEntitet getPeriode() {
         return periode;
     }
 
@@ -115,7 +116,7 @@ public class RegelSporingPeriodeEntitet extends BaseEntitet {
             return this;
         }
 
-        public Builder medPeriode(IntervallEntitet intervall) {
+        public Builder medPeriode(ÅpenDatoIntervallEntitet intervall) {
             Objects.requireNonNull(intervall, "intervall");
             kladd.periode = intervall;
             return this;
