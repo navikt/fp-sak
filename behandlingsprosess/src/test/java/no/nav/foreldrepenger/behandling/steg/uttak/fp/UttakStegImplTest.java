@@ -7,16 +7,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
+import javax.enterprise.inject.spi.CDI;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
@@ -62,6 +60,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
@@ -71,13 +70,14 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -87,119 +87,97 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class UttakStegImplTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class UttakStegImplTest extends EntityManagerAwareTest {
 
     private static final String ORGNR = "123";
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.nyRef();
     private static final AktørId AKTØRID = AktørId.dummy();
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
-    private Repository repository = repoRule.getRepository();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-
-    @Inject
-    @FagsakYtelseTypeRef("FP")
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-
-    @Inject
-    private FagsakRepository fagsakRepository;
-
-    @Inject
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
-
-    @Inject
-    private FamilieHendelseRepository familieHendelseRepository;
-
-    @Inject
-    private YtelsesFordelingRepository ytelsesFordelingRepository;
-
-    @Inject
-    private SøknadRepository søknadRepository;
-
-    @Inject
-    private FpUttakRepository fpUttakRepository;
-
-    @Inject
-    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
-
-    @Inject
-    private BehandlingRepository behandlingRepository;
-
-    @Inject
-    private PersonopplysningRepository personopplysningRepository;
-
-    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
 
-    @Inject
+    private FagsakRepository fagsakRepository;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FamilieHendelseRepository familieHendelseRepository;
+    private YtelsesFordelingRepository ytelsesFordelingRepository;
+    private SøknadRepository søknadRepository;
+    private FpUttakRepository fpUttakRepository;
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
+    private BehandlingRepository behandlingRepository;
+    private PersonopplysningRepository personopplysningRepository;
     private BehandlingLåsRepository behandlingLåsRepository;
 
-    @Inject
-    private InntektArbeidYtelseTjeneste iayTjeneste;
-
-    @Inject
-    @FagsakYtelseTypeRef("FP")
     private UttakStegImpl steg;
 
-    private BehandlingskontrollKontekst kontekst;
-    private Fagsak fagsak;
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = CDI.current().select(BehandlingRepositoryProvider.class).get();
+        beregningsgrunnlagKopierOgLagreTjeneste = CDI.current().select(BeregningsgrunnlagKopierOgLagreTjeneste.class).get();
+        steg = FagsakYtelseTypeRef.Lookup.find(UttakStegImpl.class, FagsakYtelseType.FORELDREPENGER).orElseThrow();
+        fagsakRepository = repositoryProvider.getFagsakRepository();
+        fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
+        ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        søknadRepository = repositoryProvider.getSøknadRepository();
+        fpUttakRepository = repositoryProvider.getFpUttakRepository();
+        uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
+        behandlingRepository =  repositoryProvider.getBehandlingRepository();
+        personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
+        behandlingLåsRepository = repositoryProvider.getBehandlingLåsRepository();
+    }
 
-    private Behandling behandling;
+    private Behandling opprettBehandling() {
+        var fagsak = opprettFagsak();
+        var behandling = byggBehandlingForElektroniskSøknadOmFødsel(fagsak, LocalDate.now(), LocalDate.now());
+        byggArbeidForBehandling(behandling);
+        opprettUttaksperiodegrense(LocalDate.now(), behandling);
+        return behandling;
+    }
 
-    @Before
-    public void setUp() {
-        fagsak = FagsakBuilder.nyForeldrepengerForMor()
+    private Fagsak opprettFagsak() {
+        var fagsak = FagsakBuilder.nyForeldrepengerForMor()
             .medSaksnummer(new Saksnummer("1234"))
             .medBrukerAktørId(AKTØRID)
             .build();
         fagsakRepository.opprettNy(fagsak);
         fagsakRelasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
-        behandling = byggBehandlingForElektroniskSøknadOmFødsel(fagsak, LocalDate.now(), LocalDate.now());
-        byggArbeidForBehandling(behandling);
-        opprettUttaksperiodegrense(LocalDate.now(), behandling);
-
-        repository.flushAndClear();
+        return fagsak;
     }
 
     @Test
     public void skal_utføre_uten_aksjonspunkt_når_det_ikke_er_noe_som_skal_fastsettes_manuelt() {
-        initKontekst();
+        var behandling = opprettBehandling();
 
         opprettPersonopplysninger(behandling);
 
         // Act
-        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
+        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst(behandling));
 
         assertThat(behandleStegResultat).isNotNull();
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).isEmpty();
     }
 
-    private void initKontekst() {
-        kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
+    private BehandlingskontrollKontekst kontekst(Behandling behandling) {
+        return new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(), behandlingRepository.taSkriveLås(behandling));
     }
 
     @Test
     public void skal_ha_aksjonspunkt_når_resultat_må_manuelt_fastsettes_her_pga_tomt_på_konto() {
-
-        initKontekst();
-
-        Long behandlingId = behandling.getId();
-        ytelsesFordelingRepository.lagreOverstyrtFordeling(behandlingId, søknad4ukerFPFF());
+        var behandling = opprettBehandling();
+        ytelsesFordelingRepository.lagreOverstyrtFordeling(behandling.getId(), søknad4ukerFPFF());
 
         OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
-        ytelsesFordelingRepository.lagre(behandlingId, dekningsgrad);
+        ytelsesFordelingRepository.lagre(behandling.getId(), dekningsgrad);
         opprettPersonopplysninger(behandling);
 
         // Act
-        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
+        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst(behandling));
 
         assertThat(behandleStegResultat).isNotNull();
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -218,14 +196,14 @@ public class UttakStegImplTest {
         opprettUttaksperiodegrense(LocalDate.now(), farsBehandling);
         opprettPersonopplysninger(farsBehandling);
 
+        var behandling = opprettBehandling();
+        var fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
         fagsakRelasjonRepository.kobleFagsaker(fagsak, fagsakForFar, behandling);
-        repoRule.getRepository().flushAndClear();
 
-        initKontekst();
         opprettPersonopplysninger(behandling);
 
         // Act -- behandler mors behandling først
-        steg.utførSteg(kontekst);
+        steg.utførSteg(kontekst(behandling));
         FagsakRelasjon morsFagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak());
 
         // Assert - stønadskontoer skal ha blitt opprettet
@@ -233,7 +211,7 @@ public class UttakStegImplTest {
         Stønadskontoberegning førsteStønadskontoberegning = morsFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
 
         // Act -- kjører steget på nytt for mor
-        steg.utførSteg(kontekst);
+        steg.utførSteg(kontekst(behandling));
         morsFagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak());
 
         // Assert -- fortsatt innenfor første behandling -- skal beregne stønadskontoer på nytt
@@ -243,7 +221,6 @@ public class UttakStegImplTest {
 
         // Avslutter mors behandling
         avsluttMedVedtak(behandling, repositoryProvider);
-        repoRule.getRepository().flushAndClear();
 
         // Act -- behandler fars behandling, skal ikke opprette stønadskontoer på nytt
         BehandlingskontrollKontekst kontekstForFarsBehandling = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
@@ -261,6 +238,7 @@ public class UttakStegImplTest {
     public void skalBeregneStønadskontoNårDekningsgradErEndret() {
 
         LocalDate fødselsdato = LocalDate.of(2019, 2, 25);
+        var fagsak = opprettFagsak();
         Behandling morsFørstegang = byggBehandlingForElektroniskSøknadOmFødsel(fagsak, fødselsdato,
             fødselsdato, OppgittDekningsgradEntitet.bruk80());
         byggArbeidForBehandling(morsFørstegang);
@@ -407,9 +385,10 @@ public class UttakStegImplTest {
 
     @Test
     public void skal_ha_aktiv_uttak_resultat_etter_tilbakehopp_til_steget() {
-        initKontekst();
+        var behandling = opprettBehandling();
         opprettPersonopplysninger(behandling);
 
+        var kontekst = kontekst(behandling);
         steg.utførSteg(kontekst);
 
         // Act
@@ -422,9 +401,10 @@ public class UttakStegImplTest {
 
     @Test
     public void skal_ikke_ha_aktiv_uttak_resultat_etter_tilbakehopp_over_steget() {
-        initKontekst();
+        var behandling = opprettBehandling();
         opprettPersonopplysninger(behandling);
 
+        var kontekst = kontekst(behandling);
         steg.utførSteg(kontekst);
 
         // Act
@@ -438,9 +418,10 @@ public class UttakStegImplTest {
 
     @Test
     public void skal_ikke_ha_aktiv_uttak_resultat_etter_fremoverhopp_over_steget() {
-        initKontekst();
+        var behandling = opprettBehandling();
         opprettPersonopplysninger(behandling);
 
+        var kontekst = kontekst(behandling);
         steg.utførSteg(kontekst);
 
         // Act
@@ -454,9 +435,7 @@ public class UttakStegImplTest {
 
     @Test
     public void skal_ha_aksjonspunkt_når_dødsdato_er_registert() {
-
-        initKontekst();
-
+        var behandling = opprettBehandling();
         opprettPersonopplysninger(behandling);
 
         final FamilieHendelseBuilder bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
@@ -466,7 +445,7 @@ public class UttakStegImplTest {
         familieHendelseRepository.lagreRegisterHendelse(behandling, bekreftetHendelse);
 
         // Act
-        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
+        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst(behandling));
 
         assertThat(behandleStegResultat).isNotNull();
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -477,9 +456,7 @@ public class UttakStegImplTest {
 
     @Test
     public void skal_ha_aksjonspunkt_når_finnes_dødsdato_i_overstyrt_versjon() {
-
-        initKontekst();
-
+        var behandling = opprettBehandling();
         final FamilieHendelseBuilder bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
             .tilbakestillBarn()
             .medFødselsDato(LocalDate.now());
@@ -492,7 +469,7 @@ public class UttakStegImplTest {
         opprettPersonopplysninger(behandling);
 
         // Act
-        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
+        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst(behandling));
 
         assertThat(behandleStegResultat).isNotNull();
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -507,7 +484,7 @@ public class UttakStegImplTest {
             .medPeriode(fødselsdato.minusWeeks(10), fødselsdato.minusDays(1))
             .medArbeidsgiver(virksomhet())
             .build();
-        return new OppgittFordelingEntitet(Collections.singletonList(periode1), true);
+        return new OppgittFordelingEntitet(List.of(periode1), true);
     }
 
     private Behandling byggBehandlingForElektroniskSøknadOmFødsel(Fagsak fagsak, LocalDate fødselsdato, LocalDate mottattDato) {
@@ -519,15 +496,14 @@ public class UttakStegImplTest {
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
         behandling.setAnsvarligSaksbehandler("VL");
-        repository.lagre(behandling);
+        var lås = behandlingLåsRepository.taLås(behandling.getId());
 
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET)
             .buildFor(behandling);
-        repository.lagre(behandlingsresultat);
+        behandlingRepository.lagre(behandling, lås);
 
         VilkårResultat vilkårResultat = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.INNVILGET).buildFor(behandling);
-        repository.lagre(vilkårResultat);
-        repository.flushAndClear();
+        behandlingRepository.lagre(vilkårResultat, lås);
 
         final FamilieHendelseBuilder søknadHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
             .medAntallBarn(1)
@@ -567,7 +543,7 @@ public class UttakStegImplTest {
                 .medArbeidsgiver(virksomhet())
                 .build();
 
-            fordeling = new OppgittFordelingEntitet(Collections.singletonList(periodeFK), true);
+            fordeling = new OppgittFordelingEntitet(List.of(periodeFK), true);
         }
 
         Long behandlingId = behandling.getId();

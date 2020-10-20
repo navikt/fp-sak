@@ -1,27 +1,31 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.assertj.core.api.Assertions;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class FagsakRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FagsakRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private Repository repository = repoRule.getRepository();
-    private FagsakRepository fagsakRepository = new FagsakRepository(repoRule.getEntityManager());
+    private FagsakRepository fagsakRepository;
+
+    @BeforeEach
+    void setUp() {
+        fagsakRepository = new FagsakRepository(getEntityManager());
+    }
 
     @Test
     public void skal_finne_eksakt_fagsak_gitt_id() {
@@ -31,7 +35,7 @@ public class FagsakRepositoryTest {
 
         Fagsak resultat = fagsakRepository.finnEksaktFagsak(fagsak.getId());
 
-        Assertions.assertThat(resultat).isNotNull();
+        assertThat(resultat).isNotNull();
     }
 
     @Test
@@ -42,7 +46,7 @@ public class FagsakRepositoryTest {
 
         Optional<Fagsak> resultat = fagsakRepository.finnUnikFagsak(fagsak.getId());
 
-        Assertions.assertThat(resultat).isPresent();
+        assertThat(resultat).isPresent();
     }
 
     @Test
@@ -53,7 +57,7 @@ public class FagsakRepositoryTest {
         opprettFagsak(saksnummer, aktørId);
         Optional<Fagsak> optional = fagsakRepository.hentSakGittSaksnummer(saksnummer);
 
-        Assertions.assertThat(optional).isPresent();
+        assertThat(optional).isPresent();
     }
 
     @Test
@@ -64,7 +68,7 @@ public class FagsakRepositoryTest {
         opprettFagsak(saksnummer, aktørId);
         List<Fagsak> list = fagsakRepository.hentForBruker(aktørId);
 
-        Assertions.assertThat(list).hasSize(1);
+        assertThat(list).hasSize(1);
     }
 
     @Test
@@ -78,7 +82,7 @@ public class FagsakRepositoryTest {
         opprettFagsak(saksnummer1, aktørId1);
         List<Saksnummer> list = fagsakRepository.hentÅpneFagsakerUtenBehandling();
 
-        Assertions.assertThat(list).hasSize(2);
+        assertThat(list).hasSize(2);
     }
 
     @Test
@@ -87,10 +91,10 @@ public class FagsakRepositoryTest {
         Saksnummer saksnummer  = new Saksnummer("200");
         JournalpostId journalpostId = new JournalpostId("30000");
 
-        opprettJournalpost(journalpostId, saksnummer, aktørId);
+        opprettFagsakMedJournalpost(journalpostId, saksnummer, aktørId);
 
         Optional<Journalpost> journalpost = fagsakRepository.hentJournalpost(journalpostId);
-        assertTrue(journalpost.isPresent());
+        assertThat(journalpost.isPresent()).isTrue();
 
     }
 
@@ -99,18 +103,18 @@ public class FagsakRepositoryTest {
 
         // Opprett fagsak
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker, null, saksnummer);
-        repository.lagre(bruker);
-        repository.lagre(fagsak);
-        repository.flushAndClear();
+        var navBrukerRepository = new NavBrukerRepository(getEntityManager());
+        navBrukerRepository.lagre(bruker);
+        fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }
 
-    private Journalpost opprettJournalpost(JournalpostId journalpostId, Saksnummer saksnummer, AktørId aktørId) {
+    private void opprettFagsakMedJournalpost(JournalpostId journalpostId, Saksnummer saksnummer, AktørId aktørId) {
         Fagsak fagsak = opprettFagsak(saksnummer, aktørId);
 
         Journalpost journalpost = new Journalpost(journalpostId, fagsak);
-        repository.lagre(journalpost);
-        repository.flushAndClear();
-        return journalpost;
+        fagsakRepository.lagre(journalpost);
+        //Fagsakrepo flusher ikke
+        getEntityManager().flush();
     }
 }
