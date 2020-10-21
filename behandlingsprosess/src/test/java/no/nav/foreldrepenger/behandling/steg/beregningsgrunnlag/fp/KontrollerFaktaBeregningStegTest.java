@@ -89,24 +89,6 @@ public class KontrollerFaktaBeregningStegTest extends EntityManagerAwareTest {
         steg = new KontrollerFaktaBeregningSteg(beregningsgrunnlagKopierOgLagreTjeneste, behandlingRepository, hentBeregningsgrunnlagTjeneste, inputProvider);
     }
 
-    @Test
-    public void skal_ikke_reaktivere_grunnlag_ved_hopp_bakover_og_overstyring() {
-        var behandling = lagreBehandling();
-        lagreBeregningsgrunnlag(false, BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER, behandling);
-
-        // Arrange
-        BeregningsgrunnlagTilstand overstyrtTilstand = BeregningsgrunnlagTilstand.KOFAKBER_UT;
-        lagreBeregningsgrunnlag(true, overstyrtTilstand, behandling);
-        BehandlingskontrollKontekst kontekst = lagBehandlingskontrollkontekst(behandling);
-        BehandlingStegType tilSteg = BehandlingStegType.KONTROLLER_FAKTA_BEREGNING;
-        BehandlingStegType fraSteg = BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG;
-        // Act
-        steg.vedHoppOverBakover(kontekst, null, tilSteg, fraSteg);
-        // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> aktivtGrunnlag = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
-        assertThat(aktivtGrunnlag.get().getBeregningsgrunnlagTilstand()).isEqualTo(overstyrtTilstand);
-    }
-
     private Behandling lagreBehandling() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medAntallBarn(1).medFødselsDato(SKJÆRINGSTIDSPUNKT);
@@ -114,7 +96,7 @@ public class KontrollerFaktaBeregningStegTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_reaktivere_grunnlag_ved_hopp_bakover_uten_overstyring() {
+    public void skal_reaktivere_grunnlag_ved_hopp_bakover() {
         var behandling = lagreBehandling();
         lagreBeregningsgrunnlag(false, BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER, behandling);
         // Arrange

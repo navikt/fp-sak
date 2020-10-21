@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 
 @FagsakYtelseTypeRef("*")
 @BehandlingStegRef(kode = "KOFAKBER")
@@ -59,10 +58,7 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
 
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg, BehandlingStegType fraSteg) {
-        Boolean erOverstyrt = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(kontekst.getBehandlingId())
-            .map(BeregningsgrunnlagEntitet::isOverstyrt)
-            .orElse(false);
-        if (BehandlingStegType.KONTROLLER_FAKTA_BEREGNING.equals(tilSteg) && !erOverstyrt) {
+        if (BehandlingStegType.KONTROLLER_FAKTA_BEREGNING.equals(tilSteg)) {
             beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).gjenopprettOppdatertBeregningsgrunnlag();
         }
     }
