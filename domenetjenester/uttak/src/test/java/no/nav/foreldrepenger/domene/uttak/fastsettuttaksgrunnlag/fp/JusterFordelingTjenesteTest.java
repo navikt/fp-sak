@@ -786,6 +786,23 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
+    public void skal_arve_mottatt_dato_fra_første_periode_på_fellesperiode_som_er_fylt_på_før_fødsel() {
+        var fpff = OppgittPeriodeBuilder.ny()
+            .medPeriode(fødselsdato.minusWeeks(3), fødselsdato.minusDays(1))
+            .medPeriodeType(FORELDREPENGER_FØR_FØDSEL)
+            .medMottattDato(fødselsdato.minusWeeks(4))
+            .build();
+        var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(6).minusDays(3));
+        var oppgittePerioder = List.of(fpff, mk);
+
+        //Føder en dag etter termin
+        var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, fødselsdato, fødselsdato.plusDays(1));
+
+        var ekstraFp = justertePerioder.get(0);
+        assertThat(ekstraFp.getMottattDato()).isEqualTo(fpff.getMottattDato());
+    }
+
+    @Test
     public void utsettelses_skal_ikke_flyttes_dersom_fødsel_før_termin() {
         LocalDate fødselsdato = LocalDate.of(2019, 1, 17);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
