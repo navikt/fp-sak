@@ -15,25 +15,25 @@ public class AktoerIdDto implements AbacDto {
 
     @Size(min = 0, max = 20)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
-    private final String aktørId;
+    private final String aktoerId;
 
-    public AktoerIdDto(String aktørId) {
-        this.aktørId = aktørId;
+    public AktoerIdDto(String aktoerId) {
+        this.aktoerId = aktoerId;
     }
 
     public Optional<AktørId> get() {
-        if (aktørId.isEmpty()) {
+        if (aktoerId.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new AktørId(aktørId));
+        return Optional.of(new AktørId(aktoerId));
     }
 
-    public String getAktørId() {
-        return aktørId;
+    public String getAktoerId() {
+        return aktoerId;
     }
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, aktørId);
+        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, aktoerId);
     }
 }
