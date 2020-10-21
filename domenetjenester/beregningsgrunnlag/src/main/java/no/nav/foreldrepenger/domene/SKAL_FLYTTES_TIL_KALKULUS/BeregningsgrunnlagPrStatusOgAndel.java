@@ -142,6 +142,10 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     @Column(name="inntektskategori", nullable = false)
     private Inntektskategori inntektskategori = Inntektskategori.UDEFINERT;
 
+    @Convert(converter=AndelKilde.KodeverdiConverter.class)
+    @Column(name="kilde", nullable = false)
+    private AndelKilde kilde = AndelKilde.PROSESS_START;
+
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "lagt_til_av_saksbehandler", nullable = false)
     private Boolean lagtTilAvSaksbehandler = false;
