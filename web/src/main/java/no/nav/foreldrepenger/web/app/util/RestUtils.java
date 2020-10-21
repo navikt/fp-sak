@@ -54,6 +54,10 @@ public class RestUtils {
         return contextPath + apiUri;
     }
 
+    public static String getBasePath(String segment) {
+        return JettyWebKonfigurasjon.CONTEXT_PATH + segment;
+    }
+
     public static String getApiPath(String segment) {
         return getApiPath() + segment;
     }

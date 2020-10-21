@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.web.app.tjenester.aktoer.AktoerIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
@@ -99,10 +98,10 @@ public class FagsakRestTjeneste {
         @ApiResponse(responseCode = "404", description = "Person ikke tilgjengelig")
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response hentBrukerForFagsak(@NotNull @QueryParam("aktoerId") @Valid AktoerIdDto aktoerIdDto) {
-        var aktørId = aktoerIdDto.get();
-        var personInfo = aktørId.flatMap(fagsakApplikasjonTjeneste::hentBruker);
-        if (aktørId.isEmpty() || personInfo.isEmpty()) {
+    public Response hentBrukerForFagsak(@NotNull @QueryParam("aktoerId") @Valid SaksnummerDto s) {
+        Saksnummer saksnummer = new Saksnummer(s.getVerdi());
+        var personInfo = fagsakApplikasjonTjeneste.hentBruker(saksnummer);
+        if (personInfo.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         var dto = mapFraPersoninfoBasis(personInfo.get());
