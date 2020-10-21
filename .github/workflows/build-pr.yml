@@ -39,7 +39,7 @@ jobs:
 
       - name: Hent og start Oracle image
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
         id: oracle
         shell: bash
         run: |
@@ -56,7 +56,7 @@ jobs:
       - name: Build
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }}
         shell: bash
         run: |
           echo "Building $BUILD_VERSION"
