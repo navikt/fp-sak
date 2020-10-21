@@ -353,11 +353,13 @@ class JusterFordelingTjeneste {
         return justertePerioder;
     }
 
-    private OppgittPeriodeEntitet lagEkstraPeriodeFraOpprinneligUttaksdato(List<OppgittPeriodeEntitet> oppgittePerioder, List<OppgittPeriodeEntitet> justertePerioder) {
+    private OppgittPeriodeEntitet lagEkstraPeriodeFraOpprinneligUttaksdato(List<OppgittPeriodeEntitet> oppgittePerioder,
+                                                                           List<OppgittPeriodeEntitet> justertePerioder) {
         UttakPeriodeType uttakPeriodeType = finnUttakPeriodeType(justertePerioder);
         return OppgittPeriodeBuilder.ny()
             .medPeriodeType(uttakPeriodeType)
             .medPeriode(flyttFraHelgTilMandag(oppgittePerioder.get(0).getFom()), flyttFraHelgTilFredag(justertePerioder.get(0).getFom().minusDays(1)))
+            .medMottattDato(oppgittePerioder.get(0).getMottattDato())
             .build();
     }
 
@@ -394,7 +396,8 @@ class JusterFordelingTjeneste {
         if (knekkFunnet) {
             int virkedagerPeriodeFørKnekk = beregnAntallVirkedager(nyPeriode.getFom(), nyPeriode.getTom());
             LocalDate fom = plusVirkedager(oppgittPeriode.getFom(), virkedagerPeriodeFørKnekk);
-            List<OppgittPeriodeEntitet> perioderEtterKnekk = flyttPeriodeTilHøyre(kopier(oppgittPeriode, fom, oppgittPeriode.getTom()), antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
+            List<OppgittPeriodeEntitet> perioderEtterKnekk = flyttPeriodeTilHøyre(kopier(oppgittPeriode, fom, oppgittPeriode.getTom()),
+                antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
             resultat.addAll(perioderEtterKnekk);
         }
 
