@@ -33,7 +33,7 @@ jobs:
 
       - name: Hent og start Oracle image
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
         id: oracle
         shell: bash
         run: |
@@ -50,7 +50,7 @@ jobs:
       - name: Build artifacts & deploy
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
@@ -70,7 +70,7 @@ jobs:
         uses: whoan/docker-build-with-cache-action@v5.7.0
         with:
           username: x-access-token
-          password: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          password: ${{ secrets.GH_ACCESS_TOKEN }}
           image_name: ${{ github.repository }}/fpsak
           image_tag: ${{ env.TAG }},latest
           push_git_tag: true
@@ -91,7 +91,7 @@ jobs:
         if: success()
         uses: peter-evans/repository-dispatch@v1
         with:
-          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
           repository: navikt/fpsak-autotest
           event-type: fpsak-autotest
           client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
