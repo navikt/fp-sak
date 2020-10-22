@@ -56,7 +56,8 @@ public class VergeDtoTjeneste {
     private VergeBackendDto mapTilBackendDto(VergeAggregat vergeAggregat, VergeEntitet verge) {
         return new VergeBackendDto(vergeAggregat.getAktørId().map(AktørId::getId).orElse(null),
             verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).orElse(null),
-            verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElse(null));
+            verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElse(null),
+            verge.getGyldigFom(), verge.getGyldigTom());
     }
 
     private void setPersonIdent(AktørId aktørId, VergeDto dto) {
