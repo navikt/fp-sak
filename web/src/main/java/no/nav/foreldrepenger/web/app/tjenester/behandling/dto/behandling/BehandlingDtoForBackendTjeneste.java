@@ -60,7 +60,7 @@ public class BehandlingDtoForBackendTjeneste {
 
     private UtvidetBehandlingDto lagBehandlingDto(Behandling behandling, Optional<BehandlingVedtak> behandlingVedtak, AsyncPollingStatus asyncStatus) {
         UtvidetBehandlingDto dto = new UtvidetBehandlingDto();
-        var vedtaksDato = behandlingVedtak.map(bv -> bv.getVedtaksdato()).orElse(null);
+        var vedtaksDato = behandlingVedtak.map(BehandlingVedtak::getVedtaksdato).orElse(null);
         BehandlingDtoUtil.settStandardfelterUtvidet(behandling, dto, erBehandlingGjeldendeVedtak(behandling), vedtaksDato);
         if (asyncStatus != null && !asyncStatus.isPending()) {
             dto.setAsyncStatus(asyncStatus);
@@ -72,6 +72,8 @@ public class BehandlingDtoForBackendTjeneste {
         dto.leggTil(get(FagsakRestTjeneste.FAGSAK_BACKEND_PATH, "fagsak-backend", new SaksnummerDto(behandling.getFagsak().getSaksnummer())));
         dto.leggTil(get(PersonRestTjeneste.PERSONOPPLYSNINGER_PATH, "soeker-personopplysninger", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "verge", uuidDto));
+        dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
+        dto.leggTil(get(PersonRestTjeneste.PERSONOPPLYSNINGER_TILBAKE_PATH, "personopplysninger-tilbake", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V2_PATH, "medlemskap-v2", uuidDto));
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad", uuidDto));
