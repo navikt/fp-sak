@@ -5,30 +5,37 @@ import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import no.nav.folketrygdloven.kalkulus.felles.jpa.BaseEntitet;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagRegelType;
 
 @Entity(name = "RegelSporingGrunnlagEntitet")
-@Table(name = "REGEL_SPORING_GRUNNLAG")
+@Table(name = "BG_REGEL_SPORING_GRUNNLAG")
 public class RegelSporingGrunnlagEntitet extends BaseEntitet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_REGEL_SPORING_GRUNNLAG")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BG_REGEL_SPORING_GRUNNLAG")
     private Long id;
 
     @Version
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    @Column(name = "behandling_id", nullable = false, updatable = false)
-    private Long behandlingId;
+    @JsonBackReference
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "regel_sporing_aggregat_id", nullable = false, updatable = false)
+    private RegelSporingAggregatEntitet regelSporingAggregat;
 
     @Lob
     @Column(name = "regel_evaluering")
@@ -42,18 +49,11 @@ public class RegelSporingGrunnlagEntitet extends BaseEntitet {
     @Column(name="regel_type", nullable = false)
     private BeregningsgrunnlagRegelType regelType;
 
-    @Column(name = "aktiv", nullable = false)
-    private boolean aktiv = true;
-
     public RegelSporingGrunnlagEntitet() {
     }
 
     public Long getId() {
         return id;
-    }
-
-    public Long getBehandlingId() {
-        return behandlingId;
     }
 
     public String getRegelEvaluering() {
@@ -68,12 +68,8 @@ public class RegelSporingGrunnlagEntitet extends BaseEntitet {
         return regelType;
     }
 
-    public boolean erAktiv() {
-        return aktiv;
-    }
-
-    public void setAktiv(boolean aktiv) {
-        this.aktiv = aktiv;
+    void setRegelSporingAggregat(RegelSporingAggregatEntitet regelSporingAggregat) {
+        this.regelSporingAggregat = regelSporingAggregat;
     }
 
     public static Builder ny() {
@@ -100,14 +96,11 @@ public class RegelSporingGrunnlagEntitet extends BaseEntitet {
             return this;
         }
 
-        public RegelSporingGrunnlagEntitet build(Long behandlingId, BeregningsgrunnlagRegelType regelType) {
-            Objects.requireNonNull(behandlingId, "behandlingId");
+        public RegelSporingGrunnlagEntitet build(BeregningsgrunnlagRegelType regelType) {
             Objects.requireNonNull(regelType, "regelType");
             Objects.requireNonNull(kladd.regelEvaluering, "regelEvaluering");
             Objects.requireNonNull(kladd.regelInput, "regelInput");
-            kladd.behandlingId = behandlingId;
             kladd.regelType = regelType;
-            kladd.aktiv = true;
             return kladd;
         }
 
