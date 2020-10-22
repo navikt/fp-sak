@@ -46,7 +46,6 @@ public class InitielleLinksRestTjeneste {
         lenkene.add(get(NavAnsattRestTjeneste.NAV_ANSATT_PATH, "nav-ansatt"));
         lenkene.add(get(KodeverkRestTjeneste.KODERVERK_PATH, "kodeverk"));
         lenkene.add(get(KodeverkRestTjeneste.ENHETER_PATH, "behandlende-enheter"));
-        lenkene.add(ResourceLink.get(RestUtils.getBasePath("/public/sprak/nb_NO.json"), "spraakfil"));
         List<ResourceLink> saklenker = new ArrayList<>();
         saklenker.add(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak"));
         saklenker.add(get(FagsakRestTjeneste.BRUKER_PATH, "sak-bruker"));
