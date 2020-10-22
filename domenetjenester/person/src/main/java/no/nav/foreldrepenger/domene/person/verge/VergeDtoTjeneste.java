@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
@@ -25,27 +26,37 @@ public class VergeDtoTjeneste {
         this.personinfoAdapter = personinfoAdapter;
     }
 
-    public Optional<VergeDto> lagVergeDto(Optional<VergeAggregat> vergeAggregat) {
-        if (vergeAggregat.isPresent() && vergeAggregat.get().getVerge().isPresent()) {
-            VergeAggregat aggregat = vergeAggregat.get();
-            VergeEntitet verge = aggregat.getVerge().get();
-            VergeDto dto = new VergeDto();
-
-            dto.setGyldigFom(verge.getGyldigFom());
-            dto.setGyldigTom(verge.getGyldigTom());
-            dto.setVergeType(verge.getVergeType());
-
-            if (verge.getVergeOrganisasjon().isPresent()) {
-                verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).ifPresent(dto::setOrganisasjonsnummer);
-                verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).ifPresent(dto::setNavn);
-            } else if (aggregat.getAktørId().isPresent()){
-                setPersonIdent(aggregat.getAktørId().get(), dto);
-            }
-
-            return Optional.of(dto);
-        } else {
+    public Optional<VergeDto> lagVergeDto(VergeAggregat vergeAggregat) {
+        if (vergeAggregat == null)
             return Optional.empty();
+        return vergeAggregat.getVerge().map(v -> mapTilVergeDto(vergeAggregat, v));
+    }
+
+    private VergeDto mapTilVergeDto(VergeAggregat vergeAggregat, VergeEntitet verge) {
+        VergeDto dto = new VergeDto();
+
+        dto.setGyldigFom(verge.getGyldigFom());
+        dto.setGyldigTom(verge.getGyldigTom());
+        dto.setVergeType(verge.getVergeType());
+
+        if (verge.getVergeOrganisasjon().isPresent()) {
+            verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).ifPresent(dto::setOrganisasjonsnummer);
+            verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).ifPresent(dto::setNavn);
+        } else {
+            vergeAggregat.getAktørId().ifPresent(a -> setPersonIdent(a, dto));
         }
+
+        return dto;
+    }
+
+    public Optional<VergeBackendDto> lagVergeBackendDto(VergeAggregat vergeAggregat) {
+        return vergeAggregat.getVerge().map(v -> mapTilBackendDto(vergeAggregat, v));
+    }
+
+    private VergeBackendDto mapTilBackendDto(VergeAggregat vergeAggregat, VergeEntitet verge) {
+        return new VergeBackendDto(vergeAggregat.getAktørId().map(AktørId::getId).orElse(null),
+            verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).orElse(null),
+            verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElse(null));
     }
 
     private void setPersonIdent(AktørId aktørId, VergeDto dto) {

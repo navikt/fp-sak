@@ -44,7 +44,7 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
     @Column(name = "begrunnelse")
     private String begrunnelse;
 
-    @Column(name = "fritekst_til_brev")
+    @Column(name = "fritekst_til_brev_ny")
     private String fritekstTilBrev;
 
     @Column(name = "merknader_fra_bruker")

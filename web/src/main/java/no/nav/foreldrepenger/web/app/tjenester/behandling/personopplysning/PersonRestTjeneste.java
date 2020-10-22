@@ -27,9 +27,9 @@ import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
+import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.MedlemDtoTjeneste;
@@ -45,10 +45,14 @@ public class PersonRestTjeneste {
     static final String BASE_PATH = "/behandling";
     private static final String VERGE_PART_PATH = "/person/verge";
     public static final String VERGE_PATH = BASE_PATH + VERGE_PART_PATH; // NOSONAR TFP-2234
+    private static final String VERGE_BACKEND_PART_PATH = "/person/verge-backend";
+    public static final String VERGE_BACKEND_PATH = BASE_PATH + VERGE_BACKEND_PART_PATH; // NOSONAR TFP-2234
     private static final String MEDLEMSKAP_V2_PART_PATH = "/person/medlemskap-v2";
     public static final String MEDLEMSKAP_V2_PATH = BASE_PATH + MEDLEMSKAP_V2_PART_PATH; // NOSONAR TFP-2234
     private static final String PERSONOPPLYSNINGER_PART_PATH = "/person/personopplysninger";
     public static final String PERSONOPPLYSNINGER_PATH = BASE_PATH + PERSONOPPLYSNINGER_PART_PATH; // NOSONAR TFP-2234
+    private static final String PERSONOPPLYSNINGER_TILBAKE_PART_PATH = "/person/personopplysninger-tilbake";
+    public static final String PERSONOPPLYSNINGER_TILBAKE_PATH = BASE_PATH + PERSONOPPLYSNINGER_TILBAKE_PART_PATH; // NOSONAR TFP-2234
 
     private VergeRepository vergeRepository;
     private VergeDtoTjeneste vergeDtoTjenesteImpl;
@@ -86,8 +90,7 @@ public class PersonRestTjeneste {
     @Deprecated
     public VergeDto getVerge(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = getBehandlingsId(behandlingIdDto);
-        Optional<VergeAggregat> vergeAggregat = vergeRepository.hentAggregat(behandlingId);
-        Optional<VergeDto> vergeDto = vergeDtoTjenesteImpl.lagVergeDto(vergeAggregat);
+        Optional<VergeDto> vergeDto = vergeRepository.hentAggregat(behandlingId).flatMap(vergeDtoTjenesteImpl::lagVergeDto);
 
         return vergeDto.orElse(null);
     }
@@ -100,6 +103,17 @@ public class PersonRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public VergeDto getVerge(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getVerge(new BehandlingIdDto(uuidDto));
+    }
+
+    @GET
+    @Path(VERGE_BACKEND_PART_PATH)
+    @Operation(description = "Returnerer informasjon om verge knyttet til søker for denne behandlingen for bruk backend", tags = "behandling - person", responses = {
+        @ApiResponse(responseCode = "200", description = "Returnerer Verge, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = VergeBackendDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public VergeBackendDto getVergeBackend(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        Long behandlingId = getBehandlingsId(new BehandlingIdDto(uuidDto));
+        return vergeRepository.hentAggregat(behandlingId).flatMap(vergeDtoTjenesteImpl::lagVergeBackendDto).orElse(null);
     }
 
     @POST
@@ -147,6 +161,18 @@ public class PersonRestTjeneste {
     public PersonopplysningDto getPersonopplysninger(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getPersonopplysninger(new BehandlingIdDto(uuidDto));
+    }
+
+    @GET
+    @Path(PERSONOPPLYSNINGER_TILBAKE_PART_PATH)
+    @Operation(description = "Hent informasjon om personopplysninger søker for tilbakekreving", tags = "behandling - person", responses = {
+        @ApiResponse(responseCode = "200", description = "Returnerer Personopplysninger, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = PersonopplysningTilbakeDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public PersonopplysningTilbakeDto getPersonopplysningerTilbake(
+        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        var behandlingId = getBehandlingsId(new BehandlingIdDto(uuidDto));
+        return personopplysningDtoTjeneste.lagPersonopplysningTilbakeDto(behandlingId);
     }
 
     @GET

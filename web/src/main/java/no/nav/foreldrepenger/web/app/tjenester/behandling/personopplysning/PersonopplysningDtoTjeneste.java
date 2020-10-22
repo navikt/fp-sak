@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
@@ -103,6 +104,16 @@ public class PersonopplysningDtoTjeneste {
     private boolean harVerge(Long behandlingId) {
         Optional<VergeAggregat> verge = vergeRepository.hentAggregat(behandlingId);
         return verge.isPresent() && verge.get().getVerge().isPresent();
+    }
+
+    public PersonopplysningTilbakeDto lagPersonopplysningTilbakeDto(Long behandlingId) {
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+
+        var antallBarn = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getAntallBarn).orElse(0);
+
+        return new PersonopplysningTilbakeDto(behandling.getFagsak().getAktørId().getId(), antallBarn);
     }
 
     public Optional<PersonopplysningDto> lagPersonopplysningDto(Long behandlingId, LocalDate tidspunkt) {
