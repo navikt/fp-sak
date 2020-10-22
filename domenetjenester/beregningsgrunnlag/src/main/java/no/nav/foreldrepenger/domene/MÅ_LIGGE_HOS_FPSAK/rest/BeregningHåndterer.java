@@ -29,7 +29,6 @@ import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.HåndterBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input.BeregningTilInputTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input.KalkulatorHåndteringInputTjeneste;
 
@@ -40,7 +39,6 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input.KalkulatorHåndter
 public class BeregningHåndterer {
 
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
-    private BeregningTilInputTjeneste beregningTilInputTjeneste;
     private BeregningFaktaOgOverstyringHåndterer beregningFaktaOgOverstyringHåndterer;
     private KalkulatorHåndteringInputTjeneste kalkulatorHåndteringInputTjeneste;
 
@@ -50,11 +48,9 @@ public class BeregningHåndterer {
 
     @Inject
     public BeregningHåndterer(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                              BeregningTilInputTjeneste beregningTilInputTjeneste,
                               BeregningFaktaOgOverstyringHåndterer beregningFaktaOgOverstyringHåndterer,
                               KalkulatorHåndteringInputTjeneste kalkulatorHåndteringInputTjeneste) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
-        this.beregningTilInputTjeneste = beregningTilInputTjeneste;
         this.beregningFaktaOgOverstyringHåndterer = beregningFaktaOgOverstyringHåndterer;
         this.kalkulatorHåndteringInputTjeneste = kalkulatorHåndteringInputTjeneste;
     }

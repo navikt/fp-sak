@@ -169,6 +169,10 @@ public class AksjonspunktApplikasjonTjeneste {
     public void overstyrAksjonspunkter(Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunkter, Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+
+        // Tilbakestill gjeldende steg før fremføring
+        spoolTilbakeTilTidligsteAksjonspunkt(overstyrteAksjonspunkter, kontekst);
+
         OverhoppResultat overhoppForOverstyring = overstyrVilkårEllerBeregning(overstyrteAksjonspunkter, behandling, kontekst);
 
         List<Aksjonspunkt> utførteAksjonspunkter = lagreHistorikkInnslag(behandling);
@@ -242,9 +246,6 @@ public class AksjonspunktApplikasjonTjeneste {
 
             settToTrinnPåOverstyrtAksjonspunktHvisKreves(behandling, dto, oppdateringResultat.kreverTotrinnsKontroll());
         });
-
-        // Tilbakestill gjeldende steg før fremføring
-        spoolTilbakeTilTidligsteAksjonspunkt(overstyrteAksjonspunkter, kontekst);
 
         // legg til overstyring aksjonspunkt (normalt vil være utført) og historikk
         overstyrteAksjonspunkter.forEach(dto -> {
