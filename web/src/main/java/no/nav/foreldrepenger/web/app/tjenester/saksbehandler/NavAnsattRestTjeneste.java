@@ -21,7 +21,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Transactional
 public class NavAnsattRestTjeneste {
 
-    public static final String NAV_ANSATT_PATH = "/feature-toggle";
+    public static final String NAV_ANSATT_PATH = "/nav-ansatt";
 
     private TilgangerTjeneste tilgangerTjeneste;
 
