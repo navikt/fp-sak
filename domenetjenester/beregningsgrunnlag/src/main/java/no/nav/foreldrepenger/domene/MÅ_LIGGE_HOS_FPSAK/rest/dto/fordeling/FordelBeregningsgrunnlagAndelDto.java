@@ -17,20 +17,6 @@ public class FordelBeregningsgrunnlagAndelDto extends FordelRedigerbarAndelDto {
     private Integer forrigeRefusjonPrÅr;
     private Integer forrigeArbeidsinntektPrÅr;
 
-    FordelBeregningsgrunnlagAndelDto() { // NOSONAR
-        // Jackson
-    }
-
-    public FordelBeregningsgrunnlagAndelDto(FordelRedigerbarAndelDto andelDto,
-                                            FordelFastsatteVerdierDto fastsatteVerdier, Inntektskategori forrigeInntektskategori, Integer forrigeRefusjonPrÅr, Integer forrigeArbeidsinntektPrÅr) {
-        super(andelDto.getNyAndel(), andelDto.getArbeidsgiverId(), andelDto.getArbeidsforholdId(),
-            andelDto.getAndelsnr(), andelDto.getLagtTilAvSaksbehandler(), andelDto.getAktivitetStatus(), OpptjeningAktivitetType.ARBEID);
-        this.fastsatteVerdier = fastsatteVerdier;
-        this.forrigeArbeidsinntektPrÅr = forrigeArbeidsinntektPrÅr;
-        this.forrigeInntektskategori = forrigeInntektskategori;
-        this.forrigeRefusjonPrÅr = forrigeRefusjonPrÅr;
-    }
-
     public FordelFastsatteVerdierDto getFastsatteVerdier() {
         return fastsatteVerdier;
     }

@@ -11,6 +11,7 @@ import javax.validation.constraints.Pattern;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AndelKilde;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class FordelRedigerbarAndelDto {
@@ -23,6 +24,7 @@ public class FordelRedigerbarAndelDto {
     private String arbeidsforholdId;
     @NotNull
     private Boolean nyAndel;
+    private AndelKilde kilde;
     private AktivitetStatus aktivitetStatus;
     private OpptjeningAktivitetType arbeidsforholdType;
     private Boolean lagtTilAvSaksbehandler;
@@ -34,45 +36,25 @@ public class FordelRedigerbarAndelDto {
         // Jackson
     }
 
-    public FordelRedigerbarAndelDto(Boolean nyAndel,
-                                    String arbeidsgiverId, String internArbeidsforholdId,
-                                    Long andelsnr,
-                                    Boolean lagtTilAvSaksbehandler,
+    public FordelRedigerbarAndelDto(@Min(0) @Max(Long.MAX_VALUE) Long andelsnr,
+                                    @Pattern(regexp = "[\\d]{9}|[\\d]{13}") String arbeidsgiverId,
+                                    String arbeidsforholdId, @NotNull Boolean nyAndel,
+                                    AndelKilde kilde,
                                     AktivitetStatus aktivitetStatus,
-                                    OpptjeningAktivitetType arbeidsforholdType) {
-        Objects.requireNonNull(aktivitetStatus, "aktivitetStatus");
-        Objects.requireNonNull(arbeidsforholdType, "arbeidsforholdType");
-        this.nyAndel = nyAndel;
-        this.arbeidsgiverId = arbeidsgiverId;
-        this.arbeidsforholdId = internArbeidsforholdId;
+                                    OpptjeningAktivitetType arbeidsforholdType,
+                                    Boolean lagtTilAvSaksbehandler,
+                                    LocalDate beregningsperiodeFom,
+                                    LocalDate beregningsperiodeTom) {
         this.andelsnr = andelsnr;
-        this.lagtTilAvSaksbehandler = lagtTilAvSaksbehandler;
+        this.arbeidsgiverId = arbeidsgiverId;
+        this.arbeidsforholdId = arbeidsforholdId;
+        this.nyAndel = nyAndel;
+        this.kilde = kilde;
         this.aktivitetStatus = aktivitetStatus;
         this.arbeidsforholdType = arbeidsforholdType;
-    }
-
-    public FordelRedigerbarAndelDto(Boolean nyAndel,
-                                    String arbeidsgiverId, InternArbeidsforholdRef arbeidsforholdId,
-                                    Long andelsnr,
-                                    Boolean lagtTilAvSaksbehandler,
-                                    AktivitetStatus aktivitetStatus, OpptjeningAktivitetType arbeidsforholdType) {
-        Objects.requireNonNull(aktivitetStatus, "aktivitetStatus");
-        Objects.requireNonNull(arbeidsforholdType, "arbeidsforholdType");
-        this.nyAndel = nyAndel;
-        this.arbeidsgiverId = arbeidsgiverId;
-        this.arbeidsforholdId = arbeidsforholdId == null ? null : arbeidsforholdId.getReferanse();
-        this.andelsnr = andelsnr;
         this.lagtTilAvSaksbehandler = lagtTilAvSaksbehandler;
-        this.aktivitetStatus = aktivitetStatus;
-        this.arbeidsforholdType = arbeidsforholdType;
-    }
-
-
-    public FordelRedigerbarAndelDto(Boolean nyAndel,
-                                    Long andelsnr,
-                                    Boolean lagtTilAvSaksbehandler,
-                                    AktivitetStatus aktivitetStatus, OpptjeningAktivitetType arbeidsforholdType) {
-        this(nyAndel, null, (InternArbeidsforholdRef) null, andelsnr, lagtTilAvSaksbehandler, aktivitetStatus, arbeidsforholdType);
+        this.beregningsperiodeFom = beregningsperiodeFom;
+        this.beregningsperiodeTom = beregningsperiodeTom;
     }
 
     public AktivitetStatus getAktivitetStatus() {
@@ -109,5 +91,9 @@ public class FordelRedigerbarAndelDto {
 
     public LocalDate getBeregningsperiodeTom() {
         return beregningsperiodeTom;
+    }
+
+    public AndelKilde getKilde() {
+        return kilde;
     }
 }

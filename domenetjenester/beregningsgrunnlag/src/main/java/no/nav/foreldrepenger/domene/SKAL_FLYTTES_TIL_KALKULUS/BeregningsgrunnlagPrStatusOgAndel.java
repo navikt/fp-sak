@@ -219,13 +219,6 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
                 && bgAndelArbeidsforholdOpt.get().getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
     }
 
-    public boolean matchUtenInntektskategori(BeregningsgrunnlagPrStatusOgAndel other) {
-        return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
-                && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver), other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver))
-                && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef), other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef))
-                && Objects.equals(this.getArbeidsforholdType(), other.getArbeidsforholdType());
-    }
-
     public OpptjeningAktivitetType getArbeidsforholdType() {
         return arbeidsforholdType;
     }
@@ -284,6 +277,10 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
 
     public Inntektskategori getInntektskategori() {
         return inntektskategori;
+    }
+
+    public AndelKilde getKilde() {
+        return kilde;
     }
 
     public BigDecimal getBruttoInkludertNaturalYtelser() {
@@ -364,14 +361,6 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     public Optional<InternArbeidsforholdRef> getArbeidsforholdRef() {
         Optional<BGAndelArbeidsforhold> beregningArbeidsforhold = getBgAndelArbeidsforhold();
         return beregningArbeidsforhold.map(BGAndelArbeidsforhold::getArbeidsforholdRef);
-    }
-
-    public BeregningsgrunnlagFrilansAndel getBeregningsgrunnlagFrilansAndel() {
-        return beregningsgrunnlagFrilansAndel;
-    }
-
-    public BeregningsgrunnlagArbeidstakerAndel getBeregningsgrunnlagArbeidstakerAndel() {
-        return beregningsgrunnlagArbeidstakerAndel;
     }
 
     @Override
@@ -655,9 +644,9 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
             return this;
         }
 
-        public Builder nyttAndelsnr(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
+        public Builder medKilde(AndelKilde kilde) {
             verifiserKanModifisere();
-            finnOgSettAndelsnr(beregningsgrunnlagPeriode);
+            kladd.kilde = kilde;
             return this;
         }
 
@@ -686,13 +675,12 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
             kladd.beregningsgrunnlagPeriode = beregningsgrunnlagPeriode;
             verifyStateForBuild();
             if (kladd.andelsnr == null) {
-                // TODO (OleSandbu): Ikke mod input!
                 finnOgSettAndelsnr(beregningsgrunnlagPeriode);
             }
             if (kladd.lagtTilAvSaksbehandler == null) {
                 kladd.lagtTilAvSaksbehandler = false;
             }
-            // TODO (OleSandbu): Ikke mod input!
+            // TODO (EspenVelsvik): Ikke mod input!
             beregningsgrunnlagPeriode.addBeregningsgrunnlagPrStatusOgAndel(kladd);
             beregningsgrunnlagPeriode.updateBruttoPrÅr();
             verifiserAndelsnr();
