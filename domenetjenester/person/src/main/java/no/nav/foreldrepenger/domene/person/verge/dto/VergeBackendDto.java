@@ -1,26 +1,29 @@
 package no.nav.foreldrepenger.domene.person.verge.dto;
 
+import java.time.LocalDate;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
+
 public class VergeBackendDto {
 
     private String aktoerId;
     private String navn;
     private String organisasjonsnummer;
+    private LocalDate gyldigFom;
+    private LocalDate gyldigTom;
+    private VergeType vergeType;
 
-    public VergeBackendDto(String aktoerId, String navn, String organisasjonsnummer) {
+    public VergeBackendDto(String aktoerId, String navn, String organisasjonsnummer, LocalDate gyldigFom, LocalDate gyldigTom, VergeType vergeType) {
         this.aktoerId = aktoerId;
         this.navn = navn;
         this.organisasjonsnummer = organisasjonsnummer;
+        this.gyldigFom = gyldigFom;
+        this.gyldigTom = gyldigTom;
+        this.vergeType = vergeType;
     }
 
-    public VergeBackendDto() { //NOSONAR
-    }
-
-    public void setNavn(String navn) {
-        this.navn = navn;
-    }
-
-    public void setOrganisasjonsnummer(String organisasjonsnummer) {
-        this.organisasjonsnummer = organisasjonsnummer;
+    public String getAktoerId() {
+        return aktoerId;
     }
 
     public String getNavn() {
@@ -31,11 +34,15 @@ public class VergeBackendDto {
         return organisasjonsnummer;
     }
 
-    public String getAktoerId() {
-        return aktoerId;
+    public LocalDate getGyldigFom() {
+        return gyldigFom;
     }
 
-    public void setAktoerId(String aktoerId) {
-        this.aktoerId = aktoerId;
+    public LocalDate getGyldigTom() {
+        return gyldigTom;
+    }
+
+    public VergeType getVergeType() {
+        return vergeType;
     }
 }
