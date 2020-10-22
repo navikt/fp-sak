@@ -22,6 +22,7 @@ import no.nav.folketrygdloven.kalkulator.input.FordelBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.FullføreBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.StegProsesseringInput;
+import no.nav.folketrygdloven.kalkulator.input.VurderRefusjonBeregningsgrunnlagInput;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -93,7 +94,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
         } else if (stegType.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)) {
             return lagInputForeslå(stegProsesseringInput);
         } else if (stegType.equals(BehandlingStegType.VURDER_REF_BERGRUNN)) {
-            return stegProsesseringInput;
+            return lagInputVurderRefusjon(stegProsesseringInput, behandling);
         } else if (stegType.equals(BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG)) {
             Optional<BeregningsgrunnlagGrunnlagEntitet> førsteFastsatteGrunnlagEntitet = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(behandling.getId());
             return lagInputFordel(stegProsesseringInput, førsteFastsatteGrunnlagEntitet);
@@ -102,6 +103,27 @@ public class KalkulatorStegProsesseringInputTjeneste {
             return lagInputFullføre(stegProsesseringInput, førsteFastsatteGrunnlagEntitet);
         }
         return stegProsesseringInput;
+    }
+
+    private StegProsesseringInput lagInputVurderRefusjon(StegProsesseringInput stegProsesseringInput, Behandling behandling) {
+        Optional<BeregningsgrunnlagGrunnlagEntitet> førsteFastsatteGrunnlagEntitet = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(behandling.getId());
+        var vurderRefusjonBeregningsgrunnlagInput = new VurderRefusjonBeregningsgrunnlagInput(stegProsesseringInput);
+        if (førsteFastsatteGrunnlagEntitet.isPresent()) {
+            vurderRefusjonBeregningsgrunnlagInput = førsteFastsatteGrunnlagEntitet.get().getBeregningsgrunnlag()
+                .map(BeregningsgrunnlagEntitet::getGrunnbeløp)
+                .map(Beløp::getVerdi)
+                .map(vurderRefusjonBeregningsgrunnlagInput::medUregulertGrunnbeløp)
+                .orElse(vurderRefusjonBeregningsgrunnlagInput);
+        }
+        Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag = behandling.getOriginalBehandlingId().flatMap(beh -> beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(beh));
+        if (forrigeGrunnlag.isPresent()) {
+            // Trenger ikke vite hvilke andeler i orginalbehandling som hadde inntektsmeldinger
+            vurderRefusjonBeregningsgrunnlagInput = vurderRefusjonBeregningsgrunnlagInput
+                .medBeregningsgrunnlagGrunnlagFraForrigeBehandling(BehandlingslagerTilKalkulusMapper.mapGrunnlag(forrigeGrunnlag.get()));
+        }
+
+        return vurderRefusjonBeregningsgrunnlagInput;
+
     }
 
     private StegProsesseringInput lagStegProsesseringInput(Behandling behandling, BeregningsgrunnlagInput input, BehandlingStegType stegType) {

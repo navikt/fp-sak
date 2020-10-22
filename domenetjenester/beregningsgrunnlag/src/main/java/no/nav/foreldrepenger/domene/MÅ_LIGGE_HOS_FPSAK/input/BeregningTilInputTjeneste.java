@@ -62,13 +62,6 @@ public class BeregningTilInputTjeneste {
                 .medBehandlingReferanse(ref)
                 .medBeregningsgrunnlagGrunnlag(BehandlingslagerTilKalkulusMapper.mapGrunnlag(grunnlagEntitet));
         }
-        Optional<Long> orginalBehandling = input.getKoblingReferanse().getOriginalKoblingId();
-        Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag = orginalBehandling.flatMap(beh -> beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(beh));
-        if (forrigeGrunnlag.isPresent()) {
-            // Trenger ikke vite hvilke ander i orginalbehandling som hadde inntektsmeldinger
-            input = input
-                .medBeregningsgrunnlagGrunnlagFraForrigeBehandling(BehandlingslagerTilKalkulusMapper.mapGrunnlag(forrigeGrunnlag.get()));
-        }
         kalkulusKonfigInjecter.leggTilKonfigverdier(input);
         kalkulusKonfigInjecter.leggTilFeatureToggles(input);
         return input;

@@ -2,8 +2,10 @@ package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
 import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,6 +23,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 
@@ -55,14 +61,34 @@ public class FordelBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
         Long behandlingId = kontekst.getBehandlingId();
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandlingId);
-        var beregningsgrunnlagResultat = beregningsgrunnlagKopierOgLagreTjeneste.fordelBeregningsgrunnlag(input);
-        beregningsgrunnlagVilkårTjeneste.lagreVilkårresultat(kontekst, beregningsgrunnlagResultat);
-        if (Boolean.FALSE.equals(beregningsgrunnlagResultat.getVilkårOppfylt())) {
-            return BehandleStegResultat.fremoverført(FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT);
-        } else {
+        // TODO Når alle saker som står i ap 5059 er kjørt videre eller stilt tilbake kan innholdet i else fjernes,
+        //  vi har flyttet vilkårsvurdering og periodisiering et steg tilbake i prosessen.
+        //  Altså når erBGVilkårVurdert(behandling) alltid gir true
+        if (erBGVilkårVurdert(behandling)) {
+            var beregningsgrunnlagResultat = beregningsgrunnlagKopierOgLagreTjeneste.fordelBeregningsgrunnlagUtenVilkårOgPeriodisering(input);
             List<BeregningAksjonspunktResultat> aksjonspunkter = beregningsgrunnlagResultat.getAksjonspunkter();
             return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
+        } else {
+            var beregningsgrunnlagResultat = beregningsgrunnlagKopierOgLagreTjeneste.fordelBeregningsgrunnlag(input);
+            beregningsgrunnlagVilkårTjeneste.lagreVilkårresultat(kontekst, beregningsgrunnlagResultat);
+            if (Boolean.FALSE.equals(beregningsgrunnlagResultat.getVilkårOppfylt())) {
+                return BehandleStegResultat.fremoverført(FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT);
+            } else {
+                List<BeregningAksjonspunktResultat> aksjonspunkter = beregningsgrunnlagResultat.getAksjonspunkter();
+                return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
+            }
         }
+    }
+
+    public boolean erBGVilkårVurdert(Behandling behandling) {
+        VilkårResultat vilkårResultat = behandling.getBehandlingsresultat() == null ? null : behandling.getBehandlingsresultat().getVilkårResultat();
+        List<Vilkår> vilkårene = vilkårResultat == null ? Collections.emptyList() : vilkårResultat.getVilkårene();
+        Optional<Vilkår> bgVilkår = vilkårene.stream().filter(vk -> VilkårType.BEREGNINGSGRUNNLAGVILKÅR.equals(vk.getVilkårType())).findFirst();
+        if (bgVilkår.isEmpty()) {
+            return false;
+        }
+        VilkårResultatType vilkårResultatType = bgVilkår.get().getVilkårResultat().getVilkårResultatType();
+        return vilkårResultatType.equals(VilkårResultatType.INNVILGET) || vilkårResultatType.equals(VilkårResultatType.AVSLÅTT);
     }
 
     @Override
@@ -73,11 +99,8 @@ public class FordelBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
                 .anyMatch(ap -> aps.stream().filter(a -> a.getAksjonspunktDefinisjon().equals(ap))
                     .anyMatch(a -> !a.erAvbrutt()));
             beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddFordelBeregningsgrunnlagVedTilbakeføring(harAksjonspunktSomErUtførtIUtgang);
-        } else {
-            beregningsgrunnlagVilkårTjeneste.ryddVedtaksresultatOgVilkår(kontekst);
         }
     }
-
 
     private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
         return beregningsgrunnlagInputProvider.getTjeneste(ytelseType);
