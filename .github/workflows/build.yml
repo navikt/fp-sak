@@ -87,13 +87,22 @@ jobs:
           body: |
             Kommenter med <b>/promote dev-fss</b> eller <b>/promote prod-fss</b>, evt andre gyldige clusternavn.
 
-      - name: Trigger fpsak-autotest til å kjøre tester
+      - name: Trigger autotest for fpsak/fpabakus
         if: success()
         uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.GH_ACCESS_TOKEN }}
           repository: navikt/fpsak-autotest
           event-type: fpsak-autotest
+          client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
+
+      - name: Trigger verdikjedetestene i fpsak-autotest prosjektet
+        if: success()
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
+          repository: navikt/fpsak-autotest
+          event-type: fpsak-verdikjede
           client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
 
       - name: Lukk gamle deployment-issues
