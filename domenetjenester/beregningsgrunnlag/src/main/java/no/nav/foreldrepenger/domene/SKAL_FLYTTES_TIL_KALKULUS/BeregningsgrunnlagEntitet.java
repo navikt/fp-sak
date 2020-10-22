@@ -181,8 +181,9 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         return overstyrt;
     }
 
+    @Deprecated(forRemoval = true)
     public BeregningsgrunnlagEntitet dypKopi() {
-        // FIXME(OleSandbu) : her settes kopi på builder og modifiseres direkte.  I tillegg kopieres for mye.
+        // FIXME(EspenVelsvik) : her settes kopi på builder og modifiseres direkte.  I tillegg kopieres for mye.
         // Kan det skrives om?
         return Kopimaskin.deepCopy(this);
     }
