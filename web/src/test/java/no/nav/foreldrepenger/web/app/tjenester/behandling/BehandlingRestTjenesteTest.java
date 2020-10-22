@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettin
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
@@ -84,7 +85,8 @@ public class BehandlingRestTjenesteTest extends RepositoryAwareTest {
                 mock(VergeTjeneste.class),
                 Mockito.mock(HenleggBehandlingTjeneste.class),
                 behandlingDtoTjeneste,
-                relatertBehandlingTjeneste);
+                relatertBehandlingTjeneste,
+                mock(TotrinnTjeneste.class));
     }
 
     @Test

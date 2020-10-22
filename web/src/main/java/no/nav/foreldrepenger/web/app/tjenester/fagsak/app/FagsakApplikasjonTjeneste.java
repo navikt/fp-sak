@@ -186,6 +186,7 @@ public class FagsakApplikasjonTjeneste {
         List<ResourceLink> lenkene = new ArrayList<>();
         var saksnummer = new SaksnummerDto(fagsak.getSaksnummer());
         lenkene.add(get(BehandlingRestTjeneste.HANDLING_RETTIGHETER_V2_PATH, "handling-rettigheter-v2", saksnummer));
+        lenkene.add(get(FagsakRestTjeneste.RETTIGHETER_PATH, "sak-rettigheter", saksnummer));
         lenkene.add(get(HistorikkRestTjeneste.HISTORIKK_PATH, "sak-historikk", saksnummer));
         lenkene.add(get(DokumentRestTjeneste.DOKUMENTER_PATH, "sak-dokumentliste", saksnummer));
         lenkene.add(get(BehandlingRestTjeneste.BEHANDLINGER_ALLE_PATH, "sak-alle-behandlinger", saksnummer));

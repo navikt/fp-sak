@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDok
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
@@ -91,7 +92,8 @@ public class BehandlingRestTjenesteESTest extends RepositoryAwareTest {
                 mock(VergeTjeneste.class),
                 mock(HenleggBehandlingTjeneste.class),
                 behandlingDtoTjeneste,
-                relatertBehandlingTjeneste);
+                relatertBehandlingTjeneste,
+                mock(TotrinnTjeneste.class));
     }
 
     @Test

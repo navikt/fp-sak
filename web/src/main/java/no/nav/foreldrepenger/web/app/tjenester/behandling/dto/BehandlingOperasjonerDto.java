@@ -12,19 +12,10 @@ public class BehandlingOperasjonerDto {
     private boolean behandlingKanGjenopptas;
     private boolean behandlingKanOpnesForEndringer;
     private boolean behandlingKanSettesPaVent;
+    private boolean behandlingKanSendeMelding;
+    private boolean behandlingFraBeslutter;
+    private boolean behandlingTilGodkjenning;
     private VergeBehandlingsmenyEnum vergeBehandlingsmeny;
-
-    public BehandlingOperasjonerDto(UUID uuid, boolean behandlingKanBytteEnhet, boolean behandlingKanHenlegges,
-                                    boolean behandlingKanGjenopptas, boolean behandlingKanSettesPaVent,
-                                    boolean behandlingKanOpnesForEndringer, VergeBehandlingsmenyEnum vergeBehandlingsmeny) {
-        this.uuid = uuid;
-        this.behandlingKanBytteEnhet = behandlingKanBytteEnhet;
-        this.behandlingKanHenlegges = behandlingKanHenlegges;
-        this.behandlingKanGjenopptas = behandlingKanGjenopptas;
-        this.behandlingKanOpnesForEndringer = behandlingKanOpnesForEndringer;
-        this.behandlingKanSettesPaVent = behandlingKanSettesPaVent;
-        this.vergeBehandlingsmeny = vergeBehandlingsmeny;
-    }
 
     public UUID getUuid() {
         return uuid;
@@ -50,7 +41,82 @@ public class BehandlingOperasjonerDto {
         return behandlingKanSettesPaVent;
     }
 
+    public boolean isBehandlingKanSendeMelding() {
+        return behandlingKanSendeMelding;
+    }
+
+    public boolean isBehandlingFraBeslutter() {
+        return behandlingFraBeslutter;
+    }
+
+    public boolean isBehandlingTilGodkjenning() {
+        return behandlingTilGodkjenning;
+    }
+
     public VergeBehandlingsmenyEnum getVergeBehandlingsmeny() {
         return vergeBehandlingsmeny;
+    }
+
+    public static Builder builder(UUID uuid) {
+        return new Builder(uuid);
+    }
+
+    public static class Builder {
+        private BehandlingOperasjonerDto kladd;
+
+        private Builder(UUID uuid) {
+            kladd = new BehandlingOperasjonerDto();
+            kladd.uuid = uuid;
+            kladd.vergeBehandlingsmeny = VergeBehandlingsmenyEnum.SKJUL;
+        }
+
+        public Builder medKanBytteEnhet(boolean bytteEnhet) {
+            this.kladd.behandlingKanBytteEnhet = bytteEnhet;
+            return this;
+        }
+
+        public Builder medKanHenlegges(boolean henlegges) {
+            this.kladd.behandlingKanHenlegges = henlegges;
+            return this;
+        }
+
+        public Builder medKanGjenopptas(boolean gjenopptas) {
+            this.kladd.behandlingKanGjenopptas = gjenopptas;
+            return this;
+        }
+
+        public Builder medKanSettesPaVent(boolean settVent) {
+            this.kladd.behandlingKanSettesPaVent = settVent;
+            return this;
+        }
+
+        public Builder medKanOpnesForEndringer(boolean opnes) {
+            this.kladd.behandlingKanOpnesForEndringer = opnes;
+            return this;
+        }
+
+        public Builder medKanSendeMelding(boolean sendeMelding) {
+            this.kladd.behandlingKanSendeMelding = sendeMelding;
+            return this;
+        }
+
+        public Builder medVergemeny(VergeBehandlingsmenyEnum vergeMeny) {
+            this.kladd.vergeBehandlingsmeny = vergeMeny;
+            return this;
+        }
+
+        public Builder medFraBeslutter(boolean fraBeslutter) {
+            this.kladd.behandlingFraBeslutter = fraBeslutter;
+            return this;
+        }
+
+        public Builder medTilGodkjenning(boolean tilGodkjenning) {
+            this.kladd.behandlingTilGodkjenning = tilGodkjenning;
+            return this;
+        }
+
+        public BehandlingOperasjonerDto build() {
+            return kladd;
+        }
     }
 }
