@@ -18,9 +18,6 @@ public class SimulerOppdragAksjonspunktUtleder {
         if (!isNull(simuleringResultatDto.getSumFeilutbetaling()) && simuleringResultatDto.getSumFeilutbetaling() != 0) {
             return Optional.of(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
         }
-        if (!isNull(simuleringResultatDto.getSumInntrekk()) && simuleringResultatDto.getSumInntrekk() != 0) {
-            return Optional.of(AksjonspunktDefinisjon.VURDER_INNTREKK);
-        }
         return Optional.empty();
     }
 }

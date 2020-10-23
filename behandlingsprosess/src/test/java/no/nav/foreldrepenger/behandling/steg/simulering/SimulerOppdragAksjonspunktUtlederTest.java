@@ -14,31 +14,26 @@ public class SimulerOppdragAksjonspunktUtlederTest {
 
     @Test
     public void skal_gi_aksjonspunkt_for_feilutbetaling_uten_mulighet_for_inntrekk_når_det_finnes_feilutbetaling() {
-        assertThat(finnAksjonspunkt(-1, 0)).contains(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
+        assertThat(finnAksjonspunkt(-1)).contains(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
     }
 
     @Test
     public void skal_gi_aksjonspunkt_for_feilutbetaling_uten_mulighet_for_inntrekk_når_det_inntrekk_men_det_fortsatt_er_restfeilutbetaling() {
-        assertThat(finnAksjonspunkt(-100, -1)).contains(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
-    }
-
-    @Test
-    public void skal_gi_aksjonspunkt_for_feilutbetaling_med_mulighet_for_inntrekk_når_det_finnes_inntrekk_og_ikke_restfeilutbetaling() {
-        assertThat(finnAksjonspunkt(0, -1)).contains(AksjonspunktDefinisjon.VURDER_INNTREKK);
+        assertThat(finnAksjonspunkt(-100)).contains(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
     }
 
     @Test
     public void skal_ikke_gi_aksjonspunkt_når_feilutbetaling_og_inntrekk_er_0() {
-        assertThat(finnAksjonspunkt(0, 0)).isEmpty();
+        assertThat(finnAksjonspunkt(0)).isEmpty();
     }
 
     @Test
     public void skal_ikke_gi_aksjonspunkt_hvis_beløp_er_null() {
-        assertThat(SimulerOppdragAksjonspunktUtleder.utledAksjonspunkt(new SimuleringResultatDto(null, null, false))).isEmpty();
+        assertThat(SimulerOppdragAksjonspunktUtleder.utledAksjonspunkt(new SimuleringResultatDto(null, false))).isEmpty();
     }
 
-    private Optional<AksjonspunktDefinisjon> finnAksjonspunkt(int feilutbetalt, int inntrekk) {
-        return SimulerOppdragAksjonspunktUtleder.utledAksjonspunkt(new SimuleringResultatDto((long) feilutbetalt, (long) inntrekk, false));
+    private Optional<AksjonspunktDefinisjon> finnAksjonspunkt(int feilutbetalt) {
+        return SimulerOppdragAksjonspunktUtleder.utledAksjonspunkt(new SimuleringResultatDto((long) feilutbetalt, false));
     }
 
 }

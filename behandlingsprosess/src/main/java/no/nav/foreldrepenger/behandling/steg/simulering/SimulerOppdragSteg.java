@@ -127,11 +127,6 @@ public class SimulerOppdragSteg implements BehandlingSteg {
             Optional<AksjonspunktDefinisjon> utledetAksjonspunkt = SimulerOppdragAksjonspunktUtleder.utledAksjonspunkt(resultatDto);
             if (utledetAksjonspunkt.isPresent()) {
                 AksjonspunktDefinisjon aksjonspunktDefinisjon = utledetAksjonspunkt.get();
-                //(Team Tonic) Midlertidig løsning for automatisk inntrekk inntil vi har funksjonalitet for å slå det av
-                if (aksjonspunktDefinisjon.equals(AksjonspunktDefinisjon.VURDER_INNTREKK)) {
-                    lagreTilbakekrevingValg(behandling, TilbakekrevingValg.medAutomatiskInntrekk());
-                    return BehandleStegResultat.utførtUtenAksjonspunkter();
-                }
                 return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(aksjonspunktDefinisjon));
             }
         }
