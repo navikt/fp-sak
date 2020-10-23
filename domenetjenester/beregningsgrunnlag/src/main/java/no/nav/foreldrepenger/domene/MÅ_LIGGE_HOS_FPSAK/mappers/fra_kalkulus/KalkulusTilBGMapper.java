@@ -103,13 +103,13 @@ public class KalkulusTilBGMapper {
             builder.medPgi(fraKalkulus.getPgiSnitt(), List.of(fraKalkulus.getPgi1(), fraKalkulus.getPgi2(), fraKalkulus.getPgi3()));
         }
 
-        fraKalkulus.getBgAndelArbeidsforhold().ifPresent(bgAndelArbeidsforhold -> builder.medBGAndelArbeidsforhold(KalkulusTilBGMapper.magBGAndelArbeidsforhold(bgAndelArbeidsforhold)));
+        fraKalkulus.getBgAndelArbeidsforhold().ifPresent(bgAndelArbeidsforhold -> builder.medBGAndelArbeidsforhold(KalkulusTilBGMapper.mapBGAndelArbeidsforhold(bgAndelArbeidsforhold)));
         fraKalkulus.erNyoppstartet().ifPresent(aBoolean -> builder.medNyoppstartet(aBoolean, AktivitetStatus.fraKode(fraKalkulus.getAktivitetStatus().getKode())));
         fraKalkulus.mottarYtelse().ifPresent(aBoolean -> builder.medMottarYtelse(aBoolean, AktivitetStatus.fraKode(fraKalkulus.getAktivitetStatus().getKode())));
         return builder;
     }
 
-    private static BGAndelArbeidsforhold.Builder magBGAndelArbeidsforhold(BGAndelArbeidsforholdDto fraKalkulus) {
+    private static BGAndelArbeidsforhold.Builder mapBGAndelArbeidsforhold(BGAndelArbeidsforholdDto fraKalkulus) {
         BGAndelArbeidsforhold.Builder builder = BGAndelArbeidsforhold.builder();
         builder.medArbeidsforholdRef(KalkulusTilIAYMapper.mapArbeidsforholdRed(fraKalkulus.getArbeidsforholdRef()));
         builder.medArbeidsgiver(KalkulusTilIAYMapper.mapArbeidsgiver(fraKalkulus.getArbeidsgiver()));
@@ -117,7 +117,9 @@ public class KalkulusTilBGMapper {
         builder.medLønnsendringIBeregningsperioden(fraKalkulus.erLønnsendringIBeregningsperioden());
         builder.medTidsbegrensetArbeidsforhold(fraKalkulus.getErTidsbegrensetArbeidsforhold());
         builder.medRefusjonskravPrÅr(fraKalkulus.getRefusjonskravPrÅr());
-
+        // TODO Fjern utkomentering av linjer under når vi er klare til å ta ibruk feltene når TFP-3838 er ferdig
+        // builder.medSaksbehandletRefusjonPrÅr(fraKalkulus.getSaksbehandletRefusjonPrÅr());
+        // builder.medFordeltRefusjonPrÅr(fraKalkulus.getFordeltRefusjonPrÅr());
         fraKalkulus.getArbeidsperiodeTom().ifPresent(builder::medArbeidsperiodeTom);
         fraKalkulus.getNaturalytelseBortfaltPrÅr().ifPresent(builder::medNaturalytelseBortfaltPrÅr);
         fraKalkulus.getNaturalytelseTilkommetPrÅr().ifPresent(builder::medNaturalytelseTilkommetPrÅr);

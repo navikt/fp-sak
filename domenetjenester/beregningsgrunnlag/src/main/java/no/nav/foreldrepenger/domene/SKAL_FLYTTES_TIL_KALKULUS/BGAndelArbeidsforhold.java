@@ -51,6 +51,12 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
     @Column(name = "refusjonskrav_pr_aar")
     private BigDecimal refusjonskravPrÅr;
 
+    @Column(name = "saksbehandlet_refusjon_pr_aar")
+    private BigDecimal saksbehandletRefusjonPrÅr;
+
+    @Column(name = "fordelt_refusjon_pr_aar")
+    private BigDecimal fordeltRefusjonPrÅr;
+
     @Column(name = "naturalytelse_bortfalt_pr_aar")
     private BigDecimal naturalytelseBortfaltPrÅr;
 
@@ -121,6 +127,29 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
 
     public Arbeidsgiver getArbeidsgiver() {
         return arbeidsgiver;
+    }
+
+    public BigDecimal getSaksbehandletRefusjonPrÅr() {
+        return saksbehandletRefusjonPrÅr;
+    }
+
+    public BigDecimal getFordeltRefusjonPrÅr() {
+        return fordeltRefusjonPrÅr;
+    }
+
+    /**
+     * Refusjonskrav settes på forskjellige steder i beregning dersom aksjonspunkt oppstår.
+     * Først settes refusjonskravPrÅr, deretter saksbehandletRefusjonPrÅr og til slutt fordeltRefusjonPrÅr.
+     * Det er det sist avklarte beløpet som til en hver tid skal være gjeldende.
+     * @return returnerer det refusjonsbeløpet som skal være gjeldende
+     */
+    public BigDecimal getGjeldendeRefusjon() {
+        if (fordeltRefusjonPrÅr != null) {
+            return fordeltRefusjonPrÅr;
+        } else if (saksbehandletRefusjonPrÅr != null) {
+            return saksbehandletRefusjonPrÅr;
+        }
+        return refusjonskravPrÅr;
     }
 
     @Override
@@ -200,6 +229,16 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
 
         public Builder medRefusjonskravPrÅr(BigDecimal refusjonskravPrÅr) {
             bgAndelArbeidsforhold.refusjonskravPrÅr = refusjonskravPrÅr;
+            return this;
+        }
+
+        public Builder medSaksbehandletRefusjonPrÅr(BigDecimal saksbehandletRefusjonPrÅr) {
+            bgAndelArbeidsforhold.saksbehandletRefusjonPrÅr = saksbehandletRefusjonPrÅr;
+            return this;
+        }
+
+        public Builder medFordeltRefusjonPrÅr(BigDecimal fordeltRefusjonPrÅr) {
+            bgAndelArbeidsforhold.fordeltRefusjonPrÅr = fordeltRefusjonPrÅr;
             return this;
         }
 

@@ -159,7 +159,8 @@ public class BGMapperTilKalkulus {
         builder.medLønnsendringIBeregningsperioden(fraFpsak.erLønnsendringIBeregningsperioden());
         builder.medTidsbegrensetArbeidsforhold(fraFpsak.getErTidsbegrensetArbeidsforhold());
         builder.medRefusjonskravPrÅr(fraFpsak.getRefusjonskravPrÅr());
-
+        builder.medSaksbehandletRefusjonPrÅr(fraFpsak.getSaksbehandletRefusjonPrÅr());
+        builder.medFordeltRefusjonPrÅr(fraFpsak.getFordeltRefusjonPrÅr());
         fraFpsak.getArbeidsperiodeTom().ifPresent(builder::medArbeidsperiodeTom);
         fraFpsak.getNaturalytelseBortfaltPrÅr().ifPresent(builder::medNaturalytelseBortfaltPrÅr);
         fraFpsak.getNaturalytelseTilkommetPrÅr().ifPresent(builder::medNaturalytelseTilkommetPrÅr);

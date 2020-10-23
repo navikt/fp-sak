@@ -176,17 +176,6 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
         regelSporingMap.put(beregningsgrunnlagPeriodeRegelSporing.getRegelType(), beregningsgrunnlagPeriodeRegelSporing);
     }
 
-    public Beløp getTotaltRefusjonkravIPeriode() {
-        return new Beløp(beregningsgrunnlagPrStatusOgAndelList.stream()
-            .map(BeregningsgrunnlagPrStatusOgAndel::getBgAndelArbeidsforhold)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .map(BGAndelArbeidsforhold::getRefusjonskravPrÅr)
-            .filter(Objects::nonNull)
-            .reduce(BigDecimal::add)
-            .orElse(BigDecimal.ZERO));
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
