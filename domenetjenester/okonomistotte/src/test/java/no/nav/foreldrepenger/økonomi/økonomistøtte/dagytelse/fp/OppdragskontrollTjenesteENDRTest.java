@@ -2182,9 +2182,8 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             .collect(Collectors.toList());
 
         assertThat(opp150RevurderingListe).hasSize(2); // AG + FP
-        assertThat(opp150RevurderingListe).allSatisfy(linjeOpphør -> {
-            assertThat(linjeOpphør.gjelderOpphør()).isTrue();
-        });
+        assertThat(opp150RevurderingListe).allSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
+        assertThat(opp150RevurderingListe).anySatisfy(linje -> assertThat(linje.getDatoStatusFom()).isEqualTo(b2p1fom));
         OppdragskontrollTestVerktøy.verifiserAttestant180(opp150RevurderingListe);
 
         // Arrange 2
@@ -2198,7 +2197,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering2, beregningsresultatRevurderingFP2);
 
         // Act 2
-        Oppdragskontroll oppdragRevurdering2 = oppdragskontrollTjeneste.opprettOppdrag(revurdering2.getId(), 89L).get();;
+        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering2);
 
         //Assert 2
         List<Oppdragslinje150> opp150RevurderingListe2 = oppdragRevurdering2.getOppdrag110Liste().stream()
@@ -2206,9 +2205,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             .collect(Collectors.toList());
 
         assertThat(opp150RevurderingListe2).hasSize(4); // AG + Bruker + 2 * FP
-        assertThat(opp150RevurderingListe2).noneSatisfy(linjeOpphør -> {
-            assertThat(linjeOpphør.gjelderOpphør()).isTrue();
-        });
+        assertThat(opp150RevurderingListe2).noneSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
     }
 
 
