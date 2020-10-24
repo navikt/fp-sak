@@ -14,11 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
-import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -31,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
+import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -53,12 +52,12 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     public static final String FAGSAK_ID_MOR_KEY = "fagsakIdMor";
 
     private static final Logger log = LoggerFactory.getLogger(OpprettInformasjonsFagsakTask.class);
-    private static final Period FH_DIFF_PERIODE = Period.parse("P4W");
+    private static final Period FH_DIFF_PERIODE = Period.parse("P6W");
 
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
     private PersoninfoAdapter personinfoAdapter;
     private FagsakTjeneste fagsakTjeneste;
-    private BrukerTjeneste brukerTjeneste;
+    private NavBrukerTjeneste brukerTjeneste;
     private OpprettGSakTjeneste opprettGSakTjeneste;
     private FagsakRepository fagsakRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
@@ -73,7 +72,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     public OpprettInformasjonsFagsakTask(BehandlingRepositoryProvider repositoryProvider,
                                          BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                          PersoninfoAdapter personinfoAdapter,
-                                         BrukerTjeneste brukerTjeneste,
+                                         NavBrukerTjeneste brukerTjeneste,
                                          FagsakTjeneste fagsakTjeneste,
                                          OpprettGSakTjeneste opprettGSakTjeneste,
                                          FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
@@ -106,20 +105,19 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         if (bruker.getDødsdato() != null) {
             return; // Unngå brev til død annen part
         }
-        var språk = hentSpråk(aktørId);
-        Fagsak fagsak = opprettNyFagsak(språk);
+        Fagsak fagsak = opprettNyFagsak(aktørId);
         kobleNyFagsakTilMors(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_MOR_KEY)), fagsak);
         Behandling behandling = opprettFørstegangsbehandlingInformasjonssak(fagsak, enhet, behandlingÅrsakType);
         behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
         log.info("Opprettet fagsak/informasjon {} med behandling {}", fagsak.getSaksnummer().getVerdi(), behandling.getId()); //NOSONAR
     }
 
-    private Fagsak opprettNyFagsak(PersoninfoSpråk bruker) {
+    private Fagsak opprettNyFagsak(AktørId aktørId) {
         FagsakYtelseType ytelseType = FagsakYtelseType.FORELDREPENGER;
-        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(bruker.getAktørId(), bruker.getForetrukketSpråk());
+        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(aktørId);
         Fagsak fagsak = Fagsak.opprettNy(ytelseType, navBruker);
         fagsakTjeneste.opprettFagsak(fagsak);
-        Saksnummer saksnummer = opprettGSakTjeneste.opprettArkivsak(bruker.getAktørId());
+        Saksnummer saksnummer = opprettGSakTjeneste.opprettArkivsak(aktørId);
         fagsakTjeneste.oppdaterFagsakMedGsakSaksnummer(fagsak.getId(), saksnummer);
         return fagsakTjeneste.finnEksaktFagsak(fagsak.getId());
     }
@@ -171,7 +169,4 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
             .orElseThrow(() -> OppgaveFeilmeldinger.FACTORY.identIkkeFunnet(aktørId).toException());
     }
 
-    private PersoninfoSpråk hentSpråk(AktørId aktørId) {
-        return personinfoAdapter.hentForetrukketSpråk(aktørId);
-    }
 }

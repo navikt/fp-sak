@@ -7,15 +7,13 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
-import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Journalpost;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -30,10 +28,9 @@ import no.nav.foreldrepenger.produksjonsstyring.opprettgsak.OpprettGSakTjeneste;
  */
 public class OpprettSakTjeneste {
 
-    private PersoninfoAdapter personinfoAdapter;
     private FagsakTjeneste fagsakTjeneste;
     private OpprettGSakTjeneste opprettGSakTjeneste;
-    private BrukerTjeneste brukerTjeneste;
+    private NavBrukerTjeneste brukerTjeneste;
     private DatavarehusTjeneste datavarehusTjeneste;
 
     public OpprettSakTjeneste() {
@@ -41,43 +38,29 @@ public class OpprettSakTjeneste {
     }
 
     @Inject
-    public OpprettSakTjeneste(PersoninfoAdapter personinfoAdapter, FagsakTjeneste fagsakTjeneste,
-                              OpprettGSakTjeneste opprettGSakTjeneste, BrukerTjeneste brukerTjeneste, DatavarehusTjeneste datavarehusTjeneste) {
-        this.personinfoAdapter = personinfoAdapter;
+    public OpprettSakTjeneste(FagsakTjeneste fagsakTjeneste, OpprettGSakTjeneste opprettGSakTjeneste,
+                              NavBrukerTjeneste brukerTjeneste, DatavarehusTjeneste datavarehusTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.opprettGSakTjeneste = opprettGSakTjeneste;
         this.brukerTjeneste = brukerTjeneste;
         this.datavarehusTjeneste = datavarehusTjeneste;
     }
 
-    public Fagsak opprettSakVL(PersoninfoSpråk bruker, FagsakYtelseType ytelseType) {
-        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(bruker.getAktørId(), bruker.getForetrukketSpråk());
+    public Fagsak opprettSakVL(AktørId bruker, FagsakYtelseType ytelseType) {
+        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(bruker);
         Fagsak fagsak = Fagsak.opprettNy(ytelseType, navBruker);
         fagsakTjeneste.opprettFagsak(fagsak);
 
         return fagsak;
     }
 
-    public Fagsak opprettSakVL(PersoninfoSpråk bruker, FagsakYtelseType ytelseType, JournalpostId journalpostId) {
-        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(bruker.getAktørId(), bruker.getForetrukketSpråk());
+    public Fagsak opprettSakVL(AktørId bruker, FagsakYtelseType ytelseType, JournalpostId journalpostId) {
+        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(bruker);
         Fagsak fagsak = Fagsak.opprettNy(ytelseType, navBruker);
         fagsakTjeneste.opprettFagsak(fagsak);
         knyttFagsakOgJournalpost(fagsak.getId(), journalpostId);
 
         return fagsak;
-    }
-
-    public PersoninfoSpråk hentBruker(AktørId aktørId) {
-        return personinfoAdapter.hentForetrukketSpråk(aktørId);
-    }
-
-    public AktørId hentGjeldendeAktørId(AktørId aktørId) {
-        return personinfoAdapter.hentFnr(aktørId).flatMap(personinfoAdapter::hentAktørForFnr)
-            .orElseThrow(() -> new IllegalStateException("Kan ikke mappe aktørId - ident - aktørId" + aktørId));
-    }
-
-    public Optional<NavBruker> hentNavBrukerFor(AktørId aktørId) {
-        return brukerTjeneste.hentBrukerForAktørId(aktørId);
     }
 
     public FagsakYtelseType utledYtelseType(BehandlingTema behandlingTema) {

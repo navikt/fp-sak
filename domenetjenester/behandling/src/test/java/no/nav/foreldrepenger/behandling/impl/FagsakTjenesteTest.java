@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
-import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -42,10 +41,10 @@ import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 public class FagsakTjenesteTest extends EntityManagerAwareTest {
 
     private FagsakTjeneste tjeneste;
-    private BrukerTjeneste brukerTjeneste;
 
     private BehandlingRepository behandlingRepository;
     private PersonopplysningRepository personopplysningRepository;
+    private NavBrukerRepository brukerRepository;
 
     private Fagsak fagsak;
 
@@ -54,12 +53,11 @@ public class FagsakTjenesteTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void oppsett() {
+        brukerRepository = new NavBrukerRepository(getEntityManager());
         behandlingRepository = new BehandlingRepository(getEntityManager());
         personopplysningRepository = new PersonopplysningRepository(getEntityManager());
         tjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
                 new SøknadRepository(getEntityManager(), behandlingRepository), null);
-
-        brukerTjeneste = new BrukerTjeneste(new NavBrukerRepository(getEntityManager()));
 
     }
 
@@ -134,7 +132,7 @@ public class FagsakTjenesteTest extends EntityManagerAwareTest {
 
         // Ifølgeregler i mottak skal vi opprette en nyTerminbekreftelse sak hvis vi
         // ikke har sak nyere enn 10 mnd:
-        NavBruker søker = brukerTjeneste.hentEllerOpprettFraAktorId(forelderAktørId, Språkkode.NB);
+        NavBruker søker = brukerRepository.hent(forelderAktørId).orElseGet(() -> NavBruker.opprettNy(forelderAktørId, Språkkode.NB));
         Fagsak fagsakNy = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, søker);
         tjeneste.opprettFagsak(fagsakNy);
         assertThat(fagsak.getNavBruker().getId()).as("Forventer at fagsakene peker til samme bruker")

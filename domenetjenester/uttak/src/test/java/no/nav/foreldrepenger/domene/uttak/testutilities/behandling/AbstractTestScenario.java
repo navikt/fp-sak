@@ -12,7 +12,6 @@ import javax.persistence.EntityManager;
 import org.jboss.weld.exceptions.UnsupportedOperationException;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
@@ -351,8 +350,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         if (!Mockito.mockingDetails(fagsakRepo).isMock()) {
             final EntityManager entityManager = (EntityManager) Whitebox.getInternalState(fagsakRepo, "entityManager");
             if (entityManager != null) {
-                BrukerTjeneste brukerTjeneste = new BrukerTjeneste(new NavBrukerRepository(entityManager));
-                final NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB);
+                NavBrukerRepository brukerRepository = new NavBrukerRepository(entityManager);
+                final NavBruker navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
+                    .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB));
                 fagsakBuilder.medBruker(navBruker);
             }
         }
