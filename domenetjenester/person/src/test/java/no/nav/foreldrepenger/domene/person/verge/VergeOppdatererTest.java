@@ -18,8 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -31,9 +29,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -49,7 +47,7 @@ public class VergeOppdatererTest {
     @Mock
     private PersoninfoAdapter personinfoAdapter;
     @Mock
-    private NavBrukerRepository navBrukerRepository;
+    private NavBrukerTjeneste brukerTjeneste;
 
     private NavBruker vergeBruker;
 
@@ -64,8 +62,7 @@ public class VergeOppdatererTest {
         vergeBruker = NavBruker.opprettNyNB(AktørId.dummy());
 
         lenient().when(personinfoAdapter.hentAktørForFnr(Mockito.any())).thenReturn(Optional.of(AktørId.dummy()));
-        lenient().when(personinfoAdapter.hentForetrukketSpråk(Mockito.any())).thenReturn(new PersoninfoSpråk(vergeBruker.getAktørId(), Språkkode.NB));
-        lenient().when(navBrukerRepository.hent(Mockito.any())).thenReturn(Optional.of(vergeBruker));
+        lenient().when(brukerTjeneste.hentEllerOpprettFraAktørId(Mockito.any())).thenReturn(vergeBruker);
     }
 
     @Test
@@ -82,8 +79,8 @@ public class VergeOppdatererTest {
         var behandling = opprettBehandling();
         AvklarVergeDto dto = opprettDtoVerge();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
-        new VergeOppdaterer(historikkTjeneste,
-            personinfoAdapter, mock(VergeRepository.class), mock(NavBrukerRepository.class)).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt.orElse(null), dto));
+        new VergeOppdaterer(historikkTjeneste, personinfoAdapter, mock(VergeRepository.class), brukerTjeneste)
+            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt.orElse(null), dto));
 
         // Verifiserer HistorikkinnslagDto
         ArgumentCaptor<Historikkinnslag> historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);

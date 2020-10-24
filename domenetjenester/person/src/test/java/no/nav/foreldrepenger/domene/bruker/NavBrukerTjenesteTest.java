@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.bruker;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
@@ -51,7 +49,7 @@ public class NavBrukerTjenesteTest extends EntityManagerAwareTest {
         var aktør = AktørId.dummy();
         when(personinfoAdapter.hentForetrukketSpråk(aktør)).thenReturn(new PersoninfoSpråk(aktør, Språkkode.EN));
 
-        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(aktør);
+        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(aktør);
         assertThat(navBruker.getId()).as("Forventer ny bruker som ikke er lagret returneres uten id.").isNull();
 
         navBrukerRepository.lagre(navBruker);
@@ -66,7 +64,7 @@ public class NavBrukerTjenesteTest extends EntityManagerAwareTest {
         var aktør = AktørId.dummy();
         when(personinfoAdapter.hentForetrukketSpråk(aktør)).thenReturn(new PersoninfoSpråk(aktør, Språkkode.NB));
 
-        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktorId(aktør);
+        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(aktør);
 
         assertThat(navBruker.getSpråkkode()).isEqualTo(Språkkode.NB);
         navBrukerRepository.lagre(navBruker);
@@ -75,7 +73,7 @@ public class NavBrukerTjenesteTest extends EntityManagerAwareTest {
 
         when(personinfoAdapter.hentForetrukketSpråk(aktør)).thenReturn(new PersoninfoSpråk(aktør, Språkkode.NN));
 
-        NavBruker navBrukerHent = brukerTjeneste.hentEllerOpprettFraAktorId(aktør);
+        NavBruker navBrukerHent = brukerTjeneste.hentEllerOpprettFraAktørId(aktør);
 
         assertThat(navBrukerHent.getSpråkkode()).isEqualTo(Språkkode.NN);
     }

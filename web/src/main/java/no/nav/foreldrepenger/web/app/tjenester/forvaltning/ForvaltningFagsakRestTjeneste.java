@@ -44,6 +44,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -75,6 +77,8 @@ public class ForvaltningFagsakRestTjeneste {
     private ProsessTaskRepository prosessTaskRepository;
     private Instance<OppdaterFagsakStatus> oppdaterFagsakStatuser;
     private OpprettSakTjeneste opprettSakTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
+    private NavBrukerTjeneste brukerTjeneste;
     private OverstyrDekningsgradTjeneste overstyrDekningsgradTjeneste;
 
     public ForvaltningFagsakRestTjeneste() {
@@ -86,6 +90,8 @@ public class ForvaltningFagsakRestTjeneste {
             ProsessTaskRepository prosessTaskRepository,
             @Any Instance<OppdaterFagsakStatus> oppdaterFagsakStatuser,
             OpprettSakTjeneste opprettSakTjeneste,
+            PersoninfoAdapter personinfoAdapter,
+            NavBrukerTjeneste brukerTjeneste,
             OverstyrDekningsgradTjeneste overstyrDekningsgradTjeneste,
             FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
@@ -96,6 +102,8 @@ public class ForvaltningFagsakRestTjeneste {
         this.oppdaterFagsakStatuser = oppdaterFagsakStatuser;
         this.overstyrDekningsgradTjeneste = overstyrDekningsgradTjeneste;
         this.opprettSakTjeneste = opprettSakTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
+        this.brukerTjeneste = brukerTjeneste;
     }
 
     @POST
@@ -379,11 +387,12 @@ public class ForvaltningFagsakRestTjeneste {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         var eksisterendeAktørId = fagsak.getAktørId();
-        var gjeldendeAktørId = opprettSakTjeneste.hentGjeldendeAktørId(fagsak.getAktørId());
+        var gjeldendeAktørId = personinfoAdapter.hentFnr(fagsak.getAktørId()).flatMap(personinfoAdapter::hentAktørForFnr)
+            .orElseThrow(() -> new IllegalStateException("Kan ikke mappe aktørId - ident - aktørId" + fagsak.getAktørId()));
         if (gjeldendeAktørId.equals(eksisterendeAktørId)) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        var brukerForGjeldendeAktørId = opprettSakTjeneste.hentNavBrukerFor(gjeldendeAktørId);
+        var brukerForGjeldendeAktørId = brukerTjeneste.hentBrukerForAktørId(gjeldendeAktørId);
         if (brukerForGjeldendeAktørId.isPresent()) {
             fagsakRepository.oppdaterBruker(fagsak.getId(), brukerForGjeldendeAktørId.orElse(null));
         } else {

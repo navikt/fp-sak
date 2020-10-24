@@ -192,21 +192,11 @@ public class PersoninfoAdapter {
     }
 
     public PersoninfoSpråk hentForetrukketSpråk(AktørId aktørId) {
-        var person = hentBrukerForAktør(aktørId);
-        var fraTPS = person.map(p -> new PersoninfoSpråk(aktørId, p.getForetrukketSpråk())).orElseGet(() -> new PersoninfoSpråk(aktørId, Språkkode.NB));
-        if (dkifSpråkKlient != null && person.isPresent()) {
-            try {
-                var fraDkif = dkifSpråkKlient.finnSpråkkodeForBruker(person.get().getPersonIdent().getIdent());
-                if (fraTPS.getForetrukketSpråk().equals(fraDkif)) {
-                    LOG.info("FPSAK PDL DKIF: like svar");
-                } else {
-                    LOG.info("FPSAK PDL DKIF: ulike svar TPS {} og DKIF {}", fraTPS.getForetrukketSpråk(), fraDkif);
-                }
-            } catch (Exception e) {
-                LOG.info("FPSAK PDL DKIF: feil", e);
-            }
+        var personIdent = hentFnr(aktørId).orElse(null);
+        if (personIdent == null) {
+            return new PersoninfoSpråk(aktørId, Språkkode.NB);
         }
-        return fraTPS;
+        return new PersoninfoSpråk(aktørId, dkifSpråkKlient.finnSpråkkodeForBruker(personIdent.getIdent()));
     }
 
 }

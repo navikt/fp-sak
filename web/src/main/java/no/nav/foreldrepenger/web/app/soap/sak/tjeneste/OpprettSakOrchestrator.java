@@ -5,7 +5,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -30,17 +29,15 @@ public class OpprettSakOrchestrator {
     }
 
     public Saksnummer opprettSak(BehandlingTema behandlingTema, AktørId aktørId) {
-        PersoninfoSpråk bruker = opprettSakTjeneste.hentBruker(aktørId);
         FagsakYtelseType ytelseType = opprettSakTjeneste.utledYtelseType(behandlingTema);
-        Fagsak fagsak = opprettSakTjeneste.opprettSakVL(bruker, ytelseType);
+        Fagsak fagsak = opprettSakTjeneste.opprettSakVL(aktørId, ytelseType);
         return opprettEllerFinnGsak(aktørId, fagsak);
     }
 
     public Saksnummer opprettSak(JournalpostId journalpostId, BehandlingTema behandlingTema, AktørId aktørId) {
         Saksnummer saksnummer;
-        PersoninfoSpråk bruker = opprettSakTjeneste.hentBruker(aktørId);
         FagsakYtelseType ytelseType = opprettSakTjeneste.utledYtelseType(behandlingTema);
-        Fagsak fagsak = finnEllerOpprettFagSak(journalpostId, ytelseType, bruker);
+        Fagsak fagsak = finnEllerOpprettFagSak(journalpostId, ytelseType, aktørId);
         if (fagsak.getSaksnummer() != null) {
             saksnummer = fagsak.getSaksnummer();
         } else {
@@ -57,7 +54,7 @@ public class OpprettSakOrchestrator {
             .anyMatch(ytelsetype::equals);
     }
 
-    private Fagsak finnEllerOpprettFagSak(JournalpostId journalpostId, FagsakYtelseType ytelseType, PersoninfoSpråk bruker) {
+    private Fagsak finnEllerOpprettFagSak(JournalpostId journalpostId, FagsakYtelseType ytelseType, AktørId bruker) {
         Optional<Journalpost> journalpost = fagsakRepository.hentJournalpost(journalpostId);
         if (journalpost.isPresent()) {
             return journalpost.get().getFagsak();

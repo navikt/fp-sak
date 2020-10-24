@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -24,13 +25,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -68,49 +67,46 @@ public class OpprettSakServiceTest {
 
     private final String JOURNALPOST = "1234";
     private final JournalpostId JOURNALPOST_ID = new JournalpostId(JOURNALPOST);
-    private PersoninfoSpråk personinfo;
 
     @BeforeEach
     public void before() {
         opprettSakOrchestrator = new OpprettSakOrchestrator(opprettSakTjeneste, fagsakRepository);
         service = new OpprettSakService(opprettSakOrchestrator, restKlient, true);
-        personinfo = new PersoninfoSpråk(AKTØR_ID, Språkkode.NN);
         lenient().when(opprettSakTjeneste.utledYtelseType(any(BehandlingTema.class))).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
-        lenient().when(opprettSakTjeneste.hentBruker(any())).thenReturn(personinfo);
         lenient().when(fagsakRepository.hentForBruker(any())).thenReturn(Collections.emptyList());
     }
 
     @Test
-    public void test_feilhandering_mangler_journaposId() throws Exception {
+    public void test_feilhandering_mangler_journaposId() {
         OpprettSakRequest request = createOpprettSakRequest(null, AKTØR_ID, "ab0050");
         assertThrows(NullPointerException.class, () -> service.opprettSak(request));
     }
 
     @Test
-    public void test_feilhandering_mangler_behandlingstema() throws Exception {
+    public void test_feilhandering_mangler_behandlingstema() {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, null);
         assertThrows(OpprettSakUgyldigInput.class, () -> service.opprettSak(request));
     }
 
     @Test
-    public void test_feilhandering_ukjent_behandlingstema() throws Exception {
+    public void test_feilhandering_ukjent_behandlingstema() {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, "xx1234");
         assertThrows(OpprettSakUgyldigInput.class, () -> service.opprettSak(request));
     }
 
     @Test
-    public void test_feilhandering_mangler_aktorId() throws Exception {
+    public void test_feilhandering_mangler_aktorId() {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, null, ES_FOD);
         assertThrows(OpprettSakUgyldigInput.class, () -> service.opprettSak(request));
     }
 
     @Test
-    public void test_opprettSak_finner_ikke_bruker() throws Exception {
+    public void test_opprettSak_finner_ikke_bruker() {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
         AktørId aktorIdLong = new AktørId(valueOf(request.getSakspart().getAktoerId()));
 
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, true, false));
-        when(opprettSakTjeneste.hentBruker(any(AktørId.class)))
+        when(opprettSakTjeneste.opprettSakVL(any(AktørId.class), eq(FagsakYtelseType.ENGANGSTØNAD), eq(JOURNALPOST_ID)))
                 .thenThrow(OpprettSakFeil.FACTORY.finnerIkkePersonMedAktørId(aktorIdLong).toException());
 
         assertThrows(TekniskException.class, () -> service.opprettSak(request));
@@ -124,8 +120,8 @@ public class OpprettSakServiceTest {
         final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
-        when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettEllerFinnGsak(personinfo.getAktørId())).thenReturn(expectedSakId);
+        when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
+        when(opprettSakTjeneste.opprettEllerFinnGsak(AKTØR_ID)).thenReturn(expectedSakId);
         mockOppdaterFagsakMedGsakId(fagsak, expectedSakId);
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, true, false));
 
@@ -141,8 +137,8 @@ public class OpprettSakServiceTest {
         final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
-        when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettEllerFinnGsak(personinfo.getAktørId())).thenReturn(expectedSakId);
+        when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
+        when(opprettSakTjeneste.opprettEllerFinnGsak(AKTØR_ID)).thenReturn(expectedSakId);
         when(fagsakRepository.hentJournalpost(any())).thenReturn(Optional.empty());
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, true, false));
         mockOppdaterFagsakMedGsakId(fagsak, expectedSakId);
@@ -151,7 +147,7 @@ public class OpprettSakServiceTest {
         OpprettSakResponse response = service.opprettSak(request);
 
         ArgumentCaptor<FagsakYtelseType> captor = ArgumentCaptor.forClass(FagsakYtelseType.class);
-        verify(opprettSakTjeneste, times(1)).opprettSakVL(any(PersoninfoSpråk.class), captor.capture(), any(JournalpostId.class));
+        verify(opprettSakTjeneste, times(1)).opprettSakVL(any(AktørId.class), captor.capture(), any(JournalpostId.class));
         FagsakYtelseType bt = captor.getValue();
         assertThat(bt).isEqualTo(FagsakYtelseType.ENGANGSTØNAD);
 
@@ -159,13 +155,13 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_unntak_klagedokument() throws Exception {
+    public void test_opprettSak_unntak_klagedokument() {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
         final Long FAGSAKID = 1l;
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
-        lenient().when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
+        lenient().when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
         lenient().when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(BehandlingTema.UDEFINERT.getOffisiellKode(), false, false));
 
@@ -173,13 +169,13 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_unntak_endring() throws Exception {
+    public void test_opprettSak_unntak_endring() {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
         final Long FAGSAKID = 1l;
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
-        lenient().when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
+        lenient().when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
         lenient().when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
         lenient().when(restKlient.utledYtelestypeFor(any()))
                 .thenReturn(new JournalpostVurderingDto(BehandlingTema.UDEFINERT.getOffisiellKode(), false, false));
@@ -199,8 +195,8 @@ public class OpprettSakServiceTest {
         when(fagsak.erÅpen()).thenReturn(false);
         when(fagsak.getYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(opprettSakTjeneste.utledYtelseType(BehandlingTema.FORELDREPENGER_FØDSEL)).thenReturn(FagsakYtelseType.FORELDREPENGER);
-        when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.FORELDREPENGER, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettEllerFinnGsak(personinfo.getAktørId())).thenReturn(expectedSakId);
+        when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.FORELDREPENGER, JOURNALPOST_ID)).thenReturn(fagsak);
+        when(opprettSakTjeneste.opprettEllerFinnGsak(AKTØR_ID)).thenReturn(expectedSakId);
         when(fagsakRepository.hentForBruker(any())).thenReturn(List.of(fagsak));
         when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
         when(restKlient.utledYtelestypeFor(any()))
@@ -223,8 +219,8 @@ public class OpprettSakServiceTest {
         final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
-        when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettEllerFinnGsak(personinfo.getAktørId())).thenReturn(expectedSakId);
+        when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
+        when(opprettSakTjeneste.opprettEllerFinnGsak(AKTØR_ID)).thenReturn(expectedSakId);
         mockOppdaterFagsakMedGsakId(fagsak, expectedSakId);
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, true, false));
 
@@ -233,13 +229,13 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_unntak_klageelleramnnke() throws Exception {
+    public void test_opprettSak_unntak_klageelleramnnke() {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
         final Long FAGSAKID = 1l;
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
-        lenient().when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
+        lenient().when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
         lenient().when(fagsakRepository.hentJournalpost(Mockito.any())).thenReturn(Optional.empty());
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(BehandlingTema.UDEFINERT.getOffisiellKode(), false, false));
         assertThrows(FunksjonellException.class, () -> service.opprettSak(request));
@@ -253,8 +249,8 @@ public class OpprettSakServiceTest {
         final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
-        when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettEllerFinnGsak(personinfo.getAktørId())).thenReturn(expectedSakId);
+        when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
+        when(opprettSakTjeneste.opprettEllerFinnGsak(AKTØR_ID)).thenReturn(expectedSakId);
         mockOppdaterFagsakMedGsakId(fagsak, expectedSakId);
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, true, false));
 
@@ -270,8 +266,8 @@ public class OpprettSakServiceTest {
         final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID);
-        when(opprettSakTjeneste.opprettSakVL(personinfo, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
-        when(opprettSakTjeneste.opprettEllerFinnGsak(personinfo.getAktørId())).thenReturn(expectedSakId);
+        when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
+        when(opprettSakTjeneste.opprettEllerFinnGsak(AKTØR_ID)).thenReturn(expectedSakId);
         when(fagsakRepository.hentJournalpost(any())).thenReturn(Optional.empty());
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, false, true));
 
@@ -281,7 +277,7 @@ public class OpprettSakServiceTest {
         OpprettSakResponse response = service.opprettSak(request);
 
         ArgumentCaptor<FagsakYtelseType> captor = ArgumentCaptor.forClass(FagsakYtelseType.class);
-        verify(opprettSakTjeneste, times(1)).opprettSakVL(any(PersoninfoSpråk.class), captor.capture(), any(JournalpostId.class));
+        verify(opprettSakTjeneste, times(1)).opprettSakVL(any(AktørId.class), captor.capture(), any(JournalpostId.class));
         FagsakYtelseType bt = captor.getValue();
         assertThat(bt).isEqualTo(FagsakYtelseType.ENGANGSTØNAD);
 

@@ -37,7 +37,7 @@ public class NavBrukerTjeneste {
         this.personinfoAdapter = personinfoAdapter;
     }
 
-    public NavBruker hentEllerOpprettFraAktorId(AktørId aktørId) {
+    public NavBruker hentEllerOpprettFraAktørId(AktørId aktørId) {
         return hentMedRefresh(aktørId).orElseGet(() -> opprettBruker(aktørId));
     }
 
@@ -49,9 +49,10 @@ public class NavBrukerTjeneste {
         Optional<NavBruker> bruker = brukerRepository.hent(aktørId);
         if (bruker.isEmpty())
             return bruker;
+        var refreshGrense = LocalDateTime.now().minus(REFRESH_INTERVAL);
         var sistoppdatert = bruker.map(b -> b.getEndretTidspunkt() == null ? b.getOpprettetTidspunkt() : b.getEndretTidspunkt())
-            .orElseGet(() -> LocalDateTime.now().minus(REFRESH_INTERVAL).minus(REFRESH_INTERVAL));
-        var refresh = sistoppdatert.isBefore(LocalDateTime.now().minus(REFRESH_INTERVAL));
+            .orElseGet(() -> refreshGrense.minus(REFRESH_INTERVAL));
+        var refresh = sistoppdatert.isBefore(refreshGrense);
         if (refresh) {
             PersoninfoSpråk språk = personinfoAdapter.hentForetrukketSpråk(aktørId);
             var brukspråk = språk != null && språk.getForetrukketSpråk() != null ? språk.getForetrukketSpråk() : Språkkode.NB;

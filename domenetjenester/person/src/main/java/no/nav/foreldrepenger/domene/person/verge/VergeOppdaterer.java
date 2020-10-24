@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
@@ -23,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjon
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
+import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
 import no.nav.foreldrepenger.domene.personopplysning.OppdatererAksjonspunktFeil;
@@ -38,7 +38,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     private HistorikkTjenesteAdapter historikkAdapter;
     private VergeRepository vergeRepository;
     private PersoninfoAdapter personinfoAdapter;
-    private NavBrukerRepository navBrukerRepository;
+    private NavBrukerTjeneste brukerTjeneste;
 
     protected VergeOppdaterer() {
         // CDI
@@ -48,11 +48,11 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     public VergeOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
                            PersoninfoAdapter personinfoAdapter,
                            VergeRepository vergeRepository,
-                           NavBrukerRepository navBrukerRepository) {
+                           NavBrukerTjeneste brukerTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.vergeRepository = vergeRepository;
         this.personinfoAdapter = personinfoAdapter;
-        this.navBrukerRepository = navBrukerRepository;
+        this.brukerTjeneste = brukerTjeneste;
     }
 
     @Override
@@ -81,8 +81,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     }
 
     private NavBruker hentEllerOpprettBruker(AktørId aktoerId) {
-        return navBrukerRepository.hent(aktoerId)
-            .orElseGet(() -> NavBruker.opprettNy(aktoerId, personinfoAdapter.hentForetrukketSpråk(aktoerId).getForetrukketSpråk()));
+        return brukerTjeneste.hentEllerOpprettFraAktørId(aktoerId);
     }
 
     private VergeOrganisasjonEntitet opprettVergeOrganisasjon(AvklarVergeDto adapter) {
