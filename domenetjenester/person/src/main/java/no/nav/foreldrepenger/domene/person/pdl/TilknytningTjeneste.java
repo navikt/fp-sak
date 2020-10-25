@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
-import java.util.Objects;
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -39,45 +36,40 @@ public class TilknytningTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId, GeografiskTilknytning fraTPS) {
-        try {
-            var query = new HentPersonQueryRequest();
-            query.setIdent(aktørId.getId());
-            var projection = new PersonResponseProjection()
-                    .geografiskTilknytning(new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand())
-                    .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-            var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
-            var pdlDiskresjon = getDiskresjonskode(person);
-            var pdlTilknytning = getTilknytning(person);
-            var diskKode = Optional.ofNullable(fraTPS.getDiskresjonskode())
-                .map(Diskresjonskode::finnForKodeverkEiersKode)
-                .filter(k -> Diskresjonskode.KODE6.equals(k) || Diskresjonskode.KODE7.equals(k))
-                .map(Diskresjonskode::getKode).orElse(null);
-            if (Objects.equals(diskKode, pdlDiskresjon)) {
-                LOG.info("FPSAK PDL diskkode: like svar");
-            } else {
-                LOG.info("FPSAK PDL diskkode: avvik");
-            }
-            if (Objects.equals(fraTPS.getTilknytning(), pdlTilknytning)) {
-                LOG.info("FPSAK PDL tilknytning: like svar");
-            } else {
-                LOG.info("FPSAK PDL tilknytning: avvik tps {} pdl {}", fraTPS.getTilknytning(), pdlTilknytning);
-            }
-            return new GeografiskTilknytning(pdlTilknytning, pdlDiskresjon);
-        } catch (Exception e) {
-            LOG.info("FPSAK PDL geotilknytning error", e);
-        }
-        return new GeografiskTilknytning(null, null);
+    public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {
+
+        var query = new HentPersonQueryRequest();
+        query.setIdent(aktørId.getId());
+        var projection = new PersonResponseProjection()
+            .geografiskTilknytning(new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand())
+            .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
+
+        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+
+        var diskresjon = getDiskresjonskode(person);
+        var tilknytning = getTilknytning(person);
+        return new GeografiskTilknytning(tilknytning, diskresjon);
     }
 
-    private String getDiskresjonskode(Person person) {
+    public Diskresjonskode hentDiskresjonskode(AktørId aktørId) {
+        var query = new HentPersonQueryRequest();
+        query.setIdent(aktørId.getId());
+        var projection = new PersonResponseProjection()
+            .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
+
+        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+
+        return getDiskresjonskode(person);
+    }
+
+    private Diskresjonskode getDiskresjonskode(Person person) {
         var kode = person.getAdressebeskyttelse().stream()
-                .map(Adressebeskyttelse::getGradering)
-                .filter(g -> !AdressebeskyttelseGradering.UGRADERT.equals(g))
-                .findFirst().orElse(null);
+            .map(Adressebeskyttelse::getGradering)
+            .filter(g -> !AdressebeskyttelseGradering.UGRADERT.equals(g))
+            .findFirst().orElse(null);
         if (AdressebeskyttelseGradering.STRENGT_FORTROLIG.equals(kode) || AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND.equals(kode))
-            return Diskresjonskode.KODE6.getKode();
-        return AdressebeskyttelseGradering.FORTROLIG.equals(kode) ? Diskresjonskode.KODE7.getKode() : null;
+            return Diskresjonskode.KODE6;
+        return AdressebeskyttelseGradering.FORTROLIG.equals(kode) ? Diskresjonskode.KODE7 : Diskresjonskode.UDEFINERT;
     }
 
     private String getTilknytning(Person person) {

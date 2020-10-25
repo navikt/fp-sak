@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskre
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
 public class PersonopplysningDtoPersonIdentTjeneste {
@@ -28,65 +29,55 @@ public class PersonopplysningDtoPersonIdentTjeneste {
     // oppdater med foedselsnr
     public void oppdaterMedPersonIdent(PersonopplysningDto personopplysningDto) {
         // memoriser oppslagsfunksjoner - unngår repeterende tjeneste kall eksternt
-        Function<AktørId, Optional<PersonIdent>> personInfoFinder = memoize((aktørId) -> personinfoAdapter.hentFnr(aktørId));
-        Function<AktørId, Optional<String>> diskresjonskodeFinder = memoize((aktørId) -> personinfoAdapter.hentDiskresjonskodeForAktør(aktørId));
+        Function<AktørId, Optional<Tuple<PersonIdent, Diskresjonskode>>> piDiskresjonFinder = memoize((aktørId) -> personinfoAdapter.hentPersonIdentMedDiskresjonskode(aktørId));
 
         // Sett fødselsnummer og diskresjonskodepå personopplysning for alle
         // behandlinger. Fødselsnummer og diskresjonskode lagres ikke i basen og må derfor hentes fra
         // TPS/IdentRepository// for å vises i GUI.
         if (personopplysningDto != null) {
-            setFnrPaPersonopplysning(personopplysningDto,
-                personInfoFinder,
-                diskresjonskodeFinder);
+            setFnrPaPersonopplysning(personopplysningDto, piDiskresjonFinder);
         }
 
     }
 
-    void setFnrPaPersonopplysning(PersonopplysningDto dto, Function<AktørId, Optional<PersonIdent>> tpsFnrFinder,
-                                  Function<AktørId, Optional<String>> tpsKodeFinder) {
+    void setFnrPaPersonopplysning(PersonopplysningDto dto, Function<AktørId, Optional<Tuple<PersonIdent, Diskresjonskode>>> piDiskresjonFinder) {
 
         // Soker
-        dto.setFnr(findFnr(dto.getAktoerId(), tpsFnrFinder)); // forelder / soeker
-        dto.setDiskresjonskode(findKode(dto.getAktoerId(), tpsKodeFinder));
+        dto.setFnr(findFnr(dto.getAktoerId(), piDiskresjonFinder)); // forelder / soeker
+        dto.setDiskresjonskode(findKode(dto.getAktoerId(), piDiskresjonFinder));
 
         // Medsoker
         if (dto.getAnnenPart() != null) {
-            dto.getAnnenPart().setFnr(findFnr(dto.getAnnenPart().getAktoerId(), tpsFnrFinder));
-            dto.getAnnenPart().setDiskresjonskode(findKode(dto.getAnnenPart().getAktoerId(), tpsKodeFinder));
+            dto.getAnnenPart().setFnr(findFnr(dto.getAnnenPart().getAktoerId(), piDiskresjonFinder));
+            dto.getAnnenPart().setDiskresjonskode(findKode(dto.getAnnenPart().getAktoerId(), piDiskresjonFinder));
             // Medsøkers barn
             if (!dto.getAnnenPart().getBarn().isEmpty()) {
                 for (PersonopplysningDto dtoBarn : dto.getAnnenPart().getBarn()) {
-                    dtoBarn.setFnr(findFnr(dtoBarn.getAktoerId(), tpsFnrFinder));
-                    dtoBarn.setDiskresjonskode(findKode(dtoBarn.getAktoerId(), tpsKodeFinder));
+                    dtoBarn.setFnr(findFnr(dtoBarn.getAktoerId(), piDiskresjonFinder));
+                    dtoBarn.setDiskresjonskode(findKode(dtoBarn.getAktoerId(), piDiskresjonFinder));
                 }
             }
         }
 
         // ektefelle
         if (dto.getEktefelle() != null) {
-            dto.getEktefelle().setFnr(findFnr(dto.getEktefelle().getAktoerId(), tpsFnrFinder));
-            dto.getEktefelle().setDiskresjonskode(findKode(dto.getEktefelle().getAktoerId(), tpsKodeFinder));
+            dto.getEktefelle().setFnr(findFnr(dto.getEktefelle().getAktoerId(), piDiskresjonFinder));
+            dto.getEktefelle().setDiskresjonskode(findKode(dto.getEktefelle().getAktoerId(), piDiskresjonFinder));
         }
 
         // Barn
         for (PersonopplysningDto dtoBarn : dto.getBarn()) {
-            dtoBarn.setFnr(findFnr(dtoBarn.getAktoerId(), tpsFnrFinder));
-            dtoBarn.setDiskresjonskode(findKode(dtoBarn.getAktoerId(), tpsKodeFinder));
+            dtoBarn.setFnr(findFnr(dtoBarn.getAktoerId(), piDiskresjonFinder));
+            dtoBarn.setDiskresjonskode(findKode(dtoBarn.getAktoerId(), piDiskresjonFinder));
         }
     }
 
-    private Diskresjonskode findKode(AktørId aktørId, Function<AktørId, Optional<String>> tpsKodeFinder) {
-        if (aktørId != null) {
-            Optional<String> kode = tpsKodeFinder.apply(aktørId);
-            if (kode.isPresent()) {
-                return Diskresjonskode.fraKode(kode.get());
-            }
-        }
-        return Diskresjonskode.UDEFINERT;
+    private Diskresjonskode findKode(AktørId aktørId, Function<AktørId, Optional<Tuple<PersonIdent, Diskresjonskode>>> piDiskresjonFinder) {
+        return aktørId == null ? null : piDiskresjonFinder.apply(aktørId).map(Tuple::getElement2).orElse(Diskresjonskode.UDEFINERT);
     }
 
-    private String findFnr(AktørId aktørId, Function<AktørId, Optional<PersonIdent>> tpsFnrFinder) {
-        return aktørId == null ? null : tpsFnrFinder.apply(aktørId).map(PersonIdent::getIdent).orElse(null);
+    private String findFnr(AktørId aktørId, Function<AktørId, Optional<Tuple<PersonIdent, Diskresjonskode>>> piDiskresjonFinder) {
+        return aktørId == null ? null : piDiskresjonFinder.apply(aktørId).map(Tuple::getElement1).map(PersonIdent::getIdent).orElse(null);
 
     }
 
