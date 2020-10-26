@@ -281,8 +281,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             BehandlingStegType.KLAGE_VURDER_FORMKRAV_NK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FORMKRAV_KLAGE_KA, ENTRINN, EnumSet.of(ES, FP, SVP)),
     VURDER_FEILUTBETALING(AksjonspunktKodeDefinisjon.VURDER_FEILUTBETALING_KODE,
             AksjonspunktType.MANUELL, "Vurder feilutbetaling", BehandlingStegType.SIMULER_OPPDRAG, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    VURDER_INNTREKK(AksjonspunktKodeDefinisjon.VURDER_INNTREKK_KODE,
-            AksjonspunktType.MANUELL, "Vurder inntrekk", BehandlingStegType.SIMULER_OPPDRAG, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
     AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT(
             AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT_KODE, AksjonspunktType.MANUELL, "Avklar annen forelder har rett",
             BehandlingStegType.VURDER_UTTAK, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_UTTAK, ENTRINN, EnumSet.of(FP, SVP)),

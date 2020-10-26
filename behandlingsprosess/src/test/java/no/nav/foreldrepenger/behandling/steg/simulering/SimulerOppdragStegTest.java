@@ -191,7 +191,7 @@ public class SimulerOppdragStegTest {
     @Test
     public void utførSteg_lagrer_tilbakekrevingoppdater_hvis_det_er_en_åpen_tilbakekreving_men_simuleringresultat_ikke_påvirke_grunnlag() {
         when(fptilbakeRestKlientMock.harÅpenTilbakekrevingsbehandling(any(Saksnummer.class))).thenReturn(true);
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0l, 0L, true)));
+        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0L, 0L, true)));
 
         steg = opprettSteg();
 

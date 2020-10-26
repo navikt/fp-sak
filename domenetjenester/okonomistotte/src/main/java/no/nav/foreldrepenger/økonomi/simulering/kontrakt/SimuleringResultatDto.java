@@ -29,4 +29,12 @@ public class SimuleringResultatDto {
     public boolean isSlåttAvInntrekk() {
         return slåttAvInntrekk;
     }
+
+    public boolean harFeilutbetaling() {
+        return sumFeilutbetaling != null && sumFeilutbetaling != 0;
+    }
+
+    public boolean harInntrekkmulighet() {
+        return sumInntrekk != null && sumInntrekk != 0;
+    }
 }

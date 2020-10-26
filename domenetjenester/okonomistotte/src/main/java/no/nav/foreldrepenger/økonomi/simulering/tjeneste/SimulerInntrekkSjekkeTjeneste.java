@@ -7,7 +7,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.økonomi.simulering.SimulerOppdragAksjonspunktUtleder;
 import no.nav.foreldrepenger.økonomi.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragApplikasjonTjeneste;
 
@@ -48,6 +46,11 @@ public class SimulerInntrekkSjekkeTjeneste {
         this.historikkRepository = historikkRepository;
     }
 
+    /**
+     * denne tjenesten brukes når vedtak fattes. Hvis det i simulering-steget ikke ble identifiseret feilutbetaling,
+     * men det identifiseres på dette tidspunktet, blir tidligere valg angående tilbakekreving reversert da de nå er ugyldige,
+     * og automatisk satt til at det skal opprettes tilbakekrevingsbehandling
+     */
     public void sjekkIntrekk(Behandling behandling) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             return;
@@ -58,12 +61,9 @@ public class SimulerInntrekkSjekkeTjeneste {
             simuleringIntegrasjonTjeneste.startSimulering(behandling.getId(), oppdragXmler);
 
             Optional<SimuleringResultatDto> simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());
-            if (simuleringResultatDto.isPresent()) {
-                Optional<AksjonspunktDefinisjon> aksjonspunkt = SimulerOppdragAksjonspunktUtleder.utledAksjonspunkt(simuleringResultatDto.get());
-                if (aksjonspunkt.filter(aksjonspunktDefinisjon -> aksjonspunktDefinisjon.equals(AksjonspunktDefinisjon.VURDER_FEILUTBETALING)).isPresent()) {
-                    tilbakekrevingRepository.lagre(behandling, TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, null));
-                    opprettHistorikkInnslag(behandling.getId());
-                }
+            if (simuleringResultatDto.isPresent() && simuleringResultatDto.get().harFeilutbetaling()) {
+                tilbakekrevingRepository.lagre(behandling, TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, null));
+                opprettHistorikkInnslag(behandling.getId());
             }
         }
     }
