@@ -24,20 +24,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
+import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.tjeneste.virksomhet.journal.v3.HentKjerneJournalpostListeUgyldigInput;
 import no.nav.tjeneste.virksomhet.journal.v3.informasjon.Journalposttyper;
 import no.nav.tjeneste.virksomhet.journal.v3.informasjon.Journaltilstand;
 import no.nav.tjeneste.virksomhet.journal.v3.informasjon.hentkjernejournalpostliste.Journalpost;
 import no.nav.tjeneste.virksomhet.journal.v3.meldinger.HentKjerneJournalpostListeResponse;
 import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt;
 import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 
@@ -62,7 +60,7 @@ public class PdpRequestBuilderTest {
     @Mock
     private PipRepository pipRepository;
     @Mock
-    private AktørConsumerMedCache aktørConsumer;
+    private AktørTjeneste aktørConsumer;
 
     private AppPdpRequestBuilderImpl requestBuilder;
 
@@ -73,7 +71,7 @@ public class PdpRequestBuilderTest {
     }
 
     @Test
-    public void skal_hente_saksstatus_og_behandlingsstatus_når_behandlingId_er_input() throws Exception {
+    public void skal_hente_saksstatus_og_behandlingsstatus_når_behandlingId_er_input() {
         AbacAttributtSamling attributter = byggAbacAttributtSamling().leggTil(AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_ID, BEHANDLING_ID));
 
@@ -95,7 +93,7 @@ public class PdpRequestBuilderTest {
     }
 
     @Test
-    public void skal_angi_aktørId_gitt_journalpost_id_som_input() throws HentKjerneJournalpostListeUgyldigInput {
+    public void skal_angi_aktørId_gitt_journalpost_id_som_input() {
         AbacAttributtSamling attributter = byggAbacAttributtSamling().leggTil(AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.JOURNALPOST_ID, JOURNALPOST_ID.getVerdi()));
         final HentKjerneJournalpostListeResponse mockJournalResponse = initJournalMockResponse(false);
@@ -113,7 +111,7 @@ public class PdpRequestBuilderTest {
         AbacAttributtSamling attributter = byggAbacAttributtSamling();
         attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKER_MED_FNR, PERSON_0));
 
-        when(aktørConsumer.hentAktørIdForPersonIdentSet(any())).thenReturn(Collections.singleton(AKTØR_0.getId()));
+        when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_0));
 
         Set<Long> fagsakIder = new HashSet<>();
         fagsakIder.add(FAGSAK_ID);
@@ -140,7 +138,7 @@ public class PdpRequestBuilderTest {
     }
 
     @Test
-    public void skal_ta_inn_aksjonspunkt_id_og_sende_videre_aksjonspunkt_typer() throws Exception {
+    public void skal_ta_inn_aksjonspunkt_id_og_sende_videre_aksjonspunkt_typer() {
         AbacAttributtSamling attributter = byggAbacAttributtSamling();
         attributter.leggTil(AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, "0000")
@@ -159,7 +157,7 @@ public class PdpRequestBuilderTest {
     }
 
     @Test
-    public void skal_slå_opp_og_sende_videre_fnr_når_aktør_id_er_input() throws Exception {
+    public void skal_slå_opp_og_sende_videre_fnr_når_aktør_id_er_input() {
         AbacAttributtSamling attributter = byggAbacAttributtSamling();
         attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, AKTØR_1.getId()));
 
@@ -168,7 +166,7 @@ public class PdpRequestBuilderTest {
     }
 
     @Test
-    public void skal_ikke_godta_at_det_sendes_inn_fagsak_id_og_behandling_id_som_ikke_stemmer_overens() throws Exception {
+    public void skal_ikke_godta_at_det_sendes_inn_fagsak_id_og_behandling_id_som_ikke_stemmer_overens() {
 
         AbacAttributtSamling attributter = byggAbacAttributtSamling();
         attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FAGSAK_ID, 123L));

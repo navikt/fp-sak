@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -92,6 +93,9 @@ public class PersonBasisTjeneste {
 
             if (Objects.equals(fraPDL, mapFraTPS(fraTPS)) && Objects.equals(pdlStatus, tpsStatus)) {
                 LOG.info("FPSAK PDL BASIS: like svar");
+            } else if (Objects.equals(fraPDL, mapFraTPS(fraTPS)) && !Objects.equals(pdlStatus, tpsStatus)) {
+                LOG.info("FPSAK PDL BASIS: avvik personstatus TPS {} vs PDL {}", fraTPS.getPersonstatus().getKode(),
+                    person.getFolkeregisterpersonstatus().stream().map(Folkeregisterpersonstatus::toString).collect(Collectors.toList()));
             } else {
                 LOG.info("FPSAK PDL BASIS: avvik {}", finnAvvik(fraTPS, fraPDL, pdlStatus));
             }

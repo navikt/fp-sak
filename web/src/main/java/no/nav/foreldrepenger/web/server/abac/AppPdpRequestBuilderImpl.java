@@ -18,11 +18,12 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
+import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.felles.integrasjon.aktør.klient.AktørConsumerMedCache;
 import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
 import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
@@ -37,13 +38,13 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     public static final String ABAC_DOMAIN = "foreldrepenger";
     private static final MdcExtendedLogContext MDC_EXTENDED_LOG_CONTEXT = MdcExtendedLogContext.getContext("prosess"); //$NON-NLS-1$
     private PipRepository pipRepository;
-    private AktørConsumerMedCache aktørConsumer;
+    private AktørTjeneste aktørConsumer;
 
     public AppPdpRequestBuilderImpl() {
     }
 
     @Inject
-    public AppPdpRequestBuilderImpl(PipRepository pipRepository, AktørConsumerMedCache aktørConsumer) {
+    public AppPdpRequestBuilderImpl(PipRepository pipRepository, AktørTjeneste aktørConsumer) {
         this.pipRepository = pipRepository;
         this.aktørConsumer = aktørConsumer;
     }
@@ -179,7 +180,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         if (fnr == null || fnr.isEmpty()) {
             return Collections.emptySet();
         }
-        return aktørConsumer.hentAktørIdForPersonIdentSet(fnr).stream().map(id -> new AktørId(id)).collect(Collectors.toSet());
+        return fnr.stream().flatMap(f -> aktørConsumer.hentAktørIdForPersonIdent(new PersonIdent(f)).stream()).collect(Collectors.toSet());
     }
 
 }
