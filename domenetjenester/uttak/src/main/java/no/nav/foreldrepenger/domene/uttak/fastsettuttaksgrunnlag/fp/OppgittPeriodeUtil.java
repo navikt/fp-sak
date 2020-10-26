@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 
 class OppgittPeriodeUtil {
@@ -30,7 +29,7 @@ class OppgittPeriodeUtil {
         List<OppgittPeriodeEntitet> sortertePerioder = sorterEtterFom(oppgittePerioder);
         List<OppgittPeriodeEntitet> perioderMedUttak = sortertePerioder
             .stream()
-            .filter(p -> Årsak.UKJENT.equals(p.getÅrsak()) || !(p.getÅrsak() instanceof OppholdÅrsak))
+            .filter(p -> Årsak.UKJENT.equals(p.getÅrsak()) || !p.erOpphold())
             .collect(Collectors.toList());
 
         if(perioderMedUttak.size() > 0) {

@@ -18,8 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.IntervalUtils;
@@ -80,10 +78,10 @@ final class SøknadsperiodeDokumentasjonKontrollerer {
             throw KontrollerFaktaUttakFeil.FACTORY.dokumentertUtenBegrunnelse().toException();
         }
 
-        if (erUtsettelse(søknadsperiode)) {
+        if (søknadsperiode.erUtsettelse()) {
             return kontrollerUtsettelse(søknadsperiode);
         }
-        if (erOverføring(søknadsperiode)) {
+        if (søknadsperiode.erOverføring()) {
             return kontrollerOverføring(søknadsperiode);
         }
         if (erGyldigGrunnForTidligOppstart(søknadsperiode)) {
@@ -117,16 +115,6 @@ final class SøknadsperiodeDokumentasjonKontrollerer {
             throw FeilFactory.create(KontrollerFaktaUttakFeil.class).søktGraderingUtenArbeidsgiver(søknadsperiode.getPeriodeType().getKode(),
                 søknadsperiode.getFom(), søknadsperiode.getTom()).toException();
         }
-    }
-
-    private boolean erUtsettelse(OppgittPeriodeEntitet søknadsperiode) {
-        Årsak årsak = søknadsperiode.getÅrsak();
-        return årsak instanceof UtsettelseÅrsak && !UtsettelseÅrsak.UDEFINERT.equals(årsak);
-    }
-
-    private boolean erOverføring(OppgittPeriodeEntitet søknadsPeriode) {
-        Årsak årsak = søknadsPeriode.getÅrsak();
-        return årsak instanceof OverføringÅrsak && !OverføringÅrsak.UDEFINERT.equals(årsak);
     }
 
     private KontrollerFaktaPeriode kontrollerOverføring(OppgittPeriodeEntitet søknadsperiode) {

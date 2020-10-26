@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
@@ -74,7 +73,7 @@ public class AnnenPartGrunnlagBygger {
     }
 
     private static AnnenpartUttakPeriode.Builder utledBuilder(UttakResultatPeriodeEntitet periode) {
-        if (erUtsettelse(periode)) {
+        if (periode.erUtsettelse()) {
             return utsettelseBuilder(periode);
         } else if (erOpphold(periode)) {
             return oppholdBuilder(periode);
@@ -92,10 +91,6 @@ public class AnnenPartGrunnlagBygger {
 
     private static boolean erOpphold(UttakResultatPeriodeEntitet periode) {
         return !OppholdÅrsak.UDEFINERT.equals(periode.getOppholdÅrsak());
-    }
-
-    private static boolean erUtsettelse(UttakResultatPeriodeEntitet periode) {
-        return !UttakUtsettelseType.UDEFINERT.equals(periode.getUtsettelseType());
     }
 
     private static AnnenpartUttakPeriode.Builder utsettelseBuilder(UttakResultatPeriodeEntitet periode) {

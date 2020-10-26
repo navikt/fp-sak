@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -94,17 +93,13 @@ public class FastsettUttaksgrunnlagTjeneste {
             .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .collect(Collectors.toList());
 
-        while (!sortertePerioder.isEmpty() && erOpphold(sortertePerioder.get(sortertePerioder.size() - 1))) {
+        while (!sortertePerioder.isEmpty() && sortertePerioder.get(sortertePerioder.size() - 1).erOpphold()) {
             sortertePerioder.remove(sortertePerioder.size() - 1);
         }
         if (sortertePerioder.isEmpty()) {
             return perioder;
         }
         return sortertePerioder;
-    }
-
-    private boolean erOpphold(OppgittPeriodeEntitet periode) {
-        return periode.getÅrsak() instanceof OppholdÅrsak;
     }
 
     private LocalDate utledEndringsdatoVedRevurdering(UttakInput input) {
@@ -165,6 +160,8 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> kopier(List<OppgittPeriodeEntitet> perioder) {
-        return perioder.stream().map(p -> OppgittPeriodeBuilder.fraEksisterende(p).build()).collect(Collectors.toList());
+        return perioder.stream()
+            .map(p -> OppgittPeriodeBuilder.fraEksisterende(p).build())
+            .collect(Collectors.toList());
     }
 }

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp;
 
-import java.time.Period;
 import java.util.Comparator;
 import java.util.List;
 
@@ -14,7 +13,7 @@ class SøknadsfristRegelOversetter {
         // For å unngå instanser
     }
 
-    static SøknadsfristGrunnlag tilGrunnlag(SøknadEntitet søknad, List<OppgittPeriodeEntitet> oppgittePerioder, Period søknadsfristLengde) {
+    static SøknadsfristGrunnlag tilGrunnlag(SøknadEntitet søknad, List<OppgittPeriodeEntitet> oppgittePerioder) {
         var førsteUttaksdato = oppgittePerioder.stream()
             .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .map(o -> o.getFom())
@@ -23,7 +22,6 @@ class SøknadsfristRegelOversetter {
         return SøknadsfristGrunnlag.builder()
             .medSøknadMottattDato(søknad.getMottattDato())
             .medFørsteUttaksdato(førsteUttaksdato)
-            .medAntallMånederSøknadsfrist(søknadsfristLengde.getMonths())
             .build();
     }
 }

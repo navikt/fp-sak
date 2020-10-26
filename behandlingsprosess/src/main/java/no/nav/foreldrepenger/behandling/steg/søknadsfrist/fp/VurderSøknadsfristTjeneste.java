@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøknadsfristPeriode;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -22,16 +20,13 @@ import no.nav.foreldrepenger.regler.soknadsfrist.SøknadsfristResultat;
 @FagsakYtelseTypeRef("FP")
 public class VurderSøknadsfristTjeneste {
 
-    private Period søknadsfristPeriode;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private SøknadRepository søknadRepository;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     @Inject
-    public VurderSøknadsfristTjeneste(@FagsakYtelseTypeRef("FP") SøknadsfristPeriode søknadsfristPeriode,
-                                      BehandlingRepositoryProvider repositoryProvider) {
-        this.søknadsfristPeriode = søknadsfristPeriode.getValue();
+    public VurderSøknadsfristTjeneste(BehandlingRepositoryProvider repositoryProvider) {
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
@@ -53,7 +48,7 @@ public class VurderSøknadsfristTjeneste {
 
         var søknad = søknadRepository.hentSøknad(behandlingId);
         var regelAdapter = new SøknadsfristRegelAdapter();
-        var resultat = regelAdapter.vurderSøknadsfristFor(søknad, oppgittePerioder, søknadsfristPeriode);
+        var resultat = regelAdapter.vurderSøknadsfristFor(søknad, oppgittePerioder);
 
         lagreResultat(behandlingId, resultat, søknad.getMottattDato());
         return utledAksjonspunkt(resultat);

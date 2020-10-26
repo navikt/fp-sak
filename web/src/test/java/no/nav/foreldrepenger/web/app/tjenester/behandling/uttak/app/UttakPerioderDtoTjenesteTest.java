@@ -80,7 +80,6 @@ public class UttakPerioderDtoTjenesteTest {
         UttakPeriodeType periodeType = UttakPeriodeType.MØDREKVOTE;
         UttakResultatPeriodeSøknadEntitet periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
             .medUttakPeriodeType(periodeType)
-            .medMottattDato(LocalDate.now())
             .build();
         UttakResultatPeriodeEntitet periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusWeeks(2))
             .medGraderingInnvilget(true)

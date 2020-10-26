@@ -12,7 +12,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -35,7 +34,6 @@ import no.nav.foreldrepenger.regler.uttak.beregnkontoer.grunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeKilde;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeVurderingType;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Perioderesultattype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.GraderingIkkeInnvilgetÅrsak;
@@ -49,6 +47,8 @@ public final class UttakEnumMapper {
     private static final KodeMapper<UtsettelseÅrsak, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak> UTSETTELSE_ÅRSAK_MAPPER = initUtsettelseÅrsakMapper();
     private static final KodeMapper<UttakPeriodeVurderingType, PeriodeVurderingType> VURDERING_TYPE_MAPPER = initVurderingTypeMapper();
     private static final KodeMapper<OverføringÅrsak, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak> OVERFØRING_ÅRSAK_MAPPER = initOverføringÅrsakMapper();
+    private static final KodeMapper<UttakUtsettelseType, UtsettelseÅrsak> UTTAK_TIL_OPPGITT_UTSETTELSE_MAPPER = initUttakTilOppgittUtsettelseMapper();
+    private static final KodeMapper<StønadskontoType, UttakPeriodeType> PERIODE_TYPE_MAPPER = initPeriodeTypeMapper();
 
 
     private UttakEnumMapper() {
@@ -182,6 +182,29 @@ public final class UttakEnumMapper {
             .build();
     }
 
+    private static KodeMapper<UttakUtsettelseType, UtsettelseÅrsak> initUttakTilOppgittUtsettelseMapper() {
+        return KodeMapper
+            .medMapping(UttakUtsettelseType.FERIE, UtsettelseÅrsak.FERIE)
+            .medMapping(UttakUtsettelseType.ARBEID, UtsettelseÅrsak.ARBEID)
+            .medMapping(UttakUtsettelseType.SYKDOM_SKADE, UtsettelseÅrsak.SYKDOM)
+            .medMapping(UttakUtsettelseType.SØKER_INNLAGT, UtsettelseÅrsak.INSTITUSJON_SØKER)
+            .medMapping(UttakUtsettelseType.BARN_INNLAGT, UtsettelseÅrsak.INSTITUSJON_BARN)
+            .medMapping(UttakUtsettelseType.HV_OVELSE, UtsettelseÅrsak.HV_OVELSE)
+            .medMapping(UttakUtsettelseType.NAV_TILTAK, UtsettelseÅrsak.NAV_TILTAK)
+            .build();
+    }
+
+    private static KodeMapper<StønadskontoType, UttakPeriodeType> initPeriodeTypeMapper() {
+        return KodeMapper
+            .medMapping(StønadskontoType.FEDREKVOTE, UttakPeriodeType.FEDREKVOTE)
+            .medMapping(StønadskontoType.FELLESPERIODE, UttakPeriodeType.FELLESPERIODE)
+            .medMapping(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+            .medMapping(StønadskontoType.MØDREKVOTE, UttakPeriodeType.MØDREKVOTE)
+            .medMapping(StønadskontoType.FORELDREPENGER, UttakPeriodeType.FORELDREPENGER)
+            .medMapping(StønadskontoType.UDEFINERT, UttakPeriodeType.UDEFINERT)
+            .build();
+    }
+
     public static PeriodeVurderingType map(UttakPeriodeVurderingType uttakPeriodeVurderingType) {
         return VURDERING_TYPE_MAPPER
             .map(uttakPeriodeVurderingType)
@@ -195,15 +218,6 @@ public final class UttakEnumMapper {
             .medMapping(UttakPeriodeVurderingType.PERIODE_KAN_IKKE_AVKLARES, PeriodeVurderingType.UAVKLART_PERIODE)
             .medMapping(UttakPeriodeVurderingType.PERIODE_IKKE_VURDERT, PeriodeVurderingType.IKKE_VURDERT)
             .build();
-    }
-
-    public static PeriodeKilde map(FordelingPeriodeKilde fordelingPeriodeKilde) {
-        if (FordelingPeriodeKilde.TIDLIGERE_VEDTAK.equals(fordelingPeriodeKilde)) {
-            return PeriodeKilde.TIDLIGERE_VEDTAK;
-        } else if (FordelingPeriodeKilde.SØKNAD.equals(fordelingPeriodeKilde)) {
-            return PeriodeKilde.SØKNAD;
-        }
-        throw new UnsupportedOperationException("Har ikke støtte for periodekilde " + fordelingPeriodeKilde.getKode());
     }
 
     public static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak map(OverføringÅrsak overføringÅrsak) {
@@ -318,6 +332,7 @@ public final class UttakEnumMapper {
         throw new IllegalStateException("Ukjent aktivitetstype " + aktivitetType);
     }
 
+
     public static Arbeidsgiver mapArbeidsgiver(AktivitetIdentifikator aktivitetIdentifikator) {
         if (aktivitetIdentifikator == null || aktivitetIdentifikator.getArbeidsgiverIdentifikator() == null) {
             throw new IllegalArgumentException("Arbeidsgiver ident kan ikke være null");
@@ -328,5 +343,13 @@ public final class UttakEnumMapper {
 
     private static boolean erVirksomhet(AktivitetIdentifikator aktivitetIdentifikator) {
         return aktivitetIdentifikator.getArbeidsgiverType().equals(AktivitetIdentifikator.ArbeidsgiverType.VIRKSOMHET);
+    }
+
+    public static Optional<UttakPeriodeType> mapTilYf(StønadskontoType stønadskontoType) {
+        return PERIODE_TYPE_MAPPER.map(stønadskontoType);
+    }
+
+    public static Optional<UtsettelseÅrsak> mapTilYf(UttakUtsettelseType utsettelseType) {
+        return UTTAK_TIL_OPPGITT_UTSETTELSE_MAPPER.map(utsettelseType);
     }
 }

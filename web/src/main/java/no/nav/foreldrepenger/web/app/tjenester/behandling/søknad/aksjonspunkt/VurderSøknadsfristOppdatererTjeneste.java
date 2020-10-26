@@ -1,13 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
-import static java.time.temporal.ChronoField.DAY_OF_MONTH;
-
 import java.time.LocalDate;
-import java.time.Period;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøknadsfristPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
@@ -18,19 +14,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.regler.SøknadsfristUtil;
 
 public abstract class VurderSøknadsfristOppdatererTjeneste {
 
-    private Period søknadsfristPeriode;
     private HistorikkTjenesteAdapter historikkAdapter;
     private SøknadRepository søknadRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
-    public VurderSøknadsfristOppdatererTjeneste(SøknadsfristPeriode søknadsfristPeriode,
-                                                HistorikkTjenesteAdapter historikkAdapter,
+    public VurderSøknadsfristOppdatererTjeneste(HistorikkTjenesteAdapter historikkAdapter,
                                                 BehandlingRepositoryProvider repositoryProvider) {
-        this.søknadsfristPeriode = søknadsfristPeriode.getValue();
         this.historikkAdapter = historikkAdapter;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -53,7 +47,7 @@ public abstract class VurderSøknadsfristOppdatererTjeneste {
 
     private void lagreResultat(Long behandlingId, VurderSøknadsfristDto dto, SøknadEntitet søknad) {
         var mottattDato = dto.harGyldigGrunn() ? dto.getAnsesMottattDato() : søknad.getMottattDato();
-        var førsteLovligeUttaksdag = mottattDato.with(DAY_OF_MONTH, 1).minus(søknadsfristPeriode);
+        var førsteLovligeUttaksdag = SøknadsfristUtil.finnFørsteLoveligeUttaksdag(mottattDato);
         var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
         var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
             .medMottattDato(mottattDato)
