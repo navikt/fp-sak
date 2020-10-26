@@ -13,14 +13,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.MDC;
 import org.threeten.extra.Interval;
 
@@ -43,7 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.risikoklassifisering.Risikoklassifisering;
 import no.nav.foreldrepenger.domene.risikoklassifisering.task.RisikoklassifiseringUtførTask;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
@@ -54,17 +51,15 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class RisikoklassifiseringTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+@ExtendWith(MockitoExtension.class)
+public class RisikoklassifiseringTest extends EntityManagerAwareTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-    @Rule
-    public RepositoryRule repoRule = new UnittestRepositoryRule();
 
-    private ProsessTaskRepository prosessTaskRepository = spy(new ProsessTaskRepositoryImpl(repoRule.getEntityManager(), null, null));
+    private ProsessTaskRepository prosessTaskRepository;
 
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -78,7 +73,6 @@ public class RisikoklassifiseringTest {
     @Mock
     private FamilieHendelseRepository familieHendelseRepository;
 
-    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
 
     private static final AktørId ANNEN_PART_AKTØR_ID = AktørId.dummy();
@@ -108,9 +102,11 @@ public class RisikoklassifiseringTest {
         OM.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY);
     }
 
-    @Before
-    public void init(){
-        MockitoAnnotations.initMocks(this);
+    @BeforeEach
+    void setUp(){
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        prosessTaskRepository = spy(new ProsessTaskRepositoryImpl(entityManager, null, null));
         risikoklassifisering = new Risikoklassifisering( prosessTaskRepository,  skjæringstidspunktTjeneste,
              risikovurderingTjeneste,  opplysningsPeriodeTjeneste,
             repositoryProvider.getPersonopplysningRepository(),  familieHendelseRepository);
