@@ -4,13 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Properties;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
@@ -18,74 +17,71 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class VilkårResultatTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class VilkårResultatTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private Repository repository = repoRule.getRepository();
+    private BehandlingRepository behandlingRepository;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-
-    private final FagsakRepository fagsakReposiory = new FagsakRepository(repoRule.getEntityManager());
-
-    private Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor().build();
-    private Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-    private Behandling behandling1;
-
-    @Before
-    public void setup() {
-        fagsakReposiory.opprettNy(fagsak);
-        behandling1 = behandlingBuilder.build();
+    @BeforeEach
+    void setup() {
+        var entityManager = getEntityManager();
+        behandlingRepository = new BehandlingRepository(entityManager);
     }
 
     @Test
-    public void skal_gjenbruke_vilkårresultat_i_ny_behandling_når_det_ikke_er_endret() throws Exception {
+    public void skal_gjenbruke_vilkårresultat_i_ny_behandling_når_det_ikke_er_endret() {
         // Arrange
-        lagreBehandling(behandling1);
+        var behandling = lagBehandling();
+        lagreBehandling(behandling);
 
-        Behandlingsresultat.builderForInngangsvilkår().buildFor(behandling1);
-        Behandlingsresultat behandlingsresultat1 = lagreOgGjenopphenteBehandlingsresultat(behandling1);
+        Behandlingsresultat.builderForInngangsvilkår().buildFor(behandling);
+        Behandlingsresultat behandlingsresultat1 = lagreOgGjenopphenteBehandlingsresultat(behandling);
 
         Long id01 = behandlingsresultat1.getBehandlingId();
 
         // Act
-        Behandling behandling2 = Behandling.fraTidligereBehandling(behandling1, BehandlingType.REVURDERING)
+        Behandling behandling2 = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
             .medKopiAvForrigeBehandlingsresultat()
             .build();
         lagreBehandling(behandling2);
         Behandlingsresultat behandlingsresultat2 = lagreOgGjenopphenteBehandlingsresultat(behandling2);
 
         // Assert
-        assertThat(getBehandlingsresultat(behandling2)).isNotSameAs(getBehandlingsresultat(behandling1));
+        assertThat(getBehandlingsresultat(behandling2)).isNotSameAs(getBehandlingsresultat(behandling));
         assertThat(getBehandlingsresultat(behandling2).getVilkårResultat())
-                .isSameAs(getBehandlingsresultat(behandling1).getVilkårResultat());
+                .isSameAs(getBehandlingsresultat(behandling).getVilkårResultat());
         assertThat(getBehandlingsresultat(behandling2).getVilkårResultat())
-                .isEqualTo(getBehandlingsresultat(behandling1).getVilkårResultat());
+                .isEqualTo(getBehandlingsresultat(behandling).getVilkårResultat());
 
         Long id02 = behandlingsresultat2.getBehandlingId();
         assertThat(id02).isNotEqualTo(id01);
     }
 
-    @Test
-    public void skal_opprette_nytt_vilkårresultat_i_ny_behandling_når_det_endrer_vilkårresultat() throws Exception {
-        // Arrange
-        lagreBehandling(behandling1);
+    private Behandling lagBehandling() {
+        var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
+        new FagsakRepository(getEntityManager()).opprettNy(fagsak);
+        return Behandling.forFørstegangssøknad(fagsak).build();
+    }
 
-        Behandlingsresultat.builderForInngangsvilkår().buildFor(behandling1);
-        Behandlingsresultat behandlingsresultat1 = lagreOgGjenopphenteBehandlingsresultat(behandling1);
+    @Test
+    public void skal_opprette_nytt_vilkårresultat_i_ny_behandling_når_det_endrer_vilkårresultat() {
+        // Arrange
+        var behandling = lagBehandling();
+        lagreBehandling(behandling);
+
+        Behandlingsresultat.builderForInngangsvilkår().buildFor(behandling);
+        Behandlingsresultat behandlingsresultat1 = lagreOgGjenopphenteBehandlingsresultat(behandling);
 
         Long id01 = behandlingsresultat1.getBehandlingId();
 
         // Act
-        Behandling.Builder builder = Behandling.fraTidligereBehandling(behandling1, BehandlingType.REVURDERING)
+        Behandling.Builder builder = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
             .medKopiAvForrigeBehandlingsresultat();
         Behandling behandling2 = builder.build();
         lagreBehandling(behandling2);
@@ -97,9 +93,9 @@ public class VilkårResultatTest {
 
         Behandlingsresultat behandlingsresultat2 = lagreOgGjenopphenteBehandlingsresultat(behandling2);
         // Assert
-        assertThat(getBehandlingsresultat(behandling2)).isNotSameAs(getBehandlingsresultat(behandling1));
+        assertThat(getBehandlingsresultat(behandling2)).isNotSameAs(getBehandlingsresultat(behandling));
         assertThat(getBehandlingsresultat(behandling2).getVilkårResultat())
-                .isNotEqualTo(getBehandlingsresultat(behandling1).getVilkårResultat());
+                .isNotEqualTo(getBehandlingsresultat(behandling).getVilkårResultat());
 
         Long id02 = behandlingsresultat2.getBehandlingId();
         assertThat(id02).isNotEqualTo(id01);
@@ -108,21 +104,22 @@ public class VilkårResultatTest {
     @Test
     public void skal_lagre_og_hente_vilkår_med_avslagsårsak() {
         // Arrange
-        lagreBehandling(behandling1);
+        var behandling = lagBehandling();
+        lagreBehandling(behandling);
         VilkårResultat.Builder vilkårResultatBuilder = VilkårResultat.builder()
                 .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkårResultat(VilkårType.OMSORGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, null, new Properties(), Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O, false, false, null, null);
         Behandlingsresultat.Builder behandlingsresultatBuilder = new Behandlingsresultat.Builder(vilkårResultatBuilder);
-        Behandlingsresultat behandlingsresultat1 = behandlingsresultatBuilder.buildFor(behandling1);
+        Behandlingsresultat behandlingsresultat1 = behandlingsresultatBuilder.buildFor(behandling);
 
         // Act
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling1);
+        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandlingsresultat1.getVilkårResultat(), lås);
-        lagreBehandling(behandling1);
-        Behandling lagretBehandling = repository.hent(Behandling.class, behandling1.getId());
+        lagreBehandling(behandling);
+        Behandling lagretBehandling = new Repository(getEntityManager()).hent(Behandling.class, behandling.getId());
 
         // Assert
-        assertThat(lagretBehandling).isEqualTo(behandling1);
+        assertThat(lagretBehandling).isEqualTo(behandling);
         assertThat(getBehandlingsresultat(lagretBehandling).getVilkårResultat().getVilkårene()).hasSize(1);
         Vilkår vilkår = getBehandlingsresultat(lagretBehandling).getVilkårResultat().getVilkårene().get(0);
         assertThat(vilkår.getAvslagsårsak()).isNotNull();
@@ -134,18 +131,19 @@ public class VilkårResultatTest {
     }
 
     @Test
-    public void skal_legge_til_vilkår() throws Exception {
+    public void skal_legge_til_vilkår() {
         // Arrange
+        var behandling = lagBehandling();
         VilkårResultat opprinneligVilkårResultat = VilkårResultat.builder()
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .leggTilVilkår(VilkårType.SØKNADSFRISTVILKÅRET, VilkårUtfallType.IKKE_VURDERT)
-            .buildFor(behandling1);
+            .buildFor(behandling);
 
         // Act
         VilkårResultat oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
             .medVilkårResultatType(VilkårResultatType.INNVILGET)
             .leggTilVilkårResultat(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, VilkårUtfallType.IKKE_OPPFYLT, null, new Properties(), Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_F, true, false, null, null)
-            .buildFor(behandling1);
+            .buildFor(behandling);
 
         // Assert
         assertThat(oppdatertVilkårResultat.getVilkårene()).hasSize(2);
@@ -160,18 +158,19 @@ public class VilkårResultatTest {
     }
 
     @Test
-    public void skal_oppdatere_vilkår_med_nytt_utfall() throws Exception {
+    public void skal_oppdatere_vilkår_med_nytt_utfall() {
         // Arrange
+        var behandling = lagBehandling();
         VilkårResultat opprinneligVilkårResultat = VilkårResultat.builder()
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .leggTilVilkårResultat(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.IKKE_OPPFYLT, null, new Properties(), Avslagsårsak.SØKER_HAR_IKKE_FORELDREANSVAR, true, false, null, null)
-            .buildFor(behandling1);
+            .buildFor(behandling);
 
         // Act
         VilkårResultat oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
             .medVilkårResultatType(VilkårResultatType.INNVILGET)
             .leggTilVilkårResultat(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.OPPFYLT, null, new Properties(), null, true, false, null, null)
-            .buildFor(behandling1);
+            .buildFor(behandling);
 
         // Assert
         assertThat(oppdatertVilkårResultat.getVilkårene()).hasSize(1);
@@ -182,18 +181,19 @@ public class VilkårResultatTest {
     }
 
     @Test
-    public void skal_overstyre_vilkår() throws Exception {
+    public void skal_overstyre_vilkår() {
         // Arrange
+        var behandling = lagBehandling();
         VilkårResultat opprinneligVilkårResultat = VilkårResultat.builder()
             .medVilkårResultatType(VilkårResultatType.INNVILGET)
             .leggTilVilkårResultat(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT, null, new Properties(), null, false, false, null, null)
-            .buildFor(behandling1);
+            .buildFor(behandling);
 
         // Act 1: Ikke oppfylt (overstyrt)
         VilkårResultat oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_UTVANDRET)
-            .buildFor(behandling1);
+            .buildFor(behandling);
 
         // Assert
         assertThat(oppdatertVilkårResultat.erOverstyrt()).isTrue();
@@ -209,7 +209,7 @@ public class VilkårResultatTest {
         oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(oppdatertVilkårResultat)
             .medVilkårResultatType(VilkårResultatType.INNVILGET)
             .overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT, null)
-            .buildFor(behandling1);
+            .buildFor(behandling);
 
         // Assert
         assertThat(oppdatertVilkårResultat.erOverstyrt()).isTrue();
@@ -223,22 +223,23 @@ public class VilkårResultatTest {
     }
 
     @Test
-    public void skal_beholde_tidligere_overstyring_inkl_avslagsårsak_når_manuell_vurdering_oppdateres() throws Exception {
+    public void skal_beholde_tidligere_overstyring_inkl_avslagsårsak_når_manuell_vurdering_oppdateres() {
         // Arrange
+        var behandling = lagBehandling();
         VilkårResultat opprinneligVilkårResultat = VilkårResultat.builder()
             .medVilkårResultatType(VilkårResultatType.INNVILGET)
             .leggTilVilkårResultat(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT, null, new Properties(), null, false, false, null, null)
-            .buildFor(behandling1);
+            .buildFor(behandling);
         VilkårResultat overstyrtVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_UTVANDRET)
-            .buildFor(behandling1);
+            .buildFor(behandling);
 
         // Act
         VilkårResultat oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(overstyrtVilkårResultat)
             .medVilkårResultatType(VilkårResultatType.INNVILGET)
             .leggTilVilkårResultat(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT, null, new Properties(), null, true, false, null, null)
-            .buildFor(behandling1);
+            .buildFor(behandling);
 
         // Assert
         assertThat(oppdatertVilkårResultat.getVilkårene()).hasSize(1);
@@ -251,18 +252,19 @@ public class VilkårResultatTest {
     }
 
     @Test
-    public void skal_fjerne_vilkår() throws Exception {
+    public void skal_fjerne_vilkår() {
         // Arrange
+        var behandling = lagBehandling();
         VilkårResultat opprinneligVilkårResultat = VilkårResultat.builder()
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .leggTilVilkår(VilkårType.SØKNADSFRISTVILKÅRET, VilkårUtfallType.IKKE_VURDERT)
             .leggTilVilkårResultat(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, VilkårUtfallType.IKKE_OPPFYLT, null, new Properties(), Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_F, true, false, null, null)
-            .buildFor(behandling1);
+            .buildFor(behandling);
 
         // Act
         VilkårResultat oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
             .fjernVilkår(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD)
-            .buildFor(behandling1);
+            .buildFor(behandling);
 
         // Assert
         assertThat(oppdatertVilkårResultat.getVilkårene()).hasSize(1);
@@ -285,7 +287,7 @@ public class VilkårResultatTest {
         Long id = behandling.getId();
         assertThat(id).isNotNull();
 
-        Behandling lagretBehandling = repository.hent(Behandling.class, id);
+        Behandling lagretBehandling = new Repository(getEntityManager()).hent(Behandling.class, id);
         assertThat(lagretBehandling).isEqualTo(behandling);
         assertThat(getBehandlingsresultat(lagretBehandling)).isEqualTo(behandlingsresultat);
 

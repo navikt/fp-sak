@@ -68,7 +68,7 @@ public class FagsakRepositoryTest extends EntityManagerAwareTest {
         opprettFagsak(saksnummer, aktørId);
         List<Fagsak> list = fagsakRepository.hentForBruker(aktørId);
 
-        assertThat(list).hasSize(1);
+        assertThat(list.stream().map(f -> f.getSaksnummer())).contains(saksnummer);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class FagsakRepositoryTest extends EntityManagerAwareTest {
         opprettFagsak(saksnummer1, aktørId1);
         List<Saksnummer> list = fagsakRepository.hentÅpneFagsakerUtenBehandling();
 
-        assertThat(list).hasSize(2);
+        assertThat(list).contains(saksnummer, saksnummer1);
     }
 
     @Test

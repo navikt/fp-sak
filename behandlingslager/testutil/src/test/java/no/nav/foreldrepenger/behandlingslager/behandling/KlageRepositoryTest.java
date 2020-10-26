@@ -4,12 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
@@ -18,36 +15,33 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEnti
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-@RunWith(CdiRunner.class)
-public class KlageRepositoryTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class KlageRepositoryTest extends EntityManagerAwareTest {
 
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private Behandling behandling;
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-
-    @Inject
-    private BehandlingRepository behandlingRepository;
-
-    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
     private KlageRepository klageRepository;
+
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        klageRepository = new KlageRepository(entityManager);
+    }
 
     @Test
     public void skal_lagre_og_oppdatere_formkrav() {
         // Arrange
-        Repository repository = repoRule.getRepository();
+        var entityManager = getEntityManager();
+        Repository repository = new Repository(entityManager);
         var scenario = ScenarioKlageEngangsstønad.forAvvistNK(ScenarioFarSøkerEngangsstønad.forAdopsjon());
-        behandling = scenario.lagre(repositoryProvider, klageRepository);
+        var behandling = scenario.lagre(repositoryProvider, klageRepository);
         entityManager.flush();
 
         KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
@@ -81,9 +75,10 @@ public class KlageRepositoryTest {
     @Test
     public void skal_lagre_og_oppdatere_vurderingresultat() {
         // Arrange
-        Repository repository = repoRule.getRepository();
+        var entityManager = getEntityManager();
+        Repository repository = new Repository(entityManager);
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(ScenarioFarSøkerEngangsstønad.forAdopsjon());
-        behandling = scenario.lagre(repositoryProvider, klageRepository);
+        var behandling = scenario.lagre(repositoryProvider, klageRepository);
         entityManager.flush();
 
         KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
@@ -118,9 +113,10 @@ public class KlageRepositoryTest {
     @Test
     public void skal_hente_formkrav_fra_ka_når_nfp_og_ka_har_vurdert() {
         // Pre Arrange
-        Repository repository = repoRule.getRepository();
+        var entityManager = getEntityManager();
+        Repository repository = new Repository(entityManager);
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(ScenarioFarSøkerEngangsstønad.forAdopsjon());
-        behandling = scenario.lagre(repositoryProvider, klageRepository);
+        var behandling = scenario.lagre(repositoryProvider, klageRepository);
         entityManager.flush();
 
         // Arrange
@@ -151,7 +147,6 @@ public class KlageRepositoryTest {
         assertThat(klageFormkravKa.get().getKlageVurdertAv()).isEqualTo(KlageVurdertAv.NK);
     }
 
-
     private KlageVurderingResultat.Builder opprettVurderingResultat(KlageResultatEntitet klageResultat, KlageVurdertAv klageVurdertAv) {
         return KlageVurderingResultat.builder()
             .medKlageResultat(klageResultat)
@@ -159,7 +154,6 @@ public class KlageRepositoryTest {
             .medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE)
             .medKlageMedholdÅrsak(KlageMedholdÅrsak.ULIK_VURDERING);
     }
-
 
     private KlageFormkravEntitet.Builder opprettFormkravBuilder(KlageResultatEntitet klageResultat, KlageVurdertAv klageVurdertAv) {
         return KlageFormkravEntitet.builder()

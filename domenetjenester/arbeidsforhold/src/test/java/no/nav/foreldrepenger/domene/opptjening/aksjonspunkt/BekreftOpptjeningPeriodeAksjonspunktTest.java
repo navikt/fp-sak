@@ -14,10 +14,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -31,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
@@ -48,26 +47,26 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class BekreftOpptjeningPeriodeAksjonspunktTest {
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BekreftOpptjeningPeriodeAksjonspunktTest extends EntityManagerAwareTest {
 
-    private BehandlingRepository behandlingRepository = new BehandlingRepository(repoRule.getEntityManager());
-    private FagsakRepository fagsakRepository = new FagsakRepository(repoRule.getEntityManager());
-    private VirksomhetTjeneste tjeneste;
+    private BehandlingRepository behandlingRepository;
+    private FagsakRepository fagsakRepository;
 
     private BekreftOpptjeningPeriodeAksjonspunkt bekreftOpptjeningPeriodeAksjonspunkt;
 
-    private AktørId AKTØRID = AktørId.dummy();
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private final AktørId AKTØRID = AktørId.dummy();
+    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private final AksjonspunktutlederForVurderOppgittOpptjening vurderOpptjening = mock(AksjonspunktutlederForVurderOppgittOpptjening.class);
 
-    @Before
+    @BeforeEach
     public void oppsett() {
-        tjeneste = mock(VirksomhetTjeneste.class);
+        var entityManager = getEntityManager();
+        behandlingRepository = new BehandlingRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
+        VirksomhetTjeneste tjeneste = mock(VirksomhetTjeneste.class);
         Virksomhet.Builder builder = new Virksomhet.Builder();
         Virksomhet børreAs = builder.medOrgnr(KUNSTIG_ORG)
             .medNavn("Børre AS")
@@ -79,7 +78,7 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
     @Test
     public void skal_lagre_ned_bekreftet_kunstig_arbeidsforhold() {
         LocalDate iDag = LocalDate.now();
-        final Behandling behandling = opprettBehandling(iDag);
+        final Behandling behandling = opprettBehandling();
 
         DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
 
@@ -127,7 +126,7 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
     @Test
     public void skal_lagre_ned_bekreftet_aksjonspunkt() {
         LocalDate iDag = LocalDate.now();
-        final Behandling behandling = opprettBehandling(iDag);
+        final Behandling behandling = opprettBehandling();
 
         DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
         DatoIntervallEntitet periode1_2 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2), iDag.minusMonths(1));
@@ -187,7 +186,7 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
     @Test
     public void skal_lagre_endring_i_periode_for_egen_næring() {
         LocalDate iDag = LocalDate.now();
-        final Behandling behandling = opprettBehandling(iDag);
+        final Behandling behandling = opprettBehandling();
 
         when(vurderOpptjening.girAksjonspunktForOppgittNæring(any(), any(), any(), any())).thenReturn(true);
         DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
@@ -227,7 +226,7 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         return iayTjeneste.finnGrunnlag(behandling.getId()).orElseThrow();
     }
 
-    private Behandling opprettBehandling(LocalDate iDag) {
+    private Behandling opprettBehandling() {
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
         fagsakRepository.opprettNy(fagsak);
         final Behandling.Builder builder = Behandling.forFørstegangssøknad(fagsak);
