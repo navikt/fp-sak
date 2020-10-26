@@ -6,8 +6,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -37,8 +36,8 @@ public class DokumentmottakerSøknadHåndteringVedAvslåttBehandlingTest extends
     private Behandlingsoppretter behandlingsoppretterSpied;
     private KøKontroller køKontroller;
 
-    @Before
-    public void setup() {
+    @Override
+    protected void setUpBeforeEach() {
         this.behandlingsoppretterSpied = Mockito.spy(behandlingsoppretter);
         this.køKontroller = Mockito.mock(KøKontroller.class);
         dokumentmottakerSøknad = new DokumentmottakerSøknadDefault(
@@ -48,7 +47,6 @@ public class DokumentmottakerSøknadHåndteringVedAvslåttBehandlingTest extends
             kompletthetskontroller,
             køKontroller, fpUttakTjeneste);
     }
-
 
     @Test
     public void skal_opprette_ny_førstegangsbehandling_når_forrige_behandling_var_avslått() {

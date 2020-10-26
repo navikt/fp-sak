@@ -3,9 +3,8 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import static java.time.LocalDate.now;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,15 +13,12 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -30,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -41,13 +38,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -56,24 +56,17 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class DokumentmottakerEndringssøknadTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+@ExtendWith(MockitoExtension.class)
+public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
-    @Inject
     private BehandlingRepository behandlingRepository;
-    @Inject
     private FagsakRepository fagsakRepository;
-    @Inject
-    private ForeldrepengerUttakTjeneste fpUttakTjeneste;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
-    @Inject
     private FagsakRelasjonRepository fagsakRelasjonRepository;
 
     @Mock
@@ -95,12 +88,19 @@ public class DokumentmottakerEndringssøknadTest {
     private DokumentmottakerEndringssøknad dokumentmottaker;
     private DokumentmottakerFelles dokumentmottakerFelles;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
-        MockitoAnnotations.initMocks(this);
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
+        var fpUttakTjeneste = new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager));
+        fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, new YtelsesFordelingRepository(entityManager),
+            new FagsakLåsRepository(entityManager));
+        behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
 
         OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
-        when(enhetsTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
+        lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository,
             enhetsTjeneste, historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
@@ -134,7 +134,7 @@ public class DokumentmottakerEndringssøknadTest {
             .forFødselUtenSøknad()
             .lagre(repositoryProvider);
         BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.INNVILGET);
-        repoRule.getRepository().lagre(vedtak.getBehandlingsresultat());
+        behandlingsresultatRepository.lagre(vedtak.getBehandlingsresultat().getBehandlingId(), vedtak.getBehandlingsresultat());
 
         Behandling revurdering = ScenarioMorSøkerEngangsstønad
             .forFødselUtenSøknad()
@@ -162,7 +162,7 @@ public class DokumentmottakerEndringssøknadTest {
             .forFødselUtenSøknad()
             .lagre(repositoryProvider);
         BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.INNVILGET);
-        repoRule.getRepository().lagre(vedtak.getBehandlingsresultat());
+        behandlingsresultatRepository.lagre(vedtak.getBehandlingsresultat().getBehandlingId(), vedtak.getBehandlingsresultat());
 
         Behandling revurdering = ScenarioMorSøkerEngangsstønad
             .forFødselUtenSøknad()
@@ -195,7 +195,7 @@ public class DokumentmottakerEndringssøknadTest {
             .forFødsel()
             .lagre(repositoryProvider);
         BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.INNVILGET);
-        repoRule.getRepository().lagre(vedtak.getBehandlingsresultat());
+        behandlingsresultatRepository.lagre(vedtak.getBehandlingsresultat().getBehandlingId(), vedtak.getBehandlingsresultat());
 
         Behandling revurdering = ScenarioMorSøkerForeldrepenger
             .forFødsel()
@@ -216,9 +216,6 @@ public class DokumentmottakerEndringssøknadTest {
         // Arrange - mock
         Behandling nyBehandling = mock(Behandling.class);
         when(nyBehandling.getFagsak()).thenReturn(revurdering.getFagsak());
-        when(nyBehandling.getId()).thenReturn(10L);
-        when(nyBehandling.getFagsakId()).thenReturn(behandling.getFagsakId());
-        when(nyBehandling.getAktørId()).thenReturn(behandling.getAktørId());
         when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(revurdering, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).thenReturn(nyBehandling);
 
         // Arrange - legg inn endringssøknad i mottatte dokumenter
@@ -250,12 +247,8 @@ public class DokumentmottakerEndringssøknadTest {
         Fagsak fagsak = gammelbehandling.getFagsak();
         // Arrange - mock tjenestekall
         Behandling behandling = mock(Behandling.class);
-        long behandlingId = 1L;
-        doReturn(behandlingId).when(behandling).getId();
         doReturn(false).when(behandlingsoppretter).erBehandlingOgFørstegangsbehandlingHenlagt(fagsak);
         when(behandlingsoppretter.opprettRevurdering(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).thenReturn(behandling);
-        doNothing().when(kompletthetskontroller).oppdaterKompletthetForKøetBehandling(behandling);
-        doAnswer(invocationOnMock -> { return null;}).when(dokumentmottakerFelles).leggTilBehandlingsårsak(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
 
         // Act - send inn endringssøknad
         Long fagsakId = fagsak.getId();
@@ -274,8 +267,6 @@ public class DokumentmottakerEndringssøknadTest {
 
         // Arrange - mock tjenestekall
         Behandling behandling = mock(Behandling.class);
-        long behandlingId = 1L;
-        doReturn(behandlingId).when(behandling).getId();
         when(behandlingsoppretter.erBehandlingOgFørstegangsbehandlingHenlagt(fagsak)).thenReturn(true);
 
         // Act - send inn endringssøknad
@@ -297,9 +288,6 @@ public class DokumentmottakerEndringssøknadTest {
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
         simulerKøetBehandling(behandling);
-
-        // Arrange - mock tjenestekall
-        doNothing().when(kompletthetskontroller).oppdaterKompletthetForKøetBehandling(behandling);
 
         // Act - send inn endringssøknad
         Long fagsakId = behandling.getFagsakId();
@@ -351,7 +339,7 @@ public class DokumentmottakerEndringssøknadTest {
             .forFødselUtenSøknad()
             .lagre(repositoryProvider);
         BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.INNVILGET);
-        repoRule.getRepository().lagre(vedtak.getBehandlingsresultat());
+        behandlingsresultatRepository.lagre(vedtak.getBehandlingsresultat().getBehandlingId(), vedtak.getBehandlingsresultat());
 
         Behandling revurdering = ScenarioMorSøkerEngangsstønad
             .forFødselUtenSøknad()

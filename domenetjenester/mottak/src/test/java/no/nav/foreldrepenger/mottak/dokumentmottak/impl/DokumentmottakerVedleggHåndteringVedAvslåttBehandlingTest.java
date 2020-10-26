@@ -2,8 +2,7 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import static org.mockito.ArgumentMatchers.any;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -14,17 +13,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 
 public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends DokumentmottakerTestsupport {
 
     private DokumentmottakerVedlegg dokumentmottakerVedlegg;
-    private Behandlingsoppretter behandlingsoppretterSpied;
     private DokumentmottakerFelles dokumentmottakerFellesSpied;
 
-    @Before
-    public void setup() {
-        this.behandlingsoppretterSpied = Mockito.spy(behandlingsoppretter);
+    @Override
+    protected void setUpBeforeEach() {
         this.dokumentmottakerFellesSpied = Mockito.spy(dokumentmottakerFelles);
 
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettHistorikkinnslagForVedlegg(Mockito.any(), Mockito.any());
