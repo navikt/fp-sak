@@ -77,7 +77,7 @@ public class SimulerOppdragStegTest {
         // Arrange
         when(simulerOppdragTjenesteMock.simulerOppdrag(anyLong(), anyLong())).thenReturn(Collections.singletonList("test"));
 
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(-2354L, true)));
+        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(-2354L, 0L, true)));
         steg = opprettSteg();
 
 
@@ -115,7 +115,7 @@ public class SimulerOppdragStegTest {
     @Test
     public void lagrer_automatisk_inntrekk_og_returnerer_ingen_aksjonspunkter_dersom_aksjonspunkt_for_inntrekk() {
         // Arrange
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0L, false)));
+        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0L, -2354L, false)));
 
         steg = opprettSteg();
 
@@ -171,7 +171,7 @@ public class SimulerOppdragStegTest {
     @Test
     public void utførSteg_lagrer_tilbakekrevingoppdater_hvis_det_er_en_åpen_tilbakekreving() {
         when(fptilbakeRestKlientMock.harÅpenTilbakekrevingsbehandling(any(Saksnummer.class))).thenReturn(true);
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(-2354L,true)));
+        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(-2354L, 0L, true)));
 
         steg = opprettSteg();
 
@@ -191,7 +191,7 @@ public class SimulerOppdragStegTest {
     @Test
     public void utførSteg_lagrer_tilbakekrevingoppdater_hvis_det_er_en_åpen_tilbakekreving_men_simuleringresultat_ikke_påvirke_grunnlag() {
         when(fptilbakeRestKlientMock.harÅpenTilbakekrevingsbehandling(any(Saksnummer.class))).thenReturn(true);
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0l, true)));
+        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0L, 0L, true)));
 
         steg = opprettSteg();
 

@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.økonomi.simulering.SimulerOppdragAksjonspunktUtleder;
 import no.nav.foreldrepenger.økonomi.simulering.klient.FpoppdragSystembrukerRestKlient;
 import no.nav.foreldrepenger.økonomi.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.foreldrepenger.økonomi.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
@@ -118,16 +117,18 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         Optional<SimuleringResultatDto> simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());
         if (simuleringResultatDto.isPresent()) {
             SimuleringResultatDto resultatDto = simuleringResultatDto.get();
-            if (kanOppdatereEksisterendeTilbakekrevingsbehandling(behandling,resultatDto)) { // vi sender TILBAKEKREVING_OPPDATER når det finnes et simulering resultat
+            if (kanOppdatereEksisterendeTilbakekrevingsbehandling(behandling, resultatDto)) { // vi sender TILBAKEKREVING_OPPDATER når det finnes et simulering resultat
                 lagreTilbakekrevingValg(behandling, TilbakekrevingValg.medOppdaterTilbakekrevingsbehandling());
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
             }
             tilbakekrevingRepository.lagre(behandling, resultatDto.isSlåttAvInntrekk());
 
-            Optional<AksjonspunktDefinisjon> utledetAksjonspunkt = SimulerOppdragAksjonspunktUtleder.utledAksjonspunkt(resultatDto);
-            if (utledetAksjonspunkt.isPresent()) {
-                AksjonspunktDefinisjon aksjonspunktDefinisjon = utledetAksjonspunkt.get();
-                return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(aksjonspunktDefinisjon));
+            if (resultatDto.harFeilutbetaling()) {
+                return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(AksjonspunktDefinisjon.VURDER_FEILUTBETALING));
+            }
+            if (resultatDto.harInntrekkmulighet()) {
+                lagreTilbakekrevingValg(behandling, TilbakekrevingValg.medAutomatiskInntrekk());
+                return BehandleStegResultat.utførtUtenAksjonspunkter();
             }
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
@@ -151,7 +152,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         return currentTime.with(TemporalAdjusters.next(DayOfWeek.MONDAY)).withHour(ÅPNINGSTID).withMinute(15);
     }
 
-    private boolean kanOppdatereEksisterendeTilbakekrevingsbehandling(Behandling behandling, SimuleringResultatDto simuleringResultatDto){
+    private boolean kanOppdatereEksisterendeTilbakekrevingsbehandling(Behandling behandling, SimuleringResultatDto simuleringResultatDto) {
         return harÅpenTilbakekreving(behandling) && simuleringResultatDto.getSumFeilutbetaling() != 0;
     }
 

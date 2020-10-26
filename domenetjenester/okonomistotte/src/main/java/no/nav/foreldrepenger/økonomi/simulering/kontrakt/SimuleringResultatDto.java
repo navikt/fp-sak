@@ -6,13 +6,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class SimuleringResultatDto {
 
     private Long sumFeilutbetaling;
+    private Long sumInntrekk;
     private boolean slåttAvInntrekk;
 
     public SimuleringResultatDto() {
     }
 
-    public SimuleringResultatDto(Long sumFeilutbetaling, boolean slåttAvInntrekk) {
+    public SimuleringResultatDto(Long sumFeilutbetaling, Long sumInntrekk, boolean slåttAvInntrekk) {
         this.sumFeilutbetaling = sumFeilutbetaling;
+        this.sumInntrekk = sumInntrekk;
         this.slåttAvInntrekk = slåttAvInntrekk;
     }
 
@@ -20,8 +22,19 @@ public class SimuleringResultatDto {
         return sumFeilutbetaling;
     }
 
+    public Long getSumInntrekk() {
+        return sumInntrekk;
+    }
 
     public boolean isSlåttAvInntrekk() {
         return slåttAvInntrekk;
+    }
+
+    public boolean harFeilutbetaling() {
+        return sumFeilutbetaling != null && sumFeilutbetaling != 0;
+    }
+
+    public boolean harInntrekkmulighet() {
+        return sumInntrekk != null && sumInntrekk != 0;
     }
 }

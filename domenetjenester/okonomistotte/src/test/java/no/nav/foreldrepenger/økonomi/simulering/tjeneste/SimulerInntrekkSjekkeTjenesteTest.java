@@ -66,7 +66,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
     @Test
     public void sjekkIntrekk_når_aksjonpunkt_er_vurder_intrekk() {
         when(tilbakekrevingRepository.hent(anyLong())).thenReturn(opprettTilbakekrevingValg(TilbakekrevingVidereBehandling.INNTREKK));
-        when(simuleringIntegrasjonTjeneste.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0L, false)));
+        when(simuleringIntegrasjonTjeneste.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0L, -2345L, false)));
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
         verify(tilbakekrevingRepository, times(1)).hent(anyLong());
         verify(simulerOppdragApplikasjonTjeneste, times(1)).simulerOppdrag(anyLong(), anyLong());
@@ -76,7 +76,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
     @Test
     public void sjekkIntrekk_når_aksjonpunkt_er_vurder_feilutbetaling() {
         when(tilbakekrevingRepository.hent(anyLong())).thenReturn(opprettTilbakekrevingValg(TilbakekrevingVidereBehandling.INNTREKK));
-        when(simuleringIntegrasjonTjeneste.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(-2345L, false)));
+        when(simuleringIntegrasjonTjeneste.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(-2345L, 0L, false)));
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
         verify(historikkRepository, times(1)).lagre(hisrotikkInnslagCaptor.capture());
         Historikkinnslag historikkinnslag = hisrotikkInnslagCaptor.getValue();
