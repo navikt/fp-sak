@@ -4,24 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
 public class StartpunktTjenesteImplTest {
 
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-
     private StartpunktTjenesteImpl startpunktTjenesteSvp;
 
-    @Before
+    @BeforeEach
     public void before() {
         startpunktTjenesteSvp = new StartpunktTjenesteImpl();
     }

@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,17 +19,13 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.enterprise.inject.spi.CDI;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.abakus.iaygrunnlag.UuidDto;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -62,12 +59,11 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningInnhenter;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -77,11 +73,11 @@ import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPublisere
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class RegisterdataEndringshåndtererTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+@ExtendWith(MockitoExtension.class)
+public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
 
     private static final AktørId SØKER_AKTØR_ID = AktørId.dummy();
     private static final PersonstatusType PERSONSTATUS = PersonstatusType.BOSA;
@@ -92,13 +88,6 @@ public class RegisterdataEndringshåndtererTest {
     private static final LocalDate FORELDER_FØDSELSDATO = LocalDate.now().minusYears(30);
     private static final LocalDate BARN_FØDSELSDATO = LocalDate.now().minusDays(2);
 
-    @Rule
-    public RepositoryRule repositoryRule = new UnittestRepositoryRule();
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-
-    private EntityManager em = repositoryRule.getEntityManager();
-
     @Mock
     private PersoninfoAdapter personinfoAdapter;
     @Mock
@@ -107,8 +96,6 @@ public class RegisterdataEndringshåndtererTest {
     private VirksomhetTjeneste virksomhetTjeneste;
     @Mock
     private AbakusTjeneste abakusTjeneste;
-
-    private String durationInstance = "PT10H";
 
     @Mock
     private Endringskontroller endringskontroller;
@@ -121,44 +108,50 @@ public class RegisterdataEndringshåndtererTest {
     @Mock
     private FamiliehendelseEventPubliserer familiehendelseEventPubliserer;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
-    @Inject
-    private BasisPersonopplysningTjeneste personopplysningTjeneste;
 
     private ScenarioMorSøkerEngangsstønad scenarioFødsel = ScenarioMorSøkerEngangsstønad.forFødsel();
     private ScenarioMorSøkerEngangsstønad scenarioAdopsjon = ScenarioMorSøkerEngangsstønad.forAdopsjon();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(em);
+    private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingModellRepository behandlingModellRepository = new BehandlingModellRepository();
-    private BehandlingskontrollEventPubliserer bkEventPubliserer =new BehandlingskontrollEventPubliserer(CDI.current().getBeanManager());
-    private BehandlingskontrollServiceProvider behandlingskontrollServiceProvider = new BehandlingskontrollServiceProvider(em, behandlingModellRepository, bkEventPubliserer);
+    private BehandlingskontrollEventPubliserer bkEventPubliserer;
+    private BehandlingskontrollServiceProvider behandlingskontrollServiceProvider;
 
-    private SkjæringstidspunktTjenesteImpl skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-    private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste = new OpplysningsPeriodeTjeneste(skjæringstidspunktTjeneste,
-        Period.of(1, 0, 0), Period.of(0, 6, 0), Period.of(0, 4, 0), Period.of(1, 0, 0), Period.of(1, 0, 0), Period.of(0, 6, 0));
-    private AbakusInnhentingGrunnlagLoggRepository loggRepository = new AbakusInnhentingGrunnlagLoggRepository(em);
+    private SkjæringstidspunktTjenesteImpl skjæringstidspunktTjeneste;
+    private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
+    private AbakusInnhentingGrunnlagLoggRepository loggRepository;
 
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste = Mockito
-        .spy(new BehandlingskontrollTjenesteImpl(behandlingskontrollServiceProvider
-        ));
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
-    @Before
+    @BeforeEach
     public void before() {
-        when(endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(Mockito.anyLong()))
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+        bkEventPubliserer = new BehandlingskontrollEventPubliserer(CDI.current().getBeanManager());
+        behandlingskontrollServiceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), behandlingModellRepository,
+            bkEventPubliserer);
+        opplysningsPeriodeTjeneste = new OpplysningsPeriodeTjeneste(skjæringstidspunktTjeneste,
+            Period.of(1, 0, 0), Period.of(0, 6, 0), Period.of(0, 4, 0),
+            Period.of(1, 0, 0), Period.of(1, 0, 0), Period.of(0, 6, 0));
+        loggRepository = new AbakusInnhentingGrunnlagLoggRepository(getEntityManager());
+        behandlingskontrollTjeneste = Mockito.spy(new BehandlingskontrollTjenesteImpl(behandlingskontrollServiceProvider));
+        lenient().when(endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(Mockito.anyLong()))
             .thenReturn(EndringsresultatSnapshot.opprett());
-        when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class)))
+        lenient().when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class)))
             .thenReturn(EndringsresultatDiff.opprettForSporingsendringer());
-        when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(true);
+        lenient().when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(true);
 
         Virksomhet virksomhet = new Virksomhet.Builder()
             .medOrgnr(KUNSTIG_ORG)
             .medNavn("Arbeidsplassen AS")
             .build();
 
-        when(abakusTjeneste.innhentRegisterdata(any())).thenReturn(new UuidDto(UUID.randomUUID()));
-        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet);
+        lenient().when(abakusTjeneste.innhentRegisterdata(any())).thenReturn(new UuidDto(UUID.randomUUID()));
+        lenient().when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet);
 
         familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer, repositoryProvider.getFamilieHendelseRepository());
 
-        Mockito.doNothing().when(behandlingskontrollTjeneste).prosesserBehandling(any());
+        lenient().doNothing().when(behandlingskontrollTjeneste).prosesserBehandling(any());
     }
 
     @Test
@@ -205,7 +198,6 @@ public class RegisterdataEndringshåndtererTest {
     public void skal_ikke_oppdatere_registeropplysninger_hvis_det_er_berørt_behandling() {
         // Arrange
         Personinfo søker = opprettSøkerinfo();
-        when(personinfoAdapter.innhentSaksopplysningerForSøker(Mockito.any(AktørId.class))).thenReturn(søker);
 
         scenarioFødsel.medSøker(søker)
             .medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
@@ -216,8 +208,6 @@ public class RegisterdataEndringshåndtererTest {
 
         EndringsresultatDiff idDiff = EndringsresultatDiff.medDiff(PersonInformasjonEntitet.class, 1L, 2L);
         EndringsresultatDiff sporingDiff = EndringsresultatDiff.medDiffPåSporedeFelt(idDiff, true, null);
-        when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class)))
-            .thenReturn(sporingDiff);
 
         // Act
         lagRegisterdataEndringshåndterer()
@@ -347,6 +337,7 @@ public class RegisterdataEndringshåndtererTest {
             medlemskapRepository,
             opplysningsPeriodeTjeneste);
 
+        String durationInstance = "PT10H";
         return new RegisterdataEndringshåndterer(
             repositoryProvider,
             registerdataInnhenter,

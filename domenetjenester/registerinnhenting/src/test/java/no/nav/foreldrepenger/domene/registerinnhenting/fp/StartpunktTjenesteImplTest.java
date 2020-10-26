@@ -9,47 +9,31 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.registerinnhenting.EndringsresultatSjekker;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
-@RunWith(CdiRunner.class)
 public class StartpunktTjenesteImplTest {
 
     private StartpunktTjeneste tjeneste;
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private Behandling behandling;
-
     private EndringsresultatSjekker endringsresultatSjekker;
 
-    @Before
+    @BeforeEach
     public void before() {
-
-        behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagre(repositoryProvider);
-
         endringsresultatSjekker = mock(EndringsresultatSjekker.class);
 
         var familietjeneste = mock(FamilieHendelseTjeneste.class);
@@ -72,10 +56,12 @@ public class StartpunktTjenesteImplTest {
             .thenReturn(endringsresultat);
 
         // Act/Assert
-        assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(behandling), endringsresultat)).isEqualTo(OPPTJENING);
+        assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(), endringsresultat)).isEqualTo(OPPTJENING);
     }
 
-    private BehandlingReferanse lagRef(Behandling behandling) {
+    private BehandlingReferanse lagRef() {
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+            .lagMocked();
         return BehandlingReferanse.fra(behandling, LocalDate.now());
     }
 
@@ -83,13 +69,13 @@ public class StartpunktTjenesteImplTest {
     public void skal_gi_startpunkt_udefinert_dersom_ingen_endringer_på_aggregater() {
         // Arrange
         // To lik id-er indikerer ingen endring på grunnlag
-        long grunnlagId1 = 1L, grunnlagId2 = grunnlagId1;
-        EndringsresultatDiff endringsresultat = opprettEndringsresultat(grunnlagId1, grunnlagId2);
+        long grunnlagId1 = 1L;
+        EndringsresultatDiff endringsresultat = opprettEndringsresultat(grunnlagId1, grunnlagId1);
         when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class)))
             .thenReturn(endringsresultat);
 
         // Act/Assert
-        assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(behandling), endringsresultat)).isEqualTo(UDEFINERT);
+        assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(), endringsresultat)).isEqualTo(UDEFINERT);
     }
 
     @Test
@@ -99,7 +85,7 @@ public class StartpunktTjenesteImplTest {
         when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class))).thenReturn(endringsresultat);
 
         // Act/Assert
-        assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(behandling), endringsresultat)).isEqualTo(UDEFINERT);
+        assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(), endringsresultat)).isEqualTo(UDEFINERT);
     }
 
     private EndringsresultatDiff opprettEndringsresultat(Long grunnlagId1, Long grunnlagId2) {
