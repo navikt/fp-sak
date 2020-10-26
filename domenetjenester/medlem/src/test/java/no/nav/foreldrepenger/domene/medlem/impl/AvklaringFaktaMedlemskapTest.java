@@ -7,12 +7,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -20,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
@@ -27,7 +25,8 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
@@ -38,30 +37,26 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class AvklaringFaktaMedlemskapTest {
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider provider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-
-    @Inject
-    private MedlemskapPerioderTjeneste medlemskapPerioderTjeneste;
-
-    @Inject
-    private InntektArbeidYtelseTjeneste iayTjeneste;
-
-    @Inject
-    private PersonopplysningTjeneste personopplysningTjeneste;
-
-    private AvklaringFaktaMedlemskap tjeneste;
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
 
     private static final LocalDate SKJÆRINGSDATO_FØDSEL = LocalDate.now().plusDays(1);
 
-    @Before
+    private BehandlingRepositoryProvider provider;
+
+    private InntektArbeidYtelseTjeneste iayTjeneste;
+
+    private AvklaringFaktaMedlemskap tjeneste;
+
+    @BeforeEach
     public void setUp() {
+        var entityManager = getEntityManager();
+        provider = new BehandlingRepositoryProvider(entityManager);
+        var medlemskapPerioderTjeneste = new MedlemskapPerioderTjeneste();
+        iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        var personopplysningTjeneste = new PersonopplysningTjeneste(new PersonopplysningRepository(entityManager));
         this.tjeneste = new AvklaringFaktaMedlemskap(provider, medlemskapPerioderTjeneste, personopplysningTjeneste, iayTjeneste);
     }
 
