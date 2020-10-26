@@ -78,7 +78,7 @@ public class FagsakApplikasjonTjenesteTest {
 
         ProsesseringAsynkTjeneste prosesseringAsynkTjeneste = mock(ProsesseringAsynkTjeneste.class);
         tjeneste = new FagsakApplikasjonTjeneste(fagsakRepository, behandlingRepository, prosesseringAsynkTjeneste, personinfoAdapter, hendelseTjeneste,
-                dekningsgradTjeneste, null);
+                dekningsgradTjeneste);
     }
 
     @Test

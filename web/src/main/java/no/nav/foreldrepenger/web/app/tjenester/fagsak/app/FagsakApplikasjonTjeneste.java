@@ -13,8 +13,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
-import no.nav.foreldrepenger.behandlingslager.aktør.BrukerTjeneste;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -25,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -57,7 +54,6 @@ public class FagsakApplikasjonTjeneste {
     private Predicate<String> predikatErFnr = søkestreng -> søkestreng.matches("\\d{11}");
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
-    private BrukerTjeneste brukerTjeneste;
 
     protected FagsakApplikasjonTjeneste() {
         // CDI runner
@@ -68,16 +64,13 @@ public class FagsakApplikasjonTjeneste {
                                      BehandlingRepository behandlingRepository,
                                      ProsesseringAsynkTjeneste prosesseringAsynkTjeneste, PersoninfoAdapter personinfoAdapter,
                                      FamilieHendelseTjeneste familieHendelseTjeneste,
-                                     DekningsgradTjeneste dekningsgradTjeneste,
-                                     BrukerTjeneste brukerTjeneste) {
+                                     DekningsgradTjeneste dekningsgradTjeneste) {
         this.fagsakRespository = fagsakRespository;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = behandlingRepository;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
-        this.brukerTjeneste = brukerTjeneste;
-
     }
 
     public Optional<AsyncPollingStatus> sjekkProsessTaskPågår(Saksnummer saksnummer, String gruppe) {
@@ -108,11 +101,6 @@ public class FagsakApplikasjonTjeneste {
     public Optional<PersoninfoBasis> hentBruker(Saksnummer saksnummer) {
         return fagsakRespository.hentSakGittSaksnummer(saksnummer).map(Fagsak::getAktørId).flatMap(personinfoAdapter::hentBrukerBasisForAktør);
     }
-
-    public Språkkode hentBrukerSpråk(AktørId aktørId) {
-        return brukerTjeneste.hentBrukerForAktørId(aktørId).map(NavBruker::getSpråkkode).orElse(Språkkode.NB);
-    }
-
 
     private FagsakSamlingForBruker hentSakerForFnr(PersonIdent fnr) {
         AktørId aktørId = personinfoAdapter.hentAktørForFnr(fnr).orElse(null);
