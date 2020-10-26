@@ -82,7 +82,7 @@ public enum Diskresjonskode implements Kodeverdi {
 
     @Override
     public String getOffisiellKode() {
-        return getKode();
+        return offisiellKode;
     }
 
     static {
@@ -93,8 +93,8 @@ public enum Diskresjonskode implements Kodeverdi {
         }
     }
 
-    public static Diskresjonskode finnForKodeverkEiersKode(String offisiellDokumentType) {
-        return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, offisiellDokumentType)).findFirst().orElse(UDEFINERT);
+    public static Diskresjonskode finnForKodeverkEiersKode(String diskresjonskode) {
+        return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, diskresjonskode)).findFirst().orElse(UDEFINERT);
     }
 
 }
