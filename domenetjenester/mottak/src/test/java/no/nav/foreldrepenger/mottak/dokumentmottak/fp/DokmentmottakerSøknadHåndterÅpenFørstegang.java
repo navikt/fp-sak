@@ -7,9 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -31,24 +29,21 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerTestsupp
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
 public class DokmentmottakerSøknadHåndterÅpenFørstegang extends DokumentmottakerTestsupport {
 
     private Dokumentmottaker dokumentmottakerSøknad;
     private Behandlingsoppretter behandlingsoppretterSpied;
     private KøKontroller køKontroller;
 
-
-    @Before
-    public void setup() {
+    @Override
+    protected void setUpBeforeEach() {
         this.behandlingsoppretterSpied = Mockito.spy(behandlingsoppretter);
         this.køKontroller = Mockito.mock(KøKontroller.class);
-        dokumentmottakerSøknad = new DokumentmottakerSøknadDefault(
+        this.dokumentmottakerSøknad = new DokumentmottakerSøknadDefault(
             repositoryProvider,
             dokumentmottakerFelles,
-                behandlingsoppretterSpied,
+            behandlingsoppretterSpied,
             kompletthetskontroller,
             køKontroller, fpUttakTjeneste);
     }

@@ -8,9 +8,9 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDate;
 import java.time.Period;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -19,55 +19,71 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.DokumentPersistererTjeneste;
 import no.nav.foreldrepenger.mottak.publiserer.publish.MottattDokumentPersistertPubliserer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class HåndterMottattDokumentTaskTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
 
     private static final JournalpostId JOURNALPOST_ID = new JournalpostId("2");
     private static final DokumentTypeId DOKUMENTTYPE = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
     private static final LocalDate FORSENDELSE_MOTTATT = LocalDate.now();
     private static final String PAYLOAD_XML = "inntektsmelding.xml";
     private static final  AktørId AKTØR_ID = new AktørId("0000000000000");
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
-    private long FAGSAK_ID = 1L;
-    private long BEHANDLING_ID = 100L;
     private InnhentDokumentTjeneste innhentDokumentTjeneste;
     private HåndterMottattDokumentTask håndterMottattDokumentTask;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private MottatteDokumentRepository mottatteDokumentRepository = new MottatteDokumentRepository(repoRule.getEntityManager());
-    private DokumentPersistererTjeneste dokumentPersistererTjeneste = new DokumentPersistererTjeneste(mock(MottattDokumentPersistertPubliserer.class));
+    private final DokumentPersistererTjeneste dokumentPersistererTjeneste =
+        new DokumentPersistererTjeneste(mock(MottattDokumentPersistertPubliserer.class));
+    private FagsakRepository fagsakRepository;
+    private BehandlingRepository behandlingRepository;
 
-    @Before
+    @BeforeEach
     public void before() {
+        var entityManager = getEntityManager();
+        MottatteDokumentRepository mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
         var fristInnsendingPeriode = Period.ofWeeks(6);
         innhentDokumentTjeneste = mock(InnhentDokumentTjeneste.class);
-        mottatteDokumentTjeneste = new MottatteDokumentTjeneste(fristInnsendingPeriode, dokumentPersistererTjeneste, mottatteDokumentRepository, repositoryProvider);
-        håndterMottattDokumentTask = new HåndterMottattDokumentTask(innhentDokumentTjeneste, dokumentPersistererTjeneste, mottatteDokumentTjeneste, repositoryProvider);
-        FAGSAK_ID = repositoryProvider.getFagsakRepository().opprettNy(Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy())));
-        var fagsak = repositoryProvider.getFagsakRepository().finnEksaktFagsak(FAGSAK_ID);
+        var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        mottatteDokumentTjeneste = new MottatteDokumentTjeneste(fristInnsendingPeriode, dokumentPersistererTjeneste,
+            mottatteDokumentRepository, repositoryProvider);
+        håndterMottattDokumentTask = new HåndterMottattDokumentTask(innhentDokumentTjeneste, dokumentPersistererTjeneste,
+            mottatteDokumentTjeneste, repositoryProvider);
+        fagsakRepository = new FagsakRepository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+    }
+
+    private Long opprettBehandling(Fagsak fagsak) {
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
-        BEHANDLING_ID = repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        return behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+    }
+
+    private Fagsak opprettFagsak() {
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
+        fagsakRepository.opprettNy(fagsak);
+        return fagsak;
     }
 
     @Test
     public void skal_kalle_InnhentDokumentTjeneste_med_argumenter_fra_ProsessTask() throws Exception {
         // Arrange
         final String xml = new FileToStringUtil().readFile(PAYLOAD_XML);
+        var fagsak = opprettFagsak();
         MottattDokument mottattDokument = new MottattDokument.Builder()
-            .medFagsakId(FAGSAK_ID)
+            .medFagsakId(fagsak.getId())
             .medJournalPostId(JOURNALPOST_ID)
             .medDokumentType(DOKUMENTTYPE)
             .medMottattDato(FORSENDELSE_MOTTATT)
@@ -78,7 +94,7 @@ public class HåndterMottattDokumentTaskTest {
         Long dokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
 
         ProsessTaskData prosessTask = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
-        prosessTask.setFagsakId(FAGSAK_ID);
+        prosessTask.setFagsakId(fagsak.getId());
         prosessTask.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, dokumentId.toString());
         prosessTask.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.UDEFINERT.getKode());
         ArgumentCaptor<MottattDokument> captor = ArgumentCaptor.forClass(MottattDokument.class);
@@ -91,11 +107,13 @@ public class HåndterMottattDokumentTaskTest {
     }
 
     @Test
-    public void skal_kalle_OpprettFraTidligereBehandling_med_argumenter_fra_ProsessTask() throws Exception {
+    public void skal_kalle_OpprettFraTidligereBehandling_med_argumenter_fra_ProsessTask() {
         // Arrange
+        var fagsak = opprettFagsak();
+        var behandlingId = opprettBehandling(fagsak);
         MottattDokument mottattDokument = new MottattDokument.Builder()
-            .medFagsakId(FAGSAK_ID)
-            .medBehandlingId(BEHANDLING_ID)
+            .medFagsakId(fagsak.getId())
+            .medBehandlingId(behandlingId)
             .medJournalPostId(JOURNALPOST_ID)
             .medDokumentType(DOKUMENTTYPE)
             .medMottattDato(FORSENDELSE_MOTTATT)
@@ -106,7 +124,7 @@ public class HåndterMottattDokumentTaskTest {
         Long dokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
 
         ProsessTaskData prosessTask = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
-        prosessTask.setBehandling(FAGSAK_ID, BEHANDLING_ID, AKTØR_ID.getId());
+        prosessTask.setBehandling(fagsak.getId(), behandlingId, AKTØR_ID.getId());
         prosessTask.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, dokumentId.toString());
         prosessTask.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.ETTER_KLAGE.getKode());
         ArgumentCaptor<Long> captorBehandling = ArgumentCaptor.forClass(Long.class);
@@ -118,10 +136,10 @@ public class HåndterMottattDokumentTaskTest {
 
         // Assert
         verify(innhentDokumentTjeneste).opprettFraTidligereBehandling(captorBehandling.capture(), captorDokument.capture(), captorBA.capture());
-        assertThat(captorBehandling.getValue()).isEqualTo(BEHANDLING_ID);
+        assertThat(captorBehandling.getValue()).isEqualTo(behandlingId);
         MottattDokument md = captorDokument.getValue();
         assertThat(md.getId()).isEqualTo(dokumentId);
-        assertThat(md.getBehandlingId()).isEqualTo(BEHANDLING_ID);
+        assertThat(md.getBehandlingId()).isEqualTo(behandlingId);
         assertThat(captorBA.getValue()).isEqualTo(BehandlingÅrsakType.ETTER_KLAGE);
     }
 }
