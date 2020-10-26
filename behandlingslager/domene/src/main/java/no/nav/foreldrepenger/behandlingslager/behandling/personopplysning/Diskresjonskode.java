@@ -20,15 +20,9 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum Diskresjonskode implements Kodeverdi {
 
-    UTENRIKS_TJENST("URIK", "I utenrikstjeneste", "URIK"),
-    UTEN_FAST_BO("UFB", "Uten fast bopel", "UFB"),
-    UDEFINERT("UDEF", "Udefinert", "UDEF"),
-    SVALBARD("SVAL", "Svalbard", "SVAL"),
+    UDEFINERT("UDEF", "Udefinert", null),
     KODE6("SPSF", "Sperret adresse, strengt fortrolig", "SPSF"),
     KODE7("SPFO", "Sperret adresse, fortrolig", "SPFO"),
-    PENDLER("PEND", "Pendler", "PEND"),
-    MILITÆR("MILI", "Militær", "MILI"),
-    KLIENT_ADRESSE("KLIE", "Klientadresse", "KLIE"),
 
     ;
 
@@ -85,7 +79,7 @@ public enum Diskresjonskode implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
@@ -98,7 +92,7 @@ public enum Diskresjonskode implements Kodeverdi {
             }
         }
     }
-    
+
     public static Diskresjonskode finnForKodeverkEiersKode(String offisiellDokumentType) {
         return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, offisiellDokumentType)).findFirst().orElse(UDEFINERT);
     }

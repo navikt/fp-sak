@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -52,8 +51,7 @@ public class TpsFamilieTjenesteTest {
         final int antallBarn = 1;
 
         final Personinfo personinfo = opprettPersonInfo(AKTØR, antallBarn, mottattDato);
-        when(tpsTjeneste.hentIdentForAktørId(AKTØR)).thenReturn(Optional.of(new PersonIdent("12345678901")));
-        when(tpsTjeneste.hentFødteBarn(any())).thenReturn(genererBarn(personinfo.getFamilierelasjoner(), mottattDato));
+        when(fødselTjeneste.hentFødteBarnInfoFor(any(), any())).thenReturn(genererBarn(personinfo.getFamilierelasjoner(), mottattDato));
 
         final List<FødtBarnInfo> fødslerRelatertTilBehandling = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(AKTØR, List.of(intervall));
 

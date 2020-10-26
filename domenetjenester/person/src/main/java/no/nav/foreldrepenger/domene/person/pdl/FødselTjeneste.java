@@ -49,53 +49,49 @@ public class FødselTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    public void hentFødteBarnInfoFor(AktørId bruker, List<FødtBarnInfo> fraTPS, List<LocalDateInterval> intervaller) {
-        try {
-            var request = new HentPersonQueryRequest();
-            request.setIdent(bruker.getId());
-            var projection = new PersonResponseProjection()
-                .doedfoedtBarn(new DoedfoedtBarnResponseProjection().dato())
-                .familierelasjoner(new FamilierelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
-            var person = pdlKlient.hentPerson(request, projection, Tema.FOR);
-            List <FødtBarnInfo> fraPDL = new ArrayList<>();
-            person.getDoedfoedtBarn().stream()
-                .filter(df -> df.getDato() != null)
-                .map(FødselTjeneste::fraDødfødsel)
-                .forEach(fraPDL::add);
-            if (!fraPDL.isEmpty())
-                LOG.info("FPSAK PDL FØDSEL dødfødsel registrert");
-            person.getFamilierelasjoner().stream()
-                .filter(b -> Familierelasjonsrolle.BARN.equals(b.getRelatertPersonsRolle()))
-                .map(Familierelasjon::getRelatertPersonsIdent)
-                .map(this::fraIdent)
-                .forEach(fraPDL::add);
-            sammenlignLoggFødsler(fraTPS, fraPDL);
-        } catch (Exception e) {
-            LOG.info("FPSAK PDL FØDSEL error", e);
-        }
+    public List <FødtBarnInfo> hentFødteBarnInfoFor(AktørId bruker, List<LocalDateInterval> intervaller) {
+        var request = new HentPersonQueryRequest();
+        request.setIdent(bruker.getId());
+        var projection = new PersonResponseProjection()
+            .doedfoedtBarn(new DoedfoedtBarnResponseProjection().dato())
+            .familierelasjoner(new FamilierelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
+
+        var person = pdlKlient.hentPerson(request, projection, Tema.FOR);
+
+        List <FødtBarnInfo> alleBarn = new ArrayList<>();
+        person.getDoedfoedtBarn().stream()
+            .filter(df -> df.getDato() != null)
+            .map(FødselTjeneste::fraDødfødsel)
+            .forEach(alleBarn::add);
+        if (!alleBarn.isEmpty())
+            LOG.info("FPSAK PDL FØDSEL dødfødsel registrert");
+        person.getFamilierelasjoner().stream()
+            .filter(b -> Familierelasjonsrolle.BARN.equals(b.getRelatertPersonsRolle()))
+            .map(Familierelasjon::getRelatertPersonsIdent)
+            .map(this::fraIdent)
+            .forEach(alleBarn::add);
+
+        return alleBarn.stream()
+            .filter(fBI -> intervaller.stream().anyMatch(i -> i.encloses(fBI.getFødselsdato())))
+            .collect(Collectors.toList());
     }
 
-    public List<PersonIdent> hentForeldreTil(PersonIdent barn, List<PersonIdent> fraTPS) {
+    public List<PersonIdent> hentForeldreTil(PersonIdent barn) {
         if(barn.erFdatNummer()) {
             return Collections.emptyList();
         }
-        try {
-            var request = new HentPersonQueryRequest();
-            request.setIdent(barn.getIdent());
-            var projection = new PersonResponseProjection()
-                .familierelasjoner(new FamilierelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
-            var person = pdlKlient.hentPerson(request, projection, Tema.FOR);
-            var foreldre = person.getFamilierelasjoner().stream()
-                .filter(f -> !Familierelasjonsrolle.BARN.equals(f.getRelatertPersonsRolle()))
-                .map(Familierelasjon::getRelatertPersonsIdent)
-                .map(PersonIdent::fra)
-                .collect(Collectors.toList());
-            sammenlignLoggForeldre(fraTPS, foreldre);
-            return foreldre;
-        } catch (Exception e) {
-            LOG.info("FPSAK PDL FORELDRE error", e);
-        }
-        return Collections.emptyList();
+        var request = new HentPersonQueryRequest();
+        request.setIdent(barn.getIdent());
+        var projection = new PersonResponseProjection()
+            .familierelasjoner(new FamilierelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
+
+        var person = pdlKlient.hentPerson(request, projection, Tema.FOR);
+
+        return person.getFamilierelasjoner().stream()
+            .filter(f -> !Familierelasjonsrolle.BARN.equals(f.getRelatertPersonsRolle()))
+            .map(Familierelasjon::getRelatertPersonsIdent)
+            .map(PersonIdent::fra)
+            .collect(Collectors.toList());
     }
 
     private static FødtBarnInfo fraDødfødsel(DoedfoedtBarn barn) {
@@ -113,7 +109,9 @@ public class FødselTjeneste {
         var projection = new PersonResponseProjection()
             .foedsel(new FoedselResponseProjection().foedselsdato())
             .doedsfall(new DoedsfallResponseProjection().doedsdato());
+
         var barn = pdlKlient.hentPerson(request, projection, Tema.FOR);
+
         var fødselsdato = barn.getFoedsel().stream()
             .map(Foedsel::getFoedselsdato)
             .filter(Objects::nonNull)
@@ -129,21 +127,4 @@ public class FødselTjeneste {
             .build();
     }
 
-    private void sammenlignLoggFødsler(List<FødtBarnInfo> fraTPS, List<FødtBarnInfo> fraPDL) {
-        boolean like = fraPDL.size() == fraTPS.size() && fraPDL.containsAll(fraTPS) && fraTPS.containsAll(fraPDL);
-        if (like) {
-            LOG.info("FPSAK PDL FØDSEL: like svar");
-        } else {
-            LOG.info("FPSAK PDL FØDSEL: ulike svar TPS {} og PDL {}", fraTPS, fraPDL);
-        }
-    }
-
-    private void sammenlignLoggForeldre(List<PersonIdent> fraTPS, List<PersonIdent> fraPDL) {
-        boolean like = fraPDL.size() == fraTPS.size() && fraPDL.containsAll(fraTPS) && fraTPS.containsAll(fraPDL);
-        if (like) {
-            LOG.info("FPSAK PDL FORELDRE: like svar");
-        } else {
-            LOG.info("FPSAK PDL FORELDRE: ulike svar TPS {} og PDL {}", fraTPS, fraPDL);
-        }
-    }
 }

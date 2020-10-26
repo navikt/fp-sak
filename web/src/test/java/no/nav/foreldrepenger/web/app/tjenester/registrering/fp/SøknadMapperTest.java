@@ -58,7 +58,6 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeMottattDatoTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.MottattDokumentOversetterSøknad;
@@ -97,7 +96,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
         kvinne = Optional.of(new PersoninfoKjønn.Builder()
                 .medAktørId(STD_KVINNE_AKTØR_ID)
                 .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-                .medPersonIdent(PersonIdent.fra("12345678901")).build());
+                .build());
         ytelseSøknadMapper = new YtelseSøknadMapper(personinfoAdapter, virksomhetTjeneste);
     }
 

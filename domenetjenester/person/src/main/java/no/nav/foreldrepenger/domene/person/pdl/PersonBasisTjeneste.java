@@ -100,53 +100,41 @@ public class PersonBasisTjeneste {
         }
     }
 
-    public void hentArbeidsgiverPersoninfo(AktørId aktørId, PersonIdent personIdent, PersoninfoArbeidsgiver fraTPS) {
-        try {
-            var query = new HentPersonQueryRequest();
-            query.setIdent(aktørId.getId());
-            var projection = new PersonResponseProjection()
-                .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
-                .foedsel(new FoedselResponseProjection().foedselsdato());
-            var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
-            var fødselsdato = person.getFoedsel().stream()
-                .map(Foedsel::getFoedselsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
-            var fraPDL = new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-                .medNavn(person.getNavn().stream().map(PersonBasisTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
-                .medFødselsdato(fødselsdato)
-                .build();
-            if (Objects.equals(fraPDL, fraTPS)) {
-                LOG.info("FPSAK PDL ARBEIDSGIVER: like svar");
-            } else {
-                LOG.info("FPSAK PDL ARBEIDSGIVER: avvik");
-            }
-        } catch (Exception e) {
-            LOG.info("FPSAK PDL ARBEIDSGIVER error", e);
-        }
+    public Optional<PersoninfoArbeidsgiver> hentArbeidsgiverPersoninfo(AktørId aktørId, PersonIdent personIdent) {
+        var query = new HentPersonQueryRequest();
+        query.setIdent(aktørId.getId());
+        var projection = new PersonResponseProjection()
+            .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
+            .foedsel(new FoedselResponseProjection().foedselsdato());
+
+        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+
+        var fødselsdato = person.getFoedsel().stream()
+            .map(Foedsel::getFoedselsdato)
+            .filter(Objects::nonNull)
+            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+
+        var arbeidsgiver = new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
+            .medNavn(person.getNavn().stream().map(PersonBasisTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
+            .medFødselsdato(fødselsdato)
+            .build();
+
+        return person.getNavn().isEmpty() || person.getFoedsel().isEmpty() ? Optional.empty() : Optional.of(arbeidsgiver);
     }
 
-    public void hentKjønnPersoninfo(AktørId aktørId, PersonIdent personIdent, PersoninfoKjønn fraTPS) {
-        try {
-            var query = new HentPersonQueryRequest();
-            query.setIdent(aktørId.getId());
-            var projection = new PersonResponseProjection()
-                .kjoenn(new KjoennResponseProjection().kjoenn());
-            var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
-            var fraPDL = new PersoninfoKjønn.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-                .medNavBrukerKjønn(mapKjønn(person))
-                .build();
+    public Optional<PersoninfoKjønn> hentKjønnPersoninfo(AktørId aktørId) {
+        var query = new HentPersonQueryRequest();
+        query.setIdent(aktørId.getId());
+        var projection = new PersonResponseProjection()
+            .kjoenn(new KjoennResponseProjection().kjoenn());
 
-            if (Objects.equals(fraPDL, fraTPS)) {
-                LOG.info("FPSAK PDL KJØNN: like svar");
-            } else {
-                LOG.info("FPSAK PDL KJØNN: avvik TPS {} PDL {}", fraTPS.getKjønn(), fraPDL.getKjønn());
-            }
-        } catch (Exception e) {
-            LOG.info("FPSAK PDL KJØNN error", e);
-        }
+        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+
+        var kjønn = new PersoninfoKjønn.Builder().medAktørId(aktørId)
+            .medNavBrukerKjønn(mapKjønn(person))
+            .build();
+        return person.getKjoenn().isEmpty() ? Optional.empty() : Optional.of(kjønn);
     }
-
 
 
     private String getDiskresjonskode(Person person) {

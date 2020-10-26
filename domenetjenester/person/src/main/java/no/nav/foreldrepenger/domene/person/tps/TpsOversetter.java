@@ -3,14 +3,9 @@ package no.nav.foreldrepenger.domene.person.tps;
 import static java.util.stream.Collectors.toSet;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -20,8 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
-import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
@@ -39,9 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Aktoer;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Diskresjonskoder;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Doedsdato;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjoner;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Foedselsdato;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kjoenn;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
@@ -75,22 +66,6 @@ public class TpsOversetter {
             landkode = Landkoder.fraKode(statsborgerskap.getLand().getValue());
         }
         return landkode;
-    }
-
-    public List<no.nav.foreldrepenger.domene.typer.PersonIdent> tilForeldre(Bruker person) {
-        return person.getHarFraRolleI().stream()
-            .map(this::tilRelasjon)
-            .filter(r -> RelasjonsRolleType.erRegistrertForeldre(r.getRelasjonsrolle()))
-            .map(Familierelasjon::getPersonIdent)
-            .collect(Collectors.toList());
-    }
-
-    public FødtBarnInfo tilFødtBarn(Bruker person) {
-        return new FødtBarnInfo.Builder()
-            .medIdent(no.nav.foreldrepenger.domene.typer.PersonIdent.fra(((PersonIdent)person.getAktoer()).getIdent().getIdent()))
-            .medFødselsdato(finnFødselsdato(person))
-            .medDødsdato(finnDødsdato(person))
-            .build();
     }
 
     public Personinfo tilBrukerInfo(AktørId aktørId, Bruker bruker) { // NOSONAR - ingen forbedring å forkorte metoden her
@@ -238,31 +213,6 @@ public class TpsOversetter {
         return Språkkode.finnForKodeverkEiersKode(språk.getValue());
     }
 
-    GeografiskTilknytning tilGeografiskTilknytning(no.nav.tjeneste.virksomhet.person.v3.informasjon.GeografiskTilknytning geografiskTilknytning,
-                                                   Diskresjonskoder diskresjonskoder) {
-        String geoTilkn = geografiskTilknytning != null ? geografiskTilknytning.getGeografiskTilknytning() : null;
-        String diskKode = diskresjonskoder != null ? diskresjonskoder.getValue() : null;
-        return new GeografiskTilknytning(geoTilkn, diskKode);
-    }
-
-    public List<GeografiskTilknytning> tilDiskresjonsKoder(Person person) {
-        List<String> foreldreKoder = Arrays.asList(RelasjonsRolleType.MORA.getKode(), RelasjonsRolleType.FARA.getKode());
-
-        return person.getHarFraRolleI().stream()
-            .filter(rel -> !foreldreKoder.contains(rel.getTilRolle().getValue()))
-            .map(this::relasjonTilGeoMedDiskresjon)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
-    }
-
-    private GeografiskTilknytning relasjonTilGeoMedDiskresjon(no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon familierelasjon) {
-        Person person = familierelasjon.getTilPerson();
-
-        String diskresjonskode = person.getDiskresjonskode() == null ? null : person.getDiskresjonskode().getValue();
-
-        return diskresjonskode == null ? null : new GeografiskTilknytning(null, diskresjonskode);
-    }
-
     private Familierelasjon tilRelasjon(no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon familierelasjon) {
         String rollekode = familierelasjon.getTilRolle().getValue();
         RelasjonsRolleType relasjonsrolle = RelasjonsRolleType.fraKode(rollekode);
@@ -299,45 +249,5 @@ public class TpsOversetter {
         return tpsAdresseOversetter.tilAdresseInfo(person);
     }
 
-    static boolean erBarnRolle(Familierelasjoner familierelasjoner) {
-        return familierelasjoner.getValue().matches(RelasjonsRolleType.BARN.getKode());
-    }
-
-    FødtBarnInfo relasjonTilPersoninfo(no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon familierelasjon) {
-        Person person = familierelasjon.getTilPerson();
-
-        String identNr = ((PersonIdent) person.getAktoer()).getIdent().getIdent();
-        no.nav.foreldrepenger.domene.typer.PersonIdent ident = no.nav.foreldrepenger.domene.typer.PersonIdent.fra(identNr);
-        Foedselsdato foedselsdato = person.getFoedselsdato();
-        LocalDate fødselLocalDate;
-        if (foedselsdato == null) {
-            fødselLocalDate = utledFødselsDatoFraIdent(ident);
-        } else {
-            fødselLocalDate = tilLocalDate(foedselsdato);
-        }
-        Doedsdato doedsdato = person.getDoedsdato();
-        LocalDate dødsLocalDate = null;
-        if (doedsdato != null) {
-            GregorianCalendar gregCal = doedsdato.getDoedsdato().toGregorianCalendar();
-            dødsLocalDate = gregCal.toZonedDateTime().toLocalDate();
-        } else if (ident.erFdatNummer() && ident.getIdent().endsWith("1")) { //Dødfødt barn
-            dødsLocalDate = fødselLocalDate;
-        }
-
-        return new FødtBarnInfo.Builder()
-            .medIdent(ident)
-            .medFødselsdato(fødselLocalDate)
-            .medDødsdato(dødsLocalDate)
-            .build();
-    }
-
-    private LocalDate utledFødselsDatoFraIdent(no.nav.foreldrepenger.domene.typer.PersonIdent ident) {
-        if (ident.erFdatNummer()) {
-            DateTimeFormatter identFormatter = DateTimeFormatter.ofPattern("ddMMyy");
-
-            return LocalDate.parse(ident.getIdent().substring(0, 6), identFormatter);
-        }
-        throw new IllegalArgumentException("Kan bare utledes basert på fdatnr.");
-    }
 
 }

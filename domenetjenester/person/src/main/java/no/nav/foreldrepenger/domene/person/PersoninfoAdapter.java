@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.person;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.person.dkif.DkifSpråkKlient;
 import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.domene.person.tps.TpsFeilmeldinger;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
 public class PersoninfoAdapter {
@@ -95,13 +96,7 @@ public class PersoninfoAdapter {
     }
 
     public List<AktørId> finnAktørIdForForeldreTil(PersonIdent personIdent) {
-        if(personIdent.erFdatNummer()) {
-            return Collections.emptyList();
-        }
-        var foreldre = tpsAdapter.hentForeldreTil(personIdent);
-        if (fødselTjeneste != null)
-            fødselTjeneste.hentForeldreTil(personIdent, foreldre);
-        return foreldre.stream()
+        return fødselTjeneste.hentForeldreTil(personIdent).stream()
             .flatMap(p -> tpsAdapter.hentAktørIdForPersonIdent(p).stream())
             .collect(Collectors.toList());
     }
@@ -132,11 +127,7 @@ public class PersoninfoAdapter {
     }
 
     public List<FødtBarnInfo> innhentAlleFødteForBehandlingIntervaller(AktørId aktørId, List<LocalDateInterval> intervaller) {
-        PersonIdent personIdent = tpsAdapter.hentIdentForAktørId(aktørId).orElseThrow(() -> TpsFeilmeldinger.FACTORY.fantIkkePersonForAktørId().toException());
-        List<FødtBarnInfo> barneListe = tpsAdapter.hentFødteBarn(personIdent);
-        if (fødselTjeneste != null)
-            fødselTjeneste.hentFødteBarnInfoFor(aktørId, barneListe, intervaller);
-        return barneListe.stream().filter(p -> intervaller.stream().anyMatch(i -> i.encloses(p.getFødselsdato()))).collect(Collectors.toList());
+        return fødselTjeneste.hentFødteBarnInfoFor(aktørId, intervaller);
     }
 
     public Optional<AktørId> hentAktørForFnr(PersonIdent fnr) {
@@ -151,11 +142,6 @@ public class PersoninfoAdapter {
         return tpsAdapter.hentIdentForAktørId(aktørId);
     }
 
-    private Optional<Personinfo> hentBrukerForAktør(AktørId aktørId) {
-        Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
-        return funnetFnr.map(fnr -> tpsAdapter.hentKjerneinformasjon(fnr, aktørId));
-    }
-
     public Optional<PersoninfoBasis> hentBrukerBasisForAktør(AktørId aktørId) {
         Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
         Optional<PersoninfoBasis> pi = funnetFnr.map(fnr -> tpsAdapter.hentKjerneinformasjonBasis(fnr, aktørId));
@@ -165,30 +151,19 @@ public class PersoninfoAdapter {
 
     public Optional<PersoninfoArbeidsgiver> hentBrukerArbeidsgiverForAktør(AktørId aktørId) {
         Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
-        Optional<PersoninfoArbeidsgiver> pi = funnetFnr.map(fnr -> tpsAdapter.hentKjerneinformasjonBasis(fnr, aktørId))
-            .map(p -> new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(p.getPersonIdent()).medNavn(p.getNavn()).medFødselsdato(p.getFødselsdato()).build());
-        pi.ifPresent(p -> basisTjeneste.hentArbeidsgiverPersoninfo(aktørId, p.getPersonIdent(), p));
-        return pi;
+        return funnetFnr.flatMap(fnr -> basisTjeneste.hentArbeidsgiverPersoninfo(aktørId, fnr));
     }
 
     public Optional<PersoninfoKjønn> hentBrukerKjønnForAktør(AktørId aktørId) {
-        Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
-        Optional<PersoninfoKjønn> pi = funnetFnr.map(fnr -> tpsAdapter.hentKjerneinformasjonBasis(fnr, aktørId))
-            .map(p -> new PersoninfoKjønn.Builder().medAktørId(aktørId).medPersonIdent(p.getPersonIdent()).medNavBrukerKjønn(p.getKjønn()).build());
-        pi.ifPresent(p -> basisTjeneste.hentKjønnPersoninfo(aktørId, p.getPersonIdent(), p));
-        return pi;
+        return basisTjeneste.hentKjønnPersoninfo(aktørId);
     }
 
     public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {
-        var gt = hentFnr(aktørId).map(fnr -> tpsAdapter.hentGeografiskTilknytning(fnr))
-            .orElseGet(() -> new GeografiskTilknytning(null, null));
-        if (tilknytningTjeneste != null)
-            tilknytningTjeneste.hentGeografiskTilknytning(aktørId, gt);
-        return gt;
+        return tilknytningTjeneste.hentGeografiskTilknytning(aktørId);
     }
 
-    public Optional<String> hentDiskresjonskodeForAktør(AktørId aktørId) {
-        return Optional.ofNullable(hentGeografiskTilknytning(aktørId).getDiskresjonskode());
+    public Optional<Tuple<PersonIdent, Diskresjonskode>> hentPersonIdentMedDiskresjonskode(AktørId aktørId) {
+        return hentFnr(aktørId).map(f -> new Tuple<>(f, tilknytningTjeneste.hentDiskresjonskode(aktørId)));
     }
 
     public PersoninfoSpråk hentForetrukketSpråk(AktørId aktørId) {

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,7 +31,6 @@ public class EnhetsTjeneste {
     private static final String TEMA = Tema.FOR.getOffisiellKode(); // Kodeverk Tema
     private static final String OPPGAVETYPE = OppgaveÅrsak.BEHANDLE_SAK.getKode(); // Kodeverk Oppgavetype - NFP , uten spesialenheter
     private static final String ENHET_TYPE_NFP = "FPY"; // NOSONAR Kodeverk EnhetstyperNORG - NFP , uten spesialenheter (alt dropp behtype og filter på denne)
-    private static final String DISKRESJON_K6 = Diskresjonskode.KODE6.getOffisiellKode(); // Kodeverk Diskresjonskoder
     private static final String BEHANDLINGTYPE = BehandlingType.FØRSTEGANGSSØKNAD.getOffisiellKode(); // Kodeverk Behandlingstype, bruker søknad
     private static final String NK_ENHET_ID = "4292";
 
@@ -66,7 +64,8 @@ public class EnhetsTjeneste {
         oppdaterEnhetCache();
         GeografiskTilknytning geografiskTilknytning = personinfoAdapter.hentGeografiskTilknytning(aktørId);
 
-        if (geografiskTilknytning.getTilknytning() == null && geografiskTilknytning.getDiskresjonskode() == null)
+        if (geografiskTilknytning.getTilknytning() == null &&
+            (geografiskTilknytning.getDiskresjonskode() == null || Diskresjonskode.UDEFINERT.equals(geografiskTilknytning.getDiskresjonskode())))
             return tilfeldigEnhet();
 
         return hentEnheterFor(geografiskTilknytning.getTilknytning(), geografiskTilknytning.getDiskresjonskode(), behandlingTema).get(0);
@@ -90,15 +89,14 @@ public class EnhetsTjeneste {
         return aktører.stream()
             .map(personinfoAdapter::hentGeografiskTilknytning)
             .map(GeografiskTilknytning::getDiskresjonskode)
-            .filter(Objects::nonNull)
-            .anyMatch(DISKRESJON_K6::equalsIgnoreCase);
+            .anyMatch(Diskresjonskode.KODE6::equals);
     }
 
     private void oppdaterEnhetCache() {
         if (sisteInnhenting.isBefore(LocalDate.now())) {
-            enhetKode6 = hentEnheterFor(null, DISKRESJON_K6, BehandlingTema.UDEFINERT).get(0);
+            enhetKode6 = hentEnheterFor(null, Diskresjonskode.KODE6, BehandlingTema.UDEFINERT).get(0);
             alleBehandlendeEnheter.clear();
-            alleBehandlendeEnheter.addAll(hentEnheterFor(null, null, BehandlingTema.UDEFINERT));
+            alleBehandlendeEnheter.addAll(hentEnheterFor(null, Diskresjonskode.UDEFINERT, BehandlingTema.UDEFINERT));
             alleBehandlendeEnheter.add(KLAGE_ENHET);
             sisteInnhenting = LocalDate.now();
         }
@@ -127,7 +125,7 @@ public class EnhetsTjeneste {
         return KLAGE_ENHET;
     }
 
-    private List<OrganisasjonsEnhet> hentEnheterFor(String geografi, String diskresjon, BehandlingTema behandlingTema) {
+    private List<OrganisasjonsEnhet> hentEnheterFor(String geografi, Diskresjonskode diskresjon, BehandlingTema behandlingTema) {
         List<ArbeidsfordelingResponse> restenhet;
         var request = ArbeidsfordelingRequest.ny()
             .medTemagruppe(TEMAGRUPPE)
@@ -135,10 +133,10 @@ public class EnhetsTjeneste {
             .medOppgavetype(OPPGAVETYPE)
             .medBehandlingstype(BEHANDLINGTYPE)
             .medBehandlingstema(behandlingTema.getOffisiellKode())
-            .medDiskresjonskode(diskresjon)
+            .medDiskresjonskode(diskresjon.getOffisiellKode())
             .medGeografiskOmraade(geografi)
             .build();
-        if (geografi == null && diskresjon == null) {
+        if (geografi == null && Diskresjonskode.UDEFINERT.equals(diskresjon)) {
             restenhet = norgRest.hentAlleAktiveEnheter(request);
         } else {
             restenhet = norgRest.finnEnhet(request);

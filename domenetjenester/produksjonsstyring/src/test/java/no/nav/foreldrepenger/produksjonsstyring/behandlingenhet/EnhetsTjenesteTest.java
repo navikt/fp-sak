@@ -19,6 +19,7 @@ import org.mockito.stubbing.Answer;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
@@ -41,8 +42,8 @@ public class EnhetsTjenesteTest {
     private static ArbeidsfordelingResponse respNormal = new ArbeidsfordelingResponse("4802", "NAV Bærum", "Aktiv", "FPY");
     private static ArbeidsfordelingResponse respKode6 = new ArbeidsfordelingResponse("2103", "NAV Viken", "Aktiv", "KO");
 
-    private static GeografiskTilknytning tilknytningNormal = new GeografiskTilknytning("0219", null);
-    private static GeografiskTilknytning tilknytningKode6 = new GeografiskTilknytning("0219", "SPSF");
+    private static GeografiskTilknytning tilknytningNormal = new GeografiskTilknytning("0219", Diskresjonskode.UDEFINERT);
+    private static GeografiskTilknytning tilknytningKode6 = new GeografiskTilknytning("0219", Diskresjonskode.KODE6);
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
